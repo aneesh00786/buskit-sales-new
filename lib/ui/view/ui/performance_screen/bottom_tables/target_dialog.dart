@@ -14,23 +14,23 @@ class StaffTargetDialog extends StatefulWidget {
   final StaffController staffController;
   final bool isTarget;
   final bool isProjection;
-  final bool isWeekly;
   const StaffTargetDialog({
     super.key,
     required this.staffController,
     required this.isTarget,
     required this.isProjection,
-    required this.isWeekly,
   });
   @override
   _StaffTargetDialogState createState() => _StaffTargetDialogState();
 }
+
 class _StaffTargetDialogState extends State<StaffTargetDialog>
-  with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   List<TextEditingController> _targetControllers = [];
   List<TextEditingController> _projectionControllers = [];
   final Map<String, List<TextEditingController>> _weeklyTargetControllers = {};
-  final Map<String, List<TextEditingController>> _weeklyProjectionControllers = {};
+  final Map<String, List<TextEditingController>> _weeklyProjectionControllers =
+      {};
   Map<dynamic, String> updatedTargets = {};
   Map<dynamic, String> updatedProjection = {};
   Map<dynamic, String> weeklyTargets = {};
@@ -55,7 +55,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       });
     });
 
-    _loadWeeklyType().then((_) {
+    widget.staffController.loadWeeklyType().then((_) {
       setState(() {
         isLoading = false;
       });
@@ -105,13 +105,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         _initializeControllers();
       });
     });
-  }
-
-  Future<void> _loadWeeklyType() async {
-    final weeklyType = await ApiWorker().getWeeklyType();
-    widget.staffController.isWeekly.value = weeklyType == "true";
-    log("Weekly state target dialog : $weeklyType : ${widget.staffController.isWeekly.value}");
-    Future.delayed(const Duration(seconds: 1));
   }
 
   void _initializeControllers() {
@@ -197,7 +190,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           return _weeklyTargetControllers[week]!.isNotEmpty;
         });
 
-    if (widget.isWeekly && !isDataInitialized) {
+    if (widget.staffController.isWeekly.value && !isDataInitialized) {
       _initializeControllers();
     }
     return Obx(() {
@@ -238,7 +231,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                     ),
                   ),
                   nkSmallSizeBox(),
-                  if (widget.isWeekly == false) ...[
+                  if (widget.staffController.isWeekly.value == false) ...[
                     Container(
                       padding:
                           const EdgeInsets.only(bottom: 8, left: 8, right: 8),
@@ -264,7 +257,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                       ),
                     ),
                   ],
-                  if (widget.isWeekly == true) ...[
+                  if (widget.staffController.isWeekly.value == true) ...[
                     Builder(
                       builder: (context) {
                         final selectedMonth =
@@ -456,9 +449,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
         selectedMonthName,
         currentYear.toString(),
-        widget.isWeekly ? {} : formattedData,
-        widget.isWeekly ? weeklyTargetRequest : {},
-        widget.isWeekly ? weeklyProjectionRequest : {},
+        widget.staffController.isWeekly.value ? {} : formattedData,
+        widget.staffController.isWeekly.value ? weeklyTargetRequest : {},
+        widget.staffController.isWeekly.value ? weeklyProjectionRequest : {},
       );
       widget.staffController.loadSalesmanTargetForSelectedTab(
         currentYear: widget.staffController.selectedDate.year.toString(),
@@ -479,6 +472,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       });
     }
   }
+
   Widget _buildTableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -492,6 +486,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       ),
     );
   }
+
   List<TableRow> _buildCategoryRows() {
     return List.generate(widget.staffController.salesmanTargetTableList.length,
         (index) {
@@ -505,6 +500,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       );
     });
   }
+
   int getWeekNumber(DateTime date) {
     DateTime startOfYear = DateTime(date.year, 1, 1);
     int daysSinceStartOfYear = date.difference(startOfYear).inDays;

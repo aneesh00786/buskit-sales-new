@@ -76,13 +76,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     }
   }
 
-  Future<void> _loadWeeklyType() async {
-    final weeklyType = await ApiWorker().getWeeklyType();
-    log('Weekely Type in Screen $weeklyType');
-    staffController.isWeekly.value = weeklyType == "true";
-    log("Weekly state : $weeklyType : ${staffController.isWeekly.value}");
-    Future.delayed(const Duration(seconds: 1));
-  }
+
 
   @override
   void initState() {
@@ -126,7 +120,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     setState(() => isLoadingSettings = true);
     await Future.wait([
       _loadSettings(),
-      _loadWeeklyType(),
+      staffController.loadWeeklyType(),
     ]);
     setState(() => isLoadingSettings = false);
   }
@@ -479,13 +473,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             staffController: staffController,
                             isProjection: staffProjection == '1' ? true : false,
                             isTarget: targetType == '1' ? true : false,
-                            isWeekly: staffController.isWeekly.value,
+                           
                           )
                         : StaffValueTargetDialog(
                             staffController: staffController,
                             isProjection: staffProjection == '1' ? true : false,
                             isTarget: targetType == '1' ? true : false,
-                            isWeekly: staffController.isWeekly.value,
+                           
                           ),
                   ),
                 )

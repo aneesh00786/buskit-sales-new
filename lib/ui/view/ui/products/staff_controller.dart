@@ -65,6 +65,12 @@ class StaffController extends GetxController {
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
+  Future<void> loadWeeklyType() async {
+    final weeklyType = await ApiWorker().getWeeklyType();
+    log('Weekly Type fetched from API: $weeklyType');
+    isWeekly.value = weeklyType == "true";
+    log("Updated Weekly state: ${isWeekly.value}");
+  }
 
   Future<void> loadSalesmanTarget(String salesmanId, String month, String year,
       String monthName, bool isFromLogin, int compId) async {

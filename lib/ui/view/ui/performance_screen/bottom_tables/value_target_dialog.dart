@@ -7,22 +7,19 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../../api_handler/api_worker.dart';
 
 class StaffValueTargetDialog extends StatefulWidget {
   final StaffController staffController;
   final bool isTarget;
   final bool isProjection;
-  final bool isWeekly;
 
   const StaffValueTargetDialog({
     super.key,
     required this.staffController,
     required this.isTarget,
     required this.isProjection,
-    required this.isWeekly,
   });
 
   @override
@@ -33,33 +30,30 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     with SingleTickerProviderStateMixin {
   List<TextEditingController> _projectionControllers = [];
   List<TextEditingController> _weeklyProjectionControllers = [];
-
+  StaffController staffController = Get.put(StaffController());
   final int currentMonth = DateTime.now().month;
   final int currentYear = DateTime.now().year;
-
   bool _isLoading = true;
-
   @override
-  void initState() {
-    super.initState();
-    _loadWeeklyType();
-    _initializeState();
-    log("WEEKLY ${widget.isWeekly}");
-    widget.staffController.tabController.addListener(_handleTabChange);
-  }
+@override
+@override
+void initState() {
+  super.initState();
+  staffController.loadWeeklyType();
+  staffController.isWeekly.listen((value) {
+    log("WEEKLY value updated: $value");
+    _loadSalesmanValueTarget();
+  });
+  _initializeState();
+  staffController.tabController.addListener(_handleTabChange);
+}
 
-  Future<void> _loadWeeklyType() async {
-    final weeklyType = await ApiWorker().getWeeklyType();
-    widget.staffController.isWeekly.value = weeklyType == "true";
-    log("Weekly state : $weeklyType : ${widget.staffController.isWeekly.value}");
-    Future.delayed(const Duration(seconds: 1));
-  }
 
   @override
   void dispose() {
     _projectionControllers.clear();
     _weeklyProjectionControllers.clear();
-    widget.staffController.salesmanValueTargetList.clear();
+    staffController.salesmanValueTargetList.clear();
     for (var controller in _weeklyProjectionControllers) {
       controller.dispose();
     }
@@ -74,7 +68,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
   void _handleTabChange() {
     if (mounted && ModalRoute.of(context)?.isCurrent == true) {
-      if (!widget.staffController.tabController.indexIsChanging) {
+      if (!staffController.tabController.indexIsChanging) {
         _loadSalesmanValueTarget();
       }
     }
@@ -84,21 +78,21 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     // setState(() {
     _isLoading = true;
     // });
-    log("WEEKLY 2 ${widget.isWeekly}");
-    await widget.staffController
+    log("WEEKLY 2345 ${staffController.isWeekly.value}");
+    await staffController
         .loadSalesmanValueTarget(
       SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
       currentYear.toString(),
-      widget.isWeekly
+      staffController.isWeekly.value
           ? DateFormat.MMMM().format(
-              DateTime(0, widget.staffController.tabController.index + 1))
+              DateTime(0, staffController.tabController.index + 1))
           : null,
     )
         .then((_) {
       setState(() {
-        if (widget.staffController.salesmanValueTargetList.isNotEmpty) {
+        if (staffController.salesmanValueTargetList.isNotEmpty) {
           final salesData =
-              widget.staffController.salesmanValueTargetList.first;
+              staffController.salesmanValueTargetList.first;
           final weeklyTargetProjection =
               salesData.weeklyTargetProjection?.toJson() ?? {};
 
@@ -108,7 +102,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           );
 
           for (int i = 0;
-              i < widget.staffController.salesmanValueTargetList.length;
+              i < staffController.salesmanValueTargetList.length;
               i++) {
             _projectionControllers[i].text = widget
                 .staffController.salesmanValueTargetList[i].projection
@@ -116,7 +110,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           }
           final relevantWeeks = getWeeksForMonth(
               int.parse(salesData.year.toString()),
-              widget.staffController.tabController.index + 1);
+              staffController.tabController.index + 1);
 
           _weeklyProjectionControllers = List.generate(
             relevantWeeks.length,
@@ -151,7 +145,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading || widget.staffController.isValueTargetLoading.value
+    return _isLoading || staffController.isValueTargetLoading.value
         ? const SizedBox(
             height: 150,
             child: Center(
@@ -189,7 +183,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                   ),
                 ),
                 nkSmallSizeBox(),
-                if (!widget.isWeekly) ...[
+                if (!staffController.isWeekly.value) ...[
                   Container(
                     // width: MediaQuery.of(context).size.width * 0.7,
                     width: double.maxFinite,
@@ -217,7 +211,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                     ),
                   ),
                 ],
-                if (widget.isWeekly) ...[
+                if (staffController.isWeekly.value) ...[
                   Container(
                     padding:
                         const EdgeInsets.only(bottom: 8, left: 8, right: 8),
@@ -299,7 +293,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   }
 
   // List<TableRow> _buildCategoryRows() {
-  //   if (widget.staffController.salesmanValueTargetList.isEmpty) {
+  //   if (staffController.salesmanValueTargetList.isEmpty) {
   //     return List.generate(12, (index) {
   //       final monthName = _getMonthName(index + 1);
   //       return TableRow(
@@ -315,9 +309,9 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   //     });
   //   } else {
   //     return List.generate(
-  //         widget.staffController.salesmanValueTargetList.length, (index) {
+  //         staffController.salesmanValueTargetList.length, (index) {
   //       final targetData =
-  //           widget.staffController.salesmanValueTargetList[index];
+  //           staffController.salesmanValueTargetList[index];
   //       return TableRow(
   //         children: [
   //           _buildTableCell(targetData.month.toString()),
@@ -341,7 +335,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     while (_projectionControllers.length < 12) {
       _projectionControllers.add(TextEditingController());
     }
-    if (widget.staffController.salesmanValueTargetList.isEmpty) {
+    if (staffController.salesmanValueTargetList.isEmpty) {
       log('This item is getting Worked');
       return List.generate(12, (index) {
         final monthName = _getMonthName(index + 1);
@@ -358,8 +352,8 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       return List.generate(12, (index) {
         final monthName = _getMonthName(index + 1);
         final targetData =
-            index < widget.staffController.salesmanValueTargetList.length
-                ? widget.staffController.salesmanValueTargetList[index]
+            index < staffController.salesmanValueTargetList.length
+                ? staffController.salesmanValueTargetList[index]
                 : null;
 
         return TableRow(
@@ -400,9 +394,9 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     final allWeeklyRows = <TableRow>[];
 
     final selectedMonth = DateFormat.MMMM()
-        .format(DateTime(0, widget.staffController.tabController.index + 1));
+        .format(DateTime(0, staffController.tabController.index + 1));
 
-    final salesData = widget.staffController.salesmanValueTargetList.firstWhere(
+    final salesData = staffController.salesmanValueTargetList.firstWhere(
       (data) => data.month == selectedMonth,
       orElse: () {
         log("No sales data found for month: $selectedMonth");
@@ -426,7 +420,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
     final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
-        widget.staffController.tabController.index + 1);
+        staffController.tabController.index + 1);
     _weeklyProjectionControllers = List.generate(
       relevantWeeks.length,
       (index) => TextEditingController(text: '0'),
@@ -506,13 +500,13 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     Map<String, dynamic> monthTarget = {};
     Map<String, dynamic> weeklyTarget = {};
 
-    if (widget.staffController.salesmanValueTargetList.isNotEmpty) {
+    if (staffController.salesmanValueTargetList.isNotEmpty) {
       for (int i = 0;
-          i < widget.staffController.salesmanValueTargetList.length;
+          i < staffController.salesmanValueTargetList.length;
           i++) {
-        final targetData = widget.staffController.salesmanValueTargetList[i];
+        final targetData = staffController.salesmanValueTargetList[i];
         final targetValue =
-            widget.staffController.salesmanValueTargetList[i].target.toString();
+            staffController.salesmanValueTargetList[i].target.toString();
         final projectionValue = _projectionControllers[i].text.trim();
 
         monthTarget[targetData.month.toString()] = [
@@ -524,11 +518,11 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       }
     }
 
-    if (widget.staffController.salesmanValueTargetList.isEmpty) {
+    if (staffController.salesmanValueTargetList.isEmpty) {
       for (int i = 0; i < 12; i++) {
         final monthName = _getMonthName(i + 1);
         final targetValue =
-            widget.staffController.salesmanValueTargetList[i].target.toString();
+            staffController.salesmanValueTargetList[i].target.toString();
         final projectionValue = _projectionControllers[i].text.trim();
 
         monthTarget[monthName] = [
@@ -541,9 +535,9 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     }
 
     final selectedMonth = DateFormat.MMMM()
-        .format(DateTime(0, widget.staffController.tabController.index + 1));
+        .format(DateTime(0, staffController.tabController.index + 1));
 
-    final salesData = widget.staffController.salesmanValueTargetList.firstWhere(
+    final salesData = staffController.salesmanValueTargetList.firstWhere(
       (data) => data.month == selectedMonth,
     );
 
@@ -551,7 +545,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
     final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
-        widget.staffController.tabController.index + 1);
+        staffController.tabController.index + 1);
 
     for (var i = 0; i < relevantWeeks.length; i++) {
       final week = relevantWeeks[i];
@@ -580,17 +574,17 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     });
 
     try {
-      await widget.staffController.updateValueBasedTarget(
+      await staffController.updateValueBasedTarget(
         SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
         currentYear.toString(),
-        _getMonthName(widget.staffController.tabController.index + 1),
-        widget.staffController.isWeekly.value ? {} : monthTarget,
-        widget.staffController.isWeekly.value ? weeklyTarget : {},
+        _getMonthName(staffController.tabController.index + 1),
+        staffController.isWeekly.value ? {} : monthTarget,
+        staffController.isWeekly.value ? weeklyTarget : {},
       );
 
-      widget.staffController.loadSalesmanTargetForSelectedTab(
-        currentYear: widget.staffController.selectedDate.year.toString(),
-        selectedTabIndex: widget.staffController.tabController.index + 1,
+      staffController.loadSalesmanTargetForSelectedTab(
+        currentYear: staffController.selectedDate.year.toString(),
+        selectedTabIndex: staffController.tabController.index + 1,
         staffId: SessionHelper.loginSavedData?.salesmanId ?? '',
       );
 
@@ -613,11 +607,11 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
  // Map<String, dynamic> monthTarget = {};
 
-    // if (widget.staffController.salesmanValueTargetList.isNotEmpty) {
+    // if (staffController.salesmanValueTargetList.isNotEmpty) {
     //   for (int i = 0;
-    //       i < widget.staffController.salesmanValueTargetList.length;
+    //       i < staffController.salesmanValueTargetList.length;
     //       i++) {
-    //     final targetData = widget.staffController.salesmanValueTargetList[i];
+    //     final targetData = staffController.salesmanValueTargetList[i];
     //     final targetValue = _targetControllers[i].text.trim();
     //     final projectionValue = _projectionControllers[i].text.trim();
 
@@ -630,7 +624,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     //   }
     // }
 
-    // if (widget.staffController.salesmanValueTargetList.isEmpty) {
+    // if (staffController.salesmanValueTargetList.isEmpty) {
     //   for (int i = 0; i < 12; i++) {
     //     final monthName = _getMonthName(i + 1);
     //     final targetValue = _targetControllers[i].text.trim();
@@ -650,7 +644,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     // });
 
     // try {
-    //   await widget.staffController.updateValueBasedTarget(
+    //   await staffController.updateValueBasedTarget(
     //     widget.staffData.salesmanId.toString(),
     //     currentYear.toString(),
     //     monthTarget,
@@ -667,7 +661,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     //   setState(() {
     //     _isLoading = false;
     //   });
-    //   await widget.staffController.loadStaffDataList;
+    //   await staffController.loadStaffDataList;
     //   Navigator.of(context).pop();
     // }
 
@@ -680,9 +674,9 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   //   final allWeeklyRows = <TableRow>[];
 
   //   final selectedMonth = DateFormat.MMMM()
-  //       .format(DateTime(0, widget.staffController.tabController.index + 1));
+  //       .format(DateTime(0, staffController.tabController.index + 1));
 
-  //   final salesData = widget.staffController.salesmanValueTargetList.firstWhere(
+  //   final salesData = staffController.salesmanValueTargetList.firstWhere(
   //     (data) => data.month == selectedMonth,
   //   );
 
@@ -690,7 +684,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   //       salesData.weeklyTargetProjection?.toJson() ?? {};
 
   //   final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
-  //       widget.staffController.tabController.index + 1);
+  //       staffController.tabController.index + 1);
 
   //   for (var week in relevantWeeks) {
   //     final weekKey = "week$week";
@@ -744,24 +738,24 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
 
   // void _loadSalesmanValueTarget() async {
-  //   await widget.staffController
+  //   await staffController
   //       .loadSalesmanValueTarget(
   //     SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
   //     currentYear.toString(),
   //     widget.isWeekly
   //         ? DateFormat.MMMM().format(
-  //             DateTime(0, widget.staffController.tabController.index + 1))
+  //             DateTime(0, staffController.tabController.index + 1))
   //         : null,
   //   )
   //       .then((_) {
   //     setState(() {
-  //       if (widget.staffController.salesmanValueTargetList.isEmpty) {
+  //       if (staffController.salesmanValueTargetList.isEmpty) {
   //         _targetControllers =
   //             List.generate(12, (index) => TextEditingController(text: '0'));
   //         _projectionControllers =
   //             List.generate(12, (index) => TextEditingController(text: '0'));
   //       } else {
-  //         _targetControllers = widget.staffController.salesmanValueTargetList
+  //         _targetControllers = staffController.salesmanValueTargetList
   //             .map(
   //                 (data) => TextEditingController(text: data.target.toString()))
   //             .toList();

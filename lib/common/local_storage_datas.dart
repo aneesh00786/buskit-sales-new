@@ -88,6 +88,12 @@ class LocalStorage {
         .map((json) => CategoryPerformancee.fromJson(json))
         .toList();
 
+        var monthPerformanceList =
+        jsonResponse['data']['monthly_performance'] as List;
+    List<MonthlyPerformancee> montlyPerformance = monthPerformanceList
+        .map((json) => MonthlyPerformancee.fromJson(json))
+        .toList();
+
     final revenueJson =
         jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
     final Revenuee revenue = Revenuee.fromJson(revenueJson);
@@ -113,6 +119,7 @@ class LocalStorage {
       message: jsonResponse['message'] ?? '',
       allCategory: allCategory,
       categoryPerformance: categoryPerformance,
+      monthlyPerformance: montlyPerformance,
       revenue: revenue,
       collection: collection,
       delivery: delivery,

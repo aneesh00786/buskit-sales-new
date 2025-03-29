@@ -442,26 +442,29 @@ class ScheduleListCustomer {
 
 //####################################### VALUE TARGET ###########################################
 class SalesmanValueTargetResponse {
-  bool success;
-  List<SalesmanValueTargetData> data;
-
+  bool? success; 
+  List<SalesmanValueTargetData>? data; 
   SalesmanValueTargetResponse({
-    required this.success,
-    required this.data,
+    this.success,
+    this.data,
   });
-
   factory SalesmanValueTargetResponse.fromJson(Map<String, dynamic> json) =>
       SalesmanValueTargetResponse(
-        success: json["success"],
-        data: List<SalesmanValueTargetData>.from(
-            json["data"].map((x) => SalesmanValueTargetData.fromJson(x))),
+        success: json["success"] as bool?,
+        data: json["data"] != null
+            ? List<SalesmanValueTargetData>.from(
+                (json["data"] as List<dynamic>)
+                    .map((x) => SalesmanValueTargetData.fromJson(x)))
+            : null,
       );
-
   Map<String, dynamic> toJson() => {
         "success": success,
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "data": data != null
+            ? List<dynamic>.from(data!.map((x) => x.toJson()))
+            : null,
       };
 }
+
 
 class SalesmanValueTargetData {
   int? id;

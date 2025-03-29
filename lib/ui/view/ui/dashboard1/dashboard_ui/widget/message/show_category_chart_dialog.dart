@@ -1,9 +1,9 @@
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -103,14 +103,23 @@ void showCategoryChartDialog(
                                   final categories = snapshot.data!.allCategory;
                                   final categoryPerformance =
                                       snapshot.data!.categoryPerformance;
+                                  final monthlyPerformance =
+                                      snapshot.data!.monthlyPerformance;
 
                                   return Center(
                                       child: CustomBarChart(
-                                    categoryPerformance: categoryPerformance!,
+                                    categoryPerformance: categoryPerformance??[],
+                                    monthlyPerformance: monthlyPerformance??[],
                                     allCategory: categories!,
                                     staffProjection: staffProjection,
                                     targetType: categoryTarget,
-                                   // isScroll: false,
+                                    isMonthly:
+                                        categoryTarget == '0' ? true : false,
+                                    isDayOrRange: provider.selectedFilter ==
+                                            FilterDateEnum.range ||
+                                        provider.selectedFilter ==
+                                            FilterDateEnum.today,
+                                    // isScroll: false,
                                   ));
                                 } else {
                                   return const NodataWidget();

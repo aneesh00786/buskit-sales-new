@@ -666,7 +666,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     if (staffProjection == "1" && targetType == "1") {
       displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "1" && targetType == "0") {
-      displayText = "Category Actuals";
+     displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "0" && targetType == "1") {
       displayText = "Category Target / Actuals";
     } else {
@@ -769,14 +769,17 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           final categories = snapshot.data!.allCategory;
                           final categoryPerformance =
                               snapshot.data!.categoryPerformance;
+                          final monthlyPerformance =
+                                  snapshot.data!.monthlyPerformance;
 
                           return Center(
                             child: CustomBarChart(
                               categoryPerformance: categoryPerformance!,
+                              monthlyPerformance: monthlyPerformance??[],
                               allCategory: categories!,
-                              staffProjection:
-                                  targetType == '1' ? staffProjection : '0',
-                              targetType: targetType == '1' ? '1' : '0',
+                              staffProjection:staffProjection,
+                              targetType: targetType,
+                              isMonthly: targetType == '0' ? true : false,
                               isDayOrRange: provider.selectedFilter ==
                                         FilterDateEnum.range ||
                                     provider.selectedFilter ==

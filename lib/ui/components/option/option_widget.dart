@@ -773,7 +773,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                         children: [
                                           Expanded(
                                             child: DataTable(
-                                                dataRowHeight: fontSize * 5.5,
+                                                dataRowHeight: 0,
                                                 headingRowHeight:
                                                     fullScreenWidth(context) >
                                                             740
@@ -1509,7 +1509,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                       children: [
                                         Expanded(
                                           child: DataTable(
-                                              dataRowHeight: fontSize * 5.5,
+                                              dataRowHeight: 0,
                                               headingRowHeight: 45,
                                               headingRowColor:
                                                   const WidgetStatePropertyAll(

@@ -37,6 +37,7 @@ class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
   static const String _baseUrl1 = ApiConstants.baseUrl1;
   final LocalStorage localStorage = LocalStorage();
+  final ConnectivityService _connectivityService = ConnectivityService();
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   ApiService() {
@@ -130,17 +131,19 @@ class ApiService {
     final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
     log("GET_DASHBOARD_LIST request URL: $url");
     final Map<String, dynamic> requestBody = {
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? "",
+      //come_back
+      "salesman_id": "",
       "selected_range": sendData,
       "time_range": fetchType == "Year" ? "year" : fetchType,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "year": fetchType == "Year" ? year : DateTime.now().year,
     };
-    log("GET_DASHBOARD_LIST request body: $requestBody");
+    log("GET_DASHBOARD_LIST request body453: $requestBody");
     final dashboardBox = Hive.box('dashboardBox');
     try {
-      final connectivity = await Connectivity().checkConnectivity();
-      if (connectivity == ConnectivityResult.none) {
+      bool isOnline = await _connectivityService.isOnline();
+      ;
+      if (!isOnline) {
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
           log("Returning cached dashboard data.");
@@ -162,9 +165,7 @@ class ApiService {
         ),
         data: jsonEncode(requestBody),
       );
-
       log("GET_DASHBOARD_LIST response: ${response.data}");
-
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         await dashboardBox.put(
@@ -301,8 +302,55 @@ class ApiService {
       "catId": catId,
       "time_range": fetchType,
       "selected_range": sendData,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "year": 2025,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        var allCategoryList = jsonResponse['data'] as List;
+        List<Salesmanvn> allCategory =
+            allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+
+        return ResponseModelCp(
+            statusCode: jsonResponse['status_code'] ?? 0,
+            status: jsonResponse['status'] ?? false,
+            message: jsonResponse['message'] ?? '',
+            data: allCategory);
+      } else {
+        print('Request failed with status 1: ${response.statusCode}');
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Exception occurred 1: $e');
+      throw Exception('Failed to fetch data: $e');
+    }
+  }
+
+  Future<ResponseModelCp> fetchDashboardValuePerformanceData({
+    required String catId,
+    String? fetchType,
+    String? startDate,
+    String? endDate,
+    String? selectedDay,
+    List<String>? selectedMonths,
+    List<String>? selectedWeeks,
+    int? year,
+  }) async {
+    final url = Uri.parse('$_baseUrl1/fetchValuePerformance');
+
+    final requestBody = {
+      "month": catId,
+      "time_range": "Month",
+      "year": 2025,
+      "salesman_id": "",
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
@@ -371,7 +419,7 @@ class ApiService {
       "categories_id": catId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": "",
-      "salesman_id":  SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "bar_type": fetchType,
       "range_type": fetchType,
       "selected_range": sendData,
@@ -442,7 +490,7 @@ class ApiService {
 
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "bar_type": "Month",
       "time_range": fetchType,
       "selected_range": sendData,
@@ -1023,7 +1071,7 @@ class ApiService {
     required int page,
     required dynamic valueFromDw,
   }) async {
-        String value;
+    String value;
     switch (valueFromDw) {
       case 'Month':
         value = 'This Month';
@@ -1064,7 +1112,7 @@ class ApiService {
         body: jsonEncode(requestBody),
       );
       log('fetchCustomer : ${response.statusCode}');
-      log('fetchCustomer Body: ${response.body}');
+      // log('fetchCustomer Body: ${response.body}');
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
 
@@ -1552,7 +1600,6 @@ class DashboardProvider with ChangeNotifier {
   List<String> _selectedFilterMonths = [];
   List<String> get selectedFilterMonths => _selectedFilterMonths;
 
-  
   List<orderResponseModel.OrderData> _chartOrderData = [];
   List<orderResponseModel.OrderData> get chartOrderData => _chartOrderData;
 
@@ -1626,6 +1673,9 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModelCp>? _responseModelCp;
 
   Future<ResponseModelCp>? get responseModelCp => _responseModelCp;
+
+  Future<ResponseModelCp>? _responseModelNewCp;
+  Future<ResponseModelCp>? get responseModelNewCp => _responseModelNewCp;
 
   void resetProvider() {
     _futureResponseModel = null;
@@ -1713,6 +1763,35 @@ class DashboardProvider with ChangeNotifier {
       _responseModelCp = Future.delayed(const Duration(milliseconds: 300), () {
         return _apiService.fetchDashboardCategoruPerformenceData(
           catId: catId,
+          startDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+          endDate:
+              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+          fetchType: _selectedFilterName,
+          selectedDay:
+              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+              ? _selectedFilterMonths
+              : [],
+          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+              ? _selectedFilterWeeks
+              : [],
+          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+        );
+      });
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> fetchchartValuePerformance(
+      String month, String timeRange) async {
+    try {
+      _responseModelNewCp =
+          Future.delayed(const Duration(milliseconds: 300), () {
+        return _apiService.fetchDashboardValuePerformanceData(
+          catId: month,
           startDate:
               _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
           endDate:

@@ -259,7 +259,6 @@ class StaffController extends GetxController {
       String salesmanId, String year, String? month) async {
     try {
       isValueTargetLoading.value = true;
-
       var data =
           await ApiWorker().fetchSalesmanValueTarget(salesmanId, year, month);
       salesmanValueTargetList.assignAll(data?.data ?? []);

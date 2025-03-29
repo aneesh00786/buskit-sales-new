@@ -1698,13 +1698,13 @@ class ApiWorker with ApiConstants {
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
-      if (month != null) "month": month,
+       if (month != null) "month": month,
       "companyId": companyId,
     };
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
     final targetBox = Hive.box('salesmanValueTargetBox');
-    log("fetchSalesmanValueTarget request: $requestPayload");
+    log("Salesman Value Target Response: $requestPayload");
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
       bool isOnline = connectivityResult != ConnectivityResult.none;
@@ -1720,7 +1720,7 @@ class ApiWorker with ApiConstants {
         });
         log("Salesman Value Target Response: $response");
         if (response.statusCode == 200) {
-          final dynamic jsonData = response.data['data'];
+          final dynamic jsonData = response.data;
           if (jsonData is Map<String, dynamic>) {
             log("Salesman Value Target Data: $jsonData");
             await targetBox.put(cacheKey, jsonData);

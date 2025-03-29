@@ -37,7 +37,6 @@ class SessionHelper {
       SpString.settingsKey,
       jsonEncode(jsonList),
     );
-    log('Settings data saved: $jsonList');
     settingsData = settingsList;
   }
 

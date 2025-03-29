@@ -35,6 +35,13 @@ showBarchartDialog(
               double contentHeight =
                   listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
 
+              num totalTarget =
+                  categories.fold(0, (sum, item) => sum + item.targetTotal!);
+              num totalProjection = categories.fold(
+                  0, (sum, item) => sum + item.projectionTotal!);
+              num totalActual = categories.fold(
+                  0, (sum, item) => sum + num.parse(item.orderTotal));
+
               return ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: maxDialogHeight,
@@ -86,12 +93,12 @@ showBarchartDialog(
                               ),
                             ),
                            if (!isDayOrRange) ...[
-                              if (targertType == '1') ...[
+                              // if (targertType == '1') ...[
                                 const DialogTableHeaderText(
                                   text: 'Target',
                                   fontSize: 13,
                                 ),
-                              ],
+                              // ],
                               if (staffProjection == '1') ...[
                                 const DialogTableHeaderText(
                                   text: 'Projection',
@@ -142,7 +149,7 @@ showBarchartDialog(
                                       ),
                                     ),
                                     if (!isDayOrRange) ...[
-                                    if (targertType == '1') ...[
+                                    // if (targertType == '1') ...[
                                       Expanded(
                                         child: Center(
                                           child: InkWell(
@@ -172,7 +179,7 @@ showBarchartDialog(
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    // ],
                                     if (staffProjection == '1') ...[
                                       Expanded(
                                         child: Center(
@@ -237,6 +244,53 @@ showBarchartDialog(
                               );
                             },
                           ),
+                        ),
+                      ),
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                        height: rowHeight,
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: CustomText(
+                                    fontWeight: FontWeight.w600,
+                                    textAlign: TextAlign.center,
+                                    content: 'Total',
+                                    fontSize: 11,
+                                    maxLine: 1)),
+                            if (!isDayOrRange
+                                //  && categoryTarget == '1'
+                                )
+                              Expanded(
+                                  child: CustomText(
+                                      fontWeight: FontWeight.w600,
+                                      textAlign: TextAlign.center,
+                                      content: formatAmount(totalTarget),
+                                      fontSize: 11,
+                                      maxLine: 1)),
+                            if (!isDayOrRange && staffProjection == '1')
+                              Expanded(
+                                  child: CustomText(
+                                      fontWeight: FontWeight.w600,
+                                      textAlign: TextAlign.center,
+                                      content: formatAmount(totalProjection),
+                                      fontSize: 11,
+                                      maxLine: 1)),
+                            Expanded(
+                                child: CustomText(
+                                    fontWeight: FontWeight.w600,
+                                    textAlign: TextAlign.center,
+                                    content: formatAmount(totalActual),
+                                    fontSize: 11,
+                                    maxLine: 1)),
+                          ],
                         ),
                       ),
                     ],

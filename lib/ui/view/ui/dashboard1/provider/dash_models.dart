@@ -100,6 +100,54 @@ class CategoryPerformancee {
   }
 }
 
+class MonthlyPerformancee {
+  final String? cid;
+  final num? actualProjection;
+  final num? actualTarget;
+  final num? actualSales;
+  final int? year;
+  final String? month;
+  final String? week;
+  final String? barType;
+
+  MonthlyPerformancee({
+    this.cid,
+    this.actualProjection,
+    this.actualTarget,
+    this.actualSales,
+    this.year,
+    this.month,
+    this.week,
+    this.barType,
+  });
+
+  factory MonthlyPerformancee.fromJson(Map<String, dynamic> json) {
+    return MonthlyPerformancee(
+      cid: json['cid'] as String?,
+      actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
+      actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
+      actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,
+      year: json['year'] as int?,
+      month: json['month'] as String?,
+      week: json['week'] as String?,
+      barType: json['bar_type'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cid': cid,
+      'actual_projection': actualProjection,
+      'actual_target': actualTarget,
+      'actual_sales': actualSales,
+      'year': year,                                 
+      'month': month,
+      'week': week,
+      'bar_type': barType,
+    };
+  }
+}
+
 class ResponseModelCp {
   final int? statusCode;
   final bool? status;
@@ -357,6 +405,8 @@ class ResponseModell {
   final String? message;
   final List<Category>? allCategory;
   final List<CategoryPerformancee>? categoryPerformance;
+  
+  final List<MonthlyPerformancee>? monthlyPerformance;
   final Revenuee? revenue;
   final Collection? collection;
   final Delivery? delivery;
@@ -369,6 +419,7 @@ class ResponseModell {
     this.message,
     this.allCategory,
     this.categoryPerformance,
+    this.monthlyPerformance,
     this.revenue,
     this.collection,
     this.delivery,
@@ -386,6 +437,11 @@ class ResponseModell {
     List<CategoryPerformancee> categoryPerformance =
         performanceList.map((e) => CategoryPerformancee.fromJson(e)).toList();
 
+    var monthPerformanceList =
+        (json['data']?['monthly_performance'] as List?) ?? [];
+    List<MonthlyPerformancee> monthlyPerformance =
+        monthPerformanceList.map((e) => MonthlyPerformancee.fromJson(e)).toList();
+
     var topSellingList = (json['data']?['top_selling_product'] as List?) ?? [];
     List<TopSellingProductA> topSellingProducts =
         topSellingList.map((e) => TopSellingProductA.fromJson(e)).toList();
@@ -396,6 +452,7 @@ class ResponseModell {
       message: json['message'] as String? ?? '',
       allCategory: allCategory,
       categoryPerformance: categoryPerformance,
+      monthlyPerformance: monthlyPerformance,
       revenue: json['data']?['revenu'] != null
           ? Revenuee.fromJson(json['data']?['revenu'])
           : null,

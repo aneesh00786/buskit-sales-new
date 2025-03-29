@@ -205,23 +205,28 @@ class BarChartSample extends StatelessWidget {
     );
   }
 }
+
 // ignore: must_be_immutable
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
+  final List<MonthlyPerformancee> monthlyPerformance;
   String staffProjection;
   String targetType;
   bool isScroll;
-    bool isDayOrRange;
+  bool isMonthly;
+  bool isDayOrRange;
 
   CustomBarChart({
     super.key,
     required this.allCategory,
     required this.categoryPerformance,
+    required this.monthlyPerformance,
     required this.staffProjection,
     required this.targetType,
     this.isScroll = true,
-        this.isDayOrRange = false,
+    this.isMonthly = false,
+    this.isDayOrRange = false,
   });
 
   @override
@@ -253,14 +258,32 @@ class _CustomBarChartState extends State<CustomBarChart> {
           salesman: [],
         ),
       );
-      num target = perf.actualTarget ?? 0.0;
-      num projection = perf.actualProjection ?? 0.0;
-      num actual = perf.actualSales ?? 0.0;
+      MonthlyPerformancee? monthPerf = widget.monthlyPerformance
+          .firstWhere((performance) => performance.cid == category.category,
+              orElse: () => MonthlyPerformancee(
+                    cid: '',
+                    actualProjection: 0.0,
+                    actualSales: 0.0,
+                    actualTarget: 0.0,
+                    barType: '',
+                    month: '',
+                    week: '',
+                    year: 0,
+                  ));
+      num target = widget.isMonthly
+          ? monthPerf.actualTarget ?? 0.0
+          : perf.actualTarget ?? 0.0;
+      num projection = widget.isMonthly
+          ? monthPerf.actualProjection ?? 0.0
+          : perf.actualProjection ?? 0.0;
+      num actual = widget.isMonthly
+          ? monthPerf.actualSales ?? 0.0
+          : perf.actualSales ?? 0.0;
       return BarChartGroupData(
         x: index,
         barRods: [
-         if (!widget.isDayOrRange) ...[
-            if (widget.targetType == "1")
+          if (!widget.isDayOrRange) ...[
+            // if (widget.targetType == "1")
               BarChartRodData(
                 toY: target.toDouble(),
                 color: const Color(0xff3b6491),
@@ -320,11 +343,15 @@ class _CustomBarChartState extends State<CustomBarChart> {
                         final categories = snapshot.data!.data;
                         Navigator.of(context).pop();
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          showBarchartDialog(context, category, categories ?? [],
-                        widget.targetType, widget.staffProjection,
-                        provider,
-                        cid,
-                        isDayOrRange: widget.isDayOrRange);
+                          showBarchartDialog(
+                              context,
+                              category,
+                              categories ?? [],
+                              widget.targetType,
+                              widget.staffProjection,
+                              provider,
+                              cid,
+                              isDayOrRange: widget.isDayOrRange);
                         });
                         return const SizedBox.shrink();
                       } else {
@@ -345,8 +372,58 @@ class _CustomBarChartState extends State<CustomBarChart> {
             // ignore: use_build_context_synchronously
           )
         // ignore: use_build_context_synchronously
-        :     NkCommonFunction.showErrorSnakBar(
-        'No internet connection. Unable to fetch data.');
+        : NkCommonFunction.showErrorSnakBar(
+            'No internet connection. Unable to fetch data.');
+  }
+
+  void _showSalesmanPopupMonthly(String cid, String month) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer<DashboardProvider>(
+          builder: (context, provider, child) {
+            provider.fetchchartValuePerformance(cid, "Month");
+            return FutureBuilder<ResponseModelCp>(
+              future: provider.responseModelNewCp,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return AlertDialog(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  final categories = snapshot.data!.data;
+                  Navigator.of(context).pop();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showBarchartDialog(context, cid, categories ?? [],
+                        widget.targetType, widget.staffProjection, provider, 0,
+                        isDayOrRange: widget.isDayOrRange);
+                  });
+                  return const SizedBox.shrink();
+                } else {
+                  return const AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Center(
+                      child: Text('No data available'),
+                    ),
+                  );
+                }
+              },
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget getBottomTitles(double value, TitleMeta meta) {
@@ -457,8 +534,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
               padding: const EdgeInsets.only(bottom: 8.0),
               child: ScrollbarTheme(
                 data: ScrollbarThemeData(
-                  thumbColor:
-                      WidgetStateProperty.resolveWith<Color>((states) {
+                  thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
                     if (states.contains(WidgetState.dragged)) {
                       return Colors.blueAccent.shade700;
                     }
@@ -481,85 +557,133 @@ class _CustomBarChartState extends State<CustomBarChart> {
                       thumbVisibility: true,
                       trackVisibility: true,
                       thickness: 6,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: SingleChildScrollView(
-                          controller: Provider.of<DashboardProvider>(context,
-                                  listen: false)
-                              .scrollController,
-                          scrollDirection: Axis.horizontal,
-                          physics: const ClampingScrollPhysics(),
-                          child: SizedBox(
-                            width: barGroups.length * 66.0,
+                      child: Row(
+                        children: [
+                          Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 3.0),
-                              child: BarChart(
-                                BarChartData(
-                                  alignment: BarChartAlignment.spaceAround,
-                                  // maxY: getRoundedUpperLimit(),
-                                  maxY: dynamicMaxY.toDouble(),
-                                  barGroups: barGroups,
-                                  titlesData: FlTitlesData(
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        interval: dynamicInterval.toDouble(),
-                                        getTitlesWidget: getLeftTitles,
-                                        reservedSize:
-                                            dynamicMaxY.toString().length * 7 +
-                                                10,
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                // Calculate the required chart width based on the number of bars
+                                double chartWidth = barGroups.length * 66.0;
+
+                                // Ensure chart width is at least as wide as the parent widget
+                                double minWidth = constraints.maxWidth;
+                                double finalWidth = chartWidth > minWidth
+                                    ? chartWidth
+                                    : minWidth;
+                                  return SingleChildScrollView(
+                                    controller: Provider.of<DashboardProvider>(context,
+                                            listen: false)
+                                        .scrollController,
+                                    scrollDirection: Axis.horizontal,
+                                    physics: const ClampingScrollPhysics(),
+                                    child: SizedBox(
+                                      width: finalWidth,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 3.0),
+                                        child: BarChart(
+                                          BarChartData(
+                                            alignment: BarChartAlignment.spaceAround,
+                                            // maxY: getRoundedUpperLimit(),
+                                            maxY: dynamicMaxY.toDouble(),
+                                            barGroups: barGroups,
+                                            titlesData: FlTitlesData(
+                                              leftTitles: AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: true,
+                                                  interval: dynamicInterval.toDouble(),
+                                                  getTitlesWidget: getLeftTitles,
+                                                  reservedSize:
+                                                      dynamicMaxY.toString().length * 7 +
+                                                          10,
+                                                ),
+                                              ),
+                                              bottomTitles: AxisTitles(
+                                                sideTitles: SideTitles(
+                                                  showTitles: true,
+                                                  getTitlesWidget: getBottomTitles,
+                                                  reservedSize: 40,
+                                                ),
+                                              ),
+                                              topTitles: const AxisTitles(
+                                                sideTitles: SideTitles(showTitles: false),
+                                              ),
+                                              rightTitles: const AxisTitles(
+                                                sideTitles: SideTitles(showTitles: false),
+                                              ),
+                                            ),
+                                            borderData: FlBorderData(
+                                              show: true,
+                                              border: Border.all(
+                                                color: const Color(0xffe0e0e0),
+                                                width: 0.9,
+                                              ),
+                                            ),
+                                            barTouchData: widget.targetType == '0'
+                                                ? BarTouchData(
+                                                    touchCallback: (FlTouchEvent event,
+                                                        BarTouchResponse? touchResponse) {
+                                                      if (touchResponse != null &&
+                                                          touchResponse.spot != null &&
+                                                          event is FlTapUpEvent) {
+                                                        final int index = touchResponse
+                                                            .spot!.touchedBarGroupIndex;
+                                                              
+                                                        {
+                                                          MonthlyPerformancee perfMonth =
+                                                              widget.monthlyPerformance
+                                                                  .firstWhere(
+                                                            (performance) =>
+                                                                performance.cid ==
+                                                                widget.allCategory[index]
+                                                                    .category,
+                                                          );
+                                                          _showSalesmanPopupMonthly(
+                                                              perfMonth.cid ?? '',
+                                                              perfMonth.cid ?? '');
+                                                        }
+                                                      }
+                                                    },
+                                                  )
+                                                : BarTouchData(
+                                                    touchCallback: (FlTouchEvent event,
+                                                        BarTouchResponse? touchResponse) {
+                                                      if (touchResponse != null &&
+                                                          touchResponse.spot != null &&
+                                                          event is FlTapUpEvent) {
+                                                        final int index = touchResponse
+                                                            .spot!.touchedBarGroupIndex;
+                                                              
+                                                        {
+                                                          CategoryPerformancee perf =
+                                                              widget.categoryPerformance
+                                                                  .firstWhere(
+                                                            (performance) =>
+                                                                performance.category ==
+                                                                widget.allCategory[index]
+                                                                    .category,
+                                                          );
+                                                              
+                                                          _showSalesmanPopup(
+                                                              perf.cid ?? 0,
+                                                              widget.allCategory[index]
+                                                                      .category ??
+                                                                  '');
+                                                        }
+                                                      }
+                                                    },
+                                                  ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        getTitlesWidget: getBottomTitles,
-                                        reservedSize: 40,
-                                      ),
-                                    ),
-                                    topTitles: const AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                    rightTitles: const AxisTitles(
-                                      sideTitles: SideTitles(showTitles: false),
-                                    ),
-                                  ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(
-                                      color: const Color(0xffe0e0e0),
-                                      width: 0.9,
-                                    ),
-                                  ),
-                                  barTouchData: BarTouchData(
-                                    touchCallback: (FlTouchEvent event,
-                                        BarTouchResponse? touchResponse) {
-                                      if (touchResponse != null &&
-                                          touchResponse.spot != null &&
-                                          event is FlTapUpEvent) {
-                                        final int index = touchResponse
-                                            .spot!.touchedBarGroupIndex;
-                                        CategoryPerformancee perf = widget
-                                            .categoryPerformance
-                                            .firstWhere(
-                                          (performance) =>
-                                              performance.category ==
-                                              widget
-                                                  .allCategory[index].category,
-                                        );
-                                        _showSalesmanPopup(
-                                            perf.cid ?? 0,
-                                            widget.allCategory[index]
-                                                    .category ??
-                                                '');
-                                      }
-                                    },
-                                  ),
-                                ),
+                                  );
+                                }
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                     Padding(
@@ -742,11 +866,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
             ),
           ),
         ],
-       Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (!widget.isDayOrRange) ...[
-              if (widget.targetType == "1")
+              // if (widget.targetType == "1")
                 _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
               if (widget.staffProjection == "1")
                 _buildLegend(

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +45,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     _loadWeeklyType();
     _initializeState();
     log("WEEKLY ${widget.isWeekly}");
-
     widget.staffController.tabController.addListener(_handleTabChange);
   }
 
@@ -60,6 +60,9 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     _projectionControllers.clear();
     _weeklyProjectionControllers.clear();
     widget.staffController.salesmanValueTargetList.clear();
+    for (var controller in _weeklyProjectionControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -111,7 +114,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 .staffController.salesmanValueTargetList[i].projection
                 .toString();
           }
-
           final relevantWeeks = getWeeksForMonth(
               int.parse(salesData.year.toString()),
               widget.staffController.tabController.index + 1);
@@ -296,37 +298,75 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     return monthNames[month - 1];
   }
 
+  // List<TableRow> _buildCategoryRows() {
+  //   if (widget.staffController.salesmanValueTargetList.isEmpty) {
+  //     return List.generate(12, (index) {
+  //       final monthName = _getMonthName(index + 1);
+  //       return TableRow(
+  //         children: [
+  //           _buildTableCell(monthName),
+  //           _buildTableCell(widget
+  //                   .staffController.salesmanValueTargetList[index].target
+  //                   .toString()),
+  //           if (widget.isProjection)
+  //             _buildTableTextField(index, _projectionControllers[index]),
+  //         ],
+  //       );
+  //     });
+  //   } else {
+  //     return List.generate(
+  //         widget.staffController.salesmanValueTargetList.length, (index) {
+  //       final targetData =
+  //           widget.staffController.salesmanValueTargetList[index];
+  //       return TableRow(
+  //         children: [
+  //           _buildTableCell(targetData.month.toString()),
+  //           Container(
+  //             height: 50,
+  //             padding: const EdgeInsets.all(8.0),
+  //             child: Center(
+  //               child: Text(widget
+  //                   .staffController.salesmanValueTargetList[index].target
+  //                   .toString()),
+  //             ),
+  //           ),
+  //           if (widget.isProjection)
+  //             _buildTableTextField(index, _projectionControllers[index]),
+  //         ],
+  //       );
+  //     });
+  //   }
+  // }
   List<TableRow> _buildCategoryRows() {
+    while (_projectionControllers.length < 12) {
+      _projectionControllers.add(TextEditingController());
+    }
     if (widget.staffController.salesmanValueTargetList.isEmpty) {
+      log('This item is getting Worked');
       return List.generate(12, (index) {
         final monthName = _getMonthName(index + 1);
         return TableRow(
           children: [
             _buildTableCell(monthName),
-            _buildTableCell(widget
-                    .staffController.salesmanValueTargetList[index].target
-                    .toString()),
+            _buildTableCell('__'),
             if (widget.isProjection)
               _buildTableTextField(index, _projectionControllers[index]),
           ],
         );
       });
     } else {
-      return List.generate(
-          widget.staffController.salesmanValueTargetList.length, (index) {
+      return List.generate(12, (index) {
+        final monthName = _getMonthName(index + 1);
         final targetData =
-            widget.staffController.salesmanValueTargetList[index];
+            index < widget.staffController.salesmanValueTargetList.length
+                ? widget.staffController.salesmanValueTargetList[index]
+                : null;
+
         return TableRow(
           children: [
-            _buildTableCell(targetData.month.toString()),
-            Container(
-              height: 50,
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(widget
-                    .staffController.salesmanValueTargetList[index].target
-                    .toString()),
-              ),
+            _buildTableCell(monthName),
+            _buildTableCell(
+              targetData?.target?.toString() ?? '',
             ),
             if (widget.isProjection)
               _buildTableTextField(index, _projectionControllers[index]),
@@ -364,13 +404,33 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
     final salesData = widget.staffController.salesmanValueTargetList.firstWhere(
       (data) => data.month == selectedMonth,
+      orElse: () {
+        log("No sales data found for month: $selectedMonth");
+        return SalesmanValueTargetData(
+            month: selectedMonth,
+            year: DateTime.now().year.toString(),
+            weeklyTargetProjection: WeeklyTargetProjection(weeks: {}),
+            actualTotal: '0',
+            companyId: SessionHelper.loginSavedData?.company_id ?? 0,
+            projection: 0,
+            target: 0,
+            id: 0,
+            orderTotal: '0',
+            salesId: SessionHelper.loginSavedData?.salesmanId ?? '');
+      },
     );
+
+    log("SALES DATA $salesData");
 
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
     final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
         widget.staffController.tabController.index + 1);
+    _weeklyProjectionControllers = List.generate(
+      relevantWeeks.length,
+      (index) => TextEditingController(text: '0'),
+    );
 
     for (var i = 0; i < relevantWeeks.length; i++) {
       final week = relevantWeeks[i];

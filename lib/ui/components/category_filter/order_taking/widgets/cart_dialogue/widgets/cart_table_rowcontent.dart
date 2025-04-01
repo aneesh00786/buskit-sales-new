@@ -53,19 +53,22 @@ class GroupedItemDataRows {
       return DataRow(
         cells: [
           DataCell(
-            StatefulBuilder(
-              builder: (context, setState) {
-                return Checkbox(
-                  value: groupedItem.isChecked,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      groupedItem.isChecked = value ?? false;
-                      log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
-                    });
-                    calculateAmount();
-                  },
-                );
-              },
+            SizedBox(
+              width: 30,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Checkbox(
+                    value: groupedItem.isChecked,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        groupedItem.isChecked = value ?? false;
+                        log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
+                      });
+                      calculateAmount();
+                    },
+                  );
+                },
+              ),
             ),
           ),
           DataCell(
@@ -115,7 +118,6 @@ class GroupedItemDataRows {
                 fontSize: fontSize,
                 content: formatAmount(tax - taxDiscountAmount)),
           ),
-
           DataCell(
             Center(
               child: ConstrainedBox(

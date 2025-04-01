@@ -102,11 +102,51 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController remarkController = TextEditingController();
   bool _isLoading = true;
   bool isDraft = true;
+
+  final ScrollController _scrollController1 = ScrollController();
+  final ScrollController _scrollController2 = ScrollController();
+
+  final ScrollController _scrollController3 = ScrollController();
+  final ScrollController _scrollController4 = ScrollController();
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+
+    _scrollController1.addListener(() {
+      if (_scrollController2.hasClients &&
+          _scrollController1.position.pixels !=
+              _scrollController2.position.pixels) {
+        _scrollController2.jumpTo(_scrollController1.position.pixels);
+      }
+    });
+
+    _scrollController2.addListener(() {
+      if (_scrollController1.hasClients &&
+          _scrollController2.position.pixels !=
+              _scrollController1.position.pixels) {
+        _scrollController1.jumpTo(_scrollController2.position.pixels);
+      }
+    });
+
+    _scrollController3.addListener(() {
+      if (_scrollController4.hasClients &&
+          _scrollController3.position.pixels !=
+              _scrollController4.position.pixels) {
+        _scrollController4.jumpTo(_scrollController3.position.pixels);
+      }
+    });
+
+    _scrollController4.addListener(() {
+      if (_scrollController3.hasClients &&
+          _scrollController4.position.pixels !=
+              _scrollController3.position.pixels) {
+        _scrollController3.jumpTo(_scrollController4.position.pixels);
+      }
+    });
+
     localCounts = List<int>.filled(cartItems.length, 0);
     log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
     _loadCartItems();
@@ -448,92 +488,192 @@ class CartDialogueState extends State<CartDialogue> {
                         : Flexible(
                             child: SizedBox(
                               height: dialogHeight * 0.5,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: ScrollbarTheme(
-                                  data: ScrollbarThemeData(
-                                    thumbColor: WidgetStateProperty
-                                        .resolveWith<Color>((states) {
-                                      if (states
-                                          .contains(WidgetState.dragged)) {
-                                        return Colors.blueAccent.shade700;
-                                      }
-                                      return Colors.blueAccent.shade400;
-                                    }),
-                                    trackColor: WidgetStateProperty.all(
-                                        Colors.blue.shade50),
-                                    trackBorderColor: WidgetStateProperty.all(
-                                        Colors.blue.shade100),
-                                    thickness: WidgetStateProperty.all(6),
-                                    radius: const Radius.circular(10),
-                                    minThumbLength: 50,
-                                    thumbVisibility: const WidgetStatePropertyAll(true),
-                                    trackVisibility: const WidgetStatePropertyAll(true),
-                                  ),
-                                  child: Scrollbar(
-
+                              child: Row(
+                                children: [
+                                  Expanded(
                                     child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: SizedBox(
-                                        width: fullScreenWidth(context) * 1.05,
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                children: orderItems
-                                                    .where((item) =>
-                                                        item.detail.stock! > 0)
-                                                    .map((item) =>
-                                                        item.productName)
-                                                    .toSet()
-                                                    .toList()
-                                                    .map((productName) {
-                                                  List<CartItem> groupedItems =
-                                                      orderItems
-                                                          .where((item) =>
-                                                              item.productName ==
-                                                                  productName &&
-                                                              item.detail
-                                                                      .stock! >
-                                                                  0)
-                                                          .toList();
-
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 20),
-                                                    child: _buildGroupedItems(
-                                                      productName: productName,
-                                                      groupedItems:
-                                                          groupedItems,
-                                                      availableWidth:
-                                                          availableWidth,
-                                                      fontSize: fontSize,
-                                                      rowHeight: rowHeight,
-                                                      context: context,
-                                                      productQuantityManager:
-                                                          productQuantityManager,
-                                                      deleteConfirmationDialogue:
-                                                          deleteConfirmationDialogue,
-                                                      isPreOrder: false,
-                                                      calCulateAmount:
-                                                          calculateAmounts,
-                                                    ),
-                                                  );
-                                                }).toList(),
+                                      scrollDirection: Axis.vertical,
+                                      controller: _scrollController4,
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        controller: _scrollController1,
+                                        child: SizedBox(
+                                          width: fullScreenWidth(context) * 1.15,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  children: orderItems
+                                                      .where((item) =>
+                                                          item.detail.stock! > 0)
+                                                      .map((item) => item.productName)
+                                                      .toSet()
+                                                      .toList()
+                                                      .map((productName) {
+                                                    List<CartItem> groupedItems =
+                                                        orderItems
+                                                            .where((item) =>
+                                                                item.productName ==
+                                                                    productName &&
+                                                                item.detail.stock! >
+                                                                    0)
+                                                            .toList();
+                                    
+                                                    return Padding(
+                                                      padding: const EdgeInsets.only(
+                                                          bottom: 20),
+                                                      child: _buildGroupedItems(
+                                                        productName: productName,
+                                                        groupedItems: groupedItems,
+                                                        availableWidth:
+                                                            availableWidth,
+                                                        fontSize: fontSize,
+                                                        rowHeight: rowHeight,
+                                                        context: context,
+                                                        productQuantityManager:
+                                                            productQuantityManager,
+                                                        deleteConfirmationDialogue:
+                                                            deleteConfirmationDialogue,
+                                                        isPreOrder: false,
+                                                        calCulateAmount:
+                                                            calculateAmounts,
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                             
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(
+                                      width: 10,
+                                      child: ScrollbarTheme(
+                                          data: ScrollbarThemeData(
+                                            thumbColor: MaterialStateProperty
+                                                .resolveWith<Color>((states) {
+                                              if (states.contains(
+                                                  MaterialState.dragged)) {
+                                                return Colors
+                                                    .blueAccent.shade700;
+                                              }
+                                              return Colors.blueAccent.shade400;
+                                            }),
+                                            trackColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.blue.shade50),
+                                            trackBorderColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.blue.shade100),
+                                            thickness:
+                                                MaterialStateProperty.all(6),
+                                            radius: const Radius.circular(10),
+                                            minThumbLength: 50,
+                                            thumbVisibility:
+                                                MaterialStateProperty.all(true),
+                                            trackVisibility:
+                                                MaterialStateProperty.all(true),
+                                          ),
+                                          child: Scrollbar(
+                                              thickness: 10,
+                                              thumbVisibility: true,
+                                              trackVisibility: true,
+                                              child: SingleChildScrollView(
+                                                scrollDirection: Axis.vertical,
+                                                controller: _scrollController3,
+                                                child: Expanded(
+                                                  child: Column(
+                                                    children: orderItems
+                                                        .where((item) =>
+                                                            item.detail.stock! >
+                                                            0)
+                                                        .map((item) =>
+                                                            item.productName)
+                                                        .toSet()
+                                                        .toList()
+                                                        .map((productName) {
+                                                      List<CartItem>
+                                                          groupedItems =
+                                                          orderItems
+                                                              .where((item) =>
+                                                                  item.productName ==
+                                                                      productName &&
+                                                                  item.detail
+                                                                          .stock! >
+                                                                      0)
+                                                              .toList();
+
+                                                      return Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                bottom: 20),
+                                                        child:
+                                                            _buildGroupedItems(
+                                                          productName:
+                                                              productName,
+                                                          groupedItems:
+                                                              groupedItems,
+                                                          availableWidth:
+                                                              availableWidth,
+                                                          fontSize: fontSize,
+                                                          rowHeight: rowHeight,
+                                                          context: context,
+                                                          productQuantityManager:
+                                                              productQuantityManager,
+                                                          deleteConfirmationDialogue:
+                                                              deleteConfirmationDialogue,
+                                                          isPreOrder: false,
+                                                          calCulateAmount:
+                                                              calculateAmounts,
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                  ),
+                                                ),
+                                              ))),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
-                    const SizedBox(
+                    SizedBox(
                       height: 10,
+                    ),
+                    ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbColor:
+                            MaterialStateProperty.resolveWith<Color>((states) {
+                          if (states.contains(MaterialState.dragged)) {
+                            return Colors.blueAccent.shade700;
+                          }
+                          return Colors.blueAccent.shade400;
+                        }),
+                        trackColor:
+                            MaterialStateProperty.all(Colors.blue.shade50),
+                        trackBorderColor:
+                            MaterialStateProperty.all(Colors.blue.shade100),
+                        thickness: MaterialStateProperty.all(6),
+                        radius: const Radius.circular(10),
+                        minThumbLength: 50,
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        trackVisibility: MaterialStateProperty.all(true),
+                      ),
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        thickness: 10,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _scrollController2,
+                          child: Container(
+                            width: fullScreenWidth(context) * 1.15,
+                          ),
+                        ),
+                      ),
                     ),
                     Container(
                       height: 40,
@@ -637,53 +777,64 @@ class CartDialogueState extends State<CartDialogue> {
                         : Flexible(
                             child: SizedBox(
                               height: dialogHeight * 0.5,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: SizedBox(
-                                  width: fullScreenWidth(context) * 1.05,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          children: preorderItems
-                                              .where((item) =>
-                                                  item.detail.stock == 0)
-                                              .map((item) => item.productName)
-                                              .toSet()
-                                              .toList()
-                                              .map((productName) {
-                                            List<CartItem> groupedItems =
-                                                preorderItems
-                                                    .where((item) =>
-                                                        item.productName ==
-                                                            productName &&
-                                                        item.detail.stock == 0)
-                                                    .toList();
-                                            return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 20),
-                                                child: _buildGroupedItems(
-                                                  productName: productName,
-                                                  groupedItems: groupedItems,
-                                                  availableWidth:
-                                                      availableWidth,
-                                                  fontSize: fontSize,
-                                                  rowHeight: rowHeight,
-                                                  context: context,
-                                                  productQuantityManager:
-                                                      productQuantityManager,
-                                                  deleteConfirmationDialogue:
-                                                      deleteConfirmationDialogue,
-                                                  isPreOrder: true,
-                                                  calCulateAmount:
-                                                      calculateAmounts,
-                                                ));
-                                          }).toList(),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.vertical,
+                                              controller: _scrollController4,
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        controller:_scrollController1,
+                                        child: SizedBox(
+                                          width: fullScreenWidth(context) * 1.15,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  children: preorderItems
+                                                      .where((item) =>
+                                                          item.detail.stock == 0)
+                                                      .map((item) => item.productName)
+                                                      .toSet()
+                                                      .toList()
+                                                      .map((productName) {
+                                                    List<CartItem> groupedItems =
+                                                        preorderItems
+                                                            .where((item) =>
+                                                                item.productName ==
+                                                                    productName &&
+                                                                item.detail.stock == 0)
+                                                            .toList();
+                                                    return Padding(
+                                                        padding: const EdgeInsets.only(
+                                                            bottom: 20),
+                                                        child: _buildGroupedItems(
+                                                          productName: productName,
+                                                          groupedItems: groupedItems,
+                                                          availableWidth:
+                                                              availableWidth,
+                                                          fontSize: fontSize,
+                                                          rowHeight: rowHeight,
+                                                          context: context,
+                                                          productQuantityManager:
+                                                              productQuantityManager,
+                                                          deleteConfirmationDialogue:
+                                                              deleteConfirmationDialogue,
+                                                          isPreOrder: true,
+                                                          calCulateAmount:
+                                                              calculateAmounts,
+                                                        ));
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           ),

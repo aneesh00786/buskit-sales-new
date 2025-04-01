@@ -76,8 +76,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     }
   }
 
-
-
   @override
   void initState() {
     super.initState();
@@ -473,13 +471,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             staffController: staffController,
                             isProjection: staffProjection == '1' ? true : false,
                             isTarget: targetType == '1' ? true : false,
-                           
                           )
                         : StaffValueTargetDialog(
                             staffController: staffController,
                             isProjection: staffProjection == '1' ? true : false,
                             isTarget: targetType == '1' ? true : false,
-                           
                           ),
                   ),
                 )

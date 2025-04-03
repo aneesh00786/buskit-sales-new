@@ -557,19 +557,18 @@ class CartDialogueState extends State<CartDialogue> {
                                                 .resolveWith<Color>((states) {
                                               if (states.contains(
                                                   MaterialState.dragged)) {
-                                                return Colors
-                                                    .blueAccent.shade700;
+                                                return primaryColor.withOpacity(0.5);
                                               }
-                                              return Colors.blueAccent.shade400;
+                                              return primaryColor.withOpacity(0.5);
                                             }),
                                             trackColor:
                                                 MaterialStateProperty.all(
-                                                    Colors.blue.shade50),
+                                                    primaryColor.withOpacity(0.2)),
                                             trackBorderColor:
                                                 MaterialStateProperty.all(
-                                                    Colors.blue.shade100),
+                                                    primaryColor.withOpacity(0.2)),
                                             thickness:
-                                                MaterialStateProperty.all(6),
+                                                WidgetStateProperty.all(3),
                                             radius: const Radius.circular(10),
                                             minThumbLength: 50,
                                             thumbVisibility:
@@ -578,7 +577,7 @@ class CartDialogueState extends State<CartDialogue> {
                                                 MaterialStateProperty.all(true),
                                           ),
                                           child: Scrollbar(
-                                              thickness: 10,
+                                              thickness: 6,
                                               thumbVisibility: true,
                                               trackVisibility: true,
                                               child: SingleChildScrollView(
@@ -648,14 +647,14 @@ class CartDialogueState extends State<CartDialogue> {
                         thumbColor:
                             MaterialStateProperty.resolveWith<Color>((states) {
                           if (states.contains(MaterialState.dragged)) {
-                            return Colors.blueAccent.shade700;
+                            return primaryColor.withOpacity(0.5);
                           }
-                          return Colors.blueAccent.shade400;
+                          return primaryColor.withOpacity(0.5);
                         }),
                         trackColor:
-                            MaterialStateProperty.all(Colors.blue.shade50),
+                            MaterialStateProperty.all(primaryColor.withOpacity(0.2)),
                         trackBorderColor:
-                            MaterialStateProperty.all(Colors.blue.shade100),
+                            MaterialStateProperty.all(primaryColor.withOpacity(0.2)),
                         thickness: MaterialStateProperty.all(6),
                         radius: const Radius.circular(10),
                         minThumbLength: 50,
@@ -665,7 +664,7 @@ class CartDialogueState extends State<CartDialogue> {
                       child: Scrollbar(
                         thumbVisibility: true,
                         trackVisibility: true,
-                        thickness: 10,
+                        thickness: 6,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,

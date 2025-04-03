@@ -1701,13 +1701,14 @@ class ApiWorker with ApiConstants {
        if (month != null) "month": month,
       "companyId": companyId,
     };
+    log('This function has been called fetchSalesmanValueTarget');
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
     final targetBox = Hive.box('salesmanValueTargetBox');
-   // log("Salesman Value Target Response: $requestPayload");
     try {
-      final connectivityResult = await Connectivity().checkConnectivity();
-      bool isOnline = connectivityResult != ConnectivityResult.none;
+      bool isOnline = await _connectivityService.isOnline();
+      log('Gone inside to try');
+      log('Gone inside to try$isOnline');
       if (isOnline) {
         final response = await dio
             .postbycustom(
@@ -1729,12 +1730,13 @@ class ApiWorker with ApiConstants {
             log("Unexpected response format from API");
           }
         } else {
-          log("Failed to fetch value target data: ${response.statusCode} ${response.statusMessage}");
+          log("Failed to fetch value target data: ${response.statusCode}${response.statusMessage}");
         }
       } else {
         log("Offline mode: Fetching value target data from Hive for key: $cacheKey");
         NkCommonFunction.showErrorSnakBar(
             'Failed to fetch Sales target. Showing offline data.');
+        
       }
     } on DioException catch (dioError) {
       log("Dio error occurred2: ${dioError.message}");
@@ -1743,8 +1745,9 @@ class ApiWorker with ApiConstants {
     }
     try {
       if (targetBox.containsKey(cacheKey)) {
+        log("Using cached data for key123: $cacheKey");
         final cachedData = targetBox.get(cacheKey);
-        log("Using cached data for key: $cacheKey");
+        log('Cached Data of another weeekely:$cachedData');
         if (cachedData is Map<String, dynamic>) {
           return SalesmanValueTargetResponse.fromJson(cachedData);
         } else {

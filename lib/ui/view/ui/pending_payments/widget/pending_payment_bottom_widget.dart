@@ -331,7 +331,7 @@ class _PendingPaymentBottomWidgetState
                 width: 24,
                 color: Colors.grey[200],
                 child: Image.network(
-                  'http://16.50.232.153:3000/uploads/${customerData.imageUrl}',
+                  'https://thrivewoo.com/uploads/${customerData.imageUrl}',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

@@ -112,7 +112,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                                         width: 40,
                                         color: Colors.grey[200],
                                         child: Image.network(
-                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          'https://thrivewoo.com/uploads/${leadCustomerData.imageUrl ?? ''}',
                                           fit: BoxFit.cover,
                                           width: 25,
                                           height: 25,

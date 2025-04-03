@@ -113,7 +113,7 @@ class ApiWorker with ApiConstants {
     log(companyId.toString());
     try {
       final response = await dio
-          .getbycustom('http://16.50.232.153:3000/api/get_currencylist')
+          .getbycustom('https://thrivewoo.com/api/get_currencylist')
           .onError((DioException error, stackTrace) {
         log(error.toString());
         return Future.error(DioExceptionHandler.fromDioError(error));
@@ -799,7 +799,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<void> fetchDiscounts(int companyId, String salesmanId) async {
-    const String url = 'http://16.50.232.153:3000/fetch_all_discount';
+    const String url = 'https://thrivewoo.com/fetch_all_discount';
     try {
       Map<String, dynamic> requestPayload = {
         "companyId": companyId,
@@ -1434,7 +1434,7 @@ class ApiWorker with ApiConstants {
   }) async {
     final response = await dio
         .postbycustom(
-      'http://16.50.232.153:3000/order_reject',
+      'https://thrivewoo.com/order_reject',
       data: FormData.fromMap({
         "order_id": orderId,
         "rejection_reason": rejectReason,
@@ -1456,7 +1456,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await dio
           .postbycustom(
-        'http://16.50.232.153:3000/order_accept_direct',
+        'https://thrivewoo.com/order_accept_direct',
         data: {
           "order_id": orderId,
           "updatedOrders": updatedOrders,
@@ -1487,7 +1487,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await dio
           .postbycustom(
-        'http://16.50.232.153:3000/send_mail',
+        'https://thrivewoo.com/send_mail',
         data: {
           "order_id": orderId,
           "updatedOrders": updatedOrders,
@@ -1517,7 +1517,7 @@ class ApiWorker with ApiConstants {
   }) async {
     final response = await dio
         .postbycustom(
-      "http://16.50.232.153:3000/add_invoice",
+      "https://thrivewoo.com/add_invoice",
       data: FormData.fromMap({
         "cart_id": cartId,
         "order_id": orderId,
@@ -1536,7 +1536,7 @@ class ApiWorker with ApiConstants {
   }) async {
     final response = await dio
         .postbycustom(
-      'http://16.50.232.153:3000/order_delivered',
+      'https://thrivewoo.com/order_delivered',
       data: FormData.fromMap({
         "order_id": orderId,
         "companyId": companyId,

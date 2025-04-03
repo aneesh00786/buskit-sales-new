@@ -54,7 +54,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
         "companyId": companyId
       };
       final response = await dio.post(
-        'http://16.50.232.153:3000/post_receivable_amount',
+        'https://thrivewoo.com/post_receivable_amount',
         data: data,
       );
 

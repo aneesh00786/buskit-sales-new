@@ -1560,7 +1560,7 @@ class ApiService {
 
   Future<CategoryResponse> fetchCategories() async {
     const String url =
-        'http://16.50.232.153:3000/fetch_categories?company_id=1';
+        'https://thrivewoo.com/fetch_categories?company_id=1';
     // '$_baseUrl/fetch_categories?company_id=1';
 
     try {
@@ -1585,7 +1585,7 @@ class ApiService {
 
   Future<ApiResponseModel> fetchProductData() async {
     // const String url = '$_baseUrl/fetch_product?company_id=1';
-    const String url = 'http://16.50.232.153:3000/fetch_products?company_id=1';
+    const String url = 'https://thrivewoo.com/fetch_products?company_id=1';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

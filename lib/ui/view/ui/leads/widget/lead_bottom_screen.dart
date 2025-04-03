@@ -112,7 +112,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                         width: 40,
                                         color: Colors.grey[200],
                                         child: Image.network(
-                                          'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          'https://thrivewoo.com/uploads/${leadCustomerData.imageUrl ?? ''}',
                                           fit: BoxFit.cover,
                                           width: 25,
                                           height: 25,
@@ -395,7 +395,7 @@ class EditLeadsDialog extends StatelessWidget {
     TextEditingController remarkController =
         TextEditingController(text: leadCustomerData.remark);
     String imageFile =
-        'http://16.50.232.153:3000/uploads/${leadCustomerData.imageUrl}';
+        'https://thrivewoo.com/uploads/${leadCustomerData.imageUrl}';
 
     return Dialog(
       backgroundColor: Colors.white,

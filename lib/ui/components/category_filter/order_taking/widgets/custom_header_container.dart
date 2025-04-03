@@ -12,25 +12,21 @@ class CustomHeaderContainer extends StatelessWidget {
   final double fontSize;
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          height: 40,
-          padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-            color: lightPrimaryColor,
-            borderRadius: BorderRadius.only(topRight: Radius.circular(100))
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: CustomText(
-                content: text,
-                fontSize: fontSize,
-                color: Colors.black,
-                fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.all(10),
+      decoration: const BoxDecoration(
+        color: lightPrimaryColor,
+        borderRadius: BorderRadius.only(topRight: Radius.circular(100))
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 20),
+        child: CustomText(
+            content: text,
+            fontSize: fontSize,
+            color: Colors.black,
+            fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

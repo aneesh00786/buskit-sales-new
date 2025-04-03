@@ -302,7 +302,7 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       log('Place Order Payloadssss: ${cartOrder.toJson()}');
 
       final response = await Dio().post(
-        "http://16.50.232.153:3000/place_order",
+        "https://thrivewoo.com/place_order",
         data: cartOrder.toJson(),
       );
 

@@ -481,7 +481,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       200],
                                                                   child: Image
                                                                       .network(
-                                                                    'http://16.50.232.153:3000/uploads/${customer?.imageUrl}',
+                                                                    'https://thrivewoo.com/uploads/${customer?.imageUrl}',
                                                                     fit: BoxFit
                                                                         .cover,
                                                                     errorBuilder:

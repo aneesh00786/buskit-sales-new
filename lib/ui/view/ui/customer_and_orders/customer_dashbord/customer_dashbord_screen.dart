@@ -231,7 +231,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         radius: 15,
                         child: CachedNetworkImage(
                           imageUrl:
-                              'http://16.50.232.153:3000/uploads/$customerImage',
+                              'https://thrivewoo.com/uploads/$customerImage',
                           placeholder: (context, url) =>
                               const CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
@@ -2342,7 +2342,7 @@ class UpdateCustomer extends StatelessWidget {
                                     null
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        'http://16.50.232.153:3000/uploads/${productsController.selectedCustomerImageUrl.value}',
+                                        'https://thrivewoo.com/uploads/${productsController.selectedCustomerImageUrl.value}',
                                     placeholder: (context, url) =>
                                         const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) =>

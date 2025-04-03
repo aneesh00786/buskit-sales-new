@@ -2453,7 +2453,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       width: 50,
                                                       color: Colors.grey[200],
                                                       child: Image.network(
-                                                        'http://16.50.232.153:3000/uploads/${customer.imageUrl}',
+                                                        'https://thrivewoo.com/uploads/${customer.imageUrl}',
                                                         fit: BoxFit.cover,
                                                         errorBuilder: (context,
                                                             error, stackTrace) {

@@ -397,7 +397,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       200],
                                                                   child: Image
                                                                       .network(
-                                                                    'http://16.50.232.153:3000/uploads/${customer?.imageUrl}',
+                                                                    'https://thrivewoo.com/uploads/${customer?.imageUrl}',
                                                                     fit: BoxFit
                                                                         .cover,
                                                                     errorBuilder:

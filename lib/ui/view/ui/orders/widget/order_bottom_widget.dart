@@ -595,7 +595,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             width: 34,
             color: Colors.grey[200],
             child: Image.network(
-              'http://16.50.232.153:3000/uploads/${orderData.customerDetails!.imageUrl}',
+              'https://thrivewoo.com/uploads/${orderData.customerDetails!.imageUrl}',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(

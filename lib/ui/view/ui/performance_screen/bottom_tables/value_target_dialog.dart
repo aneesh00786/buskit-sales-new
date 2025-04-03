@@ -520,8 +520,8 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
   List<int> getWeeksForMonth(int year, int month) {
     List<int> weeks = [];
-    DateTime firstDay = DateTime(year, month, 1);
-    DateTime lastDay = DateTime(year, month + 1, 0);
+    DateTime firstDay = DateTime(year, month, 2);
+    DateTime lastDay = DateTime(year, month + 1, 2);
     DateTime currentDay = firstDay;
     while (
         currentDay.isBefore(lastDay) || currentDay.isAtSameMomentAs(lastDay)) {
@@ -530,7 +530,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       if (!weeks.contains(weekNumber)) {
         weeks.add(weekNumber);
       }
-      currentDay = currentDay.add(const Duration(days: 1));
+      currentDay = currentDay.add(const Duration(days: 1)).toLocal();
     }
     return weeks;
   }

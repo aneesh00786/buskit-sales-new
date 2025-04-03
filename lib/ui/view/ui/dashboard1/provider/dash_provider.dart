@@ -350,7 +350,7 @@ class ApiService {
       "month": catId,
       "time_range": "Month",
       "year": 2025,
-      "salesman_id": "",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 

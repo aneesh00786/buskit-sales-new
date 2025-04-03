@@ -561,30 +561,30 @@ class CartDialogueState extends State<CartDialogue> {
                                     width: 0,
                                     child: ScrollbarTheme(
                                         data: ScrollbarThemeData(
-                                          thumbColor: MaterialStateProperty
+                                          thumbColor: WidgetStateProperty
                                               .resolveWith<Color>((states) {
                                             if (states.contains(
-                                                MaterialState.dragged)) {
+                                                WidgetState.dragged)) {
                                               return primaryColor
                                                   .withOpacity(0.5);
                                             }
                                             return primaryColor
                                                 .withOpacity(0.5);
                                           }),
-                                          trackColor: MaterialStateProperty.all(
+                                          trackColor: WidgetStateProperty.all(
                                               primaryColor.withOpacity(0.2)),
                                           trackBorderColor:
-                                              MaterialStateProperty.all(
+                                              WidgetStateProperty.all(
                                                   primaryColor
                                                       .withOpacity(0.2)),
                                           thickness:
-                                              MaterialStateProperty.all(10),
+                                              WidgetStateProperty.all(10),
                                           radius: const Radius.circular(10),
                                           minThumbLength: 50,
                                           thumbVisibility:
-                                              MaterialStateProperty.all(true),
+                                              WidgetStateProperty.all(true),
                                           trackVisibility:
-                                              MaterialStateProperty.all(true),
+                                              WidgetStateProperty.all(true),
                                         ),
                                         child: Scrollbar(
                                             thickness: 6,
@@ -647,27 +647,27 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                             ),
                           ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     ScrollbarTheme(
                       data: ScrollbarThemeData(
                         thumbColor:
-                            MaterialStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(MaterialState.dragged)) {
+                            WidgetStateProperty.resolveWith<Color>((states) {
+                          if (states.contains(WidgetState.dragged)) {
                             return primaryColor.withOpacity(0.5);
                           }
                           return primaryColor.withOpacity(0.5);
                         }),
-                        trackColor: MaterialStateProperty.all(
+                        trackColor: WidgetStateProperty.all(
                             primaryColor.withOpacity(0.2)),
-                        trackBorderColor: MaterialStateProperty.all(
+                        trackBorderColor: WidgetStateProperty.all(
                             primaryColor.withOpacity(0.2)),
-                        thickness: MaterialStateProperty.all(6),
+                        thickness: WidgetStateProperty.all(6),
                         radius: const Radius.circular(10),
                         minThumbLength: 50,
-                        thumbVisibility: MaterialStateProperty.all(true),
-                        trackVisibility: MaterialStateProperty.all(true),
+                        thumbVisibility: WidgetStateProperty.all(true),
+                        trackVisibility: WidgetStateProperty.all(true),
                       ),
                       child: Scrollbar(
                         thumbVisibility: true,
@@ -1489,7 +1489,7 @@ class CartDialogueState extends State<CartDialogue> {
                   text: productName,
                   fontSize: fontSize,
                 ),
-                Spacer(),
+                const Spacer(),
                 SizedBox(
                   width: 50,
                   child: Center(

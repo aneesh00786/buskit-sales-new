@@ -1,7 +1,7 @@
 mixin class ApiConstants {
 
   static const String baseUrl = "https://thrivewoo.com/";
-  static const String baseUrl1 = "http://16.50.232.153:3000";
+  static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
   /// Login APi END Point

@@ -717,7 +717,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           right: 20, left: 20, top: 5, bottom: 5),
                       child: Text(
                         displayText,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: fontFamilyName,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,

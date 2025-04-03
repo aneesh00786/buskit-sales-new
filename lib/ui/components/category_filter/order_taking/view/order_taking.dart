@@ -374,6 +374,7 @@ class _OrderTakingState extends State<OrderTaking>
                           onPressed: () {
                             Navigator.pop(context);
                             Navigator.pop(context);
+                            
                           },
                           child: const Text('OK'),
                         ),
@@ -467,6 +468,9 @@ class _OrderTakingState extends State<OrderTaking>
                           );
                         },
                       );
+                      CartDatabaseManager().cartItems.clear();
+                            CartDatabaseManager()
+                                .clearCart(customerId: customerId);
                     } else {
                       showDialog(
                         context: context,

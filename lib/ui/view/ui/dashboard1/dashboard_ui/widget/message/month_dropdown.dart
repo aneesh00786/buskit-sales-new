@@ -8,6 +8,7 @@ class MonthDropdown extends StatefulWidget {
   const MonthDropdown({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonthDropdownState createState() => _MonthDropdownState();
 }
 
@@ -205,14 +206,9 @@ class _MonthDropdownState extends State<MonthDropdown> {
           CustomButton(
             text: 'Go',
             onPressed: () async {
-
-
-              print("Selected Months: ${provider.selectedFilterMonths}");
               final dashboardProvider =
                   Provider.of<DashboardProvider>(context, listen: false);
-
               await dashboardProvider.setTempToFilter();              
- 
               dashboardProvider.fetchData();
             },
             color: primaryColor,

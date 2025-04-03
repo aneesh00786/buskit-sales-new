@@ -169,6 +169,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           final settings =
                               await _apiWorker.fetchAllSettings(companyId);
                           await Future.delayed(const Duration(microseconds: 500));
+                          // ignore: use_build_context_synchronously
                           await Provider.of<CustomersProvider>(context,
                                   listen: false)
                               .fetchCustomerData();
@@ -213,6 +214,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           );
                           await calenderMapController
                               .fetchCalenderEvents(initialDay ?? DateTime.now());
+                          // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Syncing offline orders...'),

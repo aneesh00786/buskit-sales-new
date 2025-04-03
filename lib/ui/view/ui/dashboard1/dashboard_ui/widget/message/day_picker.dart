@@ -9,6 +9,7 @@ class DatePickerWidget extends StatefulWidget {
   const DatePickerWidget({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DatePickerWidgetState createState() => _DatePickerWidgetState();
 }
 
@@ -24,6 +25,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
     if (pickedDate != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+      // ignore: use_build_context_synchronously
       Provider.of<DashboardProvider>(context, listen: false)
           .updateSelectedDate(formattedDate);
     }
@@ -83,7 +85,6 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             CustomButton(
               text: 'Go',
               onPressed: () async {
-                print("Selected Date: ${provider.selectedDate}");
                 final dashboardProvider =
                     Provider.of<DashboardProvider>(context, listen: false);
                 await dashboardProvider.setTempToFilter();

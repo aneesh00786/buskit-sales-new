@@ -92,7 +92,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           final week = relevantWeeks[index];
           final weekKey = "week$week";
           final weekData = weeklyTargetProjection[weekKey];
-
           String initialText = (weekData != null && weekData['projection'] != null)
               ? weekData['projection'].toString()
               : '0';
@@ -486,7 +485,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 textAlign: TextAlign.center,
                 onChanged: (newValue) {
                   log("Updated projection for Week $week: $newValue");
-                  setState(() {}); // Rebuild the UI to reflect changes
+                  setState(() {}); 
                 },
                 decoration: InputDecoration(
                   fillColor: Colors.blueGrey.shade50,
@@ -524,7 +523,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     DateTime firstDay = DateTime(year, month, 1);
     DateTime lastDay = DateTime(year, month + 1, 0);
     DateTime currentDay = firstDay;
-
     while (
         currentDay.isBefore(lastDay) || currentDay.isAtSameMomentAs(lastDay)) {
       int weekNumber =

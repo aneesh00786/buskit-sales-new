@@ -132,7 +132,7 @@ class ApiService {
     log("GET_DASHBOARD_LIST request URL: $url");
     final Map<String, dynamic> requestBody = {
       //come_back
-      "salesman_id": "",
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "selected_range": sendData,
       "time_range": fetchType == "Year" ? "year" : fetchType,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
@@ -142,7 +142,7 @@ class ApiService {
     final dashboardBox = Hive.box('dashboardBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-      ;
+      
       if (!isOnline) {
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
@@ -812,7 +812,21 @@ class ApiService {
       "page": 1
     };
     log("Fetch All Orders Request : $requestBody");
+
+    final cacheKey = 'orders_$orderType';
+    final orderBox = Hive.box('fetchAllOrdersBox');
+
     try {
+      final isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        log("Retrieving data from cache with key: $cacheKey");
+        final cachedData = orderBox.get(cacheKey);
+        if (cachedData != null) {
+          log("Cached data found: $cachedData");
+          return OrderResponse.fromJson(jsonDecode(cachedData));
+        }
+      }
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -821,32 +835,26 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        print('Fetch All Orders Response: $jsonResponse');
+        log('Fetch All Orders Response: $jsonResponse');
 
-        Pagination pagination =
-            Pagination.fromJson(jsonResponse['pagination'] ?? {});
-        List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
+        await orderBox.put(cacheKey, response.body);
 
-        List<OrdersDash> orders = [];
-        if (orderData != null) {
-          orders = orderData
-              .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
-              .toList();
-        }
-
-        return OrderResponse(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: orders,
-          pagination: pagination,
-        );
+        return OrderResponse.fromJson(jsonResponse);
       } else {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
+    } on SocketException {
+      log("Network error, attempting to fetch cached data for key: $cacheKey");
+      final cachedData = orderBox.get(cacheKey);
+      if (cachedData != null) {
+        log("Using cached data after network failure: $cachedData");
+        return OrderResponse.fromJson(jsonDecode(cachedData));
+      } else {
+        throw Exception('Network error, and no cached data is available.');
+      }
     } catch (e) {
-      print('Failed to fetch orders 1: $e');
-      throw Exception('Failed to fetch orders 2: $e');
+      log('Unexpected error occurred: $e');
+      throw Exception('Unexpected error occurred: $e');
     }
   }
 

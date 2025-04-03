@@ -108,10 +108,10 @@ class BarChartSample2State extends State<BarChartSample2> {
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(
+            rightTitles: AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
-            topTitles: const AxisTitles(
+            topTitles: AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
             bottomTitles: AxisTitles(
@@ -138,7 +138,7 @@ class BarChartSample2State extends State<BarChartSample2> {
               show: true,
               drawVerticalLine: false,
               getDrawingHorizontalLine: (value) {
-                return const FlLine(
+                return FlLine(
                   color: Color(0x6E9C9EA4),
                 );
               },

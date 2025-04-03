@@ -106,54 +106,90 @@ class CustomersProvider with ChangeNotifier {
   List<BarChartGroupData> barGroups = [];
   void createBarGroups({
     required List<CategoryPerformance> categoryPerformance,
+    required List<ValueTargetDatum> valuePerformance,
     required String targetType,
     required String staffProjection,
   }) {
     log('This function has called');
-    barGroups = categoryPerformance.asMap().entries.map((entry) {
-      int index = entry.key;
-      CategoryPerformance perf = entry.value;
-      num target = perf.actualTarget ?? 0.0;
-      num projection = perf.actualProjection ?? 0.0;
-      num actual = num.parse(perf.actualSales.toString());
+    barGroups = targetType == '0'
+        ? valuePerformance.asMap().entries.map((entry) {
+            int index = entry.key;
+            ValueTargetDatum perf = entry.value;
+            num target = perf.actualTarget ?? 0.0;
+            num projection = perf.actualProjection ?? 0.0;
+            num actual = perf.actualSales ?? 0.0;
 
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          if (targetType == "1")
-            BarChartRodData(
-              toY: target.toDouble(),
-              color: const Color(0xff3b6491),
-              width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide.none,
-            ),
-          if (staffProjection == "1")
-            BarChartRodData(
-              toY: projection.toDouble(),
-              color: const Color(0xff15396a),
-              width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide.none,
-            ),
-          BarChartRodData(
-            toY: actual.toDouble(),
-            color: const Color(0xff7a8f3d),
-            width: 8,
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none,
-          ),
-        ],
-      );
-    }).toList();
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                // if (targetType == "1")
+                BarChartRodData(
+                  toY: target.toDouble(),
+                  color: const Color(0xff3b6491),
+                  width: 8,
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide.none,
+                ),
+                if (staffProjection == "1")
+                  BarChartRodData(
+                    toY: projection.toDouble(),
+                    color: const Color(0xff15396a),
+                    width: 8,
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide.none,
+                  ),
+                BarChartRodData(
+                  toY: actual.toDouble(),
+                  color: const Color(0xff7a8f3d),
+                  width: 8,
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide.none,
+                ),
+              ],
+            );
+          }).toList()
+        : categoryPerformance.asMap().entries.map((entry) {
+            int index = entry.key;
+            CategoryPerformance perf = entry.value;
+            num target = perf.actualTarget ?? 0.0;
+            num projection = perf.actualProjection ?? 0.0;
+            num actual = num.parse(perf.actualSales.toString());
 
-    // notifyListeners();
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                // if (targetType == "1")
+                BarChartRodData(
+                  toY: target.toDouble(),
+                  color: const Color(0xff3b6491),
+                  width: 8,
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide.none,
+                ),
+                if (staffProjection == "1")
+                  BarChartRodData(
+                    toY: projection.toDouble(),
+                    color: const Color(0xff15396a),
+                    width: 8,
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide.none,
+                  ),
+                BarChartRodData(
+                  toY: actual.toDouble(),
+                  color: const Color(0xff7a8f3d),
+                  width: 8,
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide.none,
+                ),
+              ],
+            );
+          }).toList();
   }
 
   Future<int> getCartItemCounts(String customerId) async {
     try {
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
-      final count =  cartItems.length;
+      final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();
       log('Cart count calculated for customer $customerId: $cartItemCount');
@@ -164,18 +200,17 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-Future<void> updateCartCount(String customerId) async {
-  try {
-    final cartItems = await CartDatabaseManager().getCartItems(customerId);
-    cartItemCount = cartItems.length;
-    log('The cart item Count $cartItemCount');
-    notifyListeners();
-    log('Cart count updated for customer $customerId: $cartItemCount');
-  } catch (e) {
-    log('Error updating cart count for customer $customerId: $e');
+  Future<void> updateCartCount(String customerId) async {
+    try {
+      final cartItems = await CartDatabaseManager().getCartItems(customerId);
+      cartItemCount = cartItems.length;
+      log('The cart item Count $cartItemCount');
+      notifyListeners();
+      log('Cart count updated for customer $customerId: $cartItemCount');
+    } catch (e) {
+      log('Error updating cart count for customer $customerId: $e');
+    }
   }
-}
-
 
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
@@ -409,8 +444,7 @@ Future<void> updateCartCount(String customerId) async {
 
       notifyListeners();
 
-      log(
-          "sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
+      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
 
       notifyListeners();
     } catch (e, stackTrace) {
@@ -689,8 +723,7 @@ Future<void> updateCartCount(String customerId) async {
     final success =
         await _apiService.addEvent(customerId, eventStatus, daysList);
     if (success) {
-    } else {
-    }
+    } else {}
     notifyListeners();
   }
 

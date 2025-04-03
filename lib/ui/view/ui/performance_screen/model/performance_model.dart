@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 class PerformanceResponse {
   int? statusCode;
@@ -12,11 +13,14 @@ class PerformanceResponse {
     this.data,
   });
 
-  factory PerformanceResponse.fromJson(Map<String, dynamic> json) => PerformanceResponse(
+  factory PerformanceResponse.fromJson(Map<String, dynamic> json) =>
+      PerformanceResponse(
         statusCode: json["status_code"],
         status: json["status"],
         message: json["message"],
-        data: json["data"] != null ? PerformanceData.fromJson(json["data"]) : null,
+        data: json["data"] != null
+            ? PerformanceData.fromJson(json["data"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -40,18 +44,21 @@ class PerformanceData {
     this.months,
   });
 
-  factory PerformanceData.fromJson(Map<String, dynamic> json) => PerformanceData(
+  factory PerformanceData.fromJson(Map<String, dynamic> json) =>
+      PerformanceData(
         navbarAndTargetContent: json["navbar_and_target_content"] != null
             ? NavbarAndTargetContent.fromJson(json["navbar_and_target_content"])
             : null,
         categoryPerformance: json["category_performance"] != null
             ? List<CategoryPerformance>.from(
-                json["category_performance"].map((x) => CategoryPerformance.fromJson(x)),
+                json["category_performance"]
+                    .map((x) => CategoryPerformance.fromJson(x)),
               )
             : [],
         valueTarget: json["value_targetData"] != null
             ? List<ValueTargetDatum>.from(
-                json["value_targetData"].map((x) => ValueTargetDatum.fromJson(x)),
+                json["value_targetData"]
+                    .map((x) => ValueTargetDatum.fromJson(x)),
               )
             : [],
         months: json["months"] != null
@@ -67,83 +74,129 @@ class PerformanceData {
         "value_targetData": valueTarget != null
             ? List<dynamic>.from(valueTarget!.map((x) => x.toJson()))
             : [],
-        "months": months != null ? List<dynamic>.from(months!.map((x) => x)) : [],
+        "months":
+            months != null ? List<dynamic>.from(months!.map((x) => x)) : [],
       };
 }
+// class ValueTargetDatum {
+//     ValueTargetDatum({
+//          this.id,
+//          this.target,
+//          this.projection,
+//          this.salesId,
+//          this.month,
+//          this.year,
+//          this.companyId,
+//     });
+//     final int? id;
+//     final int? target;
+//     final int? projection;
+//     final String? salesId;
+//     final String? month;
+//     final String? year;
+//     final int? companyId;
+
+//     factory ValueTargetDatum.fromJson(Map<String, dynamic> json){
+//         return ValueTargetDatum(
+//             id: json["id"],
+//             target: json["target"],
+//             projection: json["projection"],
+//             salesId: json["sales_id"],
+//             month: json["month"],
+//             year: json["year"],
+//             companyId: json["company_id"],
+//         );
+//     }
+//       Map<String, dynamic> toJson() => {
+//         "cid": id,
+//         "target": target,
+//         "projection": projection,
+//         "sales_id": salesId,
+//         "month": month,
+//         "year": year,
+//         "company_id":companyId,
+//       };
+// }
+
 class ValueTargetDatum {
-    ValueTargetDatum({
-         this.id,
-         this.target,
-         this.projection,
-         this.salesId,
-         this.month,
-         this.year,
-         this.companyId,
-    });
-    final int? id;
-    final int? target;
-    final int? projection;
-    final String? salesId;
-    final String? month;
-    final String? year;
-    final int? companyId;
+  num? actualProjection;
+  num? actualTarget;
+  num? actualSales;
+  String? week;
+  String? month;
+  int? year;
+  String? cid;
+  String? barType;
 
-    factory ValueTargetDatum.fromJson(Map<String, dynamic> json){ 
-        return ValueTargetDatum(
-            id: json["id"],
-            target: json["target"],
-            projection: json["projection"],
-            salesId: json["sales_id"],
-            month: json["month"],
-            year: json["year"],
-            companyId: json["company_id"],
-        );
-    }
-      Map<String, dynamic> toJson() => {
-        "cid": id,
-        "target": target,
-        "projection": projection,
-        "sales_id": salesId,
-        "month": month,
-        "year": year,
-        "company_id":companyId,
-      };
-}
-class CategoryPerformance {
-  int? cid;
-  String? category;
-  int? actualProjection;
-  int? actualTarget;
-  String? actualSales;
-  List<dynamic>? salesman;
-
-  CategoryPerformance({
-    this.cid,
-    this.category,
+  ValueTargetDatum({
     this.actualProjection,
     this.actualTarget,
     this.actualSales,
-    this.salesman,
+    this.week,
+    this.month,
+    this.year,
+    this.cid,
+    this.barType,
   });
 
-  factory CategoryPerformance.fromJson(Map<String, dynamic> json) => CategoryPerformance(
+  factory ValueTargetDatum.fromJson(Map<String, dynamic> json) =>
+      ValueTargetDatum(
+        actualProjection: num.tryParse(json["actual_projection"].toString()),
+        actualTarget: num.tryParse(json["actual_target"].toString()),
+        actualSales: num.tryParse(json["actual_sales"].toString()),
+        week: json["week"],
+        month: json["month"],
+        year: json["year"],
         cid: json["cid"],
+        barType: json["bar_type"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "actual_projection": actualProjection,
+        "actual_target": actualTarget,
+        "actual_sales": actualSales,
+        "week": week,
+        "month": month,
+        "year": year,
+        "cid": cid,
+        "bar_type": barType,
+      };
+}
+
+class CategoryPerformance {
+  int? cid;
+  num? actualProjection;
+  num? actualTarget;
+  num? actualSales;
+  String? category;
+  String? barType;
+
+  CategoryPerformance({
+    this.cid,
+    this.actualProjection,
+    this.actualTarget,
+    this.actualSales,
+    this.category,
+    this.barType,
+  });
+
+  factory CategoryPerformance.fromJson(Map<String, dynamic> json) =>
+      CategoryPerformance(
+        cid: json["cid"],
+        actualProjection: num.tryParse(json["actual_projection"].toString()),
+        actualTarget: num.tryParse(json["actual_target"].toString()),
+        actualSales: num.tryParse(json["actual_sales"].toString()),
         category: json["category"],
-        actualProjection: json["actual_projection"] ?? 0,
-        actualTarget: json["actual_target"] ?? 0,
-        actualSales: json["actual_sales"] ?? "0.0",
-        salesman: json["salesman"] != null
-            ? List<dynamic>.from(json["salesman"].map((x) => x))
-            : [],
+        barType: json["bar_type"],
       );
 
   Map<String, dynamic> toJson() => {
         "cid": cid,
-        "category": category,
         "actual_projection": actualProjection,
         "actual_target": actualTarget,
         "actual_sales": actualSales,
-        "salesman": salesman != null ? List<dynamic>.from(salesman!.map((x) => x)) : [],
+        "category": category,
+        "bar_type": barType,
       };
 }
 
@@ -175,7 +228,8 @@ class NavbarAndTargetContent {
   DateTime? lastOnline;
   int? status;
   int? customer;
-  int? totalTarget;
+  //come_back
+  dynamic totalTarget;
   double? actual;
   int? timesheet;
   List<SalesmanInOut>? salesmanInOut;
@@ -216,7 +270,8 @@ class NavbarAndTargetContent {
     this.visit,
   });
 
-  factory NavbarAndTargetContent.fromJson(Map<String, dynamic> json) => NavbarAndTargetContent(
+  factory NavbarAndTargetContent.fromJson(Map<String, dynamic> json) =>
+      NavbarAndTargetContent(
         id: json["id"],
         companyId: json["company_id"],
         salesmanId: json["salesman_id"],
@@ -233,7 +288,9 @@ class NavbarAndTargetContent {
         address: json["address"],
         idimagePath: json["idimage_path"],
         imagePath: json["image_path"],
-        createAt: json["create_at"] != null ? DateTime.tryParse(json["create_at"]) : null,
+        createAt: json["create_at"] != null
+            ? DateTime.tryParse(json["create_at"])
+            : null,
         token: json["token"],
         events: json["events"],
         schedule: json["schedule"],
@@ -241,14 +298,17 @@ class NavbarAndTargetContent {
         cancelEventReason: json["cancel_event_reason"],
         projectionPrice: json["projection_price"] ?? 0,
         projectionTarget: json["projection_target"] ?? 0,
-        lastOnline: json["last_online"] != null ? DateTime.tryParse(json["last_online"]) : null,
+        lastOnline: json["last_online"] != null
+            ? DateTime.tryParse(json["last_online"])
+            : null,
         status: json["status"],
         customer: json["customer"] ?? 0,
         totalTarget: json["total_target"] ?? 0,
         actual: json["actual"] != null ? json["actual"].toDouble() : 0.0,
         timesheet: json["timesheet"] ?? 0,
         salesmanInOut: json["salesman_IN_OUT"] != null
-            ? List<SalesmanInOut>.from(json["salesman_IN_OUT"].map((x) => SalesmanInOut.fromJson(x)))
+            ? List<SalesmanInOut>.from(
+                json["salesman_IN_OUT"].map((x) => SalesmanInOut.fromJson(x)))
             : [],
         visit: json["visit"] ?? 0,
       );
@@ -328,7 +388,9 @@ class SalesmanInOut {
         salesmanId: json["salesman_id"],
         individualVisit: json["individual_visit"] ?? 0,
         totalVisits: json["total_visits"] ?? "0",
-        checkIn: json["check_in"] != null ? DateTime.tryParse(json["check_in"]) : null,
+        checkIn: json["check_in"] != null
+            ? DateTime.tryParse(json["check_in"])
+            : null,
         checkOut: json["check_out"],
       );
 
@@ -442,8 +504,8 @@ class ScheduleListCustomer {
 
 //####################################### VALUE TARGET ###########################################
 class SalesmanValueTargetResponse {
-  bool? success; 
-  List<SalesmanValueTargetData>? data; 
+  bool? success;
+  List<SalesmanValueTargetData>? data;
   SalesmanValueTargetResponse({
     this.success,
     this.data,
@@ -452,9 +514,8 @@ class SalesmanValueTargetResponse {
       SalesmanValueTargetResponse(
         success: json["success"] as bool?,
         data: json["data"] != null
-            ? List<SalesmanValueTargetData>.from(
-                (json["data"] as List<dynamic>)
-                    .map((x) => SalesmanValueTargetData.fromJson(x)))
+            ? List<SalesmanValueTargetData>.from((json["data"] as List<dynamic>)
+                .map((x) => SalesmanValueTargetData.fromJson(x)))
             : null,
       );
   Map<String, dynamic> toJson() => {
@@ -464,7 +525,6 @@ class SalesmanValueTargetResponse {
             : null,
       };
 }
-
 
 class SalesmanValueTargetData {
   int? id;
@@ -501,7 +561,8 @@ class SalesmanValueTargetData {
         year: json["year"],
         companyId: json["company_id"],
         weeklyTargetProjection: json["weekly_target_projection"] != null
-            ? WeeklyTargetProjection.fromJson(json["weekly_target_projection"])
+            ? WeeklyTargetProjection.fromJson(
+                jsonDecode(json["weekly_target_projection"].toString()))
             : null,
         actualTotal: json["actual_total"].toString(),
         orderTotal: json["order_total"].toString(),

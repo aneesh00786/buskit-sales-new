@@ -1704,7 +1704,7 @@ class ApiWorker with ApiConstants {
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
     final targetBox = Hive.box('salesmanValueTargetBox');
-    log("Salesman Value Target Response: $requestPayload");
+   // log("Salesman Value Target Response: $requestPayload");
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
       bool isOnline = connectivityResult != ConnectivityResult.none;

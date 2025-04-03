@@ -35,19 +35,19 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   final int currentYear = DateTime.now().year;
   bool _isLoading = true;
   @override
-@override
-@override
-void initState() {
-  super.initState();
-  staffController.loadWeeklyType();
-  staffController.isWeekly.listen((value) {
-    log("WEEKLY value updated: $value");
-    _loadSalesmanValueTarget();
-  });
-  _initializeState();
-  staffController.tabController.addListener(_handleTabChange);
-}
-
+  @override
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+    staffController.loadWeeklyType();
+    staffController.isWeekly.listen((value) {
+      log("WEEKLY value updated: $value");
+      _loadSalesmanValueTarget();
+    });
+    _initializeState();
+    staffController.tabController.addListener(_handleTabChange);
+  }
 
   @override
   void dispose() {
@@ -59,6 +59,49 @@ void initState() {
     }
     super.dispose();
   }
+   void _initializeControllers() {
+    final selectedMonth = DateFormat.MMMM()
+        .format(DateTime(0, staffController.tabController.index + 1));
+
+    final salesData = staffController.salesmanValueTargetList.firstWhere(
+      (data) => data.month == selectedMonth,
+      orElse: () => SalesmanValueTargetData(
+        month: selectedMonth,
+        year: DateTime.now().year.toString(),
+        weeklyTargetProjection: WeeklyTargetProjection(weeks: {}),
+        actualTotal: '0',
+        companyId: SessionHelper.loginSavedData?.company_id ?? 0,
+        projection: 0,
+        target: 0,
+        id: 0,
+        orderTotal: '0',
+        salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
+      ),
+    );
+
+    final weeklyTargetProjection =
+        salesData.weeklyTargetProjection?.toJson() ?? {};
+    final relevantWeeks = getWeeksForMonth(
+        int.parse(salesData.year.toString()),
+        staffController.tabController.index + 1,
+    );
+    if (_weeklyProjectionControllers.isEmpty) {
+      _weeklyProjectionControllers = List.generate(
+        relevantWeeks.length,
+        (index) {
+          final week = relevantWeeks[index];
+          final weekKey = "week$week";
+          final weekData = weeklyTargetProjection[weekKey];
+
+          String initialText = (weekData != null && weekData['projection'] != null)
+              ? weekData['projection'].toString()
+              : '0';
+          return TextEditingController(text: initialText);
+        },
+      );
+    }
+  }
+
 
   void _initializeState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -84,15 +127,14 @@ void initState() {
       SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
       currentYear.toString(),
       staffController.isWeekly.value
-          ? DateFormat.MMMM().format(
-              DateTime(0, staffController.tabController.index + 1))
+          ? DateFormat.MMMM()
+              .format(DateTime(0, staffController.tabController.index + 1))
           : null,
     )
         .then((_) {
       setState(() {
         if (staffController.salesmanValueTargetList.isNotEmpty) {
-          final salesData =
-              staffController.salesmanValueTargetList.first;
+          final salesData = staffController.salesmanValueTargetList.first;
           final weeklyTargetProjection =
               salesData.weeklyTargetProjection?.toJson() ?? {};
 
@@ -398,32 +440,26 @@ void initState() {
 
     final salesData = staffController.salesmanValueTargetList.firstWhere(
       (data) => data.month == selectedMonth,
-      orElse: () {
-        log("No sales data found for month: $selectedMonth");
-        return SalesmanValueTargetData(
-            month: selectedMonth,
-            year: DateTime.now().year.toString(),
-            weeklyTargetProjection: WeeklyTargetProjection(weeks: {}),
-            actualTotal: '0',
-            companyId: SessionHelper.loginSavedData?.company_id ?? 0,
-            projection: 0,
-            target: 0,
-            id: 0,
-            orderTotal: '0',
-            salesId: SessionHelper.loginSavedData?.salesmanId ?? '');
-      },
+      orElse: () => SalesmanValueTargetData(
+        month: selectedMonth,
+        year: DateTime.now().year.toString(),
+        weeklyTargetProjection: WeeklyTargetProjection(weeks: {}),
+        actualTotal: '0',
+        companyId: SessionHelper.loginSavedData?.company_id ?? 0,
+        projection: 0,
+        target: 0,
+        id: 0,
+        orderTotal: '0',
+        salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
+      ),
     );
-
-    log("SALES DATA $salesData");
 
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
-    final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
-        staffController.tabController.index + 1);
-    _weeklyProjectionControllers = List.generate(
-      relevantWeeks.length,
-      (index) => TextEditingController(text: '0'),
+    final relevantWeeks = getWeeksForMonth(
+      int.parse(salesData.year.toString()),
+      staffController.tabController.index + 1,
     );
 
     for (var i = 0; i < relevantWeeks.length; i++) {
@@ -431,6 +467,7 @@ void initState() {
       final weekKey = "week$week";
       final weekData = weeklyTargetProjection[weekKey];
 
+      log('Targets: $weekData');
       int target = 0;
       if (weekData is Map<String, dynamic>) {
         target = weekData["value"] ?? 0;
@@ -447,6 +484,10 @@ void initState() {
               child: TextField(
                 controller: _weeklyProjectionControllers[i],
                 textAlign: TextAlign.center,
+                onChanged: (newValue) {
+                  log("Updated projection for Week $week: $newValue");
+                  setState(() {}); // Rebuild the UI to reflect changes
+                },
                 decoration: InputDecoration(
                   fillColor: Colors.blueGrey.shade50,
                   filled: true,
@@ -501,12 +542,11 @@ void initState() {
     Map<String, dynamic> weeklyTarget = {};
 
     if (staffController.salesmanValueTargetList.isNotEmpty) {
-      for (int i = 0;
-          i < staffController.salesmanValueTargetList.length;
-          i++) {
+      for (int i = 0; i < staffController.salesmanValueTargetList.length; i++) {
         final targetData = staffController.salesmanValueTargetList[i];
         final targetValue =
             staffController.salesmanValueTargetList[i].target.toString();
+        log('');
         final projectionValue = _projectionControllers[i].text.trim();
 
         monthTarget[targetData.month.toString()] = [

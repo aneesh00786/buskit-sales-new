@@ -606,10 +606,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                                   reservedSize: 40,
                                                 ),
                                               ),
-                                              topTitles: const AxisTitles(
+                                              topTitles: AxisTitles(
                                                 sideTitles: SideTitles(showTitles: false),
                                               ),
-                                              rightTitles: const AxisTitles(
+                                              rightTitles: AxisTitles(
                                                 sideTitles: SideTitles(showTitles: false),
                                               ),
                                             ),
@@ -723,10 +723,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                   reservedSize: 40,
                                 ),
                               ),
-                              topTitles: const AxisTitles(
+                              topTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
-                              rightTitles: const AxisTitles(
+                              rightTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),
@@ -779,10 +779,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 reservedSize: 40,
                               ),
                             ),
-                            topTitles: const AxisTitles(
+                            topTitles: AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
-                            rightTitles: const AxisTitles(
+                            rightTitles: AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -843,10 +843,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 reservedSize: 40,
                               ),
                             ),
-                            topTitles: const AxisTitles(
+                            topTitles: AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
-                            rightTitles: const AxisTitles(
+                            rightTitles: AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -1337,11 +1337,11 @@ class _CustomBarChartCustomerDashState
                                           reservedSize: 40,
                                         ),
                                       ),
-                                      topTitles: const AxisTitles(
+                                      topTitles: AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
-                                      rightTitles: const AxisTitles(
+                                      rightTitles: AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
@@ -1429,10 +1429,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: const AxisTitles(
+                                topTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: const AxisTitles(
+                                rightTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1484,10 +1484,10 @@ class _CustomBarChartCustomerDashState
                                     reservedSize: 40,
                                   ),
                                 ),
-                                topTitles: const AxisTitles(
+                                topTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
-                                rightTitles: const AxisTitles(
+                                rightTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
                               ),
@@ -1570,10 +1570,10 @@ class _CustomBarChartCustomerDashState
                                   reservedSize: 40,
                                 ),
                               ),
-                              topTitles: const AxisTitles(
+                              topTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
-                              rightTitles: const AxisTitles(
+                              rightTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),

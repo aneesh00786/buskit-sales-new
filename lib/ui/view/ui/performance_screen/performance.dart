@@ -275,8 +275,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             listen: false);
                         final categoryPerformance = staffController
                             .salesmanTargetList.value.categoryPerformance;
+                        final valuePerformance = staffController
+                            .salesmanTargetList.value.valueTarget;
                         provider.createBarGroups(
                             categoryPerformance: categoryPerformance ?? [],
+                            valuePerformance: valuePerformance ?? [],
                             staffProjection: staffProjection,
                             targetType: targetType);
                       } else {
@@ -411,6 +414,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       }
                       final categoryPerformance =
                           performanceData.categoryPerformance;
+                      final valuePerformance = performanceData.valueTarget;
                       return Container(
                         decoration: BoxDecoration(
                           boxShadow: [
@@ -433,11 +437,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           padding: const EdgeInsets.all(8.0),
                           child: CustomPerfoBarChart(
                             categoryPerformance: categoryPerformance!,
-                            // staffProjection: staffProjection,
-                            // targetType: targetType,
-                            staffProjection:
-                                targetType == '1' ? staffProjection : '0',
-                            targetType: targetType == '1' ? '1' : '0',
+                            valuePerformance: valuePerformance!,
+                            staffProjection: staffProjection,
+                            targetType: targetType,
+                            // staffProjection:
+                            //     targetType == '1' ? staffProjection : '0',
+                            // targetType: targetType == '1' ? '1' : '0',
                           ),
                         ),
                       );

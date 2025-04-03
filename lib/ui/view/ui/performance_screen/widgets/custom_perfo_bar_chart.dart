@@ -20,12 +20,14 @@ import 'package:provider/provider.dart';
 
 class CustomPerfoBarChart extends StatefulWidget {
   final List<CategoryPerformance> categoryPerformance;
+  final List<ValueTargetDatum> valuePerformance;
   final String staffProjection;
   final String targetType;
-  
+
   const CustomPerfoBarChart({
     super.key,
     required this.categoryPerformance,
+    required this.valuePerformance,
     required this.staffProjection,
     required this.targetType,
   });
@@ -43,6 +45,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
     super.initState();
     provider.createBarGroups(
         categoryPerformance: widget.categoryPerformance,
+        valuePerformance: widget.valuePerformance,
         staffProjection: widget.staffProjection,
         targetType: widget.targetType);
   }
@@ -71,8 +74,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
-                    } 
-                    else if (snapshot.hasData) {
+                    } else if (snapshot.hasData) {
                       final categories = snapshot.data!.data;
                       return SingleChildScrollView(
                         scrollDirection: Axis.vertical,
@@ -123,13 +125,13 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                       fontSize: 13,
                                     ),
                                   ),
-                                  if (widget.targetType == "1")
-                                    const DataColumn(
-                                      label: DialogTableHeaderText(
-                                        text: 'Target',
-                                        fontSize: 13,
-                                      ),
+                                  // if (widget.targetType == "1")
+                                  const DataColumn(
+                                    label: DialogTableHeaderText(
+                                      text: 'Target',
+                                      fontSize: 13,
                                     ),
+                                  ),
                                   if (widget.staffProjection == "1")
                                     const DataColumn(
                                       label: DialogTableHeaderText(
@@ -158,18 +160,18 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                           ),
                                         ),
                                       ),
-                                      if (widget.targetType == "1")
-                                        DataCell(
-                                          Center(
-                                            child: Text(
-                                              formatAmount(s.targetTotal),
-                                              style: const TextStyle(
-                                                color: secondaryTextColor,
-                                                fontSize: 13,
-                                              ),
+                                      // if (widget.targetType == "1")
+                                      DataCell(
+                                        Center(
+                                          child: Text(
+                                            formatAmount(s.targetTotal),
+                                            style: const TextStyle(
+                                              color: secondaryTextColor,
+                                              fontSize: 13,
                                             ),
                                           ),
                                         ),
+                                      ),
                                       if (widget.staffProjection == "1")
                                         DataCell(
                                           Center(
@@ -201,8 +203,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                           ],
                         ),
                       );
-                    }
-                     else {
+                    } else {
                       return const NodataWidget();
                     }
                   },
@@ -218,22 +219,42 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
   }
 
   Widget getBottomTitles(double value, TitleMeta meta) {
-    if (value.toInt() >= 0 &&
-        value.toInt() < widget.categoryPerformance.length) {
-      return Container(
-        margin: const EdgeInsets.only(top: 12),
-        child: Transform.rotate(
-          angle: -1.34 / 4,
-          child: MyRegularText(
-            label: widget.categoryPerformance[value.toInt()].category ?? '',
-            fontWeight: FontWeight.w500,
-            fontSize: 11,
-            color: Colors.black,
+    if (widget.targetType == '0') {
+      if (value.toInt() >= 0 &&
+          value.toInt() < widget.valuePerformance.length) {
+        return Container(
+          margin: const EdgeInsets.only(top: 12),
+          child: Transform.rotate(
+            angle: -1.34 / 4,
+            child: MyRegularText(
+              label: widget.valuePerformance[value.toInt()].cid ?? '',
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              color: Colors.black,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        return const SizedBox();
+      }
     } else {
-      return const SizedBox();
+      if (value.toInt() >= 0 &&
+          value.toInt() < widget.categoryPerformance.length) {
+        return Container(
+          margin: const EdgeInsets.only(top: 12),
+          child: Transform.rotate(
+            angle: -1.34 / 4,
+            child: MyRegularText(
+              label: widget.categoryPerformance[value.toInt()].category ?? '',
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              color: Colors.black,
+            ),
+          ),
+        );
+      } else {
+        return const SizedBox();
+      }
     }
   }
 
@@ -261,7 +282,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                 .reduce((a, b) => a > b ? a : b)
             : 0;
 
-
         final int magnitude = pow(
                 10,
                 maxBarValue == 0
@@ -270,7 +290,6 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
             .toInt();
         final double dynamicMaxY =
             ((maxBarValue / magnitude).ceil() * magnitude).toDouble();
-
 
         final int dynamicInterval;
         if (dynamicMaxY >= 1000000000) {
@@ -305,8 +324,9 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
           dynamicInterval = 5;
         }
 
-
-        return widget.categoryPerformance.isEmpty
+        return (widget.targetType == '0'
+                ? widget.valuePerformance.isEmpty
+                : widget.categoryPerformance.isEmpty)
             ? const SizedBox(
                 height: 200,
                 child: Center(
@@ -349,100 +369,133 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                               thickness: 5,
                               thumbVisibility: true,
                               trackVisibility: true,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: SingleChildScrollView(
-                                  controller: Provider.of<DashboardProvider>(
-                                          context,
-                                          listen: false)
-                                      .scrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const ClampingScrollPhysics(),
-                                  child: SizedBox(
-                                    width: provider.barGroups.length * 66.0,
+                              child: Row(
+                                children: [
+                                  Expanded(
                                     child: Padding(
-                                      padding: const EdgeInsets.only(top: 3.0),
-                                      child: BarChart(
-                                        BarChartData(
-                                          alignment:
-                                              BarChartAlignment.spaceAround,
-                                          barGroups: provider.barGroups,
-                                          maxY: dynamicMaxY > 0
-                                              ? dynamicMaxY
-                                              : 100,
-                                          titlesData: FlTitlesData(
-                                            leftTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                interval:
-                                                    dynamicInterval.toDouble(),
-                                                getTitlesWidget: getLeftTitles,
-                                                reservedSize: dynamicMaxY
-                                                            .toString()
-                                                            .length *
-                                                        7 +
-                                                    10,
-                                              ),
-                                            ),
-                                            bottomTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                getTitlesWidget:
-                                                    getBottomTitles,
-                                                reservedSize: 40,
-                                              ),
-                                            ),
-                                            topTitles: const AxisTitles(
-                                              sideTitles:
-                                                  SideTitles(showTitles: false),
-                                            ),
-                                            rightTitles: const AxisTitles(
-                                              sideTitles:
-                                                  SideTitles(showTitles: false),
-                                            ),
-                                          ),
-                                          borderData: FlBorderData(
-                                            show: true,
-                                            border: Border.all(
-                                              color: const Color(0xffe0e0e0),
-                                              width: 0.9,
-                                            ),
-                                          ),
-                                          barTouchData: BarTouchData(
-                                            touchCallback: (FlTouchEvent event,
-                                                BarTouchResponse?
-                                                    touchResponse) {
-                                              if (touchResponse != null &&
-                                                  touchResponse.spot != null &&
-                                                  event is FlTapUpEvent) {
-                                                final int index = touchResponse
-                                                    .spot!.touchedBarGroupIndex;
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10.0),
+                                      child: LayoutBuilder(
+                                          builder: (context, constraints) {
+                                        // Calculate the required chart width based on the number of bars
+                                        double chartWidth =
+                                            barGroups.length * 100.0;
 
-                                                CategoryPerformance perf =
-                                                    widget.categoryPerformance
-                                                        .firstWhere(
-                                                  (performance) =>
-                                                      performance.category ==
-                                                      widget
-                                                          .categoryPerformance[
-                                                              index]
-                                                          .category,
-                                                );
-                                                _showSalesmanPopup(
-                                                    perf.cid ?? 0,
-                                                    widget
-                                                            .categoryPerformance[
-                                                                index]
-                                                            .category ??
-                                                        '');
-                                              }
-                                            },
+                                        // Ensure chart width is at least as wide as the parent widget
+                                        double minWidth = constraints.maxWidth;
+                                        double finalWidth =
+                                            chartWidth > minWidth
+                                                ? chartWidth
+                                                : minWidth;
+                                        return SingleChildScrollView(
+                                          controller:
+                                              Provider.of<DashboardProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .scrollController,
+                                          scrollDirection: Axis.horizontal,
+                                          physics:
+                                              const ClampingScrollPhysics(),
+                                          child: SizedBox(
+                                            width: finalWidth,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 3.0),
+                                              child: BarChart(
+                                                BarChartData(
+                                                  alignment: BarChartAlignment
+                                                      .spaceAround,
+                                                  barGroups: provider.barGroups,
+                                                  maxY: dynamicMaxY > 0
+                                                      ? dynamicMaxY
+                                                      : 100,
+                                                  titlesData: FlTitlesData(
+                                                    leftTitles: AxisTitles(
+                                                      sideTitles: SideTitles(
+                                                        showTitles: true,
+                                                        interval:
+                                                            dynamicInterval
+                                                                .toDouble(),
+                                                        getTitlesWidget:
+                                                            getLeftTitles,
+                                                        reservedSize: dynamicMaxY
+                                                                    .toString()
+                                                                    .length *
+                                                                7 +
+                                                            10,
+                                                      ),
+                                                    ),
+                                                    bottomTitles: AxisTitles(
+                                                      sideTitles: SideTitles(
+                                                        showTitles: true,
+                                                        getTitlesWidget:
+                                                            getBottomTitles,
+                                                        reservedSize: 40,
+                                                      ),
+                                                    ),
+                                                    topTitles: AxisTitles(
+                                                      sideTitles: SideTitles(
+                                                          showTitles: false),
+                                                    ),
+                                                    rightTitles: AxisTitles(
+                                                      sideTitles: SideTitles(
+                                                          showTitles: false),
+                                                    ),
+                                                  ),
+                                                  borderData: FlBorderData(
+                                                    show: true,
+                                                    border: Border.all(
+                                                      color: const Color(
+                                                          0xffe0e0e0),
+                                                      width: 0.9,
+                                                    ),
+                                                  ),
+                                                  barTouchData: BarTouchData(
+                                                    touchCallback:
+                                                        (FlTouchEvent event,
+                                                            BarTouchResponse?
+                                                                touchResponse) {
+                                                      if (touchResponse !=
+                                                              null &&
+                                                          touchResponse.spot !=
+                                                              null &&
+                                                          event
+                                                              is FlTapUpEvent) {
+                                                        final int index =
+                                                            touchResponse.spot!
+                                                                .touchedBarGroupIndex;
+
+                                                        CategoryPerformance
+                                                            perf = widget
+                                                                .categoryPerformance
+                                                                .firstWhere(
+                                                          (performance) =>
+                                                              performance
+                                                                  .category ==
+                                                              widget
+                                                                  .categoryPerformance[
+                                                                      index]
+                                                                  .category,
+                                                        );
+                                                        _showSalesmanPopup(
+                                                            perf.cid ?? 0,
+                                                            widget
+                                                                    .categoryPerformance[
+                                                                        index]
+                                                                    .category ??
+                                                                '');
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      }),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                             Padding(
@@ -476,11 +529,11 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                           reservedSize: 40,
                                         ),
                                       ),
-                                      topTitles: const AxisTitles(
+                                      topTitles: AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
-                                      rightTitles: const AxisTitles(
+                                      rightTitles: AxisTitles(
                                         sideTitles:
                                             SideTitles(showTitles: false),
                                       ),
@@ -504,9 +557,9 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (widget.targetType == "1")
-                        _buildLegend(
-                            color: const Color(0xff3b6491), label: 'Target'),
+                      // if (widget.targetType == "1")
+                      _buildLegend(
+                          color: const Color(0xff3b6491), label: 'Target'),
                       if (widget.staffProjection == "1")
                         _buildLegend(
                             color: const Color(0xff15396a),
@@ -520,7 +573,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
       },
     );
   }
-  
+
   Widget _buildLegend({required Color color, required String label}) {
     return Row(
       children: [

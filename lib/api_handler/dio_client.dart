@@ -45,7 +45,7 @@ class DioClient with ApiConstants {
     } on DioException catch (err) {
       log('Post Requested Path: $path');
       log('DioError: ${err.response?.data}');
-      return err.response ?? Future.error("No response from server");
+      return Future.error("No response from server");
     } catch (e) {
       log('General Error: $e');
       return Future.error(e);

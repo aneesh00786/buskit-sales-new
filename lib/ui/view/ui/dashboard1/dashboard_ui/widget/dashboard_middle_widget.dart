@@ -121,17 +121,29 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               child: Column(
                 children: [
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: middleTopLeftComponet()),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: middleTopLeftComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: middleTopRightComponet()),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: middleTopRightComponet()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: const CommunicationsDisplayWidget()),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: const CommunicationsDisplayWidget()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: topSellingProductWidget()),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: topSellingProductWidget()),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: collectionChart(context)),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: collectionChart(context)),
                   const SizedBox(height: 4.7),
-                  SizedBox(height: screenWidth * 0.7, child: orderDeliveryChart(context)),
+                  SizedBox(
+                      height: screenWidth * 0.7,
+                      child: orderDeliveryChart(context)),
                   const SizedBox(height: 70),
                 ],
               ),
@@ -207,7 +219,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Collection'),
                 Padding(
-                 padding: EdgeInsets.only(
+                  padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
@@ -300,7 +312,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          
                         } else {
                           final responseModel = snapshot.data!;
                           final totalCompletedAmount = responseModel
@@ -379,11 +390,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 ),
                                 const SizedBox(height: 10.0),
                                 Wrap(
-                                alignment: WrapAlignment.center,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: [
+                                  alignment: WrapAlignment.center,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: [
                                     InkWell(
                                       onTap: () {
                                         showValueCollectionDialog(
@@ -494,7 +505,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Order Status'),
                 Padding(
-                 padding: EdgeInsets.only(
+                  padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
@@ -554,7 +565,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             },
                           );
                         } else if (snapshot.hasData) {
-                     
                           final categoryPerformance = snapshot.data!.delivery;
 
                           if (categoryPerformance == null ||
@@ -647,7 +657,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          
                         }
                       },
                     );
@@ -666,7 +675,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     if (staffProjection == "1" && targetType == "1") {
       displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "1" && targetType == "0") {
-     displayText = "Category Target / Projection / Actuals";
+      displayText = "Category Target / Projection / Actuals";
     } else if (staffProjection == "0" && targetType == "1") {
       displayText = "Category Target / Actuals";
     } else {
@@ -690,44 +699,64 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                dashboardContainerHeader(displayText),
-                Row(
-                  children: [
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 5, top: 2),
-                      child: InkWell(
-                        onTap: () {
-                          showCategoryChartDialog(
-                            context,
-                            "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' && targetType == '1' ? "Projection / " : ''}Actuals",
-                            // "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
-                            staffProjection,
-                            targetType,
-                          );
-                        },
-                        child: Padding(
-                       padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: primaryColor.withOpacity(0.3)),
-                            child: const Padding(
-                              padding: EdgeInsets.all(5.0),
-                              child: Icon(
-                                Icons.open_in_new,
-                                size: 17,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: IntrinsicWidth(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.2),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                        ),
+                      ),
+                      padding: const EdgeInsets.only(
+                          right: 20, left: 20, top: 5, bottom: 5),
+                      child: Text(
+                        displayText,
+                        style: TextStyle(
+                          fontFamily: fontFamilyName,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        softWrap: true,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Padding(
+                  padding: const EdgeInsets.only(right: 5, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      showCategoryChartDialog(
+                        context,
+                        // "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
+                        displayText,
+                        staffProjection,
+                        targetType,
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -770,20 +799,20 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           final categoryPerformance =
                               snapshot.data!.categoryPerformance;
                           final monthlyPerformance =
-                                  snapshot.data!.monthlyPerformance;
+                              snapshot.data!.monthlyPerformance;
 
                           return Center(
                             child: CustomBarChart(
                               categoryPerformance: categoryPerformance!,
-                              monthlyPerformance: monthlyPerformance??[],
+                              monthlyPerformance: monthlyPerformance ?? [],
                               allCategory: categories!,
-                              staffProjection:staffProjection,
+                              staffProjection: staffProjection,
                               targetType: targetType,
                               isMonthly: targetType == '0' ? true : false,
                               isDayOrRange: provider.selectedFilter ==
-                                        FilterDateEnum.range ||
-                                    provider.selectedFilter ==
-                                        FilterDateEnum.today,
+                                      FilterDateEnum.range ||
+                                  provider.selectedFilter ==
+                                      FilterDateEnum.today,
                             ),
                           );
                         } else {
@@ -824,7 +853,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 dashboardContainerHeader('Revenue'),
                 Padding(
-                padding: EdgeInsets.only(
+                  padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
@@ -956,7 +985,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               }
                             },
                           );
-                          
                         }
                       },
                     );
@@ -1139,179 +1167,179 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       ),
     );
   }
-Widget topSellingProductWidget() {
-  List<TopSellingProductA> topSellingProducts = [];
-  return Padding(
-    padding: const EdgeInsets.all(2.0),
-    child: MyCommnonContainer(
-      boxShadow: [
-        BoxShadow(
-          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-          blurRadius: 5,
-          offset: const Offset(4, 4),
-        ),
-      ],
-      borderRadius: 25,
-      height: 300,
-      width: double.infinity,
-      isCommonBorder: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              dashboardContainerHeader("Frequently Bought Products"),
-              Padding(
-                padding: EdgeInsets.only(
-                    right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                child: InkWell(
-                  onTap: () {
-                    if (topSellingProducts.isNotEmpty) {
-                      return showProductListDialog<TopSellingProductA>(
-                        context: widget.context,
-                        productList: topSellingProducts,
-                        getQuantity: (product) =>
-                            product.quantity?.toDouble() ?? 0.0,
-                        getProductName: (product) =>
-                            product.productName ?? '',
-                        getVariationName: (product) =>
-                            product.variationName ?? '',
-                        getFormattedDate: (product) =>
-                            DateFormat('dd-MM-yyyy')
-                                .format(product.createdAt!.toLocal()),
-                        getPrice: (product) => formatAmount(
-                          product.inclTax == "incl_tax"
-                              ? (double.tryParse(product
-                                      .topSellingProductATotalPrice
-                                      .toString()) ??
-                                  0.0)
-                              : ((double.tryParse(product
-                                          .topSellingProductATotalPrice
-                                          .toString()) ??
-                                      0.0) +
-                                  ((double.tryParse(product.tax.toString()) ??
-                                          0.0) *
-                                      (double.tryParse(
-                                              product.quantity.toString()) ??
-                                          0.0))),
-                        ),
-                        getBuyQuantity: (product) =>
-                            int.tryParse(product.buyquantity ?? '0') ?? 0,
-                        getInNo: (product) => product.inNo ?? '',
-                        onQuantityTap: (context, product) =>
-                            showDashTimesDialogue(
-                          context,
-                          product,
-                          (p) => p.getTimesData ?? [],
-                          (data) => data.businessName,
-                          (data) => formatAmount(data.price),
-                          (data) => formatAmount(data.tax),
-                          (data) => data.quantity.toString(),
-                          (data) => formatAmount(
+
+  Widget topSellingProductWidget() {
+    List<TopSellingProductA> topSellingProducts = [];
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: MyCommnonContainer(
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: const Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 300,
+        width: double.infinity,
+        isCommonBorder: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                dashboardContainerHeader("Frequently Bought Products"),
+                Padding(
+                  padding: EdgeInsets.only(
+                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                  child: InkWell(
+                    onTap: () {
+                      if (topSellingProducts.isNotEmpty) {
+                        return showProductListDialog<TopSellingProductA>(
+                          context: widget.context,
+                          productList: topSellingProducts,
+                          getQuantity: (product) =>
+                              product.quantity?.toDouble() ?? 0.0,
+                          getProductName: (product) =>
+                              product.productName ?? '',
+                          getVariationName: (product) =>
+                              product.variationName ?? '',
+                          getFormattedDate: (product) =>
+                              DateFormat('dd-MM-yyyy')
+                                  .format(product.createdAt!.toLocal()),
+                          getPrice: (product) => formatAmount(
                             product.inclTax == "incl_tax"
-                                ? ((double.tryParse(
-                                        data.totalPrice.toString()) ??
-                                    0))
-                                : (((double.tryParse(
-                                                data.totalPrice.toString()) ??
-                                            0) *
+                                ? (double.tryParse(product
+                                        .topSellingProductATotalPrice
+                                        .toString()) ??
+                                    0.0)
+                                : ((double.tryParse(product
+                                            .topSellingProductATotalPrice
+                                            .toString()) ??
+                                        0.0) +
+                                    ((double.tryParse(product.tax.toString()) ??
+                                            0.0) *
                                         (double.tryParse(
-                                                data.quantity.toString()) ??
-                                            0)) +
-                                    (double.tryParse(
-                                            data.tax.toString()) ??
-                                        0.0)),
+                                                product.quantity.toString()) ??
+                                            0.0))),
                           ),
-                          (data) => DateFormat('dd-MM-yyyy')
-                              .format(data.createdAt!),
-                          (data) => data.orderId.toString(),
-                          true,
+                          getBuyQuantity: (product) =>
+                              int.tryParse(product.buyquantity ?? '0') ?? 0,
+                          getInNo: (product) => product.inNo ?? '',
+                          onQuantityTap: (context, product) =>
+                              showDashTimesDialogue(
+                            context,
+                            product,
+                            (p) => p.getTimesData ?? [],
+                            (data) => data.businessName,
+                            (data) => formatAmount(data.price),
+                            (data) => formatAmount(data.tax),
+                            (data) => data.quantity.toString(),
+                            (data) => formatAmount(
+                              product.inclTax == "incl_tax"
+                                  ? ((double.tryParse(
+                                          data.totalPrice.toString()) ??
+                                      0))
+                                  : (((double.tryParse(
+                                                  data.totalPrice.toString()) ??
+                                              0) *
+                                          (double.tryParse(
+                                                  data.quantity.toString()) ??
+                                              0)) +
+                                      (double.tryParse(data.tax.toString()) ??
+                                          0.0)),
+                            ),
+                            (data) => DateFormat('dd-MM-yyyy')
+                                .format(data.createdAt!),
+                            (data) => data.orderId.toString(),
+                            true,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(widget.context).showSnackBar(
+                          const SnackBar(
+                            content: Text("No data available"),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: primaryColor.withOpacity(0.3)),
+                        child: const Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Icon(
+                            Icons.open_in_new,
+                            size: 17,
+                            color: primaryColor,
+                          ),
+                        )),
+                  ),
+                ),
+              ],
+            ),
+            nkSmallSizeBox(),
+            Consumer<DashboardProvider>(
+              builder: (context, provider, child) {
+                return FutureBuilder<ResponseModell>(
+                  future: provider.futureResponseModel,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Expanded(
+                        child: Center(
+                          child: SpinKitFadingCube(
+                            color: primaryColor,
+                            size: 20.0,
+                          ),
                         ),
                       );
+                    } else if (snapshot.hasError) {
+                      return const Expanded(
+                        child: Center(
+                          child: NodataWidget(),
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      topSellingProducts =
+                          snapshot.data!.topSellingProducts ?? [];
+                      return Expanded(
+                        child: topSellingProductList(topSellingProducts),
+                      );
                     } else {
-                      ScaffoldMessenger.of(widget.context).showSnackBar(
-                        const SnackBar(
-                          content: Text("No data available"),
+                      return Expanded(
+                        child: FutureBuilder(
+                          future: Future.delayed(const Duration(seconds: 3)),
+                          builder: (context, delaySnapshot) {
+                            if (delaySnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                ),
+                              );
+                            } else {
+                              return const Center(
+                                child: NodataWidget(),
+                              );
+                            }
+                          },
                         ),
                       );
                     }
                   },
-                  child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: primaryColor.withOpacity(0.3)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          size: 17,
-                          color: primaryColor,
-                        ),
-                      )),
-                ),
-              ),
-            ],
-          ),
-          nkSmallSizeBox(),
-          Consumer<DashboardProvider>(
-            builder: (context, provider, child) {
-              return FutureBuilder<ResponseModell>(
-                future: provider.futureResponseModel,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Expanded(
-                      child: Center(
-                        child: SpinKitFadingCube(
-                          color: primaryColor, 
-                          size: 20.0,
-                        ),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Expanded(
-                      child: Center(
-                        child: NodataWidget(),
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    topSellingProducts =
-                        snapshot.data!.topSellingProducts ?? [];
-                    return Expanded(
-                      child: topSellingProductList(topSellingProducts),
-                    );
-                  } else {
-                    return Expanded(
-                      child: FutureBuilder(
-                        future: Future.delayed(const Duration(seconds: 3)),
-                        builder: (context, delaySnapshot) {
-                          if (delaySnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: SpinKitFadingCube(
-                                color: primaryColor,
-                                size: 20.0,
-                              ),
-                            );
-                          } else {
-                            return const Center(
-                              child: NodataWidget(),
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  }
-                },
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // Widget topSellingProductWidget() {
   //   List<TopSellingProductA> topSellingProducts = [];
@@ -1907,8 +1935,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (isFetching && index == messages.length) {
                         return const CircleAvatar(
                           radius: 20,
-                          backgroundColor:
-                              Color.fromARGB(255, 233, 233, 233),
+                          backgroundColor: Color.fromARGB(255, 233, 233, 233),
                           foregroundColor: Colors.white,
                           child: Padding(
                             padding: EdgeInsets.all(6.0),
@@ -1997,14 +2024,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                         _pickImage(ImageSource.camera);
                                         Navigator.of(context).pop();
                                       },
-                                      icon: const Icon(EneftyIcons.camera_outline),
+                                      icon: const Icon(
+                                          EneftyIcons.camera_outline),
                                     ),
                                     IconButton(
                                       onPressed: () {
                                         _pickImage(ImageSource.gallery);
                                         Navigator.of(context).pop();
                                       },
-                                      icon: const Icon(EneftyIcons.gallery_bold),
+                                      icon:
+                                          const Icon(EneftyIcons.gallery_bold),
                                     ),
                                   ],
                                 );
@@ -2031,18 +2060,18 @@ class _ChatScreenState extends State<ChatScreen> {
                             hintText: 'Type your message here...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
-                              borderSide:
-                                  const BorderSide(color: Colors.grey, width: 0.5),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 0.5),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
-                              borderSide:
-                                  const BorderSide(color: Colors.grey, width: 0.5),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 0.5),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
-                              borderSide:
-                                  const BorderSide(color: Colors.blue, width: 1.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.blue, width: 1.0),
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 15),
@@ -2083,7 +2112,6 @@ class CommunicationsDisplayWidget extends StatefulWidget {
 
 class _CommunicationsDisplayWidgetState
     extends State<CommunicationsDisplayWidget> {
-
   @override
   Widget build(BuildContext context) {
     return Padding(

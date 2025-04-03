@@ -57,6 +57,7 @@ void main() async {
   await Hive.openBox('leadsBox');
   await Hive.openBox('leadsRejectBox');
   await Hive.openBox('ordersBox');
+  await Hive.openBox('fetchAllOrdersBox');
   await Hive.openBox('settingsBox');
   await Hive.openBox('calendarEventsBox');
   await Hive.openBox('salesmanTargetBox');

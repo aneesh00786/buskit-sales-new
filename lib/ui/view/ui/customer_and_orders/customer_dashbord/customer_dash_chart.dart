@@ -873,7 +873,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         children: [
                                           Expanded(
                                             child: DataTable(
-                                                dataRowHeight: fontSize * 5.5,
+                                                dataRowHeight: 0,
                                                 headingRowHeight:
                                                     fullScreenWidth(context) >
                                                             740
@@ -1574,7 +1574,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                       children: [
                                         Expanded(
                                           child: DataTable(
-                                              dataRowHeight: fontSize * 5.5,
+                                              dataRowHeight: 0,
                                               headingRowHeight: 45,
                                               headingRowColor:
                                                   const WidgetStatePropertyAll(

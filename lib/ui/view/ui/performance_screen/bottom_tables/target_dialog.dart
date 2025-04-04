@@ -358,7 +358,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
             categoryIndex < categoryIds.length;
             categoryIndex++) {
           final categoryId = categoryIds[categoryIndex];
-          final key = 'weekly_${categoryId}_week$week';
+          final key = 'weekly_${categoryId}_$week';
           final controller = categoryIndex < controllers.length
               ? controllers[categoryIndex]
               : null;
@@ -381,7 +381,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
             categoryIndex < categoryIds.length;
             categoryIndex++) {
           final categoryId = categoryIds[categoryIndex];
-          final key = 'projection_category_${categoryId}_week$week';
+          final key = 'projection_category_${categoryId}_$week';
           final controller = categoryIndex < controllers.length
               ? controllers[categoryIndex]
               : null;
@@ -418,12 +418,12 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
             _weeklyProjectionControllers[weekKey] ?? [];
 
         if (categoryIndex < weeklyTargetControllers.length) {
-          updatedTargets['weekly_${categoryId}_week$week'] =
+          updatedTargets['weekly_${categoryId}_$week'] =
               weeklyTargetControllers[categoryIndex].text.toString();
         }
 
         if (categoryIndex < weeklyProjectionControllers.length) {
-          updatedProjection['projection_category_${categoryId}_week$week'] =
+          updatedProjection['projection_category_${categoryId}_$week'] =
               weeklyProjectionControllers[categoryIndex].text.toString();
         }
       }

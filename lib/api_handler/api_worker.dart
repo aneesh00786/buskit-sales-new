@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -1928,31 +1929,41 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<Response> updateCategoryTargetValue(
-    String salesmanId,
-    String month,
-    String year,
-    Map<dynamic, dynamic> categoryData,
-    Map<dynamic, dynamic> weeklyTarget,
-    Map<dynamic, dynamic> weeklyProjection,
-  ) async {
-    final response = await dio
-        .postbycustom(ApiConstants.updateCategoryTargetValue,
-            data: ({
-              "categories": categoryData,
-              "weekly_target": weeklyTarget,
-              "weekly_projection": weeklyProjection,
-              "sales_id": salesmanId,
-              "year": int.parse(year),
-              "month": month,
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
-  }
+Future<Response> updateCategoryTargetValue(
+  String salesmanId,
+  String month,
+  String year,
+  Map<dynamic, dynamic> categoryData,
+  Map<dynamic, dynamic> weeklyTarget,
+  Map<dynamic, dynamic> weeklyProjection,
+) async {
+  final requestPayload = {
+    "categories": categoryData,
+    "weekly_target": weeklyTarget,
+    "weekly_projection": weeklyProjection,
+    "sales_id": salesmanId,
+    "year": int.parse(year),
+    "month": month,
+    "companyId": companyId,
+  };
+
+  log('Sending API request to updateCategoryTargetValue...');
+  log('API Payload: ${jsonEncode(requestPayload)}');
+
+  final response = await dio1
+      .post(
+        // ApiConstants.updateCategoryTargetValue,
+        'http://16.50.232.153:3000/Update_CategorytargetValue',
+        data: requestPayload,
+      )
+      .onError((DioException error, stackTrace) {
+        log("Dio Error: ${error.toString()}");
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+
+  return response;
+}
+
 
   Future<LeadResponce> getLeadsCustomerData(String salesManId,
       {PaginationModel? paginationModel}) async {

@@ -3,12 +3,14 @@ class SalesmanTargetTableResponse {
   bool? status;
   String? message;
   List<SalesmanTargetTableData>? data;
+  List<String>? weekList;
 
   SalesmanTargetTableResponse({
     this.statusCode,
     this.status,
     this.message,
     this.data,
+    this.weekList,
   });
 
   factory SalesmanTargetTableResponse.fromJson(Map<String, dynamic> json) =>
@@ -18,6 +20,8 @@ class SalesmanTargetTableResponse {
         message: json["message"],
         data: List<SalesmanTargetTableData>.from(
             json["data"].map((x) => SalesmanTargetTableData.fromJson(x))),
+        weekList: List<String>.from(
+            json["weeklist"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -25,6 +29,7 @@ class SalesmanTargetTableResponse {
         "status": status,
         "message": message,
         "data": List<dynamic>.from(data!.map((x) => x.toJson())),
+        "weeklist": List<dynamic>.from(weekList!.map((x) => x)),
       };
 }
 

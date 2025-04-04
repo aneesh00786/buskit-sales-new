@@ -506,9 +506,11 @@ class ScheduleListCustomer {
 class SalesmanValueTargetResponse {
   bool? success;
   List<SalesmanValueTargetData>? data;
+  List<String>? weekList;
   SalesmanValueTargetResponse({
     this.success,
     this.data,
+    this.weekList
   });
   factory SalesmanValueTargetResponse.fromJson(Map<String, dynamic> json) =>
       SalesmanValueTargetResponse(
@@ -517,12 +519,14 @@ class SalesmanValueTargetResponse {
             ? List<SalesmanValueTargetData>.from((json["data"] as List<dynamic>)
                 .map((x) => SalesmanValueTargetData.fromJson(x)))
             : null,
+        weekList: json['weeklist'] != null ? List<String>.from((json['weeklist'] as List<dynamic>).map((x) => x)) : null
       );
   Map<String, dynamic> toJson() => {
         "success": success,
         "data": data != null
             ? List<dynamic>.from(data!.map((x) => x.toJson()))
             : null,
+        "weeklist": weekList != null ? List<String>.from(weekList!.map((x)=> x)):null,
       };
 }
 

@@ -59,7 +59,8 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     }
     super.dispose();
   }
-   void _initializeControllers() {
+
+  void _initializeControllers() {
     final selectedMonth = DateFormat.MMMM()
         .format(DateTime(0, staffController.tabController.index + 1));
 
@@ -81,26 +82,27 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
-    final relevantWeeks = getWeeksForMonth(
-        int.parse(salesData.year.toString()),
-        staffController.tabController.index + 1,
-    );
+    final relevantWeeks = widget.staffController.weekList;
+    // getWeeksForMonth(
+    //   int.parse(salesData.year.toString()),
+    //   staffController.tabController.index + 1,
+    // );
     if (_weeklyProjectionControllers.isEmpty) {
       _weeklyProjectionControllers = List.generate(
         relevantWeeks.length,
         (index) {
           final week = relevantWeeks[index];
-          final weekKey = "week$week";
+          final weekKey = week;
           final weekData = weeklyTargetProjection[weekKey];
-          String initialText = (weekData != null && weekData['projection'] != null)
-              ? weekData['projection'].toString()
-              : '0';
+          String initialText =
+              (weekData != null && weekData['projection'] != null)
+                  ? weekData['projection'].toString()
+                  : '0';
           return TextEditingController(text: initialText);
         },
       );
     }
   }
-
 
   void _initializeState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,9 +151,10 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 .staffController.salesmanValueTargetList[i].projection
                 .toString();
           }
-          final relevantWeeks = getWeeksForMonth(
-              int.parse(salesData.year.toString()),
-              staffController.tabController.index + 1);
+          final relevantWeeks = widget.staffController.weekList;
+          // getWeeksForMonth(
+          //     int.parse(salesData.year.toString()),
+          //     staffController.tabController.index + 1);
 
           _weeklyProjectionControllers = List.generate(
             relevantWeeks.length,
@@ -162,7 +165,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           log("Relevant Weeks: $relevantWeeks");
 
           for (var i = 0; i < relevantWeeks.length; i++) {
-            final weekKey = "week${relevantWeeks[i]}";
+            final weekKey = relevantWeeks[i];
             final weekData = weeklyTargetProjection[weekKey];
 
             log("Week $weekKey Data: $weekData");
@@ -456,14 +459,15 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
-    final relevantWeeks = getWeeksForMonth(
-      int.parse(salesData.year.toString()),
-      staffController.tabController.index + 1,
-    );
+    final relevantWeeks = widget.staffController.weekList;
+    // getWeeksForMonth(
+    //   int.parse(salesData.year.toString()),
+    //   staffController.tabController.index + 1,
+    // );
 
     for (var i = 0; i < relevantWeeks.length; i++) {
       final week = relevantWeeks[i];
-      final weekKey = "week$week";
+      final weekKey = week;
       final weekData = weeklyTargetProjection[weekKey];
 
       log('Targets: $weekData');
@@ -475,7 +479,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       allWeeklyRows.add(
         TableRow(
           children: [
-            _buildTableCell("Week $week"),
+            _buildTableCell(week.replaceAll('week', "Week ")),
             _buildTableCell("$target"),
             Container(
               height: 50,
@@ -485,7 +489,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 textAlign: TextAlign.center,
                 onChanged: (newValue) {
                   log("Updated projection for Week $week: $newValue");
-                  setState(() {}); 
+                  setState(() {});
                 },
                 decoration: InputDecoration(
                   fillColor: Colors.blueGrey.shade50,
@@ -518,22 +522,22 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     );
   }
 
-  List<int> getWeeksForMonth(int year, int month) {
-    List<int> weeks = [];
-    DateTime firstDay = DateTime(year, month, 2);
-    DateTime lastDay = DateTime(year, month + 1, 2);
-    DateTime currentDay = firstDay;
-    while (
-        currentDay.isBefore(lastDay) || currentDay.isAtSameMomentAs(lastDay)) {
-      int weekNumber =
-          (currentDay.difference(DateTime(year, 1, 1)).inDays / 7).floor() + 1;
-      if (!weeks.contains(weekNumber)) {
-        weeks.add(weekNumber);
-      }
-      currentDay = currentDay.add(const Duration(days: 1)).toLocal();
-    }
-    return weeks;
-  }
+  // List<int> getWeeksForMonth(int year, int month) {
+  //   List<int> weeks = [];
+  //   DateTime firstDay = DateTime(year, month, 2);
+  //   DateTime lastDay = DateTime(year, month + 1, 2);
+  //   DateTime currentDay = firstDay;
+  //   while (
+  //       currentDay.isBefore(lastDay) || currentDay.isAtSameMomentAs(lastDay)) {
+  //     int weekNumber =
+  //         (currentDay.difference(DateTime(year, 1, 1)).inDays / 7).floor() + 1;
+  //     if (!weeks.contains(weekNumber)) {
+  //       weeks.add(weekNumber);
+  //     }
+  //     currentDay = currentDay.add(const Duration(days: 1)).toLocal();
+  //   }
+  //   return weeks;
+  // }
 
   void _saveTargets() async {
     Map<String, dynamic> monthTarget = {};
@@ -582,12 +586,13 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
 
-    final relevantWeeks = getWeeksForMonth(int.parse(salesData.year.toString()),
-        staffController.tabController.index + 1);
+    final relevantWeeks = widget.staffController.weekList;
+    // getWeeksForMonth(int.parse(salesData.year.toString()),
+    //     staffController.tabController.index + 1);
 
     for (var i = 0; i < relevantWeeks.length; i++) {
       final week = relevantWeeks[i];
-      final weekKey = "week$week";
+      final weekKey = week;
       final weekData = weeklyTargetProjection[weekKey];
 
       int target = 0;

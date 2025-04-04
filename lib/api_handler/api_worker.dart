@@ -1785,11 +1785,11 @@ class ApiWorker with ApiConstants {
           );
 
           if (response.statusCode == 200) {
-            final dynamic jsonData = response.data['data'];
+            final dynamic jsonData = response.data;
             log("Fetched Salesman Target Data: $jsonData");
             if (jsonData != null) {
               await targetBox.put(cacheKey, jsonData);
-              return SalesmanTargetTableResponse.fromJson({"data": jsonData});
+              return SalesmanTargetTableResponse.fromJson(jsonData);
             }
           } else {
             log("API Error: ${response.statusCode} ${response.statusMessage}");

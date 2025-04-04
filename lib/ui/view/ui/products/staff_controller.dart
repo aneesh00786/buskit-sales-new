@@ -261,6 +261,7 @@ class StaffController extends GetxController {
   RxBool isValueTargetLoading = false.obs;
   RxList<SalesmanValueTargetData> salesmanValueTargetList =
       <SalesmanValueTargetData>[].obs;
+  RxList<String> weekList = <String>[].obs;
   Future<List<SalesmanValueTargetData>> loadSalesmanValueTarget(
       String salesmanId, String year, String? month) async {
     try {
@@ -268,6 +269,7 @@ class StaffController extends GetxController {
       var data =
           await ApiWorker().fetchSalesmanValueTarget(salesmanId, year, month);
       salesmanValueTargetList.assignAll(data?.data ?? []);
+      weekList.assignAll(data?.weekList ?? []);
       return data?.data ?? [];
     } finally {
       isValueTargetLoading.value = false;

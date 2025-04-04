@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
+import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -260,10 +261,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                   if (widget.staffController.isWeekly.value == true) ...[
                     Builder(
                       builder: (context) {
-                        final selectedMonth =
-                            widget.staffController.tabController.index + 1;
-                        final relevantWeeks =
-                            getWeeksForMonth(currentYear, selectedMonth);
+                        // final selectedMonth =
+                        //     widget.staffController.tabController.index + 1;
+                        final relevantWeeks =widget.staffController.weekList;
                         return SizedBox(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
@@ -281,7 +281,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                                     children: [
                                       _buildTableHeader('Category'),
                                       ...relevantWeeks.map((week) {
-                                        return _buildTableHeader('Week $week');
+                                        return _buildTableHeader(week.replaceAll('week', "Week "));
                                       }),
                                     ],
                                   ),
@@ -347,11 +347,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         DateFormat.MMMM().format(DateTime(0, selectedMonth));
 
     Map<String, String> buildTargetRequestData(
-        List<int> categoryIds, List<int> relevantWeeks) {
+        List<int> categoryIds, List<String> relevantWeeks) {
       final Map<String, String> weeklyTargetRequest = {};
 
       for (var week in relevantWeeks) {
-        final weekKey = 'week$week';
+        final weekKey = week;
         final controllers = _weeklyTargetControllers[weekKey] ?? [];
 
         for (var categoryIndex = 0;
@@ -370,11 +370,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     }
 
     Map<String, String> buildProjectionRequestData(
-        List<int> categoryIds, List<int> relevantWeeks) {
+        List<int> categoryIds, List<String> relevantWeeks) {
       final Map<String, String> weeklyTargetRequest = {};
 
       for (var week in relevantWeeks) {
-        final weekKey = 'week$week';
+        final weekKey = week;
         final controllers = _weeklyProjectionControllers[weekKey] ?? [];
 
         for (var categoryIndex = 0;
@@ -399,7 +399,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     }
 
     final categoryIds = getCategoryIds();
-    final relevantWeeks = getWeeksForMonth(currentYear, selectedMonth);
+    final relevantWeeks = widget.staffController.weekList;
     updatedTargets = {};
     updatedProjection = {};
 
@@ -412,7 +412,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       updatedProjection[categoryId] =
           _projectionControllers[categoryIndex].text.toString();
       for (var week in relevantWeeks) {
-        final weekKey = 'week$week';
+        final weekKey = week;
         final weeklyTargetControllers = _weeklyTargetControllers[weekKey] ?? [];
         final weeklyProjectionControllers =
             _weeklyProjectionControllers[weekKey] ?? [];
@@ -501,38 +501,38 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     });
   }
 
-  int getWeekNumber(DateTime date) {
-    DateTime startOfYear = DateTime(date.year, 1, 1);
-    int daysSinceStartOfYear = date.difference(startOfYear).inDays;
-    int weekNumber = (daysSinceStartOfYear / 7).floor() + 1;
-    return weekNumber;
-  }
+  // int getWeekNumber(DateTime date) {
+  //   DateTime startOfYear = DateTime(date.year, 1, 1);
+  //   int daysSinceStartOfYear = date.difference(startOfYear).inDays;
+  //   int weekNumber = (daysSinceStartOfYear / 7).floor() + 1;
+  //   return weekNumber;
+  // }
 
-  List<int> getWeeksForMonth(int year, int month) {
-    List<int> weeks = [];
+  // List<int> getWeeksForMonth(int year, int month) {
+  //   List<int> weeks = [];
 
-    try {
-      DateTime firstDayOfMonth = DateTime(year, month, 1);
-      DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
-      DateTime currentDay = firstDayOfMonth;
+  //   try {
+  //     DateTime firstDayOfMonth = DateTime(year, month, 1);
+  //     DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
+  //     DateTime currentDay = firstDayOfMonth;
 
-      while (currentDay.isBefore(lastDayOfMonth) ||
-          currentDay.isAtSameMomentAs(lastDayOfMonth)) {
-        int weekNumber = getWeekNumber(currentDay);
-        if (weekNumber != 0 && !weeks.contains(weekNumber)) {
-          weeks.add(weekNumber);
-        }
-        currentDay = currentDay.add(const Duration(days: 1));
-      }
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error while calculating weeks for month $month in year $year: $e');
-    }
+  //     while (currentDay.isBefore(lastDayOfMonth) ||
+  //         currentDay.isAtSameMomentAs(lastDayOfMonth)) {
+  //       int weekNumber = getWeekNumber(currentDay);
+  //       if (weekNumber != 0 && !weeks.contains(weekNumber)) {
+  //         weeks.add(weekNumber);
+  //       }
+  //       currentDay = currentDay.add(const Duration(days: 1));
+  //     }
+  //   } catch (e) {
+  //     // ignore: avoid_print
+  //     print('Error while calculating weeks for month $month in year $year: $e');
+  //   }
 
-    return weeks;
-  }
+  //   return weeks;
+  // }
 
-  List<TableRow> _buildCategoryWeeklyRows(List<int> relevantWeeks) {
+  List<TableRow> _buildCategoryWeeklyRows(List<String> relevantWeeks) {
     final allWeeklyRows = <TableRow>[];
 
     for (var categoryIndex = 0;
@@ -549,7 +549,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       ];
 
       for (var week in relevantWeeks) {
-        final weekKey = 'week$week';
+        final weekKey = week;
 
         _weeklyTargetControllers.putIfAbsent(weekKey, () => []);
         _weeklyProjectionControllers.putIfAbsent(weekKey, () => []);

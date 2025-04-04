@@ -286,6 +286,7 @@ class StaffController extends GetxController {
       log("isTargetLoadingforTab: ${isTargetLoading.value}");
       var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
       salesmanTargetTableList.assignAll(data?.data ?? []);
+      weekList.assignAll(data?.weekList ?? []);
       log('Salesman Target List Length :${salesmanTargetTableList.length}');
       return data?.data ?? [];
     } catch (e) {

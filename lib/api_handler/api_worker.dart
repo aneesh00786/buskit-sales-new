@@ -1804,7 +1804,7 @@ class ApiWorker with ApiConstants {
           final cachedData = targetBox.get(cacheKey);
           log("Using cached data for key: $cacheKey");
           if (cachedData != null) {
-            return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+            return SalesmanTargetTableResponse.fromJson(cachedData);
           } else {
             log("Cached data is null for key: $cacheKey");
           }
@@ -1820,7 +1820,7 @@ class ApiWorker with ApiConstants {
           log("Using cached data for key (fallback): $cacheKey");
 
           if (cachedData != null) {
-            return SalesmanTargetTableResponse.fromJson({"data": cachedData});
+            return SalesmanTargetTableResponse.fromJson(cachedData);
           } else {
             log("Fallback cached data is null for key: $cacheKey");
           }

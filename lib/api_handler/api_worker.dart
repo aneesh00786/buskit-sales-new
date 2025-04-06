@@ -1795,6 +1795,7 @@ class ApiWorker with ApiConstants {
           } else {
             log("API Error: ${response.statusCode} ${response.statusMessage}");
           }
+          
         } catch (apiError) {
           log("API fetch error: $apiError");
         }

@@ -1854,6 +1854,7 @@ class ApiWorker with ApiConstants {
       log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
       return StaffTimesheetResponse.fromJson(response.data);
     } on DioException catch (error) {
+      
       log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
       throw DioExceptionHandler.fromDioError(error);
     } catch (e) {

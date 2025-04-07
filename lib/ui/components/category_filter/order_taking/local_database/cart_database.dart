@@ -34,7 +34,7 @@ class CartDatabaseManager {
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? '',
       "customer_id": "",
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": '',
       "order_type": 4,
       "payment_type": 1,
       "start_date":
@@ -171,7 +171,6 @@ class CartDatabaseManager {
       for (var item in combinedItems) {
         log('Combined Item: ${item.toJson()}');
       }
-
       return Future.value(combinedItems);
     } catch (e) {
       log('Error retrieving combined items for customer $customerId: $e');

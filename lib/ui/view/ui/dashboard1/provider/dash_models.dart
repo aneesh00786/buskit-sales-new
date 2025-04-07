@@ -625,6 +625,7 @@ class TopSellingGetTimesDatum {
   String? orderId;
   String? cartId;
   num? tax;
+  num? totalAmount;
 
   TopSellingGetTimesDatum({
     this.businessName,
@@ -636,6 +637,7 @@ class TopSellingGetTimesDatum {
     this.orderId,
     this.cartId,
     this.tax,
+    this.totalAmount,
   });
 
   factory TopSellingGetTimesDatum.fromJson(Map<String, dynamic> json) =>
@@ -649,6 +651,7 @@ class TopSellingGetTimesDatum {
         orderId: json["order_id"],
         cartId: json["cart_id"],
         tax: num.tryParse(json["tax"].toString()) ?? 0,
+        totalAmount: num.tryParse(json["total_amount"].toString()) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -661,6 +664,7 @@ class TopSellingGetTimesDatum {
         "order_id": orderId,
         "cart_id": cartId,
         "tax": tax,
+        "total_amount":totalAmount,
       };
 }
 

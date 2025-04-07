@@ -1854,7 +1854,6 @@ class ApiWorker with ApiConstants {
       log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
       return StaffTimesheetResponse.fromJson(response.data);
     } on DioException catch (error) {
-      
       log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
       throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
@@ -1862,13 +1861,11 @@ class ApiWorker with ApiConstants {
       rethrow;
     }
   }
-
   Future<bool> loadSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     log('loadSwitchState: ${prefs.getBool('switch_state')}');
     return prefs.getBool('switch_state') ?? false;
   }
-
   Future<void> saveSwitchState(bool value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('switch_state', value);

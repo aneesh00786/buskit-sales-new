@@ -1238,19 +1238,19 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             (data) => formatAmount(data.price),
                             (data) => formatAmount(data.tax),
                             (data) => data.quantity.toString(),
-                            (data) => formatAmount(
-                              product.inclTax == "incl_tax"
-                                  ? ((double.tryParse(
-                                          data.totalPrice.toString()) ??
-                                      0))
-                                  : (((double.tryParse(
-                                                  data.totalPrice.toString()) ??
-                                              0) *
-                                          (double.tryParse(
-                                                  data.quantity.toString()) ??
-                                              0)) +
-                                      (double.tryParse(data.tax.toString()) ??
-                                          0.0)),
+                            (data) => formatAmount(data.totalAmount.toString()
+                              // product.inclTax == "incl_tax"
+                              //     ? ((double.tryParse(
+                              //             data.totalPrice.toString()) ??
+                              //         0))
+                              //     : (((double.tryParse(
+                              //                     data.totalPrice.toString()) ??
+                              //                 0) *
+                              //             (double.tryParse(
+                              //                     data.quantity.toString()) ??
+                              //                 0)) +
+                              //         (double.tryParse(data.tax.toString()) ??
+                              //             0.0)),
                             ),
                             (data) => DateFormat('dd-MM-yyyy')
                                 .format(data.createdAt!),

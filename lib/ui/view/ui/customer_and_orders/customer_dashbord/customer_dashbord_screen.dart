@@ -1347,10 +1347,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
   Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
-    // frequentProductLists.sort((a, b) => b.quantity.compareTo(a.quantity));
     frequentProductLists
         .sort((a, b) => b.count.length.compareTo(a.count.length));
-
     return MyCommnonContainer(
       boxShadow: [
         BoxShadow(
@@ -1400,7 +1398,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           (data) => data.quantity.toString(),
                           (data) => formatAmount(
                             data.inclTax == "incl_tax"
-                                ? ((double.tryParse(
+                                ?
+                                 ((double.tryParse(
                                             data.totalPrice.toString()) ??
                                         0)
                                     //     *
@@ -1410,12 +1409,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     )
                                 : (((double.tryParse(
                                                 data.totalPrice.toString()) ??
-                                            0) *
-                                        (double.tryParse(
-                                                data.quantity.toString()) ??
-                                            0)) +
-                                    (double.tryParse(data.tax.toString()) ??
-                                        0.0)),
+                                            0) +(double.tryParse(data.tax.toString()) ??
+                                        0.0)) 
+                                    ),
                           ),
                           (data) =>
                               DateFormat('dd-MM-yyyy').format(data.createdAt!),
@@ -1657,25 +1653,20 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           (data) => data.quantity.toString(),
                                           (data) => formatAmount(
                                             data.inclTax == "incl_tax"
-                                                ? ((double.tryParse(data
-                                                            .totalPrice
-                                                            .toString()) ??
-                                                        0)
-                                                    //     *
-                                                    // (double.tryParse(data.quantity.toString()) ??
-                                                    //     0)
-                                                    )
-                                                : (((double.tryParse(data
-                                                                .totalPrice
-                                                                .toString()) ??
-                                                            0) *
-                                                        (double.tryParse(data
-                                                                .quantity
-                                                                .toString()) ??
-                                                            0)) +
-                                                    (double.tryParse(data.tax
-                                                            .toString()) ??
-                                                        0.0)),
+                                ?
+                                 ((double.tryParse(
+                                            data.totalPrice.toString()) ??
+                                        0)
+                                    //     *
+                                    // (double.tryParse(
+                                    //         data.quantity.toString()) ??
+                                    //     0)
+                                    )
+                                : (((double.tryParse(
+                                                data.totalPrice.toString()) ??
+                                            0) +(double.tryParse(data.tax.toString()) ??
+                                        0.0)) 
+                                    ),
                                           ),
                                           (data) => DateFormat('dd-MM-yyyy')
                                               .format(data.createdAt!),

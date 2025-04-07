@@ -1213,18 +1213,20 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           getPrice: (product) => formatAmount(
                             product.inclTax == "incl_tax"
                                 ? (double.tryParse(product
-                                        .topSellingProductATotalPrice
+                                        .totalAmount
                                         .toString()) ??
                                     0.0)
                                 : ((double.tryParse(product
-                                            .topSellingProductATotalPrice
+                                            .totalAmount
                                             .toString()) ??
-                                        0.0) +
-                                    ((double.tryParse(product.tax.toString()) ??
-                                            0.0) *
-                                        (double.tryParse(
-                                                product.quantity.toString()) ??
-                                            0.0))),
+                                        0.0)
+                                    //      +
+                                    // ((double.tryParse(product.tax.toString()) ??
+                                    //         0.0) *
+                                    //     (double.tryParse(
+                                    //             product.quantity.toString()) ??
+                                    //         0.0))
+                                            ),
                           ),
                           getBuyQuantity: (product) =>
                               int.tryParse(product.buyquantity ?? '0') ?? 0,
@@ -1238,19 +1240,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             (data) => formatAmount(data.price),
                             (data) => formatAmount(data.tax),
                             (data) => data.quantity.toString(),
-                            (data) => formatAmount(data.totalAmount.toString()
+                            (data) => formatAmount(
+                              //data.totalAmount.toString()
                               // product.inclTax == "incl_tax"
-                              //     ? ((double.tryParse(
-                              //             data.totalPrice.toString()) ??
-                              //         0))
-                              //     : (((double.tryParse(
-                              //                     data.totalPrice.toString()) ??
-                              //                 0) *
-                              //             (double.tryParse(
-                              //                     data.quantity.toString()) ??
-                              //                 0)) +
-                              //         (double.tryParse(data.tax.toString()) ??
-                              //             0.0)),
+                              //     ?
+                                   ((double.tryParse(
+                                          data.totalAmount.toString()) ??
+                                      0))
+                                 
                             ),
                             (data) => DateFormat('dd-MM-yyyy')
                                 .format(data.createdAt!),
@@ -1340,172 +1337,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       ),
     );
   }
-
-  // Widget topSellingProductWidget() {
-  //   List<TopSellingProductA> topSellingProducts = [];
-  //   return Padding(
-  //     padding: const EdgeInsets.all(2.0),
-  //     child: MyCommnonContainer(
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-  //           blurRadius: 5,
-  //           offset: const Offset(4, 4),
-  //         ),
-  //       ],
-  //       borderRadius: 25,
-  //       height: 300,
-  //       width: double.infinity,
-  //       isCommonBorder: true,
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               dashboardContainerHeader("Frequently Bought Products"),
-  //               Padding(
-  //                 padding: EdgeInsets.only(
-  //                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-  //                 child: InkWell(
-  //                   onTap: () {
-  //                     if (topSellingProducts.isNotEmpty) {
-  //                       return showProductListDialog<TopSellingProductA>(
-  //                         context: widget.context,
-  //                         productList: topSellingProducts,
-  //                         getQuantity: (product) =>
-  //                             product.quantity?.toDouble() ?? 0.0,
-  //                         getProductName: (product) =>
-  //                             product.productName ?? '',
-  //                         getVariationName: (product) =>
-  //                             product.variationName ?? '',
-  //                         getFormattedDate: (product) =>
-  //                             DateFormat('dd-MM-yyyy')
-  //                                 .format(product.createdAt!.toLocal()),
-  //                         getPrice: (product) => formatAmount(
-  //                           product.inclTax == "incl_tax"
-  //                               ? (double.tryParse(product
-  //                                       .topSellingProductATotalPrice
-  //                                       .toString()) ??
-  //                                   0.0)
-  //                               : ((double.tryParse(product
-  //                                           .topSellingProductATotalPrice
-  //                                           .toString()) ??
-  //                                       0.0) +
-  //                                   ((double.tryParse(product.tax.toString()) ??
-  //                                           0.0) *
-  //                                       (double.tryParse(
-  //                                               product.quantity.toString()) ??
-  //                                           0.0))),
-  //                         ),
-  //                         getBuyQuantity: (product) =>
-  //                             int.tryParse(product.buyquantity ?? '0') ?? 0,
-  //                         getInNo: (product) => product.inNo ?? '',
-  //                         onQuantityTap: (context, product) =>
-  //                             showDashTimesDialogue(
-  //                           context,
-  //                           product,
-  //                           (p) => p.getTimesData ?? [],
-  //                           (data) => data.businessName,
-  //                           (data) => formatAmount(data.price),
-  //                           (data) => formatAmount(data.tax),
-  //                           (data) => data.quantity.toString(),
-  //                           (data) => formatAmount(
-  //                             product.inclTax == "incl_tax"
-  //                                 ? ((double.tryParse(
-  //                                         data.totalPrice.toString()) ??
-  //                                     0))
-  //                                 : (((double.tryParse(
-  //                                                 data.totalPrice.toString()) ??
-  //                                             0) *
-  //                                         (double.tryParse(
-  //                                                 data.quantity.toString()) ??
-  //                                             0)) +
-  //                                     (double.tryParse(data.tax.toString()) ??
-  //                                         0.0)),
-  //                           ),
-  //                           (data) => DateFormat('dd-MM-yyyy')
-  //                               .format(data.createdAt!),
-  //                           (data) => data.orderId.toString(),
-  //                           true,
-  //                         ),
-  //                       );
-  //                     } else {
-  //                       ScaffoldMessenger.of(widget.context).showSnackBar(
-  //                         const SnackBar(
-  //                           content: Text("No data available"),
-  //                         ),
-  //                       );
-  //                     }
-  //                   },
-  //                   child: Container(
-  //                       decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                           color: primaryColor.withOpacity(0.3)),
-  //                       child: const Padding(
-  //                         padding: EdgeInsets.all(5.0),
-  //                         child: Icon(
-  //                           Icons.open_in_new,
-  //                           size: 17,
-  //                           color: primaryColor,
-  //                         ),
-  //                       )),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           nkSmallSizeBox(),
-  //           Consumer<DashboardProvider>(
-  //             builder: (context, provider, child) {
-  //               return FutureBuilder<ResponseModell>(
-  //                 future: provider.futureResponseModel,
-  //                 builder: (context, snapshot) {
-  //                   if (snapshot.connectionState == ConnectionState.waiting) {
-  //                     return const Center(
-  //                       child: SpinKitFadingCube(
-  //                         color: primaryColor, // Customize color if needed
-  //                         size: 20.0,
-  //                       ),
-  //                     );
-  //                   } else if (snapshot.hasError) {
-  //                     return Center(
-  //                       child: NodataWidget(),
-  //                     );
-  //                   } else if (snapshot.hasData) {
-  //                     topSellingProducts =
-  //                         snapshot.data!.topSellingProducts ?? [];
-  //                     return Expanded(
-  //                         child: topSellingProductList(topSellingProducts));
-  //                   } else {
-  //                     return FutureBuilder(
-  //                       future: Future.delayed(const Duration(seconds: 3)),
-  //                       builder: (context, delaySnapshot) {
-  //                         if (delaySnapshot.connectionState ==
-  //                             ConnectionState.waiting) {
-  //                           return const SpinKitFadingCube(
-  //                             color: primaryColor,
-  //                             size: 20.0,
-  //                           );
-  //                         } else {
-  //                           return const Center(
-  //                             child: NodataWidget(),
-  //                           );
-  //                         }
-  //                       },
-  //                     )
-  //                     ;
-  //                   }
-  //                 },
-  //               );
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget topSellingProductListComponent(model.TopSellingProduct productData) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

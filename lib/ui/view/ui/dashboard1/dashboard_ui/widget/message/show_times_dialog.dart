@@ -302,7 +302,7 @@ Future<dynamic> showDashTimesDialogue<T>(
                                     timesDataList.fold(0.0, (sum, item) {
                                   String priceStr = getTotalPrice(item)
                                       .replaceAll(RegExp(r'[^0-9.]'),
-                                          ''); // Remove non-numeric characters
+                                          '');
                                   double price =
                                       double.tryParse(priceStr) ?? 0.0;
                                   return sum + price;

@@ -518,20 +518,23 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                     label: formatAmount(
                                       product.inclTax == "incl_tax"
                                           ? (double.tryParse(product
-                                                  .topSellingProductATotalPrice
+                                                  .totalAmount
                                                   .toString()) ??
                                               0.0)
-                                          : ((double.tryParse(product
-                                                      .topSellingProductATotalPrice
+                                          : 
+                                          ((double.tryParse(product
+                                                      .totalAmount
                                                       .toString()) ??
-                                                  0.0) +
-                                              ((double.tryParse(product.tax
-                                                          .toString()) ??
-                                                      0.0) *
-                                                  (double.tryParse(product
-                                                          .quantity
-                                                          .toString()) ??
-                                                      0.0))),
+                                                  0.0)
+                                                 // +
+                                              // ((double.tryParse(product.tax
+                                              //             .toString()) ??
+                                              //         0.0) *
+                                              //     (double.tryParse(product
+                                              //             .quantity
+                                              //             .toString()) ??
+                                              //         0.0))
+                                              ),
                                     ),
                                     color: secondaryTextColor,
                                     fontSize: fontSize,

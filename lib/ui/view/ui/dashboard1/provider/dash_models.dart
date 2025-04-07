@@ -140,7 +140,7 @@ class MonthlyPerformancee {
       'actual_projection': actualProjection,
       'actual_target': actualTarget,
       'actual_sales': actualSales,
-      'year': year,                                 
+      'year': year,
       'month': month,
       'week': week,
       'bar_type': barType,
@@ -405,7 +405,7 @@ class ResponseModell {
   final String? message;
   final List<Category>? allCategory;
   final List<CategoryPerformancee>? categoryPerformance;
-  
+
   final List<MonthlyPerformancee>? monthlyPerformance;
   final Revenuee? revenue;
   final Collection? collection;
@@ -439,8 +439,9 @@ class ResponseModell {
 
     var monthPerformanceList =
         (json['data']?['monthly_performance'] as List?) ?? [];
-    List<MonthlyPerformancee> monthlyPerformance =
-        monthPerformanceList.map((e) => MonthlyPerformancee.fromJson(e)).toList();
+    List<MonthlyPerformancee> monthlyPerformance = monthPerformanceList
+        .map((e) => MonthlyPerformancee.fromJson(e))
+        .toList();
 
     var topSellingList = (json['data']?['top_selling_product'] as List?) ?? [];
     List<TopSellingProductA> topSellingProducts =
@@ -519,6 +520,7 @@ class TopSellingProductA {
   List<TopSellingQuantityList>? quantityList;
   String? topSellingProductATotalPrice;
   List<TopSellingTotalPrice>? totalPrice;
+  num? totalAmount;
   int? quantity;
   String? buyquantity;
   List<TopSellingGetTimesDatum>? getTimesData;
@@ -540,35 +542,45 @@ class TopSellingProductA {
     this.topSellingProductATotalPrice,
     this.totalPrice,
     this.quantity,
+    this.totalAmount,
     this.buyquantity,
     this.getTimesData,
   });
 
-  factory TopSellingProductA.fromJson(Map<String, dynamic> json) =>
-      TopSellingProductA(
-        cartIds: json["cart_ids"],
-        orderIds: json["order_ids"],
-        eachPrice: json["each_price"],
-        variationId: json["variation_id"],
-        variationName: json["variation_name"],
-        price: json["price"],
-        productName: json["product_name"],
-        inNo: json["in_no"],
-        inclTax: json["incl_tax"],
-        tax: json["tax"],
-        createdAt: DateTime.parse(json["created_at"]),
-        customer: List<TopSellingCustomer>.from(
-            json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
-        quantityList: List<TopSellingQuantityList>.from(json["quantityList"]
-            .map((x) => TopSellingQuantityList.fromJson(x))),
-        topSellingProductATotalPrice: json["total_price"],
-        totalPrice: List<TopSellingTotalPrice>.from(
-            json["totalPrice"].map((x) => TopSellingTotalPrice.fromJson(x))),
-        quantity: json["quantity"],
-        buyquantity: json["buyquantity"],
-        getTimesData: List<TopSellingGetTimesDatum>.from(json["getTimesData"]
-            .map((x) => TopSellingGetTimesDatum.fromJson(x))),
-      );
+  factory TopSellingProductA.fromJson(Map<String, dynamic> json) {
+    final getTimesDataList = List<TopSellingGetTimesDatum>.from(
+      json["getTimesData"].map((x) => TopSellingGetTimesDatum.fromJson(x)),
+    );
+    final totalAmountSum = getTimesDataList.fold<double>(
+      0.0,
+      (sum, item) => sum + (item.totalAmount ?? 0.0),
+    );
+    return TopSellingProductA(
+      cartIds: json["cart_ids"],
+      orderIds: json["order_ids"],
+      eachPrice: json["each_price"],
+      variationId: json["variation_id"],
+      variationName: json["variation_name"],
+      price: json["price"],
+      productName: json["product_name"],
+      inNo: json["in_no"],
+      inclTax: json["incl_tax"],
+      tax: json["tax"],
+      createdAt: DateTime.parse(json["created_at"]),
+      customer: List<TopSellingCustomer>.from(
+          json["customer"].map((x) => TopSellingCustomer.fromJson(x))),
+      quantityList: List<TopSellingQuantityList>.from(
+          json["quantityList"].map((x) => TopSellingQuantityList.fromJson(x))),
+      topSellingProductATotalPrice: json["total_price"],
+      totalAmount: totalAmountSum,
+      totalPrice: List<TopSellingTotalPrice>.from(
+          json["totalPrice"].map((x) => TopSellingTotalPrice.fromJson(x))),
+      quantity: json["quantity"],
+      buyquantity: json["buyquantity"],
+      getTimesData: List<TopSellingGetTimesDatum>.from(
+          json["getTimesData"].map((x) => TopSellingGetTimesDatum.fromJson(x))),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "cart_ids": cartIds,
@@ -588,6 +600,7 @@ class TopSellingProductA {
         "total_price": topSellingProductATotalPrice,
         "totalPrice": List<dynamic>.from(totalPrice!.map((x) => x.toJson())),
         "quantity": quantity,
+        "total_amount": totalAmount,
         "buyquantity": buyquantity,
         "getTimesData":
             List<dynamic>.from(getTimesData!.map((x) => x.toJson())),
@@ -664,7 +677,7 @@ class TopSellingGetTimesDatum {
         "order_id": orderId,
         "cart_id": cartId,
         "tax": tax,
-        "total_amount":totalAmount,
+        "total_amount": totalAmount,
       };
 }
 
@@ -2058,7 +2071,7 @@ class OrdersDash {
       if (dateString != null && dateString.isNotEmpty) {
         return DateTime.parse(dateString);
       }
-    // ignore: empty_catches
+      // ignore: empty_catches
     } catch (e) {}
     return null; // Default fallback for nullable dates
   }

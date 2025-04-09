@@ -52,7 +52,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               Image.asset(
                 Assets.pngThriveWoo,
                 // width: appDimensions!.width,
-                height: appDimensions!.width / 4,
+                height: appDimensions!.width / 5.5,
                 fit: BoxFit.contain,
               ),
               // SvgPicture.asset(

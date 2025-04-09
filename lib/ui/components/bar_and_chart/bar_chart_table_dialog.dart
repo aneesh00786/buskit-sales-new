@@ -115,45 +115,43 @@ showBarchartDialog(
                           ],
                         ),
                       ),
-                      // Scrollable Content
                       Flexible(
-                        child: SizedBox(
-                          height: contentHeight,
-                          child: ListView.builder(
-                            itemCount: categories.length,
-                            physics: const ClampingScrollPhysics(),
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 0.5,
-                                    ),
+                        child: ListView.builder(
+                          itemCount: categories.length,
+                          physics: const ClampingScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final category = categories[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 0.5,
                                   ),
                                 ),
-                                height: rowHeight,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          category.fullname,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: secondaryTextColor,
-                                          ),
+                              ),
+                              height: rowHeight,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        category.fullname,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: secondaryTextColor,
                                         ),
                                       ),
                                     ),
-                                    if (!isDayOrRange) ...[
-                                    // if (targertType == '1') ...[
-                                      Expanded(
-                                        child: Center(
-                                          child: InkWell(
-                                            onTap: () async {
+                                  ),
+                                  if (!isDayOrRange) ...[
+                                    // if (categoryTarget == '1') ...[
+                                    Expanded(
+                                      child: Center(
+                                        child: InkWell(
+                                          onTap: () async {
+                                            if (targertType == '1') {
                                               await dashboardProvider
                                                   .loadSalesmanTargetByCategory(
                                                       category.salesmanId,
@@ -163,48 +161,54 @@ showBarchartDialog(
                                                 title: 'Target',
                                                 provider: dashboardProvider,
                                               ));
-                                            },
-                                            child: Text(
-                                              formatAmount(
-                                                  category.targetTotal),
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: category.targetTotal
-                                                            .toString() ==
-                                                        '0'
-                                                    ? secondaryTextColor
-                                                    : primaryButtonColor,
-                                              ),
+                                            }
+                                          },
+                                          child: Text(
+                                            formatAmount(category.targetTotal),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: targertType == '1'
+                                                  ? category.targetTotal
+                                                              .toString() ==
+                                                          '0'
+                                                      ? secondaryTextColor
+                                                      : primaryButtonColor
+                                                  : secondaryTextColor,
                                             ),
                                           ),
                                         ),
                                       ),
+                                    ),
                                     // ],
                                     if (staffProjection == '1') ...[
                                       Expanded(
                                         child: Center(
                                           child: InkWell(
                                             onTap: () async {
-                                              await dashboardProvider
-                                                  .loadSalesmanTargetByCategory(
-                                                      category.salesmanId,
-                                                      catId);
-                                              Get.dialog(
-                                                  SalesmanTargetByCategoryDialog(
-                                                title: 'Projection',
-                                                provider: dashboardProvider,
-                                              ));
+                                              if (targertType == '1') {
+                                                await dashboardProvider
+                                                    .loadSalesmanTargetByCategory(
+                                                        category.salesmanId,
+                                                        catId);
+                                                Get.dialog(
+                                                    SalesmanTargetByCategoryDialog(
+                                                  title: 'Projection',
+                                                  provider: dashboardProvider,
+                                                ));
+                                              }
                                             },
                                             child: Text(
                                               formatAmount(
                                                   category.projectionTotal),
                                               style: TextStyle(
                                                 fontSize: 13,
-                                                color: category.projectionTotal
-                                                            .toString() ==
-                                                        '0'
-                                                    ? secondaryTextColor
-                                                    : primaryButtonColor,
+                                                color: targertType == '1'
+                                                    ? category.projectionTotal
+                                                                .toString() ==
+                                                            '0'
+                                                        ? secondaryTextColor
+                                                        : primaryButtonColor
+                                                    : secondaryTextColor,
                                               ),
                                             ),
                                           ),
@@ -212,13 +216,16 @@ showBarchartDialog(
                                       ),
                                     ],
                                   ],
-                                    Expanded(
+                                  Expanded(
                                     child: Center(
                                       child: InkWell(
                                         onTap: () async {
                                           await dashboardProvider
                                               .fetchChartOrderData(
-                                                  category.salesmanId, catId);
+                                                  category.salesmanId,
+                                                  targertType == '0'
+                                                      ? ''
+                                                      : catId);
                                           Get.dialog(StaffOrdersDialog(
                                             heading: 'orders',
                                             orderData: dashboardProvider
@@ -239,11 +246,10 @@ showBarchartDialog(
                                       ),
                                     ),
                                   ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                       Container(

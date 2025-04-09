@@ -5,14 +5,7 @@ class DataTableColumns {
   static List<DataColumn> getColumns(double fontSize) {
     return [
       DataColumn(
-        label: SizedBox(
-          width: 30,
-          child: DialogTableHeaderText(
-            text: '',
-            fontSize: fontSize,
-            align: TextAlign.center,
-          ),
-        ),
+        label: SizedBox(width : 30),
       ),
       DataColumn(
         label: DialogTableHeaderText(

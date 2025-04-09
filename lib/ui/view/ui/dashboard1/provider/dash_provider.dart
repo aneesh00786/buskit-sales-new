@@ -382,7 +382,7 @@ class ApiService {
   }
 
   Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
-    required int catId,
+    required dynamic catId,
     String? salesmanId,
     String? fetchType,
     String? startDate,
@@ -1822,7 +1822,8 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChartOrderData(String salesmanId, int categoryId) async {
+  Future<void> fetchChartOrderData(
+      String salesmanId, dynamic categoryId) async {
     try {
       _chartOrderData =
           await Future.delayed(const Duration(milliseconds: 300), () {

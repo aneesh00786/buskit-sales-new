@@ -1276,19 +1276,41 @@ class ApiWorker with ApiConstants {
 
   Future<IndividualPendingPaymentResponse> getAllPendingPaymentIndividual(
       {String? customerId}) async {
-    final response = await dio
-        .postbycustom(
-      ApiConstants.getAllPendingPaymentIndividuals,
-      data: FormData.fromMap({
-        "customer_id": customerId,
-        "companyId": companyId,
-      }),
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return IndividualPendingPaymentResponse.fromJson(response.data);
+    try {
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.getAllPendingPaymentIndividuals}',
+        data: FormData.fromMap({
+          "customer_id": customerId,
+          "companyId": 1,
+        }),
+        options: Options(
+          validateStatus: (status) {
+            return true;
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return IndividualPendingPaymentResponse.fromJson(response.data);
+      } else {
+        log('Got inside the try method');
+        handleHttpResponseError(
+          statusCode: response.statusCode ?? 0,
+          showErrorSnackBar: (message) =>
+              NkCommonFunction.showErrorSnakBar(message),
+          message: response.data?['message'] ?? '',
+        );
+        return Future.error('API Error: ${response.statusCode}');
+      }
+    } on DioException catch (error) {
+      final handledError = DioExceptionHandler.fromDioError(error);
+      handleHttpResponseError(
+        statusCode: error.response?.statusCode ?? 0,
+        showErrorSnackBar: (message) =>
+            NkCommonFunction.showErrorSnakBar(message),
+        message: handledError.errorMessage,
+      );
+      return Future.error(handledError);
+    }
   }
 
   //************************ RECENT ORDERS **************/

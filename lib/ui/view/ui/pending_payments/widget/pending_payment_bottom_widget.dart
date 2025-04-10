@@ -2,8 +2,10 @@
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_pagination.dart';
@@ -548,17 +550,21 @@ class _PendingPaymentBottomWidgetState
   }
 
   void _pendingPaymentCollectionDialog(
-      BuildContext context, String customerId) {
+      BuildContext context, String customerId) async{
     final PendingPaymentController controller =
         Get.put(PendingPaymentController());
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
+    bool isOnline = await ConnectivityService().isOnline();
+    if(!isOnline){
+      NkCommonFunction.showErrorSnakBar('No Internet Connection. Please check your network');
+    }
     controller.loadIndividualPendingPayments(customerId);
     RxList<bool> selectedItems = List<bool>.generate(
       controller.individualPendingPayments.length,
       (index) => false,
     ).obs;
-
+    
     void updateSelectedItems() {
       selectedItems.value = List<bool>.generate(
         controller.individualPendingPayments.length,

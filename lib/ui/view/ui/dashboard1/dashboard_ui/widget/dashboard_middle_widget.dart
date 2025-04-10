@@ -101,9 +101,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       log("Error fetching settings: $e");
     }
   }
-
   TextEditingController communicationController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = fullScreenWidth(context);

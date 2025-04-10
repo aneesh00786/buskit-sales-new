@@ -359,6 +359,11 @@ class ApiService {
     };
 
     try {
+      bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        NkCommonFunction.showErrorSnakBar(
+            'No internet Connection. Please check your network.');
+      }
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -377,10 +382,17 @@ class ApiService {
             data: allCategory);
       } else {
         print('Request failed with status 1: ${response.statusCode}');
+        handleHttpResponseError(
+            statusCode: response.statusCode,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Value Performance");
         throw Exception('Failed to load data');
       }
-    } catch (e) {
+    } on DioException catch (e) {
       print('Exception occurred 2: $e');
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
       throw Exception('Failed to fetch data: $e');
     }
   }

@@ -284,13 +284,13 @@ class _CustomBarChartState extends State<CustomBarChart> {
         barRods: [
           if (!widget.isDayOrRange) ...[
             // if (widget.targetType == "1")
-              BarChartRodData(
-                toY: target.toDouble(),
-                color: const Color(0xff3b6491),
-                width: 8,
-                borderRadius: BorderRadius.zero,
-                borderSide: BorderSide.none,
-              ),
+            BarChartRodData(
+              toY: target.toDouble(),
+              color: const Color(0xff3b6491),
+              width: 8,
+              borderRadius: BorderRadius.zero,
+              borderSide: BorderSide.none,
+            ),
             if (widget.staffProjection == "1")
               BarChartRodData(
                 toY: projection.toDouble(),
@@ -391,13 +391,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
-                  return AlertDialog(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    content: Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    ),
+                    child: noDataTable(widget.staffProjection)
                   );
                 } else if (snapshot.hasData) {
                   final categories = snapshot.data!.data;
@@ -572,115 +570,140 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 double finalWidth = chartWidth > minWidth
                                     ? chartWidth
                                     : minWidth;
-                                  return SingleChildScrollView(
-                                    controller: Provider.of<DashboardProvider>(context,
-                                            listen: false)
-                                        .scrollController,
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const ClampingScrollPhysics(),
-                                    child: SizedBox(
-                                      width: finalWidth,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 3.0),
-                                        child: BarChart(
-                                          BarChartData(
-                                            alignment: BarChartAlignment.spaceAround,
-                                            // maxY: getRoundedUpperLimit(),
-                                            maxY: dynamicMaxY.toDouble(),
-                                            barGroups: barGroups,
-                                            titlesData: FlTitlesData(
-                                              leftTitles: AxisTitles(
-                                                sideTitles: SideTitles(
-                                                  showTitles: true,
-                                                  interval: dynamicInterval.toDouble(),
-                                                  getTitlesWidget: getLeftTitles,
-                                                  reservedSize:
-                                                      dynamicMaxY.toString().length * 7 +
-                                                          10,
-                                                ),
-                                              ),
-                                              bottomTitles: AxisTitles(
-                                                sideTitles: SideTitles(
-                                                  showTitles: true,
-                                                  getTitlesWidget: getBottomTitles,
-                                                  reservedSize: 40,
-                                                ),
-                                              ),
-                                              topTitles: AxisTitles(
-                                                sideTitles: SideTitles(showTitles: false),
-                                              ),
-                                              rightTitles: AxisTitles(
-                                                sideTitles: SideTitles(showTitles: false),
+                                return SingleChildScrollView(
+                                  controller: Provider.of<DashboardProvider>(
+                                          context,
+                                          listen: false)
+                                      .scrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const ClampingScrollPhysics(),
+                                  child: SizedBox(
+                                    width: finalWidth,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 3.0),
+                                      child: BarChart(
+                                        BarChartData(
+                                          alignment:
+                                              BarChartAlignment.spaceAround,
+                                          // maxY: getRoundedUpperLimit(),
+                                          maxY: dynamicMaxY.toDouble(),
+                                          barGroups: barGroups,
+                                          titlesData: FlTitlesData(
+                                            leftTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                interval:
+                                                    dynamicInterval.toDouble(),
+                                                getTitlesWidget: getLeftTitles,
+                                                reservedSize: dynamicMaxY
+                                                            .toString()
+                                                            .length *
+                                                        7 +
+                                                    10,
                                               ),
                                             ),
-                                            borderData: FlBorderData(
-                                              show: true,
-                                              border: Border.all(
-                                                color: const Color(0xffe0e0e0),
-                                                width: 0.9,
+                                            bottomTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                getTitlesWidget:
+                                                    getBottomTitles,
+                                                reservedSize: 40,
                                               ),
                                             ),
-                                            barTouchData: widget.targetType == '0'
-                                                ? BarTouchData(
-                                                    touchCallback: (FlTouchEvent event,
-                                                        BarTouchResponse? touchResponse) {
-                                                      if (touchResponse != null &&
-                                                          touchResponse.spot != null &&
-                                                          event is FlTapUpEvent) {
-                                                        final int index = touchResponse
-                                                            .spot!.touchedBarGroupIndex;
-                                                              
-                                                        {
-                                                          MonthlyPerformancee perfMonth =
-                                                              widget.monthlyPerformance
-                                                                  .firstWhere(
-                                                            (performance) =>
-                                                                performance.cid ==
-                                                                widget.allCategory[index]
-                                                                    .category,
-                                                          );
-                                                          _showSalesmanPopupMonthly(
-                                                              perfMonth.cid ?? '',
-                                                              perfMonth.cid ?? '');
-                                                        }
-                                                      }
-                                                    },
-                                                  )
-                                                : BarTouchData(
-                                                    touchCallback: (FlTouchEvent event,
-                                                        BarTouchResponse? touchResponse) {
-                                                      if (touchResponse != null &&
-                                                          touchResponse.spot != null &&
-                                                          event is FlTapUpEvent) {
-                                                        final int index = touchResponse
-                                                            .spot!.touchedBarGroupIndex;
-                                                              
-                                                        {
-                                                          CategoryPerformancee perf =
-                                                              widget.categoryPerformance
-                                                                  .firstWhere(
-                                                            (performance) =>
-                                                                performance.category ==
-                                                                widget.allCategory[index]
-                                                                    .category,
-                                                          );
-                                                              
-                                                          _showSalesmanPopup(
-                                                              perf.cid ?? 0,
-                                                              widget.allCategory[index]
-                                                                      .category ??
-                                                                  '');
-                                                        }
-                                                      }
-                                                    },
-                                                  ),
+                                            topTitles: AxisTitles(
+                                              sideTitles:
+                                                  SideTitles(showTitles: false),
+                                            ),
+                                            rightTitles: AxisTitles(
+                                              sideTitles:
+                                                  SideTitles(showTitles: false),
+                                            ),
                                           ),
+                                          borderData: FlBorderData(
+                                            show: true,
+                                            border: Border.all(
+                                              color: const Color(0xffe0e0e0),
+                                              width: 0.9,
+                                            ),
+                                          ),
+                                          barTouchData: widget.targetType == '0'
+                                              ? BarTouchData(
+                                                  touchCallback:
+                                                      (FlTouchEvent event,
+                                                          BarTouchResponse?
+                                                              touchResponse) {
+                                                    if (touchResponse != null &&
+                                                        touchResponse.spot !=
+                                                            null &&
+                                                        event is FlTapUpEvent) {
+                                                      final int index =
+                                                          touchResponse.spot!
+                                                              .touchedBarGroupIndex;
+
+                                                      {
+                                                        MonthlyPerformancee
+                                                            perfMonth = widget
+                                                                .monthlyPerformance
+                                                                .firstWhere(
+                                                          (performance) =>
+                                                              performance.cid ==
+                                                              widget
+                                                                  .allCategory[
+                                                                      index]
+                                                                  .category,
+                                                        );
+                                                        _showSalesmanPopupMonthly(
+                                                            perfMonth.cid ?? '',
+                                                            perfMonth.cid ??
+                                                                '');
+                                                      }
+                                                    }
+                                                  },
+                                                )
+                                              : BarTouchData(
+                                                  touchCallback:
+                                                      (FlTouchEvent event,
+                                                          BarTouchResponse?
+                                                              touchResponse) {
+                                                    if (touchResponse != null &&
+                                                        touchResponse.spot !=
+                                                            null &&
+                                                        event is FlTapUpEvent) {
+                                                      final int index =
+                                                          touchResponse.spot!
+                                                              .touchedBarGroupIndex;
+
+                                                      {
+                                                        CategoryPerformancee
+                                                            perf = widget
+                                                                .categoryPerformance
+                                                                .firstWhere(
+                                                          (performance) =>
+                                                              performance
+                                                                  .category ==
+                                                              widget
+                                                                  .allCategory[
+                                                                      index]
+                                                                  .category,
+                                                        );
+
+                                                        _showSalesmanPopup(
+                                                            perf.cid ?? 0,
+                                                            widget
+                                                                    .allCategory[
+                                                                        index]
+                                                                    .category ??
+                                                                '');
+                                                      }
+                                                    }
+                                                  },
+                                                ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                }
-                              ),
+                                  ),
+                                );
+                              }),
                             ),
                           ),
                         ],
@@ -871,7 +894,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           children: [
             if (!widget.isDayOrRange) ...[
               // if (widget.targetType == "1")
-                _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
+              _buildLegend(color: const Color(0xff3b6491), label: 'Target'),
               if (widget.staffProjection == "1")
                 _buildLegend(
                     color: const Color(0xff15396a), label: 'Projection'),

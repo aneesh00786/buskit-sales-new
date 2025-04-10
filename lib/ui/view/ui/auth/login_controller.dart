@@ -3,11 +3,13 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -87,16 +89,26 @@ class LoginController extends GetxController {
     String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
     String lastDayString = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
     DateTime? initialDay;
+
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,
         "password": passwordController.text,
       };
+      bool isOnline = await ConnectivityService().isOnline();
+
+      if (!isOnline) {
+        showErrorDialog('Login Failed',
+            'No internet connection detected. Please check your network settings and try again.');
+        return false;
+      }
+
       log("Request Body: $requestBody");
       loginResponce = await _apiWorker.loginApi(
         emailController.text.removeAllWhitespace,
         passwordController.text,
       );
+
       log("Response Body: ${loginResponce?.toJson()}");
       log("StatusCode: ${loginResponce?.statusCode}");
 
@@ -104,11 +116,14 @@ class LoginController extends GetxController {
         loginButtonController.success();
         Get.to(() => SplashScreen(message: "Logging in..."),
             transition: Transition.fade);
+
         await SessionHelper().setLoginData(loginResponce!.data!);
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
         log("Fetching settings after login...");
         await Future.delayed(const Duration(milliseconds: 500));
+
         final settings = await _apiWorker.fetchAllSettings(companyId);
         await Future.wait([
           Provider.of<CustomersProvider>(context, listen: false)
@@ -173,35 +188,42 @@ class LoginController extends GetxController {
     loginButtonController.reset();
 
     if (e is DioException) {
-      Get.snackbar(
-        'Login Error',
+      showErrorDialog(
+        'Login Failed',
         e.response?.data['message'] ?? e.message,
-        snackPosition: SnackPosition.BOTTOM,
       );
     } else {
-      Get.snackbar(
-        'Login Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+      showErrorDialog(
+        'Login Failed',
+        'An unexpected error occurred: ${e.toString()}',
       );
     }
   }
 
   bool _handleLoginError(LoginResponce? response) {
-    if (response?.statusCode == 422 || response?.statusCode == 409) {
-      // Client-side errors like validation or duplicate conflict
-      return false;
-    } else if (response?.statusCode == 401) {
-      // Unauthorized (e.g., incorrect credentials)
-      return false;
-    } else {
-      // Unexpected errors
-      showErrorDialog(
-        'Login Error',
-        'An unexpected error occurred. Please try again.',
+    if (response == null) {
+      handleHttpResponseError(
+        statusCode: 500,
+        showErrorSnackBar: (message) {
+          showErrorDialog('Login Failed', message);
+        },
       );
+      return false;
     }
-    return false; // Default to false in case of error
+
+    handleHttpResponseError(
+      statusCode: response.statusCode ?? 0,
+      showErrorSnackBar: (message) {
+        showErrorDialog('Login Failed', message);
+      },
+      message: response.message, 
+    );
+    if (response.statusCode == 422 || response.statusCode == 409) {
+      return false;
+    } else if (response.statusCode == 401) {
+      return false;
+    }
+    return false;
   }
 
   void showErrorDialog(String title, String message) {

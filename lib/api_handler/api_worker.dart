@@ -329,17 +329,48 @@ class ApiWorker with ApiConstants {
 
   Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
-    final response = await dio
-        .postbycustom(ApiConstants.fetchSpecificOrder,
-            data: FormData.fromMap({
-              "order_id": orderId,
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return FetchSpecificOrderInvoice.fromJson(response.data);
+    try {
+      final bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        NkCommonFunction.showErrorSnakBar(
+            'No internet connection. Please check your network and try again.');
+        return Future.error('No internet connection');
+      } else {
+        final response = await dio1.post(
+          '${ApiConstants.baseUrl}${ApiConstants.fetchSpecificOrder}',
+          data: FormData.fromMap({
+            "order_id": orderId,
+            "companyId": companyId,
+          }),
+          options: Options(
+            validateStatus: (status) {
+              return true;
+            },
+          ),
+        );
+        if (response.statusCode == 200) {
+          return FetchSpecificOrderInvoice.fromJson(response.data);
+        } else {
+          log('Got inside the try method');
+          handleHttpResponseError(
+            statusCode: response.statusCode ?? 0,
+            showErrorSnackBar: (message) =>
+                NkCommonFunction.showErrorSnakBar(message),
+            message: response.data?['message'] ?? '',
+          );
+          return Future.error('API Error: ${response.statusCode}');
+        }
+      }
+    } on DioException catch (error) {
+      final handledError = DioExceptionHandler.fromDioError(error);
+      handleHttpResponseError(
+        statusCode: error.response?.statusCode ?? 0,
+        showErrorSnackBar: (message) =>
+            NkCommonFunction.showErrorSnakBar(message),
+        message: handledError.errorMessage,
+      );
+      return Future.error(handledError);
+    }
   }
 
   /// ************************ COMMON SEARCH SECTION ***************** ///
@@ -1081,8 +1112,7 @@ class ApiWorker with ApiConstants {
             showErrorSnakBar: false, data: FormData.fromMap(sendData))
         .onError((DioException error, stackTrace) {
       log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error,
-          showErrorSnakBar: false));
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
     return TodayTasksResponse.fromJson(response.data);
   }
@@ -1699,7 +1729,7 @@ class ApiWorker with ApiConstants {
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
-       if (month != null) "month": month,
+      if (month != null) "month": month,
       "companyId": companyId,
     };
     log('This function has been called fetchSalesmanValueTarget');
@@ -1737,7 +1767,6 @@ class ApiWorker with ApiConstants {
         log("Offline mode: Fetching value target data from Hive for key: $cacheKey");
         NkCommonFunction.showErrorSnakBar(
             'Failed to fetch Sales target. Showing offline data.');
-        
       }
     } on DioException catch (dioError) {
       log("Dio error occurred2: ${dioError.message}");
@@ -1795,7 +1824,6 @@ class ApiWorker with ApiConstants {
           } else {
             log("API Error: ${response.statusCode} ${response.statusMessage}");
           }
-          
         } catch (apiError) {
           log("API fetch error: $apiError");
         }
@@ -1861,11 +1889,13 @@ class ApiWorker with ApiConstants {
       rethrow;
     }
   }
+
   Future<bool> loadSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     log('loadSwitchState: ${prefs.getBool('switch_state')}');
     return prefs.getBool('switch_state') ?? false;
   }
+
   Future<void> saveSwitchState(bool value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('switch_state', value);
@@ -1928,41 +1958,40 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-Future<Response> updateCategoryTargetValue(
-  String salesmanId,
-  String month,
-  String year,
-  Map<dynamic, dynamic> categoryData,
-  Map<dynamic, dynamic> weeklyTarget,
-  Map<dynamic, dynamic> weeklyProjection,
-) async {
-  final requestPayload = {
-    "categories": categoryData,
-    "weekly_target": weeklyTarget,
-    "weekly_projection": weeklyProjection,
-    "sales_id": salesmanId,
-    "year": int.parse(year),
-    "month": month,
-    "companyId": companyId,
-  };
+  Future<Response> updateCategoryTargetValue(
+    String salesmanId,
+    String month,
+    String year,
+    Map<dynamic, dynamic> categoryData,
+    Map<dynamic, dynamic> weeklyTarget,
+    Map<dynamic, dynamic> weeklyProjection,
+  ) async {
+    final requestPayload = {
+      "categories": categoryData,
+      "weekly_target": weeklyTarget,
+      "weekly_projection": weeklyProjection,
+      "sales_id": salesmanId,
+      "year": int.parse(year),
+      "month": month,
+      "companyId": companyId,
+    };
 
-  log('Sending API request to updateCategoryTargetValue...');
-  log('API Payload: ${jsonEncode(requestPayload)}');
+    log('Sending API request to updateCategoryTargetValue...');
+    log('API Payload: ${jsonEncode(requestPayload)}');
 
-  final response = await dio1
-      .post(
-        // ApiConstants.updateCategoryTargetValue,
-        'http://16.50.232.153:3000/Update_CategorytargetValue',
-        data: requestPayload,
-      )
-      .onError((DioException error, stackTrace) {
-        log("Dio Error: ${error.toString()}");
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      });
+    final response = await dio1
+        .post(
+      // ApiConstants.updateCategoryTargetValue,
+      'http://16.50.232.153:3000/Update_CategorytargetValue',
+      data: requestPayload,
+    )
+        .onError((DioException error, stackTrace) {
+      log("Dio Error: ${error.toString()}");
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
 
-  return response;
-}
-
+    return response;
+  }
 
   Future<LeadResponce> getLeadsCustomerData(String salesManId,
       {PaginationModel? paginationModel}) async {

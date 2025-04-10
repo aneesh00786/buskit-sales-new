@@ -103,7 +103,6 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
     String? salesmanId,
-    
   }) async {
     final String jsonString =
         await SessionManager.getStringValue(SpString.spLogin);
@@ -143,7 +142,7 @@ class ApiService {
     final dashboardBox = Hive.box('dashboardBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-      
+
       if (!isOnline) {
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
@@ -329,7 +328,11 @@ class ApiService {
         print('Request failed with status 1: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar:
+              NkCommonFunction.showErrorSnakBar(e.message ?? ''));
       print('Exception occurred 1: $e');
       throw Exception('Failed to fetch data: $e');
     }
@@ -377,7 +380,7 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred 1: $e');
+      print('Exception occurred 2: $e');
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -448,7 +451,7 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Exception occurred 1: $e');
+      print('Exception occurred 3: $e');
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -1560,8 +1563,7 @@ class ApiService {
   }
 
   Future<CategoryResponse> fetchCategories() async {
-    const String url =
-        'https://thrivewoo.com/fetch_categories?company_id=1';
+    const String url = 'https://thrivewoo.com/fetch_categories?company_id=1';
     // '$_baseUrl/fetch_categories?company_id=1';
 
     try {
@@ -2028,25 +2030,26 @@ class DashboardProvider with ChangeNotifier {
 
   OrderStatus _selectedStatus = OrderStatus.cancelled;
 
-  void onFilterChanged(FilterDateEnum? selectedFilterTemp) {
+  void onFilterChanged(FilterDateEnum? selectedFilterTemp) async {
+    bool isOnline = await ConnectivityService().isOnline();
     switch (selectedFilterTemp) {
       case FilterDateEnum.today:
-        _selectedFilterNameTemp = "Day";
+        selectedFilters(isOnline, "Day");
         break;
       case FilterDateEnum.thisWeek:
-        _selectedFilterNameTemp = "Week";
+        selectedFilters(isOnline, "Week");
         break;
       case FilterDateEnum.thisYear:
-        _selectedFilterNameTemp = "Year";
+        selectedFilters(isOnline, "Year");
         break;
       case FilterDateEnum.thisMonth:
-        _selectedFilterNameTemp = "Month";
+        selectedFilters(isOnline, "Month");
         break;
       case FilterDateEnum.range:
-        _selectedFilterNameTemp = "Range";
+        selectedFilters(isOnline, "Range");
         break;
       default:
-        _selectedFilterNameTemp = "Month";
+        selectedFilters(isOnline, "Month");
         break;
     }
 
@@ -2054,6 +2057,15 @@ class DashboardProvider with ChangeNotifier {
     if (selectedFilterTemp != null) {
       _selectedFilterTemp = selectedFilterTemp;
       notifyListeners();
+    }
+  }
+
+  selectedFilters(bool isOnline, String filterName) {
+    if (isOnline) {
+      _selectedFilterNameTemp = filterName;
+    } else {
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Please check your network');
     }
   }
 

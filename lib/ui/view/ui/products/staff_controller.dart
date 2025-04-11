@@ -65,6 +65,7 @@ class StaffController extends GetxController {
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
+  
   Future<void> loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
     log('Weekly Type fetched from API: $weeklyType');
@@ -82,7 +83,7 @@ class StaffController extends GetxController {
         year: int.parse(year),
         compId: compId,
         salesId: salesmanId,
-        isfromLogin: isFromLogin ? true : false,
+        isfromLogin: isFromLogin,
       );
 
       if (response != null) {
@@ -142,17 +143,16 @@ class StaffController extends GetxController {
     required int selectedTabIndex,
     required String staffId,
     required String currentYear,
+    String? monthName,
     bool? isFromLogin,
     int? compId,
   }) async {
     final selectedMonth = selectedTabIndex;
     final selectedMonthName =
-        DateFormat.MMMM().format(DateTime(0, selectedMonth));
-
-    await loadSalesmanTarget(staffId, selectedMonthName, currentYear,
-        selectedMonthName, isFromLogin ?? false, compId ?? 0);
+      isFromLogin==true?monthName:  DateFormat.MMMM().format(DateTime(0, selectedMonth));
+    await loadSalesmanTarget(staffId, selectedMonthName??'', currentYear,
+        selectedMonthName??'', isFromLogin ?? false, compId ?? 0);
   }
-
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
       return IconButton(

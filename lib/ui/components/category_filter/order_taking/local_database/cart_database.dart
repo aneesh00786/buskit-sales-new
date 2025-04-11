@@ -45,7 +45,7 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    log('Request Body of FetchAll Order $requestBody');
+    log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     try {
       final connectivityService = ConnectivityService();

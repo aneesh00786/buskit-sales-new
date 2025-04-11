@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -59,8 +61,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
                                   setState(() {
                                     salesmanList;
                                   });
-                                  log(
-                                      "SalesmanCalenderEvent ${salesmanList.length}");
+                                  log("SalesmanCalenderEvent ${salesmanList.length}");
                                 },
                                 child: staffDetailsWidget(
                                     widget.quantityList[index]),
@@ -116,13 +117,19 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
   }
 
   static void navigateTo(double lat, double lng) async {
-    const String homeLat = "37.3230";
-    const String homeLng = "-122.0312";
-    const String googleMapslocationUrl =
-        "https://www.google.com/maps/search/?api=1&query=$homeLat,$homeLng";
-    final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
-    var uri = Uri.parse(encodedURl);
-    await launchUrl(uri);
+    bool isOnline = await ConnectivityService().isOnline();
+    if (isOnline) {
+      const String homeLat = "37.3230";
+      const String homeLng = "-122.0312";
+      const String googleMapslocationUrl =
+          "https://www.google.com/maps/search/?api=1&query=$homeLat,$homeLng";
+      final String encodedURl = Uri.encodeFull(googleMapslocationUrl);
+      var uri = Uri.parse(encodedURl);
+      await launchUrl(uri);
+    } else {
+      NkCommonFunction.showErrorSnakBar(
+          'No internet connection. Please check your network');
+    }
   }
 
   Widget staffDetailsWidget(QuantityList staffData) {

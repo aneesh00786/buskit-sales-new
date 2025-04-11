@@ -372,8 +372,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
             // ignore: use_build_context_synchronously
           )
         // ignore: use_build_context_synchronously
-        : NkCommonFunction.showErrorSnakBar(
-            'No internet connection. Unable to fetch data.');
+        : null;
   }
 
   void _showSalesmanPopupMonthly(String cid, String month) {

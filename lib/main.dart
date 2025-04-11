@@ -48,6 +48,9 @@ void main() async {
   await Hive.openBox<CartItem>('cartPreorderBox');
   await Hive.openBox<CartItem>('draftBox');
   await Hive.openBox('dashboardBox');
+  await Hive.openBox('customerdashboardBox');
+  await Hive.openBox('customerRevenueBox');
+  await Hive.openBox('customerTotalSaleBox');
   await Hive.openBox('weeklyTypeBox');
   await Hive.openBox('customerBox');
   await Hive.openBox('productBox');

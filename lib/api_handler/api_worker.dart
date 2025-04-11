@@ -198,8 +198,8 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log("No internet. Fetching settings from Hive.");
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Unable to fetch data.');
+      // NkCommonFunction.showErrorSnakBar(
+      //     'No internet connection. Unable to fetch data.');
     }
     try {
       final cachedData = settingsBox.get(cacheKey);
@@ -798,8 +798,8 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log('No internet. Fetching from Hive...');
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Unable to fetch data.');
+      // NkCommonFunction.showErrorSnakBar(
+      //     'No internet connection. Unable to fetch data.');
     }
     try {
       var productBox = Hive.box('productBox');
@@ -945,8 +945,8 @@ class ApiWorker with ApiConstants {
       }
     } else {
       log('No internet. Fetching from Hive...');
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Unable to fetch data.');
+      // NkCommonFunction.showErrorSnakBar(
+      //     'No internet connection. Unable to fetch data.');
     }
     try {
       return localStorage.storedLeadsData(leadsBox, cacheKey);
@@ -1055,8 +1055,8 @@ class ApiWorker with ApiConstants {
             message: "Calender Event");
       }
     } else {
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Unable to fetch data.');
+      // NkCommonFunction.showErrorSnakBar(
+      //     'No internet connection. Unable to fetch data.');
       log('No internet connection. Fetching data from Hive...');
     }
     try {
@@ -1227,8 +1227,8 @@ class ApiWorker with ApiConstants {
     try {
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No internet connection. Unable to fetch data.');
+        // NkCommonFunction.showErrorSnakBar(
+        //     'No internet connection. Unable to fetch data.');
         log('Offline mode: Fetching data from cache for key: $cacheKey');
         return localStorage.storedPendingPaymentData(
             pendingPaymentBox, cacheKey);
@@ -1263,8 +1263,8 @@ class ApiWorker with ApiConstants {
       log("Unexpected error occurred: $e");
       final isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No internet connection. Unable to fetch data.');
+        // NkCommonFunction.showErrorSnakBar(
+        //     'No internet connection. Unable to fetch data.');
         log('Using cached data due to offline mode for key: $cacheKey');
         return localStorage.storedPendingPaymentData(
             pendingPaymentBox, cacheKey);
@@ -1747,12 +1747,13 @@ class ApiWorker with ApiConstants {
   }
 
   Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
-      String salesmanId, String year, String? month) async {
+      String salesmanId, String year, String? month,
+      {int? compid, bool? isFromLogin}) async {
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
       if (month != null) "month": month,
-      "companyId": companyId,
+      "companyId": isFromLogin ?? false ? compid : companyId,
     };
     log('This function has been called fetchSalesmanValueTarget');
     final cacheKey =
@@ -1787,8 +1788,8 @@ class ApiWorker with ApiConstants {
         }
       } else {
         log("Offline mode: Fetching value target data from Hive for key: $cacheKey");
-        NkCommonFunction.showErrorSnakBar(
-            'Failed to fetch Sales target. Showing offline data.');
+        // NkCommonFunction.showErrorSnakBar(
+        //     'Failed to fetch Sales target. Showing offline data.');
       }
     } on DioException catch (dioError) {
       log("Dio error occurred2: ${dioError.message}");
@@ -1816,12 +1817,13 @@ class ApiWorker with ApiConstants {
   }
 
   Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
-      String salesmanId, String month, String year) async {
+      String salesmanId, String month, String year,
+      {int? compId, bool? isFromLogin}) async {
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
       "month": month,
-      "companyId": companyId,
+      "companyId": isFromLogin ?? false ? compId : companyId,
     };
     final cacheKey = 'salesman_target_${salesmanId}_${year}_$month';
     final targetBox = Hive.box('salesmanTargetBox');

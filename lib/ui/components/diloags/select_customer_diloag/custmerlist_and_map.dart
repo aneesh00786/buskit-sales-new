@@ -125,6 +125,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
+                  int currentYear = now.year;
 
                   Get.to(
                     () => CustomerDachScreen(
@@ -143,11 +144,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       Provider.of<CustomersProvider>(context, listen: false);
                   await Future.wait([
                     customersProvider.fetchCustomerDashboardData(
-                        customerId, 2024, formattedStartDate, formattedEndDate),
+                        customerId, currentYear, formattedStartDate, formattedEndDate),
                     customersProvider.fetchCustomerDashboardRevenueData(
-                        customerId, 2024, formattedStartDate, formattedEndDate),
+                        customerId, currentYear, formattedStartDate, formattedEndDate),
                     customersProvider.fetchCustomerDashboardDataSalseData(
-                        customerId, 2024),
+                        customerId, currentYear),
                     customersProvider.fetchCustomersDataDash(customerId),
                     customersProvider
                         .fetchCustomerDashboardCountData(customerId),

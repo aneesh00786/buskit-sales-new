@@ -54,7 +54,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String targetType = '';
 
   Future<void> _loadSettings() async {
-    // await _loadWeeklyType();
+
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -71,7 +71,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-      // ignore: avoid_print
+
       print("Error fetching settings: $e");
     }
   }

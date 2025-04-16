@@ -1,5 +1,8 @@
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/forgot_password_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -14,7 +17,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 class LoginRightSideWidget extends StatefulWidget {
   final LoginController loginController;
   const LoginRightSideWidget({super.key, required this.loginController});
-
   @override
   State<LoginRightSideWidget> createState() => _LoginRightSideWidgetState();
 }
@@ -193,91 +195,259 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
       );
 }
 
-class ForgotPasswordScreen extends StatelessWidget {
+// class ForgotPasswordScreen extends StatelessWidget {
+//   const ForgotPasswordScreen({super.key});
+
+//   void showEmailBottomSheet(BuildContext context) {
+//     final emailController = TextEditingController();
+
+//     showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       builder: (context) {
+//         return Padding(
+//           padding: EdgeInsets.only(
+//             left: 16.0,
+//             right: 16.0,
+//             top: 16.0,
+//             bottom: MediaQuery.of(context).viewInsets.bottom,
+//           ),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               nkMediumSizeBox(),
+//               const Icon(
+//                 Icons.email_outlined,
+//                 color: Color.fromARGB(255, 249, 140, 132),
+//                 size: 60,
+//               ),
+//               const SizedBox(height: 16.0),
+//               Align(
+//                   alignment: Alignment.centerLeft,
+//                   child: CustomText(
+//                     content: "Enter you'r registered E-mail.",
+//                     fontSize: 20,
+//                   )),
+//               nkMediumSizeBox(),
+//               TextFormField(
+//                 controller: emailController,
+//                 decoration: InputDecoration(
+//                   labelText: 'Email',
+//                   border: const OutlineInputBorder(),
+//                   enabledBorder: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(8),
+//                     borderSide:
+//                         const BorderSide(color: Colors.grey, width: 1.5),
+//                   ),
+//                   focusedBorder: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(8),
+//                     borderSide:
+//                         const BorderSide(color: primaryButtonColor, width: 1.5),
+//                   ),
+//                   errorBorder: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(8),
+//                     borderSide: const BorderSide(color: red, width: 1.5),
+//                   ),
+//                 ),
+//                 keyboardType: TextInputType.emailAddress,
+//               ),
+//               const SizedBox(height: 16.0),
+//               nkMediumSizeBox(),
+//               Container(
+//                 height: 60,
+//                 width: 200,
+//                 decoration: BoxDecoration(
+//                   color: Colors.blue,
+//                   borderRadius: BorderRadius.circular(20),
+//                 ),
+//                 child: TextButton(
+//                   onPressed: () {
+//                     String email = emailController.text.trim();
+//                     if (email.isNotEmpty) {
+//                       Navigator.pop(context);
+//                     } else {}
+//                   },
+//                   child: const Text(
+//                     'Submit',
+//                     style: TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 20,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               nkMediumSizeBox(),
+//               nkMediumSizeBox(),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: () {
+//         showEmailBottomSheet(context);
+//       },
+//       child: const Text(
+//         'Forgot Password..?',
+//         style: TextStyle(color: Colors.blue),
+//       ),
+//     );
+//   }
+// }
+
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  // void showEmailBottomSheet(BuildContext context) {
   void showEmailBottomSheet(BuildContext context) {
     final emailController = TextEditingController();
+    bool isLoading = false; // Move it here
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      // isDismissible: false,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 16.0,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              nkMediumSizeBox(),
-              const Icon(
-                Icons.email_outlined,
-                color: Color.fromARGB(255, 249, 140, 132),
-                size: 60,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                top: 16.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              const SizedBox(height: 16.0),
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: CustomText(
-                    content: "Enter you'r registered E-mail.",
-                    fontSize: 20,
-                  )),
-              nkMediumSizeBox(),
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: const OutlineInputBorder(),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  nkMediumSizeBox(),
+                  const Icon(
+                    Icons.email_outlined,
+                    color: Color.fromARGB(255, 249, 140, 132),
+                    size: 60,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: primaryButtonColor, width: 1.5),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: red, width: 1.5),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16.0),
-              nkMediumSizeBox(),
-              Container(
-                height: 60,
-                width: 200,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    String email = emailController.text.trim();
-                    if (email.isNotEmpty) {
-                      Navigator.pop(context);
-                    } else {}
-                  },
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(
-                      color: Colors.white,
+                  const SizedBox(height: 16.0),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: CustomText(
+                      content: "Enter your registered E-mail.",
                       fontSize: 20,
                     ),
                   ),
-                ),
+                  nkMediumSizeBox(),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide:
+                            const BorderSide(color: Colors.grey, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                            color: primaryButtonColor, width: 1.5),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: red, width: 1.5),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16.0),
+                  nkMediumSizeBox(),
+
+                  /// Submit Button or Loader
+                  isLoading
+                      ? const CircularProgressIndicator()
+                      : Container(
+                          height: 60,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: TextButton(
+                            onPressed: () async {
+                              String email = emailController.text.trim();
+                              if (email.isNotEmpty) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                try {
+                                  final response =
+                                      await ApiWorker().sendOtp(email);
+                                  final data = response.data;
+
+                                  showCustomToastDisplay(
+                                    context,
+                                    data['message'] ?? "OTP sent.",
+                                    data['status'] == true ? Colors.green : red,
+                                    data['status'] == true
+                                        ? Icons.check
+                                        : Icons.close,
+                                  );
+
+                                  if (data['status'] == true) {
+                                    Navigator.pop(context);
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) =>
+                                          ForgotPasswordDialog(email: email),
+                                    );
+                                  }
+                                } catch (e) {
+                                  showCustomToastDisplay(
+                                    context,
+                                    "Error sending OTP: ${e.toString()}",
+                                    red,
+                                    Icons.close,
+                                  );
+                                } finally {
+                                  if (context.mounted) {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                }
+                              } else {
+                                showCustomToastDisplay(
+                                  context,
+                                  "Please enter your email.",
+                                  red,
+                                  Icons.close,
+                                );
+                              }
+                            },
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                  nkMediumSizeBox(),
+                  nkMediumSizeBox(),
+                ],
               ),
-              nkMediumSizeBox(),
-              nkMediumSizeBox(),
-            ],
-          ),
+            );
+          },
         );
       },
     );

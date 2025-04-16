@@ -1,14 +1,18 @@
 mixin class ApiConstants {
-
   static const String baseUrl = "https://thrivewoo.com/";
   static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
+
   /// Login APi END Point
   static const String login = "salesman_login";
+  static const String sendOtp = "send_otp";
+  static const String verifyOtp = "verify_otp";
+
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
+
   /// Dashboard API
   static const String dashboardList = "dashboard_list";
   static const String getDashboardList = "Get_dashboard_list";
@@ -49,28 +53,36 @@ mixin class ApiConstants {
   static const String fetchAllSetting = "fetchAllSetting";
   static const String fetchLeadsCount = "fetchLeadsCount";
   static const String updateCheckinOut = "UpdateCheckInOut";
+
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
+
   /// Product Api
   static const String fetchproduct = "fetch_product";
+
   /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";
+
   /// CALENDAR API
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
+
   /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";
+
   /// PENDING  PAYMENT API
   static const String fetchPendingPayments = "fetch_pending_payments";
-  static const String getAllPendingPaymentIndividuals = "get_all_pending_payment_individual";
+  static const String getAllPendingPaymentIndividuals =
+      "get_all_pending_payment_individual";
   // DUMMY IMAGE URL
-  static const String dummyImageUrl = "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
+  static const String dummyImageUrl =
+      "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
   // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc";
   static const String gGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
@@ -88,7 +100,7 @@ mixin class ApiConstants {
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = 'https://thrivewoo.com/';
-  
+
   //PERFORMANCE
   static const String fetchSchedule = "fetch_schedule";
   static const String getWeekelyType = "get_weekly_type";

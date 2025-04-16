@@ -58,6 +58,42 @@ class ApiWorker with ApiConstants {
           .value ??
       '';
 
+  
+  Future<Response> sendOtp(String email) async {
+    Map<String, dynamic> data = {
+      'email': email,
+    };
+    final response = await dio
+        .postbycustom(
+      ApiConstants.sendOtp,
+      data: data,
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
+
+  Future<Response> resetPassword(
+      String email, String newPassword, String otp) async {
+    Map<String, dynamic> data = {
+      "email": email,
+      "otp": otp,
+      "newPassword": newPassword
+    };
+    final response = await dio
+        .postbycustom(
+      ApiConstants.verifyOtp,
+      data: data,
+    )
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
+
   Future<LoginResponce?> loginApi(String email, String password) async {
     Map<String, dynamic> data = {
       'email': email,

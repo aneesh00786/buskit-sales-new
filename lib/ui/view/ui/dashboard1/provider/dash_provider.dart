@@ -1718,7 +1718,7 @@ Future<ApiResponsees> fetchOrderCount(
   }
 
   Future<CategoryResponse> fetchCategories() async {
-    const String url = 'https://thrivewoo.com/fetch_categories?company_id=1';
+    const String url = '${ApiConstants.baseUrl}fetch_categories?company_id=1';
     // '$_baseUrl/fetch_categories?company_id=1';
 
     try {
@@ -1743,7 +1743,7 @@ Future<ApiResponsees> fetchOrderCount(
 
   Future<ApiResponseModel> fetchProductData() async {
     // const String url = '$_baseUrl/fetch_product?company_id=1';
-    const String url = 'https://thrivewoo.com/fetch_products?company_id=1';
+    const String url = '${ApiConstants.baseUrl}fetch_products?company_id=1';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

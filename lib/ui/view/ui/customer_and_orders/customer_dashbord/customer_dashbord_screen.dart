@@ -3,6 +3,7 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
@@ -231,7 +232,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         radius: 15,
                         child: CachedNetworkImage(
                           imageUrl:
-                              'https://thrivewoo.com/uploads/$customerImage',
+                              '${ApiConstants.baseUrl}uploads/$customerImage',
                           placeholder: (context, url) =>
                               const CircularProgressIndicator(),
                           errorWidget: (context, url, error) =>
@@ -2333,7 +2334,7 @@ class UpdateCustomer extends StatelessWidget {
                                     null
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        'https://thrivewoo.com/uploads/${productsController.selectedCustomerImageUrl.value}',
+                                        '${ApiConstants.baseUrl}uploads/${productsController.selectedCustomerImageUrl.value}',
                                     placeholder: (context, url) =>
                                         const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) =>

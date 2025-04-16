@@ -3,6 +3,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -2222,7 +2223,7 @@ Future<void> placeOrder(
     log('Assigned companyId: ${cartOrder.companyId}');
     log('Place Order Payload: ${cartOrder.toJson()}');
     final response = await Dio().post(
-      "https://thrivewoo.com/place_order",
+      "${ApiConstants.baseUrl}place_order",
       data: cartOrder.toJson(),
     );
     log('Response status code: ${response.statusCode}');

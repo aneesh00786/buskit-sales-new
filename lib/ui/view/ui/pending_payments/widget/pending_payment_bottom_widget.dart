@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -333,7 +334,7 @@ class _PendingPaymentBottomWidgetState
                 width: 24,
                 color: Colors.grey[200],
                 child: Image.network(
-                  'https://thrivewoo.com/uploads/${customerData.imageUrl}',
+                  '${ApiConstants.baseUrl}uploads/${customerData.imageUrl}',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

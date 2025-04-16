@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
@@ -302,7 +303,7 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       log('Place Order Payloadssss: ${cartOrder.toJson()}');
 
       final response = await Dio().post(
-        "https://thrivewoo.com/place_order",
+        "${ApiConstants.baseUrl}place_order",
         data: cartOrder.toJson(),
       );
 

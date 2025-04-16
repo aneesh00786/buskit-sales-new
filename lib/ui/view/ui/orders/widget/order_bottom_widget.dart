@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -595,7 +596,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
             width: 34,
             color: Colors.grey[200],
             child: Image.network(
-              'https://thrivewoo.com/uploads/${orderData.customerDetails!.imageUrl}',
+              '${ApiConstants.baseUrl}uploads/${orderData.customerDetails!.imageUrl}',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(

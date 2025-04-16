@@ -1,5 +1,6 @@
 // ignore_for_file: empty_catches
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:dio/dio.dart';
@@ -54,7 +55,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
         "companyId": companyId
       };
       final response = await dio.post(
-        'https://thrivewoo.com/post_receivable_amount',
+        '${ApiConstants.baseUrl}post_receivable_amount',
         data: data,
       );
 

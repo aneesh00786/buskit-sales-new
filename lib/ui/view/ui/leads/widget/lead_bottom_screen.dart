@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -112,7 +113,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                         width: 40,
                                         color: Colors.grey[200],
                                         child: Image.network(
-                                          'https://thrivewoo.com/uploads/${leadCustomerData.imageUrl ?? ''}',
+                                          '${ApiConstants.baseUrl}uploads/${leadCustomerData.imageUrl ?? ''}',
                                           fit: BoxFit.cover,
                                           width: 25,
                                           height: 25,
@@ -395,7 +396,7 @@ class EditLeadsDialog extends StatelessWidget {
     TextEditingController remarkController =
         TextEditingController(text: leadCustomerData.remark);
     String imageFile =
-        'https://thrivewoo.com/uploads/${leadCustomerData.imageUrl}';
+        '${ApiConstants.baseUrl}uploads/${leadCustomerData.imageUrl}';
 
     return Dialog(
       backgroundColor: Colors.white,

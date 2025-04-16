@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -2453,7 +2454,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       width: 50,
                                                       color: Colors.grey[200],
                                                       child: Image.network(
-                                                        'https://thrivewoo.com/uploads/${customer.imageUrl}',
+                                                        '${ApiConstants.baseUrl}uploads/${customer.imageUrl}',
                                                         fit: BoxFit.cover,
                                                         errorBuilder: (context,
                                                             error, stackTrace) {

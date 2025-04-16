@@ -209,7 +209,6 @@ class LoginController extends GetxController {
       );
       return false;
     }
-
     handleHttpResponseError(
       statusCode: response.statusCode ?? 0,
       showErrorSnackBar: (message) {
@@ -224,7 +223,6 @@ class LoginController extends GetxController {
     }
     return false;
   }
-
   void showErrorDialog(String title, String message) {
     Get.dialog(
       AlertDialog(

@@ -65,71 +65,73 @@ class ApiService {
       },
     ));
   }
-Future<CustomerRevenueResponse> fetchCustomerRevenueData(
-  String customerId,
-  int specifiedYear,
-  String startDate,
-  String endDate,
-) async {
-  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
-  final customerRevenueBox = Hive.box('customerRevenueBox');
-  final requestBody = {
-    "companyId": companyId,
-    "customer_id": customerId,
-    "end_date": endDate,
-    "start_date": startDate,
-    "year": specifiedYear,
-  };
-  try {
-    final bool isOnline = await ConnectivityService().isOnline();
-    if (!isOnline) {
+  Future<CustomerRevenueResponse> fetchCustomerRevenueData(
+    String customerId,
+    int specifiedYear,
+    String startDate,
+    String endDate,
+  ) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final url = Uri.parse('${ApiConstants.baseUrl1}/customer_Revenue');
+    final customerRevenueBox = Hive.box('customerRevenueBox');
+    final requestBody = {
+      "companyId": companyId,
+      "customer_id": customerId,
+      "end_date": endDate,
+      "start_date": startDate,
+      "year": specifiedYear,
+    };
+    try {
+      final bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        final cachedData = customerRevenueBox.get(customerId);
+        if (cachedData != null) {
+          log("Returning cached revenue data for customerId: $customerId");
+          if (cachedData is Map<String, dynamic>) {
+            return CustomerRevenueResponse.fromJson(cachedData);
+          } else {
+            throw Exception(
+                'Invalid cached data format for customerId: $customerId');
+          }
+        } else {
+          throw Exception(
+              'No cached data available for customerId: $customerId');
+        }
+      }
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        await customerRevenueBox.put(
+          customerId,
+          Map<String, dynamic>.from(responseData),
+        );
+        log("Data fetched and stored for customerId: $customerId");
+        return CustomerRevenueResponse.fromJson(responseData);
+      } else {
+        throw Exception(
+          'Failed to load customer revenue data - Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      log("Error occurred while fetching revenue data: $e");
       final cachedData = customerRevenueBox.get(customerId);
       if (cachedData != null) {
-        log("Returning cached revenue data for customerId: $customerId");
+        log("Returning cached revenue data after error for customerId: $customerId");
         if (cachedData is Map<String, dynamic>) {
           return CustomerRevenueResponse.fromJson(cachedData);
         } else {
-          throw Exception('Invalid cached data format for customerId: $customerId');
+          throw Exception(
+              'Invalid cached data format for customerId: $customerId');
         }
       } else {
         throw Exception('No cached data available for customerId: $customerId');
       }
     }
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      await customerRevenueBox.put(
-        customerId,
-        Map<String, dynamic>.from(responseData),
-      );
-      log("Data fetched and stored for customerId: $customerId");
-      return CustomerRevenueResponse.fromJson(responseData);
-    } else {
-      throw Exception(
-        'Failed to load customer revenue data - Status: ${response.statusCode}',
-      );
-    }
-  } catch (e) {
-    log("Error occurred while fetching revenue data: $e");
-    final cachedData = customerRevenueBox.get(customerId);
-    if (cachedData != null) {
-      log("Returning cached revenue data after error for customerId: $customerId");
-      if (cachedData is Map<String, dynamic>) {
-        return CustomerRevenueResponse.fromJson(cachedData);
-      } else {
-        throw Exception('Invalid cached data format for customerId: $customerId');
-      }
-    } else {
-      throw Exception('No cached data available for customerId: $customerId');
-    }
   }
-}
-
 
   Future<ResponseModell> fetchDashboardData({
     String? fetchType,
@@ -178,9 +180,9 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
     final dashboardBox = Hive.box('dashboardBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar('No Internet Connection. Please check your network');
+        NkCommonFunction.showErrorSnakBar(
+            'No Internet Connection. Please check your network');
         final cachedData = dashboardBox.get('dashboardData');
         if (cachedData != null) {
           log("Returning cached dashboard data.");
@@ -218,11 +220,10 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
             'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      log('DioError occurred: ${e.type}');
-      log('Error message: ${e.message}');
-      log('Error response: ${e.response?.data}');
-      log('Request data: ${e.requestOptions.data}');
-      log('Request headers: ${e.requestOptions.headers}');
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Dashboard");
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
         log("Returning cached dashboard data after error.");
@@ -257,6 +258,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
       );
     }
   }
+
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
     required int catId,
     String? fetchType,
@@ -309,7 +311,6 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
             allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-
         return ResponseModelCp(
             statusCode: jsonResponse['status_code'] ?? 0,
             status: jsonResponse['status'] ?? false,
@@ -322,8 +323,8 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
     } on DioException catch (e) {
       handleHttpResponseError(
           statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar:
-              NkCommonFunction.showErrorSnakBar(e.message ?? ''));
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Fetch Category Performance");
       print('Exception occurred 1: $e');
       throw Exception('Failed to fetch data: $e');
     }
@@ -383,7 +384,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
       print('Exception occurred 2: $e');
       handleHttpResponseError(
           statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,message: "Value Performance");
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -665,9 +666,9 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         );
       } else {
         handleHttpResponseError(
-          statusCode: response.statusCode,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        );
+            statusCode: response.statusCode,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Chat");
         throw Exception(
             'Failed to fetch individual chat data - ${response.statusCode}');
       }
@@ -919,6 +920,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         handleHttpResponseError(
           statusCode: response.statusCode,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Fetch all Order"
         );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
@@ -981,6 +983,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         handleHttpResponseError(
           statusCode: response.statusCode,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Fetch all order"
         );
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
@@ -1050,6 +1053,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
           handleHttpResponseError(
             statusCode: response.statusCode,
             showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Admin on pop up"
           );
           throw Exception('Failed to load admin details');
         }
@@ -1126,7 +1130,6 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         body: jsonEncode(requestBody),
       );
       log('fetchCustomer : ${response.statusCode}');
-      // log('fetchCustomer Body: ${response.body}');
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
 
@@ -1166,7 +1169,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         handleHttpResponseError(
             statusCode: response.statusCode,
             showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: 'fetch customer');
+            message: 'Fetch customer');
         return LocalStorage().storedCustomerData(customerBox);
       }
     } on DioException catch (dioError) {
@@ -1273,6 +1276,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
         handleHttpResponseError(
           statusCode: response.statusCode,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Customer Dashboard"
         );
         throw Exception(
           'Failed to fetch customer dashboard data - Status: ${response.statusCode}',
@@ -1287,6 +1291,7 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
       handleHttpResponseError(
         statusCode: e.response?.statusCode ?? 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "Customer Dashboard Data"
       );
 
       // Fetch data from Hive in case of error
@@ -1353,120 +1358,174 @@ Future<CustomerRevenueResponse> fetchCustomerRevenueData(
     );
   }
 
-Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
-    String customerId, int year) async {
-  final url = Uri.parse('$_baseUrl${ApiConstants.customeTotalSale}');
-  final customerTotalSaleBox = Hive.box('customerTotalSaleBox');
-  final requestBody = {
-    "customer_id": customerId,
-    "year": year,
-    "companyId": companyId,
-  };
-  log('Request Body for fetchCustomerTotalSale: $requestBody');
-  try {
-    final bool isOnline = await ConnectivityService().isOnline();
+  Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
+      String customerId, int year) async {
+    final url = Uri.parse('$_baseUrl${ApiConstants.customeTotalSale}');
+    final customerTotalSaleBox = Hive.box('customerTotalSaleBox');
+    final requestBody = {
+      "customer_id": customerId,
+      "year": year,
+      "companyId": companyId,
+    };
+    log('Request Body for fetchCustomerTotalSale: $requestBody');
+    try {
+      final bool isOnline = await ConnectivityService().isOnline();
 
-    if (!isOnline) {
+      if (!isOnline) {
+        final cacheKey = '${customerId}_$year';
+        final cachedData = customerTotalSaleBox.get(cacheKey);
+        if (cachedData != null) {
+          log("Returning cached total sale data for customerId: $customerId, year: $year");
+          if (cachedData is Map<String, dynamic>) {
+            return CustomerTotalSaleResponse.fromJson(cachedData);
+          } else {
+            throw Exception(
+                'Invalid cached data format for customerId: $customerId, year: $year');
+          }
+        } else {
+          throw Exception(
+              'No cached data available for customerId: $customerId, year: $year');
+        }
+      }
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+      log('API Response: ${response.body}');
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        log('Parsed JSON: $jsonResponse');
+        PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
+            jsonResponse['data']['total_sale']['payment_completed']);
+        PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
+            jsonResponse['data']['total_sale']['payment_remaning']);
+        List<DiscountData> discountData = [];
+        if (jsonResponse['data']['discount_data'] != null) {
+          discountData = (jsonResponse['data']['discount_data'] as List)
+              .map((json) => DiscountData.fromJson(json))
+              .toList();
+        }
+        final cacheKey = '${customerId}_$year';
+        await customerTotalSaleBox.put(
+          cacheKey,
+          Map<String, dynamic>.from(jsonResponse),
+        );
+        log("Data stored in Hive for customerId: $customerId, year: $year");
+
+        return CustomerTotalSaleResponse(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          data: Datas(
+            totalSale: TotalSale(
+              paymentCompleted: paymentCompleted,
+              paymentRemaining: paymentRemaining,
+            ),
+            discountData: discountData,
+          ),
+        );
+      } else {
+        log('Error Response: ${response.body}');
+        throw Exception(
+            'Failed to fetch customer total sale data - ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Exception: $e');
       final cacheKey = '${customerId}_$year';
       final cachedData = customerTotalSaleBox.get(cacheKey);
       if (cachedData != null) {
-        log("Returning cached total sale data for customerId: $customerId, year: $year");
+        log("Returning cached total sale data after error for customerId: $customerId, year: $year");
         if (cachedData is Map<String, dynamic>) {
           return CustomerTotalSaleResponse.fromJson(cachedData);
         } else {
-          throw Exception('Invalid cached data format for customerId: $customerId, year: $year');
+          throw Exception(
+              'Invalid cached data format for customerId: $customerId, year: $year');
         }
       } else {
-        throw Exception('No cached data available for customerId: $customerId, year: $year');
+        throw Exception(
+            'No cached data available for customerId: $customerId, year: $year');
       }
-    }
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
-    log('API Response: ${response.body}');
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      log('Parsed JSON: $jsonResponse');
-      PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
-          jsonResponse['data']['total_sale']['payment_completed']);
-      PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
-          jsonResponse['data']['total_sale']['payment_remaning']);
-      List<DiscountData> discountData = [];
-      if (jsonResponse['data']['discount_data'] != null) {
-        discountData = (jsonResponse['data']['discount_data'] as List)
-            .map((json) => DiscountData.fromJson(json))
-            .toList();
-      }
-      final cacheKey = '${customerId}_$year';
-      await customerTotalSaleBox.put(
-        cacheKey,
-        Map<String, dynamic>.from(jsonResponse),
-      );
-      log("Data stored in Hive for customerId: $customerId, year: $year");
-
-      return CustomerTotalSaleResponse(
-        statusCode: jsonResponse['status_code'] ?? 0,
-        status: jsonResponse['status'] ?? false,
-        message: jsonResponse['message'] ?? '',
-        data: Datas(
-          totalSale: TotalSale(
-            paymentCompleted: paymentCompleted,
-            paymentRemaining: paymentRemaining,
-          ),
-          discountData: discountData,
-        ),
-      );
-    } else {
-      log('Error Response: ${response.body}');
-      throw Exception(
-          'Failed to fetch customer total sale data - ${response.statusCode}');
-    }
-  } catch (e) {
-    log('Exception: $e');
-    final cacheKey = '${customerId}_$year';
-    final cachedData = customerTotalSaleBox.get(cacheKey);
-    if (cachedData != null) {
-      log("Returning cached total sale data after error for customerId: $customerId, year: $year");
-      if (cachedData is Map<String, dynamic>) {
-        return CustomerTotalSaleResponse.fromJson(cachedData);
-      } else {
-        throw Exception('Invalid cached data format for customerId: $customerId, year: $year');
-      }
-    } else {
-      throw Exception('No cached data available for customerId: $customerId, year: $year');
     }
   }
-}
 
-
-Future<ApiResponsees> fetchOrderCount(
+  Future<ApiResponsees> fetchOrderCount(
     String customerId,
     String startDate,
     String endDate,
   ) async {
-  final url = Uri.parse('$_baseUrl${ApiConstants.fetchOrderCount}');
-  final orderCountBox = Hive.box('orderCountBox');
-  final requestBody = {
-    "salesman_id": SessionHelper.loginSavedData?.salesmanId,
-    "customer_id": customerId,
-    "start_date": startDate,
-    "end_date": endDate,
-    "companyId": companyId,
-  };
-  log("Count Request Body : $requestBody");
+    final url = Uri.parse('$_baseUrl${ApiConstants.fetchOrderCount}');
+    final orderCountBox = Hive.box('orderCountBox');
+    final requestBody = {
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId,
+      "customer_id": customerId,
+      "start_date": startDate,
+      "end_date": endDate,
+      "companyId": companyId,
+    };
+    log("Count Request Body : $requestBody");
 
-  try {
-    // Check internet connectivity
-    final bool isOnline = await ConnectivityService().isOnline();
+    try {
+      // Check internet connectivity
+      final bool isOnline = await ConnectivityService().isOnline();
 
-    if (!isOnline) {
-      // Retrieve cached data from Hive
+      if (!isOnline) {
+        // Retrieve cached data from Hive
+        final cacheKey = '${customerId}_$startDate$endDate';
+        final cachedData = orderCountBox.get(cacheKey);
+        if (cachedData != null) {
+          log("Returning cached order count data for customerId: $customerId, startDate: $startDate, endDate: $endDate");
+          if (cachedData is Map<String, dynamic>) {
+            OrderDataas orderData = OrderDataas.fromJson(cachedData['data']);
+            return ApiResponsees(
+              statusCode: cachedData['status_code'] ?? 0,
+              status: cachedData['status'] ?? false,
+              message: cachedData['message'] ?? '',
+              data: orderData,
+            );
+          } else {
+            throw Exception('Invalid cached data format for order count.');
+          }
+        } else {
+          throw Exception('No cached data available for order count.');
+        }
+      }
+
+      // Fetch data from API
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+      log('Count Response : ${response.body}');
+
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        OrderDataas orderData = OrderDataas.fromJson(jsonResponse['data']);
+
+        // Store the data in Hive
+        final cacheKey = '${customerId}_$startDate$endDate';
+        await orderCountBox.put(
+          cacheKey,
+          Map<String, dynamic>.from(jsonResponse),
+        );
+        log("Data stored in Hive for order count with customerId: $customerId, startDate: $startDate, endDate: $endDate");
+
+        return ApiResponsees(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? '',
+          data: orderData,
+        );
+      } else {
+        throw Exception('Failed to fetch order count - ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Exception: $e');
       final cacheKey = '${customerId}_$startDate$endDate';
       final cachedData = orderCountBox.get(cacheKey);
       if (cachedData != null) {
-        log("Returning cached order count data for customerId: $customerId, startDate: $startDate, endDate: $endDate");
+        log("Returning cached order count data after error for customerId: $customerId, startDate: $startDate, endDate: $endDate");
         if (cachedData is Map<String, dynamic>) {
           OrderDataas orderData = OrderDataas.fromJson(cachedData['data']);
           return ApiResponsees(
@@ -1482,59 +1541,7 @@ Future<ApiResponsees> fetchOrderCount(
         throw Exception('No cached data available for order count.');
       }
     }
-
-    // Fetch data from API
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestBody),
-    );
-    log('Count Response : ${response.body}');
-
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      OrderDataas orderData = OrderDataas.fromJson(jsonResponse['data']);
-
-      // Store the data in Hive
-      final cacheKey = '${customerId}_$startDate$endDate';
-      await orderCountBox.put(
-        cacheKey,
-        Map<String, dynamic>.from(jsonResponse),
-      );
-      log("Data stored in Hive for order count with customerId: $customerId, startDate: $startDate, endDate: $endDate");
-
-      return ApiResponsees(
-        statusCode: jsonResponse['status_code'] ?? 0,
-        status: jsonResponse['status'] ?? false,
-        message: jsonResponse['message'] ?? '',
-        data: orderData,
-      );
-    } else {
-      throw Exception('Failed to fetch order count - ${response.statusCode}');
-    }
-  } catch (e) {
-    log('Exception: $e');
-    final cacheKey = '${customerId}_$startDate$endDate';
-    final cachedData = orderCountBox.get(cacheKey);
-    if (cachedData != null) {
-      log("Returning cached order count data after error for customerId: $customerId, startDate: $startDate, endDate: $endDate");
-      if (cachedData is Map<String, dynamic>) {
-        OrderDataas orderData = OrderDataas.fromJson(cachedData['data']);
-        return ApiResponsees(
-          statusCode: cachedData['status_code'] ?? 0,
-          status: cachedData['status'] ?? false,
-          message: cachedData['message'] ?? '',
-          data: orderData,
-        );
-      } else {
-        throw Exception('Invalid cached data format for order count.');
-      }
-    } else {
-      throw Exception('No cached data available for order count.');
-    }
   }
-}
-
 
   Future<CustomerResponse> fetchOneCustomer(String customerId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchOneCustomer}');

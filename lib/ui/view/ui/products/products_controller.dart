@@ -119,7 +119,6 @@ class ProductsController extends GetxController {
     log('Final Products Length: ${products.length}');
     return fetchedProducts;
   }
-
   void updateFinalAmount(double amount) {
     finalAmount.value = amount;
   }

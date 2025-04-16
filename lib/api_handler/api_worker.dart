@@ -58,7 +58,6 @@ class ApiWorker with ApiConstants {
           .value ??
       '';
 
-  
   Future<Response> sendOtp(String email) async {
     Map<String, dynamic> data = {
       'email': email,
@@ -389,22 +388,20 @@ class ApiWorker with ApiConstants {
         } else {
           log('Got inside the try method');
           handleHttpResponseError(
-            statusCode: response.statusCode ?? 0,
-            showErrorSnackBar: (message) =>
-                NkCommonFunction.showErrorSnakBar(message),
-            message: response.data?['message'] ?? '',
-          );
+          statusCode: response.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Specific order Invoice",
+        );
           return Future.error('API Error: ${response.statusCode}');
         }
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
       handleHttpResponseError(
-        statusCode: error.response?.statusCode ?? 0,
-        showErrorSnackBar: (message) =>
-            NkCommonFunction.showErrorSnakBar(message),
-        message: handledError.errorMessage,
-      );
+          statusCode: error.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Specific order Invoice",
+        );
       return Future.error(handledError);
     }
   }
@@ -430,6 +427,7 @@ class ApiWorker with ApiConstants {
   /// ************************ CUSTOMER AND ORDER SECTION ***************** ///
   Future<CustomerAndOrderResponce> getCustomer() async {
     try {
+      log('This function has been called');
       // Check for internet connectivity
       final List<ConnectivityResult> connectivityResult =
           await (Connectivity().checkConnectivity());
@@ -772,6 +770,7 @@ class ApiWorker with ApiConstants {
         queryParameters: {"company_id": companyId},
       ).onError((DioException error, stackTrace) {
         log(error.toString());
+
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
       final category = CategoryModel.fromJson(response.data);
@@ -786,15 +785,12 @@ class ApiWorker with ApiConstants {
   Future<List<ProductModel>> getTempProduct(String subCatId) async {
     log('=== getTempProduct called ===');
     log('Input subCatId: $subCatId');
-
     List<ProductModel> allProducts = [];
     final connectivityResult = await Connectivity().checkConnectivity();
     bool hasNetwork = connectivityResult != ConnectivityResult.none;
     bool hasInternet = hasNetwork && await isInternetAvailable();
-
     log('Network connectivity: $connectivityResult');
     log('Has Internet: $hasInternet');
-
     if (hasInternet) {
       try {
         final requestParams = {"company_id": companyId};
@@ -804,10 +800,8 @@ class ApiWorker with ApiConstants {
           '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}',
           queryParameters: requestParams,
         );
-
         log('API Response Status Code: ${response.statusCode}');
         log('API Response Data: ${response.data}');
-
         if (response.statusCode == 200 && response.data['data'] is List) {
           for (var item in response.data['data']) {
             if (item['product'] is List) {
@@ -830,7 +824,8 @@ class ApiWorker with ApiConstants {
       } on DioException catch (e) {
         handleHttpResponseError(
             statusCode: e.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar);
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Products");
       }
     } else {
       log('No internet. Fetching from Hive...');
@@ -856,7 +851,7 @@ class ApiWorker with ApiConstants {
       log('Fetched Products from Hive: ${allProducts.length}');
     } catch (e) {
       log('Error fetching from Hive: $e');
-      NkCommonFunction.showErrorSnakBar('Error fetching offline data.');
+      //NkCommonFunction.showErrorSnakBar('Error fetching offline data.');
     }
     List<ProductModel> filteredProducts = allProducts.where((product) {
       return product.scid == subCatId;
@@ -867,7 +862,8 @@ class ApiWorker with ApiConstants {
   }
 
   Future<void> fetchDiscounts(int companyId, String salesmanId) async {
-    const String url = '${ApiConstants.baseUrl}fetch_all_discount';
+    const String url =
+        '${ApiConstants.baseUrl}${ApiConstants.fetchAllDiscount}';
     try {
       Map<String, dynamic> requestPayload = {
         "companyId": companyId,
@@ -897,7 +893,11 @@ class ApiWorker with ApiConstants {
       } else {
         log('Failed to fetch data: ${response.statusMessage}');
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Discount");
       log('Error occurred while fetching discounts: $e');
     }
   }
@@ -1331,20 +1331,18 @@ class ApiWorker with ApiConstants {
         log('Got inside the try method');
         handleHttpResponseError(
           statusCode: response.statusCode ?? 0,
-          showErrorSnackBar: (message) =>
-              NkCommonFunction.showErrorSnakBar(message),
-          message: response.data?['message'] ?? '',
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: 'Pending Payment',
         );
         return Future.error('API Error: ${response.statusCode}');
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
       handleHttpResponseError(
-        statusCode: error.response?.statusCode ?? 0,
-        showErrorSnackBar: (message) =>
-            NkCommonFunction.showErrorSnakBar(message),
-        message: handledError.errorMessage,
-      );
+          statusCode: error.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: 'Pending Payment',
+        );
       return Future.error(handledError);
     }
   }

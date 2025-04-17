@@ -370,8 +370,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: 16.0),
                   nkMediumSizeBox(),
-
-                  /// Submit Button or Loader
                   isLoading
                       ? const CircularProgressIndicator()
                       : Container(
@@ -393,7 +391,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                       await ApiWorker().sendOtp(email);
                                   log('Enetered Email :$email');
                                   final data = response.data;
-
                                   showCustomToastDisplay(
                                     context,
                                     data['message'] ?? "OTP sent.",
@@ -402,7 +399,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         ? Icons.check
                                         : Icons.close,
                                   );
-
                                   if (data['status'] == true) {
                                     Navigator.pop(context);
                                     showDialog(

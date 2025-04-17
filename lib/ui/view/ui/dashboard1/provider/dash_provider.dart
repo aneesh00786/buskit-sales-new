@@ -133,112 +133,133 @@ class ApiService {
     }
   }
 
-  Future<ResponseModell> fetchDashboardData({
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-    String? salesmanId,
-  }) async {
-    final String jsonString =
-        await SessionManager.getStringValue(SpString.spLogin);
-    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    final String createdToken = jsonMap['createdToken'];
-    Object? sendData;
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths;
-        break;
-      case "Week":
-        sendData = selectedWeeks;
-        break;
-      case "Day":
-        sendData = [selectedDay];
-        break;
-      case "Year":
-        sendData = year.toString();
-        break;
-      case "Range":
-        sendData = [startDate, endDate];
-        break;
-      default:
-        sendData = selectedMonths;
-    }
-    final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
-    log("GET_DASHBOARD_LIST request URL: $url");
-    final Map<String, dynamic> requestBody = {
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "selected_range": sendData,
-      "time_range": fetchType == "Year" ? "year" : fetchType,
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "year": fetchType == "Year" ? year : DateTime.now().year,
-    };
-    log("GET_DASHBOARD_LIST request body453: $requestBody");
-    final dashboardBox = Hive.box('dashboardBox');
-    try {
-      bool isOnline = await _connectivityService.isOnline();
-      if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No Internet Connection. Please check your network');
-        final cachedData = dashboardBox.get('dashboardData');
-        if (cachedData != null) {
-          log("Returning cached dashboard data.");
+Future<ResponseModell> fetchDashboardData({
+  String? fetchType,
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+  int? year,
+  String? salesmanId,
+}) async {
+  log('This function has been called');
+  final String jsonString =
+      await SessionManager.getStringValue(SpString.spLogin);
+  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  final String createdToken = jsonMap['createdToken'];
+  Object? sendData;
+  switch (fetchType) {
+    case "Month":
+      sendData = selectedMonths;
+      break;
+    case "Week":
+      sendData = selectedWeeks;
+      break;
+    case "Day":
+      sendData = [selectedDay];
+      break;
+    case "Year":
+      sendData = year.toString();
+      break;
+    case "Range":
+      sendData = [startDate, endDate];
+      break;
+    default:
+      sendData = selectedMonths;
+  }
+  final url = Uri.parse('$_baseUrl${ApiConstants.getDashboardList}');
+  log("GET_DASHBOARD_LIST request URL: $url");
+  final Map<String, dynamic> requestBody = {
+    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "selected_range": sendData,
+    "time_range": fetchType == "Year" ? "year" : fetchType,
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    "year": fetchType == "Year" ? year : DateTime.now().year,
+  };
+  log("GET_DASHBOARD_LIST request body453: $requestBody");
+  final dashboardBox = Hive.box('dashboardBox');
+  try {
+    bool isOnline = await _connectivityService.isOnline();
+    if (!isOnline) {
+      NkCommonFunction.showErrorSnakBar(
+          'No Internet Connection. Please check your network');
+      final cachedData = dashboardBox.get('dashboardData');
+      log('Cached Data Type 1: ${cachedData}');
+      if (cachedData != null) {
+        log("Returning cached dashboard data.");
+        try {
           if (cachedData is Map<String, dynamic>) {
-            return localStorage.mapJsonToResponseModel(cachedData);
+            log('returned item is a Map ');
+            final convertedData = localStorage.castToStringDynamic(cachedData);
+            return localStorage.mapJsonToResponseModel(convertedData);
           } else if (cachedData is List<dynamic>) {
+            log('returned item is a List ');
             return localStorage.mapJsonToResponseModel({'data': cachedData});
           } else {
-            throw Exception('Invalid cached data format.');
+            log("Invalid cached data format: $cachedData");
+            await dashboardBox.delete('dashboardData');
+            throw Exception('Invalid cached data format. Cache cleared.');
           }
-        } else {
-          throw Exception('No cached data available.');
-        }
-      }
-      final response = await Dio().post(
-        url.toString(),
-        options: Options(
-          headers: {'Authorization': 'Bearer $createdToken'},
-        ),
-        data: jsonEncode(requestBody),
-      );
-      log("GET_DASHBOARD_LIST response: ${response.data}");
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        await dashboardBox.put(
-          'dashboardData',
-          Map<String, dynamic>.from(jsonResponse),
-        );
-        return localStorage.mapJsonToResponseModel(jsonResponse);
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
-      } else {
-        throw Exception(
-            'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
-      }
-    } on DioException catch (e) {
-      log("Why this Exception prints initially?");
-      log("Why this Exception prints initially?${e.response?.statusCode}");
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Dashboard");
-      final cachedData = dashboardBox.get('dashboardData');
-      if (cachedData != null) {
-        log("Returning cached dashboard data after error.");
-        if (cachedData is Map<String, dynamic>) {
-          return localStorage.mapJsonToResponseModel(cachedData);
-        } else {
-          throw Exception('Invalid cached data format.');
+        } catch (e) {
+          log("Error mapping cached data: $e");
+          throw Exception('Failed to process cached data.');
         }
       } else {
         throw Exception('No cached data available.');
       }
     }
+    final response = await Dio().post(
+      url.toString(),
+      options: Options(
+        headers: {'Authorization': 'Bearer $createdToken'},
+      ),
+      data: jsonEncode(requestBody),
+    );
+    log("GET_DASHBOARD_LIST response: ${response.data}");
+    if (response.statusCode == 200) {
+      final jsonResponse = response.data;
+      await dashboardBox.put(
+        'dashboardData',
+        Map<String, dynamic>.from(jsonResponse),
+      );
+      return localStorage.mapJsonToResponseModel(jsonResponse);
+    } else if (response.statusCode == 400 || response.statusCode == 401) {
+      _handleTokenExpiration();
+      throw Exception('Session expired');
+    } else {
+      throw Exception(
+          'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+    }
+  } on DioException catch (e) {
+    log("Caught DioException");
+    log("Error Status Code: ${e.response?.statusCode}");
+    handleHttpResponseError(
+        statusCode: e.response?.statusCode ?? 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "Dashboard");
+    final cachedData = dashboardBox.get('dashboardData');
+    if (cachedData != null) {
+      log("Returning cached dashboard data after error.");
+      try {
+        if (cachedData is Map<String, dynamic>) {
+          return localStorage.mapJsonToResponseModel(cachedData);
+        } else if (cachedData is List<dynamic>) {
+          return localStorage.mapJsonToResponseModel({'data': cachedData});
+        } else {
+          log("Invalid cached data format after error: $cachedData");
+          await dashboardBox.delete('dashboardData');
+          throw Exception('Invalid cached data format after error. Cache cleared.');
+        }
+      } catch (e) {
+        log("Error processing cached data after exception: $e");
+        throw Exception('Failed to process cached data after exception.');
+      }
+    } else {
+      throw Exception('No cached data available.');
+    }
   }
+}
 
   void _handleTokenExpiration() async {
     if (!Get.isDialogOpen!) {
@@ -2240,7 +2261,7 @@ class DashboardProvider with ChangeNotifier {
     NotificationController notificationController =
         Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    if (_dataFetched) return;
+    //if (_dataFetched) return;
     try {
       final now = DateTime.now();
       String startDate =
@@ -2248,8 +2269,7 @@ class DashboardProvider with ChangeNotifier {
       String endDate = DateTime(now.year, now.month + 1, 0)
           .toIso8601String()
           .substring(0, 10);
-
-      _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
+        _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
         Future<ResponseModell> api = _apiService.fetchDashboardData(
             fetchType: _selectedFilterName,
             startDate: _selectedFilter == FilterDateEnum.range
@@ -2270,6 +2290,7 @@ class DashboardProvider with ChangeNotifier {
             salesmanId: salesmanId);
         return api;
       });
+      
       notificationController.loadNotificationData(startDate, endDate);
       await CartDatabaseManager().getDraftItems();
       notifyListeners();

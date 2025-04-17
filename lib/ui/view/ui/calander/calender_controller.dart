@@ -5,6 +5,7 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
@@ -12,9 +13,11 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:calendar_view/calendar_view.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -100,16 +103,16 @@ class CalenderMapController extends GetxController {
     }
   }
 
-void showSelectedCustomerRoute(BuildContext context) {
-  if (selectedCustomers.isNotEmpty) {
-    log('${selectedCustomers.length}');
-    Get.to(() => const CustomerMapScreen());
-  } else {
-    log('No customers selected');
-    Get.snackbar('No Route Available', 'Please select at least one customer.');
+  void showSelectedCustomerRoute(BuildContext context) {
+    if (selectedCustomers.isNotEmpty) {
+      log('${selectedCustomers.length}');
+      Get.to(() => const CustomerMapScreen());
+    } else {
+      log('No customers selected');
+      Get.snackbar(
+          'No Route Available', 'Please select at least one customer.');
+    }
   }
-}
-
 
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
@@ -368,6 +371,18 @@ void showSelectedCustomerRoute(BuildContext context) {
         log('Failed to load directions: ${response.statusCode}');
       }
     } catch (e) {
+      int errorStatusCode = 0;
+      if (e is http.ClientException) {
+        errorStatusCode = 400;
+      } else if (e is http.Response) {
+        errorStatusCode = e.statusCode;
+      } else {
+        errorStatusCode = 500;
+      }
+      handleHttpResponseError(
+          statusCode: errorStatusCode,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "An error occurred while fetching map directions");
       log('Error occurred while fetching directions: $e');
     }
   }
@@ -477,7 +492,8 @@ void showSelectedCustomerRoute(BuildContext context) {
     Get.dialog(
       AlertDialog(
         title: const Text("Permission Denied"),
-        content: const Text("Location permission is required to access the map."),
+        content:
+            const Text("Location permission is required to access the map."),
         actions: [
           TextButton(
             child: const Text("Go to Settings"),
@@ -497,7 +513,7 @@ void showSelectedCustomerRoute(BuildContext context) {
     );
   }
 
- void loadCalenderEventV1(List<EventData> events) {
+  void loadCalenderEventV1(List<EventData> events) {
     if (eventControllerv1.events.isNotEmpty) {
       eventControllerv1.removeAll(eventControllerv1.events);
     }
@@ -563,7 +579,7 @@ void showSelectedCustomerRoute(BuildContext context) {
   Future<void> fetchCalenderEvents(
     DateTime initialDay,
   ) async {
-    var salesmanId =  SessionHelper.loginSavedData?.salesmanId;
+    var salesmanId = SessionHelper.loginSavedData?.salesmanId;
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     int companyId = jsonMap['company_id'];

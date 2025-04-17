@@ -81,13 +81,16 @@ class ProductsController extends GetxController {
     super.onInit();
     fetchCategoryData();
   }
+
   void closeDialog() {
     showDialog.value = false;
   }
+
   bool onReached(bool reached) {
     isReached.value = reached;
     return isReached.value;
   }
+
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {
     selectedCustomerName.value = name;
@@ -95,6 +98,7 @@ class ProductsController extends GetxController {
     selectedCustomerId.value = id;
     log('Selected Customer Updated: $name, $imageUrl, $id');
   }
+
   void clearSelectedCustomer() {
     selectedCustomerName.value = '';
     selectedCustomerImageUrl.value = '';
@@ -108,17 +112,21 @@ class ProductsController extends GetxController {
     }
     return fullname.length > 15 ? '${fullname.substring(0, 15)}...' : fullname;
   }
+
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
     isLoading.value = true;
     List<ProductModel> fetchedProducts =
         await ApiWorker().getTempProduct(subCatId);
-    log('Fetched stock value ${fetchedProducts.first.stock??''}');
-    log('Fetched detail stock value ${fetchedProducts.first.detail?.map((e) => e.stock,)??''}');
+    log('Fetched stock value ${fetchedProducts.first.stock ?? ''}');
+    log('Fetched detail stock value ${fetchedProducts.first.detail?.map(
+          (e) => e.stock,
+        ) ?? ''}');
     products.value = fetchedProducts;
     isLoading.value = false;
     log('Final Products Length: ${products.length}');
     return fetchedProducts;
   }
+
   void updateFinalAmount(double amount) {
     finalAmount.value = amount;
   }
@@ -128,13 +136,13 @@ class ProductsController extends GetxController {
     final List<ConnectivityResult> connectivityResult =
         await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      categoryModel = await retrieveCategoryData();
-      log('Retrieved from Hive : ${categoryModel?.data?.length}');
+     categoryModel = await retrieveCategoryData();
+     log('Retrieved from Hive : ${categoryModel?.data?.length}');
     } else {
-      categoryModel = await ApiWorker().getCategory();
-      await storeCategoryData(categoryModel);
-      log('DataStored in Hive : ${categoryModel.data?.length}');
-    }
+    categoryModel = await ApiWorker().getCategory();
+    await storeCategoryData(categoryModel);
+    log('DataStored in Hive : ${categoryModel.data?.length}');
+     }
     if (categoryModel != null) {
       categoryData.value = categoryModel;
     } else {
@@ -143,34 +151,30 @@ class ProductsController extends GetxController {
     }
   }
 
-SubCategoryItem? getInitialSubCategoryIdAndName() {
-  try {
-    if (categoryData.value.data != null &&
-        categoryData.value.data!.isNotEmpty) {
-      var firstCategory = categoryData.value.data!.first;
-      if (firstCategory.subCategoryItem != null &&
-          firstCategory.subCategoryItem!.isNotEmpty) {
-        var firstSubcategory = firstCategory.subCategoryItem!.first;
-        log("Fetching initial subcategory ID: ${firstSubcategory.id}");
-        log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
-        return firstSubcategory;
+  SubCategoryItem? getInitialSubCategoryIdAndName() {
+    try {
+      if (categoryData.value.data != null &&
+          categoryData.value.data!.isNotEmpty) {
+        var firstCategory = categoryData.value.data!.first;
+        if (firstCategory.subCategoryItem != null &&
+            firstCategory.subCategoryItem!.isNotEmpty) {
+          var firstSubcategory = firstCategory.subCategoryItem!.first;
+          log("Fetching initial subcategory ID: ${firstSubcategory.id}");
+          log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
+          return firstSubcategory;
+        }
       }
+      log("No subcategory found. Returning null.");
+      return null;
+    } catch (e) {
+      log("Error fetching initial subcategory details: $e");
+      return null;
     }
-    log("No subcategory found. Returning null.");
-    return null;
-  } catch (e) {
-    log("Error fetching initial subcategory details: $e");
-    return null;
   }
-}
-
-
-
   Future<void> storeCategoryData(CategoryModel categoryModel) async {
     final box = await Hive.openBox('categoriesBox');
     await box.put('categoryData', categoryModel.toJson());
   }
-
   Future<CategoryModel?> retrieveCategoryData() async {
     final box = await Hive.openBox('categoriesBox');
     final jsonString = box.get('categoryData');
@@ -222,9 +226,11 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
 
     refresh();
   }
+
   updateVariantData(int productListIndex, int variantIndex) {
     refresh();
   }
+
   changeCrossFadeState(CrossFadeState state) {
     crossFadeState = state;
     refresh();
@@ -316,6 +322,7 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
       log('Error placing order: $e');
     }
   }
+
   sendDraftPruduct(BuyProductResponce buyProductResponce) async {
     await ApiWorker()
         .saveAsDraftProduct(
@@ -389,7 +396,6 @@ SubCategoryItem? getInitialSubCategoryIdAndName() {
 
   addTOServerCart(AddToCartModel data) async {
     await ApiWorker().addToCart(data.toJson());
-
   }
 
   Future addProductToCart(

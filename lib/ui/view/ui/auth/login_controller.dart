@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.da
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
@@ -124,6 +125,7 @@ class LoginController extends GetxController {
         await Future.wait([
           Provider.of<CustomersProvider>(context, listen: false)
               .fetchCustomerData(),
+          Provider.of<DashboardProvider>(context, listen: false).fetchData(),
           customerAndOrderController.loadCustomer(),
           productsController.fetchCategoryData(),
           pendingPaymentController.loadOrderData(
@@ -223,6 +225,7 @@ class LoginController extends GetxController {
     }
     return false;
   }
+
   void showErrorDialog(String title, String message) {
     Get.dialog(
       AlertDialog(

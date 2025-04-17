@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -88,7 +89,7 @@ class LocalStorage {
         .map((json) => CategoryPerformancee.fromJson(json))
         .toList();
 
-        var monthPerformanceList =
+    var monthPerformanceList =
         jsonResponse['data']['monthly_performance'] as List;
     List<MonthlyPerformancee> montlyPerformance = monthPerformanceList
         .map((json) => MonthlyPerformancee.fromJson(json))
@@ -150,11 +151,11 @@ class LocalStorage {
       throw Exception('API error occurred, and no cached data is available.');
     }
   }
-  
 
   Future<void> storeCustomerData(CustomerAndOrderResponce customerData) async {
     final box = await Hive.openBox('customerBox');
     await box.put('customerData', customerData.toJson());
     log('Customer data stored in Hive');
   }
+
 }

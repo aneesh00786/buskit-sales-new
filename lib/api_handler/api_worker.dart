@@ -57,29 +57,29 @@ class ApiWorker with ApiConstants {
           )
           .value ??
       '';
-Future<Response> sendOtp(String email) async {
-  Map<String, dynamic> data = {
-    'email': email,
-  };
+  Future<Response> sendOtp(String email) async {
+    Map<String, dynamic> data = {
+      'email': email,
+    };
 
-  try {
-    final response = await dio1.post(
-      '${ApiConstants.baseUrl}${ApiConstants.sendOtp}',
-      data: data,
-      options: Options(
-        validateStatus: (status) {
-          return status != null && status < 500;
-        },
-      ),
-    );
+    try {
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.sendOtp}',
+        data: data,
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status < 500;
+          },
+        ),
+      );
 
-    log('Response: ${response.data}');
-    return response;
-  } catch (e) {
-    log('Error sending OTP: $e');
-    rethrow;
+      log('Response: ${response.data}');
+      return response;
+    } catch (e) {
+      log('Error sending OTP: $e');
+      rethrow;
+    }
   }
-}
 
   // Future<Response> sendOtp(String email) async {
   //   Map<String, dynamic> data = {
@@ -412,20 +412,20 @@ Future<Response> sendOtp(String email) async {
         } else {
           log('Got inside the try method');
           handleHttpResponseError(
-          statusCode: response.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Specific order Invoice",
-        );
+            statusCode: response.statusCode ?? 0,
+            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+            message: "Specific order Invoice",
+          );
           return Future.error('API Error: ${response.statusCode}');
         }
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
       handleHttpResponseError(
-          statusCode: error.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Specific order Invoice",
-        );
+        statusCode: error.response?.statusCode ?? 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "Specific order Invoice",
+      );
       return Future.error(handledError);
     }
   }
@@ -770,9 +770,8 @@ Future<Response> sendOtp(String email) async {
 
   /// ************************ CATEGORY SECTION ***************** ///
   Future<CategoryModel> getCategory() async {
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
       final box = await Hive.openBox('categoriesBox');
       final savedCategory = box.get('categoryItem');
       if (savedCategory != null) {
@@ -785,23 +784,41 @@ Future<Response> sendOtp(String email) async {
           throw Exception('Failed to convert offline data');
         }
       } else {
-        throw Exception('No data available offline');
+        throw Exception('An Unexpected Error occured');
       }
     } else {
-      log('$companyId');
-      final response = await dio.getbycustom(
-        ApiConstants.fetchcategories,
-        queryParameters: {"company_id": companyId},
-      ).onError((DioException error, stackTrace) {
-        log(error.toString());
-
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      });
-      final category = CategoryModel.fromJson(response.data);
-      final box = await Hive.openBox('categoriesBox');
-      await box.put('categoryItem', category.toJson());
-      log('Category Data : $category');
-      return category;
+      try {
+        final response = await dio1.get(
+          '${ApiConstants.baseUrl}${ApiConstants.fetchcategories}',
+          queryParameters: {"company_id": companyId},
+        );
+        final category = CategoryModel.fromJson(response.data);
+        final box = await Hive.openBox('categoriesBox');
+        await box.put('categoryItem', category.toJson());
+        log('Category Data: $category');
+        return category;
+      } on DioException catch (error) {
+        log("to This Exception");
+        handleHttpResponseError(
+          statusCode: error.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Product Category",
+        );
+        final box = await Hive.openBox('categoriesBox');
+        final savedCategory = box.get('categoryItem');
+        if (savedCategory != null) {
+          try {
+            final convertedData = LocalStorage()
+                .castToStringDynamic(Map<String, dynamic>.from(savedCategory));
+            return CategoryModel.fromJson(convertedData);
+          } catch (e) {
+            log("Error converting category data: $e");
+            throw Exception('Failed to convert offline data');
+          }
+        } else {
+          throw Exception('An Unexpected Error occured');
+        }
+      }
     }
   }
 
@@ -1363,10 +1380,10 @@ Future<Response> sendOtp(String email) async {
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
       handleHttpResponseError(
-          statusCode: error.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: 'Pending Payment',
-        );
+        statusCode: error.response?.statusCode ?? 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: 'Pending Payment',
+      );
       return Future.error(handledError);
     }
   }

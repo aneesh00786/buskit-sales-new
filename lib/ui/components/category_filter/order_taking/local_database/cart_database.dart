@@ -2,11 +2,13 @@
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -135,20 +137,25 @@ class CartDatabaseManager {
         log('No internet connection. Skipping API fetch.');
       }
       return fetchedItems;
-    } catch (e) {
+    } on DioException catch (e) {
       log('Error fetching draft items: $e');
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Draft");
       return [];
     }
   }
+
   Future<Map<String, String>> getSavedIds() async {
-  final prefs = await SharedPreferences.getInstance();
-  final cartId = prefs.getString('cartId') ?? '';
-  final draftId = prefs.getString('draftId') ?? '';
-  return {
-    'cartId': cartId,
-    'draftId': draftId,
-  };
-}
+    final prefs = await SharedPreferences.getInstance();
+    final cartId = prefs.getString('cartId') ?? '';
+    final draftId = prefs.getString('draftId') ?? '';
+    return {
+      'cartId': cartId,
+      'draftId': draftId,
+    };
+  }
 
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
@@ -520,10 +527,16 @@ class CartDatabaseManager {
       await cartBox.clear();
       await draftBox.clear();
       await cartBox.putAll(
-        { for (var e in remainingCartItems) '${e.customerId}-${e.detail.variationId}' : e },
+        {
+          for (var e in remainingCartItems)
+            '${e.customerId}-${e.detail.variationId}': e
+        },
       );
       await draftBox.putAll(
-        { for (var e in remainingDraftItems) '${e.customerId}-${e.detail.variationId}' : e },
+        {
+          for (var e in remainingDraftItems)
+            '${e.customerId}-${e.detail.variationId}': e
+        },
       );
 
       log('Cart and Draft cleared for customer $customerId while retaining unchecked items.');

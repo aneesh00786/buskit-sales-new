@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
@@ -29,30 +31,42 @@ class CustomerMapScreen extends StatefulWidget {
 void navigateToo(
     double startLat, double startLng, double endLat, double endLng) async {
   if (Platform.isAndroid) {
-    final Uri googleMapsUrl = Uri.parse(
-        'https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
-    if (await canLaunchUrl(googleMapsUrl)) {
-      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    bool isOnline = await ConnectivityService().isOnline();
+    if (isOnline) {
+      final Uri googleMapsUrl = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch Google Maps on Android';
+      }
     } else {
-      throw 'Could not launch Google Maps on Android';
+      NkCommonFunction.showErrorSnakBar(
+          'No internet Connection. Please check your network');
     }
   } else if (Platform.isIOS) {
-    final Uri googleMapsUrl = Uri.parse(
-        'comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
-    final Uri appleMapsUrl = Uri.parse(
-        'https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
-    if (await canLaunchUrl(googleMapsUrl)) {
-      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
-    } else if (await canLaunchUrl(appleMapsUrl)) {
-      await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
+    bool isOnline = await ConnectivityService().isOnline();
+    if (isOnline) {
+      final Uri googleMapsUrl = Uri.parse(
+          'comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
+      final Uri appleMapsUrl = Uri.parse(
+          'https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else if (await canLaunchUrl(appleMapsUrl)) {
+        await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch any map application on iOS';
+      }
     } else {
-      throw 'Could not launch any map application on iOS';
+      NkCommonFunction.showErrorSnakBar(
+          'No internet Connection. Please check your network');
     }
   }
 }
 
 class _CustomerMapScreenState extends State<CustomerMapScreen>
-  with WidgetsBindingObserver {
+    with WidgetsBindingObserver {
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());
@@ -135,7 +149,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       cusId: customer.customerId,
                       cusName: customer.businessName,
                       cusImage: customer.imageUrl,
-                      
                     ),
                     id: 2,
                   );
@@ -143,10 +156,13 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   final customersProvider =
                       Provider.of<CustomersProvider>(context, listen: false);
                   await Future.wait([
-                    customersProvider.fetchCustomerDashboardData(
-                        customerId, currentYear, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardData(customerId,
+                        currentYear, formattedStartDate, formattedEndDate),
                     customersProvider.fetchCustomerDashboardRevenueData(
-                        customerId, currentYear, formattedStartDate, formattedEndDate),
+                        customerId,
+                        currentYear,
+                        formattedStartDate,
+                        formattedEndDate),
                     customersProvider.fetchCustomerDashboardDataSalseData(
                         customerId, currentYear),
                     customersProvider.fetchCustomersDataDash(customerId),
@@ -293,12 +309,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                     const SizedBox(
                                       width: 5,
                                     ),
-                                    SizedBox(
-                                      width: 240,
-                                      child: Text(
-                                        customer.address ?? '',
-                                        overflow: TextOverflow.fade,
-                                      ),
+                                    Text(
+                                      customer.address ?? '',
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
@@ -376,7 +389,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               null) {
                                             return const CircularProgressIndicator();
                                           }
-
                                           double currentLatitude =
                                               _mapController.currentLatLng
                                                   .value!.latitude;

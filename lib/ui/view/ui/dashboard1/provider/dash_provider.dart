@@ -1223,10 +1223,8 @@ class ApiService {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     final int companyId = jsonMap['company_id'];
-
     final url = Uri.parse('${ApiConstants.baseUrl1}/customer_dashboard_list');
     final customerDashboardBox = Hive.box('customerdashboardBox');
-
     final requestBody = {
       "companyId": companyId,
       "customer_id": customerId,
@@ -1234,13 +1232,9 @@ class ApiService {
       "specifiedYear": specifiedYear,
       "start_date": startDate,
     };
-
     try {
-      // Check internet connectivity
       final bool isOnline = await ConnectivityService().isOnline();
-
       if (!isOnline) {
-        // Fetch data from Hive based on `customerId`
         final cachedData = customerDashboardBox.get(customerId);
         if (cachedData != null) {
           log("Returning cached dashboard data for customerId: $customerId");
@@ -1255,16 +1249,12 @@ class ApiService {
               'No cached data available for customerId: $customerId');
         }
       }
-
-      // Fetch data from API
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
-
       if (response.statusCode == 200) {
-        // Parse and store the data in Hive with `customerId` as the key
         final jsonResponse = json.decode(response.body);
         await customerDashboardBox.put(
           customerId,
@@ -1283,18 +1273,11 @@ class ApiService {
         );
       }
     } on DioException catch (e) {
-      log('DioError occurred: ${e.type}');
-      log('Error message: ${e.message}');
-      log('Error response: ${e.response?.data}');
-      log('Request data: ${e.requestOptions.data}');
-      log('Request headers: ${e.requestOptions.headers}');
       handleHttpResponseError(
         statusCode: e.response?.statusCode ?? 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
         message: "Customer Dashboard Data"
       );
-
-      // Fetch data from Hive in case of error
       final cachedData = customerDashboardBox.get(customerId);
       if (cachedData != null) {
         log("Returning cached dashboard data after error for customerId: $customerId");

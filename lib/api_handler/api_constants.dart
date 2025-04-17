@@ -3,16 +3,13 @@ mixin class ApiConstants {
   static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
-
   /// Login APi END Point
   static const String login = "salesman_login";
-  static const String sendOtp = "send_otp";
-  static const String verifyOtp = "verify_otp";
-
+  static const String sendOtp = "send_otp_staff";
+  static const String verifyOtp = "verify_otp_staff";
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
-
   /// Dashboard API
   static const String dashboardList = "dashboard_list";
   static const String getDashboardList = "Get_dashboard_list";

@@ -57,22 +57,46 @@ class ApiWorker with ApiConstants {
           )
           .value ??
       '';
+Future<Response> sendOtp(String email) async {
+  Map<String, dynamic> data = {
+    'email': email,
+  };
 
-  Future<Response> sendOtp(String email) async {
-    Map<String, dynamic> data = {
-      'email': email,
-    };
-    final response = await dio
-        .postbycustom(
-      ApiConstants.sendOtp,
+  try {
+    final response = await dio1.post(
+      '${ApiConstants.baseUrl}${ApiConstants.sendOtp}',
       data: data,
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+      options: Options(
+        validateStatus: (status) {
+          return status != null && status < 500;
+        },
+      ),
+    );
+
+    log('Response: ${response.data}');
     return response;
+  } catch (e) {
+    log('Error sending OTP: $e');
+    rethrow;
   }
+}
+
+  // Future<Response> sendOtp(String email) async {
+  //   Map<String, dynamic> data = {
+  //     'email': email,
+  //   };
+  //   final response = await dio
+  //       .postbycustom(
+  //     ApiConstants.sendOtp,
+  //     data: data,
+  //   )
+  //       .onError((DioException error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   log('Response : $response');
+  //   return response;
+  // }
 
   Future<Response> resetPassword(
       String email, String newPassword, String otp) async {
@@ -1145,7 +1169,7 @@ class ApiWorker with ApiConstants {
       Map<String, dynamic> sendData) async {
     final response = await dio
         .postbycustom(ApiConstants.fetchScheduleCustomer,
-            showErrorSnakBar: false, data: FormData.fromMap(sendData))
+            data: FormData.fromMap(sendData))
         .onError((DioException error, stackTrace) {
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));

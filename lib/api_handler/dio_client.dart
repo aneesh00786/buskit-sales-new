@@ -23,12 +23,11 @@ class DioClient with ApiConstants {
     return _dio;
   }
 
-  Future<Response> postbycustom<T>(
+    Future<Response> postbycustom<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
     Options? options,
-    bool showErrorSnakBar = true,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -43,14 +42,41 @@ class DioClient with ApiConstants {
           onReceiveProgress: onReceiveProgress);
       return response;
     } on DioException catch (err) {
-      log('Post Requested Path: $path');
-      log('DioError: ${err.response?.data}');
-      return Future.error("No response from server");
+      final errorMessage = DioExceptionHandler.fromDioError(err).toString();
+      return Future.error(errorMessage);
     } catch (e) {
-      log('General Error: $e');
       return Future.error(e);
     }
   }
+
+  // Future<Response> postbycustom<T>(
+  //   String path, {
+  //   data,
+  //   Map<String, dynamic>? queryParameters,
+  //   Options? options,
+  //   bool showErrorSnakBar = true,
+  //   CancelToken? cancelToken,
+  //   ProgressCallback? onSendProgress,
+  //   ProgressCallback? onReceiveProgress,
+  // }) async {
+  //   try {
+  //     final response = await _dio.post(path,
+  //         data: data,
+  //         queryParameters: queryParameters,
+  //         options: options,
+  //         cancelToken: cancelToken,
+  //         onSendProgress: onSendProgress,
+  //         onReceiveProgress: onReceiveProgress);
+  //     return response;
+  //   } on DioException catch (err) {
+  //     log('Post Requested Path: $path');
+  //     log('DioError: ${err.response?.data}');
+  //     return Future.error("No response from server");
+  //   } catch (e) {
+  //     log('General Error: $e');
+  //     return Future.error(e);
+  //   }
+  // }
 
   Future<Response> getbycustom<T>(
     String path, {

@@ -40,18 +40,12 @@ class HomeController extends GetxController {
       GlobalKey<ScaffoldState>();
   final ApiService _apiService = ApiService();
   bool _isDisposed = false;
-  @override
-  void onInit() {
-    super.onInit();
-    fetchDashboardData();
-  }
-
+  
   @override
   void onClose() {
     _isDisposed = true;
     super.onClose();
   }
-
   Future<void> fetchDashboardData() async {
     final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     try {

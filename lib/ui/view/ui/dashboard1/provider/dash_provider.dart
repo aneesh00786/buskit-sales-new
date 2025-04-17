@@ -220,6 +220,8 @@ class ApiService {
             'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
       }
     } on DioException catch (e) {
+      log("Why this Exception prints initially?");
+      log("Why this Exception prints initially?${e.response?.statusCode}");
       handleHttpResponseError(
           statusCode: e.response?.statusCode ?? 0,
           showErrorSnackBar: NkCommonFunction.showErrorSnakBar,

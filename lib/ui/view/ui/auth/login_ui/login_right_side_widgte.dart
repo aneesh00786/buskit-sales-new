@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -381,7 +383,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           child: TextButton(
                             onPressed: () async {
-                              String email = emailController.text.trim();
+                              String email = emailController.text.toLowerCase().trim();
                               if (email.isNotEmpty) {
                                 setState(() {
                                   isLoading = true;
@@ -389,6 +391,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 try {
                                   final response =
                                       await ApiWorker().sendOtp(email);
+                                  log('Enetered Email :$email');
                                   final data = response.data;
 
                                   showCustomToastDisplay(

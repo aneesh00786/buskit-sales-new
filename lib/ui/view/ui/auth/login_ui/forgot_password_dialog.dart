@@ -200,7 +200,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                           String email = emailController.text.trim();
                           if (email.isNotEmpty) {
                             ApiWorker().sendOtp(email);
-                            print("Email submitted: $email");
+                            log("Email submitted: $email");
                           }
                           _startResendTimer();
                         }

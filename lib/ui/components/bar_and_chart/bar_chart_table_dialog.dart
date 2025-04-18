@@ -83,29 +83,37 @@ showBarchartDialog(
                         height: headerHeight,
                         child: Row(
                           children: [
-                            const Expanded(
+                            Expanded(
                               child: DialogTableHeaderText(
                                 text: 'Name',
+                                align: TextAlign.center,
                                 fontSize: 13,
                               ),
                             ),
                             if (!isDayOrRange) ...[
-                              // if (targertType == '1') ...[
-                              const DialogTableHeaderText(
-                                text: 'Target',
-                                fontSize: 13,
-                              ),
-                              // ],
-                              if (staffProjection == '1') ...[
-                                const DialogTableHeaderText(
-                                  text: 'Projection',
+                              Expanded(
+                                // Wrap this in Expanded
+                                child: DialogTableHeaderText(
+                                  text: 'Target',
+                                  align: TextAlign.center,
                                   fontSize: 13,
+                                ),
+                              ),
+                              if (staffProjection == '1') ...[
+                                Expanded(
+                                  
+                                  child: DialogTableHeaderText(
+                                    text: 'Projection',
+                                    align: TextAlign.center,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ]
                             ],
-                            const Expanded(
+                            Expanded(
                               child: DialogTableHeaderText(
                                 text: 'Actual',
+                                align: TextAlign.center,
                                 fontSize: 13,
                               ),
                             ),
@@ -309,7 +317,7 @@ showBarchartDialog(
 }
 
 Widget noDataTable(String staffProjection, {bool isDayOrRange = false}) {
- return  LayoutBuilder(
+  return LayoutBuilder(
     builder: (context, constraints) {
       double dialogWidth = MediaQuery.of(context).size.width * 0.7;
       double headerHeight = 40.0;

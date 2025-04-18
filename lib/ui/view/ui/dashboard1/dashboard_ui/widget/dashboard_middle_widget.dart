@@ -1689,6 +1689,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
+    log('This function hasbeen called');
     String message = _controller.text.trim();
     String? base64Image = _prepareImage();
     if (message.isEmpty && base64Image == null) return;

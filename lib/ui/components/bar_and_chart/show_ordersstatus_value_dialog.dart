@@ -77,36 +77,31 @@ void showValueOrderDialog(
                       height: headerHeight,
                       child: const Row(
                         children: [
-                          Expanded(
-                              child: DialogTableHeaderText(
+                          DialogTableHeaderText(
                             text: 'Customer',
                             fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
+                          ),
+                          DialogTableHeaderText(
                             text: 'Date',
                             fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
+                          ),
+                          DialogTableHeaderText(
                             text: 'Invoice',
                             fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
+                          ),
+                          DialogTableHeaderText(
                             text: 'Status',
                             fontSize: 13,
-                          )),
-                          Expanded(
-                              child: DialogTableHeaderText(
+                          ),
+                          DialogTableHeaderText(
                             text: 'Amount',
                             fontSize: 13,
-                          )),
+                          ),
                         ],
                       ),
                     ),
                     Flexible(
-                      child: SingleChildScrollView( // Use ScrollView here
+                      child: SingleChildScrollView(
                         child: SizedBox(
                           height: contentHeight,
                           child: ListView.builder(
@@ -170,7 +165,9 @@ void showValueOrderDialog(
                                         child: InkWell(
                                           onTap: () {
                                             showDetailedOrderInvoiceDialog(
-                                                context, orderDetails.orderId??'', true);
+                                                context,
+                                                orderDetails.orderId ?? '',
+                                                true);
                                           },
                                           child: Text(
                                             orderDetails.invoiceId ?? '',

@@ -603,7 +603,7 @@ Future<ResponseModell> fetchDashboardData({
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
     final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
-    log('Request Body : $requestBody');
+    log('Request Body of Chat: $requestBody');
     try {
       final response = await http.post(
         url,
@@ -617,6 +617,7 @@ Future<ResponseModell> fetchDashboardData({
             salesmanChats.add(SalesmanChat.fromJson(json));
           });
         }
+        log('Request Body of Chat: ${response.body}');
         return SalesmenResponse(
           statusCode: json.decode(response.body)['status_code'],
           status: json.decode(response.body)['status'],
@@ -668,7 +669,9 @@ Future<ResponseModell> fetchDashboardData({
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
+      log('Request body of Chat :${requestBody}');
       if (response.statusCode == 200) {
+      log('Request body of Chat :${response.body}');
         var jsonResponse = json.decode(response.body);
         log('API Response: $jsonResponse');
         final wrappedResponse = {
@@ -1820,7 +1823,7 @@ class DashboardProvider with ChangeNotifier {
       : _apiService = apiService,
         _logger = logger {
     fetchData();
-    fetchChatData('');
+    fetchChatData(SessionHelper.loginSavedData?.salesmanId??'');
     fetchSalesmanData();
   }
 
@@ -2617,7 +2620,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              _selectedOrderStatus = null; // Clear filter
+              _selectedOrderStatus = null; 
             });
           },
           child: const Text('Show All'),
@@ -2704,82 +2707,4 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 }
 
-class ChatScreen extends StatefulWidget {
-  final String salesmanId;
 
-  const ChatScreen({super.key, required this.salesmanId});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _ChatScreenState createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<DashboardProvider>(context, listen: false)
-        .fetchChatData(widget.salesmanId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat Data'),
-      ),
-      body: Consumer<DashboardProvider>(
-        builder: (context, provider, child) {
-          return FutureBuilder<SalesmenResponse>(
-            future: provider.salesmenResponse,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
-                return const Center(
-                  child: Text('No chat data available'),
-                );
-              } else {
-                final chatData = snapshot.data!.data;
-                return ListView.builder(
-                  itemCount: chatData.length,
-                  itemBuilder: (context, index) {
-                    final chatList = chatData[index];
-                    return Card(
-                      margin: const EdgeInsets.all(8.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: chatList.map((chat) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Salesman ID: ${chat.salesmanId}',
-                                ),
-                                Text('Message: ${chat.message}'),
-                                Text('Message: ${chat.email}'),
-                                const SizedBox(height: 8.0),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-}

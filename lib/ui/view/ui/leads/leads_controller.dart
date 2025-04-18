@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
@@ -7,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
@@ -27,32 +29,38 @@ class LeadsController extends GetxController {
 
   RxInt selectAllocateSalesman = 0.obs;
 
-  TextEditingController customerNameTextController = TextEditingController();
-  TextEditingController emailTextController = TextEditingController();
-  TextEditingController mobileNumberTextController = TextEditingController();
-  TextEditingController zipCodeTextController = TextEditingController();
-  TextEditingController remarkTextController = TextEditingController();
-
-  TextEditingController addressTextController = TextEditingController();
-  TextEditingController cityTextController = TextEditingController();
-  TextEditingController stateTextController = TextEditingController();
-
-  TextEditingController businessNameTextEditingController =
-      TextEditingController();
-  TextEditingController businessContactTextEditingController =
-      TextEditingController();
+ TextEditingController businessNameController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController townController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
+  TextEditingController zipcodeController = TextEditingController();
+  TextEditingController mobileNoController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController telephoneController = TextEditingController();
+  TextEditingController fullnameController = TextEditingController();
+  TextEditingController businessContactController = TextEditingController();
+  TextEditingController deliveryAddressController = TextEditingController();
+  TextEditingController deliveryTownController = TextEditingController();
+  TextEditingController deliveryStateController = TextEditingController();
+  TextEditingController deliveryZipcodeController = TextEditingController();
+  TextEditingController remarkController = TextEditingController();
 
   get clearAllFileds => {
-        customerNameTextController.clear(),
-        emailTextController.clear(),
-        mobileNumberTextController.clear(),
-        zipCodeTextController.clear(),
-        addressTextController.clear(),
-        cityTextController.clear(),
-        stateTextController.clear(),
-        remarkTextController.clear(),
-        businessNameTextEditingController.clear(),
-        businessContactTextEditingController.clear(),
+        businessNameController.clear(),
+        addressController.clear(),
+        townController.clear(),
+        stateController.clear(),
+        zipcodeController.clear(),
+        mobileNoController.clear(),
+        emailController.clear(),
+        telephoneController.clear(),
+        fullnameController.clear(),
+        businessContactController.clear(),
+        deliveryAddressController.clear(),
+        deliveryTownController.clear(),
+        deliveryStateController.clear(),
+        deliveryZipcodeController.clear(),
+        remarkController.clear(),
       };
 
   RxList<String> coustomerTabelsHeadersList = [
@@ -87,26 +95,83 @@ class LeadsController extends GetxController {
     }
   }
 
-  Future addLeads(
-      {required String browserPath,
-      required String assignId,
-      bool isAssigned = false}) async {
-    log('in1++');
-    var mapData = await addStaffMapData(browserPath, assignId, isAssigned);
-    await ApiWorker().addCustomer(mapData).onError((error, stackTrace) {
+  // Future addLeads(
+  //     {required String browserPath,
+  //     required String assignId,
+  //     bool isAssigned = false}) async {
+  //   log('in1++');
+  //   var mapData = await addStaffMapData(browserPath, assignId, isAssigned);
+  //   await ApiWorker().addCustomer(mapData).onError((error, stackTrace) {
+  //     btnController.error();
+  //     btnController.reset();
+  //     return Future.error(error.toString());
+  //   });
+  //   btnController.success();
+
+  //   if (isAssigned) {
+  //     Get.close(2);
+  //   } else {
+  //     Get.back();
+  //   }
+  //   clearAllFileds;
+  //   loadLeadsCustomerData;
+  // }
+
+    Future<Map<String, dynamic>> addLeadsMapData() async {
+    Map<String, dynamic> data = {
+      "userid": "SALES1",
+      "businessname": businessNameController.text.trim(),
+      "address": addressController.text.trim(),
+      "town": townController.text.trim(),
+      "state": stateController.text.trim(),
+      "zipcode": int.tryParse(zipcodeController.text.trim()) ?? 0,
+      "mobileno": int.tryParse(mobileNoController.text.trim()) ?? 0,
+      "email": emailController.text.trim().isNotEmpty
+          ? emailController.text.trim()
+          : "N/A",
+      "tfn": int.tryParse(telephoneController.text.trim()) ?? 0,
+      "fullname": fullnameController.text.trim(),
+      "businesscontact":
+          int.tryParse(businessContactController.text.trim()) ?? 0,
+      "delivery_address": deliveryAddressController.text.trim(),
+      "delivery_town": deliveryTownController.text.trim(),
+      "delivery_state": deliveryStateController.text.trim(),
+      "delivery_zipcode":
+          int.tryParse(deliveryZipcodeController.text.trim()) ?? 0,
+      "remark": remarkController.text.trim(),
+      "status_type": 3,
+      "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+    };
+
+    return data;
+  }
+
+  Future addLeads({
+    required File leadsImage,
+    required BuildContext context,
+  }) async {
+    try {
+      var mapData = await addLeadsMapData();
+
+      await ApiWorker().addCustomer(mapData, leadsImage);
+
+      btnController.success();
+      Get.back();
+      clearAllFileds;
+      loadLeadsCustomerData;
+    } catch (error) {
+      showCustomToastDisplay(
+        context,
+        error.toString(),
+        Colors.red,
+        Icons.close,
+      );
+
       btnController.error();
       btnController.reset();
-      return Future.error(error.toString());
-    });
-    btnController.success();
 
-    if (isAssigned) {
-      Get.close(2);
-    } else {
-      Get.back();
+      return Future.error(error.toString());
     }
-    clearAllFileds;
-    loadLeadsCustomerData;
   }
 
   handleLeadsStatus(int customerId, String statusResponce) async {
@@ -122,36 +187,36 @@ class LeadsController extends GetxController {
     loadLeadsCustomerData;
   }
 
-  Future<Map<String, dynamic>> addStaffMapData(
-      String browserPath, String assignId, bool isAssigned) async {
-    log('in2++');
-    var image = browserPath.isNotEmpty
-        ? await NkCommonFunction.getFormData(browserPath, mapKeyName: '')
-        : '';
-    log('in3++ $image');
-    Map<String, dynamic> data = {
-      "fullname": customerNameTextController.text.trim(),
-      "mobileno": mobileNumberTextController.text.trim(),
-      "email": emailTextController.text.trim(),
-      "address": addressTextController.text.trim(),
-      "town": cityTextController.text.trim(),
-      "state": stateTextController.text.trim(),
-      "zipcode": zipCodeTextController.text.trim(),
-      "businessname": businessNameTextEditingController.text.trim(),
-      "businesscontact": businessContactTextEditingController.text.trim(),
-      "remark": remarkTextController.text.trim(),
-      "cutomerpicture": image,
-      "salesman_id": '',
-      "status_type": 3,
-      "salesman_name": "",
+  // Future<Map<String, dynamic>> addStaffMapData(
+  //     String browserPath, String assignId, bool isAssigned) async {
+  //   log('in2++');
+  //   var image = browserPath.isNotEmpty
+  //       ? await NkCommonFunction.getFormData(browserPath, mapKeyName: '')
+  //       : '';
+  //   log('in3++ $image');
+  //   Map<String, dynamic> data = {
+  //     "fullname": customerNameTextController.text.trim(),
+  //     "mobileno": mobileNumberTextController.text.trim(),
+  //     "email": emailTextController.text.trim(),
+  //     "address": addressTextController.text.trim(),
+  //     "town": cityTextController.text.trim(),
+  //     "state": stateTextController.text.trim(),
+  //     "zipcode": zipCodeTextController.text.trim(),
+  //     "businessname": businessNameTextEditingController.text.trim(),
+  //     "businesscontact": businessContactTextEditingController.text.trim(),
+  //     "remark": remarkTextController.text.trim(),
+  //     "cutomerpicture": image,
+  //     "salesman_id": '',
+  //     "status_type": 3,
+  //     "salesman_name": "",
 
-      /// is for SalesMan
-    };
+  //     /// is for SalesMan
+  //   };
 
-    log("data: $data");
+  //   log("data: $data");
 
-    return data;
-  }
+  //   return data;
+  // }
 
   RxBool isLeadsCustomerDataLoading = false.obs;
   Future<List<LeadCustomerData>> get loadLeadsCustomerData async {

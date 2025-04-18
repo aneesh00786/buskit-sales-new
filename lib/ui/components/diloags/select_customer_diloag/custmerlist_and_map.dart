@@ -143,7 +143,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
                   Get.to(
                     () => CustomerDachScreen(
-                      isFromCalendar: true,
+                      isFromGoogle: true,
                       startDate: formattedStartDate,
                       endDate: formattedEndDate,
                       cusId: customer.customerId,

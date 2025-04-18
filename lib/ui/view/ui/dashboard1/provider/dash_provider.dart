@@ -1640,11 +1640,8 @@ Future<ResponseModell> fetchDashboardData({
       required File adminProfilePicture,
       required String salesmanId}) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.addCustomer}');
-
     try {
       var request = http.MultipartRequest('POST', url);
-
-      // Add fields to the multipart request
       request.fields['fullname'] = model.fullname;
       request.fields['email'] = model.email;
       request.fields['mobileno'] = model.mobileno;
@@ -1658,8 +1655,6 @@ Future<ResponseModell> fetchDashboardData({
       request.fields['oldimage_url'] = 'a';
       request.fields['salesman_id'] = salesmanId;
       request.fields['status_type'] = '1';
-
-      // Add adminProfilePicture as a file part
       var fileStream = http.ByteStream(adminProfilePicture.openRead());
       var length = await adminProfilePicture.length();
       var multipartFile = http.MultipartFile(
@@ -1669,10 +1664,7 @@ Future<ResponseModell> fetchDashboardData({
         filename: adminProfilePicture.path.split('/').last,
       );
       request.files.add(multipartFile);
-
-      // Send the request
       var response = await http.Response.fromStream(await request.send());
-
       if (response.statusCode == 200) {
       } else {
         throw Exception('Failed to update admin details');

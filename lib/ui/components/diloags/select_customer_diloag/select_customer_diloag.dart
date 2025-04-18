@@ -116,7 +116,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       customer.customerId ?? '';
                   Get.to(
                     () => const CustomerDachScreen(
-                      isFromCalendar: true,
                       isDirectDialogue: true,
                     ),
                     id: 2,

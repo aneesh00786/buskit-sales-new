@@ -816,7 +816,9 @@ class _TableeeState extends State<Tableee> {
                                             await provider.addCustomer(
                                                 admin: updatedAdmin,
                                                 salsmanId: customer!.salesmanId
-                                                    .toString());
+                                                    .toString(),
+                                                    image: provider.imageFile
+                                                    );
                                             Navigator.of(context).pop();
                                           } catch (error) {
                                             log(error.toString());

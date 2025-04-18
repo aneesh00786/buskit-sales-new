@@ -30,7 +30,8 @@ class LeadTopScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // AddLeadsBt(),
-            addLeads(context),
+            // addLeads(context),
+            AddLeadsScreen(leadsController: leadsController,),
             const Spacer(),
             const NotificationWidget(
               startDate: '',

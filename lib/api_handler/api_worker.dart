@@ -953,15 +953,46 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ LEADS SECTION ***************** ///
-  Future<Response> addCustomer(Map<String, dynamic> sendData) async {
-    final response = await dio
-        .postbycustom(ApiConstants.addCustomer,
-            data: FormData.fromMap(sendData))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
+  // Future<Response> addCustomer(Map<String, dynamic> sendData) async {
+  //   final response = await dio
+  //       .postbycustom(ApiConstants.addCustomer,
+  //           data: FormData.fromMap(sendData))
+  //       .onError((DioException error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   return response;
+  // }
+
+  Future<Response> addCustomer(
+    Map<String, dynamic> sendData,
+    File leadsImage,
+  ) async {
+    try {
+      final customerPicture = await MultipartFile.fromFile(
+        leadsImage.path,
+        filename: leadsImage.path.split('/').last,
+      );
+      sendData['cutomerpicture'] = customerPicture;
+
+      final formData = FormData.fromMap(sendData);
+
+      log("data: $sendData");
+
+      final response = await dio
+          .postbycustom(ApiConstants.addCustomer, data: formData)
+          .onError((DioException error, stackTrace) {
+        log(error.toString());
+        return Future.error(throw DioExceptionHandler.fromDioError(error));
+      });
+      return response;
+    } on DioException catch (error) {
+      log("DioException: ${error.message}");
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (error) {
+      log("Unexpected error: $error");
+      return Future.error(error);
+    }
   }
 
   Future<Response> updateCustomer(Map<String, dynamic> sendData) async {
@@ -993,7 +1024,6 @@ class ApiWorker with ApiConstants {
     bool hasNetwork = connectivityResult != ConnectivityResult.none;
     bool hasInternet = hasNetwork && await isInternetAvailable();
     log('Has Internet: $hasInternet');
-
     if (hasInternet) {
       try {
         final response = await dio1.post(

@@ -90,8 +90,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     super.initState();
     log('Is Calender :${widget.isFromCalendar}');
     log('Calender Calender Customer ID :${widget.cusId}');
-    //_initializeCustomerData();
-    //_refreshScreen();
     Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(widget.cusId.toString(), selectedYear);
     _tabIndex = 0;
@@ -163,7 +161,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               onTap: () {
                 log('Is Direct ${widget.isDirectDialogue}');
                 log('Is Calender ${widget.isFromCalendar}');
-                if (widget.isFromCalendar) {
+                if (widget.isFromGoogle) {
                   homeController.sidebarXController.selectIndex(6);
                   homeController.selectedIndex.value = 6;
                   Navigator.of(context).push(

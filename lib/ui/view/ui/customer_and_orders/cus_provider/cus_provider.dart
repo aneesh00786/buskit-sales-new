@@ -300,9 +300,9 @@ class CustomersProvider with ChangeNotifier {
   Future<OrderResponse>? get orderResponse => _orderResponse;
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
-  File? _imageFile;
+  File _imageFile = File('');
   final ImagePicker _picker = ImagePicker();
-  File? get imageFile => _imageFile;
+  File get imageFile => _imageFile;
   Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -335,12 +335,17 @@ class CustomersProvider with ChangeNotifier {
       await _apiService
           .addLead(
               model: admin,
-              adminProfilePicture: imageFile!,
+              adminProfilePicture: imageFile,
               salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
-
+      log('Admin $admin');
+      log('Image File $imageFile');
+      log('Salesman Id  $salsmanId');
       notifyListeners();
     } catch (e) {
+      log('Admin $admin');
+      log('Image File $imageFile');
+      log('Salesman Id  $salsmanId');
       throw Exception('Failed to update admin: $e');
     }
   }
@@ -348,17 +353,23 @@ class CustomersProvider with ChangeNotifier {
   Future<void> addCustomer({
     required CustomerDashMo admin,
     required String salsmanId,
+    required File image,
   }) async {
     try {
       await _apiService
           .addCustomer(
               model: admin,
-              adminProfilePicture: imageFile!,
+              adminProfilePicture: image,
               salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
-
+      log('Admin ${admin.businessName}');
+      log('Image File $image');
+      log('Salesman Id  $salsmanId');
       notifyListeners();
     } catch (e) {
+      log('Admin ${admin.businessName},${admin.address},${admin.email}');
+      log('Image File $imageFile');
+      log('Salesman Id  $salsmanId');
       throw Exception('Failed to update admin: $e');
     }
   }

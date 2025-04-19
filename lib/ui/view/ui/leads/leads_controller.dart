@@ -10,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,16 +18,11 @@ import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 enum CustomerStatus { newReq, assignedTo, rejected }
 
 class LeadsController extends GetxController {
-  // final ApiWorker _apiWorker = Get.find();
-  RxInt selectedTabIndex = 0.obs; // Track the selected tab index
-
+  RxInt selectedTabIndex = 0.obs; 
   RxList<LeadCustomerData> leadsCustomerDataList = <LeadCustomerData>[].obs;
-
   RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
-
   RxInt selectAllocateSalesman = 0.obs;
-
  TextEditingController businessNameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController townController = TextEditingController();
@@ -44,7 +38,6 @@ class LeadsController extends GetxController {
   TextEditingController deliveryStateController = TextEditingController();
   TextEditingController deliveryZipcodeController = TextEditingController();
   TextEditingController remarkController = TextEditingController();
-
   get clearAllFileds => {
         businessNameController.clear(),
         addressController.clear(),
@@ -62,7 +55,6 @@ class LeadsController extends GetxController {
         deliveryZipcodeController.clear(),
         remarkController.clear(),
       };
-
   RxList<String> coustomerTabelsHeadersList = [
     "Customer name",
     "Address",
@@ -70,16 +62,13 @@ class LeadsController extends GetxController {
     "Zipcode",
     "Status",
   ].obs;
-
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
     // loadOrderData(chartIndex: newIndex);
   }
-
   void deleteLead(int id) {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
-
   Future updateLeads(LeadCustomerData leadData) async {
     var data = await ApiWorker()
         .updateCustomer(leadData.toUpdateJson())
@@ -94,29 +83,6 @@ class LeadsController extends GetxController {
       Get.back<LeadCustomerData>(result: leadData);
     }
   }
-
-  // Future addLeads(
-  //     {required String browserPath,
-  //     required String assignId,
-  //     bool isAssigned = false}) async {
-  //   log('in1++');
-  //   var mapData = await addStaffMapData(browserPath, assignId, isAssigned);
-  //   await ApiWorker().addCustomer(mapData).onError((error, stackTrace) {
-  //     btnController.error();
-  //     btnController.reset();
-  //     return Future.error(error.toString());
-  //   });
-  //   btnController.success();
-
-  //   if (isAssigned) {
-  //     Get.close(2);
-  //   } else {
-  //     Get.back();
-  //   }
-  //   clearAllFileds;
-  //   loadLeadsCustomerData;
-  // }
-
     Future<Map<String, dynamic>> addLeadsMapData() async {
     Map<String, dynamic> data = {
       "userid": "SALES1",
@@ -152,9 +118,8 @@ class LeadsController extends GetxController {
   }) async {
     try {
       var mapData = await addLeadsMapData();
-
+      log('Add Leads Map data : $mapData');
       await ApiWorker().addCustomer(mapData, leadsImage);
-
       btnController.success();
       Get.back();
       clearAllFileds;
@@ -166,10 +131,8 @@ class LeadsController extends GetxController {
         Colors.red,
         Icons.close,
       );
-
       btnController.error();
       btnController.reset();
-
       return Future.error(error.toString());
     }
   }
@@ -186,38 +149,6 @@ class LeadsController extends GetxController {
     Get.back();
     loadLeadsCustomerData;
   }
-
-  // Future<Map<String, dynamic>> addStaffMapData(
-  //     String browserPath, String assignId, bool isAssigned) async {
-  //   log('in2++');
-  //   var image = browserPath.isNotEmpty
-  //       ? await NkCommonFunction.getFormData(browserPath, mapKeyName: '')
-  //       : '';
-  //   log('in3++ $image');
-  //   Map<String, dynamic> data = {
-  //     "fullname": customerNameTextController.text.trim(),
-  //     "mobileno": mobileNumberTextController.text.trim(),
-  //     "email": emailTextController.text.trim(),
-  //     "address": addressTextController.text.trim(),
-  //     "town": cityTextController.text.trim(),
-  //     "state": stateTextController.text.trim(),
-  //     "zipcode": zipCodeTextController.text.trim(),
-  //     "businessname": businessNameTextEditingController.text.trim(),
-  //     "businesscontact": businessContactTextEditingController.text.trim(),
-  //     "remark": remarkTextController.text.trim(),
-  //     "cutomerpicture": image,
-  //     "salesman_id": '',
-  //     "status_type": 3,
-  //     "salesman_name": "",
-
-  //     /// is for SalesMan
-  //   };
-
-  //   log("data: $data");
-
-  //   return data;
-  // }
-
   RxBool isLeadsCustomerDataLoading = false.obs;
   Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
     isLeadsCustomerDataLoading.value = true;

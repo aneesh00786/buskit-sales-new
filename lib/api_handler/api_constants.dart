@@ -1,8 +1,8 @@
 mixin class ApiConstants {
-  static const String baseUrl = "https://test.thrivewoo.com/";
-  static const String baseUrl1 = "https://test.thrivewoo.com";
-  // static const String baseUrl = "https://thrivewoo.com/";
-  // static const String baseUrl1 = "https://thrivewoo.com";
+  // static const String baseUrl = "https://test.thrivewoo.com/";
+  // static const String baseUrl1 = "https://test.thrivewoo.com";
+  static const String baseUrl = "https://thrivewoo.com/";
+  static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
   /// Login APi END Point

@@ -19,7 +19,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_total_sale_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -31,7 +30,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../common/pagination_model.dart';
 import '../ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import '../ui/components/category_filter/product_list/model/discount_model.dart';
@@ -61,7 +59,6 @@ class ApiWorker with ApiConstants {
     Map<String, dynamic> data = {
       'email': email,
     };
-
     try {
       final response = await dio1.post(
         '${ApiConstants.baseUrl}${ApiConstants.sendOtp}',
@@ -72,7 +69,6 @@ class ApiWorker with ApiConstants {
           },
         ),
       );
-
       log('Response: ${response.data}');
       return response;
     } catch (e) {
@@ -80,23 +76,6 @@ class ApiWorker with ApiConstants {
       rethrow;
     }
   }
-
-  // Future<Response> sendOtp(String email) async {
-  //   Map<String, dynamic> data = {
-  //     'email': email,
-  //   };
-  //   final response = await dio
-  //       .postbycustom(
-  //     ApiConstants.sendOtp,
-  //     data: data,
-  //   )
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   log('Response : $response');
-  //   return response;
-  // }
 
   Future<Response> resetPassword(
       String email, String newPassword, String otp) async {
@@ -127,30 +106,27 @@ class ApiWorker with ApiConstants {
         '${ApiConstants.baseUrl}${ApiConstants.login}',
         data: data,
       );
-      log("Request Data: $data");
-      log("Response Data: ${response.data}");
       if (response.data != null) {
         final status = response.data['status'];
         final message = response.data['message'] ?? 'No message available';
         final statusCode = response.data['status_code'];
         if (status == false) {
-          log("Login Failed: $message");
           return LoginResponce(
             status: false,
             message: message,
             statusCode: statusCode,
           );
         }
-        log("Login Successful: $message");
         return LoginResponce.fromJson(response.data);
       } else {
         log("Error: Invalid response data");
         return null;
       }
     } on DioException catch (error) {
-      log("DioError: ${error.message}");
-      log("DioError Response Data: ${error.response?.data}");
-      log("DioError Status Code: ${error.response?.statusCode}");
+      handleHttpResponseError(
+          statusCode: error.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Login");
       final errorData = error.response?.data;
       final statusCode = error.response?.statusCode;
       final message = errorData?['message'] ?? error.message;
@@ -184,29 +160,38 @@ class ApiWorker with ApiConstants {
           data.map((json) => Currency.fromJson(json)).toList();
 
       return currencyList;
-    } catch (e) {
-      log("Error fetching currency list: $e");
+    } on DioException catch (e) {
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: "Currency List");
       rethrow;
     }
   }
 
-  Future<LeadsCountData> fetchLeadsCount() async {
-    final Map<String, dynamic> requestData = {
-      'companyId': companyId,
-      'salesman_id': salesmanId,
-    };
-
-    final response = await dio
-        .postbycustom(
-      ApiConstants.fetchLeadsCount,
+Future<LeadsCountData> fetchLeadsCount() async {
+  final Map<String, dynamic> requestData = {
+    'companyId': companyId,
+    'salesman_id': salesmanId,
+  };
+  log('Fetch Leads Count Request :$requestData');
+  try {
+    final response = await dio1.post(
+      "${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCount}",
       data: requestData,
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
+    );
     return LeadsCountData.fromJson(response.data);
+  } on DioException catch (error) {
+    handleHttpResponseError(
+      statusCode: error.response?.statusCode ?? 0,
+      showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+      message: "Leads Count",
+    );
+    log("Error caught in fetchLeadsCount: ${error.toString()}");
+    return Future.error(DioExceptionHandler.fromDioError(error));
   }
+}
+
 
   Future<List<AllCompanySettingsData>?> fetchAllSettings(int companyId) async {
     const cacheKey = 'all_settings_data';
@@ -953,17 +938,6 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ LEADS SECTION ***************** ///
-  // Future<Response> addCustomer(Map<String, dynamic> sendData) async {
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.addCustomer,
-  //           data: FormData.fromMap(sendData))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
-
   Future<Response> addCustomer(
     Map<String, dynamic> sendData,
     File leadsImage,
@@ -1010,9 +984,9 @@ class ApiWorker with ApiConstants {
   Future<LeadResponce> getLeadsData(String salesManId,
       {PaginationModel? paginationModel}) async {
     final requestData = FormData.fromMap({
-      "page": paginationModel?.currentPage ?? "",
-      "limit": paginationModel?.limit ?? '',
-      "salesman_id": salesManId,
+      "page": paginationModel?.currentPage.toInt(),
+      "limit": paginationModel?.limit.toInt(),
+      "salesman_id": salesmanId,
       "companyId": companyId,
     });
 
@@ -1725,63 +1699,6 @@ class ApiWorker with ApiConstants {
     });
     return ScheduleListResponse.fromJson(response.data);
   }
-
-//   Future<String?> getWeeklyType() async {
-//     const cacheKey = 'weekly_type_data';
-//     final weeklyTypeBox = Hive.box('weeklyTypeBox');
-
-//     // Check network connectivity
-//     final connectivityResult = await Connectivity().checkConnectivity();
-//     bool isOnline = connectivityResult != ConnectivityResult.none;
-
-//     if (isOnline) {
-//       try {
-//         // API Call
-//         final response = await dio.postbycustom(
-//           ApiConstants.getWeekelyType,
-//           data: FormData.fromMap({
-//             "companyId": companyId,
-//           }),
-//         );
-
-//         // Validate API response
-//         if (response.data is Map<String, dynamic> &&
-//             response.data.containsKey('data')) {
-//           final weeklyType = response.data['data'].toString();
-//           log('API Response for Weekly Type: $weeklyType');
-
-//           // Store the response in Hive
-//           await weeklyTypeBox.put(cacheKey, weeklyType);
-//           log('Weekly Type data saved to Hive.');
-
-//           return weeklyType;
-//         } else {
-//           // Unexpected response format
-//           NkCommonFunction.showErrorSnakBar('Unexpected API response format.');
-//           log('Unexpected API response format.');
-
-//           // Fetch data from Hive as a fallback
-//           return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-//         }
-//       } catch (error) {
-//         // Handle DioException and log error
-//         log("DioException occurred: $error");
-  // NkCommonFunction.showErrorSnakBar(
-  //     'Failed to fetch weekly type. Showing offline data.');
-
-//         // Fetch data from Hive as a fallback
-//         return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-//       }
-//     } else {
-//       // Offline mode
-//       log("Offline mode: Fetching weekly type from Hive.");
-//       NkCommonFunction.showErrorSnakBar(
-//           'No internet connection. Showing offline data.');
-
-//       // Fetch data from Hive
-//       return _getCachedWeeklyType(weeklyTypeBox, cacheKey);
-//     }
-//   }
 
   Future<String?> getWeeklyType() async {
     log('Weekely Function has been called');

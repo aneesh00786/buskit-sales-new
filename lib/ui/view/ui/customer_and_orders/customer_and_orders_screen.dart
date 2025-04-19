@@ -1903,14 +1903,14 @@ class AddLeadsBt extends StatelessWidget {
                                                         child: kIsWeb
                                                             ? Image.network(
                                                                 provider
-                                                                    .imageFile!
+                                                                    .imageFile
                                                                     .path,
                                                                 fit: BoxFit
                                                                     .cover,
                                                               )
                                                             : Image.file(
                                                                 File(provider
-                                                                    .imageFile!
+                                                                    .imageFile
                                                                     .path),
                                                                 fit: BoxFit
                                                                     .cover,
@@ -1946,7 +1946,7 @@ class AddLeadsBt extends StatelessWidget {
                                               businessName:
                                                   bsNameController.text,
                                               businessNo: bsNumController
-                                                  .text, // Provide default or empty values if not applicable
+                                                  .text, 
                                             );
 
                                             try {
@@ -1957,16 +1957,16 @@ class AddLeadsBt extends StatelessWidget {
                                                       .toString());
                                               Navigator.of(context).pop();
                                             } catch (error) {
-                                              // Handle error (e.g., show a message to the user)
+                                              
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
-                                                primaryColor, // Background color
+                                                primaryColor, 
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                      4.0), // Border radius
+                                                      4.0),
                                             ),
                                           ),
                                           child: const Text(

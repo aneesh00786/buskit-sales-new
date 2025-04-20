@@ -195,17 +195,17 @@ class CustomerDashbordController extends GetxController {
 
   //// API OPERATION
 
-  Future<CustomerDashboardResponse> getCustomerDahsboardData(
-      String customerId) async {
-    var data = await ApiWorker().getCustomerDashboard(customerId);
-    if (data.statusCode == 200) {
-      customerDashboardData.value = data.data??Data();
-      getCustomerDahsboardTotalSaleData(customerId,
-          data.data?.yearList?[selectYearIndex.value].year.toString()??'');
-      refresh();
-    }
-    return data;
-  }
+  // Future<CustomerDashboardResponse> getCustomerDahsboardData(
+  //     String customerId) async {
+  //   var data = await ApiWorker().getCustomerDashboard(customerId);
+  //   if (data.statusCode == 200) {
+  //     customerDashboardData.value = data.data??Data();
+  //     getCustomerDahsboardTotalSaleData(customerId,
+  //         data.data?.yearList?[selectYearIndex.value].year.toString()??'');
+  //     refresh();
+  //   }
+  //   return data;
+  // }
 
   Future<CustomerDashboardTotalSaleResponse> getCustomerDahsboardTotalSaleData(
       String customerId, String year) async {

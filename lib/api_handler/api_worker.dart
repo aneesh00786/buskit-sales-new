@@ -69,7 +69,6 @@ class ApiWorker with ApiConstants {
           },
         ),
       );
-      log('Response: ${response.data}');
       return response;
     } catch (e) {
       log('Error sending OTP: $e');
@@ -119,17 +118,15 @@ class ApiWorker with ApiConstants {
         }
         return LoginResponce.fromJson(response.data);
       } else {
-        log("Error: Invalid response data");
+        NkCommonFunction.showErrorSnakBar("${response.data['message']}");
+        handleExceptionMessage(response: response, apiName: "login");
         return null;
       }
     } on DioException catch (error) {
-      handleHttpResponseError(
-          statusCode: error.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Login");
       final errorData = error.response?.data;
-      final statusCode = error.response?.statusCode;
-      final message = errorData?['message'] ?? error.message;
+      int statusCode = error.response?.statusCode ?? 0;
+      String message = errorData?['message'];
+      handleExceptionMessage(response: error.response, apiName: "login");
       return LoginResponce(
         status: false,
         message: message,
@@ -145,60 +142,28 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<List<Currency>> getCurrencyList() async {
-    log(companyId.toString());
+  Future<LeadsCountData> fetchLeadsCount() async {
+    final Map<String, dynamic> requestData = {
+      'companyId': companyId,
+      'salesman_id': salesmanId,
+    };
     try {
-      final response = await dio
-          .getbycustom('${ApiConstants.baseUrl}api/get_currencylist')
-          .onError((DioException error, stackTrace) {
-        log(error.toString());
-        return Future.error(DioExceptionHandler.fromDioError(error));
-      });
-
-      List<dynamic> data = response.data;
-      List<Currency> currencyList =
-          data.map((json) => Currency.fromJson(json)).toList();
-
-      return currencyList;
-    } on DioException catch (e) {
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Currency List");
-      rethrow;
+      final response = await dio1.post(
+        "${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCount}",
+        data: requestData,
+      );
+      return LeadsCountData.fromJson(response.data);
+    } on DioException catch (error) {
+      handleExceptionMessage(response: error.response, apiName: "leads count");
+      return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }
-
-Future<LeadsCountData> fetchLeadsCount() async {
-  final Map<String, dynamic> requestData = {
-    'companyId': companyId,
-    'salesman_id': salesmanId,
-  };
-  log('Fetch Leads Count Request :$requestData');
-  try {
-    final response = await dio1.post(
-      "${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCount}",
-      data: requestData,
-    );
-    return LeadsCountData.fromJson(response.data);
-  } on DioException catch (error) {
-    handleHttpResponseError(
-      statusCode: error.response?.statusCode ?? 0,
-      showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-      message: "Leads Count",
-    );
-    log("Error caught in fetchLeadsCount: ${error.toString()}");
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  }
-}
-
 
   Future<List<AllCompanySettingsData>?> fetchAllSettings(int companyId) async {
     const cacheKey = 'all_settings_data';
     final settingsBox = Hive.box('settingsBox');
     log('Fetching settings for company ID: $companyId');
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool isOnline = connectivityResult != ConnectivityResult.none;
+    bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
       try {
         final response = await dio1.post(
@@ -222,6 +187,8 @@ Future<LeadsCountData> fetchLeadsCount() async {
         await SessionHelper().setSettingsData(settingsList);
         return settingsList;
       } on DioException catch (dioError) {
+        handleExceptionMessage(
+            response: dioError.response, apiName: "settings");
         log("Dio error of Settings: ${dioError.response?.data}");
         final cachedData = settingsBox.get(cacheKey);
         if (cachedData != null) {
@@ -242,8 +209,6 @@ Future<LeadsCountData> fetchLeadsCount() async {
       }
     } else {
       log("No internet. Fetching settings from Hive.");
-      // NkCommonFunction.showErrorSnakBar(
-      //     'No internet connection. Unable to fetch data.');
     }
     try {
       final cachedData = settingsBox.get(cacheKey);
@@ -263,7 +228,6 @@ Future<LeadsCountData> fetchLeadsCount() async {
       NkCommonFunction.showErrorSnakBar(
           'Error accessing offline settings data.');
     }
-
     return null;
   }
 
@@ -287,10 +251,14 @@ Future<LeadsCountData> fetchLeadsCount() async {
         log('Response Data To Bar: ${response.data}');
         return response.data as Map<String, dynamic>;
       } else {
+        handleExceptionMessage(
+            response: response, apiName: "salesman dash nav content");
         log("Failed to fetch data. Status: ${response.statusCode}, Message: ${response.statusMessage}");
         return null;
       }
     } on DioException catch (dioError) {
+      handleExceptionMessage(
+          response: dioError.response, apiName: "salesman dash nav content");
       final requestPayloadss = {
         "companyId": companyId,
         "salesman_id": salesmanId,
@@ -351,6 +319,8 @@ Future<LeadsCountData> fetchLeadsCount() async {
         }
       }
     } on DioException catch (dioError) {
+      handleExceptionMessage(
+          response: dioError.response, apiName: "perfromance");
       log("Dio error occurred1: ${dioError.message}");
       if (dioError.response != null) {
         log("Dio error response: ${dioError.response?.data}");
@@ -370,6 +340,8 @@ Future<LeadsCountData> fetchLeadsCount() async {
       return null;
     }
   }
+
+
 
   Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
@@ -392,25 +364,19 @@ Future<LeadsCountData> fetchLeadsCount() async {
             },
           ),
         );
+        log('Order Id :$orderId');
         if (response.statusCode == 200) {
           return FetchSpecificOrderInvoice.fromJson(response.data);
         } else {
-          log('Got inside the try method');
-          handleHttpResponseError(
-            statusCode: response.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Specific order Invoice",
-          );
+          handleExceptionMessage(
+              response: response, apiName: "specific order invoice");
           return Future.error('API Error: ${response.statusCode}');
         }
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
-      handleHttpResponseError(
-        statusCode: error.response?.statusCode ?? 0,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        message: "Specific order Invoice",
-      );
+      handleExceptionMessage(
+          response: error.response, apiName: "specific order invoice");
       return Future.error(handledError);
     }
   }
@@ -436,25 +402,29 @@ Future<LeadsCountData> fetchLeadsCount() async {
   /// ************************ CUSTOMER AND ORDER SECTION ***************** ///
   Future<CustomerAndOrderResponce> getCustomer() async {
     try {
-      log('This function has been called');
-      // Check for internet connectivity
-      final List<ConnectivityResult> connectivityResult =
-          await (Connectivity().checkConnectivity());
-      bool hasInternet = !connectivityResult.contains(ConnectivityResult.none);
-
-      if (hasInternet) {
-        // If connected to the internet, fetch data from the API
-        final response = await dio.postbycustom(
-          ApiConstants.fetchcustomer,
+      log('This function has been calledsss');
+      bool isOnline = await ConnectivityService().isOnline();
+      if (isOnline) {
+        log('This function has been calledsss');
+        final response = await dio1.post(
+          "${ApiConstants.baseUrl}${ApiConstants.fetchcustomer}",
           data: FormData.fromMap({
             "company_id": companyId,
             "salesman_id": salesmanId,
           }),
         );
-        log('Company Id === $companyId');
-        final customerData = CustomerAndOrderResponce.fromJson(response.data);
-        await localStorage.storeCustomerData(customerData);
-        return customerData;
+        if (response.statusCode == 200) {
+          log('This function has been calledsss');
+          final customerData = CustomerAndOrderResponce.fromJson(response.data);
+          await localStorage.storeCustomerData(customerData);
+          return customerData;
+        } else {
+          final responseData = response.data as Map<String, dynamic>;
+          final apiMessage =
+              responseData['message'] ?? 'Unknown error occurred';
+          handleExceptionMessage(response: response, apiName: "get customer");
+          return Future.error('API Error: $apiMessage');
+        }
       } else {
         log('No internet, fetching customer data from Hive...');
         final customerData = await retrieveCustomerData();
@@ -465,7 +435,8 @@ Future<LeadsCountData> fetchLeadsCount() async {
           throw Exception('No customer data available offline');
         }
       }
-    } catch (error) {
+    } on DioException catch (error) {
+      handleExceptionMessage(response: error.response, apiName: "get customer");
       return Future.error(
           'Failed to fetch customer data From API Worker: $error');
     }
@@ -499,24 +470,20 @@ Future<LeadsCountData> fetchLeadsCount() async {
       // "end_date":'',
     };
     log('Request Data : $requestData');
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasNetwork = connectivityResult != ConnectivityResult.none;
-    bool hasInternet = hasNetwork && await isInternetAvailable();
-    log('Has Internet: $hasInternet');
+    bool isOnline = await ConnectivityService().isOnline();
     final cacheKey = 'recent_order_count_${startDate ?? ''}_${endDate ?? ''}';
-    if (hasInternet) {
+    if (isOnline) {
       try {
-        final response = await dio.postbycustom(
-          ApiConstants.recentOrderCount,
+        final response = await dio1.post(
+          "${ApiConstants.baseUrl}${ApiConstants.recentOrderCount}",
           data: requestData,
         );
-        log('Fetched Data from API: ${response.data}');
         var orderCountBox = await Hive.openBox('orderCountBox');
         await orderCountBox.put(cacheKey, response.data);
-        log('Recent order count data saved to Hive with key: $cacheKey');
-
         return RecentOrderCountResponse.fromJson(response.data);
       } on DioException catch (error) {
+        handleExceptionMessage(
+            response: error.response, apiName: "recent order");
         log('API Error: ${error.response?.data}');
         return await _getCachedRecentOrderCount(cacheKey);
       }
@@ -545,32 +512,19 @@ Future<LeadsCountData> fetchLeadsCount() async {
       throw Exception('Failed to fetch data from Hive');
     }
   }
-
-  Future<CustomerDashboardResponse> getCustomerDashboard(
-    String customerId,
-  ) async {
-    final response = await dio
-        .postbycustom(ApiConstants.customerDashbordList,
-            data: FormData.fromMap(
-                {"customer_id": customerId, "companyId": companyId}))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return CustomerDashboardResponse.fromJson(response.data);
-  }
-
   Future<CustomerDashboardTotalSaleResponse> getCustomerDashboardTotalSale(
     String customerId,
     String year,
   ) async {
+    log('This function hasbeen called getCustomerDashboardTotalSale');
     final response = await dio
         .postbycustom(ApiConstants.customerTotalSale,
             data: FormData.fromMap({
               "customer_id": customerId,
-              "year": year,
+              "year": "",
             }))
         .onError((DioException error, stackTrace) {
+      handleExceptionMessage(response: error.response,apiName:"dashboard total" );
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -579,9 +533,8 @@ Future<LeadsCountData> fetchLeadsCount() async {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    sendData['companyId'] = companyId;
+    sendData['companyId'] = "companyId";
     log('[addToCart] Request Data: ${sendData.toString()}');
-
     try {
       final response = await dio
           .postbycustom(
@@ -589,11 +542,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
         data: FormData.fromMap(sendData),
       )
           .onError((DioException error, stackTrace) {
-        log('[addToCart] DioError occurred.');
-        log('[addToCart] Error Type: ${error.type}');
-        log('[addToCart] Error Message: ${error.message}');
-        log('[addToCart] Error Data: ${error.response?.data}');
-        log('[addToCart] Status Code: ${error.response?.statusCode}');
+        handleExceptionMessage(response: error.response,apiName:"add to cart" );
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
       if (response.statusCode == 200) {
@@ -601,14 +550,14 @@ Future<LeadsCountData> fetchLeadsCount() async {
           log('[addToCart] Cart ID is null in response.');
           return null;
         }
-
         log('[addToCart] Response Data: ${response.data}');
         return CartOrderModel.fromJson(response.data);
       } else {
         log('[addToCart] Unexpected status code: ${response.statusCode}');
         return null;
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      handleExceptionMessage(response: e.response,apiName:"add to cart" );
       log('[addToCart] Exception: $e');
       return null;
     }
@@ -640,10 +589,12 @@ Future<LeadsCountData> fetchLeadsCount() async {
         log('[addToCart] Response Data: ${response.data}');
         return CartOrderModel.fromJson(response.data);
       } else {
+        handleExceptionMessage(response: response,apiName:"add to draft" );
         log('[addToCart] Unexpected status code: ${response.statusCode}');
         return null;
       }
-    } catch (e) {
+    }on DioException catch (e) {
+      handleExceptionMessage(response: e.response,apiName:"add to draft" );
       log('[addToCart] Exception: $e');
       return null;
     }
@@ -784,11 +735,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
         return category;
       } on DioException catch (error) {
         log("to This Exception");
-        handleHttpResponseError(
-          statusCode: error.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Product Category",
-        );
+        handleExceptionMessage(response: error.response,apiName:"product category" );
         final box = await Hive.openBox('categoriesBox');
         final savedCategory = box.get('categoryItem');
         if (savedCategory != null) {
@@ -848,15 +795,10 @@ Future<LeadsCountData> fetchLeadsCount() async {
           log('Failed to fetch products from API: ${response.statusCode}');
         }
       } on DioException catch (e) {
-        handleHttpResponseError(
-            statusCode: e.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Products");
+        handleExceptionMessage(response: e.response,apiName:"products" );
       }
     } else {
       log('No internet. Fetching from Hive...');
-      // NkCommonFunction.showErrorSnakBar(
-      //     'No internet connection. Unable to fetch data.');
     }
     try {
       var productBox = Hive.box('productBox');
@@ -920,10 +862,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
         log('Failed to fetch data: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Discount");
+      handleExceptionMessage(response: e.response,apiName:"discount" );
       log('Error occurred while fetching discounts: $e');
     }
   }
@@ -1010,17 +949,11 @@ Future<LeadsCountData> fetchLeadsCount() async {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleHttpResponseError(
-              statusCode: response.statusCode ?? 0,
-              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-              message: "Leads");
+          handleExceptionMessage(response: response,apiName:"leads" );
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleHttpResponseError(
-            statusCode: dioError.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Leads");
+        handleExceptionMessage(response: dioError.response,apiName:"leads" );
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
@@ -1063,17 +996,11 @@ Future<LeadsCountData> fetchLeadsCount() async {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleHttpResponseError(
-              statusCode: response.statusCode ?? 0,
-              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-              message: "Rejected Leads");
+          handleExceptionMessage(response: response,apiName:"rejected leads" );
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleHttpResponseError(
-            statusCode: dioError.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Rejected Leads");
+        handleExceptionMessage(response: dioError.response,apiName:"rejected leads" );
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
@@ -1130,10 +1057,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
         }
       } on DioException catch (e) {
         log('Error fetching data from API: $e');
-        handleHttpResponseError(
-            statusCode: e.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Calender Event");
+        handleExceptionMessage(response: e.response,apiName:"calender event" );
       }
     } else {
       // NkCommonFunction.showErrorSnakBar(
@@ -1157,10 +1081,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
       log('Fetched Events from Hive: ${allEvents.length}');
     } on DioException catch (e) {
       log('Error fetching from Hive: $e');
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Calender Event");
+      handleExceptionMessage(response: e.response,apiName:"calender event" );
     }
     if (allEvents.isEmpty) {
       log('No events found in cache.');
@@ -1324,20 +1245,14 @@ Future<LeadsCountData> fetchLeadsCount() async {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
       } else {
-        handleHttpResponseError(
-            statusCode: response.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Pending payment");
+        handleExceptionMessage(response:response,apiName:"pending payments" );
         log('Fetching cached data due to API error for key: $cacheKey');
         return localStorage.storedPendingPaymentData(
             pendingPaymentBox, cacheKey);
       }
     } on DioException catch (dioError) {
       log("DioException occurred: $dioError");
-      handleHttpResponseError(
-          statusCode: dioError.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Pending payment");
+      handleExceptionMessage(response: dioError.response,apiName:"pending payments" );
       log('Fetching cached data due to connection failure for key: $cacheKey');
       return localStorage.storedPendingPaymentData(pendingPaymentBox, cacheKey);
     } catch (e) {
@@ -1374,20 +1289,12 @@ Future<LeadsCountData> fetchLeadsCount() async {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
         log('Got inside the try method');
-        handleHttpResponseError(
-          statusCode: response.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: 'Pending Payment',
-        );
+        handleExceptionMessage(response: response,apiName:"pending payments" );
         return Future.error('API Error: ${response.statusCode}');
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
-      handleHttpResponseError(
-        statusCode: error.response?.statusCode ?? 0,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        message: 'Pending Payment',
-      );
+      handleExceptionMessage(response: error.response,apiName:"pending payments" );
       return Future.error(handledError);
     }
   }
@@ -1468,11 +1375,7 @@ Future<LeadsCountData> fetchLeadsCount() async {
         // Return parsed response
         return OrderResponce.fromJson(response.data);
       } on DioException catch (error) {
-        handleHttpResponseError(
-          statusCode: error.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Recent Order",
-        );
+        handleExceptionMessage(response: error.response,apiName:"recent orders" );
         log('DioException occurred. Status Code: ${error.response?.statusCode}');
         log('Response Data: ${error.response?.data}');
         log('Request Data: ${error.requestOptions.data}');
@@ -2067,17 +1970,11 @@ Future<LeadsCountData> fetchLeadsCount() async {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleHttpResponseError(
-              statusCode: response.statusCode ?? 0,
-              showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-              message: "Leads Customer");
+          handleExceptionMessage(response: response,apiName:"leads customer" );
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleHttpResponseError(
-            statusCode: dioError.response?.statusCode ?? 0,
-            showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-            message: "Leads Customer");
+        handleExceptionMessage(response: dioError.response,apiName:"leads customer" );
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }

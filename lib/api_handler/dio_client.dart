@@ -23,7 +23,7 @@ class DioClient with ApiConstants {
     return _dio;
   }
 
-    Future<Response> postbycustom<T>(
+  Future<Response> postbycustom<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -214,7 +214,7 @@ void handleHttpResponseError({
     case 429:
       showErrorSnackBar('Too many requests.$message');
       break;
-    case >500:
+    case > 500:
       showErrorSnackBar('Internal server error.$message');
       break;
     default:
@@ -224,6 +224,22 @@ void handleHttpResponseError({
   }
 }
 
+handleExceptionMessage({Response<dynamic>? response, String? apiName}) {
+  final errorData = response?.data;
+  String message = "";
+  if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
+    message = errorData['message'].toString();
+  }
+  int statusCode = response?.statusCode ?? 0;
+  if (message.isNotEmpty) {
+    NkCommonFunction.showErrorSnakBar("$message.$apiName");
+  } else {
+    handleHttpResponseError(
+        statusCode: statusCode,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: apiName);
+  }
+}
 // String _handleStatusCode(
 //     {required int statusCode,
 //     required Function(String message) showErrorSnackBar,

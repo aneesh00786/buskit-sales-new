@@ -139,10 +139,8 @@ class CartDatabaseManager {
       return fetchedItems;
     } on DioException catch (e) {
       log('Error fetching draft items: $e');
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "Draft");
+      handleExceptionMessage(
+            response: e.response, apiName: "draft");
       return [];
     }
   }

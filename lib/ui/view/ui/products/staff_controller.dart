@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -9,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/custo
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -65,7 +67,7 @@ class StaffController extends GetxController {
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
-  
+
   Future<void> loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
     log('Weekly Type fetched from API: $weeklyType');
@@ -100,7 +102,7 @@ class StaffController extends GetxController {
       } else {
         log('❌ Response was null');
       }
-    } catch (e) {
+    } on DioException catch (e) {
       log('❗ Error loading data: $e');
     } finally {
       isLoading.value = false;
@@ -148,11 +150,13 @@ class StaffController extends GetxController {
     int? compId,
   }) async {
     final selectedMonth = selectedTabIndex;
-    final selectedMonthName =
-      isFromLogin==true?monthName:  DateFormat.MMMM().format(DateTime(0, selectedMonth));
-    await loadSalesmanTarget(staffId, selectedMonthName??'', currentYear,
-        selectedMonthName??'', isFromLogin ?? false, compId ?? 0);
+    final selectedMonthName = isFromLogin == true
+        ? monthName
+        : DateFormat.MMMM().format(DateTime(0, selectedMonth));
+    await loadSalesmanTarget(staffId, selectedMonthName ?? '', currentYear,
+        selectedMonthName ?? '', isFromLogin ?? false, compId ?? 0);
   }
+
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {
       return IconButton(

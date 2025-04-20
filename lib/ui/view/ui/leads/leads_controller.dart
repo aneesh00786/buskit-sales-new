@@ -14,9 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
-
 enum CustomerStatus { newReq, assignedTo, rejected }
-
 class LeadsController extends GetxController {
   RxInt selectedTabIndex = 0.obs; 
   RxList<LeadCustomerData> leadsCustomerDataList = <LeadCustomerData>[].obs;

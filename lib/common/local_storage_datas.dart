@@ -1,65 +1,70 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
- 
+
 class LocalStorage {
-CustomerResponseModelxx storedCustomerData(Box<dynamic> customerBox) {
-  final cachedData = customerBox.get('fetchCustomerData');
-  if (cachedData == null) {
-    throw Exception('No cached data available');
+  CustomerResponseModelxx storedCustomerData(Box<dynamic> customerBox) {
+    final cachedData = customerBox.get('fetchCustomerData');
+    if (cachedData == null) {
+      throw Exception('No cached data available');
+    }
+
+    try {
+      log('Fetched cached data from Hive: $cachedData');
+
+      // Ensure the data format is correct
+      final castedData = castToStringDynamic(cachedData);
+      if (castedData == null || castedData.isEmpty) {
+        throw Exception('Cached data is null or improperly formatted.');
+      }
+
+      // Initialize response lists
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
+
+      // Parse data
+      if (castedData['data'] is List) {
+        customers = (castedData['data'] as List)
+            .map((json) => CustomerModelxx.fromJson(json))
+            .toList();
+      }
+      if (castedData['orderTotal'] is List) {
+        orderTotal = (castedData['orderTotal'] as List)
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+      }
+      if (castedData['yearsListOfAll'] is List) {
+        yearList = (castedData['yearsListOfAll'] as List)
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
+      }
+
+      return CustomerResponseModelxx(
+        statusCode: castedData['statusCode'] ?? 0,
+        status: castedData['status'] ?? false,
+        message: castedData['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
+        yearsListOfAll: yearList,
+      );
+    } catch (e) {
+      log('Error processing cached data: $e');
+      throw Exception('Failed to parse cached data: $e');
+    }
   }
-
-  try {
-    log('Fetched cached data from Hive: $cachedData');
-
-    // Ensure the data format is correct
-    final castedData = castToStringDynamic(cachedData);
-    if (castedData == null || castedData.isEmpty) {
-      throw Exception('Cached data is null or improperly formatted.');
-    }
-
-    // Initialize response lists
-    List<CustomerModelxx> customers = [];
-    List<OrderTotalxx> orderTotal = [];
-    List<YearsListOfAll> yearList = [];
-
-    // Parse data
-    if (castedData['data'] is List) {
-      customers = (castedData['data'] as List)
-          .map((json) => CustomerModelxx.fromJson(json))
-          .toList();
-    }
-    if (castedData['orderTotal'] is List) {
-      orderTotal = (castedData['orderTotal'] as List)
-          .map((json) => OrderTotalxx.fromJson(json))
-          .toList();
-    }
-    if (castedData['yearsListOfAll'] is List) {
-      yearList = (castedData['yearsListOfAll'] as List)
-          .map((json) => YearsListOfAll.fromJson(json))
-          .toList();
-    }
-
-    return CustomerResponseModelxx(
-      statusCode: castedData['statusCode'] ?? 0,
-      status: castedData['status'] ?? false,
-      message: castedData['message'] ?? '',
-      data: customers,
-      orderTotal: orderTotal,
-      pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
-      yearsListOfAll: yearList,
-    );
-  } catch (e) {
-    log('Error processing cached data: $e');
-    throw Exception('Failed to parse cached data: $e');
-  }
-}
-
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {
@@ -94,6 +99,23 @@ CustomerResponseModelxx storedCustomerData(Box<dynamic> customerBox) {
     } else {
       throw Exception('No cached data available.');
     }
+  }
+
+  Future<CustomerAndOrderResponce?> retrieveCustomerData() async {
+    final box = await Hive.openBox('customerBox');
+    final jsonString = box.get('customerData');
+
+    if (jsonString != null) {
+      try {
+        final convertedData = LocalStorage()
+            .castToStringDynamic(Map<String, dynamic>.from(jsonString));
+        return CustomerAndOrderResponce.fromJson(convertedData);
+      } catch (e) {
+        log("Error converting customer data: $e");
+        return null;
+      }
+    }
+    return null;
   }
 
   ResponseModell mapJsonToResponseModel(Map<String, dynamic> jsonResponse) {
@@ -175,4 +197,88 @@ CustomerResponseModelxx storedCustomerData(Box<dynamic> customerBox) {
     log('Customer data stored in Hive');
   }
 
+  storedSettingsData(Box<dynamic> settingsBox, String cacheKey) {
+    final cachedData = settingsBox.get(cacheKey);
+    if (cachedData != null) {
+      log('Fetched settings from Hive: $cachedData');
+      final settingsList = (cachedData as List<dynamic>)
+          .map((item) => AllCompanySettingsData.fromJson(LocalStorage()
+              .castToStringDynamic(Map<dynamic, dynamic>.from(item))))
+          .toList();
+      return settingsList;
+    } else {
+      log("No cached settings data available.");
+      errorSnackbar('No offline data available.');
+    }
+  }
+
+  storedPerfromanceData(Box<dynamic> performanceBox, String cacheKey) {
+    final cachedData = performanceBox.get(cacheKey);
+    if (cachedData != null) {
+      final castedData = castToStringDynamic(cachedData);
+      return PerformanceData.fromJson(castedData);
+    } else {
+      errorSnackbar('No perfromance cached data available');
+      return null;
+    }
+  }
+
+  Future<RecentOrderCountResponse> getCachedRecentOrderCount(
+      String cacheKey) async {
+    try {
+      var orderCountBox = await Hive.openBox('orderCountBox');
+      if (orderCountBox.containsKey(cacheKey)) {
+        log('Fetching cached data for key: $cacheKey');
+        final cachedData = orderCountBox.get(cacheKey);
+        log('Cached Data: $cachedData');
+        final parsedData = LocalStorage().castToStringDynamic(cachedData);
+        return RecentOrderCountResponse.fromJson(parsedData);
+      } else {
+        log('No cached data available for key: $cacheKey');
+        throw Exception('No cached data available4');
+      }
+    } catch (e) {
+      log('Error fetching from Hive: $e');
+      throw Exception('Failed to fetch data from Hive');
+    }
+  }
+
+  storedCategoryData(Box<dynamic> box) {
+    final savedCategory = box.get('categoryItem');
+    if (savedCategory != null) {
+      try {
+        final convertedData = LocalStorage()
+            .castToStringDynamic(Map<String, dynamic>.from(savedCategory));
+        return CategoryModel.fromJson(convertedData);
+      } catch (e) {
+        log("Error converting category data: $e");
+        throw Exception('Failed to convert offline data');
+      }
+    } else {
+      throw Exception('An Unexpected Error occured');
+    }
+  }
+
+  storedProductData(Box<dynamic> productBox, List<ProductModel> allProducts) {
+    var rawProductList = productBox.get('products');
+    if (rawProductList is List) {
+      allProducts = rawProductList
+          .map((productJson) {
+            if (productJson is Map) {
+              return ProductModel.fromJson(
+                  LocalStorage().castToStringDynamic(productJson));
+            }
+            return null;
+          })
+          .whereType<ProductModel>()
+          .toList();
+    }
+    return allProducts;
+  }
+
+  storedRecentOrdersData(Box<dynamic> ordersBox, String cacheKey) {
+    final cachedData = ordersBox.get(cacheKey);
+    final castedData = LocalStorage().castToStringDynamic(cachedData);
+    return OrderResponce.fromJson(castedData);
+  }
 }

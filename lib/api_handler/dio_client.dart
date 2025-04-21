@@ -224,6 +224,10 @@ handleExceptionMessage({Response<dynamic>? response, String? apiName}) {
         message: apiName);
   }
 }
+  errorSnackbar(String message) {
+    NkCommonFunction.showErrorSnakBar(message);
+  }
+
 // String _handleStatusCode(
 //     {required int statusCode,
 //     required Function(String message) showErrorSnackBar,

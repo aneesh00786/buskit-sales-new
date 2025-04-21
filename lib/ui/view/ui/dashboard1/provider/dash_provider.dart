@@ -989,11 +989,8 @@ class ApiService {
     final requestBody = {"token": token};
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
-    final connectivityResult = await Connectivity().checkConnectivity();
-    bool hasNetwork = connectivityResult != ConnectivityResult.none;
-    bool hasInternet = hasNetwork && await ApiWorker().isInternetAvailable();
-
-    if (hasInternet) {
+    bool isOnline = await ConnectivityService().isOnline();
+    if (isOnline) {
       try {
         final response = await dio.post(
           url,

@@ -211,180 +211,180 @@ class OrderController extends GetxController {
   }
 
   RxBool isButtonActionLoading = false.obs;
-  Future<ButtonActionData?> rejectButtonAction({
-    required BuildContext context,
-    required String orderId,
-    required String reason,
-  }) async {
-    try {
-      isButtonActionLoading(true);
-      log("Reject Button Action");
+  // Future<ButtonActionData?> rejectButtonAction({
+  //   required BuildContext context,
+  //   required String orderId,
+  //   required String reason,
+  // }) async {
+  //   try {
+  //     isButtonActionLoading(true);
+  //     log("Reject Button Action");
 
-      var data = await _apiWorker.orderReject(
-        orderId: orderId,
-        rejectReason: reason,
-      );
+  //     var data = await _apiWorker.orderReject(
+  //       orderId: orderId,
+  //       rejectReason: reason,
+  //     );
 
-      log("${data.message}");
-      isButtonActionLoading(false);
+  //     log("${data.message}");
+  //     isButtonActionLoading(false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order rejected successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Order rejected successfully!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
 
-      return data.data!.first;
-    } catch (e) {
-      isButtonActionLoading(false);
+  //     return data.data!.first;
+  //   } catch (e) {
+  //     isButtonActionLoading(false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to reject order: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to reject order: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
 
-      return null;
-    }
-  }
+  //     return null;
+  //   }
+  // }
 
-  Future<ButtonActionData?> acceptButtonAction({
-    required BuildContext context,
-    required String orderId,
-    List<dynamic>? updatedOrders,
-  }) async {
-    try {
-      isButtonActionLoading(true);
-      log("Accept Button Action");
+  // Future<ButtonActionData?> acceptButtonAction({
+  //   required BuildContext context,
+  //   required String orderId,
+  //   List<dynamic>? updatedOrders,
+  // }) async {
+  //   try {
+  //     isButtonActionLoading(true);
+  //     log("Accept Button Action");
 
-      var data = await _apiWorker.orderAccept(
-        orderId: orderId,
-        updatedOrders: updatedOrders,
-      );
+  //     var data = await _apiWorker.orderAccept(
+  //       orderId: orderId,
+  //       updatedOrders: updatedOrders,
+  //     );
 
-      log("${data.message}");
-      isButtonActionLoading(false);
+  //     log("${data.message}");
+  //     isButtonActionLoading(false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order Accepted successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Order Accepted successfully!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
 
-      return data.data!.first;
-    } catch (e) {
-      isButtonActionLoading(false);
-      log('Failed to accept order: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to accept order: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+  //     return data.data!.first;
+  //   } catch (e) {
+  //     isButtonActionLoading(false);
+  //     log('Failed to accept order: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to accept order: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
 
-      return null;
-    }
-  }
+  //     return null;
+  //   }
+  // }
 
-  Future<void> sendForCustomerApprovalButtonAction({
-    required BuildContext context,
-    required String orderId,
-    List<dynamic>? updatedOrders,
-  }) async {
-    try {
-      isButtonActionLoading(true);
-      log("Send for customer approval Button Action");
+  // Future<void> sendForCustomerApprovalButtonAction({
+  //   required BuildContext context,
+  //   required String orderId,
+  //   List<dynamic>? updatedOrders,
+  // }) async {
+  //   try {
+  //     isButtonActionLoading(true);
+  //     log("Send for customer approval Button Action");
 
-      var response = await _apiWorker.sendMail(
-          orderId: orderId, updatedOrders: updatedOrders);
+  //     var response = await _apiWorker.sendMail(
+  //         orderId: orderId, updatedOrders: updatedOrders);
 
-      log("${response.statusMessage}");
-      isButtonActionLoading(false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order sent for approval successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      isButtonActionLoading(false);
+  //     log("${response.statusMessage}");
+  //     isButtonActionLoading(false);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Order sent for approval successfully!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     isButtonActionLoading(false);
 
-      log('Failed to send for approval: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to send for approval: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
+  //     log('Failed to send for approval: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to send for approval: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  // }
 
-  Future<void> addToPackedAndReady({
-    required BuildContext context,
-    required String orderId,
-    required String cartid,
-  }) async {
-    log("Add to Packed and ready button action");
+  // Future<void> addToPackedAndReady({
+  //   required BuildContext context,
+  //   required String orderId,
+  //   required String cartid,
+  // }) async {
+  //   log("Add to Packed and ready button action");
 
-    try {
-      await _apiWorker.packedAndReadyAdd(cartId: cartid, orderId: orderId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Added to Packed and Ready successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      log("$e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to add to Packed and Ready: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
+  //   try {
+  //     await _apiWorker.packedAndReadyAdd(cartId: cartid, orderId: orderId);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Added to Packed and Ready successfully!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     log("$e");
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to add to Packed and Ready: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  // }
 
-  Future<ButtonActionData?> deliverButtonAction({
-    required BuildContext context,
-    required String orderId,
-  }) async {
-    try {
-      isButtonActionLoading(true);
-      log("Deliver Button Action");
+  // Future<ButtonActionData?> deliverButtonAction({
+  //   required BuildContext context,
+  //   required String orderId,
+  // }) async {
+  //   try {
+  //     isButtonActionLoading(true);
+  //     log("Deliver Button Action");
 
-      var data = await _apiWorker.orderDeliver(
-        orderId: orderId,
-      );
+  //     var data = await _apiWorker.orderDeliver(
+  //       orderId: orderId,
+  //     );
 
-      log("${data.message}");
-      isButtonActionLoading(false);
+  //     log("${data.message}");
+  //     isButtonActionLoading(false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order delivered successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Order delivered successfully!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
 
-      return data.data!.first;
-    } catch (e) {
-      log("$e");
-      isButtonActionLoading(false);
+  //     return data.data!.first;
+  //   } catch (e) {
+  //     log("$e");
+  //     isButtonActionLoading(false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to deliver order: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to deliver order: $e'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
 
-      return null;
-    }
-  }
+  //     return null;
+  //   }
+  // }
 
   void setTotalPages(int total) {
     totalPages.value = total;

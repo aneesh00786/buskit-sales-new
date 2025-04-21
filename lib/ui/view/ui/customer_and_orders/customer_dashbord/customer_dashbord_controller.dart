@@ -207,19 +207,19 @@ class CustomerDashbordController extends GetxController {
   //   return data;
   // }
 
-  Future<CustomerDashboardTotalSaleResponse> getCustomerDahsboardTotalSaleData(
-      String customerId, String year) async {
-    var data = await ApiWorker().getCustomerDashboardTotalSale(customerId, year);
-    if (data.statusCode == 200) {
-      customerDashboardTotalSaleData.value = data.data!;
-      refresh();
-    }
-    return data;
-  }
+  // Future<CustomerDashboardTotalSaleResponse> getCustomerDahsboardTotalSaleData(
+  //     String customerId, String year) async {
+  //   var data = await ApiWorker().getCustomerDashboardTotalSale(customerId, year);
+  //   if (data.statusCode == 200) {
+  //     customerDashboardTotalSaleData.value = data.data!;
+  //     refresh();
+  //   }
+  //   return data;
+  // }
 
-  Future<CustomerCartResponce> getCustomerCartData(String customerId) async {
-    return await ApiWorker().getCustomerCart(customerId: customerId);
-  }
+  // Future<CustomerCartResponce> getCustomerCartData(String customerId) async {
+  //   return await ApiWorker().getCustomerCart(customerId: customerId);
+  // }
 
   Future setPaymentDetails(
     String orderId,

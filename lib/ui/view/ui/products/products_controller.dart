@@ -281,23 +281,23 @@ class ProductsController extends GetxController {
     refresh();
   }
 
-  Future<CustomerCartData?> getCustomerCartData(String customerId) async {
-    var data = await ApiWorker().getCustomerCart(customerId: customerId);
-    if (data.data != null && data.data!.isNotEmpty) {
-      return data.data!.first;
-    }
-    return null;
-  }
+  // Future<CustomerCartData?> getCustomerCartData(String customerId) async {
+  //   var data = await ApiWorker().getCustomerCart(customerId: customerId);
+  //   if (data.data != null && data.data!.isNotEmpty) {
+  //     return data.data!.first;
+  //   }
+  //   return null;
+  // }
 
-  Future<OrderResponce?> getSingleCustomerOrderHistory(
-      String customerId) async {
-    var data =
-        await ApiWorker().getSingleCustomerOrderHistory(customerId: customerId);
-    if (data.data != null && data.data!.isNotEmpty) {
-      return data;
-    }
-    return null;
-  }
+  // Future<OrderResponce?> getSingleCustomerOrderHistory(
+  //     String customerId) async {
+  //   var data =
+  //       await ApiWorker().getSingleCustomerOrderHistory(customerId: customerId);
+  //   if (data.data != null && data.data!.isNotEmpty) {
+  //     return data;
+  //   }
+  //   return null;
+  // }
 
   Future<void> placeOrder(CartOrderModel cartOrder) async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -323,46 +323,46 @@ class ProductsController extends GetxController {
     }
   }
 
-  sendDraftPruduct(BuyProductResponce buyProductResponce) async {
-    await ApiWorker()
-        .saveAsDraftProduct(
-            purchaseProductSendData(buyProductResponce, isDraft: true))
-        .then((value) {
-      if (value.statusCode == 200) {
-        NkCommonFunction.showSimpleToast(
-            value.data["message"] ?? orderAddedInDraft,
-            color: Colors.lightGreen);
-      }
-    }).onError((error, stackTrace) {
-      return Future.error(error.toString());
-    });
+  // sendDraftPruduct(BuyProductResponce buyProductResponce) async {
+  //   await ApiWorker()
+  //       .saveAsDraftProduct(
+  //           purchaseProductSendData(buyProductResponce, isDraft: true))
+  //       .then((value) {
+  //     if (value.statusCode == 200) {
+  //       NkCommonFunction.showSimpleToast(
+  //           value.data["message"] ?? orderAddedInDraft,
+  //           color: Colors.lightGreen);
+  //     }
+  //   }).onError((error, stackTrace) {
+  //     return Future.error(error.toString());
+  //   });
 
-    Get.back();
-  }
+  //   Get.back();
+  // }
 
-  setUpdatePruductPrise(
-      {required String productId,
-      required String variationId,
-      required String cartId,
-      required String price,
-      required String reason}) async {
-    await ApiWorker()
-        .setUpdateProductPrice(updateProductPriceMap(
-            productId: productId,
-            variationId: variationId,
-            cartId: cartId,
-            price: price,
-            reason: reason))
-        .then((value) {
-      if (value.statusCode == 200) {
-        NkCommonFunction.showSimpleToast(
-            value.data["message"] ?? orderAddedInDraft,
-            color: Colors.lightGreen);
-      }
-    }).onError((error, stackTrace) {
-      return Future.error(error.toString());
-    });
-  }
+  // setUpdatePruductPrise(
+  //     {required String productId,
+  //     required String variationId,
+  //     required String cartId,
+  //     required String price,
+  //     required String reason}) async {
+  //   await ApiWorker()
+  //       .setUpdateProductPrice(updateProductPriceMap(
+  //           productId: productId,
+  //           variationId: variationId,
+  //           cartId: cartId,
+  //           price: price,
+  //           reason: reason))
+  //       .then((value) {
+  //     if (value.statusCode == 200) {
+  //       NkCommonFunction.showSimpleToast(
+  //           value.data["message"] ?? orderAddedInDraft,
+  //           color: Colors.lightGreen);
+  //     }
+  //   }).onError((error, stackTrace) {
+  //     return Future.error(error.toString());
+  //   });
+  // }
 
   Map<String, dynamic> purchaseProductSendData(
       BuyProductResponce buyProductResponce,

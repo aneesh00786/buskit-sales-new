@@ -51,18 +51,18 @@ class CustomerDashboardBottomWidget extends StatelessWidget {
               child: MyPopUpMenu<int>(
                   onItemSelected: (value) {
                     customerDashBoardController.selectYearIndex.value = value;
-                    customerDashBoardController
-                        .getCustomerDahsboardTotalSaleData(
-                            customerDashBoardController
-                                .customerAndOrderData.value.customerId!,
-                            customerDashBoardController
-                                    .customerDashboardData
-                                    .value
-                                    .yearList?[customerDashBoardController
-                                        .selectYearIndex.value]
-                                    .year
-                                    ?.toString() ??
-                                '');
+                    // customerDashBoardController
+                    //     .getCustomerDahsboardTotalSaleData(
+                    //         customerDashBoardController
+                    //             .customerAndOrderData.value.customerId!,
+                    //         customerDashBoardController
+                    //                 .customerDashboardData
+                    //                 .value
+                    //                 .yearList?[customerDashBoardController
+                    //                     .selectYearIndex.value]
+                    //                 .year
+                    //                 ?.toString() ??
+                    //             '');
                     customerDashBoardController.updateWidget();
                   },
                   items: List.generate(

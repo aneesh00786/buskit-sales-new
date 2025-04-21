@@ -77,23 +77,23 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     return data;
   }
 
-  Future assignCustomerVisit(
-      String customerId, String customerName, String eventStatus,
-      {List<String>? selectedWeekDay}) async {
-    log("eventStatus ${visitType(int.parse(eventStatus))}");
-    var map = {
-      "customer_id": customerId,
-      "event_status": eventStatus,
-      "days_list": jsonEncode(selectedWeekDay ?? [])
-    };
-    var data = await ApiWorker().assignVisit(map);
-    if (data.statusCode == 200 && data.data["status"] == true) {
-      NkCommonFunction.showSuccessSnakBar(
-          "${customerName.nkStringCapitalizeFirstCaracter} $customerVisitScheduleSet");
-    }
-    refresh();
-    return data;
-  }
+  // Future assignCustomerVisit(
+  //     String customerId, String customerName, String eventStatus,
+  //     {List<String>? selectedWeekDay}) async {
+  //   log("eventStatus ${visitType(int.parse(eventStatus))}");
+  //   var map = {
+  //     "customer_id": customerId,
+  //     "event_status": eventStatus,
+  //     "days_list": jsonEncode(selectedWeekDay ?? [])
+  //   };
+  //   var data = await ApiWorker().assignVisit(map);
+  //   if (data.statusCode == 200 && data.data["status"] == true) {
+  //     NkCommonFunction.showSuccessSnakBar(
+  //         "${customerName.nkStringCapitalizeFirstCaracter} $customerVisitScheduleSet");
+  //   }
+  //   refresh();
+  //   return data;
+  // }
 
   String visitType(int type) {
     switch (type) {

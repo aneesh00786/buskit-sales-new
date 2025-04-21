@@ -996,7 +996,7 @@ class ApiService {
           data: requestBody,
         );
         if (response.statusCode == 200) {
-          var jsonResponse = jsonDecode(response.data);
+          var jsonResponse = response.data;
           List<AdminData> adminDetails = (jsonResponse['data'] as List)
               .map((json) => AdminData.fromJson(json))
               .toList();
@@ -1037,111 +1037,122 @@ class ApiService {
     throw Exception('Failed to fetch admin details from API and Hive.');
   }
 
-  Future<CustomerResponseModelxx> fetchCustomer({
-    required String salesmanId,
-    required String customerName,
-    required String startDate,
-    required String endDate,
-    required int limit,
-    required int page,
-    required dynamic valueFromDw,
-  }) async {
-    String value;
-    switch (valueFromDw) {
-      case 'Month':
-        value = 'This Month';
-        break;
-      case 'Day':
-        value = 'Today';
-        break;
-      case 'Week':
-        value = 'This Week';
-        break;
-      case 'Year':
-        value = 'This Year';
-        break;
-      case 'Range':
-        value = 'Range';
-        break;
-      default:
-        value = "This Month";
-        break;
-    }
-
-    final url = '$_baseUrl${ApiConstants.fetchCustomer}';
-    final requestBody = {
-      "salesman_id": salesmanId,
-      "business_name": customerName,
-      "start_date": startDate,
-      "end_date": endDate,
-      "limit": limit,
-      "page": page,
-      "valueFromDw": value,
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-    };
-    final customerBox = Hive.box('customerBox');
-    try {
-      final response = await dio.post(
-        url,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-        data: requestBody,
-      );
-      log('fetchCustomer : ${response.statusCode}');
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        if (jsonResponse['status'] != true) {
-          throw Exception('API returned error: ${jsonResponse['message']}');
-        }
-        List<CustomerModelxx> customers = [];
-        List<OrderTotalxx> orderTotal = [];
-        List<YearsListOfAll> yearList = [];
-        if (jsonResponse['data'] is List) {
-          customers = (jsonResponse['data'] as List)
-              .map((json) => CustomerModelxx.fromJson(json))
-              .toList();
-        }
-        if (jsonResponse['orderTotal'] is List) {
-          orderTotal = (jsonResponse['orderTotal'] as List)
-              .map((json) => OrderTotalxx.fromJson(json))
-              .toList();
-        }
-        if (jsonResponse['years_list_of_all'] is List) {
-          yearList = (jsonResponse['years_list_of_all'] as List)
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
-        await customerBox.put('fetchCustomerData', jsonResponse);
-        log('Customer List Length : ${customers.length}');
-        return CustomerResponseModelxx(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: customers,
-          orderTotal: orderTotal,
-          pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
-          yearsListOfAll: yearList,
-        );
-      } else {
-        handleExceptionMessage(
-          response: response,
-          apiName: "fetch customer",
-        );
-        return LocalStorage().storedCustomerData(customerBox);
-      }
-    } on DioException catch (dioError) {
-      return Future.error(DioExceptionHandler.fromDioError(dioError));
-    } catch (e) {
-      log('Exception: $e');
-      final isOnline = await ConnectivityService().isOnline();
-      if (isOnline) {
-        throw Exception('Failed to fetch data: $e');
-      }
-      log('Using cached data due to offline mode');
-      return LocalStorage().storedCustomerData(customerBox);
-    }
+Future<CustomerResponseModelxx> fetchCustomer({
+  required String salesmanId,
+  required String customerName,
+  required String startDate,
+  required String endDate,
+  required int limit,
+  required int page,
+  required dynamic valueFromDw,
+}) async {
+  String value;
+  switch (valueFromDw) {
+    case 'Month':
+      value = 'This Month';
+      break;
+    case 'Day':
+      value = 'Today';
+      break;
+    case 'Week':
+      value = 'This Week';
+      break;
+    case 'Year':
+      value = 'This Year';
+      break;
+    case 'Range':
+      value = 'Range';
+      break;
+    default:
+      value = "This Month";
+      break;
   }
+
+  final url = '$_baseUrl${ApiConstants.fetchCustomer}';
+  final requestBody = {
+    "salesman_id": salesmanId,
+    "business_name": customerName,
+    "start_date": startDate,
+    "end_date": endDate,
+    "limit": limit,
+    "page": page,
+    "valueFromDw": value,
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  };
+  final customerBox = Hive.box('customerBox');
+
+  try {
+    final response = await dio.post(
+      url,
+      options: Options(
+        headers: {'Content-Type': 'application/json'},
+      ),
+      data: requestBody,
+    );
+
+    log('fetchCustomer API Response: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = response.data;
+      if (jsonResponse['status'] != true) {
+        throw Exception('API returned error: ${jsonResponse['message']}');
+      }
+
+      // Parse response data
+      List<CustomerModelxx> customers = [];
+      List<OrderTotalxx> orderTotal = [];
+      List<YearsListOfAll> yearList = [];
+
+      if (jsonResponse['data'] is List) {
+        customers = (jsonResponse['data'] as List)
+            .map((json) => CustomerModelxx.fromJson(json))
+            .toList();
+      }
+      if (jsonResponse['orderTotal'] is List) {
+        orderTotal = (jsonResponse['orderTotal'] as List)
+            .map((json) => OrderTotalxx.fromJson(json))
+            .toList();
+      }
+      if (jsonResponse['years_list_of_all'] is List) {
+        yearList = (jsonResponse['years_list_of_all'] as List)
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
+      }
+
+      // Save response data to Hive
+      await customerBox.put('fetchCustomerData', jsonResponse);
+      log('Saved customer data to Hive.');
+
+      return CustomerResponseModelxx(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: customers,
+        orderTotal: orderTotal,
+        pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
+        yearsListOfAll: yearList,
+      );
+    } else {
+      handleExceptionMessage(
+        response: response,
+        apiName: "fetch customer",
+      );
+      return localStorage.storedCustomerData(customerBox);
+    }
+  } on DioException catch (dioError) {
+    log('DioException: $dioError');
+    return localStorage.storedCustomerData(customerBox);
+  } catch (e) {
+    log('General Exception: $e');
+    final isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      log('Using cached data due to offline mode.');
+      return localStorage.storedCustomerData(customerBox);
+    }
+    throw Exception('Failed to fetch data: $e');
+  }
+}
+
 
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
@@ -1212,10 +1223,10 @@ class ApiService {
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: jsonEncode(requestBody),
+        data: requestBody,
       );
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.data);
+        final jsonResponse = response.data;
         await customerDashboardBox.put(
           customerId,
           Map<String, dynamic>.from(jsonResponse),

@@ -341,8 +341,6 @@ class ApiWorker with ApiConstants {
     }
   }
 
-
-
   Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
     try {
@@ -512,6 +510,7 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch data from Hive');
     }
   }
+
   Future<CustomerDashboardTotalSaleResponse> getCustomerDashboardTotalSale(
     String customerId,
     String year,
@@ -524,7 +523,8 @@ class ApiWorker with ApiConstants {
               "year": "",
             }))
         .onError((DioException error, stackTrace) {
-      handleExceptionMessage(response: error.response,apiName:"dashboard total" );
+      handleExceptionMessage(
+          response: error.response, apiName: "dashboard total");
       log(error.toString());
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });
@@ -542,7 +542,8 @@ class ApiWorker with ApiConstants {
         data: FormData.fromMap(sendData),
       )
           .onError((DioException error, stackTrace) {
-        handleExceptionMessage(response: error.response,apiName:"add to cart" );
+        handleExceptionMessage(
+            response: error.response, apiName: "add to cart");
         return Future.error(DioExceptionHandler.fromDioError(error));
       });
       if (response.statusCode == 200) {
@@ -557,7 +558,7 @@ class ApiWorker with ApiConstants {
         return null;
       }
     } on DioException catch (e) {
-      handleExceptionMessage(response: e.response,apiName:"add to cart" );
+      handleExceptionMessage(response: e.response, apiName: "add to cart");
       log('[addToCart] Exception: $e');
       return null;
     }
@@ -589,12 +590,12 @@ class ApiWorker with ApiConstants {
         log('[addToCart] Response Data: ${response.data}');
         return CartOrderModel.fromJson(response.data);
       } else {
-        handleExceptionMessage(response: response,apiName:"add to draft" );
+        handleExceptionMessage(response: response, apiName: "add to draft");
         log('[addToCart] Unexpected status code: ${response.statusCode}');
         return null;
       }
-    }on DioException catch (e) {
-      handleExceptionMessage(response: e.response,apiName:"add to draft" );
+    } on DioException catch (e) {
+      handleExceptionMessage(response: e.response, apiName: "add to draft");
       log('[addToCart] Exception: $e');
       return null;
     }
@@ -735,7 +736,8 @@ class ApiWorker with ApiConstants {
         return category;
       } on DioException catch (error) {
         log("to This Exception");
-        handleExceptionMessage(response: error.response,apiName:"product category" );
+        handleExceptionMessage(
+            response: error.response, apiName: "product category");
         final box = await Hive.openBox('categoriesBox');
         final savedCategory = box.get('categoryItem');
         if (savedCategory != null) {
@@ -795,7 +797,7 @@ class ApiWorker with ApiConstants {
           log('Failed to fetch products from API: ${response.statusCode}');
         }
       } on DioException catch (e) {
-        handleExceptionMessage(response: e.response,apiName:"products" );
+        handleExceptionMessage(response: e.response, apiName: "products");
       }
     } else {
       log('No internet. Fetching from Hive...');
@@ -862,7 +864,7 @@ class ApiWorker with ApiConstants {
         log('Failed to fetch data: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      handleExceptionMessage(response: e.response,apiName:"discount" );
+      handleExceptionMessage(response: e.response, apiName: "discount");
       log('Error occurred while fetching discounts: $e');
     }
   }
@@ -949,11 +951,11 @@ class ApiWorker with ApiConstants {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleExceptionMessage(response: response,apiName:"leads" );
+          handleExceptionMessage(response: response, apiName: "leads");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleExceptionMessage(response: dioError.response,apiName:"leads" );
+        handleExceptionMessage(response: dioError.response, apiName: "leads");
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
@@ -996,11 +998,12 @@ class ApiWorker with ApiConstants {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleExceptionMessage(response: response,apiName:"rejected leads" );
+          handleExceptionMessage(response: response, apiName: "rejected leads");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleExceptionMessage(response: dioError.response,apiName:"rejected leads" );
+        handleExceptionMessage(
+            response: dioError.response, apiName: "rejected leads");
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
@@ -1057,7 +1060,7 @@ class ApiWorker with ApiConstants {
         }
       } on DioException catch (e) {
         log('Error fetching data from API: $e');
-        handleExceptionMessage(response: e.response,apiName:"calender event" );
+        handleExceptionMessage(response: e.response, apiName: "calender event");
       }
     } else {
       // NkCommonFunction.showErrorSnakBar(
@@ -1081,7 +1084,7 @@ class ApiWorker with ApiConstants {
       log('Fetched Events from Hive: ${allEvents.length}');
     } on DioException catch (e) {
       log('Error fetching from Hive: $e');
-      handleExceptionMessage(response: e.response,apiName:"calender event" );
+      handleExceptionMessage(response: e.response, apiName: "calender event");
     }
     if (allEvents.isEmpty) {
       log('No events found in cache.');
@@ -1245,14 +1248,15 @@ class ApiWorker with ApiConstants {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
       } else {
-        handleExceptionMessage(response:response,apiName:"pending payments" );
+        handleExceptionMessage(response: response, apiName: "pending payments");
         log('Fetching cached data due to API error for key: $cacheKey');
         return localStorage.storedPendingPaymentData(
             pendingPaymentBox, cacheKey);
       }
     } on DioException catch (dioError) {
       log("DioException occurred: $dioError");
-      handleExceptionMessage(response: dioError.response,apiName:"pending payments" );
+      handleExceptionMessage(
+          response: dioError.response, apiName: "pending payments");
       log('Fetching cached data due to connection failure for key: $cacheKey');
       return localStorage.storedPendingPaymentData(pendingPaymentBox, cacheKey);
     } catch (e) {
@@ -1289,12 +1293,13 @@ class ApiWorker with ApiConstants {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
         log('Got inside the try method');
-        handleExceptionMessage(response: response,apiName:"pending payments" );
+        handleExceptionMessage(response: response, apiName: "pending payments");
         return Future.error('API Error: ${response.statusCode}');
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
-      handleExceptionMessage(response: error.response,apiName:"pending payments" );
+      handleExceptionMessage(
+          response: error.response, apiName: "pending payments");
       return Future.error(handledError);
     }
   }
@@ -1375,7 +1380,8 @@ class ApiWorker with ApiConstants {
         // Return parsed response
         return OrderResponce.fromJson(response.data);
       } on DioException catch (error) {
-        handleExceptionMessage(response: error.response,apiName:"recent orders" );
+        handleExceptionMessage(
+            response: error.response, apiName: "recent orders");
         log('DioException occurred. Status Code: ${error.response?.statusCode}');
         log('Response Data: ${error.response?.data}');
         log('Request Data: ${error.requestOptions.data}');
@@ -1970,11 +1976,12 @@ class ApiWorker with ApiConstants {
           log('Data saved to Hive for key: $cacheKey');
           return LeadResponce.fromJson(response.data);
         } else {
-          handleExceptionMessage(response: response,apiName:"leads customer" );
+          handleExceptionMessage(response: response, apiName: "leads customer");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
       } on DioException catch (dioError) {
-        handleExceptionMessage(response: dioError.response,apiName:"leads customer" );
+        handleExceptionMessage(
+            response: dioError.response, apiName: "leads customer");
         log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }

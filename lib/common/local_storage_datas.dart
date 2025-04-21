@@ -8,41 +8,58 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:hive_flutter/hive_flutter.dart';
  
 class LocalStorage {
-  storedCustomerData(Box<dynamic> customerBox) {
-    final cachedData = customerBox.get('fetchCustomerData');
-    if (cachedData != null) {
-      final castedData = castToStringDynamic(cachedData);
-      List<CustomerModelxx> customers = [];
-      List<OrderTotalxx> orderTotal = [];
-      List<YearsListOfAll> yearList = [];
-      if (castedData['data'] is List) {
-        customers = (castedData['data'] as List)
-            .map((json) => CustomerModelxx.fromJson(json))
-            .toList();
-      }
-      if (castedData['orderTotal'] is List) {
-        orderTotal = (castedData['orderTotal'] as List)
-            .map((json) => OrderTotalxx.fromJson(json))
-            .toList();
-      }
-      if (castedData['yearsListOfAll'] is List) {
-        yearList = (castedData['yearsListOfAll'] as List)
-            .map((json) => YearsListOfAll.fromJson(json))
-            .toList();
-      }
-      return CustomerResponseModelxx(
-        statusCode: castedData['statusCode'] ?? 0,
-        status: castedData['status'] ?? false,
-        message: castedData['message'] ?? '',
-        data: customers,
-        orderTotal: orderTotal,
-        pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
-        yearsListOfAll: yearList,
-      );
-    } else {
-      throw Exception('No cached data available');
-    }
+CustomerResponseModelxx storedCustomerData(Box<dynamic> customerBox) {
+  final cachedData = customerBox.get('fetchCustomerData');
+  if (cachedData == null) {
+    throw Exception('No cached data available');
   }
+
+  try {
+    log('Fetched cached data from Hive: $cachedData');
+
+    // Ensure the data format is correct
+    final castedData = castToStringDynamic(cachedData);
+    if (castedData == null || castedData.isEmpty) {
+      throw Exception('Cached data is null or improperly formatted.');
+    }
+
+    // Initialize response lists
+    List<CustomerModelxx> customers = [];
+    List<OrderTotalxx> orderTotal = [];
+    List<YearsListOfAll> yearList = [];
+
+    // Parse data
+    if (castedData['data'] is List) {
+      customers = (castedData['data'] as List)
+          .map((json) => CustomerModelxx.fromJson(json))
+          .toList();
+    }
+    if (castedData['orderTotal'] is List) {
+      orderTotal = (castedData['orderTotal'] as List)
+          .map((json) => OrderTotalxx.fromJson(json))
+          .toList();
+    }
+    if (castedData['yearsListOfAll'] is List) {
+      yearList = (castedData['yearsListOfAll'] as List)
+          .map((json) => YearsListOfAll.fromJson(json))
+          .toList();
+    }
+
+    return CustomerResponseModelxx(
+      statusCode: castedData['statusCode'] ?? 0,
+      status: castedData['status'] ?? false,
+      message: castedData['message'] ?? '',
+      data: customers,
+      orderTotal: orderTotal,
+      pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
+      yearsListOfAll: yearList,
+    );
+  } catch (e) {
+    log('Error processing cached data: $e');
+    throw Exception('Failed to parse cached data: $e');
+  }
+}
+
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
     return input.map((key, value) {

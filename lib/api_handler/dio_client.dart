@@ -159,7 +159,7 @@ class DioExceptionHandler implements Exception {
     if (showErrorSnakBar) {
       NkCommonFunction.showErrorSnakBar(errorMessage);
     }
-    log('Error occurred: $errorMessage');
+    log('Error occurred456: $errorMessage');
   }
 
   @override

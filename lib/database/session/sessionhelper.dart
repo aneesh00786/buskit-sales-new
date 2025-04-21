@@ -28,7 +28,6 @@ class SessionHelper {
     loginSavedData = loginResponse;
     isLoggedIn.value = true;
   }
-
   Future<void> setSettingsData(
       List<AllCompanySettingsData> settingsList) async {
     List<Map<String, dynamic>> jsonList =

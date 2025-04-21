@@ -86,9 +86,6 @@ class LoginController extends GetxController {
 
   Future<bool> performLogin(BuildContext context) async {
     DateTime now = DateTime.now();
-    // DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-    // DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-    // String firstDayString = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
     String currentMonthName = DateFormat('MMMM').format(now);
     DateTime? initialDay;
 

@@ -20,7 +20,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -85,18 +84,16 @@ void main() async {
   Get.lazyPut<HomeController>(() => HomeController());
   final connectivityService = ConnectivityService();
   connectivityService.startListening((connectivityResult) async {
-    if (connectivityResult != ConnectivityResult.none) {
-      bool isOnline = await connectivityService.isOnline();
-      if (isOnline && !isSyncing) {
-        isSyncing = true;
-        try {
-          await connectivityService.syncOfflineOrders();
-          await connectivityService.syncOfflineDrafts();
-        } catch (e) {
-          log('Error during sync: $e');
-        } finally {
-          isSyncing = false;
-        }
+    bool isOnline = await connectivityService.isOnline();
+    if (isOnline && !isSyncing) {
+      isSyncing = true;
+      try {
+        await connectivityService.syncOfflineOrders();
+        await connectivityService.syncOfflineDrafts();
+      } catch (e) {
+        log('Error during sync: $e');
+      } finally {
+        isSyncing = false;
       }
     }
   });

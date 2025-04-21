@@ -116,6 +116,7 @@ class ApiWorker with ApiConstants {
             statusCode: statusCode,
           );
         }
+        log('Response Login :${response.data}');
         return LoginResponce.fromJson(response.data);
       } else {
         NkCommonFunction.showErrorSnakBar("${response.data['message']}");
@@ -155,7 +156,7 @@ class ApiWorker with ApiConstants {
       return LeadsCountData.fromJson(response.data);
     } on DioException catch (error) {
       handleExceptionMessage(response: error.response, apiName: "leads count");
-      return Future.error(DioExceptionHandler.fromDioError(error));
+      return Future.error('No data available leads count');
     }
   }
 

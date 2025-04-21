@@ -76,11 +76,11 @@ class ProductsController extends GetxController {
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
   var showDialog = false.obs;
-  @override
-  onInit() {
-    super.onInit();
-    fetchCategoryData();
-  }
+  // @override
+  // onInit() {
+  //   super.onInit();
+  //   fetchCategoryData();
+  // }
 
   void closeDialog() {
     showDialog.value = false;

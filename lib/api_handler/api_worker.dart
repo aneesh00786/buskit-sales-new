@@ -505,44 +505,44 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  // Future<CustomerCartResponce> getCustomerCart({String? customerId}) async {
-  //   log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.fetchCart,
-  //           data: FormData.fromMap(
-  //               {"customer_id": customerId, "companyId": companyId}))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return CustomerCartResponce.fromJson(response.data);
-  // }
+  Future<CustomerCartResponce> getCustomerCart({String? customerId}) async {
+    log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
+    final response = await dio
+        .postbycustom(ApiConstants.fetchCart,
+            data: FormData.fromMap(
+                {"customer_id": customerId, "companyId": companyId}))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return CustomerCartResponce.fromJson(response.data);
+  }
 
-  // Future<OrderResponce> getSingleCustomerOrderHistory(
-  //     {String? customerId}) async {
-  //   log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.customerOrderHistory,
-  //           data: FormData.fromMap(
-  //               {"customer_id": customerId, "companyId": companyId}))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return OrderResponce.fromJson(response.data);
-  // }
+  Future<OrderResponce> getSingleCustomerOrderHistory(
+      {String? customerId}) async {
+    log("Send DATA: ${FormData.fromMap({"customer_id": customerId}).fields}");
+    final response = await dio
+        .postbycustom(ApiConstants.customerOrderHistory,
+            data: FormData.fromMap(
+                {"customer_id": customerId, "companyId": companyId}))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return OrderResponce.fromJson(response.data);
+  }
 
-  // Future<Response> setUpdateProductPrice(Map<String, dynamic> sendData) async {
-  //   log("Send DATA: ${FormData.fromMap(sendData).fields}");
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.updateProductPrice,
-  //           data: FormData.fromMap(sendData))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
+  Future<Response> setUpdateProductPrice(Map<String, dynamic> sendData) async {
+    log("Send DATA: ${FormData.fromMap(sendData).fields}");
+    final response = await dio
+        .postbycustom(ApiConstants.updateProductPrice,
+            data: FormData.fromMap(sendData))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
 
   Future<CustomerAndOrderData> getSingleCustomer(String customerId) async {
     Map<String, dynamic> data = {
@@ -561,18 +561,18 @@ class ApiWorker with ApiConstants {
         (response.data["data"] as List).first as Map<String, dynamic>);
   }
 
-  // Future<Response> saveAsDraftProduct(Map<String, dynamic> sendData) async {
-  //   log("Send DATA: $sendData");
-  //   sendData['companyId'] = companyId;
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.addOrderDraft,
-  //           data: FormData.fromMap(sendData))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
+  Future<Response> saveAsDraftProduct(Map<String, dynamic> sendData) async {
+    log("Send DATA: $sendData");
+    sendData['companyId'] = companyId;
+    final response = await dio
+        .postbycustom(ApiConstants.addOrderDraft,
+            data: FormData.fromMap(sendData))
+        .onError((DioException error, stackTrace) {
+      log(error.toString());
+      return Future.error(throw DioExceptionHandler.fromDioError(error));
+    });
+    return response;
+  }
 
   // Future<Response> assignVisit(Map<String, dynamic> sendData) async {
   //   log("Send DATA: ${FormData.fromMap(sendData).fields}");
@@ -1595,7 +1595,6 @@ class ApiWorker with ApiConstants {
     await prefs.setBool('switch_state', value);
     log('saveSwitchSate: $value');
   }
-// From here i wanted to check the API 's
   Future<Response> updateAdminCheckInOut({
     String? date,
     String? time,

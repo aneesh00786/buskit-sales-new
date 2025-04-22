@@ -847,8 +847,7 @@ class ApiService {
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
-      // "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
-      "salesman_id": '',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
       "order_type": orderType,
       "payment_type": "1",
       "start_date": startDate,
@@ -856,7 +855,7 @@ class ApiService {
       "limit": 1000,
       "page": 1,
     };
-    log("Request Body Of $requestBody");
+    log("Request Body Of fetchCustomerDashOrders $requestBody");
     try {
       final response = await dio.post(
         url,
@@ -865,11 +864,9 @@ class ApiService {
         ),
         data: requestBody,
       );
-
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.data);
+        var jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
-
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
@@ -917,7 +914,7 @@ class ApiService {
       "limit": 1000,
       "page": 1,
     };
-    log("Request Body Of $requestBody");
+    log("Request Body Of fetchCustomerDashOrderstoCart $requestBody");
     try {
       final response = await dio.post(
         url,

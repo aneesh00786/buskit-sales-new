@@ -76,16 +76,9 @@ class ProductsController extends GetxController {
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
   var showDialog = false.obs;
-  // @override
-  // onInit() {
-  //   super.onInit();
-    
-  // }
-
   void closeDialog() {
     showDialog.value = false;
   }
-
   bool onReached(bool reached) {
     isReached.value = reached;
     return isReached.value;
@@ -299,29 +292,29 @@ class ProductsController extends GetxController {
   //   return null;
   // }
 
-  Future<void> placeOrder(CartOrderModel cartOrder) async {
-    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    cartOrder.companyId = companyId;
+  // Future<void> placeOrder(CartOrderModel cartOrder) async {
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   cartOrder.companyId = companyId;
 
-    try {
-      log('Assigned companyId: ${cartOrder.companyId}');
-      log('Place Order Payloadssss: ${cartOrder.toJson()}');
+  //   try {
+  //     log('Assigned companyId: ${cartOrder.companyId}');
+  //     log('Place Order Payloadssss: ${cartOrder.toJson()}');
 
-      final response = await Dio().post(
-        "${ApiConstants.baseUrl}place_order",
-        data: cartOrder.toJson(),
-      );
+  //     final response = await Dio().post(
+  //       "${ApiConstants.baseUrl}place_order",
+  //       data: cartOrder.toJson(),
+  //     );
 
-      log('Response status code: ${response.statusCode}');
-      if (response.statusCode == 200) {
-        log('Order placed successfully: ${response.data}');
-      } else {
-        log('Failed to place order: ${response.data}');
-      }
-    } catch (e) {
-      log('Error placing order: $e');
-    }
-  }
+  //     log('Response status code: ${response.statusCode}');
+  //     if (response.statusCode == 200) {
+  //       log('Order placed successfully: ${response.data}');
+  //     } else {
+  //       log('Failed to place order: ${response.data}');
+  //     }
+  //   } catch (e) {
+  //     log('Error placing order: $e');
+  //   }
+  // }
 
   // sendDraftPruduct(BuyProductResponce buyProductResponce) async {
   //   await ApiWorker()

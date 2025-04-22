@@ -15,7 +15,8 @@ class OrderProcessInvoiceDialog extends StatefulWidget {
   SpecificOrderData? specificData;
   final int selectedTabIndex;
   final OrderController orderController;
-  OrderProcessInvoiceDialog({super.key, 
+  OrderProcessInvoiceDialog({
+    super.key,
     this.invoiceData,
     this.specificData,
     required this.selectedTabIndex,
@@ -168,6 +169,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           label: Expanded(
                             flex: 2,
                             child: Text(
+                              'DISCOUNT',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        const DataColumn(
+                          label: Expanded(
+                            flex: 2,
+                            child: Text(
                               'TAX',
                               textAlign: TextAlign.center,
                             ),
@@ -190,14 +200,43 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               (index) {
                                 return DataRow(
                                   cells: [
+                                    // DataCell(
+                                    //   SizedBox(
+                                    //     width: totalWidth * 0.2,
+                                    //     child: Text(
+                                    //       ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}'),
+                                    //       maxLines: 2,
+                                    //       overflow: TextOverflow.ellipsis,
+                                    //       style: const TextStyle(fontSize: 14),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     DataCell(
-                                      SizedBox(
-                                        width: totalWidth * 0.2,
-                                        child: Text(
-                                          ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}'),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 14),
+                                      Tooltip(
+                                        message:
+                                            "${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}",
+                                        preferBelow: false,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black87,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: SizedBox(
+                                          width: totalWidth * 0.2,
+                                          child: ProductNameWithTax(
+                                            productName: widget.invoiceData!
+                                                .cart![index].productName
+                                                .toString(),
+                                            variationName: widget.invoiceData!
+                                                .cart![index].variationName
+                                                .toString(),
+                                            isInclTax: widget.invoiceData!
+                                                    .cart![index].inclTax ==
+                                                "incl_tax",
+                                            maxWidth: totalWidth * 0.2,
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -224,6 +263,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                     ),
                                     DataCell(
                                       Center(
+                                        child: Text(
+                                          formatAmount(widget.invoiceData
+                                              ?.cart?[index].discountAmount),
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Center(
                                         child: Text(formatAmount(widget
                                             .invoiceData?.cart?[index].tax)),
                                       ),
@@ -237,19 +285,19 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                   .invoiceData!
                                                   .cart![index]
                                                   .total),
-                                              children: widget
-                                                          .invoiceData!
-                                                          .cart![index]
-                                                          .inclTax ==
-                                                      "incl_tax"
-                                                  ? [
-                                                      const TextSpan(
-                                                        text: "  (Incl. Tax)",
-                                                        style: TextStyle(
-                                                            fontSize: 10),
-                                                      ),
-                                                    ]
-                                                  : [],
+                                              // children: widget
+                                              //             .invoiceData!
+                                              //             .cart![index]
+                                              //             .inclTax ==
+                                              //         "incl_tax"
+                                              //     ? [
+                                              //         const TextSpan(
+                                              //           text: "  (Incl. Tax)",
+                                              //           style: TextStyle(
+                                              //               fontSize: 10),
+                                              //         ),
+                                              //       ]
+                                              //     : [],
                                             ),
                                             maxLines: 1,
                                           )),
@@ -262,6 +310,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               const DataRow(
                                 cells: [
                                   DataCell(Text('No items available.')),
+                                  DataCell(Text('')),
                                   DataCell(Text('')),
                                   DataCell(Text('')),
                                   DataCell(Text('')),
@@ -373,6 +422,70 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class ProductNameWithTax extends StatelessWidget {
+  final String productName;
+  final String variationName;
+  final bool isInclTax;
+  final double maxWidth;
+  final TextStyle style;
+
+  const ProductNameWithTax({
+    super.key,
+    required this.productName,
+    required this.variationName,
+    required this.isInclTax,
+    required this.maxWidth,
+    required this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final suffix = isInclTax ? ' (Incl. Tax)' : '';
+
+    final fullText = '$productName - $variationName';
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      maxLines: 2,
+      ellipsis: '...',
+    );
+
+    for (int i = fullText.length; i >= 0; i--) {
+      final truncated = fullText.substring(0, i).trimRight();
+      final span = TextSpan(
+        text: '$truncated$suffix',
+        style: style,
+      );
+      textPainter.text = span;
+      textPainter.layout(maxWidth: maxWidth);
+
+      if (!textPainter.didExceedMaxLines) {
+        return Text.rich(
+          TextSpan(
+            text: '$truncated',
+            style: style,
+            children: [
+              if (i != fullText.length) const TextSpan(text: '...'),
+              if (isInclTax)
+                TextSpan(
+                  text: suffix,
+                  style: style.copyWith(fontSize: 12),
+                ),
+            ],
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.clip,
+        );
+      }
+    }
+
+    // fallback
+    return Text(
+      suffix,
+      style: style,
     );
   }
 }

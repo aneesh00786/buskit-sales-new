@@ -305,7 +305,7 @@ void handleBackNavigation(
             draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
           );
 
-          await placeOrder(order, (statusCode, message, response) {
+          await ApiWorker().placeOrder(order, (statusCode, message, response) {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
             }

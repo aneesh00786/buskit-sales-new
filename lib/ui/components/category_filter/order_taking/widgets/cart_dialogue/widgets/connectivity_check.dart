@@ -129,7 +129,7 @@ class ConnectivityService {
             );
 
             log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
-            await placeOrder(orderPayload,
+            await ApiWorker().placeOrder(orderPayload,
                 (statusCode, message, response) async {
               if (statusCode == 200) {
                 showSyncSnackbar(
@@ -232,7 +232,7 @@ class ConnectivityService {
               transactionDate: draft['transactionDate'] ?? '',
             );
             log('[syncOfflineDrafts] Sending Place Order payload: ${orderPayload.toJson()}');
-            await placeOrder(orderPayload,
+            await ApiWorker().placeOrder(orderPayload,
                 (statusCode, message, response) async {
               if (statusCode == 200) {
                 showSyncSnackbar(

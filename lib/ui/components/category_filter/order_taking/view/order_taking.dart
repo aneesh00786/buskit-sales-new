@@ -434,7 +434,7 @@ class _OrderTakingState extends State<OrderTaking>
                     orderStatus: orderStatus,
                     draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
                   );
-                  await placeOrder(order,
+                  await apiWorker.placeOrder(order,
                       (statusCode, message, response) async {
                     CartDatabaseManager().moveCartItemsToDraft(customerId);
                     Navigator.pop(context);
@@ -604,7 +604,7 @@ class _OrderTakingState extends State<OrderTaking>
                       draftId:
                           existingDraftId.isNotEmpty ? existingDraftId : '',
                       selctedItemCount: 1);
-                  await placeOrder(order, (statusCode, message, response) {
+                  await apiWorker.placeOrder(order, (statusCode, message, response) {
                     if (statusCode == 200) {
                       showDialog(
                         context: context,

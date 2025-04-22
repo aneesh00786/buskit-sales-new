@@ -365,7 +365,7 @@ class ApiService {
     int? year,
   }) async {
     String url = '$_baseUrl1/fetchValuePerformance';
-
+    log('This function has been called fetchDashboardValuePerformanceData');
     final requestBody = {
       "month": catId,
       "time_range": "Month",
@@ -373,6 +373,7 @@ class ApiService {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
+    log('This function has been called fetchDashboardValuePerformanceData$requestBody');
 
     try {
       bool isOnline = await ConnectivityService().isOnline();
@@ -386,7 +387,7 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
           ));
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.data);
+        var jsonResponse = response.data;
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
             allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
@@ -397,7 +398,7 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allCategory);
       } else {
-        print('Request failed with status 1: ${response.statusCode}');
+        log('Request failed with status 1: ${response.statusCode}');
         handleExceptionMessage(
             response: response, apiName: "value perfromance");
         throw Exception('Failed to load data');
@@ -421,9 +422,8 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    final url = Uri.parse('$_baseUrl1/fetch_orderByRange');
+    const url = '$_baseUrl1/fetch_orderByRange';
     var sendData;
-
     switch (fetchType) {
       case "Month":
         sendData = selectedMonths;
@@ -443,7 +443,6 @@ class ApiService {
       default:
         sendData = selectedMonths;
     }
-
     final requestBody = {
       "categories_id": catId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
@@ -456,15 +455,14 @@ class ApiService {
       "limit": 1000,
       "page": 1
     };
-
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
+      final response = await dio.post(url,
+          data: requestBody,
+          options: Options(
+            headers: {'Content-Type': 'application/json'},
+          ));
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+        var jsonResponse = response.data;
         var returnResponse = jsonResponse['data'] as List;
         List<orderResponseModel.OrderData> orderData = returnResponse
             .map((e) => orderResponseModel.OrderData.fromJson(e))
@@ -473,10 +471,14 @@ class ApiService {
         return orderData;
       } else {
         print('Request failed with status 1: ${response.statusCode}');
+        handleExceptionMessage(
+            response: response, apiName: "chart salesman order data");
         throw Exception('Failed to load data');
       }
-    } catch (e) {
+    } on DioException catch (e) {
       print('Exception occurred 3: $e');
+      handleExceptionMessage(
+          response: e.response, apiName: "chart salesman order data");
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -492,9 +494,8 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    final url = Uri.parse('$_baseUrl1/fetch_SalesmanTargetByCatId');
+    const url = '$_baseUrl1/fetch_SalesmanTargetByCatId';
     dynamic sendData;
-
     switch (fetchType) {
       case "Month":
         sendData = selectedMonths;
@@ -528,26 +529,27 @@ class ApiService {
           ? year?.toString()
           : DateTime.now().year.toString(),
     };
-
-    log("Request Body: ${jsonEncode(requestBody)}");
-
+    log("Request Body: $requestBody");
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
+      final response = await dio.post(url,
+          data: requestBody,
+          options: Options(
+            headers: {'Content-Type': 'application/json'},
+          ));
 
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+        var jsonResponse = response.data;
         var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
         return parsedData.targetData ?? [];
       } else {
-        log('Request failed: ${response.statusCode} | Response: ${response.body}');
+        handleExceptionMessage(
+            response: response, apiName: "salesman terget by category");
+        log('Request failed: ${response.statusCode} | Response: ${response.data}');
         throw Exception('Failed to load data');
       }
-    } catch (e, stackTrace) {
-      log('Exception: $e\nStackTrace: $stackTrace');
+    } on DioException catch (e) {
+      handleExceptionMessage(
+          response: e.response, apiName: "salesman terget by category");
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -559,7 +561,7 @@ class ApiService {
     required String startDate,
     required String endDate,
   }) async {
-    final url = Uri.parse('$_baseUrl1/CustomerSaleByCategory');
+    final url = '$_baseUrl1/CustomerSaleByCategory';
     final requestBody = {
       'customerId': customerId,
       'catId': catId,
@@ -572,14 +574,14 @@ class ApiService {
     };
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
+      final response = await dio.post(url,
+          data: requestBody,
+          options: Options(
+            headers: {'Content-Type': 'application/json'},
+          ));
 
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+        var jsonResponse = response.data;
 
         var productDetail = jsonResponse['data'] as List;
         List<ProductDetail> allproductDetail =
@@ -591,41 +593,48 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allproductDetail);
       } else {
+        handleExceptionMessage(
+            response: response, apiName: "customer dashboard cart data");
         throw Exception('Failed to load data');
       }
-    } catch (e) {
+    }on DioException catch (e) {
+      handleExceptionMessage(
+            response: e.response, apiName: "customer dashboard cart data");
       throw Exception('Failed to fetch data: $e');
     }
   }
 
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.fetchChat}');
+    final url = '$_baseUrl${ApiConstants.fetchChat}';
     final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
     log('Request Body of Chat: $requestBody');
     try {
-      final response = await http.post(
-        url,
-        body: jsonEncode(requestBody),
-      );
+      final response = await dio.post(url,
+          data: requestBody,
+         );
       if (response.statusCode == 200) {
-        final List<dynamic> rawData = json.decode(response.body)['data'];
+        final List<dynamic> rawData = response.data['data'];
         List<SalesmanChat> salesmanChats = [];
         for (var chatList in rawData) {
           chatList.forEach((json) {
             salesmanChats.add(SalesmanChat.fromJson(json));
           });
         }
-        log('Request Body of Chat: ${response.body}');
+        log('Request Body of Chat: ${response.data}');
         return SalesmenResponse(
-          statusCode: json.decode(response.body)['status_code'],
-          status: json.decode(response.body)['status'],
-          message: json.decode(response.body)['message'],
+          statusCode: response.data['status_code'],
+          status: response.data['status'],
+          message: response.data['message'],
           data: [salesmanChats],
         );
       } else {
+        handleExceptionMessage(
+            response: response, apiName: "fetch chat data");
         throw Exception('Failed to fetch chat data - ${response.statusCode}');
       }
-    } catch (e) {
+    }on DioException catch (e) {
+      handleExceptionMessage(
+            response: e.response, apiName: "fetch chat data");
       throw Exception('Failed to fetch chat data: $e');
     }
   }
@@ -740,100 +749,107 @@ class ApiService {
     }
   }
 
-  Future<OrderResponse> fetchAllOrders({
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-    OrderStatus? orderStatus,
-    required dynamic orderType,
-  }) async {
-    final url = Uri.parse('$_baseUrl1/fetch_all_orderByRange');
-    log('FETCH_ALL_ORDER API called');
+Future<OrderResponse> fetchAllOrders({
+  String? fetchType,
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+  int? year,
+  OrderStatus? orderStatus,
+  required dynamic orderType,
+}) async {
+  const url = '$_baseUrl1/fetch_all_orderByRange';
+  log('FETCH_ALL_ORDER API called');
 
-    var sendData;
+  var sendData;
 
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths;
-        break;
-      case "Week":
-        sendData = selectedWeeks;
-        break;
-      case "Day":
-        sendData = [selectedDay];
-        break;
-      case "Year":
-        sendData = year;
-        break;
-      case "Range":
-        sendData = [startDate, endDate];
-        break;
-      default:
-        sendData = selectedMonths;
-    }
-    final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "order_type": orderType,
-      "categories_id": "",
-      "customer_id": "",
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "time_range": fetchType,
-      "selected_range": sendData,
-      "payment_type": "",
-      "year": 2025,
-      "limit": 1000,
-      "page": 1
-    };
-    log("Fetch All Orders Request : $requestBody");
+  switch (fetchType) {
+    case "Month":
+      sendData = selectedMonths;
+      break;
+    case "Week":
+      sendData = selectedWeeks;
+      break;
+    case "Day":
+      sendData = [selectedDay];
+      break;
+    case "Year":
+      sendData = year;
+      break;
+    case "Range":
+      sendData = [startDate, endDate];
+      break;
+    default:
+      sendData = selectedMonths;
+  }
 
-    final cacheKey = 'orders_$orderType';
-    final orderBox = Hive.box('fetchAllOrdersBox');
-
-    try {
-      final isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        log("Retrieving data from cache with key: $cacheKey");
-        final cachedData = orderBox.get(cacheKey);
-        if (cachedData != null) {
-          log("Cached data found: $cachedData");
-          return OrderResponse.fromJson(jsonDecode(cachedData));
-        }
-      }
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-        log('Fetch All Orders Response: $jsonResponse');
-
-        await orderBox.put(cacheKey, response.body);
-
-        return OrderResponse.fromJson(jsonResponse);
-      } else {
-        throw Exception('Failed to fetch orders - ${response.statusCode}');
-      }
-    } on SocketException {
-      log("Network error, attempting to fetch cached data for key: $cacheKey");
+  final requestBody = {
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    "order_type": orderType,
+    "categories_id": "",
+    "customer_id": "",
+    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "time_range": fetchType,
+    "selected_range": sendData,
+    "payment_type": "",
+    "year": 2025,
+    "limit": 1000,
+    "page": 1
+  };
+  log("Fetch All Orders Request : $requestBody");
+  final cacheKey = 'orders_$orderType';
+  final orderBox = Hive.box('fetchAllOrdersBox');
+  try {
+    final isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      log("Retrieving data from cache with key: $cacheKey");
       final cachedData = orderBox.get(cacheKey);
       if (cachedData != null) {
-        log("Using cached data after network failure: $cachedData");
-        return OrderResponse.fromJson(jsonDecode(cachedData));
-      } else {
-        throw Exception('Network error, and no cached data is available.');
+        log("Cached data found: $cachedData");
+        final convertedData = localStorage.castToStringDynamic(cachedData as Map<dynamic, dynamic>);
+        log("Converted cached data: $convertedData");
+        return OrderResponse.fromJson(convertedData);
       }
-    } catch (e) {
-      log('Unexpected error occurred: $e');
-      throw Exception('Unexpected error occurred: $e');
     }
+
+    final response = await dio.post(
+      url,
+      options: Options(
+        headers: {'Content-Type': 'application/json'},
+      ),
+      data: requestBody,
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = response.data;
+      log('Fetch All Orders Response: $jsonResponse');
+      await orderBox.put(cacheKey, jsonResponse);
+      return OrderResponse.fromJson(jsonResponse);
+    } else {
+      handleExceptionMessage(response: response, apiName: "fetch all order by range");
+      throw Exception('Failed to fetch orders - ${response.statusCode}');
+    }
+  } on SocketException {
+    errorSnackbar("Socket Error: Failed to fetch chat");
+    log("Network error, attempting to fetch cached data for key: $cacheKey");
+
+    final cachedData = orderBox.get(cacheKey);
+    if (cachedData != null) {
+      final convertedData = localStorage.castToStringDynamic(cachedData as Map<dynamic, dynamic>);
+      log("Using cached data after network failure: $convertedData");
+      return OrderResponse.fromJson(convertedData);
+    } else {
+      throw Exception('Network error, and no cached data is available.');
+    }
+  } on DioException catch (e) {
+    handleExceptionMessage(response: e.response, apiName: "fetch all order by range");
+    log('Unexpected error occurred: $e');
+    throw Exception('Unexpected error occurred: $e');
   }
+}
+
 
   Future<OrderResponse> fetchCustomerDashOrders({
     required String cusId,
@@ -847,7 +863,7 @@ class ApiService {
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId??'',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": orderType,
       "payment_type": "1",
       "start_date": startDate,
@@ -925,7 +941,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.data);
+        var jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
 
         Pagination pagination =
@@ -955,31 +971,31 @@ class ApiService {
     }
   }
 
-  Future<void> changeOrderStatus(
-      String orderId, OrderStatus orderStatus) async {
-    String orderStatusString = '';
-    orderStatusString = orderStatus.type.toString();
-    final requestBody = {'order_id': orderId, 'status': orderStatusString};
+  // Future<void> changeOrderStatus(
+  //     String orderId, OrderStatus orderStatus) async {
+  //   String orderStatusString = '';
+  //   orderStatusString = orderStatus.type.toString();
+  //   final requestBody = {'order_id': orderId, 'status': orderStatusString};
 
-    try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl${ApiConstants.changeOrderStatus}'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(requestBody),
-      );
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('$_baseUrl${ApiConstants.changeOrderStatus}'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //       body: jsonEncode(requestBody),
+  //     );
 
-      if (response.statusCode == 200) {
-        // Successful status change
-      } else {
-        // Handle other status codes if needed
-      }
-    } catch (e) {
-      // Handle network errors or exceptions
-      throw Exception('Failed to update order status: $e');
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       // Successful status change
+  //     } else {
+  //       // Handle other status codes if needed
+  //     }
+  //   } catch (e) {
+  //     // Handle network errors or exceptions
+  //     throw Exception('Failed to update order status: $e');
+  //   }
+  // }
 
   Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
     final url = '$_baseUrl${ApiConstants.adminOnPopUp}';
@@ -1626,11 +1642,8 @@ class ApiService {
     required String salesmanId,
   }) async {
     final url = Uri.parse('$_baseUrl${ApiConstants.addCustomer}');
-
     try {
       var request = http.MultipartRequest('POST', url);
-
-      // Add fields to the multipart request
       request.fields['fullname'] = model.fullname;
       request.fields['email'] = model.email;
       request.fields['mobileno'] = model.mobileno;
@@ -1644,8 +1657,6 @@ class ApiService {
       request.fields['oldimage_url'] = 'a';
       request.fields['salesman_id'] = salesmanId;
       request.fields['status_type'] = '3';
-
-      // Add adminProfilePicture as a file part
       var fileStream = http.ByteStream(adminProfilePicture.openRead());
       var length = await adminProfilePicture.length();
       var multipartFile = http.MultipartFile(
@@ -1655,10 +1666,7 @@ class ApiService {
         filename: adminProfilePicture.path.split('/').last,
       );
       request.files.add(multipartFile);
-
-      // Send the request
       var response = await http.Response.fromStream(await request.send());
-
       if (response.statusCode == 200) {
       } else {
         throw Exception('Failed to update admin details');
@@ -1668,45 +1676,45 @@ class ApiService {
     }
   }
 
-  Future<CategoryResponse> fetchCategories() async {
-    const String url = '${ApiConstants.baseUrl}fetch_categories?company_id=1';
-    // '$_baseUrl/fetch_categories?company_id=1';
+  // Future<CategoryResponse> fetchCategories() async {
+  //   const String url = '${ApiConstants.baseUrl}fetch_categories?company_id=1';
+  //   // '$_baseUrl/fetch_categories?company_id=1';
 
-    try {
-      final response = await http.get(Uri.parse(url));
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
 
-      // Check for a successful response
-      if (response.statusCode == 200) {
-        // Parse the JSON response
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+  //     // Check for a successful response
+  //     if (response.statusCode == 200) {
+  //       // Parse the JSON response
+  //       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
-        // Convert JSON to CategoryResponse object
-        return CategoryResponse.fromJson(jsonResponse);
-      } else {
-        throw Exception('Failed to load categories');
-      }
-    } catch (e) {
-      // Handle any errors
-      //this is the error we get
-      throw Exception('Error fetching categories: $e');
-    }
-  }
+  //       // Convert JSON to CategoryResponse object
+  //       return CategoryResponse.fromJson(jsonResponse);
+  //     } else {
+  //       throw Exception('Failed to load categories');
+  //     }
+  //   } catch (e) {
+  //     // Handle any errors
+  //     //this is the error we get
+  //     throw Exception('Error fetching categories: $e');
+  //   }
+  // }
 
-  Future<ApiResponseModel> fetchProductData() async {
-    // const String url = '$_baseUrl/fetch_product?company_id=1';
-    const String url = '${ApiConstants.baseUrl}fetch_products?company_id=1';
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        return ApiResponseModel.fromJson(jsonResponse);
-      } else {
-        throw Exception('Failed to load data');
-      }
-    } catch (e) {
-      throw Exception('Failed to load data: $e');
-    }
-  }
+  // Future<ApiResponseModel> fetchProductData() async {
+  //   // const String url = '$_baseUrl/fetch_product?company_id=1';
+  //   const String url = '${ApiConstants.baseUrl}fetch_products?company_id=1';
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> jsonResponse = json.decode(response.body);
+  //       return ApiResponseModel.fromJson(jsonResponse);
+  //     } else {
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Failed to load data: $e');
+  //   }
+  // }
 }
 
 class DashboardProvider with ChangeNotifier {
@@ -2369,17 +2377,17 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
-    try {
-      await _apiService.changeOrderStatus(orderId, newStatus);
-      //fetchOrders();
-      fetchData();
-      notifyListeners(); // Notify listeners after successful update
-    } catch (e) {
-      // Handle errors or exceptions
-      throw Exception('Failed to update order status: $e');
-    }
-  }
+  // Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
+  //   try {
+  //     await _apiService.changeOrderStatus(orderId, newStatus);
+  //     //fetchOrders();
+  //     fetchData();
+  //     notifyListeners(); // Notify listeners after successful update
+  //   } catch (e) {
+  //     // Handle errors or exceptions
+  //     throw Exception('Failed to update order status: $e');
+  //   }
+  // }
 
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();

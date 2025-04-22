@@ -72,7 +72,7 @@ class CustomerCartData {
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
             discountPrice: json['discount'] as String?,
-           // totalPrice: json['total'] as int?,
+            // totalPrice: json['total'] as int?,
             setOrderId: json['cart_id'] as String?,
             setCustomerDetails: json['customer'] != null
                 ? CustomerDetails.fromJson((json['customer'] as List).first)
@@ -126,6 +126,7 @@ class CustomerCart {
   String? cartId;
   int? quantity;
   String? discount;
+  String? discountAmount;
   dynamic total;
   dynamic totalAmount;
   CustomerDetails? customerDetails;
@@ -134,45 +135,47 @@ class CustomerCart {
   String? salesmanReason;
   String? inclTax;
 
-  CustomerCart(
-      {this.id,
-      this.productId,
-      this.brandname,
-      this.productName,
-      this.description,
-      this.reasonBySalesman,
-      this.imageUrl,
-      this.status,
-      this.scid,
-      this.variationId,
-      this.variationName,
-      this.unitType,
-      this.price,
-      this.tax,
-      this.taxName,
-      this.packtype,
-      this.packType,
-      this.pieces,
-      this.stock,
-      this.lowstock,
-      this.fullstock,
-      this.createdAt,
-      this.updatedAt,
-      this.cartId,
-      this.salesmanReason,
-      this.quantity,
-      this.discount,
-      this.total,
-      this.totalAmount,
-      this.orderId,
-      this.customerDetails,
-      this.inclTax,
-      });
+  CustomerCart({
+    this.id,
+    this.productId,
+    this.brandname,
+    this.productName,
+    this.description,
+    this.reasonBySalesman,
+    this.imageUrl,
+    this.status,
+    this.scid,
+    this.variationId,
+    this.variationName,
+    this.unitType,
+    this.price,
+    this.tax,
+    this.taxName,
+    this.packtype,
+    this.packType,
+    this.pieces,
+    this.stock,
+    this.lowstock,
+    this.fullstock,
+    this.createdAt,
+    this.updatedAt,
+    this.cartId,
+    this.salesmanReason,
+    this.quantity,
+    this.discount,
+    this.discountAmount,
+    this.total,
+    this.totalAmount,
+    this.orderId,
+    this.customerDetails,
+    this.inclTax,
+  });
 
   CustomerCart.fromJson(
     Map<String, dynamic> json, {
     // int? totalPrice,
     String? discountPrice,
+    String? discountAmount,
     String? setOrderId,
     CustomerDetails? setCustomerDetails,
     OptionOrderData? setOptionOrderData,
@@ -191,7 +194,7 @@ class CustomerCart {
     unitType = json['unitType'];
     price = json['price'];
     // ;
-    tax = num.tryParse(json['tax'].toString())??0;
+    tax = num.tryParse(json['tax'].toString()) ?? 0;
     taxName = json['tax_name'];
     packtype = json['packtype'];
     packType = json['packType'];
@@ -205,6 +208,7 @@ class CustomerCart {
     quantity = json['quantity'];
     salesmanReason = json['reason'] ?? '';
     discount = discountPrice;
+    discountAmount = discountAmount;
     // total = totalPrice;
     total = json['total_price'];
     totalAmount = json['total_amount'];
@@ -477,6 +481,7 @@ class CustomerDetails {
     return json;
   }
 }
+
 class CartOrderModel {
   String? customerId;
   String? salesmanId;
@@ -485,7 +490,7 @@ class CartOrderModel {
   int? companyId;
   String? paymentType;
   double? orderPrice;
-  String? transactionNumber; 
+  String? transactionNumber;
   String? transactionDate;
   String? paymentDetail;
   String? draftId;
@@ -514,9 +519,12 @@ class CartOrderModel {
       orderStatus: json['order_status'],
       companyId: json['companyId'],
       paymentType: json['payment_type'],
-      orderPrice: json['order_price']?.toDouble(), // Convert to double if needed
-      transactionNumber: json['cheque_number'] ?? json['transaction_number'], // Handle either key
-      transactionDate: json['cheque_date'] ?? json['transaction_date'], // Handle either key
+      orderPrice:
+          json['order_price']?.toDouble(), // Convert to double if needed
+      transactionNumber: json['cheque_number'] ??
+          json['transaction_number'], // Handle either key
+      transactionDate:
+          json['cheque_date'] ?? json['transaction_date'], // Handle either key
       paymentDetail: json['payment_detail'],
       draftId: json['draft_id'],
       selctedItemCount: json['item_count'],
@@ -533,18 +541,17 @@ class CartOrderModel {
       'payment_type': paymentType,
       'order_price': orderPrice,
       if (transactionNumber != null)
-        paymentType == "1" ? 'cheque_number' : 'transaction_number': transactionNumber,
+        paymentType == "1" ? 'cheque_number' : 'transaction_number':
+            transactionNumber,
       if (transactionDate != null)
-        paymentType == "1" ? 'cheque_date' : 'transaction_date': transactionDate,
+        paymentType == "1" ? 'cheque_date' : 'transaction_date':
+            transactionDate,
       'payment_detail': paymentDetail,
-      'draft_id':draftId,
-      'item_count':selctedItemCount,
+      'draft_id': draftId,
+      'item_count': selctedItemCount,
     };
   }
 }
-
-
-
 
 class BuyProductResponce {
   String customerId;

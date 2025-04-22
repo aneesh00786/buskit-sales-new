@@ -5,6 +5,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -1657,7 +1658,7 @@ class CartDialogueState extends State<CartDialogue> {
             draftId: draftId.isNotEmpty ? draftId : '',
           );
 
-          await placeOrder(order, (statusCode, message, response) {
+          await ApiWorker().placeOrder(order, (statusCode, message, response) {
             Navigator.pop(context);
             if (statusCode == 200) {
               _clearCartItem(itemList, customerId);
@@ -2212,35 +2213,4 @@ class CartTextFields extends StatelessWidget {
   }
 }
 
-Future<void> placeOrder(
-  CartOrderModel cartOrder,
-  Function(int statusCode, String message, Map<String, dynamic>? responseData)
-      onResponse,
-) async {
-  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  cartOrder.companyId = companyId;
-  try {
-    log('Assigned companyId: ${cartOrder.companyId}');
-    log('Place Order Payload: ${cartOrder.toJson()}');
-    final response = await Dio().post(
-      "${ApiConstants.baseUrl}place_order",
-      data: cartOrder.toJson(),
-    );
-    log('Response status code: ${response.statusCode}');
-    if (response.statusCode == 200) {
-      log('Order placed successfully: ${response.data}');
-      onResponse(
-          200, 'Your order has been successfully placed.', response.data);
-    } else {
-      log('Failed to place order: ${response.data}');
-      onResponse(
-        response.statusCode ?? 500,
-        'Failed to place your order.',
-        response.data,
-      );
-    }
-  } catch (e) {
-    log('Error placing order: $e');
-    onResponse(500, 'An error occurred while placing the order.', null);
-  }
-}
+

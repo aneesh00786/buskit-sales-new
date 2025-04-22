@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.da
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
   final int selectedTabIndex;
@@ -805,92 +806,87 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         statusColor = Colors.grey;
     }
 
-    return
-        orderData.optionOrderData?.orderStatus == 14
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: IntrinsicHeight(
-                    child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      padding: const EdgeInsets.only(top: 5),
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(15.0)),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomText(
-                              content:
-                                  orderData.optionOrderData?.orderStatus != null
-                                      ? OrderHandlingClass.fromType(orderData
-                                              .optionOrderData!.orderStatus!)
-                                          .name
-                                      : 'Unknown',
-                              fontSize: 11.0,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            if (orderData.optionOrderData?.orderStatus ==
-                                14) ...[
-                              const SizedBox(height: 3),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                        color: Colors.blue,
-                                        child: const Center(
-                                          child: Text(
-                                            'Quick Sale',
-                                            style: TextStyle(
-                                                color: white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 10),
-                                          ),
-                                        )),
-                                  ),
-                                ],
-                              )
-                            ]
-                          ],
-                        ),
-                      ),
-                    ),
+    return orderData.optionOrderData?.orderStatus == 14
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: IntrinsicHeight(
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  padding: const EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                   ),
-                ),
-              )
-            : Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(0.0),
-                  child: IntrinsicHeight(
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: orderData.optionOrderData?.orderStatus != null
-                            ? statusColor
-                            : Colors.grey,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(15.0)),
-                      ),
-                      child: Center(
-                        child: CustomText(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomText(
                           content: orderData.optionOrderData?.orderStatus !=
                                   null
                               ? OrderHandlingClass.fromType(
                                       orderData.optionOrderData!.orderStatus!)
                                   .name
                               : 'Unknown',
-                          fontSize: 11,
-                          textAlign: TextAlign.center,
+                          fontSize: 11.0,
                           fontWeight: FontWeight.w600,
                         ),
-                      ),
+                        if (orderData.optionOrderData?.orderStatus == 14) ...[
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    color: Colors.blue,
+                                    child: const Center(
+                                      child: Text(
+                                        'Quick Sale',
+                                        style: TextStyle(
+                                            color: white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10),
+                                      ),
+                                    )),
+                              ),
+                            ],
+                          )
+                        ]
+                      ],
                     ),
                   ),
                 ),
-              );
+              ),
+            ),
+          )
+        : Center(
+            child: Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: IntrinsicHeight(
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: orderData.optionOrderData?.orderStatus != null
+                        ? statusColor
+                        : Colors.grey,
+                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+                  ),
+                  child: Center(
+                    child: CustomText(
+                      content: orderData.optionOrderData?.orderStatus != null
+                          ? OrderHandlingClass.fromType(
+                                  orderData.optionOrderData!.orderStatus!)
+                              .name
+                          : 'Unknown',
+                      fontSize: 11,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
   }
 
   Widget viewOrder(OrderController orderController, OrderData orderData) {
@@ -943,7 +939,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               }
             } catch (e) {
               Get.back();
-              Get.snackbar('Error', e.toString());
+              // Get.snackbar('Error', e.toString());
             }
           }
         },

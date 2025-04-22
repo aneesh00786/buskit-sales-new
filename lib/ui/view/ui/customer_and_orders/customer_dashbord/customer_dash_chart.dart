@@ -421,14 +421,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               double padding = availableWidth / 100;
                               double fixedIconSize = fontSize;
                               double flexWidth = availableWidth / 10;
-
                               return Stack(
                                 children: [
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
+                                       scrollDirection: Axis.horizontal,
                                         controller: _scrollController1,
                                         child: SizedBox(
                                           width: fullScreenWidth(context) > 640
@@ -439,6 +438,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                               : fullScreenHeight(context) * 0.7,
                                           child: SingleChildScrollView(
                                             child: DataTable(
+                                          
                                               dataRowHeight: fontSize * 5.5,
                                               headingRowHeight:
                                                   fullScreenWidth(context) > 740
@@ -1081,7 +1081,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         children: [
                                           Expanded(
                                             child: DataTable(
-                                                dataRowHeight: fontSize * 5.5,
+                                                dataRowHeight: 0,
                                                 headingRowHeight:
                                                     fullScreenWidth(context) >
                                                             740
@@ -1787,7 +1787,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                       children: [
                                         Expanded(
                                           child: DataTable(
-                                              dataRowHeight: fontSize * 5.5,
+                                              dataRowHeight: 0,
                                               headingRowHeight: 45,
                                               headingRowColor:
                                                   const WidgetStatePropertyAll(

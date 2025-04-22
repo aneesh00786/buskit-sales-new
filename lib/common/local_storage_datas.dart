@@ -19,22 +19,15 @@ class LocalStorage {
     if (cachedData == null) {
       throw Exception('No cached data available');
     }
-
     try {
       log('Fetched cached data from Hive: $cachedData');
-
-      // Ensure the data format is correct
       final castedData = castToStringDynamic(cachedData);
       if (castedData == null || castedData.isEmpty) {
         throw Exception('Cached data is null or improperly formatted.');
       }
-
-      // Initialize response lists
       List<CustomerModelxx> customers = [];
       List<OrderTotalxx> orderTotal = [];
       List<YearsListOfAll> yearList = [];
-
-      // Parse data
       if (castedData['data'] is List) {
         customers = (castedData['data'] as List)
             .map((json) => CustomerModelxx.fromJson(json))
@@ -280,5 +273,34 @@ class LocalStorage {
     final cachedData = ordersBox.get(cacheKey);
     final castedData = LocalStorage().castToStringDynamic(cachedData);
     return OrderResponce.fromJson(castedData);
+  }
+
+  storedWeekelyTypeData(Box<dynamic> weeklyTypeBox, String cacheKey) {
+    try {
+      if (weeklyTypeBox.containsKey(cacheKey)) {
+        final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
+        log("Weekly Type fetched from Hive345: $cachedWeeklyType");
+        return cachedWeeklyType;
+      } else {
+        log("No cached Weekly Type data found for key: $cacheKey");
+      }
+    } catch (e) {
+      log("Error accessing cached Weekly Type data: $e");
+    }
+  }
+
+  storedSalesmanValueTarget(Box<dynamic> targetBox, cacheKey) {
+    try {
+      if (targetBox.containsKey(cacheKey)) {
+        final cachedData = targetBox.get(cacheKey);
+        final convertedData = castToStringDynamic(cachedData);
+        return SalesmanValueTargetResponse.fromJson(convertedData);
+      } else {
+        errorSnackbar("No salesman value target cached data available");
+        log("No cached data available for Salesman Value Target.");
+      }
+    } catch (e) {
+      log("Error accessing cached Salesman Value Target data: $e");
+    }
   }
 }

@@ -1138,6 +1138,7 @@ class ApiWorker with ApiConstants {
           "companyId": companyId,
           "salesman_id": salesmanId,
         };
+        log('Get RECENTORD$requestData');
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.getRecentOrder}',
           data: requestData,
@@ -1167,20 +1168,34 @@ class ApiWorker with ApiConstants {
     String? orderId,
     int? orderStatus,
   }) async {
-    final response = await dio
-        .postbycustom(
-      ApiConstants.orderProcessInvoice,
-      data: FormData.fromMap({
+    try {
+      final requestBody = {
         "order_id": orderId,
         "order_status": orderStatus,
         "companyId": companyId,
-      }),
-    )
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return OrderProcessInvoice.fromJson(response.data);
+      };
+      log('Request data order Invoice: $requestBody');
+      final response = await dio1.post(
+        "${ApiConstants.baseUrl}${ApiConstants.orderProcessInvoice}",
+        data: FormData.fromMap(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        return OrderProcessInvoice.fromJson(response.data);
+      } else {
+        handleExceptionMessage(
+            response: response, apiName: "order processing invoice");
+        throw Exception('Failed to fetch order process invoice data.');
+      }
+    } on DioException catch (e) {
+      handleExceptionMessage(
+          response: e.response, apiName: "order processing invoice");
+      throw DioExceptionHandler.fromDioError(e);
+    } catch (e) {
+      log('An unexpected error occurred: $e');
+      throw Exception(
+          'An unexpected error occurred while fetching order process invoice data.');
+    }
   }
 
   // Future<FetchSpecificOrderInvoice> fetchSpecificOrder(String orderId) async {
@@ -1201,6 +1216,7 @@ class ApiWorker with ApiConstants {
   Future<OrderProcessInvoice> loadWaitingForApproval({
     String? orderId,
   }) async {
+    log("this function has been called");
     final response = await dio
         .postbycustom(
       ApiConstants.waitingForApproval,
@@ -1357,71 +1373,35 @@ class ApiWorker with ApiConstants {
   }
 
   Future<String?> getWeeklyType() async {
-    log('Weekely Function has been called');
     const cacheKey = 'weekly_type';
     final weeklyTypeBox = Hive.box('weeklyTypeBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-      log('Weekely Function has been called$isOnline');
+      final requestBody = {"companyId": companyId};
       if (isOnline) {
-        final response = await dio.postbycustom(
-          ApiConstants.getWeekelyType,
-          data: FormData.fromMap({
-            "companyId": companyId,
-          }),
+        final response = await dio1.post(
+          "${ApiConstants.baseUrl}${ApiConstants.getWeekelyType}",
+          data: FormData.fromMap(requestBody),
         );
-        if (response.data is Map<String, dynamic> &&
+        if (response.statusCode == 200 &&
+            response.data is Map<String, dynamic> &&
             response.data.containsKey('data')) {
           final weeklyType = response.data['data'].toString();
-          log("Weekly Type fetched from API: $weeklyType");
           await weeklyTypeBox.put(cacheKey, weeklyType);
-          log("Weekly Type saved to Hive with key: $cacheKey");
           return weeklyType;
         } else {
-          log("Unexpected response format: ${response.data}");
-          throw Exception("Unexpected response format");
-        }
-      } else {
-        log("Offline mode: Fetching Weekly Type from Hive.");
-        try {
-          if (weeklyTypeBox.containsKey(cacheKey)) {
-            final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
-            log("Weekly Type fetched from Hive345: $cachedWeeklyType");
-            return cachedWeeklyType;
-          } else {
-            log("No cached Weekly Type data found for key: $cacheKey");
-          }
-        } catch (e) {
-          log("Error accessing cached Weekly Type data: $e");
+          handleExceptionMessage(response: response, apiName: "weekly type");
+          throw Exception("Unexpected API response for Weekly Type");
         }
       }
-    } catch (error) {
-      try {
-        if (weeklyTypeBox.containsKey(cacheKey)) {
-          final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
-
-          log("Weekly Type fetched from Hive: $cachedWeeklyType");
-          return cachedWeeklyType;
-        } else {
-          log("No cached Weekly Type data found for key: $cacheKey");
-        }
-      } catch (e) {
-        log("Error accessing cached Weekly Type data: $e");
-      }
-    }
-    try {
-      if (weeklyTypeBox.containsKey(cacheKey)) {
-        final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
-        log("Weekly Type fetched from Hive: $cachedWeeklyType");
-        return cachedWeeklyType;
-      } else {
-        log("No cached Weekly Type data found for key: $cacheKey");
-      }
+    } on DioException catch (e) {
+      handleExceptionMessage(response: e.response, apiName: "weekly type");
     } catch (e) {
-      log("Error accessing cached Weekly Type data: $e");
+      log("Unexpected error while fetching Weekly Type: $e");
     }
-
-    return null;
+    final cachedWeeklyType =
+        localStorage.storedWeekelyTypeData(weeklyTypeBox, cacheKey);
+    return cachedWeeklyType;
   }
 
   Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
@@ -1433,63 +1413,68 @@ class ApiWorker with ApiConstants {
       if (month != null) "month": month,
       "companyId": isFromLogin ?? false ? compid : companyId,
     };
-    log('This function has been called fetchSalesmanValueTarget');
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
     final targetBox = Hive.box('salesmanValueTargetBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-      log('Gone inside to try');
-      log('Gone inside to try$isOnline');
       if (isOnline) {
-        final response = await dio
-            .postbycustom(
+        final response = await dio.postbycustom(
           ApiConstants.fetchSalesmanValueTarget,
           data: requestPayload,
-        )
-            .onError((DioException error, stackTrace) {
-          log(error.toString());
-          throw DioExceptionHandler.fromDioError(error);
-        });
-        log("Salesman Value Target Response: $response");
-        if (response.statusCode == 200) {
-          final dynamic jsonData = response.data;
-          if (jsonData is Map<String, dynamic>) {
-            log("Salesman Value Target Data: $jsonData");
+        );
+        if (response.statusCode == 200 &&
+            response.data is Map<String, dynamic>) {
+          final jsonData = response.data;
+          log("Salesman Value Target fetched from API: $jsonData");
+          if (jsonData != null && jsonData is Map<String, dynamic>) {
             await targetBox.put(cacheKey, jsonData);
+            log("Salesman Value Target data saved to Hive with key: $cacheKey");
             return SalesmanValueTargetResponse.fromJson(jsonData);
           } else {
-            log("Unexpected response format from API");
+            log("Invalid data format received from API. Data not cached.");
           }
         } else {
-          log("Failed to fetch value target data: ${response.statusCode}${response.statusMessage}");
+          log("Failed to fetch Salesman Value Target data: ${response.statusCode}, ${response.statusMessage}");
         }
-      } else {
-        log("Offline mode: Fetching value target data from Hive for key: $cacheKey");
-      }
-    } on DioException catch (dioError) {
-      log("Dio error occurred2: ${dioError.message}");
-    } catch (e) {
-      log("Unexpected error occurred Salesman Value Target: $e");
-    }
-    try {
-      if (targetBox.containsKey(cacheKey)) {
-        log("Using cached data for key123: $cacheKey");
-        final cachedData = targetBox.get(cacheKey);
-        log('Cached Data of another weeekely:$cachedData');
-        if (cachedData is Map<String, dynamic>) {
-          return SalesmanValueTargetResponse.fromJson(cachedData);
-        } else {
-          log("Cached data format is invalid.");
-        }
-      } else {
-        log("No cached data available for key: $cacheKey");
       }
     } catch (e) {
-      log("Error accessing cached data: $e");
+      log("Error while fetching Salesman Value Target from API: $e");
     }
 
+    // Fallback to Hive
+
     return null;
+  }
+
+  Future<void> placeOrder(
+    CartOrderModel cartOrder,
+    Function(int statusCode, String message, Map<String, dynamic>? responseData)
+        onResponse,
+  ) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    cartOrder.companyId = companyId;
+    try {
+      log('Assigned companyId: ${cartOrder.companyId}');
+      log('Place Order Payload: ${cartOrder.toJson()}');
+      final response = await Dio().post(
+        "${ApiConstants.baseUrl}place_order",
+        data: cartOrder.toJson(),
+      );
+      log('Response status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        log('Order placed successfully: ${response.data}');
+        onResponse(
+            200, 'Your order has been successfully placed.', response.data);
+      } else {
+        log('Failed to place order: ${response.data}');
+        handleExceptionMessage(response: response, apiName: "place order");
+      }
+    } on DioException catch (e) {
+      handleExceptionMessage(response: e.response, apiName: "place order");
+      log('Error placing order: $e');
+      onResponse(500, 'An error occurred while placing the order.', null);
+    }
   }
 
   Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
@@ -1522,6 +1507,8 @@ class ApiWorker with ApiConstants {
               return SalesmanTargetTableResponse.fromJson(jsonData);
             }
           } else {
+            handleExceptionMessage(
+                response: response, apiName: "salesman target");
             log("API Error: ${response.statusCode} ${response.statusMessage}");
           }
         } catch (apiError) {
@@ -1541,7 +1528,8 @@ class ApiWorker with ApiConstants {
           log("No cached data available for key: $cacheKey");
         }
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      handleExceptionMessage(response: e.response, apiName: "salesman target");
       log("Unexpected error during fetch: $e");
       try {
         if (targetBox.containsKey(cacheKey)) {
@@ -1582,6 +1570,7 @@ class ApiWorker with ApiConstants {
       log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
       return StaffTimesheetResponse.fromJson(response.data);
     } on DioException catch (error) {
+      handleExceptionMessage(response: error.response, apiName: "time sheet");
       log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
       throw DioExceptionHandler.fromDioError(error);
     } catch (e) {

@@ -35,15 +35,15 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
         nkMediumSizeBox(),
         const Spacer(),
         InkResponse(
-            onTap: () {
-              Get.dialog(CartDiloagScreen(
-                productsController: productsController,
-              )).then((value) async {
-                await productsController.loadSelectedCustomer(
-                    customerOrderDetailsController
-                        .customerAndOrderData.value.customerId!);
-              });
-            },
+            // onTap: () {
+            //   Get.dialog(CartDiloagScreen(
+            //     productsController: productsController,
+            //   )).then((value) async {
+            //     await productsController.loadSelectedCustomer(
+            //         customerOrderDetailsController
+            //             .customerAndOrderData.value.customerId!);
+            //   });
+            // },
             child: const Icon(Icons.shopping_cart_outlined)),
         nkMediumSizeBox(),
         topHeadingCustomerSection(

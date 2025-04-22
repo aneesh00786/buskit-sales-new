@@ -742,16 +742,14 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<LeadResponce> getLeadsData(String salesManId,
-      {PaginationModel? paginationModel}) async {
+  Future<LeadResponce> getLeadsData(int currentPage) async {
     final requestData = FormData.fromMap({
-      "page": paginationModel?.currentPage.toInt(),
-      "limit": paginationModel?.limit.toInt(),
+      "page": currentPage,
+      "limit": 10,
       "salesman_id": salesmanId,
       "companyId": companyId,
     });
-    final cacheKey =
-        'leads_data_${salesManId}_${paginationModel?.currentPage ?? ''}';
+    final cacheKey = 'leads_data_${salesmanId}_$currentPage';
     final leadsBox = await Hive.openBox('leadsBox');
     bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
@@ -782,9 +780,8 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<LeadResponce> getLeadsRejectedData(
-      {PaginationModel? paginationModel}) async {
-    final cacheKey = 'leads_rejected_${paginationModel?.currentPage ?? ''}';
+  Future<LeadResponce> getLeadsRejectedData(int currentPage) async {
+    final cacheKey = 'leads_rejected_$currentPage';
     final leadsBox = await Hive.openBox('leadsRejectBox');
     bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
@@ -792,8 +789,8 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.fetchRejectedLeads}',
           data: FormData.fromMap({
-            "page": paginationModel?.currentPage ?? "",
-            "limit": paginationModel?.limit ?? '',
+            "page": currentPage,
+            "limit": 10,
             "salesman_id": salesmanId,
             "companyId": companyId,
           }),
@@ -1595,6 +1592,7 @@ class ApiWorker with ApiConstants {
     await prefs.setBool('switch_state', value);
     log('saveSwitchSate: $value');
   }
+
   Future<Response> updateAdminCheckInOut({
     String? date,
     String? time,
@@ -1686,10 +1684,8 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<LeadResponce> getLeadsCustomerData(String salesManId,
-      {PaginationModel? paginationModel}) async {
-    final cacheKey =
-        'leads_customer_${salesManId}_${paginationModel?.currentPage ?? ''}';
+  Future<LeadResponce> getLeadsCustomerData(int currentPage) async {
+    final cacheKey = 'leads_customer_${salesmanId}_$currentPage';
     final leadsBox = await Hive.openBox('leadsCustomerBox');
     bool isOnline = await ConnectivityService().isOnline();
     log('Has Internet: $isOnline');
@@ -1699,9 +1695,9 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCustomer}',
           data: FormData.fromMap({
-            "page": paginationModel?.currentPage ?? 1,
-            "limit": paginationModel?.limit ?? 10,
-            "salesman_id": salesManId,
+            "page": currentPage,
+            "limit": 10,
+            "salesman_id": salesmanId,
             "companyId": companyId,
           }),
         );

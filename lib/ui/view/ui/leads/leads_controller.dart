@@ -14,14 +14,20 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+
 enum CustomerStatus { newReq, assignedTo, rejected }
+
 class LeadsController extends GetxController {
-  RxInt selectedTabIndex = 0.obs; 
+  RxInt selectedTabIndex = 0.obs;
   RxList<LeadCustomerData> leadsCustomerDataList = <LeadCustomerData>[].obs;
   RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
+
+  RxInt totalPages = 1.obs;
+  RxInt currentPage = 1.obs;
+
   RxInt selectAllocateSalesman = 0.obs;
- TextEditingController businessNameController = TextEditingController();
+  TextEditingController businessNameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController townController = TextEditingController();
   TextEditingController stateController = TextEditingController();
@@ -64,9 +70,11 @@ class LeadsController extends GetxController {
     selectedTabIndex.value = newIndex;
     // loadOrderData(chartIndex: newIndex);
   }
+
   void deleteLead(int id) {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
+
   Future updateLeads(LeadCustomerData leadData) async {
     var data = await ApiWorker()
         .updateCustomer(leadData.toUpdateJson())
@@ -81,7 +89,8 @@ class LeadsController extends GetxController {
       Get.back<LeadCustomerData>(result: leadData);
     }
   }
-    Future<Map<String, dynamic>> addLeadsMapData() async {
+
+  Future<Map<String, dynamic>> addLeadsMapData() async {
     Map<String, dynamic> data = {
       "userid": "SALES1",
       "businessname": businessNameController.text.trim(),
@@ -147,15 +156,15 @@ class LeadsController extends GetxController {
     Get.back();
     loadLeadsCustomerData;
   }
+
   RxBool isLeadsCustomerDataLoading = false.obs;
   Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
     isLeadsCustomerDataLoading.value = true;
     try {
-      final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
       var data = await ApiWorker().getLeadsData(
-        salesmanId,
-        paginationModel: PaginationModel(),
+        currentPage.value
       );
+      totalPages.value = data.pagination?.totalPages ?? 0;
       leadsCustomerDataList.assignAll(data.leadCustomerData!);
       return data.leadCustomerData!;
     } catch (e) {
@@ -254,5 +263,27 @@ class LeadsController extends GetxController {
   void deleteLeads(String customerId) {
     ApiWorker().deleteCustomer(customerId);
     loadLeadsCustomerData;
+  }
+
+  void goToPreviousPage() {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+
+      loadLeadsCustomerData;
+    }
+  }
+
+  void goToNextPage() {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
+      loadLeadsCustomerData;
+    }
+  }
+
+  void goToPage(int page) {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page;
+      loadLeadsCustomerData;
+    }
   }
 }

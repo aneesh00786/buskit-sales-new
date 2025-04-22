@@ -7,12 +7,14 @@ class LeadResponce {
   bool? status;
   String? message;
   List<LeadCustomerData>? leadCustomerData;
+    LeadsPagination? pagination;
 
   LeadResponce({
     this.statusCode,
     this.status,
     this.message,
     this.leadCustomerData,
+        this.pagination,
   });
 
   LeadResponce.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class LeadResponce {
         ?.map(
             (dynamic e) => LeadCustomerData.fromJson(e as Map<String, dynamic>))
         .toList();
+        pagination = LeadsPagination.fromJson(json["pagination"]);
   }
 
   Map<String, dynamic> toJson() {
@@ -141,4 +144,29 @@ class LeadCustomerData {
     json['customer_id'] = customerId;
     return json;
   }
+}
+
+class LeadsPagination {
+  int totalRecord;
+  int totalPages;
+  int perPage;
+
+  LeadsPagination({
+    required this.totalRecord,
+    required this.totalPages,
+    required this.perPage,
+  });
+
+  factory LeadsPagination.fromJson(Map<String, dynamic> json) =>
+      LeadsPagination(
+        totalRecord: int.tryParse(json["total_record"].toString()) ?? 0,
+        totalPages: int.tryParse(json["total_pages"].toString()) ?? 0,
+        perPage: int.tryParse(json["per_page"].toString()) ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        "total_record": totalRecord,
+        "total_pages": totalPages,
+        "per_page": perPage,
+      };
 }

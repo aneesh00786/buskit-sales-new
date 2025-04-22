@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_pagination/leads_customer_pagination.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     double fixedRowHeight = isLandscape
         ? MediaQuery.of(context).size.height / 10.09
         : MediaQuery.of(context).size.height / 10 -
-            MediaQuery.of(context).size.height * 0.032;
+            MediaQuery.of(context).size.height * 0.018;
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
       borderRadius: 0,
@@ -64,17 +65,33 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
           width: 270,
           child: Column(
             children: [
-              _buildTableHeader1(
-                Center(
-                  child: CustomText(
-                    content: "Customers",
-                    textAlign: TextAlign.center,
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+              Row(
+                children: [
+                  _buildTableHeader1(
+                    Center(
+                      child: CustomText(
+                        content: "Sl.No.",
+                        textAlign: TextAlign.center,
+                        fontSize: 12.5,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    60,
                   ),
-                ),
-                270,
+                  _buildTableHeader1(
+                    Center(
+                      child: CustomText(
+                        content: "Customers",
+                        textAlign: TextAlign.center,
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    210,
+                  ),
+                ],
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -99,6 +116,16 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
+                              SizedBox(
+                                width: 60,
+                                child: CustomText(
+                                  content:
+                                      '   ${((widget.leadsCustomerController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                               Expanded(
                                 flex: 2,
                                 child: Row(
@@ -149,6 +176,15 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                   ),
                 ),
               ),
+              if (widget.leadsCustomerController.totalPages.value > 1)
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  height: 50,
+                  color: Colors.grey[200],
+                  child: Row(
+                    children: [LeadsCustomerPaginationWidget(), const Spacer()],
+                  ),
+                ),
             ],
           ),
         ),
@@ -188,6 +224,12 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                             ),
                           ),
                         ),
+                        if (widget.leadsCustomerController.totalPages.value > 1)
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      height: 50,
+                      color: Colors.grey[200],
+                    ),
                 ],
               ),
             ),

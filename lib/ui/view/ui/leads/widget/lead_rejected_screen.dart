@@ -108,13 +108,11 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                         .map((entry) {
                       int index = entry.key;
                       LeadCustomerData leadCustomerData = entry.value;
-    
+
                       return Container(
                         height: fixedRowHeight,
                         decoration: BoxDecoration(
-                       
-                          color:
-                              index.isEven ? Colors.grey[50] : Colors.white,
+                          color: index.isEven ? Colors.grey[50] : Colors.white,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -211,21 +209,20 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                             physics: const ClampingScrollPhysics(),
                             controller: vertical1,
                             child: Column(
-                              children: widget.rejectedLeadsController
-                                  .rejectedLeadsDataList
+                              children: widget
+                                  .rejectedLeadsController.rejectedLeadsDataList
                                   .asMap()
                                   .entries
                                   .map((entry) {
                                 int index = entry.key;
-                                LeadCustomerData leadCustomerData =
-                                    entry.value;
-                                return _buildTableRow(leadCustomerData,
-                                    context, index, fixedRowHeight);
+                                LeadCustomerData leadCustomerData = entry.value;
+                                return _buildTableRow(leadCustomerData, context,
+                                    index, fixedRowHeight);
                               }).toList(),
                             ),
                           ),
                         ),
-                        if (widget.rejectedLeadsController.totalPages.value > 1)
+                  if (widget.rejectedLeadsController.totalPages.value > 1)
                     Container(
                       padding: const EdgeInsets.all(3),
                       height: 50,
@@ -286,18 +283,44 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.address ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.town ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.state ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.zipcode.toString(),),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.businessNo ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.email ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.fullname ?? '',),
-          LeadTableText(leadCustomerData: leadCustomerData,content: leadCustomerData.mobileno ?? '',),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.address ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.town ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.state ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.zipcode.toString(),
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.businessNo ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.email ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.fullname ?? '',
+          ),
+          LeadTableText(
+            leadCustomerData: leadCustomerData,
+            content: leadCustomerData.mobileno ?? '',
+          ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 10,right: 10),
-              child: LeadsRejectedStatusSelect(customerId: leadCustomerData.id!.toInt(),),
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: LeadsRejectedStatusSelect(
+                customerId: leadCustomerData.id!.toInt(),
+              ),
             ),
           )
         ],

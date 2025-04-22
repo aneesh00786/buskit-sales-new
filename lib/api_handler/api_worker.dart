@@ -882,18 +882,27 @@ class ApiWorker with ApiConstants {
 
   Future<Response> handleLeadStatus(
       int? customerId, String? statusResponce) async {
-    final response = await dio
-        .postbycustom(ApiConstants.handleLeads,
-            data: FormData.fromMap({
-              "customer_id": customerId,
-              "status": statusResponce,
-              "companyId": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
+    try {
+      log('This function has been called handleLeadStatus');
+      final response = await dio1.post(
+        "${ApiConstants.baseUrl}${ApiConstants.handleLeads}",
+        data: FormData.fromMap({
+          "customer_id": customerId,
+          "status": statusResponce,
+          "companyId": companyId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        errorSnackbar('Failed to change lead status');
+        throw Exception('Failed to change lead status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      log('Error in handleLeadStatus: $e');
+      handleExceptionMessage(response: e.response, apiName: "Handle lead");
+      throw Exception('Error in handleLeadStatus: $e');
+    }
   }
 
   // Future<TodayTasksResponse> getTodaySchedule(

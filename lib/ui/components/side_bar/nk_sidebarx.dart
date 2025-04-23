@@ -392,16 +392,13 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
       if (status.isGranted) {
         return true;
       } else {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Location permission denied')),
         );
         return false;
       }
     } else if (status.isPermanentlyDenied) {
-      // Show dialog to open settings
       bool? openSettings = await showDialog<bool>(
-        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Permission Required'),
@@ -425,13 +422,11 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
       return openSettings ?? false;
     }
 
-    return true; // Already granted
+    return true; 
   }
 
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !_onSwitchSelected;
-
-    // Show confirmation dialog
     bool? confirmAction = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -454,7 +449,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     );
 
     if (confirmAction == true) {
-      // ignore: use_build_context_synchronously
       if (!await _handleLocationPermission(context)) {
         return;
       }
@@ -465,10 +459,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 
       try {
         Position position = await Geolocator.getCurrentPosition(
-          // ignore: deprecated_member_use
           desiredAccuracy: LocationAccuracy.high,
         );
-
         final response = await ApiWorker().updateAdminCheckInOut(
           date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
           time: DateFormat('HH:mm').format(DateTime.now()),
@@ -476,7 +468,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
           lat: position.latitude.toString(),
           long: position.longitude.toString(),
         );
-
         if (response.statusCode == 200) {
           await ApiWorker().saveSwitchState(newState);
 

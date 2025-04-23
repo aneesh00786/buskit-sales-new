@@ -51,7 +51,7 @@ class CalenderMapController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    requestLocationPermission();
+    //requestLocationPermission();
   }
 
   void initializeCheckedList(

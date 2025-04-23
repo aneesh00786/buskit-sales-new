@@ -75,12 +75,12 @@ class SessionHelper {
   Future<void> clearAll() async {
     await SessionManager.clearData();
     loginSavedData = null;
-    loginSavedData?.salesmanId == null;
+    settingsData = null;
     isLoggedIn.value = false;
+    log('All session data cleared.');
   }
-
   Future<void> clearSettingsData() async {
-    await SessionManager.clearData();
+    await SessionManager.deleteData(SpString.settingsKey);
     settingsData = null;
     log('Settings data cleared.');
   }

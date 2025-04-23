@@ -114,6 +114,7 @@ class LoginController extends GetxController {
         Get.to(() => SplashScreen(message: "Logging in..."),
             transition: Transition.fade);
         await SessionHelper().setLoginData(loginResponce!.data!);
+        log('Login Data ${loginResponce!.data!.createdToken}');
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         log("Fetching settings after login...");
@@ -170,6 +171,7 @@ class LoginController extends GetxController {
           log("No subcategory found. Products not fetched.");
         }
         Get.offAllNamed(AppRoutes.home);
+        
         return true;
       } else {
         return _handleLoginError(loginResponce);

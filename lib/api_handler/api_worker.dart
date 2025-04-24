@@ -100,11 +100,21 @@ class ApiWorker with ApiConstants {
       'email': email,
       'password': password,
     };
+
     try {
-      final response = await dio1.post(
+      final response = await dio1
+          .post(
         '${ApiConstants.baseUrl}${ApiConstants.login}',
         data: data,
-      );
+      )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(
+              path: '${ApiConstants.baseUrl}${ApiConstants.login}'),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
+
       if (response.data != null) {
         final status = response.data['status'];
         final message = response.data['message'] ?? 'No message available';
@@ -123,9 +133,20 @@ class ApiWorker with ApiConstants {
         return null;
       }
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Login Timeout Error: $error");
+        errorSnackbar(
+            "Request timed out. Please check your internet connection.");
+        return LoginResponce(
+          status: false,
+          message: 'Request timed out. Please check your internet connection.',
+          statusCode: null,
+        );
+      }
       final errorData = error.response?.data;
       int statusCode = error.response?.statusCode ?? 0;
-      String message = errorData?['message'];
+      String message = errorData?['message'] ?? 'An error occurred';
       handleExceptionMessage(response: error.response, apiName: "login");
       return LoginResponce(
         status: false,
@@ -148,12 +169,31 @@ class ApiWorker with ApiConstants {
       'salesman_id': salesmanId,
     };
     try {
-      final response = await dio1.post(
+      final response = await dio1
+          .post(
         "${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCount}",
         data: requestData,
+      )
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path: "${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCount}"),
+            type: DioExceptionType.connectionTimeout,
+          );
+        },
       );
       return LeadsCountData.fromJson(response.data);
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(response: error.response, apiName: "leads count");
       return Future.error('No data available leads count');
     }
@@ -170,6 +210,16 @@ class ApiWorker with ApiConstants {
           data: {
             "compay_id": "$companyId",
           },
+        ).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            throw DioException(
+              requestOptions: RequestOptions(
+                  path:
+                      "${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}"),
+              type: DioExceptionType.connectionTimeout,
+            );
+          },
         );
         log("Fetch Settings URL: ${ApiConstants.baseUrl}${ApiConstants.fetchAllSetting}");
         List<dynamic> dataList = response.data['data'] ?? [];
@@ -182,9 +232,17 @@ class ApiWorker with ApiConstants {
         );
         await SessionHelper().setSettingsData(settingsList);
         return settingsList;
-      } on DioException catch (dioError) {
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         handleExceptionMessage(
-            response: dioError.response, apiName: "settings");
+            response: error.response, apiName: "settings");
         return localStorage.storedSettingsData(settingsBox, cacheKey);
       } catch (e) {
         log("Error fetching settings: $e");
@@ -212,7 +270,16 @@ class ApiWorker with ApiConstants {
         "month": monthName,
         "status_of_tile": tabStatus,
       };
-      Response response = await dio1.post(apiUrl, data: requestPayload);
+      Response response = await dio1
+          .post(apiUrl, data: requestPayload)
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(
+              path:
+                  '${ApiConstants.baseUrl}${ApiConstants.salesmanDashNavContent}'),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
       } else {
@@ -220,9 +287,17 @@ class ApiWorker with ApiConstants {
             response: response, apiName: "salesman dash nav content");
         return null;
       }
-    } on DioException catch (dioError) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(
-          response: dioError.response, apiName: "salesman dash nav content");
+          response: error.response, apiName: "salesman dash nav content");
       return null;
     } catch (e) {
       log("Unexpected Error: $e");
@@ -248,10 +323,17 @@ class ApiWorker with ApiConstants {
     final cacheKey = 'performance_data_${salesmanId}_${year}_$monthName';
     final performanceBox = Hive.box('performanceBox');
     try {
-      Response response = await dio1.post(
+      Response response = await dio1
+          .post(
         apiUrl,
         data: requestPayload,
-      );
+      )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(path: apiUrl),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = response.data['data'];
         log('Performance Response: $jsonData');
@@ -261,9 +343,17 @@ class ApiWorker with ApiConstants {
         log("Failed to load data: ${response.statusCode} ${response.statusMessage}");
         return localStorage.storedPerfromanceData(performanceBox, cacheKey);
       }
-    } on DioException catch (dioError) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(
-          response: dioError.response, apiName: "perfromance");
+          response: error.response, apiName: "perfromance");
       return localStorage.storedPerfromanceData(performanceBox, cacheKey);
     } catch (e) {
       log("Error fetching salesman Performance: $e");
@@ -291,7 +381,14 @@ class ApiWorker with ApiConstants {
               return true;
             },
           ),
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.fetchSpecificOrder}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         log('Order Id :$orderId');
         if (response.statusCode == 200) {
           return FetchSpecificOrderInvoice.fromJson(response.data);
@@ -302,6 +399,14 @@ class ApiWorker with ApiConstants {
         }
       }
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       final handledError = DioExceptionHandler.fromDioError(error);
       handleExceptionMessage(
           response: error.response, apiName: "specific order invoice");
@@ -334,13 +439,21 @@ class ApiWorker with ApiConstants {
       bool isOnline = await ConnectivityService().isOnline();
       if (isOnline) {
         log('This function has been calledsss');
-        final response = await dio1.post(
+        final response = await dio1
+            .post(
           "${ApiConstants.baseUrl}${ApiConstants.fetchcustomer}",
           data: FormData.fromMap({
             "company_id": companyId,
             "salesman_id": salesmanId,
           }),
-        );
+        )
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path: '${ApiConstants.baseUrl}${ApiConstants.fetchcustomer}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         if (response.statusCode == 200) {
           log('This function has been calledsss');
           final customerData = CustomerAndOrderResponce.fromJson(response.data);
@@ -364,6 +477,14 @@ class ApiWorker with ApiConstants {
         }
       }
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(response: error.response, apiName: "get customer");
       return Future.error(
           'Failed to fetch customer data From API Worker: $error');
@@ -383,14 +504,31 @@ class ApiWorker with ApiConstants {
     final cacheKey = 'recent_order_count_${startDate ?? ''}_${endDate ?? ''}';
     if (isOnline) {
       try {
-        final response = await dio1.post(
+        final response = await dio1
+            .post(
           "${ApiConstants.baseUrl}${ApiConstants.recentOrderCount}",
           data: requestData,
-        );
+        )
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.recentOrderCount}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         var orderCountBox = await Hive.openBox('orderCountBox');
         await orderCountBox.put(cacheKey, response.data);
         return RecentOrderCountResponse.fromJson(response.data);
       } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         handleExceptionMessage(
             response: error.response, apiName: "recent order");
         log('API Error: ${error.response?.data}');
@@ -427,10 +565,18 @@ class ApiWorker with ApiConstants {
     sendData['companyId'] = companyId;
     log('[addToCart] Request Data: ${sendData.toString()}');
     try {
-      final response = await dio1.post(
+      final response = await dio1
+          .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToCart}",
         data: FormData.fromMap(sendData),
-      );
+      )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(
+              path: '${ApiConstants.baseUrl}${ApiConstants.addToCart}'),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
       if (response.statusCode == 200) {
         if (response.data['cart_id'] == null) {
           log('[addToCart] Cart ID is null in response.');
@@ -443,10 +589,18 @@ class ApiWorker with ApiConstants {
         log('[addToCart] Unexpected status code: ${response.statusCode}');
         return null;
       }
-    } on DioException catch (e) {
-      handleExceptionMessage(response: e.response, apiName: "add to cart");
-      log('[addToCart] Exception: $e');
-      return Future.error(DioExceptionHandler.fromDioError(e));
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      handleExceptionMessage(response: error.response, apiName: "add to cart");
+      log('[addToCart] Exception: $error');
+      return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }
 
@@ -454,10 +608,18 @@ class ApiWorker with ApiConstants {
     sendData['companyId'] = companyId;
     log('[addToDraft] Request Data: ${sendData.toString()}');
     try {
-      final response = await dio1.post(
+      final response = await dio1
+          .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToDraft}",
         data: FormData.fromMap(sendData),
-      );
+      )
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(
+              path: '${ApiConstants.baseUrl}${ApiConstants.addToDraft}'),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
       if (response.statusCode == 200) {
         if (response.data['cart_id'] == null) {
           log('[addToDraft] Cart ID is null in response.');
@@ -470,10 +632,18 @@ class ApiWorker with ApiConstants {
         log('[addToDraft] Unexpected status code: ${response.statusCode}');
         return null;
       }
-    } on DioException catch (e) {
-      handleExceptionMessage(response: e.response, apiName: "add to draft");
-      log('[addToCart] Exception: $e');
-      return Future.error(DioExceptionHandler.fromDioError(e));
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      handleExceptionMessage(response: error.response, apiName: "add to draft");
+      log('[addToCart] Exception: $error');
+      return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }
 
@@ -592,12 +762,26 @@ class ApiWorker with ApiConstants {
         final response = await dio1.get(
           '${ApiConstants.baseUrl}${ApiConstants.fetchcategories}',
           queryParameters: {"company_id": companyId},
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path: '${ApiConstants.baseUrl}${ApiConstants.fetchcategories}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         final category = CategoryModel.fromJson(response.data);
         final box = await Hive.openBox('categoriesBox');
         await box.put('categoryItem', category.toJson());
         return category;
       } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         log("to This Exception");
         handleExceptionMessage(
             response: error.response, apiName: "product category");
@@ -614,10 +798,18 @@ class ApiWorker with ApiConstants {
     if (isOnline) {
       try {
         final requestParams = {"company_id": companyId};
-        final response = await dio1.get(
+        final response = await dio1
+            .get(
           '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}',
           queryParameters: requestParams,
-        );
+        )
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path: '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         if (response.statusCode == 200 && response.data['data'] is List) {
           for (var item in response.data['data']) {
             if (item['product'] is List) {
@@ -634,8 +826,16 @@ class ApiWorker with ApiConstants {
         } else {
           errorSnackbar("Failed to fetch Products from the API");
         }
-      } on DioException catch (e) {
-        handleExceptionMessage(response: e.response, apiName: "products");
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+        handleExceptionMessage(response: error.response, apiName: "products");
       }
     } else {
       log('No internet. Fetching from Hive...');
@@ -660,7 +860,15 @@ class ApiWorker with ApiConstants {
         "companyId": companyId,
         "salesman_id": salesmanId,
       };
-      Response response = await dio1.post(url, data: requestPayload);
+      Response response = await dio1
+          .post(url, data: requestPayload)
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw DioException(
+          requestOptions: RequestOptions(
+              path: '${ApiConstants.baseUrl}${ApiConstants.fetchAllDiscount}'),
+          type: DioExceptionType.connectionTimeout,
+        );
+      });
       if (response.statusCode == 200) {
         if (response.data is Map<String, dynamic> &&
             response.data['data'] is List<dynamic>) {
@@ -679,9 +887,17 @@ class ApiWorker with ApiConstants {
       } else {
         errorSnackbar(response.statusMessage ?? '');
       }
-    } on DioException catch (e) {
-      handleExceptionMessage(response: e.response, apiName: "discount");
-      log('Error occurred while fetching discounts: $e');
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      handleExceptionMessage(response: error.response, apiName: "discount");
+      log('Error occurred while fetching discounts: $error');
     }
   }
 
@@ -753,7 +969,14 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.fetchLeads}',
           data: requestData,
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.fetchLeads}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         if (response.statusCode == 200) {
           await leadsBox.put(cacheKey, response.data);
           return LeadResponce.fromJson(response.data);
@@ -761,8 +984,16 @@ class ApiWorker with ApiConstants {
           handleExceptionMessage(response: response, apiName: "leads");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
-      } on DioException catch (dioError) {
-        handleExceptionMessage(response: dioError.response, apiName: "leads");
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+        handleExceptionMessage(response: error.response, apiName: "leads");
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
     } else {
@@ -790,7 +1021,14 @@ class ApiWorker with ApiConstants {
             "salesman_id": salesmanId,
             "companyId": companyId,
           }),
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.fetchRejectedLeads}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
 
         if (response.statusCode == 200) {
           await leadsBox.put(cacheKey, response.data);
@@ -799,9 +1037,17 @@ class ApiWorker with ApiConstants {
           handleExceptionMessage(response: response, apiName: "rejected leads");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
-      } on DioException catch (dioError) {
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         handleExceptionMessage(
-            response: dioError.response, apiName: "rejected leads");
+            response: error.response, apiName: "rejected leads");
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
     } else {}
@@ -828,7 +1074,14 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.getEvent}',
           data: FormData.fromMap(sendData),
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.getEvent}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         final castedResponse =
             LocalStorage().castToStringDynamic(response.data);
         if (castedResponse['data'] is List) {
@@ -841,8 +1094,16 @@ class ApiWorker with ApiConstants {
           log('Unexpected response format: $castedResponse');
           return [];
         }
-      } on DioException catch (e) {
-        handleExceptionMessage(response: e.response, apiName: "calender event");
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+        handleExceptionMessage(response: error.response, apiName: "calender event");
       }
     } else {
       // NkCommonFunction.showErrorSnakBar(
@@ -887,17 +1148,32 @@ class ApiWorker with ApiConstants {
           "status": statusResponce,
           "companyId": companyId,
         }),
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.handleLeads}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
       if (response.statusCode == 200) {
         return response;
       } else {
         errorSnackbar('Failed to change lead status');
         throw Exception('Failed to change lead status: ${response.statusCode}');
       }
-    } on DioException catch (e) {
-      log('Error in handleLeadStatus: $e');
-      handleExceptionMessage(response: e.response, apiName: "Handle lead");
-      throw Exception('Error in handleLeadStatus: $e');
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      log('Error in handleLeadStatus: $error');
+      handleExceptionMessage(response: error.response, apiName: "Handle lead");
+      throw Exception('Error in handleLeadStatus: $error');
     }
   }
 
@@ -1025,7 +1301,14 @@ class ApiWorker with ApiConstants {
       final response = await dio1.post(
         '${ApiConstants.baseUrl}${ApiConstants.fetchPendingPayments}',
         data: FormData.fromMap(requestData),
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.fetchPendingPayments}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
       log("API Response: ${response.data}");
       if (response.statusCode == 200 && response.data != null) {
         await pendingPaymentBox.put(cacheKey, response.data);
@@ -1035,9 +1318,17 @@ class ApiWorker with ApiConstants {
         return localStorage.storedPendingPaymentData(
             pendingPaymentBox, cacheKey);
       }
-    } on DioException catch (dioError) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(
-          response: dioError.response, apiName: "pending payments");
+          response: error.response, apiName: "pending payments");
       return localStorage.storedPendingPaymentData(pendingPaymentBox, cacheKey);
     } catch (e) {
       final isOnline = await ConnectivityService().isOnline();
@@ -1064,7 +1355,14 @@ class ApiWorker with ApiConstants {
             return true;
           },
         ),
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.getAllPendingPaymentIndividuals}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
       if (response.statusCode == 200) {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
@@ -1072,6 +1370,14 @@ class ApiWorker with ApiConstants {
         return Future.error('API Error: ${response.statusCode}');
       }
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       final handledError = DioExceptionHandler.fromDioError(error);
       handleExceptionMessage(
           response: error.response, apiName: "pending payments");
@@ -1138,10 +1444,25 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           '${ApiConstants.baseUrl}${ApiConstants.getRecentOrder}',
           data: requestData,
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.getRecentOrder}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         await ordersBox.put(cacheKey, response.data);
         return OrderResponce.fromJson(response.data);
       } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         handleExceptionMessage(
             response: error.response, apiName: "recent orders");
         if (ordersBox.containsKey(cacheKey)) {
@@ -1174,7 +1495,14 @@ class ApiWorker with ApiConstants {
       final response = await dio1.post(
         "${ApiConstants.baseUrl}${ApiConstants.orderProcessInvoice}",
         data: FormData.fromMap(requestBody),
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.orderProcessInvoice}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
 
       if (response.statusCode == 200) {
         return OrderProcessInvoice.fromJson(response.data);
@@ -1183,10 +1511,18 @@ class ApiWorker with ApiConstants {
             response: response, apiName: "order processing invoice");
         throw Exception('Failed to fetch order process invoice data.');
       }
-    } on DioException catch (e) {
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
       handleExceptionMessage(
-          response: e.response, apiName: "order processing invoice");
-      throw DioExceptionHandler.fromDioError(e);
+          response: error.response, apiName: "order processing invoice");
+      throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
       log('An unexpected error occurred: $e');
       throw Exception(
@@ -1378,7 +1714,14 @@ class ApiWorker with ApiConstants {
         final response = await dio1.post(
           "${ApiConstants.baseUrl}${ApiConstants.getWeekelyType}",
           data: FormData.fromMap(requestBody),
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.getWeekelyType}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
         if (response.statusCode == 200 &&
             response.data is Map<String, dynamic> &&
             response.data.containsKey('data')) {
@@ -1390,8 +1733,16 @@ class ApiWorker with ApiConstants {
           throw Exception("Unexpected API response for Weekly Type");
         }
       }
-    } on DioException catch (e) {
-      handleExceptionMessage(response: e.response, apiName: "weekly type");
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      handleExceptionMessage(response: error.response, apiName: "weekly type");
     } catch (e) {
       log("Unexpected error while fetching Weekly Type: $e");
     }
@@ -1456,7 +1807,14 @@ class ApiWorker with ApiConstants {
       final response = await Dio().post(
         "${ApiConstants.baseUrl}place_order",
         data: cartOrder.toJson(),
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}place_order'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
       log('Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
         log('Order placed successfully: ${response.data}');
@@ -1466,9 +1824,17 @@ class ApiWorker with ApiConstants {
         log('Failed to place order: ${response.data}');
         handleExceptionMessage(response: response, apiName: "place order");
       }
-    } on DioException catch (e) {
-      handleExceptionMessage(response: e.response, apiName: "place order");
-      log('Error placing order: $e');
+    } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
+      handleExceptionMessage(response: error.response, apiName: "place order");
+      log('Error placing order: $error');
       onResponse(500, 'An error occurred while placing the order.', null);
     }
   }
@@ -1694,7 +2060,14 @@ class ApiWorker with ApiConstants {
             "salesman_id": salesmanId,
             "companyId": companyId,
           }),
-        );
+        ).timeout(const Duration(seconds: 10), onTimeout: () {
+          throw DioException(
+            requestOptions: RequestOptions(
+                path:
+                    '${ApiConstants.baseUrl}${ApiConstants.fetchLeadsCustomer}'),
+            type: DioExceptionType.connectionTimeout,
+          );
+        });
 
         if (response.statusCode == 200) {
           log('Response Body Fetch Leads Customer: ${response.data}');
@@ -1705,10 +2078,18 @@ class ApiWorker with ApiConstants {
           handleExceptionMessage(response: response, apiName: "leads customer");
           return localStorage.storedLeadsData(leadsBox, cacheKey);
         }
-      } on DioException catch (dioError) {
+      } on DioException catch (error) {
+        if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        log("Fetch Leads Count Timeout: $error");
+        errorSnackbar('Request timed out. Please check your internet connection and try again.');
+        return Future.error(
+          'Request timed out. Please check your internet connection and try again.',
+        );
+      }
         handleExceptionMessage(
-            response: dioError.response, apiName: "leads customer");
-        log('Error fetching data from API: ${dioError.response?.statusCode ?? 0}');
+            response: error.response, apiName: "leads customer");
+        log('Error fetching data from API: ${error.response?.statusCode ?? 0}');
         return localStorage.storedLeadsData(leadsBox, cacheKey);
       }
     } else {

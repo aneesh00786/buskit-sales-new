@@ -969,7 +969,7 @@ class TopTotalWidget extends StatelessWidget {
                           const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Sale',
+                              'Sales',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.white,
@@ -1068,7 +1068,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Delivery',
+                        'Deliveries',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1082,7 +1082,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Payment',
+                        'Payments',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1096,7 +1096,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Booking',
+                        'Bookings',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1110,7 +1110,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Estimate',
+                        'Estimates',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1124,7 +1124,7 @@ class TopTotalWidget extends StatelessWidget {
                     ),
                     _buildTableHeader(
                       const Text(
-                        'Draft',
+                        'Drafts',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1167,7 +1167,7 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       const Center(
                         child: Text(
-                          'SE',
+                          'Staff',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white,

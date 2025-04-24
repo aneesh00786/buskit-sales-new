@@ -1255,7 +1255,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue.shade900,
-                                        'Booking : ${formatAmount(paymentCompleted)}',
+                                        'Bookings : ${formatAmount(paymentCompleted)}',
                                       ),
                                     ),
                                     const SizedBox(width: 10),
@@ -1273,7 +1273,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue,
-                                        'Order : ${formatAmount(remaCompleted)}',
+                                        'Orders : ${formatAmount(remaCompleted)}',
                                       ),
                                     ),
                                   ],

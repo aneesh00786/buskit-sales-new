@@ -138,11 +138,11 @@ void showRevenueChartDialog(
                                               showValueDialog(
                                                   context,
                                                   categoryPerformance,
-                                                  'Pre-Order');
+                                                  'Booking');
                                             },
                                             child: _buildLegendItem(
                                               const Color(0xff1d3d63),
-                                              'Pre-Order : ${formatAmount(bookingRevenueLength)}',
+                                              'Bookings : ${formatAmount(bookingRevenueLength)}',
                                             ),
                                           ),
                                           InkWell(
@@ -152,7 +152,7 @@ void showRevenueChartDialog(
                                             },
                                             child: _buildLegendItem(
                                               Colors.blue,
-                                              'Order : ${formatAmount(orderRevenueLast)}',
+                                              'Orders : ${formatAmount(orderRevenueLast)}',
                                             ),
                                           ),
                                         ],

@@ -89,7 +89,7 @@ void showDetailedOrderDialog(
                               ),
                               Text(
                                 orderData.customer.isNotEmpty
-                                    ? 'Salesman : ${orderData.customer[0].salesmanName}'
+                                    ? 'Staff : ${orderData.customer[0].salesmanName}'
                                     : 'N/A',
                               ),
                             ],

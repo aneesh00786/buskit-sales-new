@@ -81,7 +81,7 @@ void showDetailedCustomerOrderDialog(BuildContext context, OrdersDash order) {
                             ),
                             Text(
                               order.customer.isNotEmpty
-                                  ? 'Salesman : ${order.customer[0].salesmanName}'
+                                  ? 'Staff : ${order.customer[0].salesmanName}'
                                   : 'N/A',
                             ),
                           ],

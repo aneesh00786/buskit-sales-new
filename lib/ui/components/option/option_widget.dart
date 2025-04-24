@@ -158,7 +158,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           BuildContext context, DashboardProvider provider) =>
       [
         OptionData(
-            title: 'Order',
+            title: 'Orders',
             count: widget.orderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardShoppingCart,
             svgBgColor: const Color.fromARGB(255, 229, 242, 254),
@@ -168,7 +168,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               _showOrderStatusDialog(context, provider, OrderStatus.delivered);
             }),
         OptionData(
-            title: 'Estimate',
+            title: 'Estimates',
             count: widget.eastimatesCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardEstimates,
             svgBgColor: const Color.fromARGB(255, 226, 249, 243),
@@ -179,7 +179,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   context, provider, OrderStatus.estimates, 'Estimate', false);
             }),
         OptionData(
-            title: 'Booking',
+            title: 'Bookings',
             count: widget.preOrderCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardPreOrder,
             svgBgColor: const Color.fromARGB(255, 230, 247, 251),
@@ -190,7 +190,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   context, provider, OrderStatus.preOrder, 'Booking', false);
             }),
         OptionData(
-            title: 'Draft',
+            title: 'Drafts',
             count: widget.draftCount?.toString() ?? "0",
             svg: Assets.iconsIcDashboardDraft,
             svgBgColor: const Color.fromARGB(255, 255, 227, 255),
@@ -2004,13 +2004,13 @@ class _OptionWidgetState extends State<OptionWidget> {
   //   Future<void> _initializeCustomerData(CustomerDash customer) async {
   String _getCountForTitle(String title, OrderCountListt? orderCountList) {
     switch (title.toLowerCase()) {
-      case 'order':
+      case 'orders':
         return orderCountList?.totalOrder.toString() ?? "0";
-      case 'estimate':
+      case 'estimates':
         return orderCountList?.estimateOrder.toString() ?? "0";
-      case 'booking':
+      case 'bookings':
         return orderCountList?.preorderOrder.toString() ?? "0";
-      case 'draft':
+      case 'drafts':
         return orderCountList?.draftOrder.toString() ?? "0";
       case 'cancelled':
         return orderCountList?.cancelOrder.toString() ?? "0";

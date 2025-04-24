@@ -82,7 +82,7 @@ void showDetailedOrderInvoiceDialog(
                             Text(
                                 'Phone : ${orderInvoiceData.mobileno ?? 'N/A'}'),
                             Text(
-                                'Salesman : ${orderInvoiceData.salesmanName ?? 'N/A'}'),
+                                'Staff : ${orderInvoiceData.salesmanName ?? 'N/A'}'),
                           ],
                         ),
                         if (invoice) ...[

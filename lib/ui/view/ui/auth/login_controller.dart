@@ -176,7 +176,7 @@ class LoginController extends GetxController {
       } else {
         return _handleLoginError(loginResponce);
       }
-    } catch (e) {
+    } on DioException catch (e) {
       _handleException(e);
       return false;
     }

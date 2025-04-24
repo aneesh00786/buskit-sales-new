@@ -946,7 +946,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         },
                                         child: _buildLegendItem(
                                           const Color(0xff1d3d63),
-                                          'Booking : ${formatAmount(bookingRevenueLength)}',
+                                          'Bookings : ${formatAmount(bookingRevenueLength)}',
                                         ),
                                       ),
                                       nkSmallSizeBox(),
@@ -957,7 +957,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                         },
                                         child: _buildLegendItem(
                                           Colors.blue,
-                                          'Order : ${formatAmount(orderRevenueLast)}',
+                                          'Orders : ${formatAmount(orderRevenueLast)}',
                                         ),
                                       ),
                                     ],

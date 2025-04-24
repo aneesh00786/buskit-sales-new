@@ -108,7 +108,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               ("Phone :   ${widget.invoiceData?.mobileNo}"),
                             ),
                             Text(
-                              ("Salesman :   ${widget.invoiceData?.salesmanName}"),
+                              ("Staff :   ${widget.invoiceData?.salesmanName}"),
                             ),
                           ],
                         ),

@@ -157,7 +157,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           CustomersProvider provider, OrderDataas orderCountList) =>
       [
         OptionData(
-          title: 'Order',
+          title: 'Orders',
           count: orderCountList.totalOrder.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
@@ -171,7 +171,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Estimate',
+          title: 'Estimates',
           count: orderCountList.estimateOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
@@ -186,7 +186,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Booking',
+          title: 'Bookings',
           count: orderCountList.preorderOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
@@ -201,7 +201,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Draft',
+          title: 'Drafts',
           count: orderCountList.draftOrder.toString(),
           svg: Assets.iconsIcDashboardDraft,
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
@@ -313,13 +313,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
 
   String _getCountForTitle(String title, OrderDataas orderCountList) {
     switch (title.toLowerCase()) {
-      case 'order':
+      case 'orders':
         return orderCountList.totalOrder.toString();
-      case 'estimate':
+      case 'estimates':
         return orderCountList.estimateOrder.toString();
-      case 'booking':
+      case 'bookings':
         return orderCountList.preorderOrder.toString();
-      case 'draft':
+      case 'drafts':
         return orderCountList.draftOrder.toString();
       case 'cancelled':
         return orderCountList.cancelOrder.toString();

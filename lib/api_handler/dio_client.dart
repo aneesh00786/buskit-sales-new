@@ -23,6 +23,9 @@ class DioClient with ApiConstants {
     return _dio;
   }
 
+
+
+
   Future<Response> postbycustom<T>(
     String path, {
     data,
@@ -48,35 +51,6 @@ class DioClient with ApiConstants {
       return Future.error(e);
     }
   }
-
-  // Future<Response> postbycustom<T>(
-  //   String path, {
-  //   data,
-  //   Map<String, dynamic>? queryParameters,
-  //   Options? options,
-  //   bool showErrorSnakBar = true,
-  //   CancelToken? cancelToken,
-  //   ProgressCallback? onSendProgress,
-  //   ProgressCallback? onReceiveProgress,
-  // }) async {
-  //   try {
-  //     final response = await _dio.post(path,
-  //         data: data,
-  //         queryParameters: queryParameters,
-  //         options: options,
-  //         cancelToken: cancelToken,
-  //         onSendProgress: onSendProgress,
-  //         onReceiveProgress: onReceiveProgress);
-  //     return response;
-  //   } on DioException catch (err) {
-  //     log('Post Requested Path: $path');
-  //     log('DioError: ${err.response?.data}');
-  //     return Future.error("No response from server");
-  //   } catch (e) {
-  //     log('General Error: $e');
-  //     return Future.error(e);
-  //   }
-  // }
 
   Future<Response> getbycustom<T>(
     String path, {
@@ -114,6 +88,47 @@ class DioClient with ApiConstants {
     throw 'Failed to complete the request after $maxRetries retries.';
   }
 }
+ Future<Response<dynamic>> responsePostMethod(
+      {required Map<String, dynamic> requestData, String? endPoint,Options? options}) async {
+    final response = await Dio()
+        .post(
+      "${ApiConstants.baseUrl}$endPoint",
+      data: requestData,
+      options: options
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw DioException(
+          requestOptions:
+              RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
+          type: DioExceptionType.connectionTimeout,
+        );
+      },
+    );
+    return response;
+  }
+ Future<Response<dynamic>> responseGetMethod(
+      {Map<String, dynamic>? requestData, String? endPoint,Options? options,Map<String, dynamic>?queryParameters})async {
+    final response = await Dio()
+        .post(
+      "${ApiConstants.baseUrl}$endPoint",
+      data: requestData,
+      options: options,
+      queryParameters: queryParameters
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw DioException(
+          requestOptions:
+              RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
+          type: DioExceptionType.connectionTimeout,
+        );
+      },
+    );
+    return response;
+  }
 
 class DioExceptionHandler implements Exception {
   late String errorMessage;
@@ -165,6 +180,7 @@ class DioExceptionHandler implements Exception {
   @override
   String toString() => errorMessage;
 }
+
 void handleHttpResponseError({
   required int statusCode,
   required Function(String message) showErrorSnackBar,
@@ -208,25 +224,40 @@ void handleHttpResponseError({
   }
 }
 
-handleExceptionMessage({Response<dynamic>? response, String? apiName}) {
-  final errorData = response?.data;
+void handleExceptionMessage({
+  Response<dynamic>? response,
+  String? apiName,
+  DioException? error,
+}) {
+  log('Error Type: ${error?.type}');
   String message = "";
+  final errorData = response?.data;
   if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
     message = errorData['message'].toString();
   }
+  log('Message: ${response?.data}');
   int statusCode = response?.statusCode ?? 0;
   if (message.isNotEmpty) {
-    NkCommonFunction.showErrorSnakBar("$message.$apiName");
+    NkCommonFunction.showErrorSnakBar("$message. $apiName");
+  } else if (error?.type == DioExceptionType.connectionTimeout ||
+      error?.type == DioExceptionType.receiveTimeout) {
+    log("Dio Timeout Error: $error");
+    NkCommonFunction.showErrorSnakBar(
+      "Request timed out. Please check your internet connection and try again. $apiName",
+    );
   } else {
     handleHttpResponseError(
-        statusCode: statusCode,
-        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-        message: apiName);
+      statusCode: statusCode,
+      showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+      message: apiName,
+    );
   }
 }
-  errorSnackbar(String message) {
-    NkCommonFunction.showErrorSnakBar(message);
-  }
+
+
+errorSnackbar(String message) {
+  NkCommonFunction.showErrorSnakBar(message);
+}
 
 // String _handleStatusCode(
 //     {required int statusCode,

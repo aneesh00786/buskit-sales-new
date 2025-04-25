@@ -285,19 +285,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                   .invoiceData!
                                                   .cart![index]
                                                   .total),
-                                              // children: widget
-                                              //             .invoiceData!
-                                              //             .cart![index]
-                                              //             .inclTax ==
-                                              //         "incl_tax"
-                                              //     ? [
-                                              //         const TextSpan(
-                                              //           text: "  (Incl. Tax)",
-                                              //           style: TextStyle(
-                                              //               fontSize: 10),
-                                              //         ),
-                                              //       ]
-                                              //     : [],
                                             ),
                                             maxLines: 1,
                                           )),

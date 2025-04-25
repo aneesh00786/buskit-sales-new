@@ -171,7 +171,7 @@ class LoginController extends GetxController {
           log("No subcategory found. Products not fetched.");
         }
         Get.offAllNamed(AppRoutes.home);
-        
+
         return true;
       } else {
         return _handleLoginError(loginResponce);

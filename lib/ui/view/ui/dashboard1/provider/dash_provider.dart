@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -14,7 +13,6 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -28,12 +26,10 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 import 'dash_models.dart';
 
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl;
-  static const String _baseUrl1 = ApiConstants.baseUrl1;
   final LocalStorage localStorage = LocalStorage();
   final ConnectivityService _connectivityService = ConnectivityService();
   final Dio dio = Dio();
@@ -82,22 +78,11 @@ class ApiService {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         final cachedData = customerRevenueBox.get(customerId);
-        if (cachedData != null) {
-          log("Returning cached revenue data for customerId: $customerId");
-          if (cachedData is Map<String, dynamic>) {
-            return CustomerRevenueResponse.fromJson(cachedData);
-          } else {
-            throw Exception(
-                'Invalid cached data format for customerId: $customerId');
-          }
-        } else {
-          throw Exception(
-              'No cached data available for customerId: $customerId');
-        }
+        return localStorage.storedCustomerRevenueData(cachedData, customerId);
       }
       final response = await responsePostMethod(
         requestData: requestBody,
-        endPoint: "customer_Revenue",
+        endPoint: ApiConstants.customerRevenue,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
@@ -120,17 +105,7 @@ class ApiService {
           apiName: "customer revenue", error: error, response: error.response);
       log("Error occurred while fetching revenue data: $error");
       final cachedData = customerRevenueBox.get(customerId);
-      if (cachedData != null) {
-        log("Returning cached revenue data after error for customerId: $customerId");
-        if (cachedData is Map<String, dynamic>) {
-          return CustomerRevenueResponse.fromJson(cachedData);
-        } else {
-          throw Exception(
-              'Invalid cached data format for customerId: $customerId');
-        }
-      } else {
-        throw Exception('No cached data available for customerId: $customerId');
-      }
+      return localStorage.storedCustomerRevenueData(cachedData, customerId);
     }
   }
 
@@ -169,9 +144,6 @@ class ApiService {
       default:
         sendData = selectedMonths;
     }
-
-    final url = '$_baseUrl${ApiConstants.getDashboardList}';
-    log("GET_DASHBOARD_LIST request URL: $url");
     final Map<String, dynamic> requestBody = {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "selected_range": sendData,
@@ -179,8 +151,6 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "year": fetchType == "Year" ? year : DateTime.now().year,
     };
-    log("GET_DASHBOARD_LIST request body453: $requestBody");
-
     final dashboardBox = Hive.box('dashboardBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
@@ -363,7 +333,6 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    log('This function has been called fetchDashboardValuePerformanceData');
     final requestBody = {
       "month": catId,
       "time_range": "Month",
@@ -371,8 +340,6 @@ class ApiService {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    log('This function has been called fetchDashboardValuePerformanceData$requestBody');
-
     try {
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
@@ -381,17 +348,15 @@ class ApiService {
       }
       final response = await responsePostMethod(
           requestData: requestBody,
-          endPoint: "fetchValuePerformance",
+          endPoint: ApiConstants.fetchValuePerformance,
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ));
-
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         var allCategoryList = jsonResponse['data'] as List;
         List<Salesmanvn> allCategory =
             allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-
         return ResponseModelCp(
             statusCode: jsonResponse['status_code'] ?? 0,
             status: jsonResponse['status'] ?? false,
@@ -404,7 +369,6 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } on DioException catch (error) {
-      print('Exception occurred 2: $error');
       handleExceptionMessage(
           response: error.response, apiName: "value perfromance", error: error);
       throw Exception('Failed to fetch data: $error');
@@ -457,7 +421,7 @@ class ApiService {
     try {
       final response = await responsePostMethod(
           requestData: requestBody,
-          endPoint: "fetch_orderByRange",
+          endPoint: ApiConstants.fetchOrderByRange,
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ));
@@ -495,7 +459,6 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    const url = '$_baseUrl1/fetch_SalesmanTargetByCatId';
     dynamic sendData;
     switch (fetchType) {
       case "Month":
@@ -532,19 +495,13 @@ class ApiService {
     };
     log("Request Body: $requestBody");
     try {
-      final response = await dio
-          .post(url,
-              data: requestBody,
-              options: Options(
-                headers: {'Content-Type': 'application/json'},
-              ))
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
-
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+        endPoint: ApiConstants.fetchSalesmanTargetByCategory,
+      );
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
@@ -556,17 +513,10 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
       handleExceptionMessage(
-          response: error.response, apiName: "salesman terget by category");
+          response: error.response,
+          apiName: "salesman terget by category",
+          error: error);
       throw Exception('Failed to fetch data: $error');
     }
   }
@@ -578,7 +528,6 @@ class ApiService {
     required String startDate,
     required String endDate,
   }) async {
-    final url = '$_baseUrl1/CustomerSaleByCategory';
     final requestBody = {
       'customerId': customerId,
       'catId': catId,
@@ -587,30 +536,19 @@ class ApiService {
       'last_date': endDate,
       'start_date': startDate,
       "salesman_id": '',
-      // SessionHelper.loginSavedData?.salesmanId ?? ''
     };
-
     try {
-      final response = await dio
-          .post(url,
-              data: requestBody,
-              options: Options(
-                headers: {'Content-Type': 'application/json'},
-              ))
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
-
+      final response = await responsePostMethod(
+          requestData: requestBody,
+          endPoint: ApiConstants.customerSaleByCategory,
+          options: Options(
+            headers: {'Content-Type': 'application/json'},
+          ));
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
-
         var productDetail = jsonResponse['data'] as List;
         List<ProductDetail> allproductDetail =
             productDetail.map((json) => ProductDetail.fromJson(json)).toList();
-
         return ProductResponse(
             statusCode: jsonResponse['status_code'] ?? 0,
             status: jsonResponse['status'] ?? false,
@@ -622,37 +560,20 @@ class ApiService {
         throw Exception('Failed to load data');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
       handleExceptionMessage(
-          response: error.response, apiName: "customer dashboard cart data");
+          response: error.response,
+          apiName: "customer dashboard cart data",
+          error: error);
       throw Exception('Failed to fetch data: $error');
     }
   }
 
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
-    final url = '$_baseUrl${ApiConstants.fetchChat}';
     final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
     log('Request Body of Chat: $requestBody');
     try {
-      final response = await dio
-          .post(
-        url,
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      final response = await responsePostMethod(
+          requestData: requestBody, endPoint: ApiConstants.fetchChat);
       if (response.statusCode == 200) {
         final List<dynamic> rawData = response.data['data'];
         List<SalesmanChat> salesmanChats = [];
@@ -673,17 +594,8 @@ class ApiService {
         throw Exception('Failed to fetch chat data - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
       handleExceptionMessage(
-          response: error.response, apiName: "fetch chat data");
+          response: error.response, apiName: "fetch chat data", error: error);
       throw Exception('Failed to fetch chat data: $error');
     }
   }
@@ -691,7 +603,6 @@ class ApiService {
   Future<MessagesResponse> fetchIndividualChatApi(
       String chatId, int page) async {
     log('Fetching Individual Chats for Chat ID: $chatId, Page: $page');
-    String url = '$_baseUrl${ApiConstants.fetchIndividualChat}';
     final requestBody = {
       "salesman_id": chatId,
       "limit": 20,
@@ -704,27 +615,13 @@ class ApiService {
       if (!isOnline) {
         log('No internet connection. Fetching cached data from Hive.');
         final cachedData = chatBox.get(cacheKey);
-        if (cachedData != null) {
-          log('Found cached data for key: $cacheKey');
-          return _parseCachedChatData(cachedData);
-        } else {
-          log('No cached data found for key $cacheKey.');
-          throw Exception('No cached data available.');
-        }
+        return localStorage.storedChatData(cachedData, cacheKey);
       }
       log('Internet available. Fetching data from API.');
-      final response = await dio
-          .post(
-        url,
-        options: Options(headers: {'Content-Type': 'application/json'}),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      final response = await responsePostMethod(
+          requestData: requestBody,
+          endPoint: ApiConstants.fetchIndividualChat,
+          options: Options(headers: {'Content-Type': 'application/json'}));
       log('Request body of Chat: $requestBody');
       log('API Response Data: ${response.data}');
       if (response.statusCode == 200) {
@@ -738,15 +635,10 @@ class ApiService {
           'message': jsonResponse['message'],
           'data': jsonResponse['data'],
         };
-
         await chatBox.put(
           cacheKey,
           wrappedResponse.map((key, value) => MapEntry(key.toString(), value)),
         );
-
-        log('Saved data to Hive for key: $cacheKey.');
-
-        log('Saved data to Hive for key: $cacheKey.');
         return MessagesResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -764,53 +656,11 @@ class ApiService {
             'Failed to fetch individual chat data - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
       log('Error occurred: $error');
       handleExceptionMessage(
-        response: error.response,
-        apiName: "chat",
-      );
+          response: error.response, apiName: "chat", error: error);
       final cachedData = chatBox.get(cacheKey);
-      if (cachedData != null) {
-        log('Error fetching from API. Returning cached data from Hive.');
-        return _parseCachedChatData(cachedData);
-      } else {
-        throw Exception(
-            'Failed to fetch chat data and no cached data available.');
-      }
-    }
-  }
-
-  MessagesResponse _parseCachedChatData(dynamic cachedData) {
-    try {
-      final Map<String, dynamic> castedData =
-          (cachedData as Map<dynamic, dynamic>)
-              .map((key, value) => MapEntry(key.toString(), value));
-      log('Casted data runtimeType: ${castedData.runtimeType}');
-      final List<dynamic> rawData = castedData['data'] ?? [];
-      final List<Messages> parsedData = rawData.map((messageJson) {
-        final messageMap = (messageJson as Map<dynamic, dynamic>).map(
-          (key, value) => MapEntry(key.toString(), value),
-        );
-        return Messages.fromJson(messageMap);
-      }).toList();
-      return MessagesResponse(
-        statusCode: castedData['status_code'] ?? 0,
-        status: castedData['status'] ?? false,
-        message: castedData['message'] ?? '',
-        data: parsedData,
-      );
-    } catch (e) {
-      log('Error parsing cached data: $e');
-      throw Exception('Failed to process cached data due to type mismatch.');
+      return localStorage.storedChatData(cachedData, cacheKey);
     }
   }
 
@@ -876,7 +726,7 @@ class ApiService {
       }
       final response = await responsePostMethod(
         requestData: requestBody,
-        endPoint: "fetch_all_orderByRange",
+        endPoint: ApiConstants.fetchAllOrderByRange,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
@@ -910,7 +760,15 @@ class ApiService {
           apiName: "fetch all order by range",
           error: error);
       log('Unexpected error occurred: $error');
-      throw Exception('Unexpected error occurred: $error');
+      final cachedData = orderBox.get(cacheKey);
+      if (cachedData != null) {
+        final convertedData = localStorage
+            .castToStringDynamic(cachedData as Map<dynamic, dynamic>);
+        log("Using cached data after network failure: $convertedData");
+        return OrderResponse.fromJson(convertedData);
+      } else {
+        throw Exception('Network error, and no cached data is available.');
+      }
     }
   }
 
@@ -922,7 +780,6 @@ class ApiService {
     required dynamic orderType,
     OrderStatus? orderStatus,
   }) async {
-    final url = '${ApiConstants.baseUrl1}/fetch_all_order';
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
@@ -936,20 +793,13 @@ class ApiService {
     };
     log("Request Body Of fetchCustomerDashOrders $requestBody");
     try {
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.fetchAllOrders,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      );
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
@@ -957,7 +807,6 @@ class ApiService {
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
         log('Fetch All Orders Customer Pagination: ${pagination.totalRecord}');
-
         List<OrdersDash> orders = [];
         if (orderData != null) {
           orders = orderData
@@ -976,15 +825,8 @@ class ApiService {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
+      handleExceptionMessage(
+          response: error.response, apiName: "fetch all orders", error: error);
       throw Exception('Failed to fetch orders: $error');
     }
   }
@@ -997,7 +839,6 @@ class ApiService {
     required dynamic orderType,
     OrderStatus? orderStatus,
   }) async {
-    final url = '${ApiConstants.baseUrl1}/fetch_all_order';
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": cusId,
@@ -1011,25 +852,16 @@ class ApiService {
     };
     log("Request Body Of fetchCustomerDashOrderstoCart $requestBody");
     try {
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.fetchAllOrders,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
-
+      );
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
-
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
@@ -1053,67 +885,26 @@ class ApiService {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
+      handleExceptionMessage(
+          response: error.response, apiName: "fetch all order", error: error);
       throw Exception('Failed to fetch orders: $error');
     }
   }
 
-  // Future<void> changeOrderStatus(
-  //     String orderId, OrderStatus orderStatus) async {
-  //   String orderStatusString = '';
-  //   orderStatusString = orderStatus.type.toString();
-  //   final requestBody = {'order_id': orderId, 'status': orderStatusString};
-
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse('$_baseUrl${ApiConstants.changeOrderStatus}'),
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: jsonEncode(requestBody),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // Successful status change
-  //     } else {
-  //       // Handle other status codes if needed
-  //     }
-  //   } catch (e) {
-  //     // Handle network errors or exceptions
-  //     throw Exception('Failed to update order status: $e');
-  //   }
-  // }
-
   Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
-    final url = '$_baseUrl${ApiConstants.adminOnPopUp}';
     final requestBody = {"token": token};
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
     bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
       try {
-        final response = await dio
-            .post(
-          url,
+        final response = await responsePostMethod(
+          requestData: requestBody,
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ),
-          data: requestBody,
-        )
-            .timeout(const Duration(seconds: 10), onTimeout: () {
-          throw DioException(
-            requestOptions: RequestOptions(path: url),
-            type: DioExceptionType.connectionTimeout,
-          );
-        });
+          endPoint: ApiConstants.adminOnPopUp,
+        );
         if (response.statusCode == 200) {
           var jsonResponse = response.data;
           List<AdminData> adminDetails = (jsonResponse['data'] as List)
@@ -1134,15 +925,8 @@ class ApiService {
           throw Exception('Failed to load admin details');
         }
       } on DioException catch (error) {
-        if (error.type == DioExceptionType.connectionTimeout ||
-            error.type == DioExceptionType.receiveTimeout) {
-          log("Fetch Leads Count Timeout: $error");
-          errorSnackbar(
-              'Request timed out. Please check your internet connection and try again.');
-          return Future.error(
-            'Request timed out. Please check your internet connection and try again.',
-          );
-        }
+        handleExceptionMessage(
+            response: error.response, apiName: "admin on popup", error: error);
       }
     }
     try {
@@ -1211,34 +995,21 @@ class ApiService {
     final customerBox = Hive.box('customerBox');
 
     try {
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.fetchCustomer,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
-
-      log('fetchCustomer API Response: ${response.statusCode}');
-
+      );
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         if (jsonResponse['status'] != true) {
           throw Exception('API returned error: ${jsonResponse['message']}');
         }
-
-        // Parse response data
         List<CustomerModelxx> customers = [];
         List<OrderTotalxx> orderTotal = [];
         List<YearsListOfAll> yearList = [];
-
         if (jsonResponse['data'] is List) {
           customers = (jsonResponse['data'] as List)
               .map((json) => CustomerModelxx.fromJson(json))
@@ -1254,11 +1025,8 @@ class ApiService {
               .map((json) => YearsListOfAll.fromJson(json))
               .toList();
         }
-
-        // Save response data to Hive
         await customerBox.put('fetchCustomerData', jsonResponse);
         log('Saved customer data to Hive.');
-
         return CustomerResponseModelxx(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -1276,15 +1044,8 @@ class ApiService {
         return localStorage.storedCustomerData(customerBox);
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
+      handleExceptionMessage(
+          response: error.response, apiName: "fetch customer", error: error);
       log('DioException: $error');
       return localStorage.storedCustomerData(customerBox);
     } catch (e) {
@@ -1298,11 +1059,10 @@ class ApiService {
     }
   }
 
-  /// a small doubt in here
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
     final String daysJson = jsonEncode(daysList);
-    final url = '$_baseUrl${ApiConstants.addEvent}';
+    const url = '$_baseUrl${ApiConstants.addEvent}';
     final body = {
       'customer_id': customerId,
       'event_status': eventStatus,
@@ -1339,7 +1099,6 @@ class ApiService {
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     final int companyId = jsonMap['company_id'];
-    final url = '${ApiConstants.baseUrl1}/customer_dashboard_list';
     final customerDashboardBox = Hive.box('customerdashboardBox');
     final requestBody = {
       "companyId": companyId,
@@ -1355,7 +1114,7 @@ class ApiService {
         if (cachedData != null) {
           log("Returning cached dashboard data for customerId: $customerId");
           if (cachedData is Map<String, dynamic>) {
-            return customerdashboardResponse(cachedData);
+            return localStorage.customerdashboardResponse(cachedData);
           } else {
             throw Exception(
                 'Invalid cached data format for customerId: $customerId');
@@ -1365,20 +1124,12 @@ class ApiService {
               'No cached data available for customerId: $customerId');
         }
       }
-      final response = await dio
-          .post(
-        url,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      final response = await responsePostMethod(
+          requestData: requestBody,
+          endPoint: ApiConstants.customerDashboardList,
+          options: Options(
+            headers: {'Content-Type': 'application/json'},
+          ));
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         await customerDashboardBox.put(
@@ -1386,7 +1137,7 @@ class ApiService {
           Map<String, dynamic>.from(jsonResponse),
         );
         log("Data fetched and stored for customerId: $customerId");
-        return customerdashboardResponse(jsonResponse);
+        return localStorage.customerdashboardResponse(jsonResponse);
       } else {
         handleExceptionMessage(
           response: response,
@@ -1397,24 +1148,15 @@ class ApiService {
         );
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
       handleExceptionMessage(
-        response: error.response,
-        apiName: "customer dashboard data",
-      );
+          response: error.response,
+          apiName: "customer dashboard data",
+          error: error);
       final cachedData = customerDashboardBox.get(customerId);
       if (cachedData != null) {
         log("Returning cached dashboard data after error for customerId: $customerId");
         if (cachedData is Map<String, dynamic>) {
-          return customerdashboardResponse(cachedData);
+          return localStorage.customerdashboardResponse(cachedData);
         } else {
           throw Exception(
               'Invalid cached data format for customerId: $customerId');
@@ -1423,54 +1165,6 @@ class ApiService {
         throw Exception('No cached data available for customerId: $customerId');
       }
     }
-  }
-
-  ApiResponseModel customerdashboardResponse(
-      Map<String, dynamic> jsonResponse) {
-    List<CategoryPerformancez> categoryPerformance = [];
-    if (jsonResponse['data']['category_performance'] != null) {
-      categoryPerformance =
-          (jsonResponse['data']['category_performance'] as List)
-              .map((json) => CategoryPerformancez.fromJson(json))
-              .toList();
-    }
-    List<FullCategory> allCategory = [];
-    if (jsonResponse['data']['fullCategotry'] != null) {
-      allCategory = (jsonResponse['data']['fullCategotry'] as List)
-          .map((json) => FullCategory.fromJson(json))
-          .toList();
-    }
-    List<RecentOrder> recentOrders = [];
-    if (jsonResponse['data']['recent_orders'] != null) {
-      recentOrders = (jsonResponse['data']['recent_orders'] as List)
-          .map((json) => RecentOrder.fromJson(json))
-          .toList();
-    }
-    List<FrequantliyProductList> frequentProductLists = [];
-    if (jsonResponse['data']['frequantliy_product_lists'] != null) {
-      frequentProductLists =
-          (jsonResponse['data']['frequantliy_product_lists'] as List)
-              .map((json) => FrequantliyProductList.fromJson(json))
-              .toList();
-    }
-    List<YearList> yearList = [];
-    if (jsonResponse['data']['year_list'] != null) {
-      yearList = (jsonResponse['data']['year_list'] as List)
-          .map((json) => YearList.fromJson(json))
-          .toList();
-    }
-    return ApiResponseModel(
-      statusCode: jsonResponse['status_code'] ?? 0,
-      status: jsonResponse['status'] ?? false,
-      message: jsonResponse['message'] ?? '',
-      data: Data(
-        categoryPerformance: categoryPerformance,
-        recentOrders: recentOrders,
-        frequentProductLists: frequentProductLists,
-        yearList: yearList,
-        fullCategory: allCategory,
-      ),
-    );
   }
 
   Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
@@ -1485,7 +1179,6 @@ class ApiService {
     log('Request Body for fetchCustomerTotalSale: $requestBody');
     try {
       final bool isOnline = await ConnectivityService().isOnline();
-
       if (!isOnline) {
         final cacheKey = '${customerId}_$year';
         final cachedData = customerTotalSaleBox.get(cacheKey);
@@ -1502,20 +1195,13 @@ class ApiService {
               'No cached data available for customerId: $customerId, year: $year');
         }
       }
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.customeTotalSale,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      );
       log('API Response: ${response.data}');
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
@@ -1555,16 +1241,10 @@ class ApiService {
             'Failed to fetch customer total sale data - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
-      log('Exception: $error');
+      handleExceptionMessage(
+          response: error.response,
+          apiName: "customer total sale",
+          error: error);
       final cacheKey = '${customerId}_$year';
       final cachedData = customerTotalSaleBox.get(cacheKey);
       if (cachedData != null) {
@@ -1587,7 +1267,6 @@ class ApiService {
     String startDate,
     String endDate,
   ) async {
-    final url = '$_baseUrl${ApiConstants.fetchOrderCount}';
     final orderCountBox = Hive.box('orderCountBox');
     final requestBody = {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId,
@@ -1597,13 +1276,9 @@ class ApiService {
       "companyId": companyId,
     };
     log("Count Request Body : $requestBody");
-
     try {
-      // Check internet connectivity
       final bool isOnline = await ConnectivityService().isOnline();
-
       if (!isOnline) {
-        // Retrieve cached data from Hive
         final cacheKey = '${customerId}_$startDate$endDate';
         final cachedData = orderCountBox.get(cacheKey);
         if (cachedData != null) {
@@ -1623,22 +1298,13 @@ class ApiService {
           throw Exception('No cached data available for order count.');
         }
       }
-
-      // Fetch data from API
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.fetchOrderCount,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
+      );
       log('Count Response : ${response.data}');
 
       if (response.statusCode == 200) {
@@ -1660,15 +1326,8 @@ class ApiService {
         throw Exception('Failed to fetch order count - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
+      handleExceptionMessage(
+          apiName: "fetch order count", error: error, response: error.response);
       log('Exception: $error');
       final cacheKey = '${customerId}_$startDate$endDate';
       final cachedData = orderCountBox.get(cacheKey);
@@ -1692,24 +1351,15 @@ class ApiService {
   }
 
   Future<CustomerResponse> fetchOneCustomer(String customerId) async {
-    final url = '$_baseUrl${ApiConstants.fetchOneCustomer}';
     final requestBody = {"customer_id": customerId, "companyId": companyId};
     try {
-      final response = await dio
-          .post(
-        url,
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.fetchOneCustomer,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
-        data: requestBody,
-      )
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        throw DioException(
-          requestOptions: RequestOptions(path: url),
-          type: DioExceptionType.connectionTimeout,
-        );
-      });
-
+      );
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
 
@@ -1731,15 +1381,10 @@ class ApiService {
             'Failed to fetch customer data from fetchOneCustomer- ${response.statusCode}');
       }
     } on DioException catch (error) {
-      if (error.type == DioExceptionType.connectionTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
-        log("Fetch Leads Count Timeout: $error");
-        errorSnackbar(
-            'Request timed out. Please check your internet connection and try again.');
-        return Future.error(
-          'Request timed out. Please check your internet connection and try again.',
-        );
-      }
+      handleExceptionMessage(
+          apiName: "fetch one customer",
+          error: error,
+          response: error.response);
       throw Exception(
           'Failed to fetch customer data fetchOneCustomer exception: $error');
     }
@@ -1754,8 +1399,6 @@ class ApiService {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
       var request = http.MultipartRequest('PATCH', url);
-
-      // Add fields to the multipart request
       request.fields['fullname'] = model.fullname;
       request.fields['email'] = model.email;
       request.fields['mobileno'] = model.mobileno;
@@ -1769,8 +1412,6 @@ class ApiService {
       request.fields['oldimage_url'] = 'a';
       request.fields['customer_id'] = customerId;
       request.fields['companyId'] = companyId.toString();
-
-      // Add adminProfilePicture as a file part
       var fileStream = http.ByteStream(adminProfilePicture.openRead());
       var length = await adminProfilePicture.length();
       var multipartFile = http.MultipartFile(
@@ -2254,89 +1895,6 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
-
-  // Future<void> fetchOrdersSabik(OrderStatus s) async {
-  //   try {
-  //     final now = DateTime.now();
-  //     String startDate;
-  //     String endDate;
-
-  //     Object orderType;
-
-  //     switch (s) {
-  //       case OrderStatus.delivered:
-  //         orderType = '';
-  //       case OrderStatus.estimates:
-  //         orderType = 7;
-  //       case OrderStatus.preOrder:
-  //         orderType = 0;
-  //       case OrderStatus.draft:
-  //         orderType = 4;
-  //       case OrderStatus.cancelled:
-  //         orderType = 3;
-  //       default:
-  //         orderType = '';
-  //     }
-
-  //     switch (_selectedFilter) {
-  //       case FilterDateEnum.thisMonth:
-  //         startDate = DateTime(now.year, now.month, 1)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         endDate = DateTime(now.year, now.month + 1, 0)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.today:
-  //         startDate = DateTime(now.year, now.month, now.day)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         endDate = startDate;
-  //         break;
-  //       case FilterDateEnum.thisWeek:
-  //         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-  //         startDate = startOfWeek.toIso8601String().substring(0, 10);
-  //         endDate = now.toIso8601String().substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.thisYear:
-  //         startDate =
-  //             DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-  //         endDate =
-  //             DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.range:
-  //         startDate = _selectedStartDate;
-  //         endDate = _selectedEndDate;
-  //         break;
-  //     }
-
-  //     if (_selectedFilter == FilterDateEnum.range &&
-  //         (startDate.isEmpty || endDate.isEmpty)) {
-  //       throw Exception('Select both start and end dates');
-  //     }
-  //     _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
-  //       return _apiService.fetchAllOrders(
-  //         startDate: startDate,
-  //         endDate: endDate,
-  //         orderStatus: s,
-  //         orderType: orderType,
-  //       );
-  //     });
-  //     log("Order Response Type : ${s.type}");
-  //     log("Order Response : $_orderResponse");
-  //     notifyListeners();
-
-  //     log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
-
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
-
-  OrderStatus _selectedStatus = OrderStatus.cancelled;
-
   void onFilterChanged(FilterDateEnum? selectedFilterTemp) async {
     bool isOnline = await ConnectivityService().isOnline();
     switch (selectedFilterTemp) {
@@ -2400,7 +1958,6 @@ class DashboardProvider with ChangeNotifier {
     NotificationController notificationController =
         Get.find<NotificationController>();
     final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-    //if (_dataFetched) return;
     try {
       final now = DateTime.now();
       String startDate =
@@ -2569,19 +2126,6 @@ class DashboardProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
-  //   try {
-  //     await _apiService.changeOrderStatus(orderId, newStatus);
-  //     //fetchOrders();
-  //     fetchData();
-  //     notifyListeners(); // Notify listeners after successful update
-  //   } catch (e) {
-  //     // Handle errors or exceptions
-  //     throw Exception('Failed to update order status: $e');
-  //   }
-  // }
-
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
@@ -2638,215 +2182,5 @@ class DashboardProvider with ChangeNotifier {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-}
-
-class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _OrdersScreenState createState() => _OrdersScreenState();
-}
-
-class _OrdersScreenState extends State<OrdersScreen> {
-  OrderStatus? _selectedOrderStatus;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orders'),
-      ),
-      body: Consumer<DashboardProvider>(
-        builder: (context, provider, child) {
-          return FutureBuilder<OrderResponse>(
-            future: provider.orderResponse,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              } else {
-                final orders = snapshot.data?.data ?? [];
-                final filteredOrders = orders.where((order) {
-                  if (_selectedOrderStatus == null) {
-                    return true;
-                  } else {
-                    return order.orderStatus == _selectedOrderStatus!.type;
-                  }
-                }).toList();
-
-                return Column(
-                  children: [
-                    _buildStatusFilterButtons(provider),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredOrders.length,
-                        itemBuilder: (context, index) {
-                          final order = filteredOrders[index];
-                          return ListTile(
-                            title: Text('Order ID: ${order.orderId}'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Customer ID: ${order.customerId}'),
-                                Text('Payment Type: ${order.paymentType}'),
-                                Text(
-                                    'Order Created At: ${order.orderCreatedAt}'),
-                                Text(
-                                    'Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
-                                Text(
-                                    'Order Status: ${getOrderStatusName(order.orderStatus)}'),
-                                // Add more fields as needed
-                              ],
-                            ),
-                            onTap: () =>
-                                _showOrderDetailsDialog(context, order),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStatusFilterButtons(DashboardProvider p) {
-    return Wrap(
-      //  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            p.fetchOrdersSabik(OrderStatus.delivered);
-            setState(() {
-              _selectedOrderStatus = OrderStatus.delivered;
-            });
-          },
-          child: const Text('Delivered'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            p.fetchOrdersSabik(OrderStatus.outOfDelivery);
-            setState(() {
-              _selectedOrderStatus = OrderStatus.outOfDelivery;
-            });
-          },
-          child: const Text('outOfDelivery'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _selectedOrderStatus = OrderStatus.preOrder;
-            });
-          },
-          child: const Text('Pre Order'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            p.fetchOrdersSabik(OrderStatus.cancelled);
-
-            setState(() {
-              _selectedOrderStatus = OrderStatus.cancelled;
-            });
-          },
-          child: const Text('Canccelled'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _selectedOrderStatus = null;
-            });
-          },
-          child: const Text('Show All'),
-        ),
-      ],
-    );
-  }
-
-  String getOrderStatusName(int orderStatus) {
-    switch (orderStatus) {
-      case 0:
-        return 'Pre Order';
-      case 1:
-        return 'Out For Delivery';
-      case 2:
-        return 'Delivered';
-      case 3:
-        return 'Cancelled';
-      case 4:
-        return 'Draft';
-      case 5:
-        return 'Processing';
-      case 6:
-        return 'Pending';
-      case 7:
-        return 'Estimates';
-      case 8:
-        return 'Accept By Admin';
-      case 9:
-        return 'Reject By Admin';
-      case 10:
-        return 'Packed For Delivery';
-      default:
-        return '';
-    }
-  }
-
-  void _showOrderDetailsDialog(BuildContext context, OrdersDash order) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Order Details',
-              ),
-            ),
-            ListTile(
-              title: Text('Order ID: ${order.orderId}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Customer ID: ${order.customerId}'),
-                  Text('Payment Type: ${order.paymentType}'),
-                  Text('Order Created At: ${order.orderCreatedAt}'),
-                  Text(
-                      'Order Total: ${formatAmount(order.orderTotal.toStringAsFixed(2))}'),
-                  Text(
-                      'Order Status: ${getOrderStatusName(order.orderStatus)}'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

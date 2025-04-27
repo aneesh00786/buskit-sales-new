@@ -14,6 +14,10 @@ mixin class ApiConstants {
   static const String customer = "customer";
   /// Dashboard API
   static const String dashboardList = "dashboard_list";
+  static const String customerRevenue = "customer_Revenue";
+  static const String fetchOrderByRange = "fetch_orderByRange";
+  static const String fetchValuePerformance = "fetchValuePerformance";
+  static const String fetchSalesmanTargetByCategory = "fetch_SalesmanTargetByCatId";
   static const String getDashboardList = "Get_dashboard_list";
   static const String searchCustomer = "search_customer";
   static const String deletCustomer = "delete_customer";
@@ -24,10 +28,12 @@ mixin class ApiConstants {
   static const String addOrderDraft = "add_order_draft";
   static const String fetchCart = "fetch_cart";
   static const String customerOrderHistory = "customer_order_history";
+  static const String fetchAllOrderByRange = "fetch_all_orderByRange";
   static const String addToCart = "add_to_cart";
   static const String addToDraft = "add_to_draft";
   static const String cartDelete = "cart_delete";
   static const String fetchOneCustomer = "fetch_one_customer";
+  static const String customerDashboardList = "customer_dashboard_list";
   static const String addEvents = "add_events";
   static const String updateProductPrice = "update_product_price";
   static const String fetchCategoryPerformance = "fetchCategoryPerformance";

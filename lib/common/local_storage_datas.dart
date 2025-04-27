@@ -303,4 +303,101 @@ class LocalStorage {
       log("Error accessing cached Salesman Value Target data: $e");
     }
   }
+
+  storedCustomerRevenueData(dynamic cachedData, String customerId) {
+    if (cachedData != null) {
+      if (cachedData is Map<String, dynamic>) {
+        return CustomerRevenueResponse.fromJson(cachedData);
+      } else {
+        throw Exception(
+            'Invalid cached data format for customerId: $customerId');
+      }
+    } else {
+      errorSnackbar("No customer revenue cached data available");
+      throw Exception('No cached data available for customerId: $customerId');
+    }
+  }
+
+  MessagesResponse _parseCachedChatData(dynamic cachedData) {
+    try {
+      final Map<String, dynamic> castedData =
+          (cachedData as Map<dynamic, dynamic>)
+              .map((key, value) => MapEntry(key.toString(), value));
+      log('Casted data runtimeType: ${castedData.runtimeType}');
+      final List<dynamic> rawData = castedData['data'] ?? [];
+      final List<Messages> parsedData = rawData.map((messageJson) {
+        final messageMap = (messageJson as Map<dynamic, dynamic>).map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+        return Messages.fromJson(messageMap);
+      }).toList();
+      return MessagesResponse(
+        statusCode: castedData['status_code'] ?? 0,
+        status: castedData['status'] ?? false,
+        message: castedData['message'] ?? '',
+        data: parsedData,
+      );
+    } catch (e) {
+      log('Error parsing cached data: $e');
+      throw Exception('Failed to process cached data due to type mismatch.');
+    }
+  }
+
+  storedChatData(dynamic cachedData, String cacheKey) {
+    if (cachedData != null) {
+      log('Found cached data for key: $cacheKey');
+      return _parseCachedChatData(cachedData);
+    } else {
+      log('No cached data found for key $cacheKey.');
+      throw Exception('No cached data available.');
+    }
+  }
+
+  ApiResponseModel customerdashboardResponse(
+      Map<String, dynamic> jsonResponse) {
+    List<CategoryPerformancez> categoryPerformance = [];
+    if (jsonResponse['data']['category_performance'] != null) {
+      categoryPerformance =
+          (jsonResponse['data']['category_performance'] as List)
+              .map((json) => CategoryPerformancez.fromJson(json))
+              .toList();
+    }
+    List<FullCategory> allCategory = [];
+    if (jsonResponse['data']['fullCategotry'] != null) {
+      allCategory = (jsonResponse['data']['fullCategotry'] as List)
+          .map((json) => FullCategory.fromJson(json))
+          .toList();
+    }
+    List<RecentOrder> recentOrders = [];
+    if (jsonResponse['data']['recent_orders'] != null) {
+      recentOrders = (jsonResponse['data']['recent_orders'] as List)
+          .map((json) => RecentOrder.fromJson(json))
+          .toList();
+    }
+    List<FrequantliyProductList> frequentProductLists = [];
+    if (jsonResponse['data']['frequantliy_product_lists'] != null) {
+      frequentProductLists =
+          (jsonResponse['data']['frequantliy_product_lists'] as List)
+              .map((json) => FrequantliyProductList.fromJson(json))
+              .toList();
+    }
+    List<YearList> yearList = [];
+    if (jsonResponse['data']['year_list'] != null) {
+      yearList = (jsonResponse['data']['year_list'] as List)
+          .map((json) => YearList.fromJson(json))
+          .toList();
+    }
+    return ApiResponseModel(
+      statusCode: jsonResponse['status_code'] ?? 0,
+      status: jsonResponse['status'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      data: Data(
+        categoryPerformance: categoryPerformance,
+        recentOrders: recentOrders,
+        frequentProductLists: frequentProductLists,
+        yearList: yearList,
+        fullCategory: allCategory,
+      ),
+    );
+  }
 }

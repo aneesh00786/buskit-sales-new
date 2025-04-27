@@ -45,7 +45,7 @@ abstract class NkCommonFunction {
       margin: nkRegularPadding(),
       isDismissible: true,
       padding: nkSmallPadding(),
-      animationDuration: longDuration(longDuration: const Duration(milliseconds:500 )),
+      animationDuration: longDuration(longDuration: const Duration(seconds:1 )),
       icon: const Icon(
         Icons.error,
         color: primaryColor,

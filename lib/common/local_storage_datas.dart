@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -399,5 +400,31 @@ class LocalStorage {
         fullCategory: allCategory,
       ),
     );
+  }
+  storedDashboardDatas(dynamic cachedData,Box<dynamic>dashboardBox)async{
+    if (cachedData != null) {
+          log("Cached data found. Processing...");
+          try {
+            final safeData = 
+                castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+            if (safeData is Map<String, dynamic>) {
+              log("Successfully parsed cached data.");
+              return mapJsonToResponseModel(safeData);
+            } else if (safeData is List<dynamic>) {
+              log("Successfully parsed cached list data.");
+              return mapJsonToResponseModel({'data': safeData});
+            } else {
+              throw FormatException('Invalid cached data format.');
+            }
+          } catch (e) {
+            log("Error parsing cached data: $e");
+            await dashboardBox.delete('dashboardData');
+            NkCommonFunction.showErrorSnakBar(
+                'Cached data is corrupted. Please connect to the internet.');
+            throw Exception('Invalid cached data format. Cache cleared.');
+          }
+        } else {
+          throw Exception('No cached data available.');
+        }
   }
 }

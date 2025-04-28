@@ -39,6 +39,14 @@ class LoginController extends GetxController {
   TabController? get tabController => _tabController;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController businessNameController= TextEditingController();
+  TextEditingController addressController= TextEditingController();
+  TextEditingController townController= TextEditingController();
+  TextEditingController stateController= TextEditingController();
+  TextEditingController postCodeController= TextEditingController();
+  TextEditingController countryController= TextEditingController();
+  TextEditingController phoneNumberController= TextEditingController();
+  TextEditingController businessEmailController= TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   ProductsController productsController = Get.put(ProductsController());
   PendingPaymentController pendingPaymentController =
@@ -55,6 +63,10 @@ class LoginController extends GetxController {
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   RoundedLoadingButtonController loginButtonController =
+      RoundedLoadingButtonController();
+  RoundedLoadingButtonController registerButtonController =
+      RoundedLoadingButtonController();
+  RoundedLoadingButtonController registerController =
       RoundedLoadingButtonController();
   RxBool isPasswordVisible = true.obs;
   PaginationModel paginationModel = PaginationModel();

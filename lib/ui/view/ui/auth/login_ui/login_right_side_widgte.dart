@@ -168,7 +168,15 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
           nkMediumSizeBox(),
           nkMediumSizeBox(),
-          getLoginButton(context),
+          Row(
+            children: [
+              Expanded(child: getLoginButton(context)),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(child: getRegisterButton(context)),
+            ],
+          ),
         ],
       ),
     );
@@ -176,7 +184,6 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
 
   Widget getLoginButton(BuildContext context) => Center(
         child: NkLoadingButton(
-          width: AppDimensions.instance.width * 0.32,
           isRoundedCorner: true,
           buttonText: singIn,
           onPressed: () async {
@@ -195,112 +202,180 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           btnController: widget.loginController.loginButtonController,
         ),
       );
+  Widget getRegisterButton(BuildContext context) => Center(
+        child: NkLoadingButton(
+          isRoundedCorner: true,
+          buttonText: "Register",
+          onPressed: () async {
+            registerDialog(context);
+          },
+          btnController: widget.loginController.registerButtonController,
+        ),
+      );
+
+  Future<dynamic> registerDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 10,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: const BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(50),
+                          bottomRight: Radius.circular(50))),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: CustomText(
+                    content: "Register",
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                RegisterTextField(
+                  hinttext: "Business Name",
+                  icon: const Icon(EneftyIcons.buildings_outline),
+                  textEditingController:
+                      widget.loginController.businessNameController,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RegisterTextField(
+                  hinttext: "Address",
+                  icon: const Icon(EneftyIcons.location_outline),
+                  textEditingController:
+                      widget.loginController.addressController,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RegisterTextField(
+                        hinttext: "Town",
+                        textEditingController:
+                            widget.loginController.townController,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: RegisterTextField(
+                        hinttext: "State",
+                        textEditingController:
+                            widget.loginController.stateController,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: RegisterTextField(
+                        hinttext: "Post Code",
+                        textEditingController:
+                            widget.loginController.postCodeController,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RegisterTextField(
+                  hinttext: "Country",
+                  textEditingController:
+                      widget.loginController.countryController,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RegisterTextField(
+                  hinttext: "Phone Number",
+                  textEditingController:
+                      widget.loginController.phoneNumberController,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RegisterTextField(
+                  hinttext: "Business Email",
+                  textEditingController:
+                      widget.loginController.businessEmailController,
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                NkLoadingButton(
+                  isRoundedCorner: true,
+                  buttonText: "Register",
+                  onPressed: () async {},
+                  btnController: widget.loginController.registerController,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-// class ForgotPasswordScreen extends StatelessWidget {
-//   const ForgotPasswordScreen({super.key});
+class RegisterTextField extends StatelessWidget {
+  String hinttext;
+  Icon? icon;
+  TextEditingController textEditingController;
+  RegisterTextField({
+    super.key,
+    required this.hinttext,
+    this.icon,
+    required this.textEditingController,
+  });
 
-//   void showEmailBottomSheet(BuildContext context) {
-//     final emailController = TextEditingController();
-
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       builder: (context) {
-//         return Padding(
-//           padding: EdgeInsets.only(
-//             left: 16.0,
-//             right: 16.0,
-//             top: 16.0,
-//             bottom: MediaQuery.of(context).viewInsets.bottom,
-//           ),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               nkMediumSizeBox(),
-//               const Icon(
-//                 Icons.email_outlined,
-//                 color: Color.fromARGB(255, 249, 140, 132),
-//                 size: 60,
-//               ),
-//               const SizedBox(height: 16.0),
-//               Align(
-//                   alignment: Alignment.centerLeft,
-//                   child: CustomText(
-//                     content: "Enter you'r registered E-mail.",
-//                     fontSize: 20,
-//                   )),
-//               nkMediumSizeBox(),
-//               TextFormField(
-//                 controller: emailController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Email',
-//                   border: const OutlineInputBorder(),
-//                   enabledBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                     borderSide:
-//                         const BorderSide(color: Colors.grey, width: 1.5),
-//                   ),
-//                   focusedBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                     borderSide:
-//                         const BorderSide(color: primaryButtonColor, width: 1.5),
-//                   ),
-//                   errorBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                     borderSide: const BorderSide(color: red, width: 1.5),
-//                   ),
-//                 ),
-//                 keyboardType: TextInputType.emailAddress,
-//               ),
-//               const SizedBox(height: 16.0),
-//               nkMediumSizeBox(),
-//               Container(
-//                 height: 60,
-//                 width: 200,
-//                 decoration: BoxDecoration(
-//                   color: Colors.blue,
-//                   borderRadius: BorderRadius.circular(20),
-//                 ),
-//                 child: TextButton(
-//                   onPressed: () {
-//                     String email = emailController.text.trim();
-//                     if (email.isNotEmpty) {
-//                       Navigator.pop(context);
-//                     } else {}
-//                   },
-//                   child: const Text(
-//                     'Submit',
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontSize: 20,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               nkMediumSizeBox(),
-//               nkMediumSizeBox(),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: () {
-//         showEmailBottomSheet(context);
-//       },
-//       child: const Text(
-//         'Forgot Password..?',
-//         style: TextStyle(color: Colors.blue),
-//       ),
-//     );
-//   }
-// }
-
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: textEditingController,
+      decoration: InputDecoration(
+        hintText: hinttext,
+        prefixIconColor: Colors.grey,
+        prefixIcon: icon,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+}
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -381,7 +456,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           child: TextButton(
                             onPressed: () async {
-                              String email = emailController.text.toLowerCase().trim();
+                              String email =
+                                  emailController.text.toLowerCase().trim();
                               if (email.isNotEmpty) {
                                 setState(() {
                                   isLoading = true;
@@ -440,7 +516,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ),
                           ),
                         ),
-
                   nkMediumSizeBox(),
                   nkMediumSizeBox(),
                 ],

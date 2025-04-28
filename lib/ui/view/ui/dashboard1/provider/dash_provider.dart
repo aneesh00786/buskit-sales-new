@@ -155,33 +155,9 @@ class ApiService {
     try {
       bool isOnline = await _connectivityService.isOnline();
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No Internet Connection. Please check your network');
+        errorSnackbar('No Internet Connection. Please check your network');
         final cachedData = dashboardBox.get('dashboardData');
-        if (cachedData != null) {
-          log("Cached data found. Processing...");
-          try {
-            final safeData = localStorage
-                .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            if (safeData is Map<String, dynamic>) {
-              log("Successfully parsed cached data.");
-              return localStorage.mapJsonToResponseModel(safeData);
-            } else if (safeData is List<dynamic>) {
-              log("Successfully parsed cached list data.");
-              return localStorage.mapJsonToResponseModel({'data': safeData});
-            } else {
-              throw FormatException('Invalid cached data format.');
-            }
-          } catch (e) {
-            log("Error parsing cached data: $e");
-            await dashboardBox.delete('dashboardData');
-            NkCommonFunction.showErrorSnakBar(
-                'Cached data is corrupted. Please connect to the internet.');
-            throw Exception('Invalid cached data format. Cache cleared.');
-          }
-        } else {
-          throw Exception('No cached data available.');
-        }
+        return localStorage.storedDashboardDatas(cachedData, dashboardBox);
       }
       final response = await responsePostMethod(
         requestData: requestBody,
@@ -208,25 +184,7 @@ class ApiService {
       handleExceptionMessage(
           response: error.response, apiName: "dashboard data", error: error);
       final cachedData = dashboardBox.get('dashboardData');
-      if (cachedData != null) {
-        try {
-          final safeData = localStorage
-              .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-          if (safeData is Map<String, dynamic>) {
-            return localStorage.mapJsonToResponseModel(safeData);
-          } else if (safeData is List<dynamic>) {
-            return localStorage.mapJsonToResponseModel({'data': safeData});
-          } else {
-            throw FormatException('Invalid cached data format.');
-          }
-        } catch (e) {
-          log("Error processing cached data after exception: $e");
-          await dashboardBox.delete('dashboardData');
-          throw Exception('Failed to process cached data after exception.');
-        }
-      } else {
-        throw Exception('No cached data available.');
-      }
+      return localStorage.storedDashboardDatas(cachedData, dashboardBox);
     }
   }
 
@@ -434,7 +392,6 @@ class ApiService {
 
         return orderData;
       } else {
-        print('Request failed with status 1: ${response.statusCode}');
         handleExceptionMessage(
             response: response, apiName: "chart salesman order data");
         throw Exception('Failed to load data');
@@ -1895,6 +1852,7 @@ class DashboardProvider with ChangeNotifier {
       rethrow;
     }
   }
+
   void onFilterChanged(FilterDateEnum? selectedFilterTemp) async {
     bool isOnline = await ConnectivityService().isOnline();
     switch (selectedFilterTemp) {
@@ -2126,6 +2084,7 @@ class DashboardProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 

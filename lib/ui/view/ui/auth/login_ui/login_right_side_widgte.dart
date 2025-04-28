@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/forgot_password_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -207,138 +208,13 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           isRoundedCorner: true,
           buttonText: "Register",
           onPressed: () async {
-            registerDialog(context);
+            registerDialog(context,widget.loginController);
           },
           btnController: widget.loginController.registerButtonController,
         ),
       );
 
-  Future<dynamic> registerDialog(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 10,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  decoration: const BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(50),
-                          bottomRight: Radius.circular(50))),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: CustomText(
-                    content: "Register",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                RegisterTextField(
-                  hinttext: "Business Name",
-                  icon: const Icon(EneftyIcons.buildings_outline),
-                  textEditingController:
-                      widget.loginController.businessNameController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                RegisterTextField(
-                  hinttext: "Address",
-                  icon: const Icon(EneftyIcons.location_outline),
-                  textEditingController:
-                      widget.loginController.addressController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RegisterTextField(
-                        hinttext: "Town",
-                        textEditingController:
-                            widget.loginController.townController,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: RegisterTextField(
-                        hinttext: "State",
-                        textEditingController:
-                            widget.loginController.stateController,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: RegisterTextField(
-                        hinttext: "Post Code",
-                        textEditingController:
-                            widget.loginController.postCodeController,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                RegisterTextField(
-                  hinttext: "Country",
-                  textEditingController:
-                      widget.loginController.countryController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                RegisterTextField(
-                  hinttext: "Phone Number",
-                  textEditingController:
-                      widget.loginController.phoneNumberController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                RegisterTextField(
-                  hinttext: "Business Email",
-                  textEditingController:
-                      widget.loginController.businessEmailController,
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                NkLoadingButton(
-                  isRoundedCorner: true,
-                  buttonText: "Register",
-                  onPressed: () async {},
-                  btnController: widget.loginController.registerController,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+
 }
 
 class RegisterTextField extends StatelessWidget {

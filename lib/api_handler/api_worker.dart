@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -1556,6 +1557,32 @@ class ApiWorker with ApiConstants {
     } catch (e) {
       log('Error fetching data from Hive: $e');
       throw Exception('Failed to fetch data from API and Hive.');
+    }
+  }
+
+  Future<List<Plan>> fetchPlans() async {
+    const String url = 'https://test.thrivewoo.com/get_plan_detiails';
+    try {
+      Response response = await dio1.get(url);
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        List<dynamic> data = response.data['data'];
+        List<Plan> plans = data.map((item) => Plan.fromJson(item)).toList();
+        return plans;
+      } else {
+        handleExceptionMessage(apiName: "register plans", response: response);
+        throw Exception('Failed to fetch plans: ${response.data['message']}');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        handleExceptionMessage(
+            apiName: "register plans", error: e, response: e.response);
+        throw Exception(
+            'Dio Error: ${e.response?.statusCode} - ${e.response?.data}');
+      } else {
+        throw Exception('Dio Error: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching plans: $e');
     }
   }
 }

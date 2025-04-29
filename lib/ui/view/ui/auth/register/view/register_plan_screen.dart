@@ -71,9 +71,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context)
-                            .size
-                            .width, 
+                        minWidth: MediaQuery.of(context).size.width,
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,7 +87,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                               fontSize: 17,
                             ),
                           ),
-                          SizedBox(width: 15,),
+                          SizedBox(
+                            width: 15,
+                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -105,7 +105,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(width: 15,),
+                          SizedBox(
+                            width: 15,
+                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -121,7 +123,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(width: 15,),
+                          SizedBox(
+                            width: 15,
+                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -278,6 +282,22 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       showDialog(
                         context: context,
                         builder: (context) {
+                          const InputBorder lightGreyBorder =
+                              OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1),
+                          );
+
+                          const InputDecoration inputDecoration =
+                              InputDecoration(
+                            border: lightGreyBorder,
+                            enabledBorder: lightGreyBorder,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.blue, width: 1.5),
+                            ),
+                            labelText: '',
+                          );
                           return Dialog(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -305,11 +325,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        CustomText(
-                                          content: "Add Card Details",
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
+                                        const Text(
+                                          "Add Card Details",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         GestureDetector(
                                           onTap: () =>
@@ -336,56 +358,16 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                             backgroundColor: Colors.black,
                                             foregroundColor: Colors.white,
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 12),
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16),
-                                          child: Row(
-                                            children: [
-                                              const Expanded(child: Divider()),
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.4,
-                                                child: Row(
-                                                  children: [
-                                                    const Expanded(
-                                                      child: Divider(
-                                                        color: Colors.grey,
-                                                        thickness: 1,
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 8),
-                                                      child: CustomText(
-                                                        content: "OR",
-                                                        color: Colors.grey,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    const Expanded(
-                                                      child: Divider(
-                                                        color: Colors.grey,
-                                                        thickness: 1,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const Expanded(child: Divider()),
-                                            ],
-                                          ),
-                                        ),
+                                        const SizedBox(height: 16),
                                         const Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
@@ -397,39 +379,29 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         TextFormField(
-                                          decoration: const InputDecoration(
-                                            labelText: "Card holder name",
-                                            border: OutlineInputBorder(),
-                                          ),
+                                          decoration: inputDecoration.copyWith(
+                                              labelText: "Card holder name"),
                                         ),
                                         const SizedBox(height: 8),
                                         TextFormField(
-                                          decoration: const InputDecoration(
-                                            labelText: "Card number",
-                                            border: OutlineInputBorder(),
-                                          ),
+                                          decoration: inputDecoration.copyWith(
+                                              labelText: "Card number"),
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: TextFormField(
-                                                decoration:
-                                                    const InputDecoration(
-                                                  labelText: "CVV",
-                                                  border: OutlineInputBorder(),
-                                                ),
+                                                decoration: inputDecoration
+                                                    .copyWith(labelText: "CVV"),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: DropdownButtonFormField<
                                                   String>(
-                                                decoration:
-                                                    const InputDecoration(
-                                                  labelText: "MM",
-                                                  border: OutlineInputBorder(),
-                                                ),
+                                                decoration: inputDecoration
+                                                    .copyWith(labelText: "MM"),
                                                 items:
                                                     List.generate(12, (index) {
                                                   final month = (index + 1)
@@ -446,11 +418,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                             Expanded(
                                               child: DropdownButtonFormField<
                                                   String>(
-                                                decoration:
-                                                    const InputDecoration(
-                                                  labelText: "YY",
-                                                  border: OutlineInputBorder(),
-                                                ),
+                                                decoration: inputDecoration
+                                                    .copyWith(labelText: "YY"),
                                                 items:
                                                     List.generate(10, (index) {
                                                   final year =

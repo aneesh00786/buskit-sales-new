@@ -194,6 +194,17 @@ Future<dynamic> registerDialog(BuildContext context,
                           log("Invalid OTP. Please enter the correct OTP.");
                           return;
                         }
+                        ApiWorker().insertAdmin(
+                            address: loginController.addressController.text,
+                            country: loginController.countryController.text,
+                            email: loginController.businessEmailController.text,
+                            name: loginController.businessNameController.text,
+                            fullPhoneNo:
+                                loginController.phoneNumberController.text,
+                            password: '1234',
+                            state: loginController.stateController.text,
+                            town: loginController.townController.text,
+                            zipcode: loginController.postCodeController.text);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

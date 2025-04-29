@@ -1585,4 +1585,67 @@ class ApiWorker with ApiConstants {
       throw Exception('Error fetching plans: $e');
     }
   }
+
+  Future<String> sendVerificationMail(String email) async {
+    final requestData = {
+      "email": email,
+    };
+    try {
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.sendVerificationMail,
+      );
+      if (response != null && response.data['status'] == true) {
+        log('Verification mail sent successfully.');
+      } else {
+        log('Error: ${response.data['message'] ?? 'Unknown error occurred.'}');
+      }
+    } on DioException catch (e) {
+      handleExceptionMessage(
+          apiName: "Send verification Email", error: e, response: e.response);
+    } catch (e) {
+      print('Unexpected error: $e');
+    }
+    return "";
+  }
+
+  Future<void> insertAdmin({
+    required String name,
+    required String email,
+    required String password,
+    required String town,
+    required String state,
+    required String zipcode,
+    required String address,
+    required String country,
+    required String fullPhoneNo,
+  }) async {
+    final Map<String, String> requestData = {
+      "name": name,
+      "email": email,
+      "password": password,
+      "town": town,
+      "state": state,
+      "zipcode": zipcode,
+      "address": address,
+      "country": country,
+      "fullphoneno": fullPhoneNo,
+    };
+
+    try {
+      final response = await responsePostMethod(
+          requestData: requestData, endPoint: ApiConstants.insertadmin);
+      if (response.statusCode == 200) {
+        log("Admin inserted successfully: ${response.data}");
+      } else {
+        handleExceptionMessage(apiName: "insert admin", response: response);
+        print(
+            "Failed to insert admin: ${response.statusCode} - ${response.data}");
+      }
+    } on DioException catch (e) {
+      handleExceptionMessage(
+          apiName: "insert admin", response: e.response, error: e);
+      log("Error occurred while making POST request: $e");
+    }
+  }
 }

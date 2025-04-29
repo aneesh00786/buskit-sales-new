@@ -59,6 +59,8 @@ mixin class ApiConstants {
   static const String fetchLeadsCount = "fetchLeadsCount";
   static const String updateCheckinOut = "UpdateCheckInOut";
   static const String fetchAllDiscount = "fetch_all_discount";
+  static const String sendVerificationMail = "sendVerificationMail";
+  static const String insertadmin = "insertadmin";
 
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";

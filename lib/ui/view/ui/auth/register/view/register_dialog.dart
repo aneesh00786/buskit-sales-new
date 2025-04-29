@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
@@ -7,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_pl
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_search_widget.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {
@@ -153,10 +157,10 @@ Future<dynamic> registerDialog(BuildContext context,
                   const SizedBox(
                     height: 20,
                   ),
-                  RegisterTextField(
-                    hinttext: "Business Email",
+                  BusinessEmailField(
                     textEditingController:
                         loginController.businessEmailController,
+                    hinttext: "Business Email",
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
@@ -166,6 +170,7 @@ Future<dynamic> registerDialog(BuildContext context,
                       }
                       return null;
                     },
+                    loginController: loginController,
                   ),
                   const SizedBox(
                     height: 30,
@@ -174,14 +179,31 @@ Future<dynamic> registerDialog(BuildContext context,
                     isRoundedCorner: true,
                     buttonText: "Register",
                     onPressed: () async {
-                      //if (formKey.currentState?.validate() ?? false) {
+                      if (formKey.currentState?.validate() ?? false) {
+                        final email =
+                            loginController.businessEmailController.text;
+                        if (!loginController.isEmailVerified.value) {
+                          await loginController.verifyEmail(email);
+                          if (!loginController.isEmailVerified.value) {
+                            log("Please verify your email before proceeding.");
+                            return;
+                          }
+                        }
+                        final otp = loginController.otpController.text;
+                        if (!loginController.validateOtp(otp)) {
+                          log("Invalid OTP. Please enter the correct OTP.");
+                          return;
+                        }
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterPlanScreen(),
-                            ));
-                        print('Form is valid');
-                      //}
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterPlanScreen(),
+                          ),
+                        );
+                        log('Form is valid, email verified, and OTP is correct.');
+                      } else {
+                        log("Form validation failed.");
+                      }
                     },
                     btnController: loginController.registerController,
                   ),
@@ -193,4 +215,109 @@ Future<dynamic> registerDialog(BuildContext context,
       );
     },
   );
+}
+
+class BusinessEmailField extends StatefulWidget {
+  final TextEditingController textEditingController;
+  final String hinttext;
+  final String? Function(String?) validator;
+  final LoginController loginController;
+
+  const BusinessEmailField({
+    Key? key,
+    required this.textEditingController,
+    required this.hinttext,
+    required this.validator,
+    required this.loginController,
+  }) : super(key: key);
+
+  @override
+  _BusinessEmailFieldState createState() => _BusinessEmailFieldState();
+}
+
+class _BusinessEmailFieldState extends State<BusinessEmailField> {
+  bool showVerifyButton = false;
+  bool isEmailVerified = false;
+  String successMessage = "";
+  @override
+  void initState() {
+    super.initState();
+    widget.textEditingController.addListener(() {
+      setState(() {
+        showVerifyButton = widget.textEditingController.text.isNotEmpty;
+        successMessage = "";
+        isEmailVerified = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.textEditingController.removeListener(() {});
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: RegisterTextField(
+                hinttext: widget.hinttext,
+                textEditingController: widget.textEditingController,
+                validator: widget.validator,
+              ),
+            ),
+            if (showVerifyButton)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: white,
+                  ),
+                  onPressed: () async {
+                    await widget.loginController
+                        .verifyEmail(widget.textEditingController.text);
+                    print('Verify button clicked!');
+                  },
+                  child: const Text('Verify'),
+                ),
+              ),
+          ],
+        ),
+        Obx(() {
+          if (widget.loginController.successMessage.isNotEmpty) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                widget.loginController.successMessage.value,
+                style: TextStyle(
+                  color: widget.loginController.isEmailVerified.value
+                      ? Colors.green
+                      : Colors.red,
+                  fontSize: 14,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+        const SizedBox(height: 10),
+        RegisterTextField(
+          hinttext: "OTP",
+          textEditingController: widget.loginController.otpController,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter OTP';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
 }

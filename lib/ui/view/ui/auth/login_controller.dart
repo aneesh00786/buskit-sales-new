@@ -39,14 +39,14 @@ class LoginController extends GetxController {
   TabController? get tabController => _tabController;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController businessNameController= TextEditingController();
-  TextEditingController addressController= TextEditingController();
-  TextEditingController townController= TextEditingController();
-  TextEditingController stateController= TextEditingController();
-  TextEditingController postCodeController= TextEditingController();
-  TextEditingController countryController= TextEditingController();
-  TextEditingController phoneNumberController= TextEditingController();
-  TextEditingController businessEmailController= TextEditingController();
+  TextEditingController businessNameController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController townController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
+  TextEditingController postCodeController = TextEditingController();
+  TextEditingController countryController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController businessEmailController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   ProductsController productsController = Get.put(ProductsController());
   PendingPaymentController pendingPaymentController =
@@ -73,6 +73,40 @@ class LoginController extends GetxController {
   final int currentYear = DateTime.now().year;
   int selectedTabIndex = 0;
   SearchModel searchData = SearchModel();
+  var isEmailVerified = false.obs;
+  var successMessage = "".obs;
+  String? serverGeneratedOtp;
+  TextEditingController otpController = TextEditingController();
+  Future<void> verifyEmail(String email) async {
+    try {
+      serverGeneratedOtp = await ApiWorker().sendVerificationMail(email);
+      successMessage.value =
+          "Your email verification is successful, and an OTP has been sent to your email.";
+      isEmailVerified.value = true;
+    } catch (e) {
+      successMessage.value = "Verification failed. Please try again.";
+      isEmailVerified.value = false;
+    }
+  }
+
+  bool validateOtp(String enteredOtp) {
+    if (enteredOtp == serverGeneratedOtp) {
+      isEmailVerified.value = true;
+      successMessage.value = "OTP verified successfully.";
+      return true;
+    } else {
+      isEmailVerified.value = false;
+      successMessage.value = "Invalid OTP. Please try again.";
+      return false;
+    }
+  }
+
+  void resetVerificationState() {
+    isEmailVerified.value = false;
+    successMessage.value = "";
+    serverGeneratedOtp = null;
+    otpController.clear();
+  }
 
   Widget get getIsPasswordVisible {
     if (isPasswordVisible.value) {

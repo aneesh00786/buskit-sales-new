@@ -66,6 +66,14 @@ class PlansTableWidgets extends StatelessWidget {
                         color: status == 'true' ? Colors.green : Colors.red,
                         size: 15,
                       ),
+                      // child: Center(
+                      //   child: Image.asset(
+                      //     status == 'true'
+                      //         ? "assets/images/close and tick.png"
+                      //         : "assets/images/close png.png",
+                      //     height: 20,
+                      //   ),
+                      // ),
                     ),
                   ),
                 );
@@ -77,6 +85,7 @@ class PlansTableWidgets extends StatelessWidget {
     );
   }
 }
+
 class TableTitle extends StatelessWidget {
   String title;
   TableTitle({super.key, required this.title});

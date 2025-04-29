@@ -11,7 +11,7 @@ class PlanCheckboxRow extends StatelessWidget {
   const PlanCheckboxRow({
     Key? key,
     required this.planName,
-    this.fontSize = 20.0,
+    this.fontSize = 16,
     required this.isSelected,
     required this.onChanged,
   }) : super(key: key);

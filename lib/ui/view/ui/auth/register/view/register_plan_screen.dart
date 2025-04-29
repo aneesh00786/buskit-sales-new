@@ -62,66 +62,84 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   height: 100,
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 65, 203, 210),
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20))),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        CustomText(
-                          content: "Feature",
-                          color: white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20,
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            PlanCheckboxRow(
-                              planName: "Basic \$10.00/Mo",
-                              isSelected: selectedPlanIndex == 0,
-                              onChanged: (_) => onCheckedChanged(0),
+                    color: Color.fromARGB(255, 65, 203, 210),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.of(context)
+                            .size
+                            .width, 
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: CustomText(
+                              content: "Feature",
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 17,
                             ),
-                            PlanCheckboxRow(
-                              planName: "Basic \$120.00/Year",
-                              isSelected: selectedPlanIndex == 1,
-                              onChanged: (_) => onCheckedChanged(1),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            PlanCheckboxRow(
-                              planName: "Premium \$20.00/Mo",
-                              isSelected: selectedPlanIndex == 2,
-                              onChanged: (_) => onCheckedChanged(2),
-                            ),
-                            PlanCheckboxRow(
-                              planName: "Premium \$240.00/Ye",
-                              isSelected: selectedPlanIndex == 3,
-                              onChanged: (_) => onCheckedChanged(3),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            PlanCheckboxRow(
-                              planName: "Maxi \$30.00/Mo",
-                              isSelected: selectedPlanIndex == 4,
-                              onChanged: (_) => onCheckedChanged(4),
-                            ),
-                            PlanCheckboxRow(
-                              planName: "Maxi \$360.00/Ye",
-                              isSelected: selectedPlanIndex == 5,
-                              onChanged: (_) => onCheckedChanged(5),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          SizedBox(width: 15,),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              PlanCheckboxRow(
+                                planName: "Basic \$10.00/Mo",
+                                isSelected: selectedPlanIndex == 0,
+                                onChanged: (_) => onCheckedChanged(0),
+                              ),
+                              PlanCheckboxRow(
+                                planName: "\$120.00/Year",
+                                isSelected: selectedPlanIndex == 1,
+                                onChanged: (_) => onCheckedChanged(1),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 15,),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              PlanCheckboxRow(
+                                planName: "Premium \$20.00/Mo",
+                                isSelected: selectedPlanIndex == 2,
+                                onChanged: (_) => onCheckedChanged(2),
+                              ),
+                              PlanCheckboxRow(
+                                planName: "\$240.00/Year",
+                                isSelected: selectedPlanIndex == 3,
+                                onChanged: (_) => onCheckedChanged(3),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 15,),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              PlanCheckboxRow(
+                                planName: "Maxi \$30.00/Mo",
+                                isSelected: selectedPlanIndex == 4,
+                                onChanged: (_) => onCheckedChanged(4),
+                              ),
+                              PlanCheckboxRow(
+                                planName: "\$360.00/Year",
+                                isSelected: selectedPlanIndex == 5,
+                                onChanged: (_) => onCheckedChanged(5),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -498,15 +516,15 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       );
                     },
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      height: 50,
                       decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 65, 203, 210),
                           borderRadius: BorderRadius.circular(15)),
-                      child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
                         child: CustomText(
                           content: 'Subscribe Basic for ₹10256.40/Yr',
-                          fontSize: 18,
+                          textAlign: TextAlign.center,
+                          fontSize: 16,
                           color: white,
                           fontWeight: FontWeight.w600,
                         ),

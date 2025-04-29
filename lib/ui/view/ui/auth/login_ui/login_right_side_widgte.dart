@@ -26,6 +26,7 @@ class LoginRightSideWidget extends StatefulWidget {
 
 class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
   ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -208,7 +209,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           isRoundedCorner: true,
           buttonText: "Register",
           onPressed: () async {
-            registerDialog(context,widget.loginController);
+            registerDialog(context,widget.loginController,_formKey);
           },
           btnController: widget.loginController.registerButtonController,
         ),
@@ -218,14 +219,17 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
 }
 
 class RegisterTextField extends StatelessWidget {
-  String hinttext;
-  Icon? icon;
-  TextEditingController textEditingController;
+  final String hinttext;
+  final Icon? icon;
+  final TextEditingController textEditingController;
+  final String? Function(String?)? validator;
+
   RegisterTextField({
     super.key,
     required this.hinttext,
     this.icon,
     required this.textEditingController,
+    this.validator, 
   });
 
   @override
@@ -249,9 +253,11 @@ class RegisterTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
+      validator: validator, 
     );
   }
 }
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 

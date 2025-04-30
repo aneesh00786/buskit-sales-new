@@ -1,7 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'dart:math' as rand;
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -77,16 +79,53 @@ class LoginController extends GetxController {
   var successMessage = "".obs;
   String? serverGeneratedOtp;
   TextEditingController otpController = TextEditingController();
+  // Future<void> verifyEmail(String email) async {
+  //   try {
+  //     serverGeneratedOtp = await ApiWorker().sendVerificationMail(email);
+  //     successMessage.value =
+  //         "Your email verification is successful, and an OTP has been sent to your email.";
+  //     isEmailVerified.value = true;
+  //   } catch (e) {
+  //     successMessage.value = "Verification failed. Please try again.";
+  //     isEmailVerified.value = false;
+  //   }
+  // }
   Future<void> verifyEmail(String email) async {
     try {
-      serverGeneratedOtp = await ApiWorker().sendVerificationMail(email);
-      successMessage.value =
-          "Your email verification is successful, and an OTP has been sent to your email.";
-      isEmailVerified.value = true;
+      serverGeneratedOtp = generateOtp();
+      final requestData = {
+        "email": email,
+        "otp": serverGeneratedOtp,
+      };
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.sendVerificationMail,
+      );
+      if (response.data['status'] == true) {
+        log('Verification mail sent successfully.');
+        successMessage.value =
+            "Your email verification is successful, and an OTP has been sent to your email.";
+        isEmailVerified.value = false;
+      } else {
+        log('Error: ${response.data['message'] ?? 'Unknown error occurred.'}');
+        successMessage.value = "Verification failed. Please try again.";
+        isEmailVerified.value = false;
+      }
+    } on DioException catch (e) {
+      handleExceptionMessage(
+          apiName: "Send verification Email", error: e, response: e.response);
+      successMessage.value = "Verification failed. Please try again.";
+      isEmailVerified.value = false;
     } catch (e) {
+      log('Unexpected error: $e');
       successMessage.value = "Verification failed. Please try again.";
       isEmailVerified.value = false;
     }
+  }
+
+  String generateOtp({int length = 4}) {
+    final random = rand.Random();
+    return List.generate(length, (_) => random.nextInt(10)).join();
   }
 
   bool validateOtp(String enteredOtp) {

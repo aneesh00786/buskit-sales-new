@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {
@@ -179,22 +180,10 @@ Future<dynamic> registerDialog(BuildContext context,
                     isRoundedCorner: true,
                     buttonText: "Register",
                     onPressed: () async {
+                      final otp = loginController.otpController.text;
                       if (formKey.currentState?.validate() ?? false) {
-                        final email =
-                            loginController.businessEmailController.text;
-                        if (!loginController.isEmailVerified.value) {
-                          await loginController.verifyEmail(email);
-                          if (!loginController.isEmailVerified.value) {
-                            log("Please verify your email before proceeding.");
-                            return;
-                          }
-                        }
-                        final otp = loginController.otpController.text;
-                        if (!loginController.validateOtp(otp)) {
-                          log("Invalid OTP. Please enter the correct OTP.");
-                          return;
-                        }
-                        ApiWorker().insertAdmin(
+                        if (loginController.validateOtp(otp)) {
+                          await ApiWorker().insertAdmin(
                             address: loginController.addressController.text,
                             country: loginController.countryController.text,
                             email: loginController.businessEmailController.text,
@@ -204,14 +193,19 @@ Future<dynamic> registerDialog(BuildContext context,
                             password: '1234',
                             state: loginController.stateController.text,
                             town: loginController.townController.text,
-                            zipcode: loginController.postCodeController.text);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterPlanScreen(),
-                          ),
-                        );
-                        log('Form is valid, email verified, and OTP is correct.');
+                            zipcode: loginController.postCodeController.text,
+                          );
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('selectedCountry',
+                              loginController.countryController.text);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterPlanScreen(),
+                            ),
+                          );
+                          log('Form is valid, email verified, and OTP is correct.');
+                        }
                       } else {
                         log("Form validation failed.");
                       }
@@ -318,16 +312,18 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           return const SizedBox.shrink();
         }),
         const SizedBox(height: 10),
-        RegisterTextField(
-          hinttext: "OTP",
-          textEditingController: widget.loginController.otpController,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter OTP';
-            }
-            return null;
-          },
-        ),
+        if (widget.loginController.successMessage.value ==
+            "Your email verification is successful, and an OTP has been sent to your email.")
+          RegisterTextField(
+            hinttext: "OTP",
+            textEditingController: widget.loginController.otpController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter OTP';
+              }
+              return null;
+            },
+          ),
       ],
     );
   }

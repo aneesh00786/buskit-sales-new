@@ -235,7 +235,6 @@ void handleExceptionMessage({
   if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
     message = errorData['message'].toString();
   }
-  log('Message: ${response?.data}');
   int statusCode = response?.statusCode ?? 0;
   if (message.isNotEmpty) {
     NkCommonFunction.showErrorSnakBar("$message. $apiName");

@@ -313,8 +313,8 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           return const SizedBox.shrink();
         }),
         const SizedBox(height: 10),
-        if (widget.loginController.successMessage.value ==
-            "Your email verification is successful, and an OTP has been sent to your email.")
+        // if (widget.loginController.successMessage.value ==
+        //     "Your email verification is successful, and an OTP has been sent to your email.")
           RegisterTextField(
             hinttext: "OTP",
             textEditingController: widget.loginController.otpController,

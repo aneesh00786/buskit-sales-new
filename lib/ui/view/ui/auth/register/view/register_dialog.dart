@@ -298,33 +298,36 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           if (widget.loginController.successMessage.isNotEmpty) {
             return Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                widget.loginController.successMessage.value,
-                style: TextStyle(
-                  color: widget.loginController.successMessage.value ==
-                          "Your email verification is successful, and an OTP has been sent to your email."
-                      ? Colors.green
-                      : Colors.red,
-                  fontSize: 14,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    widget.loginController.successMessage.value,
+                    style: TextStyle(
+                      color: widget.loginController.successMessage.value ==
+                              "Your email verification is successful, and an OTP has been sent to your email."
+                          ? Colors.green
+                          : Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  RegisterTextField(
+                    hinttext: "OTP",
+                    textEditingController: widget.loginController.otpController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter OTP';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
             );
           }
+
           return const SizedBox.shrink();
         }),
-        const SizedBox(height: 10),
-        // if (widget.loginController.successMessage.value ==
-        //     "Your email verification is successful, and an OTP has been sent to your email.")
-          RegisterTextField(
-            hinttext: "OTP",
-            textEditingController: widget.loginController.otpController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter OTP';
-              }
-              return null;
-            },
-          ),
       ],
     );
   }

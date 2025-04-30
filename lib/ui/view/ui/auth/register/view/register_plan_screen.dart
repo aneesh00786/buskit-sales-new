@@ -122,15 +122,11 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return const Center(child: Text('No plans available.'));
                       }
-
                       List<Plan> plans = snapshot.data!;
-
-                      // Ensure you have enough plans to fill the rows
                       if (plans.length < 6) {
                         return const Center(
                             child: Text('Insufficient plan data.'));
                       }
-
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: ConstrainedBox(

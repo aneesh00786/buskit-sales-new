@@ -301,7 +301,8 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
               child: Text(
                 widget.loginController.successMessage.value,
                 style: TextStyle(
-                  color: widget.loginController.isEmailVerified.value
+                  color: widget.loginController.successMessage.value ==
+                          "Your email verification is successful, and an OTP has been sent to your email."
                       ? Colors.green
                       : Colors.red,
                   fontSize: 14,

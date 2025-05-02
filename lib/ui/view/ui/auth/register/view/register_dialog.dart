@@ -170,21 +170,6 @@ Future<dynamic> registerDialog(BuildContext context,
                           loginController.phoneNumberController,
                       focusNode: loginController.phoneNumberFocusNode,
                     ),
-                    // RegisterTextField(
-                    //   hinttext: "Phone Number",
-                    //   focusNode: loginController.phoneNumberFocusNode,
-                    //   textEditingController:
-                    //       loginController.phoneNumberController,
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return 'Please enter your phone number';
-                    //     } else if (value.length < 10) {
-                    //       return 'Please enter your 10 didgit phone number';
-                    //     }
-                    //     return null;
-                    //   },
-                    //   showSuffixIcon: isPhoneNumberValid,
-                    // ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -400,12 +385,10 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
             if (showVerifyButton)
               Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: SizedBox(
-                      width: 50,
-                      child: VerifyButton(
-                        loginController: widget.loginController,
-                        textEditingController: widget.textEditingController,
-                      ))),
+                  child: VerifyButton(
+                    loginController: widget.loginController,
+                    textEditingController: widget.textEditingController,
+                  )),
           ],
         ),
         Obx(() {
@@ -485,33 +468,36 @@ class _VerifyButtonState extends State<VerifyButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _handleVerify,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        disabledBackgroundColor: Colors.grey.shade400,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+    return SizedBox(
+      height: 40,
+      width: 80,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _handleVerify,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          disabledBackgroundColor: Colors.grey.shade400,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        child: _isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Text(
+                'Verify',
+                style: TextStyle(
+                  color: white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
-      child: _isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                color: white,
-                strokeWidth: 2,
-              ),
-            )
-          : const Text(
-              'Verify',
-              style: TextStyle(
-                color: white, // Text color
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
     );
   }
 }

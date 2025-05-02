@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_pl
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_search_widget.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -164,21 +165,26 @@ Future<dynamic> registerDialog(BuildContext context,
                     const SizedBox(
                       height: 20,
                     ),
-                    RegisterTextField(
-                      hinttext: "Phone Number",
-                      focusNode: loginController.phoneNumberFocusNode,
+                    RegisterPhoneNumberField(
                       textEditingController:
                           loginController.phoneNumberController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
-                        } else if (value.length < 10) {
-                          return 'Please enter your 10 didgit phone number';
-                        }
-                        return null;
-                      },
-                      showSuffixIcon: isPhoneNumberValid,
+                      focusNode: loginController.phoneNumberFocusNode,
                     ),
+                    // RegisterTextField(
+                    //   hinttext: "Phone Number",
+                    //   focusNode: loginController.phoneNumberFocusNode,
+                    //   textEditingController:
+                    //       loginController.phoneNumberController,
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return 'Please enter your phone number';
+                    //     } else if (value.length < 10) {
+                    //       return 'Please enter your 10 didgit phone number';
+                    //     }
+                    //     return null;
+                    //   },
+                    //   showSuffixIcon: isPhoneNumberValid,
+                    // ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -249,6 +255,93 @@ Future<dynamic> registerDialog(BuildContext context,
   );
 }
 
+class RegisterPhoneNumberField extends StatefulWidget {
+  final TextEditingController textEditingController;
+  final FocusNode focusNode;
+
+  const RegisterPhoneNumberField({
+    Key? key,
+    required this.textEditingController,
+    required this.focusNode,
+  }) : super(key: key);
+
+  @override
+  _RegisterPhoneNumberFieldState createState() =>
+      _RegisterPhoneNumberFieldState();
+}
+
+class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
+  String? _validationMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.textEditingController.addListener(_validatePhoneNumber);
+  }
+
+  @override
+  void dispose() {
+    widget.textEditingController.removeListener(_validatePhoneNumber);
+    super.dispose();
+  }
+
+  void _validatePhoneNumber() {
+    final text = widget.textEditingController.text;
+    if (text.length < 10) {
+      setState(() {
+        _validationMessage = 'Phone number must be 10 digits';
+      });
+    } else {
+      setState(() {
+        _validationMessage = null;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: widget.textEditingController,
+          focusNode: widget.focusNode,
+          keyboardType: TextInputType.number,
+          maxLength: 10,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          decoration: InputDecoration(
+            hintText: 'Phone Number',
+            counterText: '',
+            errorText: _validationMessage,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your phone number';
+            } else if (value.length < 10) {
+              return 'Please enter your 10 didgit phone number';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class BusinessEmailField extends StatefulWidget {
   final TextEditingController textEditingController;
   final String hinttext;
@@ -271,8 +364,6 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
   bool showVerifyButton = false;
   bool isEmailVerified = false;
   String successMessage = "";
-  RoundedLoadingButtonController _btnController =
-      RoundedLoadingButtonController();
 
   @override
   void initState() {
@@ -310,22 +401,11 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
               Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: SizedBox(
-                    width: 50,
-                    child: Expanded(
-                      child: NkLoadingButton(
-                        btnController: _btnController,
-                        buttonText: 'verify',
-                        color: primaryColor,
-                        isRoundedCorner: true,
-                        fontColor: white,
-                        onPressed: () async {
-                          await widget.loginController
-                              .verifyEmail(widget.textEditingController.text);
-                          print('Verify button clicked!');
-                        },
-                      ),
-                    ),
-                  )),
+                      width: 50,
+                      child: VerifyButton(
+                        loginController: widget.loginController,
+                        textEditingController: widget.textEditingController,
+                      ))),
           ],
         ),
         Obx(() {
@@ -364,6 +444,74 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           return const SizedBox.shrink();
         }),
       ],
+    );
+  }
+}
+
+class VerifyButton extends StatefulWidget {
+  final LoginController loginController;
+  final TextEditingController textEditingController;
+
+  const VerifyButton({
+    Key? key,
+    required this.loginController,
+    required this.textEditingController,
+  }) : super(key: key);
+
+  @override
+  _VerifyButtonState createState() => _VerifyButtonState();
+}
+
+class _VerifyButtonState extends State<VerifyButton> {
+  bool _isLoading = false;
+
+  void _handleVerify() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await widget.loginController
+          .verifyEmail(widget.textEditingController.text);
+      print('Verify button clicked!');
+    } catch (error) {
+      print('Error: $error');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : _handleVerify,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        disabledBackgroundColor: Colors.grey.shade400,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+      ),
+      child: _isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: white,
+                strokeWidth: 2,
+              ),
+            )
+          : const Text(
+              'Verify',
+              style: TextStyle(
+                color: white, // Text color
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
     );
   }
 }

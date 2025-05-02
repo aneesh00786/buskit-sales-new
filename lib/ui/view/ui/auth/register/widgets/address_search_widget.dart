@@ -11,6 +11,8 @@ class AddressSearchField extends StatefulWidget {
   final TextEditingController townController;
   final TextEditingController stateController;
   final TextEditingController countryController;
+  final FocusNode currentFocusNode;
+  final FocusNode nextFocusNode;
 
   AddressSearchField({
     Key? key,
@@ -19,6 +21,8 @@ class AddressSearchField extends StatefulWidget {
     required this.townController,
     required this.stateController,
     required this.countryController,
+    required this.currentFocusNode,
+    required this.nextFocusNode,
   }) : super(key: key);
 
   @override
@@ -28,12 +32,18 @@ class AddressSearchField extends StatefulWidget {
 class _AddressSearchFieldState extends State<AddressSearchField> {
   Timer? _debounce;
   List<Map<String, dynamic>> suggestions = [];
-  bool isAddressSelected = false;
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _textFieldKey = GlobalKey();
+  bool isAddressSelected = false; // Address selection flag
+  final FocusNode addressFocusNode = FocusNode();
+  final FocusNode nextFieldFocusNode = FocusNode();
 
   void onAddressChanged(String value) {
     if (isAddressSelected) {
-      return; 
+      return; // Stop API calls if an address is selected
     }
+
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (value.isNotEmpty) {
@@ -42,9 +52,11 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         setState(() {
           suggestions = [];
         });
+        hideSuggestionsOverlay();
       }
     });
   }
+
   Future<void> fetchAddressSuggestions(String query) async {
     final url =
         Uri.parse("https://test.thrivewoo.com/search-address?query=$query");
@@ -61,12 +73,95 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
             };
           }).toList();
         });
+        if (suggestions.isNotEmpty) {
+          showSuggestionsOverlay();
+        }
       } else {
         print("Error: ${response.statusCode}");
       }
     } catch (e) {
       print("Error: $e");
     }
+  }
+
+  void showSuggestionsOverlay() {
+    hideSuggestionsOverlay();
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        final RenderBox renderBox =
+            _textFieldKey.currentContext!.findRenderObject() as RenderBox;
+        final Size size = renderBox.size;
+        final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+        return Positioned(
+          width: size.width,
+          left: offset.dx,
+          top: offset.dy + size.height,
+          child: CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            offset: Offset(0, size.height),
+            child: Material(
+              elevation: 4,
+              child: Container(
+                constraints: BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                  color: Colors.white,
+                ),
+                child: ListView.builder(
+                  itemCount: suggestions.length,
+                  itemBuilder: (context, index) {
+                    final suggestion = suggestions[index];
+                    return ListTile(
+                      title: Text(suggestion['description']),
+                      onTap: () {
+                        isAddressSelected = true; // Mark address as selected
+                        widget.textEditingController.text =
+                            suggestion['description'];
+                        populateAdditionalFields(suggestion['terms'] as List);
+                        hideSuggestionsOverlay();
+                        widget.nextFocusNode
+                            .requestFocus(); // Move to next field
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void populateAdditionalFields(List terms) {
+    String town = '';
+    String state = '';
+    String country = '';
+    if (terms.isNotEmpty) {
+      if (terms.length >= 3) {
+        town = terms[terms.length - 3]['value'];
+        state = terms[terms.length - 2]['value'];
+        country = terms[terms.length - 1]['value'];
+      } else if (terms.length == 2) {
+        state = terms[0]['value'];
+        country = terms[1]['value'];
+      } else if (terms.length == 1) {
+        country = terms[0]['value'];
+      }
+    }
+    widget.townController.text = town;
+    widget.stateController.text = state;
+    widget.countryController.text = country;
+  }
+
+  void hideSuggestionsOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   @override
@@ -83,72 +178,35 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     widget.textEditingController.removeListener(() {
       onAddressChanged(widget.textEditingController.text);
     });
+    hideSuggestionsOverlay();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RegisterTextField(
-          hinttext: widget.hinttext,
-          icon: const Icon(EneftyIcons.buildings_outline),
-          textEditingController: widget.textEditingController,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your Business name';
-            }
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: RegisterTextField(
+        hinttext: widget.hinttext,
+        key: _textFieldKey,
+        icon: const Icon(EneftyIcons.buildings_outline),
+        textEditingController: widget.textEditingController,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your Business name';
+          }
 
-            return null;
-          },
-        ),
-        if (suggestions.isNotEmpty)
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                final suggestion = suggestions[index];
-                return ListTile(
-                  title: Text(suggestion['description']),
-                  onTap: () {
-                    widget.textEditingController.text =
-                        suggestion['description'];
-                    final terms = suggestion['terms'] as List;
-                    String town = '';
-                    String state = '';
-                    String country = '';
-                    if (terms.isNotEmpty) {
-                      if (terms.length >= 3) {
-                        town = terms[terms.length - 3]['value'];
-                        state = terms[terms.length - 2]['value'];
-                        country = terms[terms.length - 1]['value'];
-                      } else if (terms.length == 2) {
-                        state = terms[0]['value'];
-                        country = terms[1]['value'];
-                      } else if (terms.length == 1) {
-                        country = terms[0]['value'];
-                      }
-                    }
-                    widget.townController.text = town;
-                    widget.stateController.text = state;
-                    widget.countryController.text = country;
-                    setState(() {
-                      suggestions = [];
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-      ],
+          return null;
+        },
+        focusNode: widget.currentFocusNode,
+        onChanged: (value) {
+          if (isAddressSelected) {
+            setState(() {
+              isAddressSelected = false;
+            });
+          }
+        },
+      ),
     );
   }
 }

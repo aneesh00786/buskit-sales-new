@@ -223,6 +223,8 @@ class RegisterTextField extends StatelessWidget {
   final Icon? icon;
   final TextEditingController textEditingController;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  void Function(String)? onChanged;
 
   RegisterTextField({
     super.key,
@@ -230,12 +232,16 @@ class RegisterTextField extends StatelessWidget {
     this.icon,
     required this.textEditingController,
     this.validator, 
+    this.focusNode,
+    this.onChanged
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: textEditingController,
+      focusNode: focusNode,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hinttext,
         prefixIconColor: Colors.grey,

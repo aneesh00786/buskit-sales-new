@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
@@ -56,6 +57,7 @@ Future<dynamic> registerDialog(BuildContext context,
                   ),
                   RegisterTextField(
                     hinttext: "Business Name",
+                    focusNode: loginController.businessEmailFocusNode,
                     icon: const Icon(EneftyIcons.buildings_outline),
                     textEditingController:
                         loginController.businessNameController,
@@ -76,6 +78,8 @@ Future<dynamic> registerDialog(BuildContext context,
                     townController: loginController.townController,
                     stateController: loginController.stateController,
                     countryController: loginController.countryController,
+                    currentFocusNode: loginController.addressFocusNode,
+                    nextFocusNode: loginController.townFocusNode,
                   ),
                   const SizedBox(
                     height: 20,
@@ -85,6 +89,7 @@ Future<dynamic> registerDialog(BuildContext context,
                       Expanded(
                         child: RegisterTextField(
                           hinttext: "Town",
+                          focusNode: loginController.townFocusNode,
                           textEditingController: loginController.townController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -100,6 +105,7 @@ Future<dynamic> registerDialog(BuildContext context,
                       Expanded(
                         child: RegisterTextField(
                           hinttext: "State",
+                          focusNode: loginController.stateFocusNode,
                           textEditingController:
                               loginController.stateController,
                           validator: (value) {
@@ -116,6 +122,7 @@ Future<dynamic> registerDialog(BuildContext context,
                       Expanded(
                         child: RegisterTextField(
                           hinttext: "Post Code",
+                          focusNode: loginController.postCodeFocusNode,
                           textEditingController:
                               loginController.postCodeController,
                           validator: (value) {
@@ -133,6 +140,7 @@ Future<dynamic> registerDialog(BuildContext context,
                   ),
                   RegisterTextField(
                     hinttext: "Country",
+                    focusNode: loginController.countryFocusNode,
                     textEditingController: loginController.countryController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -146,6 +154,7 @@ Future<dynamic> registerDialog(BuildContext context,
                   ),
                   RegisterTextField(
                     hinttext: "Phone Number",
+                    focusNode: loginController.phoneNumberFocusNode,
                     textEditingController:
                         loginController.phoneNumberController,
                     validator: (value) {
@@ -244,6 +253,9 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
   bool showVerifyButton = false;
   bool isEmailVerified = false;
   String successMessage = "";
+  RoundedLoadingButtonController _btnController =
+      RoundedLoadingButtonController();
+
   @override
   void initState() {
     super.initState();
@@ -278,24 +290,29 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
             ),
             if (showVerifyButton)
               Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: white,
-                  ),
-                  onPressed: () async {
-                    await widget.loginController
-                        .verifyEmail(widget.textEditingController.text);
-                    print('Verify button clicked!');
-                  },
-                  child: const Text('Verify'),
-                ),
-              ),
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: SizedBox(
+                    width: 50,
+                    child: Expanded(
+                      child: NkLoadingButton(
+                        btnController: _btnController,
+                        buttonText: 'verify',
+                        color: primaryColor,
+                        isRoundedCorner: true,
+                        fontColor: white,
+                        onPressed: () async {
+                          await widget.loginController
+                              .verifyEmail(widget.textEditingController.text);
+                          print('Verify button clicked!');
+                        },
+                      ),
+                    ),
+                  )),
           ],
         ),
         Obx(() {
-          if (widget.loginController.successMessage.isNotEmpty) {
+          if (widget.loginController.successMessage ==
+              "Your email verification is successful, and an OTP has been sent to your email.") {
             return Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Column(

@@ -113,7 +113,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                     ),
                   ),
                   child: FutureBuilder<List<Plan>>(
-                    future: _fetchedPlans, // Fetch plans from your API
+                    future: _fetchedPlans,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());

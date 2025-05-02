@@ -49,6 +49,14 @@ class LoginController extends GetxController {
   TextEditingController countryController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController businessEmailController = TextEditingController();
+  FocusNode addressFocusNode = FocusNode();
+  FocusNode townFocusNode = FocusNode();
+  FocusNode stateFocusNode = FocusNode();
+  FocusNode countryFocusNode = FocusNode();
+  FocusNode postCodeFocusNode = FocusNode();
+  FocusNode phoneNumberFocusNode = FocusNode();
+  FocusNode businessEmailFocusNode = FocusNode();
+  FocusNode otpFocusNode = FocusNode();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   ProductsController productsController = Get.put(ProductsController());
   PendingPaymentController pendingPaymentController =

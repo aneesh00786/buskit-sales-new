@@ -20,7 +20,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
   late Future<List<Plan>> _fetchedPlans;
   String _currencySymbol = '\$';
   double _conversionRate = 1.0;
-
+  List<Plan>? plans;
   @override
   void initState() {
     super.initState();
@@ -68,6 +68,15 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
 
   String _formatCurrency(double amount) {
     return '$_currencySymbol ${(amount * _conversionRate).toStringAsFixed(2)}';
+  }
+
+  String _getSelectedPlanText() {
+    if (selectedPlanIndex == null || plans == null) {
+      return 'Subscribe Basic for ₹0.00/Yr';
+    }
+    final selectedPlan = plans![selectedPlanIndex!];
+    final price = double.tryParse("${selectedPlan.price}") ?? 0.0;
+    return 'Subscribe ${selectedPlan.planName} for ${_formatCurrency(price)}/Yr';
   }
 
   void onCheckedChanged(int index) {
@@ -122,8 +131,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return const Center(child: Text('No plans available.'));
                       }
-                      List<Plan> plans = snapshot.data!;
-                      if (plans.length < 6) {
+                      plans = snapshot.data!;
+                      if (plans!.length < 6) {
                         return const Center(
                             child: Text('Insufficient plan data.'));
                       }
@@ -153,13 +162,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        '${plans[0].planName} ${_formatCurrency(double.parse("${plans[0].price}"))}/Mo',
+                                        '${plans![0].planName} ${_formatCurrency(double.parse("${plans![0].price}"))}/Mo',
                                     isSelected: selectedPlanIndex == 0,
                                     onChanged: (_) => onCheckedChanged(0),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans[1].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans![1].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 1,
                                     onChanged: (_) => onCheckedChanged(1),
                                   ),
@@ -171,13 +180,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        "${plans[2].planName} ${_formatCurrency(double.parse("${plans[2].price}"))}/Mo",
+                                        "${plans![2].planName} ${_formatCurrency(double.parse("${plans![2].price}"))}/Mo",
                                     isSelected: selectedPlanIndex == 2,
                                     onChanged: (_) => onCheckedChanged(2),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans[3].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans![3].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 3,
                                     onChanged: (_) => onCheckedChanged(3),
                                   ),
@@ -189,13 +198,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        "${plans[4].planName}${_formatCurrency(double.parse("${plans[4].price}"))}/Mo",
+                                        "${plans![4].planName}${_formatCurrency(double.parse("${plans![4].price}"))}/Mo",
                                     isSelected: selectedPlanIndex == 4,
                                     onChanged: (_) => onCheckedChanged(4),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans[5].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans![5].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 5,
                                     onChanged: (_) => onCheckedChanged(5),
                                   ),
@@ -350,7 +359,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: CustomText(
-                          content: 'Subscribe Basic for ₹10256.40/Yr',
+                          content: _getSelectedPlanText(),
                           textAlign: TextAlign.center,
                           fontSize: 16,
                           color: white,

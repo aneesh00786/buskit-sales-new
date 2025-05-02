@@ -27,10 +27,15 @@ class PlanCheckboxRow extends StatelessWidget {
           fontSize: fontSize,
         ),
         Checkbox(
-          fillColor: const WidgetStatePropertyAll(white),
           value: isSelected,
           onChanged: onChanged,
-          activeColor: Colors.green,
+          fillColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Colors.green;
+            }
+            return Colors.white;
+          }),
+          checkColor: Colors.white,
         ),
       ],
     );

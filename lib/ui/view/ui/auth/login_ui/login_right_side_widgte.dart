@@ -209,18 +209,17 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
           isRoundedCorner: true,
           buttonText: "Register",
           onPressed: () async {
-            registerDialog(context,widget.loginController,_formKey);
+            registerDialog(context, widget.loginController, _formKey);
           },
           btnController: widget.loginController.registerButtonController,
         ),
       );
-
-
 }
 
 class RegisterTextField extends StatelessWidget {
   final String hinttext;
   final Icon? icon;
+  final bool? showSuffixIcon;
   final TextEditingController textEditingController;
   final String? Function(String?)? validator;
   final FocusNode? focusNode;
@@ -231,9 +230,10 @@ class RegisterTextField extends StatelessWidget {
     required this.hinttext,
     this.icon,
     required this.textEditingController,
-    this.validator, 
+    this.validator,
     this.focusNode,
-    this.onChanged
+    this.onChanged,
+    this.showSuffixIcon,
   });
 
   @override
@@ -246,6 +246,9 @@ class RegisterTextField extends StatelessWidget {
         hintText: hinttext,
         prefixIconColor: Colors.grey,
         prefixIcon: icon,
+        suffixIcon: showSuffixIcon ?? false
+            ? Icon(EneftyIcons.tick_square_outline,color: Colors.green,)
+            : null,
         border: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
           borderRadius: BorderRadius.circular(10),
@@ -259,7 +262,7 @@ class RegisterTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      validator: validator, 
+      validator: validator,
     );
   }
 }
@@ -275,7 +278,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   // void showEmailBottomSheet(BuildContext context) {
   void showEmailBottomSheet(BuildContext context) {
     final emailController = TextEditingController();
-    bool isLoading = false; // Move it here
+    bool isLoading = false;
 
     showModalBottomSheet(
       context: context,

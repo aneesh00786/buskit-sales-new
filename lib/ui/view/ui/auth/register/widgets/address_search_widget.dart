@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_right_side_widgte.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class AddressSearchField extends StatefulWidget {
   final TextEditingController countryController;
   final FocusNode currentFocusNode;
   final FocusNode nextFocusNode;
+  final LoginController loginController;
 
   AddressSearchField({
     Key? key,
@@ -23,6 +25,7 @@ class AddressSearchField extends StatefulWidget {
     required this.countryController,
     required this.currentFocusNode,
     required this.nextFocusNode,
+    required this.loginController,
   }) : super(key: key);
 
   @override
@@ -35,13 +38,12 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
   final GlobalKey _textFieldKey = GlobalKey();
-  bool isAddressSelected = false; // Address selection flag
-  final FocusNode addressFocusNode = FocusNode();
-  final FocusNode nextFieldFocusNode = FocusNode();
+  bool isAddressSelected = false;
+  bool isPhoneNumberValid = false;
 
   void onAddressChanged(String value) {
     if (isAddressSelected) {
-      return; // Stop API calls if an address is selected
+      return;
     }
 
     if (_debounce?.isActive ?? false) _debounce!.cancel();

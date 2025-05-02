@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_right_side_widgte.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -40,12 +41,10 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   final GlobalKey _textFieldKey = GlobalKey();
   bool isAddressSelected = false;
   bool isPhoneNumberValid = false;
-
   void onAddressChanged(String value) {
     if (isAddressSelected) {
       return;
     }
-
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (value.isNotEmpty) {
@@ -88,14 +87,12 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
 
   void showSuggestionsOverlay() {
     hideSuggestionsOverlay();
-
     _overlayEntry = OverlayEntry(
       builder: (context) {
         final RenderBox renderBox =
             _textFieldKey.currentContext!.findRenderObject() as RenderBox;
         final Size size = renderBox.size;
         final Offset offset = renderBox.localToGlobal(Offset.zero);
-
         return Positioned(
           width: size.width,
           left: offset.dx,
@@ -119,13 +116,12 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
                     return ListTile(
                       title: Text(suggestion['description']),
                       onTap: () {
-                        isAddressSelected = true; // Mark address as selected
+                        isAddressSelected = true;
                         widget.textEditingController.text =
                             suggestion['description'];
                         populateAdditionalFields(suggestion['terms'] as List);
                         hideSuggestionsOverlay();
-                        widget.nextFocusNode
-                            .requestFocus(); // Move to next field
+                        widget.nextFocusNode.requestFocus();
                       },
                     );
                   },
@@ -144,6 +140,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     String town = '';
     String state = '';
     String country = '';
+    String phoneCode = '';
     if (terms.isNotEmpty) {
       if (terms.length >= 3) {
         town = terms[terms.length - 3]['value'];
@@ -156,9 +153,17 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         country = terms[0]['value'];
       }
     }
+    phoneCode = CurrencyUtils.countryCurrencyMap.entries
+            .firstWhere(
+              (entry) => entry.value['name'] == country,
+              orElse: () => MapEntry("", {"phoneCode": ""}),
+            )
+            .value['phoneCode'] ??
+        '';
     widget.townController.text = town;
     widget.stateController.text = state;
     widget.countryController.text = country;
+    widget.loginController.updatePhoneCode(phoneCode);
   }
 
   void hideSuggestionsOverlay() {

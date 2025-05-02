@@ -41,7 +41,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
       });
       return;
     }
-    final currencyCode = currencyDetails['code']!;
+    final phoneCode = currencyDetails['"phoneCode"']!;
     final currencySymbol = currencyDetails['symbol']!;
     try {
       final conversionResult = await CurrencyUtils.convertToLocalCurrency(

@@ -86,18 +86,13 @@ class LoginController extends GetxController {
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
+  final _phoneCode = ''.obs;
+  String get phoneCode => _phoneCode.value;
   TextEditingController otpController = TextEditingController();
-  // Future<void> verifyEmail(String email) async {
-  //   try {
-  //     serverGeneratedOtp = await ApiWorker().sendVerificationMail(email);
-  //     successMessage.value =
-  //         "Your email verification is successful, and an OTP has been sent to your email.";
-  //     isEmailVerified.value = true;
-  //   } catch (e) {
-  //     successMessage.value = "Verification failed. Please try again.";
-  //     isEmailVerified.value = false;
-  //   }
-  // }
+
+  void updatePhoneCode(String code) {
+    _phoneCode.value = code;
+  }
   Future<void> verifyEmail(String email) async {
     try {
       serverGeneratedOtp = generateOtp();

@@ -25,15 +25,6 @@ Future<dynamic> registerDialog(BuildContext context,
           borderRadius: BorderRadius.circular(10),
         ),
         child: StatefulBuilder(builder: (context, setState) {
-          bool isPhoneNumberValid =
-              loginController.phoneNumberController.text.length == 10;
-
-          loginController.phoneNumberController.addListener(() {
-            setState(() {
-              isPhoneNumberValid =
-                  loginController.phoneNumberController.text.length == 10;
-            });
-          });
           return Container(
             width: MediaQuery.of(context).size.width * 0.8,
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -169,6 +160,7 @@ Future<dynamic> registerDialog(BuildContext context,
                       textEditingController:
                           loginController.phoneNumberController,
                       focusNode: loginController.phoneNumberFocusNode,
+                      loginController: loginController,
                     ),
                     const SizedBox(
                       height: 20,
@@ -243,11 +235,13 @@ Future<dynamic> registerDialog(BuildContext context,
 class RegisterPhoneNumberField extends StatefulWidget {
   final TextEditingController textEditingController;
   final FocusNode focusNode;
+  final LoginController loginController;
 
   const RegisterPhoneNumberField({
     Key? key,
     required this.textEditingController,
     required this.focusNode,
+    required this.loginController,
   }) : super(key: key);
 
   @override
@@ -288,40 +282,46 @@ class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextFormField(
-          controller: widget.textEditingController,
-          focusNode: widget.focusNode,
-          keyboardType: TextInputType.number,
-          maxLength: 10,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-          ],
-          decoration: InputDecoration(
-            hintText: 'Phone Number',
-            counterText: '',
-            errorText: _validationMessage,
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your phone number';
-            } else if (value.length < 10) {
-              return 'Please enter your 10 didgit phone number';
-            }
-            return null;
+        Obx(
+          () {
+            return TextFormField(
+              controller: widget.textEditingController,
+              focusNode: widget.focusNode,
+              keyboardType: TextInputType.number,
+              maxLength: 10,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              decoration: InputDecoration(
+                hintText: 'Phone Number',
+                counterText: '',
+                errorText: _validationMessage,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixText:
+                    widget.loginController.phoneCode, 
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number';
+                } else if (value.length < 10) {
+                  return 'Please enter your 10-digit phone number';
+                }
+                return null;
+              },
+            );
           },
-        ),
+        )
       ],
     );
   }

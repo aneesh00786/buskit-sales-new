@@ -5,19 +5,23 @@ mixin class ApiConstants {
   static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
+
   /// Login APi END Point
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
+
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
+
   /// Dashboard API
   static const String dashboardList = "dashboard_list";
   static const String customerRevenue = "customer_Revenue";
   static const String fetchOrderByRange = "fetch_orderByRange";
   static const String fetchValuePerformance = "fetchValuePerformance";
-  static const String fetchSalesmanTargetByCategory = "fetch_SalesmanTargetByCatId";
+  static const String fetchSalesmanTargetByCategory =
+      "fetch_SalesmanTargetByCatId";
   static const String getDashboardList = "Get_dashboard_list";
   static const String searchCustomer = "search_customer";
   static const String deletCustomer = "delete_customer";
@@ -116,4 +120,8 @@ mixin class ApiConstants {
   static const String getStaffTimeSheet = "get_StaffTimesheet";
   static const String updateValueBasedTargetValue =
       "Update_ValueBasedtargetValue";
+
+  /// SUBSCRIBTION API
+  static const String get_subscribed_plan = "get_subscribed_plan";
+  static const String get_plan_detiails = "get_plan_detiails";
 }

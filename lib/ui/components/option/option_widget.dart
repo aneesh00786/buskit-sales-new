@@ -24,6 +24,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +76,7 @@ class _OptionWidgetState extends State<OptionWidget> {
       Get.put(CustomerAndOrderController());
 
   ProductsController productsController = Get.put(ProductsController());
+    final subscriptionController = Get.find<SubscriptionController>();
 
   final ScrollController _scrollController1 = ScrollController();
   final ScrollController _scrollController2 = ScrollController();
@@ -184,10 +187,19 @@ class _OptionWidgetState extends State<OptionWidget> {
             svg: Assets.iconsIcDashboardPreOrder,
             svgBgColor: const Color.fromARGB(255, 230, 247, 251),
             color: const Color.fromARGB(255, 45, 104, 116),
-            onTap: () {
-              provider.fetchOrdersSabik(OrderStatus.preOrder);
-              _showEstimatesDialog(
-                  context, provider, OrderStatus.preOrder, 'Booking', false);
+           onTap: () {
+              if (subscriptionController.bookingView.value == 'true') {
+                provider.fetchOrdersSabik(OrderStatus.preOrder);
+                _showEstimatesDialog(
+                    context, provider, OrderStatus.preOrder, 'Booking', false);
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UpgradePlanScreen();
+                  },
+                );
+              }
             }),
         OptionData(
             title: 'Drafts',

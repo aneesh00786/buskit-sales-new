@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -64,6 +65,8 @@ void main() async {
   await Hive.openBox('calendarEventsBox');
   await Hive.openBox('salesmanTargetBox');
   await Hive.openBox('salesmanValueTargetBox');
+  await Hive.openBox('subscribtionBox');
+  await Hive.openBox('subscribtionPlanDetailsBox');
   DatabaseHelper.database;
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
@@ -82,6 +85,9 @@ void main() async {
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
   Get.lazyPut<HomeController>(() => HomeController());
+  final subscriptionController = Get.put(SubscriptionController());
+  await subscriptionController
+      .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
   final connectivityService = ConnectivityService();
   connectivityService.startListening((connectivityResult) async {
     bool isOnline = await connectivityService.isOnline();

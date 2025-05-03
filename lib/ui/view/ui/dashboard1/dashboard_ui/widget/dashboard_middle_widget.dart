@@ -43,6 +43,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
     as model1;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -74,6 +76,8 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   String staffProjection = '';
   String targetType = '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+
+    final subscriptionController = Get.find<SubscriptionController>();
 
   @override
   void initState() {
@@ -529,6 +533,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                 ),
               ],
             ),
+            if (subscriptionController.orderStatusGraph.value == 'true') ...[
+              Expanded(
+                child: Center(
+                  child: UpgradePlanButton(),
+                ),
+              )
+            ],
+            if (subscriptionController.orderStatusGraph.value != 'true')
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

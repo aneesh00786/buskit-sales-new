@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1647,5 +1648,147 @@ class ApiWorker with ApiConstants {
           apiName: "insert admin", response: e.response, error: e);
       log("Error occurred while making POST request: $e");
     }
+  }
+
+  /// *******************************  SUBSCRIPTION  *******************************/
+
+  Future<SubscribedPlan?> fetchSubscribtionPlan(int companyId) async {
+    final cacheKey = 'subscribed_plan_data_$companyId';
+    final subscribtionBox = Hive.box('subscribtionBox');
+    log('Fetching subscription plan for company ID: $companyId');
+
+    bool isOnline = await ConnectivityService().isOnline();
+
+    if (isOnline) {
+      try {
+        final response = await dio1.post(
+          "${ApiConstants.baseUrl}${ApiConstants.get_subscribed_plan}",
+          data: {"company_id": "$companyId"},
+        );
+        log("Fetch Subscription URL: ${ApiConstants.baseUrl}${ApiConstants.get_subscribed_plan}");
+
+        final subscribedPlan = SubscribedPlan.fromJson(response.data);
+        log('Subscription plan fetched: ${subscribedPlan.toJson()}');
+
+        // Save to Hive
+        await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
+        log('Subscription plan saved to Hive.');
+
+        return subscribedPlan;
+      } on DioException catch (dioError) {
+        log("Dio error while fetching subscription plan: ${dioError.response?.data}");
+
+        handleExceptionMessage(
+          apiName: 'Fetch Subscription Plan',
+          response: dioError.response,
+        );
+
+        // Try loading from cache
+        final cachedData = subscribtionBox.get(cacheKey);
+        if (cachedData != null) {
+          log('Loaded subscription plan from cache: $cachedData');
+          return SubscribedPlan.fromJson(Map<String, dynamic>.from(cachedData));
+        } else {
+          log("No cached subscription data available.");
+          NkCommonFunction.showErrorSnakBar(
+              'No offline subscription data available.');
+        }
+      } catch (e) {
+        log("Unexpected error: $e");
+        NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+      }
+    } else {
+      log("No internet connection. Trying to load subscription plan from Hive.");
+    }
+
+    // Offline or fallback logic
+    try {
+      final cachedData = subscribtionBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Loaded subscription plan from cache: $cachedData');
+        return SubscribedPlan.fromJson(Map<String, dynamic>.from(cachedData));
+      } else {
+        log("No cached subscription data available.");
+        NkCommonFunction.showErrorSnakBar(
+            'No offline subscription data available.');
+      }
+    } catch (e) {
+      log('Error reading from Hive: $e');
+      NkCommonFunction.showErrorSnakBar(
+          'Error accessing offline subscription data.');
+    }
+
+    return null;
+  }
+
+  Future<SubscribtionPlanDetails?> fetchPlanDetails() async {
+    const cacheKey = 'subscription_plan_details';
+    final subscribtionBox = Hive.box('subscribtionPlanDetailsBox');
+    log('Fetching subscription plan for company ID: ${SessionHelper.loginSavedData?.company_id ?? 0}');
+    bool isOnline = await ConnectivityService().isOnline();
+
+    if (isOnline) {
+      try {
+        final response = await dio1.get(
+          "${ApiConstants.baseUrl}${ApiConstants.get_plan_detiails}",
+          // queryParameters: {"company_id": companyId}, // <- Correct way for GET
+        );
+
+        log("Fetch Subscription Plan Details URL: ${ApiConstants.baseUrl}${ApiConstants.get_plan_detiails}");
+
+        final subscribedPlan = SubscribtionPlanDetails.fromJson(response.data);
+        log('Subscription Plan Details fetched: ${subscribedPlan.toJson()}');
+
+        // Save to Hive
+        await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
+        log('Subscription Plan Details saved to Hive.');
+
+        return subscribedPlan;
+      } on DioException catch (dioError) {
+        log("Dio error while fetching subscription plan details: ${dioError.response?.data}");
+
+        handleExceptionMessage(
+          apiName: 'Fetch Subscription Plan Details',
+          response: dioError.response,
+        );
+
+        // Try loading from cache
+        final cachedData = subscribtionBox.get(cacheKey);
+        if (cachedData != null) {
+          log('Loaded subscription plan details from cache: $cachedData');
+          return SubscribtionPlanDetails.fromJson(
+              Map<String, dynamic>.from(cachedData));
+        } else {
+          log("No cached subscription plan details data available.");
+          NkCommonFunction.showErrorSnakBar(
+              'No offline subscription plan details data available.');
+        }
+      } catch (e) {
+        log("Unexpected error: $e");
+        NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+      }
+    } else {
+      log("No internet connection. Trying to load subscription plan details from Hive.");
+    }
+
+    // Offline or fallback logic
+    try {
+      final cachedData = subscribtionBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Loaded subscription plan details from cache: $cachedData');
+        return SubscribtionPlanDetails.fromJson(
+            Map<String, dynamic>.from(cachedData));
+      } else {
+        log("No cached subscription plan details data available.");
+        NkCommonFunction.showErrorSnakBar(
+            'No offline subscription plan details data available.');
+      }
+    } catch (e) {
+      log('Error reading from Hive: $e');
+      NkCommonFunction.showErrorSnakBar(
+          'Error accessing offline subscription plan details data.');
+    }
+
+    return null;
   }
 }

@@ -177,6 +177,9 @@ Future<dynamic> registerDialog(BuildContext context,
                         if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                           return 'Enter a valid email address';
                         }
+                        if (!value.contains('@gmail.com')) {
+                          return 'Enter a valid email address';
+                        }
                         return null;
                       },
                       loginController: loginController,
@@ -190,9 +193,9 @@ Future<dynamic> registerDialog(BuildContext context,
                       onPressed: () async {
                         final otp = loginController.otpController.text;
                         if (formKey.currentState?.validate() ?? false) {
-                            final fullPhoneNo =
-                                '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                            log('Full Phone Number $fullPhoneNo');
+                          final fullPhoneNo =
+                              '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                          log('Full Phone Number $fullPhoneNo');
                           if (loginController.validateOtp(otp)) {
                             await ApiWorker().insertAdmin(
                               address: loginController.addressController.text,
@@ -200,8 +203,7 @@ Future<dynamic> registerDialog(BuildContext context,
                               email:
                                   loginController.businessEmailController.text,
                               name: loginController.businessNameController.text,
-                              fullPhoneNo:
-                                  fullPhoneNo,
+                              fullPhoneNo: fullPhoneNo,
                               password: '1234',
                               state: loginController.stateController.text,
                               town: loginController.townController.text,

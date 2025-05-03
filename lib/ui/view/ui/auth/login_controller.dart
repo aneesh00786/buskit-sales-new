@@ -38,6 +38,8 @@ import '../../../../common/search_model.dart';
 class LoginController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
   TabController? _tabController;
+  final _phoneCode = ''.obs;
+  String get phoneCode => _phoneCode.value;
   TabController? get tabController => _tabController;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -86,13 +88,13 @@ class LoginController extends GetxController {
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
-  final _phoneCode = ''.obs;
-  String get phoneCode => _phoneCode.value;
+
   TextEditingController otpController = TextEditingController();
 
   void updatePhoneCode(String code) {
     _phoneCode.value = code;
   }
+
   Future<void> verifyEmail(String email) async {
     try {
       serverGeneratedOtp = generateOtp();

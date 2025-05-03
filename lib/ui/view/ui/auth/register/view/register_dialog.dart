@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
@@ -189,6 +190,9 @@ Future<dynamic> registerDialog(BuildContext context,
                       onPressed: () async {
                         final otp = loginController.otpController.text;
                         if (formKey.currentState?.validate() ?? false) {
+                            final fullPhoneNo =
+                                '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                            log('Full Phone Number $fullPhoneNo');
                           if (loginController.validateOtp(otp)) {
                             await ApiWorker().insertAdmin(
                               address: loginController.addressController.text,
@@ -197,7 +201,7 @@ Future<dynamic> registerDialog(BuildContext context,
                                   loginController.businessEmailController.text,
                               name: loginController.businessNameController.text,
                               fullPhoneNo:
-                                  loginController.phoneNumberController.text,
+                                  fullPhoneNo,
                               password: '1234',
                               state: loginController.stateController.text,
                               town: loginController.townController.text,
@@ -214,6 +218,8 @@ Future<dynamic> registerDialog(BuildContext context,
                               ),
                             );
                             log('Form is valid, email verified, and OTP is correct.');
+                          } else {
+                            errorSnackbar("Please verify the email.");
                           }
                         } else {
                           log("Form validation failed.");
@@ -251,7 +257,6 @@ class RegisterPhoneNumberField extends StatefulWidget {
 
 class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
   String? _validationMessage;
-
   @override
   void initState() {
     super.initState();
@@ -308,8 +313,19 @@ class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
                   borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                prefixText:
-                    widget.loginController.phoneCode, 
+                prefixIcon: Container(
+                  width: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                    ),
+                  ),
+                  child: Text(
+                    widget.loginController.phoneCode,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {

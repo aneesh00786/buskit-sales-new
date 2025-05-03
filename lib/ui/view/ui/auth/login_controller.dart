@@ -184,13 +184,13 @@ class LoginController extends GetxController {
         "email": emailController.text.removeAllWhitespace,
         "password": passwordController.text,
       };
-     // bool isOnline = await ConnectivityService().isOnline();
+     bool isOnline = await ConnectivityService().isOnline();
 
-      // if (!isOnline) {
-      //   showErrorDialog('Login Failed',
-      //       'No internet connection. Please check your network.');
-      //   return false;
-      // }
+      if (!isOnline) {
+        showErrorDialog('Login Failed',
+            'No internet connection. Please check your network.');
+        return false;
+      }
 
       log("Request Body: $requestBody");
       loginResponce = await _apiWorker.loginApi(

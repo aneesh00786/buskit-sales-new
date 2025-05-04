@@ -177,7 +177,6 @@ class LoginController extends GetxController {
     DateTime now = DateTime.now();
     String currentMonthName = DateFormat('MMMM').format(now);
     DateTime? initialDay;
-
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,

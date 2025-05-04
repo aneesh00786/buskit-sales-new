@@ -173,7 +173,6 @@ class LoginController extends GetxController {
   void initializeTabController(TickerProvider vsync, {required int length}) {
     _tabController = TabController(length: length, vsync: vsync);
   }
-
   Future<bool> performLogin(BuildContext context) async {
     DateTime now = DateTime.now();
     String currentMonthName = DateFormat('MMMM').format(now);

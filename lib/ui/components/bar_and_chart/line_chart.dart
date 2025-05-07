@@ -82,7 +82,22 @@ class _LineChartSample2State extends State<LineChartSample2> {
     }
 
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: TitleMeta(
+        min: 0, 
+        max: 100, 
+        parentAxisSize: 50, 
+        axisPosition: 0, 
+        appliedInterval: 10, 
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 30, 
+          interval: 10, 
+        ),
+        formattedValue: 'YourFormattedValue', 
+        axisSide: AxisSide
+            .left, 
+        rotationQuarterTurns: 0,
+      ),
       child: text,
     );
   }

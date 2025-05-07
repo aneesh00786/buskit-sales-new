@@ -248,6 +248,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               ],
             ),
             nkSmallSizeBox(),
+            if (subscriptionController.collectionGraph.value != 'true') ...[
+              Expanded(
+                child: Center(
+                  child: UpgradePlanButton(),
+                ),
+              )
+            ],
+            if (subscriptionController.collectionGraph.value == 'true')
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -886,6 +894,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                 ),
               ],
             ),
+            if (subscriptionController.bookingView.value != 'true') ...[
+              Expanded(
+                child: Center(
+                  child: UpgradePlanButton(),
+                ),
+              )
+            ],
+            if (subscriptionController.bookingView.value == 'true')
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -1290,6 +1306,14 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               ],
             ),
             nkSmallSizeBox(),
+             if (subscriptionController.frequentlyBroughtProduct1.value != 'true') ...[
+              Expanded(
+                child: Center(
+                  child: UpgradePlanButton(),
+                ),
+              )
+            ],
+            if (subscriptionController.frequentlyBroughtProduct1.value == 'true')
             Consumer<DashboardProvider>(
               builder: (context, provider, child) {
                 return FutureBuilder<ResponseModell>(
@@ -1954,6 +1978,7 @@ class CommunicationsDisplayWidget extends StatefulWidget {
 
 class _CommunicationsDisplayWidgetState
     extends State<CommunicationsDisplayWidget> {
+    final subscriptionController = Get.find<SubscriptionController>();
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -2004,6 +2029,14 @@ class _CommunicationsDisplayWidgetState
                 ),
               ],
             ),
+            if (subscriptionController.communication.value != 'true') ...[
+              Expanded(
+                child: Center(
+                  child: UpgradePlanButton(),
+                ),
+              )
+            ],
+            if (subscriptionController.communication.value == 'true')
             const Expanded(
               child: ChatScreen(),
             ),

@@ -171,8 +171,22 @@ class BarChartSample2State extends State<BarChartSample2> {
       text = '0';
     }
     return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 0,
+      meta: TitleMeta(
+        min: 0, 
+        max: 100, 
+        parentAxisSize: 50,
+        axisPosition: 0,
+        appliedInterval: 10,
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 30, 
+          interval: 10, 
+        ),
+        formattedValue: 'YourFormattedValue', 
+        axisSide: AxisSide
+            .left, 
+        rotationQuarterTurns: 0, 
+      ),
       child: MyRegularText(label: text, style: style),
     );
   }
@@ -203,8 +217,23 @@ class BarChartSample2State extends State<BarChartSample2> {
     );
 
     return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 16, //margin top
+      meta: TitleMeta(
+        min: 0, 
+        max: 100,
+        parentAxisSize: 50, 
+        axisPosition: 0, 
+        appliedInterval: 10, 
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 30, 
+          interval: 10, 
+        ),
+        formattedValue: 'YourFormattedValue', 
+        axisSide: AxisSide
+            .left,
+        rotationQuarterTurns: 0,
+      ),
+      space: 16, 
       child: text,
     );
   }

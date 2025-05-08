@@ -17,22 +17,7 @@ class UpgradePlanButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text("Please contact admin for upgrade plans"),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('ok'))
-              ],
-            );
-            //UpgradePlanScreen();
-          },
-        );
+        showUpgradePlanDialog(context);
       },
       child: const Text(
         'UPGRADE PLAN',

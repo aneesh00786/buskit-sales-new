@@ -1,4 +1,3 @@
-
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names
 
 import 'dart:developer';
@@ -34,6 +33,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -80,10 +82,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
   int selectedYear = 2025;
   late TabController _tabController;
-    late int _tabIndex;
+  late int _tabIndex;
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
+  final subscriptionController = Get.find<SubscriptionController>();
   ApiWorker apiWorker = Get.put(ApiWorker());
   @override
   void initState() {
@@ -91,7 +94,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     log('Is Calender :${widget.isFromCalendar}');
     log('Calender Calender Customer ID :${widget.cusId}');
     Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(widget.cusId.toString(), selectedYear);
+        .fetchCustomerDashboardDataSalseData(
+            widget.cusId.toString(), selectedYear);
     _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -125,7 +129,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       cartProvider.fetchCustomerDashboardCountData(customerId ?? '');
     });
   }
-
 
   @override
   void dispose() {
@@ -203,7 +206,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                _navigateToOrderTaking();
+                if (subscriptionController.orderTakingFromDashboard.value !=
+                    "true") {
+                  showUpgradePlanDialog(context);
+                }
+                if (subscriptionController.orderTakingFromDashboard.value ==
+                    "true") {
+                  _navigateToOrderTaking();
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -254,8 +264,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ConstrainedBox(
-                              constraints:
-                                  const BoxConstraints(maxWidth: double.infinity),
+                              constraints: const BoxConstraints(
+                                  maxWidth: double.infinity),
                               child: MyRegularText(
                                 label: customerName ?? '',
                                 fontSize: 8.8,
@@ -526,6 +536,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ),
     );
   }
+
   Expanded OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
     return Expanded(
@@ -570,19 +581,25 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       height: 25,
                       child: ElevatedButton(
                         onPressed: () {
-                          List<RecentOrder> selectedOrders = [];
-                          for (var order in recentOrders) {
-                            if (context
-                                .read<CustomersProvider>()
-                                .isOrderSelected(order)) {
-                              selectedOrders.add(order);
+                          if (subscriptionController
+                                  .customerPaymentCollection.value ==
+                              "true") {
+                            List<RecentOrder> selectedOrders = [];
+                            for (var order in recentOrders) {
+                              if (context
+                                  .read<CustomersProvider>()
+                                  .isOrderSelected(order)) {
+                                selectedOrders.add(order);
+                              }
                             }
-                          }
-                          // Show the appropriate dialog or toast based on the selection
-                          if (selectedOrders.isNotEmpty) {
-                            paymentCollectionDialog(context, selectedOrders);
+                            // Show the appropriate dialog or toast based on the selection
+                            if (selectedOrders.isNotEmpty) {
+                              paymentCollectionDialog(context, selectedOrders);
+                            } else {
+                              showCustomToast(context);
+                            }
                           } else {
-                            showCustomToast(context);
+                            showUpgradePlanDialog(context);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -968,8 +985,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       : Colors.grey[100]!;
 
                                   return DataRow(
-                                    color: WidgetStateProperty.resolveWith<
-                                        Color>(
+                                    color:
+                                        WidgetStateProperty.resolveWith<Color>(
                                       (Set<WidgetState> states) {
                                         return rowColor;
                                       },
@@ -1077,7 +1094,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             bottom: 5),
                                         decoration: _tabIndex == 0
                                             ? BoxDecoration(
-                                                color: primaryColor.withOpacity(0.2),
+                                                color: primaryColor
+                                                    .withOpacity(0.2),
                                                 borderRadius:
                                                     const BorderRadius.only(
                                                   topLeft: Radius.circular(25),
@@ -1108,7 +1126,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             bottom: 5),
                                         decoration: _tabIndex == 1
                                             ? BoxDecoration(
-                                                color: primaryColor.withOpacity(0.2),
+                                                color: primaryColor
+                                                    .withOpacity(0.2),
                                                 borderRadius:
                                                     const BorderRadius.only(
                                                   topLeft: Radius.circular(25),
@@ -1152,7 +1171,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Provider.of<CustomersProvider>(context,
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
-                                              widget.cusId.toString(), selectedYear);
+                                              widget.cusId.toString(),
+                                              selectedYear);
                                     });
                                   },
                                   items: provider.yearList
@@ -1344,6 +1364,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ],
     );
   }
+
   Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists) {
     frequentProductLists
@@ -1397,8 +1418,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           (data) => data.quantity.toString(),
                           (data) => formatAmount(
                             data.inclTax == "incl_tax"
-                                ?
-                                 ((double.tryParse(
+                                ? ((double.tryParse(
                                             data.totalPrice.toString()) ??
                                         0)
                                     //     *
@@ -1407,10 +1427,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     //     0)
                                     )
                                 : (((double.tryParse(
-                                                data.totalPrice.toString()) ??
-                                            0) +(double.tryParse(data.tax.toString()) ??
-                                        0.0)) 
-                                    ),
+                                            data.totalPrice.toString()) ??
+                                        0) +
+                                    (double.tryParse(data.tax.toString()) ??
+                                        0.0))),
                           ),
                           (data) =>
                               DateFormat('dd-MM-yyyy').format(data.createdAt!),
@@ -1442,8 +1462,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ],
           ),
-          nkSmallSizeBox(),
-          Expanded(child: topSellingProductsCustomer(frequentProductLists)),
+          if (subscriptionController.customerFrequentlyBoughtProducts.value !=
+              'true') ...[
+            Expanded(
+                child: Center(
+              child: UpgradePlanButton(),
+            ))
+          ],
+          if (subscriptionController.customerFrequentlyBoughtProducts.value ==
+              'true') ...[
+            nkSmallSizeBox(),
+            Expanded(child: topSellingProductsCustomer(frequentProductLists)),
+          ],
         ],
       ),
     );
@@ -1652,20 +1682,22 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           (data) => data.quantity.toString(),
                                           (data) => formatAmount(
                                             data.inclTax == "incl_tax"
-                                ?
-                                 ((double.tryParse(
-                                            data.totalPrice.toString()) ??
-                                        0)
-                                    //     *
-                                    // (double.tryParse(
-                                    //         data.quantity.toString()) ??
-                                    //     0)
-                                    )
-                                : (((double.tryParse(
-                                                data.totalPrice.toString()) ??
-                                            0) +(double.tryParse(data.tax.toString()) ??
-                                        0.0)) 
-                                    ),
+                                                ? ((double.tryParse(data
+                                                            .totalPrice
+                                                            .toString()) ??
+                                                        0)
+                                                    //     *
+                                                    // (double.tryParse(
+                                                    //         data.quantity.toString()) ??
+                                                    //     0)
+                                                    )
+                                                : (((double.tryParse(data
+                                                            .totalPrice
+                                                            .toString()) ??
+                                                        0) +
+                                                    (double.tryParse(data.tax
+                                                            .toString()) ??
+                                                        0.0))),
                                           ),
                                           (data) => DateFormat('dd-MM-yyyy')
                                               .format(data.createdAt!),
@@ -2209,7 +2241,6 @@ class UpdateCustomer extends StatelessWidget {
                                                             ),
                                                           ],
                                                         ),
-                                                        
                                                       ],
                                                     ),
                                                   ),
@@ -2280,19 +2311,16 @@ class UpdateCustomer extends StatelessWidget {
                                                       .selectedCategoryId
                                                       .value);
 
-                                              log(
-                                                  "this is admin data from this mdoel $updatedAdmin");
+                                              log("this is admin data from this mdoel $updatedAdmin");
                                               Navigator.of(context).pop();
-                                            // ignore: empty_catches
+                                              // ignore: empty_catches
                                             } catch (error) {}
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                primaryColor, 
+                                            backgroundColor: primaryColor,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                      4.0), 
+                                                  BorderRadius.circular(4.0),
                                             ),
                                           ),
                                           child: const Text(
@@ -2499,7 +2527,8 @@ class CustomerTotalSalePages extends StatelessWidget {
   final String customerId;
   final int year;
 
-  const CustomerTotalSalePages({super.key, required this.customerId, required this.year});
+  const CustomerTotalSalePages(
+      {super.key, required this.customerId, required this.year});
 
   @override
   Widget build(BuildContext context) {
@@ -2589,4 +2618,3 @@ class CustomerTotalSalePages extends StatelessWidget {
     );
   }
 }
-

@@ -15,6 +15,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +45,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
     with WidgetsBindingObserver {
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());
+  final subscriptionController = Get.find<SubscriptionController>();
+
   @override
   void initState() {
     super.initState();
@@ -71,9 +75,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
       if (selectedCustomer != null) {
         _showReturnDialog(selectedCustomer!);
       }
-
-
-      
     }
   }
 
@@ -396,23 +397,31 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                   color: red,
                                                 ),
                                                 onPressed: () {
-                                                  selectedCustomer = widget
-                                                      .calenderMapController
-                                                      .selectedCustomers[index];
-                                                  navigatedToMap = true;
-                                                  navigateToo(
-                                                    currentLatitude,
-                                                    currentLongitude,
-                                                    double.parse(
-                                                        selectedCustomer
-                                                                ?.latitude ??
-                                                            ''),
-                                                    double.parse(
-                                                        selectedCustomer
-                                                                ?.longitude ??
-                                                            ''),
-                                                  );
-                                                  log('Selected Customer : ${selectedCustomer?.businessName}');
+                                                  if (subscriptionController
+                                                          .visitNavigation
+                                                          .value ==
+                                                      "true") {
+                                                    selectedCustomer = widget
+                                                        .calenderMapController
+                                                        .selectedCustomers[index];
+                                                    navigatedToMap = true;
+                                                    navigateToo(
+                                                      currentLatitude,
+                                                      currentLongitude,
+                                                      double.parse(
+                                                          selectedCustomer
+                                                                  ?.latitude ??
+                                                              ''),
+                                                      double.parse(
+                                                          selectedCustomer
+                                                                  ?.longitude ??
+                                                              ''),
+                                                    );
+                                                    log('Selected Customer : ${selectedCustomer?.businessName}');
+                                                  } else {
+                                                    showUpgradePlanDialog(
+                                                        context);
+                                                  }
                                                 },
                                                 highlightColor: white,
                                               );
@@ -435,15 +444,19 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                 child: ElevatedButton.icon(
                   label: CustomText(content: 'Show Route', color: white),
                   onPressed: () {
-                    if (widget
-                        .calenderMapController.selectedCustomers.isNotEmpty) {
-                      Navigator.pop(context);
-                      widget.calenderMapController
-                          .showSelectedCustomerRoute(context);
-                      widget.calenderMapController.fetchDistanceAndTime();
+                    if (subscriptionController.appShowRoute.value == 'true') {
+                      if (widget
+                          .calenderMapController.selectedCustomers.isNotEmpty) {
+                        Navigator.pop(context);
+                        widget.calenderMapController
+                            .showSelectedCustomerRoute(context);
+                        widget.calenderMapController.fetchDistanceAndTime();
+                      } else {
+                        Get.snackbar('No Route Available',
+                            'Please select at least one customer.');
+                      }
                     } else {
-                      Get.snackbar('No Route Available',
-                          'Please select at least one customer.');
+                      showUpgradePlanDialog(context);
                     }
                   },
                   style: ButtonStyle(

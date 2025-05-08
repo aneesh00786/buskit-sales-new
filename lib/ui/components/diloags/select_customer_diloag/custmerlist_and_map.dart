@@ -12,6 +12,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -70,6 +72,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());
+    final subscriptionController = Get.find<SubscriptionController>();
+
   bool navigatedToMap = false;
   Customer? selectedCustomer;
 
@@ -403,16 +407,22 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               size: 25,
                                             ),
                                             onPressed: () {
-                                              selectedCustomer = customer;
-                                              navigatedToMap = true;
-                                              navigateToo(
-                                                currentLatitude,
-                                                currentLongitude,
-                                                double.parse(
-                                                    customer.latitude!),
-                                                double.parse(
-                                                    customer.longitude!),
-                                              );
+                                              if (subscriptionController
+                                                      .visitNavigation.value ==
+                                                  "true") {
+                                                selectedCustomer = customer;
+                                                navigatedToMap = true;
+                                                navigateToo(
+                                                  currentLatitude,
+                                                  currentLongitude,
+                                                  double.parse(
+                                                      customer.latitude!),
+                                                  double.parse(
+                                                      customer.longitude!),
+                                                );
+                                              } else {
+                                                showUpgradePlanDialog(context);
+                                              }
                                             },
                                           );
                                         })

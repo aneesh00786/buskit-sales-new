@@ -894,14 +894,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                 ),
               ],
             ),
-            if (subscriptionController.bookingView.value != 'true') ...[
-              Expanded(
-                child: Center(
-                  child: UpgradePlanButton(),
-                ),
-              )
-            ],
-            if (subscriptionController.bookingView.value == 'true')
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

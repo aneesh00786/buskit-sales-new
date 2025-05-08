@@ -10,6 +10,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_pagination/leads_b
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,8 @@ class LeadBottomScreen extends StatefulWidget {
 class _LeadBottomScreenState extends State<LeadBottomScreen> {
   final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
+
+    final subscriptionController = Get.find<SubscriptionController>();
 
   @override
   void initState() {
@@ -325,14 +329,39 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
             content: leadCustomerData.mobileno ?? '',
           ),
           Expanded(
-              child: Container(
-                  decoration: const BoxDecoration(),
-                  child: Center(
-                      child: Padding(
-                    padding: const EdgeInsets.only(left: 9, right: 9),
-                    child:
-                        LeadsStatusSelect(customerId: leadCustomerData.id ?? 0),
-                  )))),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 9),
+              child: Stack(
+                children: [
+                  AbsorbPointer(
+                    absorbing:
+                        subscriptionController.leadAcceptanceRejection.value != "true",
+                    child: Container(
+                      decoration: const BoxDecoration(),
+                      child: Center(
+                        child: LeadsStatusSelect(
+                          customerId: leadCustomerData.id ?? 0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (subscriptionController.leadAcceptanceRejection.value !=
+                      "true")
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                                                  showUpgradePlanDialog(context);
+
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

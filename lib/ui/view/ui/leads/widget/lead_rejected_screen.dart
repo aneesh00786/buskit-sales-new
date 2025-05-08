@@ -8,7 +8,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_select_status.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadRejectedScreen extends StatefulWidget {
@@ -23,6 +26,8 @@ class LeadRejectedScreen extends StatefulWidget {
 class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
   final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
+
+  final subscriptionController = Get.find<SubscriptionController>();
 
   @override
   void initState() {
@@ -318,8 +323,27 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 10, right: 10),
-              child: LeadsRejectedStatusSelect(
-                customerId: leadCustomerData.id!.toInt(),
+              child: Stack(
+                children: [
+                  AbsorbPointer(
+                    absorbing:
+                        subscriptionController.leadConversion.value != "true",
+                    child: LeadsRejectedStatusSelect(
+                      customerId: leadCustomerData.id!.toInt(),
+                    ),
+                  ),
+                  if (subscriptionController.leadConversion.value != "true")
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            showUpgradePlanDialog(context);
+                          },
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           )

@@ -3,8 +3,11 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomSwitch extends StatefulWidget {
   final bool initialValue;
@@ -26,6 +29,9 @@ class CustomSwitch extends StatefulWidget {
 }
 
 class _CustomSwitchState extends State<CustomSwitch> {
+    final subscriptionController = Get.find<SubscriptionController>();
+
+
   late bool isOn;
 
   @override
@@ -54,7 +60,9 @@ class _CustomSwitchState extends State<CustomSwitch> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.selectedName.isNotEmpty
+      onTap:
+      subscriptionController.customerCheckInOut.value == "true" ?
+       widget.selectedName.isNotEmpty
           ? _toggleSwitch
           : () {
               showDialog(
@@ -89,6 +97,9 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   );
                 },
               );
+            }:(){
+                                    showUpgradePlanDialog(context);
+
             },
       child: Container(
         width: 140.0,

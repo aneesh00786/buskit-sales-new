@@ -9,6 +9,8 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,6 +31,8 @@ class CalenderBottomWidget extends StatefulWidget {
 class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
   bool navigatedToMap = false;
   Customer? selectedCustomer;
+    final subscriptionController = Get.find<SubscriptionController>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +104,8 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
 
         return GestureDetector(
           onTap: () {
-            if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
+            if (subscriptionController.appViewDaySchedulesVisits.value ==
+                  "true"){if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
               widget.calenderController.clearSelections();
               Get.dialog(SelectCustomerDiloag(
                 dateTime: date,
@@ -108,6 +113,9 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                 eventData: event,
               ));
               log('Date : $date');
+            }}else{
+                                    showUpgradePlanDialog(context);
+
             }
           },
           child: MyCommnonContainer(

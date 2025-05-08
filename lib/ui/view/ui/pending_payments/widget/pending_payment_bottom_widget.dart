@@ -10,6 +10,9 @@ import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_pagination.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -39,6 +42,7 @@ class _PendingPaymentBottomWidgetState
     extends State<PendingPaymentBottomWidget> {
   final ScrollController _headerScrollController = ScrollController();
   final ScrollController _orderScrollController = ScrollController();
+  final subscriptionController = Get.find<SubscriptionController>();
 
   @override
   void initState() {
@@ -65,9 +69,16 @@ class _PendingPaymentBottomWidgetState
     _orderScrollController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (subscriptionController.appPendingPaymentList.value != "true") {
+        return Center(
+          child: UpgradePlanButton(),
+        );
+      }
+
       if (widget.orderController.isLoadingPayment.value) {
         return const Center(
           child: CircularProgressIndicator(),
@@ -98,6 +109,7 @@ class _PendingPaymentBottomWidgetState
       fontSize = 13;
     }
 
+    // If subscriptionController.bookingView.value == 'true'
     return Align(
       alignment: FractionalOffset.topCenter,
       child: Container(
@@ -197,7 +209,11 @@ class _PendingPaymentBottomWidgetState
   Widget _buildOrderList(
       BuildContext context, PendingPaymentController orderController) {
     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 53 : 58;
-
+    // if (subscriptionController.appPendingPaymentList.value != 'true') {
+    //   return Center(
+    //     child: UpgradePlanButton(),
+    //   );
+    // }
     return Align(
       alignment: FractionalOffset.topCenter,
       child: Container(
@@ -503,7 +519,11 @@ class _PendingPaymentBottomWidgetState
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: InkResponse(
         onTap: () {
-          _pendingPaymentCollectionDialog(context, customerData.customerId);
+          if (subscriptionController.appPaymentCollection.value == "true") {
+            _pendingPaymentCollectionDialog(context, customerData.customerId);
+          } else {
+            showUpgradePlanDialog(context);
+          }
         },
         child: IntrinsicHeight(
           child: Container(
@@ -551,21 +571,22 @@ class _PendingPaymentBottomWidgetState
   }
 
   void _pendingPaymentCollectionDialog(
-      BuildContext context, String customerId) async{
+      BuildContext context, String customerId) async {
     final PendingPaymentController controller =
         Get.put(PendingPaymentController());
     String selectedPaymentMethod = 'Cash';
     RxInt selectedPaymentMethodInt = 0.obs;
     bool isOnline = await ConnectivityService().isOnline();
-    if(!isOnline){
-      NkCommonFunction.showErrorSnakBar('No Internet Connection. Please check your network');
+    if (!isOnline) {
+      NkCommonFunction.showErrorSnakBar(
+          'No Internet Connection. Please check your network');
     }
     controller.loadIndividualPendingPayments(customerId);
     RxList<bool> selectedItems = List<bool>.generate(
       controller.individualPendingPayments.length,
       (index) => false,
     ).obs;
-    
+
     void updateSelectedItems() {
       selectedItems.value = List<bool>.generate(
         controller.individualPendingPayments.length,

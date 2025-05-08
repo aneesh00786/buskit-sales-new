@@ -2,6 +2,9 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_bottom_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +14,8 @@ class OrdersTabBar extends StatefulWidget {
   final NotificationController notificationController;
 
   const OrdersTabBar(
-      {super.key, required this.orderController,
+      {super.key,
+      required this.orderController,
       this.passIndex = 0,
       required this.notificationController});
 
@@ -25,6 +29,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   final ScrollController _scrollController = ScrollController();
   NotificationController notificationController =
       Get.find<NotificationController>();
+  final subscriptionController = Get.find<SubscriptionController>();
+
   final List<String> _tabs = [
     'Latest',
     'Waiting for Approval',
@@ -48,7 +54,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     _scrollController.dispose();
     super.dispose();
   }
-
 
   int _getCountForTab(int index) {
     switch (index) {
@@ -82,6 +87,75 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     }
   }
 
+  bool _shouldShowUpgradeButton(int index) {
+    switch (index) {
+      case 0:
+        {
+          if (subscriptionController.receivedOrder.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 1:
+        {
+          if (subscriptionController.customerApprovalOption.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 2:
+        {
+          if (subscriptionController.quickSale.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 3:
+        {
+          if (subscriptionController.processing.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 4:
+        {
+          if (subscriptionController.packedReady.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 5:
+        {
+          if (subscriptionController.delivered.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      case 6:
+        {
+          if (subscriptionController.rejected.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      default:
+        {
+          if (subscriptionController.receivedOrder.value == "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -94,7 +168,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
             height: 60,
             child: ScrollbarTheme(
               data: ScrollbarThemeData(
-                trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
+                trackBorderColor:
+                    const WidgetStatePropertyAll(Colors.transparent),
                 thumbColor:
                     WidgetStatePropertyAll(primaryColor.withOpacity(0.3)),
                 trackColor: WidgetStatePropertyAll(Colors.grey[100]),
@@ -118,11 +193,17 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
 
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                _selectedTabIndex = index;
-                              });
-                              widget.orderController
-                                  .updateTabIndex(_selectedTabIndex);
+                              if (!_shouldShowUpgradeButton(
+                                  _selectedTabIndex)) {
+                                showUpgradePlanDialog(context);
+                              } else
+                              {
+                                setState(() {
+                                  _selectedTabIndex = index;
+                                });
+                                widget.orderController
+                                    .updateTabIndex(_selectedTabIndex);
+                              }
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
@@ -182,6 +263,14 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               ),
             ),
           ),
+          if (!_shouldShowUpgradeButton(_selectedTabIndex)) ...[
+            Expanded(
+              child: Center(
+                child: UpgradePlanButton(),
+              ),
+            ),
+          ],
+          if (_shouldShowUpgradeButton(_selectedTabIndex))
           Expanded(
             child: OrderBottomWidget(
               orderController: widget.orderController,

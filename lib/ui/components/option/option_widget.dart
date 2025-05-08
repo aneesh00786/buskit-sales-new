@@ -193,12 +193,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 _showEstimatesDialog(
                     context, provider, OrderStatus.preOrder, 'Booking', false);
               } else {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UpgradePlanScreen();
-                  },
-                );
+                showUpgradePlanDialog(context);
               }
             }),
         OptionData(

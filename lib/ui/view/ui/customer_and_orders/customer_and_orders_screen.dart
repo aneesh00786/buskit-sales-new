@@ -17,6 +17,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -817,8 +819,7 @@ class _TableeeState extends State<Tableee> {
                                                 admin: updatedAdmin,
                                                 salsmanId: customer!.salesmanId
                                                     .toString(),
-                                                    image: provider.imageFile
-                                                    );
+                                                image: provider.imageFile);
                                             Navigator.of(context).pop();
                                           } catch (error) {
                                             log(error.toString());
@@ -1945,8 +1946,7 @@ class AddLeadsBt extends StatelessWidget {
                                               address: addressController.text,
                                               businessName:
                                                   bsNameController.text,
-                                              businessNo: bsNumController
-                                                  .text, 
+                                              businessNo: bsNumController.text,
                                             );
 
                                             try {
@@ -1956,17 +1956,13 @@ class AddLeadsBt extends StatelessWidget {
                                                       .salesmanId
                                                       .toString());
                                               Navigator.of(context).pop();
-                                            } catch (error) {
-                                              
-                                            }
+                                            } catch (error) {}
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                primaryColor, 
+                                            backgroundColor: primaryColor,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                      4.0),
+                                                  BorderRadius.circular(4.0),
                                             ),
                                           ),
                                           child: const Text(
@@ -2123,6 +2119,9 @@ class EventTypeDropdown extends StatefulWidget {
 }
 
 class _EventTypeDropdownState extends State<EventTypeDropdown> {
+   SubscriptionController subscriptionController =
+      Get.find<SubscriptionController>();
+      
   late EventType selectedValue;
 
   @override
@@ -2147,41 +2146,55 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
             width: 90,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 2),
-              child: DropdownButton<EventType>(
-                iconSize: 17.5,
-                value: selectedValue,
-                onChanged: (EventType? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedValue = newValue;
-                      widget.onChanged(newValue);
-
-                      if (newValue == EventType.monthly) {
-                        _selectDate(context);
-                      } else {
-                        showDaysOfWeekPopup(context, widget.defaultEventDays,
-                            widget.customerId, newValue.value, widget.provider);
-                      }
-                    });
+              child: GestureDetector(
+                onTap: () {
+                  if (subscriptionController.visitSetting.value != 'true') {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const UpgradePlanScreen(),
+                    );
                   }
                 },
-                items: EventType.values
-                    .map<DropdownMenuItem<EventType>>((EventType value) {
-                  return DropdownMenuItem<EventType>(
-                    value: value,
-                    child: Text(
-                      value.displayName,
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        //fontFamily: 'Poppins_Regular',
-                      ),
-                    ),
-                  );
-                }).toList(),
-                underline: Container(),
-                isExpanded: true,
+                child: AbsorbPointer(
+                  absorbing:
+                        subscriptionController.visitSetting.value != 'true',
+                  child: DropdownButton<EventType>(
+                    iconSize: 17.5,
+                    value: selectedValue,
+                    onChanged: (EventType? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          selectedValue = newValue;
+                          widget.onChanged(newValue);
+                  
+                          if (newValue == EventType.monthly) {
+                            _selectDate(context);
+                          } else {
+                            showDaysOfWeekPopup(context, widget.defaultEventDays,
+                                widget.customerId, newValue.value, widget.provider);
+                          }
+                        });
+                      }
+                    },
+                    items: EventType.values
+                        .map<DropdownMenuItem<EventType>>((EventType value) {
+                      return DropdownMenuItem<EventType>(
+                        value: value,
+                        child: Text(
+                          value.displayName,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            //fontFamily: 'Poppins_Regular',
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    underline: Container(),
+                    isExpanded: true,
+                  ),
+                ),
               ),
             ),
           ),
@@ -2351,6 +2364,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
   final ProductsController prodController = Get.put(ProductsController());
+  final subscriptionController = Get.find<SubscriptionController>();
 
   String? startDate;
   String? endDate;
@@ -2480,71 +2494,82 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       behavior: HitTestBehavior
                                                           .opaque,
                                                       onTap: () async {
-                                                        provider
-                                                            .setCurrentMonthDates();
-                                                        provider.fetchCustomerDashboardData(
-                                                            customer.customerId,
-                                                            2024,
-                                                            provider
-                                                                .selectedStartDate,
-                                                            provider
-                                                                .selectedEndDate);
-                                                        provider.fetchCustomerDashboardRevenueData(
-                                                            customer.customerId,
-                                                            2024,
-                                                            provider
-                                                                .selectedStartDate,
-                                                            provider
-                                                                .selectedEndDate);
-                                                        provider
-                                                            .fetchCustomerDashboardCountData(
-                                                                customer
-                                                                    .customerId);
-                                                        prodController
-                                                                .selectedCustomerName
-                                                                .value =
-                                                            customer
-                                                                .businessName;
-                                                        prodController
-                                                                .selectedCustomerId
-                                                                .value =
-                                                            customer.customerId;
-                                                        prodController
-                                                                .selectedCustomerImageUrl
-                                                                .value =
-                                                            customer.imageUrl;
-                                                        customerAndOrderController
-                                                            .setCustomerId(
-                                                                customer
-                                                                    .customerId);
-                                                        log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
-                                                        await Future.delayed(
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    100));
-
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                CustomerDachScreen(
-                                                              year: 2024,
-                                                              startDate: provider
-                                                                  .selectedStartDate,
-                                                              endDate: provider
-                                                                  .selectedEndDate,
-                                                              isFromOrder: true,
-                                                              cusId: customer
+                                                        if (subscriptionController
+                                                                .customerDashboardView
+                                                                .value ==
+                                                            'true') {
+                                                          provider
+                                                              .setCurrentMonthDates();
+                                                          provider.fetchCustomerDashboardData(
+                                                              customer
                                                                   .customerId,
-                                                              cusName: customer
-                                                                  .businessName,
-                                                              cusImage: customer
-                                                                  .imageUrl,
-                                                              productsController:
-                                                                  prodController,
+                                                              2024,
+                                                              provider
+                                                                  .selectedStartDate,
+                                                              provider
+                                                                  .selectedEndDate);
+                                                          provider.fetchCustomerDashboardRevenueData(
+                                                              customer
+                                                                  .customerId,
+                                                              2024,
+                                                              provider
+                                                                  .selectedStartDate,
+                                                              provider
+                                                                  .selectedEndDate);
+                                                          provider
+                                                              .fetchCustomerDashboardCountData(
+                                                                  customer
+                                                                      .customerId);
+                                                          prodController
+                                                                  .selectedCustomerName
+                                                                  .value =
+                                                              customer
+                                                                  .businessName;
+                                                          prodController
+                                                                  .selectedCustomerId
+                                                                  .value =
+                                                              customer
+                                                                  .customerId;
+                                                          prodController
+                                                                  .selectedCustomerImageUrl
+                                                                  .value =
+                                                              customer.imageUrl;
+                                                          customerAndOrderController
+                                                              .setCustomerId(
+                                                                  customer
+                                                                      .customerId);
+                                                          log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
+                                                          await Future.delayed(
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      100));
+
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  CustomerDachScreen(
+                                                                year: 2024,
+                                                                startDate: provider
+                                                                    .selectedStartDate,
+                                                                endDate: provider
+                                                                    .selectedEndDate,
+                                                                isFromOrder:
+                                                                    true,
+                                                                cusId: customer
+                                                                    .customerId,
+                                                                cusName: customer
+                                                                    .businessName,
+                                                                cusImage: customer
+                                                                    .imageUrl,
+                                                                productsController:
+                                                                    prodController,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        );
+                                                          );
+                                                        } else {
+                                                          showUpgradePlanDialog(context);
+                                                        }
                                                       },
                                                       child: Column(
                                                         crossAxisAlignment:
@@ -3060,7 +3085,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ? 45
                                             : 75,
                                     headingRowColor:
-                                        const WidgetStatePropertyAll(primaryColor),
+                                        const WidgetStatePropertyAll(
+                                            primaryColor),
                                     columnSpacing: 10,
                                     headingTextStyle: TextStyle(
                                         fontSize: fontSize + 1,
@@ -3080,7 +3106,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                     rows: filteredOrders.isEmpty
                                         ? [
                                             const DataRow(cells: [
-                                              DataCell(Text('Record Not Found')),
+                                              DataCell(
+                                                  Text('Record Not Found')),
                                               DataCell(Text('')),
                                               DataCell(Text('')),
                                               DataCell(Text('')),
@@ -3101,16 +3128,21 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       children: [
                                                         CircleAvatar(
                                                           radius:
-                                                              (fixedIconSize / 2) +
+                                                              (fixedIconSize /
+                                                                      2) +
                                                                   2,
                                                           backgroundColor:
                                                               const Color(
                                                                   0xffe6ecff),
-                                                          child: Icon(Icons.person,
-                                                              size: fixedIconSize,
-                                                              color: Colors.blue),
+                                                          child: Icon(
+                                                              Icons.person,
+                                                              size:
+                                                                  fixedIconSize,
+                                                              color:
+                                                                  Colors.blue),
                                                         ),
-                                                        SizedBox(width: padding),
+                                                        SizedBox(
+                                                            width: padding),
                                                         Flexible(
                                                           child: Column(
                                                             crossAxisAlignment:
@@ -3172,7 +3204,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               ),
                                                               Text(
                                                                 customer != null
-                                                                    ? customer.email
+                                                                    ? customer
+                                                                        .email
                                                                     : 'N/A',
                                                                 style: TextStyle(
                                                                     fontSize:
@@ -3207,10 +3240,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         child: Text(
                                                           order.orderId,
                                                           style: TextStyle(
-                                                              color: primaryColor,
-                                                              fontSize: fontSize,
+                                                              color:
+                                                                  primaryColor,
+                                                              fontSize:
+                                                                  fontSize,
                                                               fontWeight:
-                                                                  FontWeight.w600),
+                                                                  FontWeight
+                                                                      .w600),
                                                         ),
                                                       ),
                                                     ),
@@ -3221,17 +3257,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1,
                                                     child: Center(
                                                       child: Text(
-                                                        order.orderCreatAt != null
+                                                        order.orderCreatAt !=
+                                                                null
                                                             ? getFormattedOrderCreatAt(
-                                                                order.orderCreatAt
+                                                                order
+                                                                    .orderCreatAt
                                                                     .toString())
                                                             : 'N/A',
                                                         style: TextStyle(
                                                           fontSize: fontSize,
                                                         ),
                                                         maxLines: 1,
-                                                        overflow:
-                                                            TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                     ),
                                                   ),
@@ -3280,10 +3318,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           order.invoiceId
                                                               .toString(),
                                                           style: TextStyle(
-                                                              color: primaryColor,
-                                                              fontSize: fontSize,
+                                                              color:
+                                                                  primaryColor,
+                                                              fontSize:
+                                                                  fontSize,
                                                               fontWeight:
-                                                                  FontWeight.w600),
+                                                                  FontWeight
+                                                                      .w600),
                                                         ),
                                                       ),
                                                     ),
@@ -3294,25 +3335,27 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1.1,
                                                     child: Center(
                                                       child: Container(
-                                                        decoration: BoxDecoration(
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color:
                                                               order.paymentStatus ==
                                                                       0
                                                                   ? Colors.red
-                                                                  : Colors.green,
-                                                          shape: BoxShape.circle,
+                                                                  : Colors
+                                                                      .green,
+                                                          shape:
+                                                              BoxShape.circle,
                                                           border: Border.all(
-                                                              color:
-                                                                  order.paymentStatus ==
-                                                                          0
-                                                                      ? Colors.red
-                                                                      : Colors
-                                                                          .green),
+                                                              color: order.paymentStatus ==
+                                                                      0
+                                                                  ? Colors.red
+                                                                  : Colors
+                                                                      .green),
                                                         ),
                                                         child: Padding(
                                                           padding:
-                                                              const EdgeInsets.all(
-                                                                  1.0),
+                                                              const EdgeInsets
+                                                                  .all(1.0),
                                                           child: Icon(
                                                               order.paymentStatus ==
                                                                       0
@@ -3332,20 +3375,26 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       child: Container(
                                                         decoration:
                                                             const BoxDecoration(
-                                                          color: Color(0xffffdbb8),
+                                                          color:
+                                                              Color(0xffffdbb8),
                                                           borderRadius:
                                                               BorderRadius.all(
-                                                                  Radius.circular(
-                                                                      15.0)),
+                                                                  Radius
+                                                                      .circular(
+                                                                          15.0)),
                                                         ),
                                                         child: Padding(
-                                                          padding: const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 8.0,
-                                                              vertical: 4.0),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      8.0,
+                                                                  vertical:
+                                                                      4.0),
                                                           child: Column(
                                                             mainAxisSize:
-                                                                MainAxisSize.min,
+                                                                MainAxisSize
+                                                                    .min,
                                                             children: [
                                                               Text(
                                                                 getStatusName(order
@@ -3356,8 +3405,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600),
-                                                                textAlign: TextAlign
-                                                                    .center,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
                                                               ),
                                                               if (order.orderStatus ==
                                                                       2 &&
@@ -3372,7 +3422,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                       TextAlign
                                                                           .center,
                                                                   maxLines: 2,
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     fontSize:
                                                                         fontSize -
                                                                             2,

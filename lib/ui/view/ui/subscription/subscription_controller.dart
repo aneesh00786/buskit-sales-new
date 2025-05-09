@@ -240,15 +240,13 @@ class SubscriptionController extends GetxController {
           }
         });
       }
-
       await Future.delayed(const Duration(seconds: 1));
       isSubscriptionLoading(false);
       log("LOAD SUBSCRIPTION FEATURES () : $subscriptionResponse");
-
       log("subs communication ${communication.value}");
-
       update();
     } catch (e) {
+      
       isSubscriptionLoading(false);
       rethrow;
     }

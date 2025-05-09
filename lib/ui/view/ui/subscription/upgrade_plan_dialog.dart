@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -450,21 +451,53 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
   }
 }
 
-void showUpgradePlanDialog(BuildContext context){
+void showUpgradePlanDialog(BuildContext context) {
   showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text("Please contact admin for upgrade plans"),
-              actions: [
-                TextButton(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 600),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Image.asset(
+                    'assets/images/contact_admin.jpg',
+                    height: 100,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                 CustomText(
+                  content:"Please contact admin for upgrade plans.",
+                  textAlign: TextAlign.center,
+                  fontSize: 20,
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('ok'))
+                    child:  CustomText(
+                      content : 'OK',
+                      color: primaryColor,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
               ],
-            );
-            //UpgradePlanScreen();
-          },
-        );
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

@@ -231,22 +231,22 @@ class LoginController extends GetxController {
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
-          calenderMapController
-              .fetchCalenderEvents(initialDay ?? DateTime.now()),
+          // calenderMapController
+          //     .fetchCalenderEvents(initialDay ?? DateTime.now()),
           ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
-          ApiWorker()
-              .getRecentOrdersData(
-                searchModel: searchData,
-                orderStatus: 11,
-                isLogin: true,
-                startDate: '',
-                endDate: '',
-                page: 1,
-              )
-              .then((data) =>
-                  log("Recent orders fetched successfully. Data: ${data.data}"))
-              .catchError((e) => log("Error while fetching recent orders: $e"))
+          // ApiWorker()
+          //     .getRecentOrdersData(
+          //       searchModel: searchData,
+          //       orderStatus: 11,
+          //       isLogin: true,
+          //       startDate: '',
+          //       endDate: '',
+          //       page: 1,
+          //     )
+          //     .then((data) =>
+          //         log("Recent orders fetched successfully. Data: ${data.data}"))
+          //     .catchError((e) => log("Error while fetching recent orders: $e"))
         ]);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);

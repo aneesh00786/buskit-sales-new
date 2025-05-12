@@ -1596,7 +1596,7 @@ class ApiWorker with ApiConstants {
         requestData: requestData,
         endPoint: ApiConstants.sendVerificationMail,
       );
-      if (response != null && response.data['status'] == true) {
+      if (response.data['status'] == true) {
         log('Verification mail sent successfully.');
       } else {
         log('Error: ${response.data['message'] ?? 'Unknown error occurred.'}');

@@ -23,7 +23,7 @@ class LocalStorage {
     try {
       log('Fetched cached data from Hive: $cachedData');
       final castedData = castToStringDynamic(cachedData);
-      if (castedData == null || castedData.isEmpty) {
+      if (castedData.isEmpty) {
         throw Exception('Cached data is null or improperly formatted.');
       }
       List<CustomerModelxx> customers = [];
@@ -407,16 +407,9 @@ class LocalStorage {
           try {
             final safeData = 
                 castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            if (safeData is Map<String, dynamic>) {
-              log("Successfully parsed cached data.");
-              return mapJsonToResponseModel(safeData);
-            } else if (safeData is List<dynamic>) {
-              log("Successfully parsed cached list data.");
-              return mapJsonToResponseModel({'data': safeData});
-            } else {
-              throw FormatException('Invalid cached data format.');
-            }
-          } catch (e) {
+            log("Successfully parsed cached data.");
+            return mapJsonToResponseModel(safeData);
+                    } catch (e) {
             log("Error parsing cached data: $e");
             await dashboardBox.delete('dashboardData');
             NkCommonFunction.showErrorSnakBar(

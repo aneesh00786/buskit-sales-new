@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
@@ -30,6 +31,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = 'your-publishable-key';
   await Hive.initFlutter();
   Hive.registerAdapter(DetailAdapter());
   Hive.registerAdapter(CartItemAdapter());

@@ -7,7 +7,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plan_amount_selection.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plans_table_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RegisterPlanScreen extends StatefulWidget {
   const RegisterPlanScreen({super.key});
@@ -41,8 +43,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
       });
       return;
     }
-    final phoneCode = currencyDetails['"phoneCode"']!;
-    final currencySymbol = currencyDetails['symbol']!;
+    final currencySymbol = currencyDetails['symbol'] ?? '';
     try {
       final conversionResult = await CurrencyUtils.convertToLocalCurrency(
         amount: 1.0,
@@ -74,9 +75,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     if (selectedPlanIndex == null || plans == null) {
       return 'Subscribe Basic for ₹0.00/Yr';
     }
-    final selectedPlan = plans![selectedPlanIndex!];
-    final price = double.tryParse("${selectedPlan.price}") ?? 0.0;
-    return 'Subscribe ${selectedPlan.planName} for ${_formatCurrency(price)}/Yr';
+    final selectedPlan = plans?[selectedPlanIndex ?? 0];
+    final price = double.tryParse("${selectedPlan?.price}") ?? 0.0;
+    return 'Subscribe ${selectedPlan?.planName} for ${_formatCurrency(price)}/Yr';
   }
 
   void onCheckedChanged(int index) {
@@ -131,7 +132,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return const Center(child: Text('No plans available.'));
                       }
-                      plans = snapshot.data!;
+                      plans = snapshot.data ?? [];
                       if (plans!.length < 6) {
                         return const Center(
                             child: Text('Insufficient plan data.'));
@@ -162,13 +163,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        '${plans![0].planName} ${_formatCurrency(double.parse("${plans![0].price}"))}/Mo',
+                                        '${plans?[0].planName} ${_formatCurrency(double.parse("${plans?[0].price}"))}/Mo',
                                     isSelected: selectedPlanIndex == 0,
                                     onChanged: (_) => onCheckedChanged(0),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans![1].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans?[1].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 1,
                                     onChanged: (_) => onCheckedChanged(1),
                                   ),
@@ -180,13 +181,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        "${plans![2].planName} ${_formatCurrency(double.parse("${plans![2].price}"))}/Mo",
+                                        "${plans?[2].planName} ${_formatCurrency(double.parse("${plans?[2].price}"))}/Mo",
                                     isSelected: selectedPlanIndex == 2,
                                     onChanged: (_) => onCheckedChanged(2),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans![3].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans?[3].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 3,
                                     onChanged: (_) => onCheckedChanged(3),
                                   ),
@@ -198,13 +199,13 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                 children: [
                                   PlanCheckboxRow(
                                     planName:
-                                        "${plans![4].planName}${_formatCurrency(double.parse("${plans![4].price}"))}/Mo",
+                                        "${plans?[4].planName}${_formatCurrency(double.parse("${plans?[4].price}"))}/Mo",
                                     isSelected: selectedPlanIndex == 4,
                                     onChanged: (_) => onCheckedChanged(4),
                                   ),
                                   PlanCheckboxRow(
                                     planName:
-                                        "${_formatCurrency(double.parse("${plans![5].price}"))}/Year",
+                                        "${_formatCurrency(double.parse("${plans?[5].price}"))}/Year",
                                     isSelected: selectedPlanIndex == 5,
                                     onChanged: (_) => onCheckedChanged(5),
                                   ),
@@ -265,7 +266,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(child: Text('No plans available.'));
                     }
-                    List<Plan> plans = snapshot.data!;
+                    List<Plan> plans = snapshot.data ?? [];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -350,7 +351,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: InkWell(
                     onTap: () {
-                      subscribeDialog(context);
+                      showPaymentDialog(context);
+                      //subscribeDialog(context);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -377,181 +379,323 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     );
   }
 
-  Future<dynamic> subscribeDialog(BuildContext context) {
-    return showDialog(
+  void showPaymentDialog(BuildContext context) {
+    showDialog(
       context: context,
-      builder: (context) {
-        const InputBorder lightGreyBorder = OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey, width: 1),
-        );
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: PaymentDialogContent(),
+      ),
+    );
+  }
 
-        const InputDecoration inputDecoration = InputDecoration(
-          border: lightGreyBorder,
-          enabledBorder: lightGreyBorder,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue, width: 1.5),
+  // Future<dynamic> subscribeDialog(BuildContext context) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  // const InputBorder lightGreyBorder = OutlineInputBorder(
+  //   borderSide: BorderSide(color: Colors.grey, width: 1),
+  // );
+
+  // const InputDecoration inputDecoration = InputDecoration(
+  //   border: lightGreyBorder,
+  //   enabledBorder: lightGreyBorder,
+  //   focusedBorder: OutlineInputBorder(
+  //     borderSide: BorderSide(color: Colors.blue, width: 1.5),
+  //   ),
+  //   labelText: '',
+  // );
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //         child: Container(
+  //           width: MediaQuery.of(context).size.width * 0.8,
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Container(
+  //                 padding: const EdgeInsets.all(16),
+  //                 decoration: const BoxDecoration(
+  //                   gradient: LinearGradient(
+  //                     colors: [Color(0xFF85C3FF), Color(0xFF62D0E0)],
+  //                   ),
+  //                   borderRadius: BorderRadius.only(
+  //                     topLeft: Radius.circular(10),
+  //                     topRight: Radius.circular(10),
+  //                   ),
+  //                 ),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     const Text(
+  //                       "Add Card Details",
+  //                       style: TextStyle(
+  //                         color: Colors.white,
+  //                         fontSize: 20,
+  //                         fontWeight: FontWeight.bold,
+  //                       ),
+  //                     ),
+  //                     GestureDetector(
+  //                       onTap: () => Navigator.of(context).pop(),
+  //                       child: const Icon(
+  //                         Icons.close,
+  //                         color: Colors.white,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Padding(
+  //                 padding: const EdgeInsets.all(16.0),
+  //                 child: Column(
+  //                   children: [
+  //                     ElevatedButton.icon(
+  //                       onPressed: () {
+
+  //                       },
+  //                       icon: const Icon(Icons.apple, size: 18),
+  //                       label: const Text("Pay"),
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor: Colors.black,
+  //                         foregroundColor: Colors.white,
+  //                         padding: const EdgeInsets.symmetric(
+  //                           horizontal: 16,
+  //                           vertical: 12,
+  //                         ),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(8),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(height: 16),
+  //                     const Align(
+  //                       alignment: Alignment.centerLeft,
+  //                       child: Text(
+  //                         "Add new card:",
+  //                         style: TextStyle(
+  //                             fontSize: 16, fontWeight: FontWeight.bold),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(height: 8),
+  // TextFormField(
+  //   decoration: inputDecoration.copyWith(
+  //       labelText: "Card holder name"),
+  // ),
+  //                     const SizedBox(height: 8),
+  //                     TextFormField(
+  //                       decoration:
+  //                           inputDecoration.copyWith(labelText: "Card number"),
+  //                     ),
+  //                     const SizedBox(height: 8),
+  //                     Row(
+  //                       children: [
+  //                         Expanded(
+  //                           child: TextFormField(
+  //                             decoration:
+  //                                 inputDecoration.copyWith(labelText: "CVV"),
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 8),
+  //                         Expanded(
+  //                           child: DropdownButtonFormField<String>(
+  //                             decoration:
+  //                                 inputDecoration.copyWith(labelText: "MM"),
+  //                             items: List.generate(12, (index) {
+  //                               final month =
+  //                                   (index + 1).toString().padLeft(2, '0');
+  //                               return DropdownMenuItem(
+  //                                   value: month, child: Text(month));
+  //                             }),
+  //                             onChanged: (_) {},
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 8),
+  //                         Expanded(
+  //                           child: DropdownButtonFormField<String>(
+  //                             decoration:
+  //                                 inputDecoration.copyWith(labelText: "YY"),
+  //                             items: List.generate(10, (index) {
+  //                               final year =
+  //                                   (DateTime.now().year + index).toString();
+  //                               return DropdownMenuItem(
+  //                                   value: year, child: Text(year));
+  //                             }),
+  //                             onChanged: (_) {},
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                     const SizedBox(height: 16),
+  //                     Row(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                       children: [
+  //                         Container(
+  //                           padding: const EdgeInsets.symmetric(
+  //                               horizontal: 16, vertical: 8),
+  //                           decoration: BoxDecoration(
+  //                             color: const Color(0xFFF2F4F7),
+  //                             borderRadius: BorderRadius.circular(8),
+  //                           ),
+  //                           child: const Text(
+  //                             "Ends on: April 28, 2026",
+  //                             style: TextStyle(fontSize: 14),
+  //                           ),
+  //                         ),
+  //                         Container(
+  //                           padding: const EdgeInsets.symmetric(
+  //                               horizontal: 16, vertical: 8),
+  //                           decoration: BoxDecoration(
+  //                             color: const Color(0xFFF2F4F7),
+  //                             borderRadius: BorderRadius.circular(8),
+  //                           ),
+  //                           child: const Text(
+  //                             "Amount: ₹10256.40",
+  //                             style: TextStyle(fontSize: 14),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+}
+
+class PaymentDialogContent extends StatefulWidget {
+  @override
+  _PaymentDialogContentState createState() => _PaymentDialogContentState();
+}
+
+class _PaymentDialogContentState extends State<PaymentDialogContent> {
+  final controller = CardEditController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void handleAddCard() {
+    final details = controller.details;
+    if (details.complete) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Card added")));
+    }
+  }
+
+  void goToPaypalScreen() async {
+    final Uri _paypalLoginUrl = Uri.parse('https://www.paypal.com/signin');
+    if (await canLaunchUrl(_paypalLoginUrl)) {
+      await launchUrl(_paypalLoginUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch PayPal';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const InputBorder lightGreyBorder = OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey, width: 1),
+    );
+
+    const InputDecoration inputDecoration = InputDecoration(
+      border: lightGreyBorder,
+      enabledBorder: lightGreyBorder,
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.blue, width: 1.5),
+      ),
+      labelText: '',
+    );
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xFF85C3FF), Color(0xFF62D0E0)]),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text('Add Card Details',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600)),
           ),
-          labelText: '',
-        );
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: goToPaypalScreen,
+            icon: Icon(
+              Icons.account_balance_wallet,
+              color: white,
+            ),
+            label: Text('PayPal',
+                style: TextStyle(
+                  color: Colors.white,
+                )),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
           ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF85C3FF), Color(0xFF62D0E0)],
-                    ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Add Card Details",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.apple, size: 18),
-                        label: const Text("Pay"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Add new card:",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        decoration: inputDecoration.copyWith(
-                            labelText: "Card holder name"),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        decoration:
-                            inputDecoration.copyWith(labelText: "Card number"),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              decoration:
-                                  inputDecoration.copyWith(labelText: "CVV"),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              decoration:
-                                  inputDecoration.copyWith(labelText: "MM"),
-                              items: List.generate(12, (index) {
-                                final month =
-                                    (index + 1).toString().padLeft(2, '0');
-                                return DropdownMenuItem(
-                                    value: month, child: Text(month));
-                              }),
-                              onChanged: (_) {},
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              decoration:
-                                  inputDecoration.copyWith(labelText: "YY"),
-                              items: List.generate(10, (index) {
-                                final year =
-                                    (DateTime.now().year + index).toString();
-                                return DropdownMenuItem(
-                                    value: year, child: Text(year));
-                              }),
-                              onChanged: (_) {},
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF2F4F7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              "Ends on: April 28, 2026",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF2F4F7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              "Amount: ₹10256.40",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Divider(),
+            ),
+            Align(alignment: Alignment.centerLeft, child: Text("Add new card:",style: TextStyle(),)),
+            CardField(
+              controller: controller,
+              decoration: inputDecoration.copyWith(labelText: "Card Number"),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              decoration: inputDecoration.copyWith(labelText: "Card holder name"),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 16,
+              children: [
+                infoBox("Ends on", "June 5, 2025"),
+                infoBox("Amount", "\$15.42"),
+                infoBox("Licenses", "1"),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: handleAddCard,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightBlueAccent,
+                minimumSize: Size(double.infinity, 40),
+              ),
+              child: Text("Add Card"),
+            ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget infoBox(String title, String value) {
+    return Column(
+      children: [
+        Text(title, style: TextStyle(color: Colors.grey)),
+        Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+      ],
     );
   }
 }

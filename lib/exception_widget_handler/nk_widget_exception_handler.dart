@@ -81,7 +81,6 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
                 return _emptyDataWidget(isCenter: widget.isCenter);
-
               case ConnectionState.waiting:
                 return widget.isShowProgress
                     ? _loadingDataWidget(
@@ -95,15 +94,10 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
                 return widget.child;
               case ConnectionState.done:
                 return widget.child;
-              /* return widget.child;*/
-              default:
-                return _emptyDataWidget(isCenter: widget.isCenter);
             }
           }
         });
   }
-
-  // user for when data is empty
 
   Widget _emptyDataWidget({bool? isCenter = false}) {
     return isCenter ?? false

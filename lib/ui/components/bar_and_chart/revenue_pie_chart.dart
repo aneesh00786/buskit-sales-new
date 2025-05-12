@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -653,7 +654,18 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(
                   child: InkWell(
                       onTap: () {
-                        showDetailedOrderInvoiceDialog(context, payment.orderId??'', true);
+                        // showDetailedOrderInvoiceDialog(context, payment.orderId??'', true);
+                        showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            payment.orderId ?? '',
+                                                                      );
+                                                                    },
+                                                                  );
                       },
                       child: Text(
                         payment.invoiceId.toString(),

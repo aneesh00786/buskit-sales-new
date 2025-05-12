@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -164,10 +165,22 @@ void showValueOrderDialog(
                                       child: Center(
                                         child: InkWell(
                                           onTap: () {
-                                            showDetailedOrderInvoiceDialog(
-                                                context,
-                                                orderDetails.orderId ?? '',
-                                                true);
+                                            // showDetailedOrderInvoiceDialog(
+                                            //     context,
+                                            //     orderDetails.orderId ?? '',
+                                            //     true);
+
+                                            showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            orderDetails.orderId ?? '',
+                                                                      );
+                                                                    },
+                                                                  );
                                           },
                                           child: Text(
                                             orderDetails.invoiceId ?? '',

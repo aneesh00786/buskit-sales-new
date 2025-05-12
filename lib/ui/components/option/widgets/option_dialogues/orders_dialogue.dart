@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_customer_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/detailed_order_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -95,10 +96,12 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                   isCustomer? showDetailedOrderDialog(context, order, false):showDetailedCustomerOrderDialog(
-                    context,
-                    order,
-                   );
+                    isCustomer
+                        ? showDetailedOrderDialog(context, order, false)
+                        : showDetailedCustomerOrderDialog(
+                            context,
+                            order,
+                          );
                   },
                   child: Text(
                     order.orderId,
@@ -144,10 +147,18 @@ Widget buildOrdersDialogueMainDash({
               TableViewCell(
                 child: InkWell(
                   onTap: () {
-                   isCustomer? showDetailedOrderDialog(context, order, true):showDetailedCustomerOrderDialog(
-                    context,
-                    order,
-                   );
+                    //  isCustomer? showDetailedOrderDialog(context, order, true):showDetailedCustomerOrderDialog(
+                    //   context,
+                    //   order,
+                    //  );
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return InvoicePreview(
+                          orderId: order.orderId,
+                        );
+                      },
+                    );
                   },
                   child: Center(
                     child: Text(
@@ -222,135 +233,129 @@ Widget buildOrdersDialogueMainDash({
           );
         }).toList();
 
-return LayoutBuilder(
-  builder: (BuildContext context, BoxConstraints constraints) {
-    double availableWidth = constraints.maxWidth;
-    double maxDialogHeight = MediaQuery.of(context).size.height*0.8;
-    double headerHeight = 60;
-    double rowHeight = 90; 
-    double contentHeight = headerHeight + (rows.length * rowHeight);
-    double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+  return LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      double availableWidth = constraints.maxWidth;
+      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+      double headerHeight = 60;
+      double rowHeight = 90;
+      double contentHeight = headerHeight + (rows.length * rowHeight);
+      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-    return Stack(
-      children: [
-        SizedBox(
-          width: availableWidth,
-          height: containerHeight,
-          child: Column(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
+      return Stack(
+        children: [
+          SizedBox(
+            width: availableWidth,
+            height: containerHeight,
+            child: Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                    ),
+                    color: primaryColor,
                   ),
-                  color: primaryColor,
-                ),
-                height: headerHeight,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          headers[0],
-                          style:  TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width <= 800
+                  height: headerHeight,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            headers[0],
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: MediaQuery.of(context).size.width <= 800
                                   ? 12.3
                                   : 13,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ),
-                    ...headers
-                        .sublist(1)
-                        .map(
-                          (label) => Expanded(
-                            flex: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                label,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: MediaQuery.of(context).size.width <= 800
-                                  ? 12.3
-                                  : 13,
+                      ...headers.sublist(1).map(
+                            (label) => Expanded(
+                              flex: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  label,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width <= 800
+                                            ? 12.3
+                                            : 13,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
-                        )
-                        ,
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Flexible(
-                child: ListView.builder(
-                  itemCount: rows.length,
-                  shrinkWrap: true,
-                  physics: contentHeight > maxDialogHeight
-                      ? const AlwaysScrollableScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 0.5,
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: rows[index].cells[0].child,
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: rows.length,
+                    shrinkWrap: true,
+                    physics: contentHeight > maxDialogHeight
+                        ? const AlwaysScrollableScrollPhysics()
+                        : const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 0.5,
                             ),
                           ),
-                          ...rows[index]
-                              .cells
-                              .sublist(1)
-                              .map(
-                                (cell) => Expanded(
-                                  flex: 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: cell.child,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: rows[index].cells[0].child,
+                              ),
+                            ),
+                            ...rows[index].cells.sublist(1).map(
+                                  (cell) => Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: cell.child,
+                                    ),
                                   ),
                                 ),
-                              ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        // Close Button
-        Positioned(
-          top: 0,
-          right: 0,
-          child: SizedBox(
-            height: 30,
-            width: 30,
-            child: Center(child: dialogCloseButton1(context, red)),
+          // Close Button
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: Center(child: dialogCloseButton1(context, red)),
+            ),
           ),
-        ),
-      ],
-    );
-  },
-);
-
+        ],
+      );
+    },
+  );
 }

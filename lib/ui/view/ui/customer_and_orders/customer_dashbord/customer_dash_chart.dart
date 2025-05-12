@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -703,10 +704,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   flexWidth * 0.9,
                                                               child: InkWell(
                                                                 onTap: () {
-                                                                  showDetailedOrderInvoiceDialog(
-                                                                      context,
-                                                                      order.orderId,
-                                                                      true);
+                                                                  // showDetailedOrderInvoiceDialog(
+                                                                  //     context,
+                                                                  //     order.orderId,
+                                                                  //     true);
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            order.orderId,
+                                                                      );
+                                                                    },
+                                                                  );
                                                                 },
                                                                 child: Center(
                                                                   child: Text(

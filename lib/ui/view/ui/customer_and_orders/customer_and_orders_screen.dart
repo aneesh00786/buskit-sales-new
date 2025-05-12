@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -3308,10 +3309,21 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 0.9,
                                                     child: InkWell(
                                                       onTap: () {
-                                                        showDetailedOrderInvoiceDialog(
-                                                            context,
-                                                            order.orderId,
-                                                            true);
+                                                        // showDetailedOrderInvoiceDialog(
+                                                        //     context,
+                                                        //     order.orderId,
+                                                        //     true);
+                                                        showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            order.orderId,
+                                                                      );
+                                                                    },
+                                                                  );
                                                       },
                                                       child: Center(
                                                         child: Text(

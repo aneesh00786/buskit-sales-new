@@ -1,19 +1,14 @@
-import 'dart:convert';
+
 import 'dart:developer';
-import 'dart:typed_data';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 
 class InvoicePreview extends StatefulWidget {
   final String orderId;
@@ -90,18 +85,18 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                       nkSmallSizeBox(),
                       GestureDetector(
                         onTap: () async {
-                          // var response =
-                          //     await ApiWorker().sendInvoice(widget.orderId);
+                          var response =
+                              await ApiWorker().sendInvoice(widget.orderId);
 
-                          // showCustomToastDisplay(
-                          //     context,
-                          //     response.statusCode == 200
-                          //         ? "Invoice sent successfully"
-                          //         : "Invoice sending Unsuccessful!",
-                          //     response.statusCode == 200 ? Colors.green : red,
-                          //     response.statusCode == 200
-                          //         ? Icons.check
-                          //         : Icons.close);
+                          showCustomToastDisplay(
+                              context,
+                              response.statusCode == 200
+                                  ? "Invoice sent successfully"
+                                  : "Invoice sending Unsuccessful!",
+                              response.statusCode == 200 ? Colors.green : red,
+                              response.statusCode == 200
+                                  ? Icons.check
+                                  : Icons.close);
                         },
                         child: Container(
                           color: Colors.green,

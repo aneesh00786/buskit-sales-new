@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.da
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -341,10 +342,22 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                   width: flexWidth * 0.9,
                                                   child: InkWell(
                                                     onTap: () {
-                                                      showDetailedOrderInvoiceDialog(
-                                                          context,
-                                                          order.orderId ?? '',
-                                                          true);
+                                                      // showDetailedOrderInvoiceDialog(
+                                                      //     context,
+                                                      //     order.orderId ?? '',
+                                                      //     true);
+
+                                                      showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            order.orderId ?? '',
+                                                                      );
+                                                                    },
+                                                                  );
                                                     },
                                                     child: Center(
                                                       child: Text(

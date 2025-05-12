@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/nodata_table_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -667,10 +668,21 @@ class OptionWidget extends StatelessWidget {
                                                                 0.8, // Explicit width for this cell
                                                             child: InkWell(
                                                               onTap: () {
-                                                                _showDetailedOrderDialog(
-                                                                    context,
-                                                                    order,
-                                                                    true);
+                                                                // _showDetailedOrderDialog(
+                                                                //     context,
+                                                                //     order,
+                                                                //     true);
+                                                                showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            order.orderId,
+                                                                      );
+                                                                    },
+                                                                  );
                                                               },
                                                               child: Center(
                                                                   child: Text(

@@ -1791,4 +1791,27 @@ class ApiWorker with ApiConstants {
 
     return null;
   }
+
+  Future<Response> sendInvoice(String orderId) async {
+    try {
+      Map<String, dynamic> data = {
+        "order_id": orderId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0
+      };
+
+      final response = await dio.postbycustom(
+        ApiConstants.sendInvoice,
+        data: data,
+      );
+
+      return response;
+    } catch (error) {
+      log("Error occurred while sending invoice: $error");
+      handleExceptionMessage(
+        apiName: 'Send Invoice',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to send invoice: $error');
+    }
+  }
 }

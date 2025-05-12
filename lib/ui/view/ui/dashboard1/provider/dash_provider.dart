@@ -181,6 +181,7 @@ class ApiService {
       }
     } on DioException catch (error) {
       log("Caught DioException");
+      log('Error Response :${error.response}');
       handleExceptionMessage(
           response: error.response, apiName: "dashboard data", error: error);
       final cachedData = dashboardBox.get('dashboardData');

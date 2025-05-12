@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -76,7 +77,7 @@ class _OptionWidgetState extends State<OptionWidget> {
       Get.put(CustomerAndOrderController());
 
   ProductsController productsController = Get.put(ProductsController());
-    final subscriptionController = Get.find<SubscriptionController>();
+  final subscriptionController = Get.find<SubscriptionController>();
 
   final ScrollController _scrollController1 = ScrollController();
   final ScrollController _scrollController2 = ScrollController();
@@ -187,7 +188,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             svg: Assets.iconsIcDashboardPreOrder,
             svgBgColor: const Color.fromARGB(255, 230, 247, 251),
             color: const Color.fromARGB(255, 45, 104, 116),
-           onTap: () {
+            onTap: () {
               if (subscriptionController.bookingView.value == 'true') {
                 provider.fetchOrdersSabik(OrderStatus.preOrder);
                 _showEstimatesDialog(
@@ -358,7 +359,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                               : fullScreenHeight(context) * 0.7,
                                           child: SingleChildScrollView(
                                             child: DataTable(
-                                          
                                               dataRowHeight: fontSize * 5.5,
                                               headingRowHeight:
                                                   fullScreenWidth(context) > 740
@@ -399,16 +399,17 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       ])
                                                     ]
                                                   : filteredOrders.map((order) {
-                                                      final customer =
-                                                          order.customer.isNotEmpty
-                                                              ? order.customer[0]
-                                                              : null;
+                                                      final customer = order
+                                                              .customer
+                                                              .isNotEmpty
+                                                          ? order.customer[0]
+                                                          : null;
                                                       return DataRow(
                                                         cells: [
                                                           DataCell(
                                                             SizedBox(
-                                                              width:
-                                                                  flexWidth * 1.5,
+                                                              width: flexWidth *
+                                                                  1.5,
                                                               child: Row(
                                                                 children: [
                                                                   ClipOval(
@@ -428,21 +429,17 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         'http://16.50.232.153:3000/uploads/${customer?.imageUrl}',
                                                                         fit: BoxFit
                                                                             .cover,
-                                                                        errorBuilder:
-                                                                            (context,
-                                                                                error,
-                                                                                stackTrace) {
+                                                                        errorBuilder: (context,
+                                                                            error,
+                                                                            stackTrace) {
                                                                           return Container(
-                                                                            color: const Color(
-                                                                                0xffe6ecff),
+                                                                            color:
+                                                                                const Color(0xffe6ecff),
                                                                             child:
                                                                                 Icon(
-                                                                              Icons
-                                                                                  .person,
-                                                                              color:
-                                                                                  Colors.blue,
-                                                                              size: fixedIconSize *
-                                                                                  2,
+                                                                              Icons.person,
+                                                                              color: Colors.blue,
+                                                                              size: fixedIconSize * 2,
                                                                             ),
                                                                           );
                                                                         },
@@ -453,7 +450,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       width:
                                                                           padding),
                                                                   Flexible(
-                                                                    child: Column(
+                                                                    child:
+                                                                        Column(
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
                                                                               .start,
@@ -462,55 +460,40 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                               .center,
                                                                       children: [
                                                                         Text(
-                                                                          customer !=
-                                                                                  null
-                                                                              ? customer
-                                                                                  .businessName
+                                                                          customer != null
+                                                                              ? customer.businessName
                                                                               : 'N/A',
                                                                           style: TextStyle(
-                                                                              fontSize:
-                                                                                  fontSize,
-                                                                              fontWeight:
-                                                                                  FontWeight.bold),
+                                                                              fontSize: fontSize,
+                                                                              fontWeight: FontWeight.bold),
                                                                           maxLines:
                                                                               1,
                                                                           overflow:
-                                                                              TextOverflow
-                                                                                  .ellipsis,
+                                                                              TextOverflow.ellipsis,
                                                                         ),
                                                                         Text(
-                                                                          customer !=
-                                                                                  null
-                                                                              ? customer
-                                                                                  .mobileNo
+                                                                          customer != null
+                                                                              ? customer.mobileNo
                                                                               : 'N/A',
                                                                           style: TextStyle(
-                                                                              fontSize: fontSize -
-                                                                                  2,
-                                                                              fontWeight:
-                                                                                  FontWeight.w400),
+                                                                              fontSize: fontSize - 2,
+                                                                              fontWeight: FontWeight.w400),
                                                                           maxLines:
                                                                               1,
                                                                           overflow:
-                                                                              TextOverflow
-                                                                                  .ellipsis,
+                                                                              TextOverflow.ellipsis,
                                                                         ),
                                                                         Text(
-                                                                          customer !=
-                                                                                  null
-                                                                              ? customer
-                                                                                  .email
+                                                                          customer != null
+                                                                              ? customer.email
                                                                               : 'N/A',
                                                                           style: TextStyle(
-                                                                              fontSize: fontSize -
-                                                                                  2,
-                                                                              fontWeight:
-                                                                                  FontWeight.w400),
+                                                                              fontSize: fontSize - 2,
+                                                                              fontWeight: FontWeight.w400),
                                                                           maxLines:
                                                                               1,
                                                                           overflow:
-                                                                              TextOverflow
-                                                                                  .ellipsis,
+                                                                              TextOverflow.ellipsis,
                                                                         ),
                                                                       ],
                                                                     ),
@@ -521,26 +504,27 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width:
-                                                                  flexWidth * 0.9,
+                                                              width: flexWidth *
+                                                                  0.9,
                                                               child: InkWell(
                                                                 onTap: () {
                                                                   showDetailedOrderInvoiceDialog(
                                                                       context,
-                                                                      order.orderId,
+                                                                      order
+                                                                          .orderId,
                                                                       false);
                                                                 },
                                                                 child: Center(
                                                                   child: Text(
-                                                                    order.orderId,
+                                                                    order
+                                                                        .orderId,
                                                                     style: TextStyle(
                                                                         color:
                                                                             primaryColor,
                                                                         fontSize:
                                                                             fontSize,
                                                                         fontWeight:
-                                                                            FontWeight
-                                                                                .w600),
+                                                                            FontWeight.w600),
                                                                   ),
                                                                 ),
                                                               ),
@@ -548,7 +532,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width: flexWidth * 1,
+                                                              width:
+                                                                  flexWidth * 1,
                                                               child: Center(
                                                                 child: Text(
                                                                   // ignore: unnecessary_null_comparison
@@ -558,7 +543,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                           .orderCreatedAt
                                                                           .toString())
                                                                       : 'N/A',
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     fontSize:
                                                                         fontSize,
                                                                   ),
@@ -572,11 +558,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width: flexWidth * 1,
+                                                              width:
+                                                                  flexWidth * 1,
                                                               child: Center(
                                                                 child: Text(
                                                                   '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     fontSize:
                                                                         fontSize,
                                                                   ),
@@ -587,13 +575,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width: flexWidth * 1,
+                                                              width:
+                                                                  flexWidth * 1,
                                                               child: Center(
                                                                 child: Text(
                                                                   formatAmount(order
                                                                       .orderTotal),
                                                                   maxLines: 1,
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     fontSize:
                                                                         fontSize,
                                                                   ),
@@ -603,14 +593,25 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width:
-                                                                  flexWidth * 0.9,
+                                                              width: flexWidth *
+                                                                  0.9,
                                                               child: InkWell(
                                                                 onTap: () {
-                                                                  showDetailedOrderInvoiceDialog(
-                                                                      context,
-                                                                      order.orderId,
-                                                                      true);
+                                                                  // showDetailedOrderInvoiceDialog(
+                                                                  //     context,
+                                                                  //     order.orderId,
+                                                                  //     true);
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return InvoicePreview(
+                                                                        orderId:
+                                                                            order.orderId,
+                                                                      );
+                                                                    },
+                                                                  );
                                                                 },
                                                                 child: Center(
                                                                   child: Text(
@@ -618,8 +619,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             .isEmpty
                                                                         ? ''
                                                                         : order
-                                                                            .invoice[
-                                                                                0]
+                                                                            .invoice[0]
                                                                             .invoiceId,
                                                                     style: TextStyle(
                                                                         color:
@@ -627,8 +627,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         fontSize:
                                                                             fontSize,
                                                                         fontWeight:
-                                                                            FontWeight
-                                                                                .w600),
+                                                                            FontWeight.w600),
                                                                   ),
                                                                 ),
                                                               ),
@@ -636,15 +635,17 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width:
-                                                                  flexWidth * 1.1,
+                                                              width: flexWidth *
+                                                                  1.1,
                                                               child: Center(
-                                                                child: Container(
+                                                                child:
+                                                                    Container(
                                                                   decoration:
                                                                       BoxDecoration(
                                                                     color: order.paymentStatus ==
                                                                             0
-                                                                        ? Colors.red
+                                                                        ? Colors
+                                                                            .red
                                                                         : Colors
                                                                             .green,
                                                                     shape: BoxShape
@@ -652,12 +653,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     border: Border.all(
                                                                         color: order.paymentStatus ==
                                                                                 0
-                                                                            ? Colors
-                                                                                .red
-                                                                            : Colors
-                                                                                .green),
+                                                                            ? Colors.red
+                                                                            : Colors.green),
                                                                   ),
-                                                                  child: Padding(
+                                                                  child:
+                                                                      Padding(
                                                                     padding:
                                                                         const EdgeInsets
                                                                             .all(
@@ -671,7 +671,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 .done,
                                                                         color:
                                                                             white,
-                                                                        size: 14.0),
+                                                                        size:
+                                                                            14.0),
                                                                   ),
                                                                 ),
                                                               ),
@@ -679,29 +680,31 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           ),
                                                           DataCell(
                                                             SizedBox(
-                                                              width:
-                                                                  flexWidth * 1.2,
+                                                              width: flexWidth *
+                                                                  1.2,
                                                               child: Center(
-                                                                child: Container(
-                                                                  clipBehavior: Clip
-                                                                      .antiAlias,
+                                                                child:
+                                                                    Container(
+                                                                  clipBehavior:
+                                                                      Clip.antiAlias,
                                                                   decoration:
                                                                       const BoxDecoration(
                                                                     color: Color(
                                                                         0xffffdbb8),
-                                                                    borderRadius: BorderRadius
-                                                                        .all(Radius
-                                                                            .circular(
-                                                                                15.0)),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(15.0)),
                                                                   ),
-                                                                  child: Padding(
+                                                                  child:
+                                                                      Padding(
                                                                     padding: const EdgeInsets
                                                                         .symmetric(
                                                                         horizontal:
                                                                             0.0,
                                                                         vertical:
                                                                             0.0),
-                                                                    child: Column(
+                                                                    child:
+                                                                        Column(
                                                                       mainAxisSize:
                                                                           MainAxisSize
                                                                               .min,
@@ -709,19 +712,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         Padding(
                                                                           padding: const EdgeInsets
                                                                               .symmetric(
-                                                                              vertical:
-                                                                                  6,
-                                                                              horizontal:
-                                                                                  12.0),
+                                                                              vertical: 6,
+                                                                              horizontal: 12.0),
                                                                           child:
                                                                               Text(
-                                                                            getStatusName(
-                                                                                order.orderStatus),
-                                                                            style: TextStyle(
-                                                                                fontSize:
-                                                                                    fontSize,
-                                                                                fontWeight:
-                                                                                    FontWeight.w600),
+                                                                            getStatusName(order.orderStatus),
+                                                                            style:
+                                                                                TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                             textAlign:
                                                                                 TextAlign.center,
                                                                           ),
@@ -731,35 +728,24 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             order.deliveryDate !=
                                                                                 null) ...[
                                                                           Padding(
-                                                                            padding: const EdgeInsets
-                                                                                .symmetric(
-                                                                                horizontal:
-                                                                                    8.0),
+                                                                            padding:
+                                                                                const EdgeInsets.symmetric(horizontal: 8.0),
                                                                             child:
                                                                                 Text(
-                                                                              NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order
-                                                                                  .deliveryDate!
-                                                                                  .toIso8601String())),
-                                                                              textAlign:
-                                                                                  TextAlign.center,
-                                                                              maxLines:
-                                                                                  2,
-                                                                              style:
-                                                                                  TextStyle(
-                                                                                fontSize:
-                                                                                    fontSize - 2,
-                                                                                fontWeight:
-                                                                                    FontWeight.w400,
+                                                                              NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                              textAlign: TextAlign.center,
+                                                                              maxLines: 2,
+                                                                              style: TextStyle(
+                                                                                fontSize: fontSize - 2,
+                                                                                fontWeight: FontWeight.w400,
                                                                               ),
                                                                             ),
                                                                           ),
                                                                         ],
-                                                                        if (order
-                                                                                .orderStatus ==
+                                                                        if (order.orderStatus ==
                                                                             14) ...[
                                                                           const SizedBox(
-                                                                              height:
-                                                                                  5),
+                                                                              height: 5),
                                                                           Row(
                                                                             children: [
                                                                               Expanded(
@@ -782,7 +768,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                               ),
                                                             ),
                                                           ),
-                                                          const DataCell(Text('')),
+                                                          const DataCell(
+                                                              Text('')),
                                                         ],
                                                       );
                                                     }).toList(),
@@ -1402,7 +1389,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           final customer = order
                                                                   .customer
                                                                   .isNotEmpty
-                                                              ? order.customer[0]
+                                                              ? order
+                                                                  .customer[0]
                                                               : null;
                                                           return DataRow(
                                                             cells: [
@@ -1418,8 +1406,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             (fixedIconSize / 2) +
                                                                                 2,
                                                                         backgroundColor:
-                                                                            const Color(
-                                                                                0xffe6ecff),
+                                                                            const Color(0xffe6ecff),
                                                                         child: Icon(
                                                                             Icons
                                                                                 .person,
@@ -1440,48 +1427,28 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                               MainAxisAlignment.center,
                                                                           children: [
                                                                             Text(
-                                                                              customer != null
-                                                                                  ? customer.businessName
-                                                                                  : 'N/A',
-                                                                              style:
-                                                                                  TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                                                                              maxLines:
-                                                                                  1,
-                                                                              overflow:
-                                                                                  TextOverflow.ellipsis,
+                                                                              customer != null ? customer.businessName : 'N/A',
+                                                                              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                             Text(
-                                                                              customer != null
-                                                                                  ? customer.fullName
-                                                                                  : 'N/A',
-                                                                              style:
-                                                                                  TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.bold),
-                                                                              maxLines:
-                                                                                  1,
-                                                                              overflow:
-                                                                                  TextOverflow.ellipsis,
+                                                                              customer != null ? customer.fullName : 'N/A',
+                                                                              style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.bold),
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                             Text(
-                                                                              customer != null
-                                                                                  ? customer.mobileNo
-                                                                                  : 'N/A',
-                                                                              style:
-                                                                                  TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
-                                                                              maxLines:
-                                                                                  1,
-                                                                              overflow:
-                                                                                  TextOverflow.ellipsis,
+                                                                              customer != null ? customer.mobileNo : 'N/A',
+                                                                              style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                             Text(
-                                                                              customer != null
-                                                                                  ? customer.email
-                                                                                  : 'N/A',
-                                                                              style:
-                                                                                  TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
-                                                                              maxLines:
-                                                                                  1,
-                                                                              overflow:
-                                                                                  TextOverflow.ellipsis,
+                                                                              customer != null ? customer.email : 'N/A',
+                                                                              style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                           ],
                                                                         ),
@@ -1495,16 +1462,20 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   width:
                                                                       flexWidth *
                                                                           0.9,
-                                                                  child: InkWell(
+                                                                  child:
+                                                                      InkWell(
                                                                     onTap: () {
                                                                       showDetailedOrderInvoiceDialog(
                                                                         context,
-                                                                        order.orderId,
+                                                                        order
+                                                                            .orderId,
                                                                         false,
                                                                       );
                                                                     },
-                                                                    child: Center(
-                                                                      child: Text(
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
                                                                         order
                                                                             .orderId,
                                                                         style: TextStyle(
@@ -1538,7 +1509,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         fontSize:
                                                                             fontSize,
                                                                       ),
-                                                                      maxLines: 1,
+                                                                      maxLines:
+                                                                          1,
                                                                       overflow:
                                                                           TextOverflow
                                                                               .ellipsis,
@@ -1559,7 +1531,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         fontSize:
                                                                             fontSize,
                                                                       ),
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 ),
@@ -1574,7 +1547,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       formatAmount(
                                                                           order
                                                                               .orderTotal),
-                                                                      maxLines: 1,
+                                                                      maxLines:
+                                                                          1,
                                                                       style:
                                                                           TextStyle(
                                                                         fontSize:
@@ -1597,8 +1571,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         color: Color(
                                                                             0xffffdbb8),
                                                                         borderRadius:
-                                                                            BorderRadius.all(
-                                                                                Radius.circular(15.0)),
+                                                                            BorderRadius.all(Radius.circular(15.0)),
                                                                       ),
                                                                       child:
                                                                           Padding(
@@ -1615,10 +1588,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                           children: [
                                                                             Text(
                                                                               getStatusName(order.orderStatus),
-                                                                              style:
-                                                                                  TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
-                                                                              textAlign:
-                                                                                  TextAlign.center,
+                                                                              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                              textAlign: TextAlign.center,
                                                                             ),
                                                                             if (order.orderStatus == 2 &&
                                                                                 order.deliveryDate != null) ...[
@@ -1640,76 +1611,73 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               ),
                                                               DataCell(SizedBox(
-                                                                width: flexWidth *
-                                                                    0.5,
-                                                                child: IconButton(
-                                                                    onPressed:
-                                                                        () {
-                                                                      final cartProvider = Provider.of<
-                                                                              CustomersProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false);
-                                                                      customerOrderController
-                                                                          .customerId
-                                                                          .value = customer
-                                                                              ?.customerId ??
-                                                                          '';
-                                                                      if (isDraft) {
-                                                                        showDialog(
-                                                                          context:
+                                                                width:
+                                                                    flexWidth *
+                                                                        0.5,
+                                                                child:
+                                                                    IconButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          final cartProvider = Provider.of<CustomersProvider>(
                                                                               context,
-                                                                          builder:
-                                                                              (BuildContext
-                                                                                  context) {
-                                                                            return CartDialogue(
-                                                                              active:
-                                                                                  true,
-                                                                              cartItemCount:
-                                                                                  cartProvider.cartItemCount,
-                                                                              productsController:
-                                                                                  productsController,
-                                                                              customerOrderController:
-                                                                                  customerOrderController,
-                                                                              isDashboard:
-                                                                                  true,
-                                                                              customerId:
-                                                                                  customer?.customerId ?? '',
-                                                                              onContinueShopping:
-                                                                                  () {
-                                                                                Future.delayed(const Duration(milliseconds: 300), () {
-                                                                                  _initializeCustomerData(customer, productsController, customerOrderController);
-                                                                                  widget.homeController?.sidebarXController.selectIndex(2);
-                                                                                  widget.homeController?.selectedIndex.value = 2;
-                                                                                  Get.to(
-                                                                                      () => OrderTaking(
-                                                                                            productsController: productsController,
-                                                                                          ),
-                                                                                      id: 2);
-                                                                                });
-                                                                               
+                                                                              listen: false);
+                                                                          customerOrderController
+                                                                              .customerId
+                                                                              .value = customer
+                                                                                  ?.customerId ??
+                                                                              '';
+                                                                          if (isDraft) {
+                                                                            showDialog(
+                                                                              context: context,
+                                                                              builder: (BuildContext context) {
+                                                                                return CartDialogue(
+                                                                                  active: true,
+                                                                                  cartItemCount: cartProvider.cartItemCount,
+                                                                                  productsController: productsController,
+                                                                                  customerOrderController: customerOrderController,
+                                                                                  isDashboard: true,
+                                                                                  customerId: customer?.customerId ?? '',
+                                                                                  onContinueShopping: () {
+                                                                                    Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                      _initializeCustomerData(customer, productsController, customerOrderController);
+                                                                                      widget.homeController?.sidebarXController.selectIndex(2);
+                                                                                      widget.homeController?.selectedIndex.value = 2;
+                                                                                      Get.to(
+                                                                                          () => OrderTaking(
+                                                                                                productsController: productsController,
+                                                                                              ),
+                                                                                          id: 2);
+                                                                                    });
+                                                                                  },
+                                                                                );
                                                                               },
                                                                             );
-                                                                          },
-                                                                        );
-                                                                      } else {
-                                                                        showDetailedOrderInvoiceDialog(
-                                                                          context,
-                                                                          order.orderId ,
-                                                                          true,
-                                                                          isButtonNeeded:
-                                                                              true,
-                                                                        );
-                                                                      }
-                                                                    },
-                                                                    icon:
-                                                                        const Icon(
-                                                                      Icons
-                                                                          .visibility,
-                                                                      size: 15,
-                                                                      color:
-                                                                          primaryColor,
-                                                                    )),
+                                                                          } else {
+                                                                            // showDetailedOrderInvoiceDialog(
+                                                                            //   context,
+                                                                            //   order.orderId,
+                                                                            //   true,
+                                                                            //   isButtonNeeded: true,
+                                                                            // );
+                                                                            showDialog(
+                                                                              context: context,
+                                                                              builder: (context) {
+                                                                                return InvoicePreview(
+                                                                                  orderId: order.orderId,
+                                                                                );
+                                                                              },
+                                                                            );
+                                                                          }
+                                                                        },
+                                                                        icon:
+                                                                            const Icon(
+                                                                          Icons
+                                                                              .visibility,
+                                                                          size:
+                                                                              15,
+                                                                          color:
+                                                                              primaryColor,
+                                                                        )),
                                                               )),
                                                             ],
                                                           );
@@ -1837,7 +1805,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                         ),
                                       ],
                                     ),
-                                   Positioned(
+                                    Positioned(
                                       bottom: 0,
                                       left: 0,
                                       right: 0,
@@ -1899,13 +1867,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                         label: Expanded(
                                                       child: Center(
                                                         child: Text(
-                                                          formatAmount(filteredOrders.fold<
-                                                                  double>(
-                                                              0.0,
-                                                              (sum, order) =>
-                                                                  sum +
-                                                                  (order.orderTotal ??
-                                                                      0.0))),
+                                                          formatAmount(
+                                                              filteredOrders.fold<
+                                                                      double>(
+                                                                  0.0,
+                                                                  (sum, order) =>
+                                                                      sum +
+                                                                      (order.orderTotal ??
+                                                                          0.0))),
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1922,8 +1891,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     DataColumn(
                                                         label: Expanded(
                                                       child: SizedBox(
-                                                          width: flexWidth *
-                                                              0.5),
+                                                          width:
+                                                              flexWidth * 0.5),
                                                     )),
                                                   ],
                                                   rows: [
@@ -1931,45 +1900,38 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       cells: [
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      1.5),
+                                                              width: flexWidth *
+                                                                  1.5),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      0.9),
+                                                              width: flexWidth *
+                                                                  0.9),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      1),
+                                                              width: flexWidth *
+                                                                  1),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      1),
+                                                              width: flexWidth *
+                                                                  1),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      1),
+                                                              width: flexWidth *
+                                                                  1),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      1.1),
+                                                              width: flexWidth *
+                                                                  1.1),
                                                         ),
                                                         DataCell(
                                                           SizedBox(
-                                                              width:
-                                                                  flexWidth *
-                                                                      0.5),
+                                                              width: flexWidth *
+                                                                  0.5),
                                                         ),
                                                       ],
                                                     )
@@ -2028,7 +1990,6 @@ class _OptionWidgetState extends State<OptionWidget> {
 
   // String getOrderStatusString(OrderStatus status) {
 }
-
 
 Text text(List<InvoiceDash> invoices, dynamic s) {
   String invoiceId = invoices.map((invoice) => invoice.invoiceId).join(', ');

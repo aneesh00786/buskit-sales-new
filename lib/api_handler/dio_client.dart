@@ -97,7 +97,7 @@ class DioClient with ApiConstants {
       options: options
     )
         .timeout(
-      const Duration(seconds: 10),
+      const Duration(seconds: 15),
       onTimeout: () {
         throw DioException(
           requestOptions:

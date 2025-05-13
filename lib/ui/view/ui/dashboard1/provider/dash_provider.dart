@@ -226,7 +226,7 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    var sendData;
+    Object? sendData;
 
     switch (fetchType) {
       case "Month":
@@ -351,7 +351,7 @@ class ApiService {
     List<String>? selectedWeeks,
     int? year,
   }) async {
-    var sendData;
+    Object? sendData;
     switch (fetchType) {
       case "Month":
         sendData = selectedMonths;
@@ -639,7 +639,7 @@ class ApiService {
     OrderStatus? orderStatus,
     required dynamic orderType,
   }) async {
-    var sendData;
+    Object? sendData;
     switch (fetchType) {
       case "Month":
         sendData = selectedMonths;
@@ -1607,7 +1607,7 @@ class DashboardProvider with ChangeNotifier {
 
   final ApiService _apiService;
   final Logger _logger;
-  bool _dataFetched = false;
+  final bool _dataFetched = false;
   bool get dataFetched => _dataFetched;
 
   DashboardProvider({required ApiService apiService, required Logger logger})
@@ -1857,7 +1857,7 @@ class DashboardProvider with ChangeNotifier {
 
   Future<void> fetchOrdersSabik(OrderStatus s) async {
     try {
-      var orderType;
+      Object orderType;
 
       switch (s) {
         case OrderStatus.delivered:

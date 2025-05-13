@@ -77,7 +77,7 @@ class PlansTableWidgets extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

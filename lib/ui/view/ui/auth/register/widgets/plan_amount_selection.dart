@@ -9,12 +9,12 @@ class PlanCheckboxRow extends StatelessWidget {
   final ValueChanged<bool?> onChanged;
 
   const PlanCheckboxRow({
-    Key? key,
+    super.key,
     required this.planName,
     this.fontSize = 16,
     required this.isSelected,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

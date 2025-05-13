@@ -7,10 +7,10 @@ class VerifyButton extends StatefulWidget {
   final TextEditingController textEditingController;
 
   const VerifyButton({
-    Key? key,
+    super.key,
     required this.loginController,
     required this.textEditingController,
-  }) : super(key: key);
+  });
 
   @override
   _VerifyButtonState createState() => _VerifyButtonState();

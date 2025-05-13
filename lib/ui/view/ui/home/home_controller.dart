@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -42,11 +43,11 @@ class HomeController extends GetxController {
   final ApiService _apiService = ApiService();
   bool _isDisposed = false;
   final Dio dio = Dio();
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   fetchDashboardData();
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    ApiWorker().fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
+  }
 
   @override
   void onClose() {

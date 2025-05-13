@@ -318,7 +318,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       await _apiService
           .updateCustomerDashDetails(
-              model: admin, adminProfilePicture: imageFile!, customerId: cusId)
+              model: admin, adminProfilePicture: imageFile, customerId: cusId)
           .then((value) => fetchCustomerDashboardCountData(cusId));
 
       notifyListeners();

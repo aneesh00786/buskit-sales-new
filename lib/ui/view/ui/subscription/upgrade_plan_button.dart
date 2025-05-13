@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 
 class UpgradePlanButton extends StatelessWidget {
   const UpgradePlanButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       style: ButtonStyle(
         backgroundColor:
-            MaterialStatePropertyAll(Theme.of(context).primaryColor),
-        shape: MaterialStatePropertyAll(
+            WidgetStatePropertyAll(Theme.of(context).primaryColor),
+        shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         ),
       ),

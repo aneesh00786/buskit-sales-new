@@ -452,7 +452,7 @@ class ProductNameWithTax extends StatelessWidget {
       if (!textPainter.didExceedMaxLines) {
         return Text.rich(
           TextSpan(
-            text: '$truncated',
+            text: truncated,
             style: style,
             children: [
               if (i != fullText.length) const TextSpan(text: '...'),

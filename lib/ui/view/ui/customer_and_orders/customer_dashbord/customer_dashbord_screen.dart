@@ -2280,12 +2280,12 @@ class UpdateCustomer extends StatelessWidget {
                                             ),
                                             child: kIsWeb
                                                 ? Image.network(
-                                                    provider.imageFile!.path,
+                                                    provider.imageFile.path,
                                                     fit: BoxFit.cover,
                                                   )
                                                 : Image.file(
                                                     File(provider
-                                                        .imageFile!.path),
+                                                        .imageFile.path),
                                                     fit: BoxFit.cover,
                                                   ),
                                           ),

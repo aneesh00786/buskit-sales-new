@@ -571,6 +571,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
 }
 
 class PaymentDialogContent extends StatefulWidget {
+  const PaymentDialogContent({super.key});
+
   @override
   _PaymentDialogContentState createState() => _PaymentDialogContentState();
 }
@@ -593,9 +595,9 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
   }
 
   void goToPaypalScreen() async {
-    final Uri _paypalLoginUrl = Uri.parse('https://www.paypal.com/signin');
-    if (await canLaunchUrl(_paypalLoginUrl)) {
-      await launchUrl(_paypalLoginUrl, mode: LaunchMode.externalApplication);
+    final Uri paypalLoginUrl = Uri.parse('https://www.paypal.com/signin');
+    if (await canLaunchUrl(paypalLoginUrl)) {
+      await launchUrl(paypalLoginUrl, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch PayPal';
     }

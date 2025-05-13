@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 class InvoicePreview extends StatefulWidget {
   final String orderId;
 
-  InvoicePreview({required this.orderId});
+  const InvoicePreview({super.key, required this.orderId});
 
   @override
   _InvoicePreviewState createState() => _InvoicePreviewState();
@@ -34,7 +34,7 @@ class _InvoicePreviewState extends State<InvoicePreview> {
       'order_id': widget.orderId,
       'companyId': SessionHelper.loginSavedData?.company_id.toString() ?? '0',
     };
-    log("request ${request}");
+    log("request $request");
     try {
       final url = Uri.parse('https://thrivewoo.com/preview-invoice');
       final response = await http.post(

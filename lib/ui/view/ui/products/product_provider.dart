@@ -7,14 +7,14 @@ class ProductProvider extends ChangeNotifier {
   //   //fetchDatass();
   // }
   final ApiService _apiService = ApiService();
-  List<CategoryP> _categories = [];
-  List<StoreDataPo> _storeData = [];
-  bool _isLoading = false;
-  String _errorMessage = '';
+  final List<CategoryP> _categories = [];
+  final List<StoreDataPo> _storeData = [];
+  final bool _isLoading = false;
+  final String _errorMessage = '';
   int? _selectedCategoryIndex;
   String? _selectedSubcategory;
   String? _selectedSubcategoryForHighlight;
-  Map<String, List<ProductPo>> _productsByCategory = {};
+  final Map<String, List<ProductPo>> _productsByCategory = {};
   List<CategoryP> get categories => _categories;
   List<StoreDataPo> get storeData => _storeData;
   bool get isLoading => _isLoading;

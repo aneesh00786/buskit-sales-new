@@ -17,8 +17,8 @@ class AddressSearchField extends StatefulWidget {
   final FocusNode nextFocusNode;
   final LoginController loginController;
 
-  AddressSearchField({
-    Key? key,
+  const AddressSearchField({
+    super.key,
     required this.hinttext,
     required this.textEditingController,
     required this.townController,
@@ -27,7 +27,7 @@ class AddressSearchField extends StatefulWidget {
     required this.currentFocusNode,
     required this.nextFocusNode,
     required this.loginController,
-  }) : super(key: key);
+  });
 
   @override
   _AddressSearchFieldState createState() => _AddressSearchFieldState();

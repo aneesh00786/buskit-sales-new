@@ -48,11 +48,6 @@ class CalenderMapController extends GetxController {
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
-  @override
-  void onInit() {
-    super.onInit();
-    //requestLocationPermission();
-  }
 
   void initializeCheckedList(
       int length, List<CalendarEventData<EventData>> eventData) {

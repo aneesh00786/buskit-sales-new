@@ -1666,7 +1666,6 @@ class ApiWorker with ApiConstants {
           data: {"company_id": "$companyId"},
         );
         log("Fetch Subscription URL: ${ApiConstants.baseUrl}${ApiConstants.get_subscribed_plan}");
-
         final subscribedPlan = SubscribedPlan.fromJson(response.data);
         log('Subscription plan fetched: ${subscribedPlan.toJson()}');
         await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
@@ -1678,8 +1677,6 @@ class ApiWorker with ApiConstants {
           apiName: 'Fetch Subscription Plan',
           response: dioError.response,
         );
-
-        // Try loading from cache
         final cachedData = subscribtionBox.get(cacheKey);
         if (cachedData != null) {
           log('Loaded subscription plan from cache: $cachedData');

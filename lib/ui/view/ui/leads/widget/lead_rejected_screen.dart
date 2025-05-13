@@ -12,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_cont
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadRejectedScreen extends StatefulWidget {
   final RejectedLeadsController rejectedLeadsController;

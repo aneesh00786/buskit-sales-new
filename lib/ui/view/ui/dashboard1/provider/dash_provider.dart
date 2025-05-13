@@ -156,27 +156,34 @@ class ApiService {
       bool isOnline = await _connectivityService.isOnline();
       if (!isOnline) {
         errorSnackbar('No Internet Connection. Please check your network');
-        final cachedData = dashboardBox.get('dashboardData');
-        return localStorage.storedDashboardDatas(cachedData, dashboardBox);
-      }
-      final response = await responsePostMethod(
-        requestData: requestBody,
-        endPoint: ApiConstants.getDashboardList,
-        options: Options(
-          headers: {'Authorization': 'Bearer $createdToken'},
-        ),
-      );
-      log("GET_DASHBOARD_LIST response: ${response.data}");
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        await dashboardBox.put('dashboardData', jsonResponse);
-        return localStorage.mapJsonToResponseModel(jsonResponse);
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
+        final cachedDataString = dashboardBox.get('dashboardData');
+        log('Dashboard Cached data : $cachedDataString');
+        if (cachedDataString == null) {
+          throw Exception('No cached dashboard data found');
+        }
+        final parsedJson = jsonDecode(cachedDataString);
+        return localStorage.mapJsonToResponseModel(parsedJson);
       } else {
-        throw Exception(
-            'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+        final response = await responsePostMethod(
+          requestData: requestBody,
+          endPoint: ApiConstants.getDashboardList,
+          options: Options(
+            headers: {'Authorization': 'Bearer $createdToken'},
+          ),
+        );
+        log("GET_DASHBOARD_LIST response: ${response.data}");
+        if (response.statusCode == 200) {
+          log("The Status code is : ${response.statusCode}");
+          final jsonResponse = response.data;
+          await dashboardBox.put('dashboardData', jsonEncode(jsonResponse));
+          return localStorage.mapJsonToResponseModel(jsonResponse);
+        } else if (response.statusCode == 400 || response.statusCode == 401) {
+          _handleTokenExpiration();
+          throw Exception('Session expired');
+        } else {
+          throw Exception(
+              'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+        }
       }
     } on DioException catch (error) {
       log("Caught DioException");

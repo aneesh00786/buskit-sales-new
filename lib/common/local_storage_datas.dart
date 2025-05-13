@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
@@ -40,10 +41,10 @@ class LocalStorage {
             .toList();
       }
       if (castedData['years_list_of_all'] is List) {
-          yearList = (castedData['years_list_of_all'] as List)
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
+        yearList = (castedData['years_list_of_all'] as List)
+            .map((json) => YearsListOfAll.fromJson(json))
+            .toList();
+      }
 
       return CustomerResponseModelxx(
         statusCode: castedData['statusCode'] ?? 0,
@@ -164,7 +165,6 @@ class LocalStorage {
 
   storedPendingPaymentData(Box<dynamic> pendingPaymentBox, String cacheKey) {
     final cachedData = pendingPaymentBox.get(cacheKey);
-
     if (cachedData != null) {
       log('Cached data found: $cachedData');
       return PendingPaymentResponse.fromJson(
@@ -401,23 +401,43 @@ class LocalStorage {
       ),
     );
   }
-  storedDashboardDatas(dynamic cachedData,Box<dynamic>dashboardBox)async{
+
+  storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
     if (cachedData != null) {
-          log("Cached data found. Processing...");
-          try {
-            final safeData = 
-                castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-            log("Successfully parsed cached data.");
-            return mapJsonToResponseModel(safeData);
-                    } catch (e) {
-            log("Error parsing cached data: $e");
-            await dashboardBox.delete('dashboardData');
-            NkCommonFunction.showErrorSnakBar(
-                'Cached data is corrupted. Please connect to the internet.');
-            throw Exception('Invalid cached data format. Cache cleared.');
-          }
-        } else {
-          throw Exception('No cached data available.');
-        }
+      try {
+        final parsedJson = jsonDecode(cachedData);
+        final safeData =
+            castToStringDynamic(Map<dynamic, dynamic>.from(parsedJson));
+        return mapJsonToResponseModel(safeData);
+      } catch (e) {
+        log("Error parsing cached data: $e");
+        await dashboardBox.delete('dashboardData');
+        NkCommonFunction.showErrorSnakBar(
+            'Cached data is corrupted. Please connect to the internet.');
+        throw Exception('Invalid cached data format. Cache cleared.');
+      }
+    } else {
+      throw Exception('No cached data available.');
+    }
   }
+
+  // storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
+  //   if (cachedData != null) {
+  //     log("Cached data found. Processing...");
+  //     try {
+  //       final safeData =
+  //           castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+  //       log("Successfully parsed cached data.");
+  //       return mapJsonToResponseModel(safeData);
+  //     } catch (e) {
+  //       log("Error parsing cached data: $e");
+  //       await dashboardBox.delete('dashboardData');
+  //       NkCommonFunction.showErrorSnakBar(
+  //           'Cached data is corrupted. Please connect to the internet.');
+  //       throw Exception('Invalid cached data format. Cache cleared.');
+  //     }
+  //   } else {
+  //     throw Exception('No cached data available.');
+  //   }
+  // }
 }

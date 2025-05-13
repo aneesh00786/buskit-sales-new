@@ -29,7 +29,7 @@ import 'package:logger/logger.dart';
 import 'dash_models.dart';
 
 class ApiService {
-  static const String _baseUrl = ApiConstants.baseUrl;
+  static const String _baseUrl = ApiConstants.baseUrl1;
   final LocalStorage localStorage = LocalStorage();
   final ConnectivityService _connectivityService = ConnectivityService();
   final Dio dio = Dio();
@@ -167,7 +167,6 @@ class ApiService {
         ),
       );
       log("GET_DASHBOARD_LIST response: ${response.data}");
-
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         await dashboardBox.put('dashboardData', jsonResponse);
@@ -1017,33 +1016,75 @@ class ApiService {
     }
   }
 
+  // Future<bool> addEvent(
+  //     String customerId, int eventStatus, List<String> daysList) async {
+  //   final String daysJson = jsonEncode(daysList);
+  //   const url = '$_baseUrl${ApiConstants.addEvent}';
+  //   final body = {
+  //     'customer_id': customerId,
+  //     'event_status': eventStatus,
+  //     'days_list': daysJson,
+  //   };
+
+  //   try {
+  //     final response = await dio.post(
+  //       url,
+  //       options: Options(
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       ),
+  //       data: body,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
     final String daysJson = jsonEncode(daysList);
-    const url = '$_baseUrl${ApiConstants.addEvent}';
-    final body = {
+    final url = Uri.parse('$_baseUrl/add_events');
+    final bodyMap = {
       'customer_id': customerId,
       'event_status': eventStatus,
       'days_list': daysJson,
+      'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
+    final body = jsonEncode(bodyMap);
+
     try {
-      final response = await dio.post(
+      // Logging the request
+      print('➡️ URL: $url');
+      print('📦 Request Body: $body');
+
+      final response = await http.post(
         url,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
-        data: body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
       );
+
+      // Logging the response
+      print('✅ Response Code: ${response.statusCode}');
+      print('📨 Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         return true;
       } else {
+        print('❌ Error: ${response.statusCode} ${response.body}');
         return false;
       }
     } catch (e) {
+      print('🔥 Exception: $e');
       return false;
     }
   }

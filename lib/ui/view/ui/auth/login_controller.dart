@@ -11,7 +11,6 @@ import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
@@ -180,7 +179,6 @@ class LoginController extends GetxController {
   Future<bool> performLogin(BuildContext context) async {
     DateTime now = DateTime.now();
     String currentMonthName = DateFormat('MMMM').format(now);
-    DateTime? initialDay;
     try {
       final requestBody = {
         "email": emailController.text.removeAllWhitespace,

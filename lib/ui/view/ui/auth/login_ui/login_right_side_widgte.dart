@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, deprecated_member_use, use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -7,7 +9,6 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/forgot_password_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -58,7 +59,7 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
               Image.asset(
                 Assets.pngThriveWoo,
                 // width: appDimensions!.width,
-                height: appDimensions!.width / 5.5,
+                height: appDimensions.width / 5.5,
                 fit: BoxFit.contain,
               ),
               // SvgPicture.asset(

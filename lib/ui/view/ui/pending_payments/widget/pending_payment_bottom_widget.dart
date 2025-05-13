@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -180,6 +181,11 @@ class _PendingPaymentBottomWidgetState
                                   const SizedBox(width: 5),
                                   Expanded(
                                       flex: 3,
+                                      child: _buildHeaderText(
+                                          "Invoice", fontSize)),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      flex: 3,
                                       child:
                                           _buildHeaderText("Status", fontSize)),
                                   const SizedBox(width: 5),
@@ -308,6 +314,8 @@ class _PendingPaymentBottomWidgetState
           const SizedBox(width: 5),
           Expanded(flex: 3, child: _buildOrderPrice(customerData, context)),
           const SizedBox(width: 5),
+          Expanded(flex: 3, child: _buildInvoiceNumber(customerData, context)),
+          const SizedBox(width: 5),
           Expanded(flex: 3, child: _buildOrderStatus(customerData, context)),
           const SizedBox(width: 5),
           Expanded(
@@ -316,6 +324,32 @@ class _PendingPaymentBottomWidgetState
         ],
       ),
     );
+  }
+
+  Widget _buildInvoiceNumber(CustomerData customerData, BuildContext context) {
+    return Center(
+        child: InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return InvoicePreview(
+              orderId: customerData.orderId,
+            );
+          },
+        );
+      },
+      child: Text(
+        customerData.invoiceId,
+        style: TextStyle(
+          color: primaryColor,
+          fontFamily: 'Poppins_Regular',
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+        ),
+        maxLines: 1,
+      ),
+    ));
   }
 
   Widget _buildHeaderText(String text, double fontSize) {
@@ -623,6 +657,20 @@ class _PendingPaymentBottomWidgetState
     final receivedAmountController = TextEditingController();
     final remarksController = TextEditingController();
 
+    late BuildContext loadingContext;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        loadingContext = ctx;
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+    await Future.delayed(const Duration(seconds: 2));
+    Navigator.pop(loadingContext);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -633,7 +681,6 @@ class _PendingPaymentBottomWidgetState
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Header of the dialog
                 Container(
                   height: 45,
                   padding: const EdgeInsets.all(10),
@@ -690,7 +737,6 @@ class _PendingPaymentBottomWidgetState
                     ],
                   ),
                 ),
-                // First table
                 Row(
                   children: [
                     Expanded(
@@ -756,7 +802,29 @@ class _PendingPaymentBottomWidgetState
                                 DataCell(Center(
                                     child: Text(getFormattedOrderCreatAt(
                                         payment.orderCreatAt)))),
-                                DataCell(Center(child: Text(payment.orderId))),
+                                DataCell(Center(
+                                    child: InkWell(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return InvoicePreview(
+                                          orderId: payment.orderId,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    payment.invoiceId,
+                                    style: TextStyle(
+                                      color: primaryColor,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                ))),
                                 DataCell(Center(
                                     child: Text(
                                         formatAmount(payment.orderTotal),

@@ -4,49 +4,53 @@
 
 import 'dart:convert';
 
-PendingPaymentResponse pendingPaymentResponseFromJson(String str) => PendingPaymentResponse.fromJson(json.decode(str));
+PendingPaymentResponse pendingPaymentResponseFromJson(String str) =>
+    PendingPaymentResponse.fromJson(json.decode(str));
 
-String pendingPaymentResponseToJson(PendingPaymentResponse data) => json.encode(data.toJson());
+String pendingPaymentResponseToJson(PendingPaymentResponse data) =>
+    json.encode(data.toJson());
 
 class PendingPaymentResponse {
-    int statusCode;
-    bool status;
-    String message;
-    List<CustomerData> data;
-    ChartDetails chartDetails;
-    num totalAmount;
-    num nearlydueAmount;
-    num dueAmount;
-    num overdueAmount;
-    Pagination pagination;
+  int statusCode;
+  bool status;
+  String message;
+  List<CustomerData> data;
+  ChartDetails chartDetails;
+  num totalAmount;
+  num nearlydueAmount;
+  num dueAmount;
+  num overdueAmount;
+  Pagination pagination;
 
-    PendingPaymentResponse({
-        required this.statusCode,
-        required this.status,
-        required this.message,
-        required this.data,
-        required this.chartDetails,
-        required this.totalAmount,
-        required this.nearlydueAmount,
-        required this.dueAmount,
-        required this.overdueAmount,
-        required this.pagination,
-    });
+  PendingPaymentResponse({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.data,
+    required this.chartDetails,
+    required this.totalAmount,
+    required this.nearlydueAmount,
+    required this.dueAmount,
+    required this.overdueAmount,
+    required this.pagination,
+  });
 
-    factory PendingPaymentResponse.fromJson(Map<String, dynamic> json) => PendingPaymentResponse(
+  factory PendingPaymentResponse.fromJson(Map<String, dynamic> json) =>
+      PendingPaymentResponse(
         statusCode: json["status_code"],
         status: json["status"],
         message: json["message"],
-        data: List<CustomerData>.from(json["data"].map((x) => CustomerData.fromJson(x))),
+        data: List<CustomerData>.from(
+            json["data"].map((x) => CustomerData.fromJson(x))),
         chartDetails: ChartDetails.fromJson(json["chartDetails"]),
         totalAmount: json["total_amount"],
         nearlydueAmount: json["nearlydue_amount"],
         dueAmount: json["due_amount"],
         overdueAmount: json["overdue_amount"],
         pagination: Pagination.fromJson(json["pagination"]),
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "status_code": statusCode,
         "status": status,
         "message": message,
@@ -57,69 +61,71 @@ class PendingPaymentResponse {
         "due_amount": dueAmount,
         "overdue_amount": overdueAmount,
         "pagination": pagination.toJson(),
-    };
+      };
 }
 
 class ChartDetails {
-    int nearlyDue;
-    int due;
-    int all;
-    int overdue;
+  int nearlyDue;
+  int due;
+  int all;
+  int overdue;
 
-    ChartDetails({
-        required this.nearlyDue,
-        required this.due,
-        required this.all,
-        required this.overdue,
-    });
+  ChartDetails({
+    required this.nearlyDue,
+    required this.due,
+    required this.all,
+    required this.overdue,
+  });
 
-    factory ChartDetails.fromJson(Map<String, dynamic> json) => ChartDetails(
+  factory ChartDetails.fromJson(Map<String, dynamic> json) => ChartDetails(
         nearlyDue: json["nearlyDue"],
         due: json["due"],
         all: json["all"],
         overdue: json["overdue"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "nearlyDue": nearlyDue,
         "due": due,
         "all": all,
         "overdue": overdue,
-    };
+      };
 }
 
 class CustomerData {
-    String imageUrl;
-    String orderId;
-    String customerId;
-    DateTime orderCreatAt;
-    DateTime? deliveryDate;
-    int creditPeriod;
-    String fullname;
-    String businessName;
-    num orderTotal;
-    int orderStatus;
-    String town;
-    String email;
-    num receivedAmount;
+  String imageUrl;
+  String orderId;
+  String customerId;
+  DateTime orderCreatAt;
+  DateTime? deliveryDate;
+  int creditPeriod;
+  String fullname;
+  String businessName;
+  num orderTotal;
+  int orderStatus;
+  String town;
+  String email;
+  num receivedAmount;
+  String invoiceId;
 
-    CustomerData({
-        required this.imageUrl,
-        required this.orderId,
-        required this.customerId,
-        required this.orderCreatAt,
-        this.deliveryDate,
-        required this.creditPeriod,
-        required this.fullname,
-        required this.businessName,
-        required this.orderTotal,
-        required this.orderStatus,
-        required this.town,
-        required this.email,
-        required this.receivedAmount,
-    });
+  CustomerData({
+    required this.imageUrl,
+    required this.orderId,
+    required this.customerId,
+    required this.orderCreatAt,
+    this.deliveryDate,
+    required this.creditPeriod,
+    required this.fullname,
+    required this.businessName,
+    required this.orderTotal,
+    required this.orderStatus,
+    required this.town,
+    required this.email,
+    required this.receivedAmount,
+    required this.invoiceId,
+  });
 
-    factory CustomerData.fromJson(Map<String, dynamic> json) => CustomerData(
+  factory CustomerData.fromJson(Map<String, dynamic> json) => CustomerData(
         imageUrl: json["image_url"],
         orderId: json["order_id"],
         customerId: json["customer_id"],
@@ -134,10 +140,11 @@ class CustomerData {
         orderStatus: json["order_status"],
         town: json["town"],
         email: json["email"],
+        invoiceId: json["invoice_id"],
         receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "image_url": imageUrl,
         "order_id": orderId,
         "customer_id": customerId,
@@ -151,37 +158,42 @@ class CustomerData {
         "town": town,
         "email": email,
         "received_amount": receivedAmount,
-    };
+        "invoice_id": invoiceId,
+      };
 }
 
 class Pagination {
-    int totalRecord;
-    int totalPages;
-    String perPage;
+  int totalRecord;
+  int totalPages;
+  String perPage;
 
-    Pagination({
-        required this.totalRecord,
-        required this.totalPages,
-        required this.perPage,
-    });
+  Pagination({
+    required this.totalRecord,
+    required this.totalPages,
+    required this.perPage,
+  });
 
-    factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
+  factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
         totalRecord: json["total_record"],
         totalPages: json["total_pages"],
         perPage: json["per_page"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "total_record": totalRecord,
         "total_pages": totalPages,
         "per_page": perPage,
-    };
+      };
 }
 
 ///~~~~~~~~~~~~~~~~~~~~~~~~~ GET ALL PENDING PAYMENT INDIVIDUAL~~~~~~~~~~~~~
-IndividualPendingPaymentResponse individualPendingPaymentResponseFromJson(String str) => IndividualPendingPaymentResponse.fromJson(json.decode(str));
+IndividualPendingPaymentResponse individualPendingPaymentResponseFromJson(
+        String str) =>
+    IndividualPendingPaymentResponse.fromJson(json.decode(str));
 
-String individualPendingPaymentResponseToJson(IndividualPendingPaymentResponse data) => json.encode(data.toJson());
+String individualPendingPaymentResponseToJson(
+        IndividualPendingPaymentResponse data) =>
+    json.encode(data.toJson());
 
 class IndividualPendingPaymentResponse {
   int statusCode;
@@ -225,6 +237,7 @@ class IndividualPendingData {
   int orderStatus;
   int paymentStatus;
   String customerId;
+  String invoiceId;
   int? receivableAmount;
   final int? amountEdited;
 
@@ -241,24 +254,26 @@ class IndividualPendingData {
     required this.customerId,
     required this.receivableAmount,
     required this.amountEdited,
+    required this.invoiceId,
   });
 
   factory IndividualPendingData.fromJson(Map<String, dynamic> json) =>
       IndividualPendingData(
-        paymentType: json["payment_type"],
-        creditPeriod: json["credit_period"],
+        paymentType: json["payment_type"] ?? 0,
+        creditPeriod: json["credit_period"] ?? 0,
         receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
         receivedAmountDate: json["received_amount_date"] == null
             ? null
             : DateTime.parse(json["received_amount_date"]),
-        orderId: json["order_id"],
+        orderId: json["order_id"] ?? '',
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
         orderTotal: num.tryParse(json["order_total"].toString()) ?? 0,
-        orderStatus: json["order_status"],
-        paymentStatus: json["payment_status"],
-        customerId: json["customer_id"],
-        receivableAmount: json["receivable_amount"],
-        amountEdited: json['amount_edited'],
+        orderStatus: json["order_status"] ?? 0,
+        paymentStatus: json["payment_status"] ?? 0,
+        customerId: json["customer_id"] ?? '',
+        receivableAmount: json["receivable_amount"] ?? 0,
+        amountEdited: json['amount_edited'] ?? 0,
+        invoiceId: json['invoice_id'] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
@@ -274,5 +289,6 @@ class IndividualPendingData {
         "customer_id": customerId,
         "receivable_amount": receivableAmount,
         "amount_edited": amountEdited,
+        "invoice_id": invoiceId,
       };
 }

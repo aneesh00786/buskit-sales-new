@@ -39,11 +39,11 @@ class LocalStorage {
             .map((json) => OrderTotalxx.fromJson(json))
             .toList();
       }
-      if (castedData['yearsListOfAll'] is List) {
-        yearList = (castedData['yearsListOfAll'] as List)
-            .map((json) => YearsListOfAll.fromJson(json))
-            .toList();
-      }
+      if (castedData['years_list_of_all'] is List) {
+          yearList = (castedData['years_list_of_all'] as List)
+              .map((json) => YearsListOfAll.fromJson(json))
+              .toList();
+        }
 
       return CustomerResponseModelxx(
         statusCode: castedData['statusCode'] ?? 0,

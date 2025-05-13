@@ -2120,9 +2120,9 @@ class EventTypeDropdown extends StatefulWidget {
 }
 
 class _EventTypeDropdownState extends State<EventTypeDropdown> {
-   SubscriptionController subscriptionController =
+  SubscriptionController subscriptionController =
       Get.find<SubscriptionController>();
-      
+
   late EventType selectedValue;
 
   @override
@@ -2158,7 +2158,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                 },
                 child: AbsorbPointer(
                   absorbing:
-                        subscriptionController.visitSetting.value != 'true',
+                      subscriptionController.visitSetting.value != 'true',
                   child: DropdownButton<EventType>(
                     iconSize: 17.5,
                     value: selectedValue,
@@ -2167,12 +2167,41 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         setState(() {
                           selectedValue = newValue;
                           widget.onChanged(newValue);
-                  
-                          if (newValue == EventType.monthly) {
-                            _selectDate(context);
+
+                          if (newValue == EventType.fortnightly) {
+                            _selectDate(context, 3);
+                          } else if (newValue == EventType.daily) {
+                            widget.provider.addEvent(
+                              widget.customerId,
+                              // widget.eventStatus,
+                              5,
+                              [DateTime.now().toIso8601String()],
+                            );
+                            widget.provider.fetchCustomerData();
+                          } else if (newValue == EventType.monthly) {
+                            widget.provider.addEvent(
+                              widget.customerId,
+                              // widget.eventStatus,
+                              4,
+                              [DateTime.now().toIso8601String()],
+                            );
+                            widget.provider.fetchCustomerData();
+                          } else if (newValue == EventType.weekly) {
+                            showDaysOfWeekPopup(
+                              context,
+                              widget.defaultEventDays,
+                              widget.customerId,
+                              newValue.value,
+                              widget.provider,
+                            );
                           } else {
-                            showDaysOfWeekPopup(context, widget.defaultEventDays,
-                                widget.customerId, newValue.value, widget.provider);
+                            showDaysOfWeekPopup(
+                              context,
+                              widget.defaultEventDays,
+                              widget.customerId,
+                              newValue.value,
+                              widget.provider,
+                            );
                           }
                         });
                       }
@@ -2310,8 +2339,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         'Add To Calender',
                         style: TextStyle(color: Colors.white),
                       ),
-                      onPressed: () {
-                        provider.addEvent(
+                      onPressed: () async {
+                        await provider.addEvent(
                           cusID,
                           eventSt,
                           selectedDays,
@@ -2330,7 +2359,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, int eventStatus) async {
     DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -2339,10 +2368,10 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
     );
 
     if (selectedDate != null) {
-      // Handle the selected date here
       widget.provider.addEvent(
         widget.customerId,
-        widget.eventStatus,
+        eventStatus,
+        // widget.eventStatus,
         [selectedDate.toIso8601String()],
       );
       widget.provider.fetchCustomerData();
@@ -2569,7 +2598,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             ),
                                                           );
                                                         } else {
-                                                          showUpgradePlanDialog(context);
+                                                          showUpgradePlanDialog(
+                                                              context);
                                                         }
                                                       },
                                                       child: Column(
@@ -3314,16 +3344,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         //     order.orderId,
                                                         //     true);
                                                         showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                        orderId:
-                                                                            order.orderId,
-                                                                      );
-                                                                    },
-                                                                  );
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return InvoicePreview(
+                                                              orderId:
+                                                                  order.orderId,
+                                                            );
+                                                          },
+                                                        );
                                                       },
                                                       child: Center(
                                                         child: Text(

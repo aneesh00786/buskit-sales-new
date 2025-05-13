@@ -774,6 +774,7 @@ class RecentOrder {
   final int orderStatus;
   final int paymentStatus;
   final String customerId;
+  final String invoiceId;
   List<dynamic>? duedate;
 
   RecentOrder({
@@ -787,6 +788,7 @@ class RecentOrder {
     required this.orderStatus,
     required this.paymentStatus,
     required this.customerId,
+    required this.invoiceId,
     this.duedate,
   });
 
@@ -798,12 +800,12 @@ class RecentOrder {
       receivedAmountDate: json['received_amount_date'] as String?,
       orderId: json['order_id'] as String,
       orderCreatAt: json['order_creat_at'] as String,
-      orderTotal: json['order_total'] as num,
+      orderTotal: num.tryParse(json['order_total'].toString()) ?? 0,
       orderStatus: json['order_status'] as int,
       paymentStatus: json['payment_status'] as int,
       customerId: json['customer_id'] as String,
+      invoiceId: json['invoice_id'] ?? '',
       duedate: List<dynamic>.from(json["duedate"].map((x) => x)),
-      // receivableAmount: json['receivable_amount'] as int,
     );
   }
 
@@ -819,8 +821,8 @@ class RecentOrder {
       'order_status': orderStatus,
       'payment_status': paymentStatus,
       'customer_id': customerId,
+      'invoice_id': invoiceId,
       "duedate": List<dynamic>.from(duedate!.map((x) => x)),
-      // 'receivable_amount': receivableAmount,
     };
   }
 }

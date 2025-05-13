@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -759,15 +760,28 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                         ),
                                       ),
                                       Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            order.orderId,
-                                            style: TextStyle(
-                                              fontSize: fontSize,
-                                            ),
-                                          ),
-                                        ),
+                                  child: Center(
+                                    child: InkWell(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return InvoicePreview(
+                                              orderId: order.orderId,
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: MyRegularText(
+                                        color: primaryColor,
+                                        label: order.invoiceId,
+                                        fontSize: fontSize,
+                                        maxlines: 1,
+                                        fontWeight: FontWeight.w600,
                                       ),
+                                    ),
+                                  ),
+                                ),
                                       Expanded(
                                         child: Center(
                                           child: Container(

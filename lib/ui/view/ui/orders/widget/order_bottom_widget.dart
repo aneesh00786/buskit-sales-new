@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -916,8 +917,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               Get.back();
               Get.snackbar('Error', e.toString());
             }
-          } else if (orderController.selectedTabIndex >= 1 ||
-              orderController.selectedTabIndex.value == 0) {
+          } else if (orderController.selectedTabIndex.value >= 1 &&
+              orderController.selectedTabIndex.value != 4 &&
+              orderController.selectedTabIndex.value != 5) {
             try {
               await orderController.loadOrderProcessInvoiceData(
                 orderId: orderData.orderId!,
@@ -941,6 +943,16 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
               Get.back();
               // Get.snackbar('Error', e.toString());
             }
+          } else if (orderController.selectedTabIndex.value == 4 ||
+              orderController.selectedTabIndex.value == 5) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return InvoicePreview(
+                  orderId: orderData.orderId ?? '',
+                );
+              },
+            );
           }
         },
         icon: const Icon(Icons.visibility, size: 16),

@@ -2,6 +2,7 @@
 
   import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -127,7 +128,27 @@ void paymentCollectionDialog(
                               DataCell(Center(
                                   child: Text(getFormattedOrderCreatAt(
                                       order.orderCreatAt)))),
-                              DataCell(Center(child: Text(order.orderId))),
+                              DataCell(Center(
+                                child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return InvoicePreview(
+                                      orderId: order.orderId,
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                order.invoiceId,
+                                style: TextStyle(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                              ),
+                            ))),
                               DataCell(Center(
                                   child: Text(formatAmount(order.orderTotal)))),
                               DataCell(Center(

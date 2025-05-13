@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -13,7 +12,6 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
@@ -191,27 +189,27 @@ Future<dynamic> registerDialog(BuildContext context,
                       isRoundedCorner: true,
                       buttonText: "Register",
                       onPressed: () async {
-                        //final otp = loginController.otpController.text;
-                        // if (formKey.currentState?.validate() ?? false) {
-                        //   final fullPhoneNo =
-                        //       '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                        //   log('Full Phone Number $fullPhoneNo');
-                        //   if (loginController.validateOtp(otp)) {
-                        //     await ApiWorker().insertAdmin(
-                        //       address: loginController.addressController.text,
-                        //       country: loginController.countryController.text,
-                        //       email:
-                        //           loginController.businessEmailController.text,
-                        //       name: loginController.businessNameController.text,
-                        //       fullPhoneNo: fullPhoneNo,
-                        //       password: '1234',
-                        //       state: loginController.stateController.text,
-                        //       town: loginController.townController.text,
-                        //       zipcode: loginController.postCodeController.text,
-                        //     );
-                        //     final prefs = await SharedPreferences.getInstance();
-                        //     await prefs.setString('selectedCountry',
-                        //         loginController.countryController.text);
+                        final otp = loginController.otpController.text;
+                        if (formKey.currentState?.validate() ?? false) {
+                          final fullPhoneNo =
+                              '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                          log('Full Phone Number $fullPhoneNo');
+                          if (loginController.validateOtp(otp)) {
+                            await ApiWorker().insertAdmin(
+                              address: loginController.addressController.text,
+                              country: loginController.countryController.text,
+                              email:
+                                  loginController.businessEmailController.text,
+                              name: loginController.businessNameController.text,
+                              fullPhoneNo: fullPhoneNo,
+                              password: '1234',
+                              state: loginController.stateController.text,
+                              town: loginController.townController.text,
+                              zipcode: loginController.postCodeController.text,
+                            );
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString('selectedCountry',
+                                loginController.countryController.text);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -220,12 +218,12 @@ Future<dynamic> registerDialog(BuildContext context,
                               ),
                             );
                             log('Form is valid, email verified, and OTP is correct.');
-                        //   } else {
-                        //     errorSnackbar("Please verify the email.");
-                        //   }
-                        // } else {
-                        //   log("Form validation failed.");
-                        // }
+                          } else {
+                            errorSnackbar("Please verify the email.");
+                          }
+                        } else {
+                          log("Form validation failed.");
+                        }
                       },
                       btnController: loginController.registerController,
                     ),

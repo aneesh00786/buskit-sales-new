@@ -481,7 +481,7 @@ class EditLeadsDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: const BoxDecoration(
-              color: Color.fromRGBO(238, 205, 110, 1),
+              color: primaryColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
@@ -493,7 +493,7 @@ class EditLeadsDialog extends StatelessWidget {
                 const Text(
                   'Update Lead',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: white,
                     fontSize: 16,
                     fontFamily: 'Poppins_Regular',
                     fontWeight: FontWeight.w600,
@@ -863,14 +863,14 @@ class EditLeadsDialog extends StatelessWidget {
                         onPressed: () async {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              const Color.fromRGBO(238, 205, 110, 1),
+                              primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
                         child: const Text(
                           'Update',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: white),
                         ),
                       )
                     ],

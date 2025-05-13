@@ -1669,15 +1669,11 @@ class ApiWorker with ApiConstants {
 
         final subscribedPlan = SubscribedPlan.fromJson(response.data);
         log('Subscription plan fetched: ${subscribedPlan.toJson()}');
-
-        // Save to Hive
         await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
         log('Subscription plan saved to Hive.');
-
         return subscribedPlan;
       } on DioException catch (dioError) {
         log("Dio error while fetching subscription plan: ${dioError.response?.data}");
-
         handleExceptionMessage(
           apiName: 'Fetch Subscription Plan',
           response: dioError.response,

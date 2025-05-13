@@ -139,8 +139,8 @@ class CartDatabaseManager {
       return fetchedItems;
     } on DioException catch (e) {
       log('Error fetching draft items: $e');
-      handleExceptionMessage(
-            response: e.response, apiName: "draft");
+      // handleExceptionMessage(
+      //       response: e.response, apiName: "draft");
       return [];
     }
   }

@@ -76,7 +76,7 @@ class SubscriptionController extends GetxController {
 
         features.forEach((key, value) {
           final status = value.status.toString();
-
+          log('Status :${value.status.toString()}');
           switch (key) {
             case 'communication':
               communication.value = status;

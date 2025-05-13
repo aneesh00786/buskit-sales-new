@@ -791,6 +791,7 @@ class CartDialogueState extends State<CartDialogue> {
                             child: SizedBox(
                               height: dialogHeight * 0.5,
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: SingleChildScrollView(

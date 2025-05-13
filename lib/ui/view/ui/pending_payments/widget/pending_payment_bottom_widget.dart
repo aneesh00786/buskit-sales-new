@@ -638,7 +638,8 @@ class _PendingPaymentBottomWidgetState
                   height: 45,
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
-                    color: Color(0xff008000),
+                    color: primaryColor,
+                    // Color(0xff008000),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
@@ -763,7 +764,8 @@ class _PendingPaymentBottomWidgetState
                                 DataCell(Center(
                                   child: Container(
                                     decoration: const BoxDecoration(
-                                      color: Color(0xff008000),
+                                      color: Colors.green,
+                                      //Color(0xff008000),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(4.0)),
                                     ),

@@ -639,7 +639,7 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(
                   child: Container(
                       decoration: const BoxDecoration(
-                        color: Color(0xff008000),
+                        color: primaryColor,
                         borderRadius: BorderRadius.all(Radius.circular(4.0)),
                       ),
                       child: Padding(
@@ -839,7 +839,8 @@ void pendingPaymentCollectionDialog(
               height: 45,
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(
-                color: Color(0xff008000),
+                color: primaryColor,
+                //Color(0xff008000),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),

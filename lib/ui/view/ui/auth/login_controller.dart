@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -80,6 +81,8 @@ class LoginController extends GetxController {
       RoundedLoadingButtonController();
   RoundedLoadingButtonController registerController =
       RoundedLoadingButtonController();
+  SubscriptionController subscriptionController =
+      Get.put(SubscriptionController());
   RxBool isPasswordVisible = true.obs;
   PaginationModel paginationModel = PaginationModel();
   final int currentYear = DateTime.now().year;
@@ -173,6 +176,7 @@ class LoginController extends GetxController {
   void initializeTabController(TickerProvider vsync, {required int length}) {
     _tabController = TabController(length: length, vsync: vsync);
   }
+
   Future<bool> performLogin(BuildContext context) async {
     DateTime now = DateTime.now();
     String currentMonthName = DateFormat('MMMM').format(now);
@@ -182,7 +186,7 @@ class LoginController extends GetxController {
         "email": emailController.text.removeAllWhitespace,
         "password": passwordController.text,
       };
-     bool isOnline = await ConnectivityService().isOnline();
+      bool isOnline = await ConnectivityService().isOnline();
 
       if (!isOnline) {
         showErrorDialog('Login Failed',
@@ -258,6 +262,7 @@ class LoginController extends GetxController {
         } else {
           log("No subcategory found. Products not fetched.");
         }
+        await subscriptionController.loadSubscriptionFeatures(companyId);
         Get.offAllNamed(AppRoutes.home);
 
         return true;

@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/option/model/option_order_r
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -292,6 +293,7 @@ class ApiWorker with ApiConstants {
             },
           ),
         );
+        log('Response Data ${response.data}');
         if (response.statusCode == 200) {
           return FetchSpecificOrderInvoice.fromJson(response.data);
         } else {
@@ -1805,6 +1807,28 @@ class ApiWorker with ApiConstants {
         response: error is DioException ? error.response : null,
       );
       throw Exception('Failed to send invoice: $error');
+    }
+  }
+
+    Future<String> getRouteCredit() async {
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.get_routeCredit,
+        data: {
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        },
+      );
+      var res = RouteCreditResponse.fromJson(response.data);
+      return res.credit;
+    } on DioException catch (error) {
+      log(error.toString());
+      handleExceptionMessage(
+          apiName: 'Get route credit', response: error.response);
+
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (error) {
+      log("Unexpected error: $error");
+      return Future.error(Exception("Unexpected error: $error"));
     }
   }
 }

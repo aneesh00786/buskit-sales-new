@@ -184,7 +184,7 @@ class OrderController extends GetxController {
     );
 
     if (data.data != null) {
-      fetchSpecificOrderData = data.data!;
+      fetchSpecificOrderData = data.data??SpecificOrderData();
     }
 
     isLoading(false);

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -45,7 +47,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
   @override
   Widget build(BuildContext context) {
     double totalWidth = MediaQuery.of(context).size.width;
-
+    log("DATE FORMAT :${widget.invoiceData!.orderCreatAt?.toIso8601String() ?? ''}");
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       backgroundColor: white,
@@ -83,7 +85,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                         const Spacer(),
                         Text(
-                          'Created At : ${(NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt!.toIso8601String())))}',
+                          'Created At : ${(NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt?.toIso8601String() ?? '')))}',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -401,7 +403,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                     nkMediumSizeBox(),
                     Text(NKDateUtils.commonDayFormat2(
                         NKDateUtils.formatStringUTCDateTime(
-                            widget.invoiceData!.rejectedDate.toString()))),
+                            widget.invoiceData?.rejectedDate.toString() ??
+                                ''))),
                   ],
                 ],
               )

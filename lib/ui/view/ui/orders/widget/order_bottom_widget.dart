@@ -894,10 +894,13 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     return Center(
       child: IconButton(
         onPressed: () async {
-          if (orderController.selectedTabIndex.value == 1) {
+          log('Order ID :${orderData.orderId??''}');
+          log('Order ID :${orderController.selectedTabIndex.value}');
+          if (orderController.selectedTabIndex.value == 0) {
             try {
-              await orderController.loadOrderApprovalInvoiceData(
+              await orderController.loadOrderProcessInvoiceData(
                 orderId: orderData.orderId!,
+                orderStatus: orderData.orderStatus!,
               );
               Get.back();
               // ignore: unnecessary_null_comparison

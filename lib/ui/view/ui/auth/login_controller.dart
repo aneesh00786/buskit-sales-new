@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -233,10 +234,35 @@ class LoginController extends GetxController {
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
-          // calenderMapController
-          //     .fetchCalenderEvents(initialDay ?? DateTime.now()),
+        //   ApiService().fetchAllOrders(
+        //     isLogin: true,
+        //     orderType: '',
+        //     orderStatus: OrderStatus.delivered,
+        //     fetchType: "Month"),
+        // ApiService().fetchAllOrders(
+        //     isLogin: true,
+        //     orderType: 7,
+        //     orderStatus: OrderStatus.estimates,
+        //     fetchType: "Month"),
+        // ApiService().fetchAllOrders(
+        //     isLogin: true,
+        //     orderType: 0,
+        //     orderStatus: OrderStatus.preOrder,
+        //     fetchType: "Month"),
+        // ApiService().fetchAllOrders(
+        //     isLogin: true,
+        //     orderType: 4,
+        //     orderStatus: OrderStatus.draft,
+        //     fetchType: "Month"),
+        // ApiService().fetchAllOrders(
+        //     isLogin: true,
+        //     orderType: 3,
+        //     orderStatus: OrderStatus.cancelled,
+        //     fetchType: "Month"),
+        // calenderMapController
+        //     .fetchCalenderEvents(initialDay ?? DateTime.now()),
           ApiWorker().fetchDiscounts(companyId, salesmanId),
-          //CartDatabaseManager().getDraftItems(),
+        //CartDatabaseManager().getDraftItems(),
           ApiWorker()
               .getRecentOrdersData(
                 searchModel: searchData,
@@ -262,7 +288,6 @@ class LoginController extends GetxController {
         }
         await subscriptionController.loadSubscriptionFeatures(companyId);
         Get.offAllNamed(AppRoutes.home);
-
         return true;
       } else {
         return _handleLoginError(loginResponce);

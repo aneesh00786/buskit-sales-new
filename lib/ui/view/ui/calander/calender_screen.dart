@@ -1,7 +1,9 @@
 
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/calender_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -25,6 +27,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
     final startOfMonth = DateTime(now.year, now.month, 1);
     calenderController.fetchCalenderEvents(startOfMonth);
     calenderController.loadCalenderEventV1;
+        calenderController.getRouteCredit();
     super.initState();
   }
   @override
@@ -45,6 +48,39 @@ class _CalenderScreenState extends State<CalenderScreen> {
           backgroundColor: white,
           body: Column(
             children: [
+              nkMediumSizeBox(),
+              Obx(() {
+                return SizedBox(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      Spacer(),
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomText(content: 'Route Credit :  '),
+                            CustomText(
+                              content: calenderController
+                                      .isRouteCreditLoading.value
+                                  ? 'Loading...'
+                                  : formatAmount(
+                                      calenderController.routeCredit.value),
+                              color: Colors.blue.shade600,
+                            ),
+                          ],
+                        ),
+                      ),
+                      nkMediumSizeBox(),
+                    ],
+                  ),
+                );
+              }),
               nkMediumSizeBox(),
               Flexible(
                 child: CalenderBottomWidget(

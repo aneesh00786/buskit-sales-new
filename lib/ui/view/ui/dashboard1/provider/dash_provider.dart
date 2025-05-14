@@ -638,6 +638,7 @@ class ApiService {
     int? year,
     OrderStatus? orderStatus,
     required dynamic orderType,
+    bool isLogin = true,
   }) async {
     Object? sendData;
     switch (fetchType) {

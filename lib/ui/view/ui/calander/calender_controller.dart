@@ -49,6 +49,8 @@ class CalenderMapController extends GetxController {
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
 
+   RxString routeCredit = ''.obs;
+
   void initializeCheckedList(
       int length, List<CalendarEventData<EventData>> eventData) {
     checkedList.value = List<bool>.filled(length, true).toList();
@@ -597,5 +599,19 @@ class CalenderMapController extends GetxController {
       }
     }
     return customerDataList;
+  }
+  
+  RxBool isRouteCreditLoading = false.obs;
+
+  Future<void> getRouteCredit() async {
+    isRouteCreditLoading.value = true;
+    try {
+      final data = await ApiWorker().getRouteCredit();
+      routeCredit.value = data;
+    } catch (e) {
+      print("Error fetching route credit: $e");
+    } finally {
+      isRouteCreditLoading.value = false;
+    }
   }
 }

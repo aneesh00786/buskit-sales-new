@@ -306,3 +306,33 @@ class SalesManVisitEvents {
     return json;
   }
 }
+
+
+class RouteCreditResponse {
+    int statusCode;
+    bool status;
+    int companyId;
+    String credit;
+
+    RouteCreditResponse({
+        required this.statusCode,
+        required this.status,
+        required this.companyId,
+        required this.credit,
+    });
+
+    factory RouteCreditResponse.fromJson(Map<String, dynamic> json) => RouteCreditResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        companyId: json["companyId"],
+        credit: json["credit"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "companyId": companyId,
+        "credit": credit,
+    };
+}
+

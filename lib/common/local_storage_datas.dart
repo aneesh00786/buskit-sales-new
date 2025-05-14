@@ -420,24 +420,4 @@ class LocalStorage {
       throw Exception('No cached data available.');
     }
   }
-
-  // storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
-  //   if (cachedData != null) {
-  //     log("Cached data found. Processing...");
-  //     try {
-  //       final safeData =
-  //           castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-  //       log("Successfully parsed cached data.");
-  //       return mapJsonToResponseModel(safeData);
-  //     } catch (e) {
-  //       log("Error parsing cached data: $e");
-  //       await dashboardBox.delete('dashboardData');
-  //       NkCommonFunction.showErrorSnakBar(
-  //           'Cached data is corrupted. Please connect to the internet.');
-  //       throw Exception('Invalid cached data format. Cache cleared.');
-  //     }
-  //   } else {
-  //     throw Exception('No cached data available.');
-  //   }
-  // }
 }

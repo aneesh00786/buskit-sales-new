@@ -379,206 +379,37 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     );
   }
 
-  void showPaymentDialog(BuildContext context) {
+  void showPaymentDialog(
+    BuildContext context,
+    //Plan plan
+  ) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: PaymentDialogContent(),
+        child: PaymentDialogContent(
+            //plan: plan
+            ),
       ),
     );
   }
-
-  // Future<dynamic> subscribeDialog(BuildContext context) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (context) {
-  // const InputBorder lightGreyBorder = OutlineInputBorder(
-  //   borderSide: BorderSide(color: Colors.grey, width: 1),
-  // );
-
-  // const InputDecoration inputDecoration = InputDecoration(
-  //   border: lightGreyBorder,
-  //   enabledBorder: lightGreyBorder,
-  //   focusedBorder: OutlineInputBorder(
-  //     borderSide: BorderSide(color: Colors.blue, width: 1.5),
-  //   ),
-  //   labelText: '',
-  // );
-  //       return Dialog(
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(10),
-  //         ),
-  //         child: Container(
-  //           width: MediaQuery.of(context).size.width * 0.8,
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Container(
-  //                 padding: const EdgeInsets.all(16),
-  //                 decoration: const BoxDecoration(
-  //                   gradient: LinearGradient(
-  //                     colors: [Color(0xFF85C3FF), Color(0xFF62D0E0)],
-  //                   ),
-  //                   borderRadius: BorderRadius.only(
-  //                     topLeft: Radius.circular(10),
-  //                     topRight: Radius.circular(10),
-  //                   ),
-  //                 ),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     const Text(
-  //                       "Add Card Details",
-  //                       style: TextStyle(
-  //                         color: Colors.white,
-  //                         fontSize: 20,
-  //                         fontWeight: FontWeight.bold,
-  //                       ),
-  //                     ),
-  //                     GestureDetector(
-  //                       onTap: () => Navigator.of(context).pop(),
-  //                       child: const Icon(
-  //                         Icons.close,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Padding(
-  //                 padding: const EdgeInsets.all(16.0),
-  //                 child: Column(
-  //                   children: [
-  //                     ElevatedButton.icon(
-  //                       onPressed: () {
-
-  //                       },
-  //                       icon: const Icon(Icons.apple, size: 18),
-  //                       label: const Text("Pay"),
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: Colors.black,
-  //                         foregroundColor: Colors.white,
-  //                         padding: const EdgeInsets.symmetric(
-  //                           horizontal: 16,
-  //                           vertical: 12,
-  //                         ),
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(8),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 16),
-  //                     const Align(
-  //                       alignment: Alignment.centerLeft,
-  //                       child: Text(
-  //                         "Add new card:",
-  //                         style: TextStyle(
-  //                             fontSize: 16, fontWeight: FontWeight.bold),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 8),
-  // TextFormField(
-  //   decoration: inputDecoration.copyWith(
-  //       labelText: "Card holder name"),
-  // ),
-  //                     const SizedBox(height: 8),
-  //                     TextFormField(
-  //                       decoration:
-  //                           inputDecoration.copyWith(labelText: "Card number"),
-  //                     ),
-  //                     const SizedBox(height: 8),
-  //                     Row(
-  //                       children: [
-  //                         Expanded(
-  //                           child: TextFormField(
-  //                             decoration:
-  //                                 inputDecoration.copyWith(labelText: "CVV"),
-  //                           ),
-  //                         ),
-  //                         const SizedBox(width: 8),
-  //                         Expanded(
-  //                           child: DropdownButtonFormField<String>(
-  //                             decoration:
-  //                                 inputDecoration.copyWith(labelText: "MM"),
-  //                             items: List.generate(12, (index) {
-  //                               final month =
-  //                                   (index + 1).toString().padLeft(2, '0');
-  //                               return DropdownMenuItem(
-  //                                   value: month, child: Text(month));
-  //                             }),
-  //                             onChanged: (_) {},
-  //                           ),
-  //                         ),
-  //                         const SizedBox(width: 8),
-  //                         Expanded(
-  //                           child: DropdownButtonFormField<String>(
-  //                             decoration:
-  //                                 inputDecoration.copyWith(labelText: "YY"),
-  //                             items: List.generate(10, (index) {
-  //                               final year =
-  //                                   (DateTime.now().year + index).toString();
-  //                               return DropdownMenuItem(
-  //                                   value: year, child: Text(year));
-  //                             }),
-  //                             onChanged: (_) {},
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                     const SizedBox(height: 16),
-  //                     Row(
-  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                       children: [
-  //                         Container(
-  //                           padding: const EdgeInsets.symmetric(
-  //                               horizontal: 16, vertical: 8),
-  //                           decoration: BoxDecoration(
-  //                             color: const Color(0xFFF2F4F7),
-  //                             borderRadius: BorderRadius.circular(8),
-  //                           ),
-  //                           child: const Text(
-  //                             "Ends on: April 28, 2026",
-  //                             style: TextStyle(fontSize: 14),
-  //                           ),
-  //                         ),
-  //                         Container(
-  //                           padding: const EdgeInsets.symmetric(
-  //                               horizontal: 16, vertical: 8),
-  //                           decoration: BoxDecoration(
-  //                             color: const Color(0xFFF2F4F7),
-  //                             borderRadius: BorderRadius.circular(8),
-  //                           ),
-  //                           child: const Text(
-  //                             "Amount: ₹10256.40",
-  //                             style: TextStyle(fontSize: 14),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 16),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class PaymentDialogContent extends StatefulWidget {
-  const PaymentDialogContent({super.key});
+  // Plan plan;
+  PaymentDialogContent({
+    super.key,
+    // required this.plan
+  });
 
   @override
   _PaymentDialogContentState createState() => _PaymentDialogContentState();
 }
 
 class _PaymentDialogContentState extends State<PaymentDialogContent> {
-  final controller = CardEditController();
+  final CardFieldInputDetails? _cardDetails = null;
+
+  final CardEditController controller = CardEditController();
 
   @override
   void dispose() {
@@ -586,12 +417,44 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     super.dispose();
   }
 
-  void handleAddCard() {
+  void handleAddCard() async {
     final details = controller.details;
+
     if (details.complete) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Card added")));
+      try {
+        // Ideally, get paymentIntent client secret from your backend.
+        final String clientSecret = await fetchPaymentIntentFromBackend();
+
+        await Stripe.instance.confirmPayment(
+          paymentIntentClientSecret: clientSecret,
+          data: PaymentMethodParams.card(
+            paymentMethodData: PaymentMethodData(
+              billingDetails: BillingDetails(
+                name: 'Test User', // Get from input if needed
+              ),
+            ),
+          ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Payment successful")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Payment failed: $e")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please complete card details")),
+      );
     }
+  }
+
+  Future<String> fetchPaymentIntentFromBackend() async {
+    // Replace this with real backend call
+    // The backend should create a PaymentIntent and return clientSecret
+    return 'pi_..._secret_...'; // Dummy - Replace with actual
   }
 
   void goToPaypalScreen() async {
@@ -617,6 +480,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
       ),
       labelText: '',
     );
+
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -629,64 +493,84 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                   colors: [Color(0xFF85C3FF), Color(0xFF62D0E0)]),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text('Add Card Details',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600)),
+            child: Text(
+              'Add Card Details',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: goToPaypalScreen,
-            icon: Icon(
-              Icons.account_balance_wallet,
-              color: white,
-            ),
-            label: Text('PayPal',
-                style: TextStyle(
-                  color: Colors.white,
-                )),
+            icon: Icon(Icons.account_balance_wallet, color: Colors.white),
+            label: Text('PayPal', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: CustomText(content: "OR"),
+                ),
+                Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Divider(),
-            ),
-            Align(alignment: Alignment.centerLeft, child: Text("Add new card:",style: TextStyle(),)),
-            CardField(
-              controller: controller,
-              decoration: inputDecoration.copyWith(labelText: "Card Number"),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              decoration: inputDecoration.copyWith(labelText: "Card holder name"),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 16,
-              children: [
-                infoBox("Ends on", "June 5, 2025"),
-                infoBox("Amount", "\$15.42"),
-                infoBox("Licenses", "1"),
+                Divider(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: CustomText(
+                    content: "Add new card:",
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CardField(
+                  controller: controller,
+                  decoration:
+                      inputDecoration.copyWith(labelText: "Card Number"),
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Card holder name",
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Wrap(
+                  alignment: WrapAlignment.spaceAround,
+                  spacing: 16,
+                  children: [
+                    infoBox("Ends on", "June 5, 2025"),
+                    const SizedBox(width: 16),
+                    infoBox("Amount", "\$15.42"),
+                    const SizedBox(width: 16),
+                    infoBox("Licenses", "1"),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: handleAddCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.lightBlueAccent,
+                    minimumSize: Size(double.infinity, 40),
+                  ),
+                  child: CustomText(content: "Add Card", color: white),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: handleAddCard,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightBlueAccent,
-                minimumSize: Size(double.infinity, 40),
-              ),
-              child: Text("Add Card"),
-            ),
-              ],
-            ),
-          )
+          ),
         ],
       ),
     );
@@ -695,8 +579,8 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
   Widget infoBox(String title, String value) {
     return Column(
       children: [
-        Text(title, style: TextStyle(color: Colors.grey)),
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+        CustomText(content: title, color: Colors.grey, fontSize: 18),
+        CustomText(content: value, fontWeight: FontWeight.bold, fontSize: 18),
       ],
     );
   }

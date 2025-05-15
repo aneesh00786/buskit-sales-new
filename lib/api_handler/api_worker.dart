@@ -1644,7 +1644,7 @@ class ApiWorker with ApiConstants {
       "privacy": privacy,
       "refund": refund,
     };
-    log('Request Data ${requestData}');
+    log('Request Data $requestData');
     try {
       final response = await responsePostMethod(
           requestData: requestData, endPoint: ApiConstants.insertadmin);

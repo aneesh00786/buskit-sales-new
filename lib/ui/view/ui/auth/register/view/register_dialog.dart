@@ -23,6 +23,7 @@ Future<dynamic> registerDialog(BuildContext context,
   String refundAgreement = "false";
   return showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (context) {
       return Dialog(
         shape: RoundedRectangleBorder(
@@ -31,296 +32,332 @@ Future<dynamic> registerDialog(BuildContext context,
         child: StatefulBuilder(builder: (context, setState) {
           bool isAgreed =
               privacyAgreement == "true" && refundAgreement == "true";
-          return Container(
+          return SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: Form(
               key: formKey,
               child: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      height: 10,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: const BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(50),
-                              bottomRight: Radius.circular(50))),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomText(
-                        content: "Register",
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8,right:8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 10,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              decoration: const BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(50),
+                                      bottomRight: Radius.circular(50))),
+                            ),
+                          ),
+                          InkWell(
+                              onTap: () => Navigator.pop(context),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 20,
+                              ))
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Business Name",
-                            focusNode: loginController.businessEmailFocusNode,
-                            icon: const Icon(EneftyIcons.buildings_outline),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: CustomText(
+                              content: "Register",
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Business Name",
+                                  focusNode:
+                                      loginController.businessEmailFocusNode,
+                                  icon:
+                                      const Icon(EneftyIcons.buildings_outline),
+                                  textEditingController:
+                                      loginController.businessNameController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Business name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Company Reg No :",
+                                  icon:
+                                      const Icon(EneftyIcons.buildings_outline),
+                                  textEditingController:
+                                      loginController.companyRegController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Company registration number';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          AddressSearchField(
+                            hinttext: 'Address',
                             textEditingController:
-                                loginController.businessNameController,
+                                loginController.addressController,
+                            townController: loginController.townController,
+                            stateController: loginController.stateController,
+                            countryController:
+                                loginController.countryController,
+                            currentFocusNode: loginController.addressFocusNode,
+                            nextFocusNode: loginController.townFocusNode,
+                            loginController: loginController,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Town",
+                                  focusNode: loginController.townFocusNode,
+                                  textEditingController:
+                                      loginController.townController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Town';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "State",
+                                  focusNode: loginController.stateFocusNode,
+                                  textEditingController:
+                                      loginController.stateController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your state';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Post Code",
+                                  focusNode: loginController.postCodeFocusNode,
+                                  textEditingController:
+                                      loginController.postCodeController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Post code';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          RegisterTextField(
+                            hinttext: "Country",
+                            focusNode: loginController.countryFocusNode,
+                            textEditingController:
+                                loginController.countryController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your Business name';
+                                return 'Please enter your country name';
                               }
                               return null;
                             },
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Company Reg No :",
-                            icon: const Icon(EneftyIcons.buildings_outline),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Admin First Name",
+                                  textEditingController:
+                                      loginController.adminFirstNameController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your first name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: RegisterTextField(
+                                  hinttext: "Admin Last Name",
+                                  textEditingController:
+                                      loginController.adminLastnameController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your last name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          RegisterPhoneNumberField(
                             textEditingController:
-                                loginController.companyRegController,
+                                loginController.phoneNumberController,
+                            focusNode: loginController.phoneNumberFocusNode,
+                            loginController: loginController,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          BusinessEmailField(
+                            textEditingController:
+                                loginController.businessEmailController,
+                            hinttext: "Business Email",
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your Company registration number';
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                  .hasMatch(value)) {
+                                return 'Enter a valid email address';
+                              }
+                              if (!value.contains('@gmail.com')) {
+                                return 'Enter a valid email address';
                               }
                               return null;
                             },
+                            loginController: loginController,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    AddressSearchField(
-                      hinttext: 'Address',
-                      textEditingController: loginController.addressController,
-                      townController: loginController.townController,
-                      stateController: loginController.stateController,
-                      countryController: loginController.countryController,
-                      currentFocusNode: loginController.addressFocusNode,
-                      nextFocusNode: loginController.townFocusNode,
-                      loginController: loginController,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Town",
-                            focusNode: loginController.townFocusNode,
-                            textEditingController:
-                                loginController.townController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your Town';
-                              }
-                              return null;
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          warningMessage(),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          PolicyAgreementWidget(
+                            onPrivacyChanged: (agreed) {
+                              setState(() {
+                                privacyAgreement = agreed.toString();
+                              });
+                            },
+                            onRefundChanged: (agreed) {
+                              setState(() {
+                                refundAgreement = agreed.toString();
+                              });
                             },
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "State",
-                            focusNode: loginController.stateFocusNode,
-                            textEditingController:
-                                loginController.stateController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your state';
-                              }
-                              return null;
-                            },
+                          const SizedBox(
+                            height: 30,
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Post Code",
-                            focusNode: loginController.postCodeFocusNode,
-                            textEditingController:
-                                loginController.postCodeController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your Post code';
-                              }
-                              return null;
-                            },
+                          NkLoadingButton(
+                            isRoundedCorner: false,
+                            buttonText: "Register",
+                            onPressed: isAgreed
+                                ? () async {
+                                    final otp =
+                                        loginController.otpController.text;
+                                    if (formKey.currentState?.validate() ??
+                                        false) {
+                                      final fullPhoneNo =
+                                          '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                                      log('Full Phone Number $fullPhoneNo');
+                                      if (loginController.validateOtp(otp)) {
+                                        await ApiWorker().insertAdmin(
+                                            address: loginController
+                                                .addressController.text,
+                                            country: loginController
+                                                .countryController.text,
+                                            email: loginController
+                                                .businessEmailController.text,
+                                            name: loginController
+                                                .businessNameController.text,
+                                            fullPhoneNo: fullPhoneNo,
+                                            password: '1234',
+                                            state: loginController
+                                                .stateController.text,
+                                            town: loginController
+                                                .townController.text,
+                                            zipcode: loginController
+                                                .postCodeController.text,
+                                            adminFname: loginController
+                                                .adminFirstNameController.text,
+                                            adminLname: loginController
+                                                .adminLastnameController.text,
+                                            regNo: loginController
+                                                .companyRegController.text,
+                                            privacy: privacyAgreement,
+                                            refund: refundAgreement);
+                                        final prefs = await SharedPreferences
+                                            .getInstance();
+                                        await prefs.setString(
+                                            'selectedCountry',
+                                            loginController
+                                                .countryController.text);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RegisterPlanScreen(),
+                                          ),
+                                        );
+                                        log('Form is valid, email verified, and OTP is correct.');
+                                      } else {
+                                        errorSnackbar(
+                                            "Please verify the email.");
+                                      }
+                                    } else {
+                                      log("Form validation failed.");
+                                    }
+                                  }
+                                : null,
+                            btnController: loginController.registerController,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    RegisterTextField(
-                      hinttext: "Country",
-                      focusNode: loginController.countryFocusNode,
-                      textEditingController: loginController.countryController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your country name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Admin First Name",
-                            textEditingController:
-                                loginController.adminFirstNameController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your first name';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: RegisterTextField(
-                            hinttext: "Admin Last Name",
-                            textEditingController:
-                                loginController.adminLastnameController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your last name';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    RegisterPhoneNumberField(
-                      textEditingController:
-                          loginController.phoneNumberController,
-                      focusNode: loginController.phoneNumberFocusNode,
-                      loginController: loginController,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    BusinessEmailField(
-                      textEditingController:
-                          loginController.businessEmailController,
-                      hinttext: "Business Email",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Enter a valid email address';
-                        }
-                        if (!value.contains('@gmail.com')) {
-                          return 'Enter a valid email address';
-                        }
-                        return null;
-                      },
-                      loginController: loginController,
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    warningMessage(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    PolicyAgreementWidget(
-                      onPrivacyChanged: (agreed) {
-                        setState(() {
-                          privacyAgreement = agreed.toString();
-                        });
-                      },
-                      onRefundChanged: (agreed) {
-                        setState(() {
-                          refundAgreement = agreed.toString();
-                        });
-                      },
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    NkLoadingButton(
-                      isRoundedCorner: false,
-                      buttonText: "Register",
-                      onPressed: isAgreed
-                          ? () async {
-                              final otp = loginController.otpController.text;
-                              // if (formKey.currentState?.validate() ?? false) {
-                                final fullPhoneNo =
-                                    '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                              //   log('Full Phone Number $fullPhoneNo');
-                              //   if (loginController.validateOtp(otp)) {
-                                  await ApiWorker().insertAdmin(
-                                      address: loginController
-                                          .addressController.text,
-                                      country: loginController
-                                          .countryController.text,
-                                      email: loginController
-                                          .businessEmailController.text,
-                                      name: loginController
-                                          .businessNameController.text,
-                                      fullPhoneNo: fullPhoneNo,
-                                      password: '1234',
-                                      state:
-                                          loginController.stateController.text,
-                                      town: loginController.townController.text,
-                                      zipcode: loginController
-                                          .postCodeController.text,
-                                      adminFname: loginController
-                                          .adminFirstNameController.text,
-                                      adminLname: loginController
-                                          .adminLastnameController.text,
-                                      regNo: loginController
-                                          .companyRegController.text,
-                                      privacy: privacyAgreement,
-                                      refund: refundAgreement);
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setString('selectedCountry',
-                                      loginController.countryController.text);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const RegisterPlanScreen(),
-                                    ),
-                                  );
-                                  log('Form is valid, email verified, and OTP is correct.');
-                                // } else {
-                                //   errorSnackbar("Please verify the email.");
-                                // }
-                              // } else {
-                              //   log("Form validation failed.");
-                              // }
-                            }
-                          : null,
-                      btnController: loginController.registerController,
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -338,10 +375,10 @@ class PolicyAgreementWidget extends StatefulWidget {
   final void Function(bool agreed) onRefundChanged;
 
   const PolicyAgreementWidget({
-    Key? key,
+    super.key,
     required this.onPrivacyChanged,
     required this.onRefundChanged,
-  }) : super(key: key);
+  });
 
   @override
   _PolicyAgreementWidgetState createState() => _PolicyAgreementWidgetState();
@@ -397,6 +434,8 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
                   style: const TextStyle(
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
+                    decorationColor: Colors.blue,
+                    decorationThickness: 1.5,
                   ),
                 ),
               ),

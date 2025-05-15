@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_pl
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_search_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/business_email_textfield.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register_phone_number_field.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_message.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {
+  String privacyAgreement = "false";
+  String refundAgreement = "false";
   return showDialog(
     context: context,
     builder: (context) {
@@ -26,6 +29,8 @@ Future<dynamic> registerDialog(BuildContext context,
           borderRadius: BorderRadius.circular(10),
         ),
         child: StatefulBuilder(builder: (context, setState) {
+          bool isAgreed =
+              privacyAgreement == "true" && refundAgreement == "true";
           return Container(
             width: MediaQuery.of(context).size.width * 0.8,
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -245,50 +250,76 @@ Future<dynamic> registerDialog(BuildContext context,
                     const SizedBox(
                       height: 30,
                     ),
-                    PolicyAgreementWidget(),
+                    PolicyAgreementWidget(
+                      onPrivacyChanged: (agreed) {
+                        setState(() {
+                          privacyAgreement = agreed.toString();
+                        });
+                      },
+                      onRefundChanged: (agreed) {
+                        setState(() {
+                          refundAgreement = agreed.toString();
+                        });
+                      },
+                    ),
                     const SizedBox(
                       height: 30,
                     ),
                     NkLoadingButton(
-                      isRoundedCorner: true,
+                      isRoundedCorner: false,
                       buttonText: "Register",
-                      onPressed: () async {
-                        final otp = loginController.otpController.text;
-                        if (formKey.currentState?.validate() ?? false) {
-                          final fullPhoneNo =
-                              '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                          log('Full Phone Number $fullPhoneNo');
-                          if (loginController.validateOtp(otp)) {
-                            await ApiWorker().insertAdmin(
-                              address: loginController.addressController.text,
-                              country: loginController.countryController.text,
-                              email:
-                                  loginController.businessEmailController.text,
-                              name: loginController.businessNameController.text,
-                              fullPhoneNo: fullPhoneNo,
-                              password: '1234',
-                              state: loginController.stateController.text,
-                              town: loginController.townController.text,
-                              zipcode: loginController.postCodeController.text,
-                            );
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setString('selectedCountry',
-                                loginController.countryController.text);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const RegisterPlanScreen(),
-                              ),
-                            );
-                            log('Form is valid, email verified, and OTP is correct.');
-                          } else {
-                            errorSnackbar("Please verify the email.");
-                          }
-                        } else {
-                          log("Form validation failed.");
-                        }
-                      },
+                      onPressed: isAgreed
+                          ? () async {
+                              final otp = loginController.otpController.text;
+                              // if (formKey.currentState?.validate() ?? false) {
+                                final fullPhoneNo =
+                                    '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                              //   log('Full Phone Number $fullPhoneNo');
+                              //   if (loginController.validateOtp(otp)) {
+                                  await ApiWorker().insertAdmin(
+                                      address: loginController
+                                          .addressController.text,
+                                      country: loginController
+                                          .countryController.text,
+                                      email: loginController
+                                          .businessEmailController.text,
+                                      name: loginController
+                                          .businessNameController.text,
+                                      fullPhoneNo: fullPhoneNo,
+                                      password: '1234',
+                                      state:
+                                          loginController.stateController.text,
+                                      town: loginController.townController.text,
+                                      zipcode: loginController
+                                          .postCodeController.text,
+                                      adminFname: loginController
+                                          .adminFirstNameController.text,
+                                      adminLname: loginController
+                                          .adminLastnameController.text,
+                                      regNo: loginController
+                                          .companyRegController.text,
+                                      privacy: privacyAgreement,
+                                      refund: refundAgreement);
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setString('selectedCountry',
+                                      loginController.countryController.text);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegisterPlanScreen(),
+                                    ),
+                                  );
+                                  log('Form is valid, email verified, and OTP is correct.');
+                                // } else {
+                                //   errorSnackbar("Please verify the email.");
+                                // }
+                              // } else {
+                              //   log("Form validation failed.");
+                              // }
+                            }
+                          : null,
                       btnController: loginController.registerController,
                     ),
                   ],
@@ -301,53 +332,16 @@ Future<dynamic> registerDialog(BuildContext context,
     },
   );
 }
-Widget warningMessage() {
-  return Container(
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
-      border:  Border(left: BorderSide(color: Colors.blue,width: 3)),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 8),
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            shape: BoxShape.circle,
-            
-          ),
-          child: const Icon(
-            Icons.info_outline,
-            color: white,
-            size: 20,
-          ),
-        ),
-        const Expanded(
-          child: Text(
-            'Details cannot be changed after registration.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+
 class PolicyAgreementWidget extends StatefulWidget {
-  const PolicyAgreementWidget({super.key});
+  final void Function(bool agreed) onPrivacyChanged;
+  final void Function(bool agreed) onRefundChanged;
+
+  const PolicyAgreementWidget({
+    Key? key,
+    required this.onPrivacyChanged,
+    required this.onRefundChanged,
+  }) : super(key: key);
 
   @override
   _PolicyAgreementWidgetState createState() => _PolicyAgreementWidgetState();
@@ -364,6 +358,18 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void _updateAgreement(bool? newValue, bool isPrivacy) {
+    setState(() {
+      if (isPrivacy) {
+        _agreePrivacy = newValue ?? false;
+        widget.onPrivacyChanged(_agreePrivacy);
+      } else {
+        _agreeRefund = newValue ?? false;
+        widget.onRefundChanged(_agreeRefund);
+      }
+    });
   }
 
   Widget _buildPolicyRow({
@@ -408,13 +414,13 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
       children: [
         _buildPolicyRow(
           value: _agreePrivacy,
-          onChanged: (val) => setState(() => _agreePrivacy = val ?? false),
+          onChanged: (val) => _updateAgreement(val, true),
           policyText: 'Privacy Policy',
           url: 'https://thrivewoo.com/Privacy_policy',
         ),
         _buildPolicyRow(
           value: _agreeRefund,
-          onChanged: (val) => setState(() => _agreeRefund = val ?? false),
+          onChanged: (val) => _updateAgreement(val, false),
           policyText: 'Refund Policy',
           url: 'https://thrivewoo.com/Cancellation_policy',
         ),

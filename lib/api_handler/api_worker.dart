@@ -1622,6 +1622,11 @@ class ApiWorker with ApiConstants {
     required String address,
     required String country,
     required String fullPhoneNo,
+    required String regNo,
+    required String adminFname,
+    required String adminLname,
+    required String privacy,
+    required String refund,
   }) async {
     final Map<String, String> requestData = {
       "name": name,
@@ -1633,8 +1638,13 @@ class ApiWorker with ApiConstants {
       "address": address,
       "country": country,
       "fullphoneno": fullPhoneNo,
+      "reg_no": regNo,
+      "admin_fname": adminFname,
+      "admin_lname": adminLname,
+      "privacy": privacy,
+      "refund": refund,
     };
-
+    log('Request Data ${requestData}');
     try {
       final response = await responsePostMethod(
           requestData: requestData, endPoint: ApiConstants.insertadmin);
@@ -1810,7 +1820,7 @@ class ApiWorker with ApiConstants {
     }
   }
 
-    Future<String> getRouteCredit() async {
+  Future<String> getRouteCredit() async {
     try {
       final response = await dio.postbycustom(
         ApiConstants.get_routeCredit,

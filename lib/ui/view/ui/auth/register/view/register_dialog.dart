@@ -16,6 +16,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {
@@ -40,7 +41,7 @@ Future<dynamic> registerDialog(BuildContext context,
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 8,right:8),
+                      padding: const EdgeInsets.only(left: 8, right: 8),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -388,13 +389,30 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
   bool _agreePrivacy = false;
   bool _agreeRefund = false;
 
-  void _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
-    }
+  void _launchURLInDialog(String url) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(url));
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: WebViewWidget(controller: controller),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _updateAgreement(bool? newValue, bool isPrivacy) {
@@ -428,7 +446,7 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
             children: [
               const Text('Agree to our '),
               GestureDetector(
-                onTap: () => _launchURL(url),
+                onTap: () => _launchURLInDialog(url),
                 child: Text(
                   policyText,
                   style: const TextStyle(

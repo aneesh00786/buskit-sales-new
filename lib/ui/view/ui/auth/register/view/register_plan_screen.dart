@@ -397,7 +397,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
 
 class PaymentDialogContent extends StatefulWidget {
   // Plan plan;
-  PaymentDialogContent({
+  const PaymentDialogContent({
     super.key,
     // required this.plan
   });

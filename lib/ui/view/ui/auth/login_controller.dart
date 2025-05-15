@@ -12,7 +12,6 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -52,6 +51,9 @@ class LoginController extends GetxController {
   TextEditingController countryController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController businessEmailController = TextEditingController();
+  TextEditingController companyRegController = TextEditingController();
+  TextEditingController adminFirstNameController = TextEditingController();
+  TextEditingController adminLastnameController = TextEditingController();
   FocusNode addressFocusNode = FocusNode();
   FocusNode townFocusNode = FocusNode();
   FocusNode stateFocusNode = FocusNode();

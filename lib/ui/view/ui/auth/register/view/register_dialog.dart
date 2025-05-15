@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {
@@ -57,21 +58,41 @@ Future<dynamic> registerDialog(BuildContext context,
                     const SizedBox(
                       height: 30,
                     ),
-                    RegisterTextField(
-                      hinttext: "Business Name",
-                      focusNode: loginController.businessEmailFocusNode,
-                      icon: const Icon(EneftyIcons.buildings_outline),
-                      textEditingController:
-                          loginController.businessNameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your Business name';
-                        }
-
-                        return null;
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RegisterTextField(
+                            hinttext: "Business Name",
+                            focusNode: loginController.businessEmailFocusNode,
+                            icon: const Icon(EneftyIcons.buildings_outline),
+                            textEditingController:
+                                loginController.businessNameController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your Business name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: RegisterTextField(
+                            hinttext: "Company Reg No :",
+                            icon: const Icon(EneftyIcons.buildings_outline),
+                            textEditingController:
+                                loginController.companyRegController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your Company registration number';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 20,
                     ),
                     AddressSearchField(
@@ -156,6 +177,40 @@ Future<dynamic> registerDialog(BuildContext context,
                     const SizedBox(
                       height: 20,
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RegisterTextField(
+                            hinttext: "Admin First Name",
+                            textEditingController:
+                                loginController.adminFirstNameController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your first name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: RegisterTextField(
+                            hinttext: "Admin Last Name",
+                            textEditingController:
+                                loginController.adminLastnameController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your last name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     RegisterPhoneNumberField(
                       textEditingController:
                           loginController.phoneNumberController,
@@ -183,6 +238,14 @@ Future<dynamic> registerDialog(BuildContext context,
                       },
                       loginController: loginController,
                     ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    warningMessage(),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    PolicyAgreementWidget(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -238,5 +301,124 @@ Future<dynamic> registerDialog(BuildContext context,
     },
   );
 }
+Widget warningMessage() {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      border:  Border(left: BorderSide(color: Colors.blue,width: 3)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            shape: BoxShape.circle,
+            
+          ),
+          child: const Icon(
+            Icons.info_outline,
+            color: white,
+            size: 20,
+          ),
+        ),
+        const Expanded(
+          child: Text(
+            'Details cannot be changed after registration.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+class PolicyAgreementWidget extends StatefulWidget {
+  const PolicyAgreementWidget({super.key});
 
+  @override
+  _PolicyAgreementWidgetState createState() => _PolicyAgreementWidgetState();
+}
 
+class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
+  bool _agreePrivacy = false;
+  bool _agreeRefund = false;
+
+  void _launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget _buildPolicyRow({
+    required bool value,
+    required Function(bool?) onChanged,
+    required String policyText,
+    required String url,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Checkbox(
+          value: value,
+          onChanged: onChanged,
+        ),
+        Expanded(
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text('Agree to our '),
+              GestureDetector(
+                onTap: () => _launchURL(url),
+                child: Text(
+                  policyText,
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              const Text('.'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _buildPolicyRow(
+          value: _agreePrivacy,
+          onChanged: (val) => setState(() => _agreePrivacy = val ?? false),
+          policyText: 'Privacy Policy',
+          url: 'https://thrivewoo.com/Privacy_policy',
+        ),
+        _buildPolicyRow(
+          value: _agreeRefund,
+          onChanged: (val) => setState(() => _agreeRefund = val ?? false),
+          policyText: 'Refund Policy',
+          url: 'https://thrivewoo.com/Cancellation_policy',
+        ),
+      ],
+    );
+  }
+}

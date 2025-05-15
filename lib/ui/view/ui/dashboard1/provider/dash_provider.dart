@@ -1176,7 +1176,6 @@ class ApiService {
 
   Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
       String customerId, int year) async {
-    final url = '$_baseUrl${ApiConstants.customeTotalSale}';
     final customerTotalSaleBox = Hive.box('customerTotalSaleBox');
     final requestBody = {
       "customer_id": customerId,

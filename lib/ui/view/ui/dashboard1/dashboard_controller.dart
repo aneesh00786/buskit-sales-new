@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -38,7 +37,6 @@ class DashBoardController extends GetxController {
   var allCategory = <Category>[].obs;
   var categoryPerformance = <CategoryPerformancee>[].obs;
   var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
-  final _apiService = ApiService();
   ResponseModell response = ResponseModell();
 
   // Future<void> fetchDashboardData() async {

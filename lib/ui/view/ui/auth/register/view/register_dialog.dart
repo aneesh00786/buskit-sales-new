@@ -15,7 +15,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
@@ -294,11 +293,17 @@ Future<dynamic> registerDialog(BuildContext context,
                           const SizedBox(
                             height: 30,
                           ),
+                          
+                          const SizedBox(
+                            height: 30,
+                          ),
                           NkLoadingButton(
                             isRoundedCorner: false,
                             buttonText: "Register",
-                            onPressed: isAgreed
-                                ? () async {
+                            onPressed: 
+                            isAgreed
+                                ? 
+                                () async {
                                     final otp =
                                         loginController.otpController.text;
                                     if (formKey.currentState?.validate() ??
@@ -389,31 +394,57 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
   bool _agreePrivacy = false;
   bool _agreeRefund = false;
 
-  void _launchURLInDialog(String url) {
-    final controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(url));
+void _launchURLInDialog(String url) {
+  final controller = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: WebViewWidget(controller: controller),
+  final ValueNotifier<bool> isLoading = ValueNotifier(true);
+
+  controller
+    ..setNavigationDelegate(
+      NavigationDelegate(
+        onPageStarted: (_) => isLoading.value = true,
+        onPageFinished: (_) => isLoading.value = false,
+      ),
+    )
+    ..loadRequest(Uri.parse(url));
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: Stack(
+            children: [
+              WebViewWidget(controller: controller),
+              ValueListenableBuilder<bool>(
+                valueListenable: isLoading,
+                builder: (context, loading, child) {
+                  if (loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   void _updateAgreement(bool? newValue, bool isPrivacy) {
     setState(() {
@@ -485,3 +516,6 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
     );
   }
 }
+
+
+

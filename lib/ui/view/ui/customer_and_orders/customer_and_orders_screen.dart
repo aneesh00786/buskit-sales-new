@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously, empty_catches
 
 import 'dart:developer';
 import 'dart:io';
@@ -3552,7 +3552,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   0.0,
                                                   (sum, order) =>
                                                       sum +
-                                                      (order.orderTotal ?? 0.0),
+                                                      (order.orderTotal),
                                                 )),
                                                 maxLines: 2,
                                               ),

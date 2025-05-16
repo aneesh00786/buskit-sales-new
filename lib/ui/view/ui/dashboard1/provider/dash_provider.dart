@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes, empty_catches, non_constant_identifier_names
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -275,7 +277,6 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allCategory);
       } else {
-        print('Request failed with status 1: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } on DioException catch (error) {
@@ -283,7 +284,6 @@ class ApiService {
           response: error.response,
           apiName: "category perfromance",
           error: error);
-      print('Exception occurred 1: $error');
       throw Exception('Failed to fetch data: $error');
     }
   }
@@ -945,8 +945,6 @@ class ApiService {
         value = "This Month";
         break;
     }
-
-    final url = '$_baseUrl${ApiConstants.fetchCustomer}';
     final requestBody = {
       "salesman_id": salesmanId,
       "business_name": customerName,
@@ -1069,10 +1067,6 @@ class ApiService {
     final body = jsonEncode(bodyMap);
 
     try {
-      // Logging the request
-      print('➡️ URL: $url');
-      print('📦 Request Body: $body');
-
       final response = await http.post(
         url,
         headers: {
@@ -1080,19 +1074,12 @@ class ApiService {
         },
         body: body,
       );
-
-      // Logging the response
-      print('✅ Response Code: ${response.statusCode}');
-      print('📨 Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('❌ Error: ${response.statusCode} ${response.body}');
         return false;
       }
     } catch (e) {
-      print('🔥 Exception: $e');
       return false;
     }
   }
@@ -2053,8 +2040,6 @@ class DashboardProvider with ChangeNotifier {
     _noMoreData = false;
     notifyListeners();
   }
-
-  // ignore: non_constant_identifier_names
   Future<MessagesResponse> fetch_individual_chat(
       String chatId, int page) async {
     try {

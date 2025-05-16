@@ -103,8 +103,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   }
 
   Widget calender() {
-    final dashboardProvider =
-        Provider.of<DashboardProvider>(context, listen: false);
     return LayoutBuilder(
       builder: (context, constraints) {
         return Consumer<DashboardProvider>(

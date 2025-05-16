@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:enefty_icons/enefty_icons.dart';

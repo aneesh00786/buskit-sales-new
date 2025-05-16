@@ -1,4 +1,6 @@
 
+// ignore_for_file: must_be_immutable, library_private_types_in_public_api
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';

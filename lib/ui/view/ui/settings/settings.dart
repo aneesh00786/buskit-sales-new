@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -44,41 +45,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _connectivityService.connectivityStream.listen(_updateConnectivityStatus);
   }
 
-Future<void> _checkConnectivity() async {
-  bool onlineStatus = await _connectivityService.isOnline();
-  if (mounted) {
-    setState(() {
-      _isOnline = onlineStatus;
-    });
-
-    if (!_isOnline) {
-      showNoInternetSnackBar(context);
-    }
-  }
-}
-
-
-void _updateConnectivityStatus(List<ConnectivityResult> result) async {
-  if (result != ConnectivityResult.none) {
-    bool hasInternet = await _connectivityService.hasInternet();
+  Future<void> _checkConnectivity() async {
+    bool onlineStatus = await _connectivityService.isOnline();
     if (mounted) {
       setState(() {
-        _isOnline = hasInternet;
+        _isOnline = onlineStatus;
       });
+
       if (!_isOnline) {
         showNoInternetSnackBar(context);
       }
     }
-  } else {
-    if (mounted) {
-      setState(() {
-        _isOnline = false;
-      });
-      showNoInternetSnackBar(context);
+  }
+
+  void _updateConnectivityStatus(List<ConnectivityResult> result) async {
+    if (result != ConnectivityResult.none) {
+      bool hasInternet = await _connectivityService.hasInternet();
+      if (mounted) {
+        setState(() {
+          _isOnline = hasInternet;
+        });
+        if (!_isOnline) {
+          showNoInternetSnackBar(context);
+        }
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isOnline = false;
+        });
+        showNoInternetSnackBar(context);
+      }
     }
   }
-}
-
 
   final salesman = SessionHelper.loginSavedData;
   @override
@@ -122,11 +121,28 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                 ],
               ),
               nkMediumSizeBox(),
-              formFiled(
-                label: salesman?.fullname ?? '',
-                isReadOnly: true,
-                borderColor: Colors.grey,
-                prefixIcon: filedIcon(Assets.iconsIcAddLeadsSalesmanName),
+              Row(
+                children: [
+                  Flexible(
+                    child: formFiled(
+                      label: salesman?.fullname ?? '',
+                      isReadOnly: false,
+                      borderColor: Colors.grey,
+                      prefixIcon: Icon(EneftyIcons.user_outline),
+                      labelText: "First Name",
+                    ),
+                  ),
+              nkMediumSizeBox(),
+                  Flexible(
+                    child: formFiled(
+                      label: '',
+                      isReadOnly: false,
+                      borderColor: Colors.grey,
+                      prefixIcon: Icon(EneftyIcons.user_outline),
+                      labelText: "Last Name",
+                    ),
+                  ),
+                ],
               ),
               nkMediumSizeBox(),
               Row(
@@ -137,6 +153,7 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                       isReadOnly: true,
                       borderColor: Colors.grey,
                       textInputType: TextInputType.emailAddress,
+                      labelText: "Email",
                       prefixIcon: filedIcon(Assets.iconsIcAddLeadsEmail),
                     ),
                   ),
@@ -147,6 +164,7 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                       isReadOnly: true,
                       borderColor: Colors.grey,
                       textInputType: TextInputType.phone,
+                      labelText: "Mobile No:",
                       prefixIcon: filedIcon(Assets.iconsIcAddLeadsMobile),
                     ),
                   ),
@@ -160,13 +178,15 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                       label: (salesman?.zipcode ?? '').toString(),
                       isReadOnly: true,
                       borderColor: Colors.grey,
+                      labelText: 'Zip Code',
                       prefixIcon: filedIcon(Assets.iconsIcAddLeadsRemark),
                     ),
                   ),
                   nkSmallSizeBox(),
                   Flexible(
                     child: formFiled(
-                      label: salesman?.password ?? '',
+                      label: salesman?.town ?? '',
+                      labelText: 'Town',
                       isReadOnly: true,
                       borderColor: Colors.grey,
                       textInputType: TextInputType.visiblePassword,
@@ -174,6 +194,17 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                       prefixIcon: filedIcon(Assets.iconsIcAddLeadsAddress),
                     ),
                   ),
+                  nkSmallSizeBox(),
+                    Flexible(
+                      child: formFiled(
+                        label: salesman?.state ?? '',
+                        isReadOnly: true,
+                        labelText: "State",
+                        borderColor: Colors.grey,
+                        textInputType: TextInputType.streetAddress,
+                        prefixIcon: filedIcon(Assets.iconsIcAddLeadsState),
+                      ),
+                    ),
                 ],
               ),
               nkMediumSizeBox(),
@@ -181,39 +212,10 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
                 label: salesman?.address ?? '',
                 isReadOnly: true,
                 borderColor: Colors.grey,
+                labelText: "Address",
                 textInputType: TextInputType.streetAddress,
                 prefixIcon: filedIcon(Assets.iconsIcAddLeadsAddress),
               ),
-              nkMediumSizeBox(),
-              Center(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: formFiled(
-                        label: salesman?.address ?? '',
-                        isReadOnly: true,
-                        borderColor: Colors.grey,
-                        textInputType: TextInputType.streetAddress,
-                        prefixIcon: filedIcon(Assets.iconsIcAddLeadsCity),
-                      ),
-                    ),
-                    nkSmallSizeBox(),
-                    Flexible(
-                      child: formFiled(
-                        label: salesman?.state ?? '',
-                        isReadOnly: true,
-                        borderColor: Colors.grey,
-                        textInputType: TextInputType.streetAddress,
-                        prefixIcon: filedIcon(Assets.iconsIcAddLeadsState),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              nkMediumSizeBox(),
-              nkMediumSizeBox(),
-              nkSmallSizeBox(),
             ],
           ),
         ),
@@ -259,11 +261,13 @@ void _updateConnectivityStatus(List<ConnectivityResult> result) async {
       String? Function(dynamic)? validator,
       bool isRequired = true,
       int? maxLines,
+      String? labelText,
       void Function(dynamic)? onChanged}) {
     return MyFormField(
       textAlign: textAlign ?? TextAlign.start,
-      labelText: '',
+      labelText: labelText ?? '',
       initialValue: label,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
       minLines: minLine,
       maxLines: maxLines,
       isRequire: isRequired,

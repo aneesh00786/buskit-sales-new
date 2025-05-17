@@ -9,7 +9,11 @@ class PaymentDialogContent extends StatefulWidget {
   Plan plan;
   double totalAmount;
   int selectedQuantity;
-  PaymentDialogContent({super.key, required this.plan,required this.totalAmount,required this.selectedQuantity});
+  PaymentDialogContent(
+      {super.key,
+      required this.plan,
+      required this.totalAmount,
+      required this.selectedQuantity});
 
   @override
   _PaymentDialogContentState createState() => _PaymentDialogContentState();
@@ -176,26 +180,36 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
       ),
     );
   }
+
   String _getEndDate() {
-  final now = DateTime.now();
-  DateTime endDate;
-  final cycle = widget.plan.billingCycle?.trim().toLowerCase();
-  if (cycle == 'monthly') {
-    endDate = DateTime(now.year, now.month + 1, now.day);
-  } else {
-    endDate = DateTime(now.year + 1, now.month, now.day);
+    final now = DateTime.now();
+    DateTime endDate;
+    final cycle = widget.plan.billingCycle?.trim().toLowerCase();
+    if (cycle == 'monthly') {
+      endDate = DateTime(now.year, now.month + 1, now.day);
+    } else {
+      endDate = DateTime(now.year + 1, now.month, now.day);
+    }
+    return "${_monthName(endDate.month)} ${endDate.day}, ${endDate.year}";
   }
-  return "${_monthName(endDate.month)} ${endDate.day}, ${endDate.year}";
-}
 
-String _monthName(int month) {
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  return months[month - 1];
-}
-
+  String _monthName(int month) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return months[month - 1];
+  }
 
   Widget infoBox(String title, String value) {
     return Column(

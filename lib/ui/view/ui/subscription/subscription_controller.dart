@@ -246,7 +246,6 @@ class SubscriptionController extends GetxController {
       log("subs communication ${communication.value}");
       update();
     } catch (e) {
-      
       isSubscriptionLoading(false);
       rethrow;
     }

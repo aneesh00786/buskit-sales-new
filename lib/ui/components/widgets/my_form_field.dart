@@ -89,6 +89,7 @@ class MyFormField extends StatelessWidget {
       controller: controller,
       initialValue: initialValue,
       enabled: isEnable,
+      
       obscureText: obscureText,
       textAlignVertical: textAlignVertical,
       autofillHints: autofillHints ??
@@ -100,6 +101,7 @@ class MyFormField extends StatelessWidget {
           ],
       textAlign: textAlign ?? TextAlign.start,
       readOnly: isReadOnly,
+
       style: TextStyle(
           fontSize: fontSize ?? 14.0,
           color: isRequire
@@ -129,7 +131,6 @@ class MyFormField extends StatelessWidget {
               prefixIcon: prefixIconUnderLine,
               borderRadius: borderRadius,
               contentPadding: contentPadding,
-              
               icon: prefixIcon),
       validator: isShowDefaultValidator == true
           ? validator ??

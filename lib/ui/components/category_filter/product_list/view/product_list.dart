@@ -381,39 +381,53 @@ class _ProductGridState extends State<ProductGrid> {
                                               bottom: 8),
                                           child: Row(
                                             children: [
-                                              Container(
-                                                height: 12,
-                                                width: 12,
-                                                color: subscriptionController
-                                                              .productBuyingPatternIndicator
-                                                              .value ==
-                                                          "true"
-                                                      ? Colors.red
-                                                      : Colors.grey,
-                                              ),
+                                              subscriptionController
+                                                          .productAvailabilityStatus
+                                                          .value ==
+                                                      "true"
+                                                  ? Container(
+                                                      height: 12,
+                                                      width: 12,
+                                                      color: subscriptionController
+                                                                  .productBuyingPatternIndicator
+                                                                  .value ==
+                                                              "true"
+                                                          ? Colors.red
+                                                          : Colors.grey,
+                                                    )
+                                                  : SizedBox(),
                                               const SizedBox(width: 5),
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          100),
-                                                  color: Colors.green.shade700,
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 3),
-                                                  child: Text(
-                                                    'Stock : ${product.stock}',
-                                                    style: const TextStyle(
-                                                        fontSize: 7,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                ),
-                                              ),
+                                              subscriptionController
+                                                          .productAvailabilityStatus
+                                                          .value ==
+                                                      "true"
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(100),
+                                                        color: Colors
+                                                            .green.shade700,
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 6,
+                                                                vertical: 3),
+                                                        child: Text(
+                                                          'Stock : ${product.stock}',
+                                                          style: const TextStyle(
+                                                              fontSize: 7,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
                                               const SizedBox(width: 5),
                                               Expanded(
                                                 child: Row(

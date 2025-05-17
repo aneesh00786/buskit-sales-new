@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
@@ -21,6 +22,7 @@ class PaymentDialogContent extends StatefulWidget {
 
 class _PaymentDialogContentState extends State<PaymentDialogContent> {
   final CardEditController controller = CardEditController();
+  final TextEditingController _nameController = TextEditingController();
   CardFieldInputDetails? cardDetails;
   @override
   void initState() {
@@ -41,38 +43,56 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
   void dispose() {
     controller.removeListener(_onCardChanged);
     controller.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
-  void handleAddCard() async {
-    if (cardDetails?.complete == true) {
-      try {
-        final String clientSecret = await fetchPaymentIntentFromBackend();
-        await Stripe.instance.confirmPayment(
-          paymentIntentClientSecret: clientSecret,
-          data: PaymentMethodParams.card(
-            paymentMethodData: PaymentMethodData(
-              billingDetails: BillingDetails(
-                name: 'Test User',
-              ),
-            ),
+void handleAddCard() async {
+  if (cardDetails?.complete == true && _nameController.text.trim().isNotEmpty) {
+    try {
+      final paymentMethod = await Stripe.instance.createPaymentMethod(
+        params: PaymentMethodParams.card(
+          paymentMethodData: PaymentMethodData(
+            billingDetails: BillingDetails(name: _nameController.text.trim()),
           ),
-        );
+        ),
+      );
+      final String cardName = _nameController.text.trim();
+      final String cardToken = paymentMethod.id;
+      final String customerEmail = 'test@example.com'; 
+      final int adminId = 123; 
+      final int checkedPlanId = widget.plan.id!;
+      final String licenses = widget.selectedQuantity.toString();
+      final String currencyCode = "USD";
+      final double amount = widget.totalAmount;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Payment successful")),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Payment failed: $e")),
-        );
-      }
-    } else {
+      await ApiWorker().submitCardForm(
+        cardName: cardName,
+        customerEmail: customerEmail,
+        cardToken: cardToken,
+        adminId: adminId,
+        checkedPlanId: checkedPlanId,
+        licenses: licenses,
+        currencyCode: currencyCode,
+        amount: amount,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please complete card details")),
+        SnackBar(content: Text("✅ Trial started successfully")),
+      );
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Payment failed: $e")),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Please complete all required details")),
+    );
   }
+}
+
 
   Future<String> fetchPaymentIntentFromBackend() async {
     return 'pi_..._secret_...';
@@ -159,7 +179,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                   controller: controller,
                   decoration: inputDecoration.copyWith(
                     labelText: "Card Number",
-                    hintText: "1234 1234 1234 1234",
+                    hintText: "**** **** **** ****",
                   ),
                   style: TextStyle(fontSize: 16),
                 ),
@@ -173,6 +193,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                   ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _nameController,
                   decoration: inputDecoration.copyWith(
                     labelText: "Card holder name",
                   ),

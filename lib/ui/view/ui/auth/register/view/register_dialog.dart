@@ -301,48 +301,48 @@ Future<dynamic> registerDialog(BuildContext context,
                             isRoundedCorner: false,
                             buttonText: "Register",
                             onPressed: 
-                            isAgreed
-                                ? 
+                            // isAgreed
+                            //     ? 
                                 () async {
                                     final otp =
                                         loginController.otpController.text;
-                                    if (formKey.currentState?.validate() ??
-                                        false) {
-                                      final fullPhoneNo =
-                                          '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                                      log('Full Phone Number $fullPhoneNo');
-                                      if (loginController.validateOtp(otp)) {
-                                        await ApiWorker().insertAdmin(
-                                            address: loginController
-                                                .addressController.text,
-                                            country: loginController
-                                                .countryController.text,
-                                            email: loginController
-                                                .businessEmailController.text,
-                                            name: loginController
-                                                .businessNameController.text,
-                                            fullPhoneNo: fullPhoneNo,
-                                            password: '1234',
-                                            state: loginController
-                                                .stateController.text,
-                                            town: loginController
-                                                .townController.text,
-                                            zipcode: loginController
-                                                .postCodeController.text,
-                                            adminFname: loginController
-                                                .adminFirstNameController.text,
-                                            adminLname: loginController
-                                                .adminLastnameController.text,
-                                            regNo: loginController
-                                                .companyRegController.text,
-                                            privacy: privacyAgreement,
-                                            refund: refundAgreement);
-                                        final prefs = await SharedPreferences
-                                            .getInstance();
-                                        await prefs.setString(
-                                            'selectedCountry',
-                                            loginController
-                                                .countryController.text);
+                                    // if (formKey.currentState?.validate() ??
+                                    //     false) {
+                                    //   final fullPhoneNo =
+                                    //       '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                                    //   log('Full Phone Number $fullPhoneNo');
+                                    //   if (loginController.validateOtp(otp)) {
+                                    //     await ApiWorker().insertAdmin(
+                                    //         address: loginController
+                                    //             .addressController.text,
+                                    //         country: loginController
+                                    //             .countryController.text,
+                                    //         email: loginController
+                                    //             .businessEmailController.text,
+                                    //         name: loginController
+                                    //             .businessNameController.text,
+                                    //         fullPhoneNo: fullPhoneNo,
+                                    //         password: '1234',
+                                    //         state: loginController
+                                    //             .stateController.text,
+                                    //         town: loginController
+                                    //             .townController.text,
+                                    //         zipcode: loginController
+                                    //             .postCodeController.text,
+                                    //         adminFname: loginController
+                                    //             .adminFirstNameController.text,
+                                    //         adminLname: loginController
+                                    //             .adminLastnameController.text,
+                                    //         regNo: loginController
+                                    //             .companyRegController.text,
+                                    //         privacy: privacyAgreement,
+                                    //         refund: refundAgreement);
+                                    //     final prefs = await SharedPreferences
+                                    //         .getInstance();
+                                    //     await prefs.setString(
+                                    //         'selectedCountry',
+                                    //         loginController
+                                    //             .countryController.text);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -351,15 +351,15 @@ Future<dynamic> registerDialog(BuildContext context,
                                           ),
                                         );
                                         log('Form is valid, email verified, and OTP is correct.');
-                                      } else {
-                                        errorSnackbar(
-                                            "Please verify the email.");
-                                      }
-                                    } else {
-                                      log("Form validation failed.");
-                                    }
-                                  }
-                                : null,
+                                    //   } else {
+                                    //     errorSnackbar(
+                                    //         "Please verify the email.");
+                                    //   }
+                                    // } else {
+                                    //   log("Form validation failed.");
+                                    // }
+                                  },
+                                // : null,
                             btnController: loginController.registerController,
                           ),
                         ],

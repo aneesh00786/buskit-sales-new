@@ -32,6 +32,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
+  await Stripe.instance.applySettings();
   await Hive.initFlutter();
   Hive.registerAdapter(DetailAdapter());
   Hive.registerAdapter(CartItemAdapter());

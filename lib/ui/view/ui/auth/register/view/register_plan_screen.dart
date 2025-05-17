@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/quantity
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/table_items.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPlanScreen extends StatefulWidget {
@@ -29,11 +30,18 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
   int _selectedQuantity = 1;
   List<Plan>? plans;
   String? duration;
+  late ScaffoldMessengerState _scaffoldMessenger;
   @override
   void initState() {
     super.initState();
     _fetchedPlans = ApiWorker().fetchPlans();
     _loadCountryAndSetCurrency();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scaffoldMessenger = ScaffoldMessenger.of(context);
   }
 
   Plan? selectedPlan;
@@ -58,7 +66,6 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
           {"country": selectedCountry}
         ],
       );
-
       setState(() {
         _currencySymbol = currencySymbol;
         _conversionRate =
@@ -315,6 +322,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: InkWell(
                     onTap: () {
+                      if (!mounted) return;
+
                       if (selectedPlan != null) {
                         final unitPrice =
                             double.tryParse(selectedPlan!.price ?? '0') ?? 0.0;
@@ -323,6 +332,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                         showPaymentDialog(context, selectedPlan!, totalAmount,
                             _selectedQuantity);
                       } else {
+                        if (!mounted) return; // double-check
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text('Please select a plan first.')),
@@ -355,7 +365,11 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
   }
 
   void showPaymentDialog(BuildContext context, Plan plan, double totalAmount,
-      int selectedQuantity) {
+      int selectedQuantity) async {
+    if (Stripe.publishableKey.isEmpty) {
+      Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
+      await Stripe.instance.applySettings();
+    }
     showDialog(
       context: context,
       builder: (context) => Dialog(

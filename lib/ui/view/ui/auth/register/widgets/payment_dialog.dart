@@ -21,15 +21,31 @@ class PaymentDialogContent extends StatefulWidget {
 
 class _PaymentDialogContentState extends State<PaymentDialogContent> {
   final CardEditController controller = CardEditController();
+  CardFieldInputDetails? cardDetails;
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(_onCardChanged);
+  }
+
+  void _onCardChanged() {
+    setState(() {
+      cardDetails = controller.details;
+    });
+    debugPrint("Card complete: ${cardDetails?.complete}");
+    debugPrint("Brand: ${cardDetails?.brand}");
+    debugPrint("Last4: ${cardDetails?.last4}");
+  }
+
   @override
   void dispose() {
+    controller.removeListener(_onCardChanged);
     controller.dispose();
     super.dispose();
   }
 
   void handleAddCard() async {
-    final details = controller.details;
-    if (details.complete) {
+    if (cardDetails?.complete == true) {
       try {
         final String clientSecret = await fetchPaymentIntentFromBackend();
         await Stripe.instance.confirmPayment(
@@ -76,7 +92,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     const InputBorder lightGreyBorder = OutlineInputBorder(
       borderSide: BorderSide(color: Colors.grey, width: 1),
     );
-
     const InputDecoration inputDecoration = InputDecoration(
       border: lightGreyBorder,
       enabledBorder: lightGreyBorder,
@@ -142,10 +157,20 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                 const SizedBox(height: 16),
                 CardField(
                   controller: controller,
-                  decoration:
-                      inputDecoration.copyWith(labelText: "Card Number"),
+                  decoration: inputDecoration.copyWith(
+                    labelText: "Card Number",
+                    hintText: "1234 1234 1234 1234",
+                  ),
                   style: TextStyle(fontSize: 16),
                 ),
+                if (cardDetails != null && !cardDetails!.complete)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Card details are incomplete or invalid.",
+                      style: TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: inputDecoration.copyWith(

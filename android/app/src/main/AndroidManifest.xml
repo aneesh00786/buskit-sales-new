@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:theme="@style/AppTheme"
         android:label="buskit_sales"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_png_thrive_woo"
@@ -13,7 +14,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc" />
+            android:value="AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc"/>
 
         <activity
             android:name=".MainActivity"

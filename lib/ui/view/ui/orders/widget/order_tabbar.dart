@@ -193,23 +193,15 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
 
                           return GestureDetector(
                             onTap: () {
-                              if (!_shouldShowUpgradeButton(
-                                  _selectedTabIndex)) {
-                                setState(() {
-                                  _selectedTabIndex = index;
-                                });
-                                widget.orderController
-                                    .updateTabIndex(_selectedTabIndex);
-                                UpgradePlanButton();
-                                //showUpgradePlanDialog(context);
-                              } else
-                              {
-                                setState(() {
-                                  _selectedTabIndex = index;
-                                });
-                                widget.orderController
-                                    .updateTabIndex(_selectedTabIndex);
+                              if (!_shouldShowUpgradeButton(index)) {
+                                showUpgradePlanDialog(context);
+                                return;
                               }
+                              setState(() {
+                                _selectedTabIndex = index;
+                              });
+                              widget.orderController
+                                  .updateTabIndex(_selectedTabIndex);
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
@@ -277,12 +269,12 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
             ),
           ],
           if (_shouldShowUpgradeButton(_selectedTabIndex))
-          Expanded(
-            child: OrderBottomWidget(
-              orderController: widget.orderController,
-              selectedTabIndex: _selectedTabIndex,
+            Expanded(
+              child: OrderBottomWidget(
+                orderController: widget.orderController,
+                selectedTabIndex: _selectedTabIndex,
+              ),
             ),
-          ),
         ],
       );
     });

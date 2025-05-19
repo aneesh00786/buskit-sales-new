@@ -857,7 +857,8 @@ class ApiService {
   }
 
   Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
-    final requestBody = {"token": token};
+    final requestBody = {"token": token,};
+    log('The Token $token');
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
     bool isOnline = await ConnectivityService().isOnline();
@@ -2097,7 +2098,7 @@ class DashboardProvider with ChangeNotifier {
   Future<AdminResponse> fetchSalesmanData() async {
     try {
       final chatData =
-          await _apiService.fetchSalesmanDetails(token: 'AAAAAAAAA');
+          await _apiService.fetchSalesmanDetails(token:SessionHelper.loginSavedData?.createdToken ?? '' );
       _adminResponsee = Future.value(chatData);
       notifyListeners();
       return chatData;
@@ -2109,9 +2110,7 @@ class DashboardProvider with ChangeNotifier {
   }
 
   OrderStatus _selectedOrderStatuss = OrderStatus.pending;
-
   OrderStatus get selectedOrderStatuss => _selectedOrderStatuss;
-
   void setSelectedOrderStatus(OrderStatus status) {
     if (status != _selectedOrderStatuss) {
       _selectedOrderStatuss = status;

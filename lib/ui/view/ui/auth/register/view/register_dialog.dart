@@ -1,7 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
 import 'dart:developer';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
@@ -14,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_message.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 Future<dynamic> registerDialog(BuildContext context,

@@ -27,6 +27,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/sta
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../common/pagination_model.dart';
 import '../ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -53,6 +54,59 @@ class ApiWorker with ApiConstants {
           )
           .value ??
       '';
+  Future<void> submitCardForm({
+  required String cardName,
+  required String customerEmail,
+  required String cardToken,
+  required int adminId,
+  required int checkedPlanId,
+  required String licenses,
+  required String currencyCode,
+  required double amount,
+}) async {
+  try {
+    final setupIntentRes = await dio1.post(
+      'https://thrivewoo.com/create-setup-intent',
+      data: {
+        'customerEmail': customerEmail,
+      },
+    );
+
+    if (setupIntentRes.statusCode != 200) {
+      throw Exception('Failed to create setup intent');
+    }
+
+    final clientSecret = setupIntentRes.data['clientSecret'];
+    final stripeCustomerId = setupIntentRes.data['stripeCustomerId'];
+    final paymentMethodId = cardToken; 
+    final endDate = DateTime.now().add(Duration(days: 14));
+    final endDateFormatted = DateFormat('yyyy-MM-dd').format(endDate);
+    final saveResponse = await dio1.post(
+      'https://thrivewoo.com/insert_transaction_and_subscription_details',
+      data: {
+        'user_id': adminId,
+        'plan_id': checkedPlanId,
+        'card_token': paymentMethodId,
+        'end_date': endDateFormatted,
+        'amount': amount,
+        'payment_method': 'card',
+        'status': 'trial',
+        'licenses': licenses,
+        'stripeCustomerId': stripeCustomerId,
+        'currency': currencyCode,
+      },
+    );
+
+    final saveData = saveResponse.data;
+
+    if (saveResponse.statusCode != 200 || saveData['status_code'] != 200) {
+      throw Exception(saveData['message'] ?? 'Failed to save subscription');
+    }
+    print("✅ 14-day trial started. Login credentials have been sent to your email.");
+  } catch (e) {
+    print("❌ Error: ${e.toString()}");
+  }
+}
   Future<Response> sendOtp(String email) async {
     Map<String, dynamic> data = {
       'email': email,
@@ -1109,6 +1163,7 @@ class ApiWorker with ApiConstants {
           "companyId": companyId,
           "salesman_id": salesmanId,
         };
+        log('Request Data $requestData');
         final response = await responsePostMethod(
             requestData: requestData, endPoint: ApiConstants.getRecentOrder);
         await ordersBox.put(cacheKey, response.data);

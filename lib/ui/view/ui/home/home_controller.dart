@@ -7,6 +7,9 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
@@ -25,6 +28,7 @@ import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../../../../routes/routes.dart';
@@ -46,7 +50,8 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ApiWorker().fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
+    ApiWorker()
+        .fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
   }
 
   @override
@@ -264,17 +269,20 @@ class HomeController extends GetxController {
                     onPressed: () async {
                       if (!_isDisposed) {
                         Navigator.pop(context);
-                        await SessionManager.clearData();
-                        await SessionHelper().clearSettingsData();
-                        await SessionHelper().clearAll();
-                        await CartDatabaseManager().clearCompleteCart();
-                        dio.interceptors.clear();
+                        await handleLogout(context);
+                        // await SessionManager.clearData();
+                        // await SessionHelper().clearSettingsData();
+                        // await SessionHelper().clearAll();
+                        // await CartDatabaseManager().clearCompleteCart();
+                        // dio.interceptors.clear();
                         if (!_isDisposed) {
                           Get.offAllNamed(AppRoutes.login);
                         }
                         if (!_isDisposed) {
                           Provider.of<DashboardProvider>(context, listen: false)
                               .resetProvider();
+                          Provider.of<DashboardProvider>(context, listen: false)
+                              .resetFilter();
                         }
                       }
                     },
@@ -393,4 +401,69 @@ class HomeController extends GetxController {
       )),
     );
   }
+}
+
+Future<void> handleLogout(BuildContext context) async {
+  await SessionManager.clearData();
+  await SessionHelper().clearSettingsData();
+  await SessionHelper().clearAll();
+  await CartDatabaseManager().clearCompleteCart();
+  Provider.of<DashboardProvider>(context, listen: false).resetProvider();
+  if (Hive.isBoxOpen('discounts')) {
+    await Hive.box<CustomerDiscountModel>('discounts').clear();
+  }
+
+  if (Hive.isBoxOpen('cartBox')) {
+    await Hive.box<CartItem>('cartBox').clear();
+  }
+
+  if (Hive.isBoxOpen('cartPreorderBox')) {
+    await Hive.box<CartItem>('cartPreorderBox').clear();
+  }
+
+  if (Hive.isBoxOpen('draftBox')) {
+    await Hive.box<CartItem>('draftBox').clear();
+  }
+
+  if (Hive.isBoxOpen('products')) {
+    await Hive.box<ProductModel>('products').close();
+  }
+  await Hive.deleteBoxFromDisk('products');
+  final untypedBoxNames = [
+    'dashboardBox',
+    'customerdashboardBox',
+    'customerRevenueBox',
+    'customerTotalSaleBox',
+    'weeklyTypeBox',
+    'customerBox',
+    'productBox',
+    'chatBox',
+    'pendingPaymentBox',
+    'performanceBox',
+    'leadsBox',
+    'leadsRejectBox',
+    'ordersBox',
+    'fetchAllOrdersBox',
+    'settingsBox',
+    'calendarEventsBox',
+    'salesmanTargetBox',
+    'salesmanValueTargetBox',
+    'subscribtionBox',
+    'subscribtionPlanDetailsBox',
+  ];
+
+  for (final boxName in untypedBoxNames) {
+    try {
+      if (Hive.isBoxOpen(boxName)) {
+        await Hive.box(boxName).clear();
+      } else {
+        final box = await Hive.openBox(boxName);
+        await box.clear();
+      }
+    } catch (e) {
+      log("Error clearing box $boxName: $e");
+    }
+  }
+
+  // Get.offAllNamed(AppRoutes.login);
 }

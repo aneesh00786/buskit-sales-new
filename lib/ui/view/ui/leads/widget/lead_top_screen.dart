@@ -47,7 +47,7 @@ class LeadTopScreen extends StatelessWidget {
 
 Widget profiloe() {
   return Consumer<DashboardProvider>(builder: (context, provider, child) {
-    HomeController homeController = Get.put(HomeController());
+    HomeController homeController = Get.find<HomeController>();
     log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
     return FutureBuilder<AdminResponse>(
       future: provider.adminResponse,

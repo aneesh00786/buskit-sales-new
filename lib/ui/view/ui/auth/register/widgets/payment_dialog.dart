@@ -93,7 +93,6 @@ void handleAddCard() async {
   }
 }
 
-
   Future<String> fetchPaymentIntentFromBackend() async {
     return 'pi_..._secret_...';
   }

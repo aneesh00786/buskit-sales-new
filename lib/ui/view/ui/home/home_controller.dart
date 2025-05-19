@@ -52,6 +52,12 @@ class HomeController extends GetxController {
     super.onInit();
     ApiWorker()
         .fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
+    SessionHelper().getLoginData().then((value) {
+      userDetails = value;
+      log('User details assigned in onInit: $value');
+    }).catchError((error) {
+      log('Error fetching user details in onInit: $error');
+    });
   }
 
   @override
@@ -270,11 +276,7 @@ class HomeController extends GetxController {
                       if (!_isDisposed) {
                         Navigator.pop(context);
                         await handleLogout(context);
-                        // await SessionManager.clearData();
-                        // await SessionHelper().clearSettingsData();
-                        // await SessionHelper().clearAll();
-                        // await CartDatabaseManager().clearCompleteCart();
-                        // dio.interceptors.clear();
+                        dio.interceptors.clear();
                         if (!_isDisposed) {
                           Get.offAllNamed(AppRoutes.login);
                         }
@@ -408,7 +410,6 @@ Future<void> handleLogout(BuildContext context) async {
   await SessionHelper().clearSettingsData();
   await SessionHelper().clearAll();
   await CartDatabaseManager().clearCompleteCart();
-  Provider.of<DashboardProvider>(context, listen: false).resetProvider();
   if (Hive.isBoxOpen('discounts')) {
     await Hive.box<CustomerDiscountModel>('discounts').clear();
   }

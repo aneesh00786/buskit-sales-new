@@ -85,9 +85,9 @@ void main() async {
     systemNavigationBarColor: backgroundColor,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
+  Get.lazyPut<HomeController>(() => HomeController());
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
-  Get.lazyPut<HomeController>(() => HomeController());
   final subscriptionController = Get.put(SubscriptionController());
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);

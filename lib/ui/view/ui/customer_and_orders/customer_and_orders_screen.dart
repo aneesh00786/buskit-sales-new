@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -2150,10 +2151,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
               child: GestureDetector(
                 onTap: () {
                   if (subscriptionController.visitSetting.value != 'true') {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const UpgradePlanScreen(),
-                    );
+                    showUpgradePlanDialog(context);
                   }
                 },
                 child: AbsorbPointer(

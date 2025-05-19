@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
@@ -167,11 +169,36 @@ class PendingPaymentChart extends StatelessWidget {
   final PendingPaymentController chartController;
   final Function(int) onBarTapped;
 
-  const PendingPaymentChart({
+  PendingPaymentChart({
     super.key,
     required this.chartController,
     required this.onBarTapped,
   });
+
+    SubscriptionController subscriptionController =
+      Get.find<SubscriptionController>();
+
+      int calculateNiceInterval(int maxY, int maxDivisions) {
+    if (maxY <= 0) return 1;
+
+    double roughInterval = maxY / maxDivisions;
+
+    // Round to a "nice" number
+    int exponent = (log(roughInterval) / ln10).floor();
+    double base = pow(10, exponent).toDouble();
+
+    // Choose a rounded value from common steps
+    List<double> steps = [1, 2, 5, 10];
+    double niceInterval = steps.first;
+    for (double step in steps) {
+      if (base * step >= roughInterval) {
+        niceInterval = base * step;
+        break;
+      }
+    }
+
+    return niceInterval.toInt();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,31 +214,40 @@ class PendingPaymentChart extends StatelessWidget {
           pow(10, maxBarValue.toInt().toString().length - 1).toInt();
       final int dynamicMaxY = ((maxBarValue / magnitude).ceil()) * magnitude;
 
-      final int dynamicInterval;
-      if (dynamicMaxY >= 1000000000) {
-        dynamicInterval = 1000000000;
-      } else if (dynamicMaxY >= 100000000) {
-        dynamicInterval = 100000000;
-      } else if (dynamicMaxY >= 10000000) {
-        dynamicInterval = 10000000;
-      } else if (dynamicMaxY >= 1000000) {
-        dynamicInterval = 1000000;
-      } else if (dynamicMaxY >= 1000000) {
-        dynamicInterval = 100000;
-      } else if (dynamicMaxY >= 500000) {
-        dynamicInterval = 50000;
-      } else if (dynamicMaxY >= 200000) {
-        dynamicInterval = 20000;
-      } else if (dynamicMaxY >= 100000) {
-        dynamicInterval = 10000;
-      } else if (dynamicMaxY >= 50000) {
-        dynamicInterval = 5000;
-      } else if (dynamicMaxY >= 10000) {
-        dynamicInterval = 1000;
-      } else if (dynamicMaxY >= 1000) {
-        dynamicInterval = 100;
-      } else {
-        dynamicInterval = 10;
+      // final int dynamicInterval;
+      // if (dynamicMaxY >= 1000000000) {
+      //   dynamicInterval = 1000000000;
+      // } else if (dynamicMaxY >= 100000000) {
+      //   dynamicInterval = 100000000;
+      // } else if (dynamicMaxY >= 10000000) {
+      //   dynamicInterval = 10000000;
+      // } else if (dynamicMaxY >= 1000000) {
+      //   dynamicInterval = 1000000;
+      // } else if (dynamicMaxY >= 1000000) {
+      //   dynamicInterval = 100000;
+      // } else if (dynamicMaxY >= 500000) {
+      //   dynamicInterval = 50000;
+      // } else if (dynamicMaxY >= 200000) {
+      //   dynamicInterval = 20000;
+      // } else if (dynamicMaxY >= 100000) {
+      //   dynamicInterval = 10000;
+      // } else if (dynamicMaxY >= 50000) {
+      //   dynamicInterval = 5000;
+      // } else if (dynamicMaxY >= 10000) {
+      //   dynamicInterval = 1000;
+      // } else if (dynamicMaxY >= 1000) {
+      //   dynamicInterval = 100;
+      // } else {
+      //   dynamicInterval = 10;
+      // }
+
+       int maxDivisions = 10;
+      int dynamicInterval = calculateNiceInterval(dynamicMaxY, maxDivisions);
+
+       if (subscriptionController.appPendingPaymentList.value != "true") {
+        return Center(
+          child: UpgradePlanButton(),
+        );
       }
 
       if (chartController.isLoadingPayment.value) {

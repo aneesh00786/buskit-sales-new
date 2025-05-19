@@ -195,7 +195,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                             onTap: () {
                               if (!_shouldShowUpgradeButton(
                                   _selectedTabIndex)) {
-                                showUpgradePlanDialog(context);
+                                setState(() {
+                                  _selectedTabIndex = index;
+                                });
+                                widget.orderController
+                                    .updateTabIndex(_selectedTabIndex);
+                                UpgradePlanButton();
+                                //showUpgradePlanDialog(context);
                               } else
                               {
                                 setState(() {

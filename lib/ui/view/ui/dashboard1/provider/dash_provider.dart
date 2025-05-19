@@ -857,7 +857,7 @@ class ApiService {
   }
 
   Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
-    final requestBody = {"token": token,};
+    final requestBody = {"sales_id": SessionHelper.loginSavedData?.salesmanId ?? '',};
     log('The Token $token');
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');

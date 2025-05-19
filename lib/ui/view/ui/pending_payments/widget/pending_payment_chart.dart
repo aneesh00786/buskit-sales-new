@@ -214,7 +214,7 @@ class PendingPaymentChart extends StatelessWidget {
           pow(10, maxBarValue.toInt().toString().length - 1).toInt();
       final int dynamicMaxY = ((maxBarValue / magnitude).ceil()) * magnitude;
 
-      // final int dynamicInterval;
+      // final int? dynamicInterval;
       // if (dynamicMaxY >= 1000000000) {
       //   dynamicInterval = 1000000000;
       // } else if (dynamicMaxY >= 100000000) {
@@ -241,7 +241,7 @@ class PendingPaymentChart extends StatelessWidget {
       //   dynamicInterval = 10;
       // }
 
-       int maxDivisions = 10;
+      int maxDivisions = 10;
       int dynamicInterval = calculateNiceInterval(dynamicMaxY, maxDivisions);
 
        if (subscriptionController.appPendingPaymentList.value != "true") {

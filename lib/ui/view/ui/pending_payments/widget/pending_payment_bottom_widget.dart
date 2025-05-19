@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_cont
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -554,6 +555,7 @@ class _PendingPaymentBottomWidgetState
       child: InkResponse(
         onTap: () {
           if (subscriptionController.appPaymentCollection.value == "true") {
+            log('Collect Pyament ${subscriptionController.appPaymentCollection.value}');
             _pendingPaymentCollectionDialog(context, customerData.customerId);
           } else {
             showUpgradePlanDialog(context);

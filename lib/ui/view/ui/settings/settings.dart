@@ -6,7 +6,6 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -109,157 +108,164 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     log('Image URL : ${ApiConstants.imageBaseUrlss}${salesman?.imagePath ?? ''}');
+    log('Image URL ID: ${ApiConstants.imageBaseUrlss}${salesman?.idimagePath ?? ''}');
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : _adminData == null
             ? const Center(child: Text('Failed to load data'))
             : Scaffold(
-              appBar: AppBar(
-                title: CustomText(content: "Settings",),
-                actions: [Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: _buildChangePasswordButton(),
-                )],
-              ),
-              body: SingleChildScrollView(
-                  physics: NkGeneralSize.commonPysics(),
-                  padding: nkRegularPadding(),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              child: idAndImagePicWidget(
-                                file: photoId,
-                                imageUrl:
-                                    '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
-                                text: 'Profile Image',
+                appBar: AppBar(
+                  title: CustomText(
+                    content: "Settings",
+                  ),
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: _buildChangePasswordButton(),
+                    )
+                  ],
+                ),
+                body: SingleChildScrollView(
+                    physics: NkGeneralSize.commonPysics(),
+                    padding: nkRegularPadding(),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 200,
+                                child: idAndImagePicWidget(
+                                  file: photoId,
+                                  imageUrl:
+                                      '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
+                                  text: 'Profile Image',
+                                ),
                               ),
-                            ),
-                            nkSmallSizeBox(),
-                            nkSmallSizeBox(),
-                            nkSmallSizeBox(),
-                            nkSmallSizeBox(),
-                            SizedBox(
-                              width: 200,
-                              child: idAndImagePicWidget(
-                                file: photoId,
-                                imageUrl: _adminData?.idImagePath ?? '',
-                                text: 'Image of ID Card',
+                              nkSmallSizeBox(),
+                              nkSmallSizeBox(),
+                              nkSmallSizeBox(),
+                              nkSmallSizeBox(),
+                              SizedBox(
+                                width: 200,
+                                child: idAndImagePicWidget(
+                                  file: photoId,
+                                  imageUrl:
+                                      '${ApiConstants.imageBaseUrlss}${_adminData?.idImagePath ?? ''}',
+                                  text: 'Image of ID Card',
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        nkMediumSizeBox(),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.fullname ?? '',
-                                isReadOnly: false,
-                                borderColor: Colors.grey,
-                                prefixIcon: Icon(EneftyIcons.user_outline),
-                                labelText: "First Name",
+                            ],
+                          ),
+                          nkMediumSizeBox(),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.fullname ?? '',
+                                  isReadOnly: false,
+                                  borderColor: Colors.grey,
+                                  prefixIcon: Icon(EneftyIcons.user_outline),
+                                  labelText: "First Name",
+                                ),
                               ),
-                            ),
-                            nkMediumSizeBox(),
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.lastname ?? '',
-                                isReadOnly: false,
-                                borderColor: Colors.grey,
-                                prefixIcon: Icon(EneftyIcons.user_outline),
-                                labelText: "Last Name",
+                              nkMediumSizeBox(),
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.lastname ?? '',
+                                  isReadOnly: false,
+                                  borderColor: Colors.grey,
+                                  prefixIcon: Icon(EneftyIcons.user_outline),
+                                  labelText: "Last Name",
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        nkMediumSizeBox(),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.email ?? '',
-                                isReadOnly: true,
-                                borderColor: Colors.grey,
-                                textInputType: TextInputType.emailAddress,
-                                labelText: "Email",
-                                prefixIcon:
-                                    filedIcon(Assets.iconsIcAddLeadsEmail),
+                            ],
+                          ),
+                          nkMediumSizeBox(),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.email ?? '',
+                                  isReadOnly: true,
+                                  borderColor: Colors.grey,
+                                  textInputType: TextInputType.emailAddress,
+                                  labelText: "Email",
+                                  prefixIcon:
+                                      filedIcon(Assets.iconsIcAddLeadsEmail),
+                                ),
                               ),
-                            ),
-                            nkSmallSizeBox(),
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.mobileno ?? '',
-                                isReadOnly: true,
-                                borderColor: Colors.grey,
-                                textInputType: TextInputType.phone,
-                                labelText: "Mobile No:",
-                                prefixIcon:
-                                    filedIcon(Assets.iconsIcAddLeadsMobile),
+                              nkSmallSizeBox(),
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.mobileno ?? '',
+                                  isReadOnly: true,
+                                  borderColor: Colors.grey,
+                                  textInputType: TextInputType.phone,
+                                  labelText: "Mobile No:",
+                                  prefixIcon:
+                                      filedIcon(Assets.iconsIcAddLeadsMobile),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        nkMediumSizeBox(),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: formFiled(
-                                label: (_adminData?.zipcode ?? '').toString(),
-                                isReadOnly: true,
-                                borderColor: Colors.grey,
-                                labelText: 'Zip Code',
-                                prefixIcon:
-                                    filedIcon(Assets.iconsIcAddLeadsRemark),
+                            ],
+                          ),
+                          nkMediumSizeBox(),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: formFiled(
+                                  label: (_adminData?.zipcode ?? '').toString(),
+                                  isReadOnly: true,
+                                  borderColor: Colors.grey,
+                                  labelText: 'Zip Code',
+                                  prefixIcon:
+                                      filedIcon(Assets.iconsIcAddLeadsRemark),
+                                ),
                               ),
-                            ),
-                            nkSmallSizeBox(),
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.town ?? '',
-                                labelText: 'Town',
-                                isReadOnly: true,
-                                borderColor: Colors.grey,
-                                textInputType: TextInputType.visiblePassword,
-                                maxLines: 1,
-                                prefixIcon:
-                                    filedIcon(Assets.iconsIcAddLeadsAddress),
+                              nkSmallSizeBox(),
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.town ?? '',
+                                  labelText: 'Town',
+                                  isReadOnly: true,
+                                  borderColor: Colors.grey,
+                                  textInputType: TextInputType.visiblePassword,
+                                  maxLines: 1,
+                                  prefixIcon:
+                                      filedIcon(Assets.iconsIcAddLeadsAddress),
+                                ),
                               ),
-                            ),
-                            nkSmallSizeBox(),
-                            Flexible(
-                              child: formFiled(
-                                label: _adminData?.state ?? '',
-                                isReadOnly: true,
-                                labelText: "State",
-                                borderColor: Colors.grey,
-                                textInputType: TextInputType.streetAddress,
-                                prefixIcon:
-                                    filedIcon(Assets.iconsIcAddLeadsState),
+                              nkSmallSizeBox(),
+                              Flexible(
+                                child: formFiled(
+                                  label: _adminData?.state ?? '',
+                                  isReadOnly: true,
+                                  labelText: "State",
+                                  borderColor: Colors.grey,
+                                  textInputType: TextInputType.streetAddress,
+                                  prefixIcon:
+                                      filedIcon(Assets.iconsIcAddLeadsState),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        nkMediumSizeBox(),
-                        formFiled(
-                          label: _adminData?.address ?? '',
-                          isReadOnly: true,
-                          borderColor: Colors.grey,
-                          labelText: "Address",
-                          textInputType: TextInputType.streetAddress,
-                          prefixIcon: filedIcon(Assets.iconsIcAddLeadsAddress),
-                        ),
-                      ],
-                    ),
-                  )),
-            );
+                            ],
+                          ),
+                          nkMediumSizeBox(),
+                          formFiled(
+                            label: _adminData?.address ?? '',
+                            isReadOnly: true,
+                            borderColor: Colors.grey,
+                            labelText: "Address",
+                            textInputType: TextInputType.streetAddress,
+                            prefixIcon:
+                                filedIcon(Assets.iconsIcAddLeadsAddress),
+                          ),
+                        ],
+                      ),
+                    )),
+              );
   }
 
   bool get checkDataEmptyOrNot {
@@ -370,29 +376,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ClipRRect(
               borderRadius:
                   BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-              child: text == 'Image of ID Card'
-                  ? Image.asset(
-                      "assets/images/id_card.jpg",
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : CachedNetworkImage(
-                      imageUrl: imageUrl ?? '',
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      errorWidget: (context, url, error) => const Center(
-                        child: Icon(
-                          EneftyIcons.profile_circle_bold,
-                          color: Colors.grey,
-                          size: 60,
-                        ),
-                      ),
-                    ),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl ?? '',
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(
+                    EneftyIcons.profile_circle_bold,
+                    color: Colors.grey,
+                    size: 60,
+                  ),
+                ),
+              ),
             ),
           ),
         ),

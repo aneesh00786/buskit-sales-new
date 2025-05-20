@@ -1110,7 +1110,7 @@ class ApiWorker with ApiConstants {
     try {
       final requestData = {
         "customer_id": customerId,
-        "companyId": 1,
+        "companyId": SessionHelper.loginSavedData?.company_id??0,
       };
       final response = await responsePostMethod(
           requestData: requestData,

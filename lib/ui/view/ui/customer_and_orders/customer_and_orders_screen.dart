@@ -920,7 +920,7 @@ class TopTotalWidget extends StatelessWidget {
     final CustomerAndOrderController customerAndOrderController =
         CustomerAndOrderController();
     double totalTableWidth =
-        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160 + 120;
+        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1166,20 +1166,20 @@ class TopTotalWidget extends StatelessWidget {
                       ),
                       180,
                     ),
-                    _buildTableHeader(
-                      const Center(
-                        child: Text(
-                          'Staff',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins_Regular',
-                          ),
-                        ),
-                      ),
-                      120,
-                    ),
+                    // _buildTableHeader(
+                    //   const Center(
+                    //     child: Text(
+                    //       'Staff',
+                    //       style: TextStyle(
+                    //         fontSize: 12,
+                    //         color: Colors.white,
+                    //         fontWeight: FontWeight.bold,
+                    //         fontFamily: 'Poppins_Regular',
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   120,
+                    // ),
                   ],
                 ),
               ),
@@ -1460,16 +1460,16 @@ class BottomTotalWidget extends StatelessWidget {
                     ),
                     160,
                   ),
-                  _buildTableCell(
-                    const Text(
-                      '',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    120,
-                  ),
+                  // _buildTableCell(
+                  //   const Text(
+                  //     '',
+                  //     style: TextStyle(
+                  //       fontWeight: FontWeight.w600,
+                  //       fontSize: 16,
+                  //     ),
+                  //   ),
+                  //   120,
+                  // ),
                 ],
               ),
             ),
@@ -2426,7 +2426,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double totalTableWidth =
-        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160 + 120;
+        120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
 
     double fixedRowHeight = isLandscape
         ? fullScreenHeight(context) / 9.05
@@ -3035,20 +3035,20 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               ),
                                               160,
                                             ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: CustomText(
-                                                    content:
-                                                        customer.salesmanName,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                              120,
-                                            ),
+                                            // _buildTableCell(
+                                            //   Padding(
+                                            //     padding:
+                                            //         const EdgeInsets.all(4.0),
+                                            //     child: Center(
+                                            //       child: CustomText(
+                                            //         content:
+                                            //             customer.salesmanName,
+                                            //         fontSize: 12,
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            //   120,
+                                            // ),
                                           ],
                                         ),
                                       );

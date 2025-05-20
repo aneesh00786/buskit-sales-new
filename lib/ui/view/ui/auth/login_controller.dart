@@ -74,7 +74,7 @@ class LoginController extends GetxController {
       Get.put(CalenderMapController());
   RejectedLeadsController leadsRejectedController =
       Get.put(RejectedLeadsController());
-  LoginResponce? loginResponce;
+  LoginResponse? loginResponce;
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   RoundedLoadingButtonController loginButtonController =
@@ -318,7 +318,7 @@ class LoginController extends GetxController {
     }
   }
 
-  bool _handleLoginError(LoginResponce? response) {
+  bool _handleLoginError(LoginResponse? response) {
     if (response == null) {
       handleHttpResponseError(
         statusCode: 500,

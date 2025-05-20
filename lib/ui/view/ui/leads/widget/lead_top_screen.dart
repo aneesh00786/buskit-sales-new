@@ -105,7 +105,7 @@ Widget profiloe() {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         MyRegularText(
-                            label: homeController.userDetails?.fullname ?? '',
+                            label: "${homeController.userDetails?.fullname ?? ''} ${homeController.userDetails?.lastname ?? ''}",
                             fontSize: 10.5),
                         const MyRegularText(
                           label: "Salesman",

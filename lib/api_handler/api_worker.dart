@@ -152,7 +152,7 @@ class ApiWorker with ApiConstants {
     return response;
   }
 
-  Future<LoginResponce?> loginApi(String email, String password) async {
+  Future<LoginResponse?> loginApi(String email, String password) async {
     Map<String, dynamic> data = {
       'email': email,
       'password': password,
@@ -165,13 +165,13 @@ class ApiWorker with ApiConstants {
         final message = response.data['message'] ?? 'No message available';
         final statusCode = response.data['status_code'];
         if (status == false) {
-          return LoginResponce(
+          return LoginResponse(
             status: false,
             message: message,
             statusCode: statusCode,
           );
         }
-        return LoginResponce.fromJson(response.data);
+        return LoginResponse.fromJson(response.data);
       } else {
         NkCommonFunction.showErrorSnakBar("${response.data['message']}");
         handleExceptionMessage(response: response, apiName: "login");
@@ -183,14 +183,14 @@ class ApiWorker with ApiConstants {
       String message = errorData?['message'] ?? 'An error occurred';
       handleExceptionMessage(
           response: error.response, apiName: "login", error: error);
-      return LoginResponce(
+      return LoginResponse(
         status: false,
         message: message,
         statusCode: statusCode,
       );
     } catch (e) {
       log("Login Error: $e");
-      return LoginResponce(
+      return LoginResponse(
         status: false,
         message: 'An unexpected error occurred.',
         statusCode: null,

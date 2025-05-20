@@ -31,7 +31,9 @@ class LeadTopScreen extends StatelessWidget {
           children: [
             // AddLeadsBt(),
             // addLeads(context),
-            AddLeadsScreen(leadsController: leadsController,),
+            AddLeadsScreen(
+              leadsController: leadsController,
+            ),
             const Spacer(),
             const NotificationWidget(
               startDate: '',
@@ -49,7 +51,7 @@ Widget profiloe() {
   return Consumer<DashboardProvider>(builder: (context, provider, child) {
     HomeController homeController = Get.put(HomeController());
     log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
-    return FutureBuilder<AdminResponse>(
+    return FutureBuilder<SalesmanResponse>(
       future: provider.adminResponse,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -77,25 +79,24 @@ Widget profiloe() {
                       backgroundColor: const Color(0xffe6ecff),
                       radius: 15,
                       child: admin.imagePath != null
-                          ? CachedNetworkImage(
-                              imageUrl:
-                                  '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
-                              placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: imageProvider,
-                                    fit: BoxFit.cover,
-                                  ),
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
+                                placeholder: (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.person, size: 16),
+                                width: 30,
+                                height: 30,
+                                fit: BoxFit.cover,
                               ),
                             )
-                          : const Icon(Icons.person),
+                          : const Icon(Icons.person, size: 16),
                     ),
                     const SizedBox(
                       width: 4.5,

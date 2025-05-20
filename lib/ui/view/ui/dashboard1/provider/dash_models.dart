@@ -2374,97 +2374,137 @@ double parseDouble(dynamic value) {
   }
 }
 
-class AdminData {
-  final int? idAdmin;
+class SalesmanData {
+  final int? id;
   final int? companyId;
-  final String name;
+  final String salesmanId;
+  final String fullname;
+  final String lastname;
+  final String department;
+  final String portfolio;
+  final String mobileno;
   final String email;
-  final String phoneNo;
+  final String? password;
   final String town;
   final String state;
   final int zipcode;
   final String address;
   final String? idImagePath;
   final String? imagePath;
-  final String? password;
   final DateTime? createAt;
   final String token;
+  final int? projectionPrice;
+  final int? projectionTarget;
+  final String? cancelEventReason;
+  final int? appStatus;
+  final String usertype;
+  final int status;
 
-  AdminData({
-    this.idAdmin,
+  SalesmanData({
+    this.id,
     this.companyId,
-    this.idImagePath,
-    this.imagePath,
-    this.password,
-    this.createAt,
-    required this.name,
+    required this.salesmanId,
+    required this.fullname,
+    required this.lastname,
+    required this.department,
+    required this.portfolio,
+    required this.mobileno,
     required this.email,
-    required this.phoneNo,
+    this.password,
     required this.town,
     required this.state,
     required this.zipcode,
     required this.address,
+    this.idImagePath,
+    this.imagePath,
+    this.createAt,
     required this.token,
+    this.projectionPrice,
+    this.projectionTarget,
+    this.cancelEventReason,
+    this.appStatus,
+    required this.usertype,
+    required this.status,
   });
 
-  factory AdminData.fromJson(Map<String, dynamic> json) {
-    return AdminData(
-      idAdmin: json['id_admin'],
+  factory SalesmanData.fromJson(Map<String, dynamic> json) {
+    return SalesmanData(
+      id: json['id'],
       companyId: json['company_id'],
-      name: json['name'] ?? '',
+      salesmanId: json['salesman_id'] ?? '',
+      fullname: json['fullname'] ?? '',
+      lastname: json['lastname'] ?? '',
+      department: json['department'] ?? '',
+      portfolio: json['portfolio'] ?? '',
+      mobileno: json['mobileno'] ?? '',
       email: json['email'] ?? '',
-      phoneNo: json['phoneno'] ?? '',
+      password: json['password'],
       town: json['town'] ?? '',
       state: json['state'] ?? '',
       zipcode: json['zipcode'] ?? 0,
       address: json['address'] ?? '',
       idImagePath: json['idimage_path'],
       imagePath: json['image_path'],
-      password: json['password'],
-      createAt:
-          json['create_at'] != null ? DateTime.parse(json['create_at']) : null,
+      createAt: json['create_at'] != null ? DateTime.tryParse(json['create_at']) : null,
       token: json['token'] ?? '',
+      projectionPrice: json['projection_price'],
+      projectionTarget: json['projection_target'],
+      cancelEventReason: json['cancel_event_reason'],
+      appStatus: json['app_status'],
+      usertype: json['usertype'] ?? '',
+      status: json['status'] ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id_admin': idAdmin,
+      'id': id,
       'company_id': companyId,
-      'name': name,
+      'salesman_id': salesmanId,
+      'fullname': fullname,
+      'lastname': lastname,
+      'department': department,
+      'portfolio': portfolio,
+      'mobileno': mobileno,
       'email': email,
-      'phoneno': phoneNo,
+      'password': password,
       'town': town,
       'state': state,
       'zipcode': zipcode,
       'address': address,
       'idimage_path': idImagePath,
       'image_path': imagePath,
-      'password': password,
       'create_at': createAt?.toIso8601String(),
       'token': token,
+      'projection_price': projectionPrice,
+      'projection_target': projectionTarget,
+      'cancel_event_reason': cancelEventReason,
+      'app_status': appStatus,
+      'usertype': usertype,
+      'status': status,
     };
   }
 }
 
-class AdminResponse {
+
+class SalesmanResponse {
   int statusCode;
   bool status;
   String message;
-  List<AdminData> data;
+  List<SalesmanData> data;
 
-  AdminResponse({
+  SalesmanResponse({
     required this.statusCode,
     required this.status,
     required this.message,
     required this.data,
   });
 
-  factory AdminResponse.fromJson(Map<String, dynamic> json) {
+  factory SalesmanResponse.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List;
-    List<AdminData> adminList = list.map((i) => AdminData.fromJson(i)).toList();
+    List<SalesmanData> adminList = list.map((i) => SalesmanData.fromJson(i)).toList();
 
-    return AdminResponse(
+    return SalesmanResponse(
       statusCode: json['status_code'],
       status: json['status'],
       message: json['message'],

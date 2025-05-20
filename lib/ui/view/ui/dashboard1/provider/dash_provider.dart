@@ -856,8 +856,11 @@ class ApiService {
     }
   }
 
-  Future<AdminResponse> fetchSalesmanDetails({required String token}) async {
-    final requestBody = {"sales_id": SessionHelper.loginSavedData?.salesmanId ?? '',};
+  Future<SalesmanResponse> fetchSalesmanDetails({required String token}) async {
+    final requestBody = {
+      "sales_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "company_id": SessionHelper.loginSavedData?.company_id ?? 0
+    };
     log('The Token $token');
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
@@ -869,18 +872,18 @@ class ApiService {
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ),
-          endPoint: ApiConstants.adminOnPopUp,
+          endPoint: ApiConstants.fetchSalesStaffDetails,
         );
         if (response.statusCode == 200) {
           var jsonResponse = response.data;
-          List<AdminData> adminDetails = (jsonResponse['data'] as List)
-              .map((json) => AdminData.fromJson(json))
+          List<SalesmanData> adminDetails = (jsonResponse['data'] as List)
+              .map((json) => SalesmanData.fromJson(json))
               .toList();
           await adminBox.put(
             hiveKey,
             adminDetails.map((admin) => admin.toJson()).toList(),
           );
-          return AdminResponse(
+          return SalesmanResponse(
             statusCode: jsonResponse['status_code'],
             status: jsonResponse['status'],
             message: jsonResponse['message'],
@@ -898,13 +901,13 @@ class ApiService {
     try {
       final cachedData = adminBox.get(hiveKey);
       if (cachedData is List) {
-        List<AdminData> adminDetails = cachedData
-            .map((data) => AdminData.fromJson(
+        List<SalesmanData> adminDetails = cachedData
+            .map((data) => SalesmanData.fromJson(
                   LocalStorage().castToStringDynamic(data),
                 ))
             .toList();
 
-        return AdminResponse(
+        return SalesmanResponse(
           statusCode: 200,
           status: true,
           message: 'Fetched from cache',
@@ -1619,9 +1622,9 @@ class DashboardProvider with ChangeNotifier {
 
   Future<OrderResponse>? get orderResponse => _orderResponse;
 
-  Future<AdminResponse>? _adminResponsee;
+  Future<SalesmanResponse>? _adminResponsee;
 
-  Future<AdminResponse>? get adminResponse => _adminResponsee;
+  Future<SalesmanResponse>? get adminResponse => _adminResponsee;
 
   Future<ResponseModelCp>? _responseModelCp;
 
@@ -2041,6 +2044,7 @@ class DashboardProvider with ChangeNotifier {
     _noMoreData = false;
     notifyListeners();
   }
+
   Future<MessagesResponse> fetch_individual_chat(
       String chatId, int page) async {
     try {
@@ -2095,10 +2099,10 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<AdminResponse> fetchSalesmanData() async {
+  Future<SalesmanResponse> fetchSalesmanData() async {
     try {
-      final chatData =
-          await _apiService.fetchSalesmanDetails(token:SessionHelper.loginSavedData?.createdToken ?? '' );
+      final chatData = await _apiService.fetchSalesmanDetails(
+          token: SessionHelper.loginSavedData?.createdToken ?? '');
       _adminResponsee = Future.value(chatData);
       notifyListeners();
       return chatData;

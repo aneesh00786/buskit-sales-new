@@ -787,6 +787,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                     return FutureBuilder<model1.ResponseModell>(
                       future: provider.futureResponseModel,
                       builder: (context, snapshot) {
+                          final categories = snapshot.data?.allCategory;
+                          final categoryPerformance =
+                              snapshot.data?.categoryPerformance;
+                          final monthlyPerformance =
+                              snapshot.data?.monthlyPerformance;
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
@@ -813,17 +818,11 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             },
                           );
                         } else if (snapshot.hasData) {
-                          final categories = snapshot.data!.allCategory;
-                          final categoryPerformance =
-                              snapshot.data!.categoryPerformance;
-                          final monthlyPerformance =
-                              snapshot.data!.monthlyPerformance;
-
                           return Center(
                             child: CustomBarChart(
-                              categoryPerformance: categoryPerformance!,
+                              categoryPerformance: categoryPerformance??[],
                               monthlyPerformance: monthlyPerformance ?? [],
-                              allCategory: categories!,
+                              allCategory: categories??[],
                               staffProjection: staffProjection,
                               targetType: targetType,
                               isMonthly: targetType == '0' ? true : false,

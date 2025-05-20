@@ -244,91 +244,86 @@ class _CustomBarChartState extends State<CustomBarChart> {
   }
 
   void _createBarGroups() {
-  barGroups = widget.allCategory.asMap().entries.map((entry) {
-    int index = entry.key;
-    Category category = entry.value;
+barGroups = widget.allCategory.asMap().entries.map((entry) {
+  int index = entry.key;
+  Category category = entry.value;
 
-    // Check if `categoryPerformance` is empty
+  // Only check for categoryPerformance when not using monthly data
+  CategoryPerformancee perf = CategoryPerformancee(
+    cid: -1,
+    category: category.category,
+    actualProjection: 0.0,
+    actualTarget: 0.0,
+    actualSales: 0.0,
+    salesman: [],
+  );
+
+  if (!widget.isMonthly) {
     if (widget.categoryPerformance.isEmpty) {
       dev.log('categoryPerformance is empty.');
-      return BarChartGroupData(x: index, barRods: []);
     }
 
-    // Retrieve CategoryPerformancee safely
-    CategoryPerformancee perf = widget.categoryPerformance.firstWhere(
+    perf = widget.categoryPerformance.firstWhere(
       (performance) => performance.category == category.category,
-      orElse: () => CategoryPerformancee(
-        cid: -1,
-        category: category.category,
-        actualProjection: 0.0,
-        actualTarget: 0.0,
-        actualSales: 0.0,
-        salesman: [],
-      ),
+      orElse: () => perf,
     );
+  }
 
-    // Check if `monthlyPerformance` is empty
-    if (widget.monthlyPerformance.isEmpty) {
-      dev.log('monthlyPerformance is empty.');
-    }
+  MonthlyPerformancee monthPerf = widget.monthlyPerformance.firstWhere(
+    (performance) => performance.cid == category.category,
+    orElse: () => MonthlyPerformancee(
+      cid: '',
+      actualProjection: 0.0,
+      actualSales: 0.0,
+      actualTarget: 0.0,
+      barType: '',
+      month: '',
+      week: '',
+      year: 0,
+    ),
+  );
 
-    // Retrieve MonthlyPerformancee safely
-    MonthlyPerformancee monthPerf = widget.monthlyPerformance.firstWhere(
-      (performance) => performance.cid == category.category,
-      orElse: () => MonthlyPerformancee(
-        cid: '',
-        actualProjection: 0.0,
-        actualSales: 0.0,
-        actualTarget: 0.0,
-        barType: '',
-        month: '',
-        week: '',
-        year: 0,
-      ),
-    );
+  num target = widget.isMonthly
+      ? monthPerf.actualTarget ?? 0.0
+      : perf.actualTarget ?? 0.0;
+  num projection = widget.isMonthly
+      ? monthPerf.actualProjection ?? 0.0
+      : perf.actualProjection ?? 0.0;
+  num actual = widget.isMonthly
+      ? monthPerf.actualSales ?? 0.0
+      : perf.actualSales ?? 0.0;
 
-    // Safely retrieve target, projection, and actual values
-    num target = widget.isMonthly
-        ? monthPerf.actualTarget ?? 0.0
-        : perf.actualTarget ?? 0.0;
-    num projection = widget.isMonthly
-        ? monthPerf.actualProjection ?? 0.0
-        : perf.actualProjection ?? 0.0;
-    num actual = widget.isMonthly
-        ? monthPerf.actualSales ?? 0.0
-        : perf.actualSales ?? 0.0;
-
-    // Create BarChartGroupData
-    return BarChartGroupData(
-      x: index,
-      barRods: [
-        if (!widget.isDayOrRange) ...[
-          BarChartRodData(
-            toY: target.toDouble(),
-            color: const Color(0xff3b6491),
-            width: 8,
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none,
-          ),
-          if (widget.staffProjection == "1")
-            BarChartRodData(
-              toY: projection.toDouble(),
-              color: const Color(0xff15396a),
-              width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide.none,
-            ),
-        ],
+  return BarChartGroupData(
+    x: index,
+    barRods: [
+      if (!widget.isDayOrRange) ...[
         BarChartRodData(
-          toY: actual.toDouble(),
-          color: const Color(0xff7a8f3d),
+          toY: target.toDouble(),
+          color: const Color(0xff3b6491),
           width: 8,
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide.none,
         ),
+        if (widget.staffProjection == "1")
+          BarChartRodData(
+            toY: projection.toDouble(),
+            color: const Color(0xff15396a),
+            width: 8,
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide.none,
+          ),
       ],
-    );
-  }).toList();
+      BarChartRodData(
+        toY: actual.toDouble(),
+        color: const Color(0xff7a8f3d),
+        width: 8,
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide.none,
+      ),
+    ],
+  );
+}).toList();
+
   }
 
 
@@ -361,7 +356,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                           ),
                         );
                       } else if (snapshot.hasData) {
-                        final categories = snapshot.data!.data;
+                        final categories = snapshot.data?.data;
                         Navigator.of(context).pop();
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           showBarchartDialog(
@@ -504,11 +499,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
 
   @override
   Widget build(BuildContext context) {
-  if (widget.categoryPerformance.isEmpty || widget.allCategory.isEmpty) {
-    return Center(
-      child: NodataWidget(),
-    );
-  }
+  // if (widget.categoryPerformance.isEmpty && widget.allCategory.isEmpty &&wi) {
+  //   return Center(
+  //     child: NodataWidget(),
+  //   );
+  // }
     final maxBarValue = barGroups
         .map((group) =>
             group.barRods.map((rod) => rod.toY).reduce((a, b) => a > b ? a : b))

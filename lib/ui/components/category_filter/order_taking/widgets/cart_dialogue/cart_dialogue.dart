@@ -1356,6 +1356,7 @@ class CartDialogueState extends State<CartDialogue> {
                         CustomCartButton(
                             text: 'Save & Send',
                             size: width > 1200 ? 14 : 10,
+                            color: primaryColor,
                             onTap: () async {
                               final hasCheckInOutPermission =
                                     subscriptionController

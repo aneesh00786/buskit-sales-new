@@ -53,10 +53,12 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     super.initState();
     final dashboardProvider =
         Provider.of<DashboardProvider>(context, listen: false);
-        dashboardProvider.resetFilter();
+    dashboardProvider.resetFilter();
     if (!dashboardProvider.dataFetched) {
       dashboardProvider.resetProvider();
-      dashboardProvider.fetchData();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        dashboardProvider.fetchData();
+      });
       dashboardProvider.fetchChatData(salesmanId);
     }
   }
@@ -80,8 +82,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           }
           if (widget.dashBoardController.errorMessage.value.isNotEmpty) {
             log('Error: ${widget.dashBoardController.errorMessage.value}');
-            return const Center(
-                child: NodataWidget());
+            return const Center(child: NodataWidget());
           }
           final data = widget.dashBoardController.dashbordData.value;
           log('DashBoard data Value ===========${data.orderCountList}');

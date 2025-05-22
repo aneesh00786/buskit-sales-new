@@ -76,7 +76,7 @@ class _OrderTakingState extends State<OrderTaking>
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.find<HomeController>();
   ApiWorker apiWorker = Get.put(ApiWorker());
-
+  late CustomersProvider cartProvider;
   final GlobalKey<CartDialogueState> cartDialogKey =
       GlobalKey<CartDialogueState>();
   bool isLoading = true;
@@ -144,8 +144,13 @@ class _OrderTakingState extends State<OrderTaking>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+  }
+
+  @override
   void dispose() {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     _drawerTimer?.cancel();
     animationController.dispose();
     CartDatabaseManager().removeListener(() {
@@ -377,7 +382,6 @@ class _OrderTakingState extends State<OrderTaking>
                           onPressed: () {
                             Navigator.pop(context);
                             Navigator.pop(context);
-                            
                           },
                           child: const Text('OK'),
                         ),
@@ -472,8 +476,7 @@ class _OrderTakingState extends State<OrderTaking>
                         },
                       );
                       CartDatabaseManager().cartItems.clear();
-                            CartDatabaseManager()
-                                .clearCart(customerId: customerId);
+                      CartDatabaseManager().clearCart(customerId: customerId);
                     } else {
                       showDialog(
                         context: context,
@@ -606,7 +609,8 @@ class _OrderTakingState extends State<OrderTaking>
                       draftId:
                           existingDraftId.isNotEmpty ? existingDraftId : '',
                       selctedItemCount: 1);
-                  await apiWorker.placeOrder(order, (statusCode, message, response) {
+                  await apiWorker.placeOrder(order,
+                      (statusCode, message, response) {
                     if (statusCode == 200) {
                       showDialog(
                         context: context,

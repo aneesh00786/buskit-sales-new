@@ -1,6 +1,8 @@
 
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -21,6 +23,7 @@ class PendingTabBar extends StatefulWidget {
 }
 
 class _PendingTabBarState extends State<PendingTabBar> {
+  Timer? _delayTimer;
     @override
   void initState() {
     super.initState();
@@ -50,13 +53,27 @@ class _PendingTabBarState extends State<PendingTabBar> {
       }
     }
   }
-    void _startDelay() {
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        widget.orderController.isLoadingPayment.value = false; 
-      });
+  void _startDelay() {
+  _delayTimer = Timer(const Duration(seconds: 2), () {
+    if (!mounted) return;
+    setState(() {
+      widget.orderController.isLoadingPayment.value = false;
     });
-  }
+  });
+}
+@override
+void dispose() {
+  _delayTimer?.cancel();
+  super.dispose();
+}
+
+  //   void _startDelay() {
+  //   Future.delayed(const Duration(seconds: 2), () {
+  //     setState(() {
+  //       widget.orderController.isLoadingPayment.value = false; 
+  //     });
+  //   });
+  // }
 
 
   @override

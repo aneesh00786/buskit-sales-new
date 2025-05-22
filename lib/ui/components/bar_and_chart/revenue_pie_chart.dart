@@ -1,4 +1,6 @@
 
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
@@ -558,7 +560,6 @@ void pendingPaymentCollectionDialog(
     return DataTable(
       columnSpacing: 30,
       horizontalMargin: 15,
-      // ignore: deprecated_member_use
       dataRowHeight: 30,
       headingRowHeight: 40,
       border: TableBorder.all(color: Colors.grey.shade300),
@@ -899,14 +900,12 @@ void pendingPaymentCollectionDialog(
                 ),
               ),
             ),
-            // Second table
             Row(
               children: [
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: DataTable(
-                      // ignore: deprecated_member_use
                       dataRowHeight: 35,
                       headingRowHeight: 30,
                       columns: const [

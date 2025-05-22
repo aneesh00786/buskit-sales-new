@@ -1,3 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +31,9 @@ class _VerifyButtonState extends State<VerifyButton> {
     try {
       await widget.loginController
           .verifyEmail(widget.textEditingController.text);
-      print('Verify button clicked!');
+      log('Verify button clicked!');
     } catch (error) {
-      print('Error: $error');
+      log('Error: $error');
     } finally {
       setState(() {
         _isLoading = false;

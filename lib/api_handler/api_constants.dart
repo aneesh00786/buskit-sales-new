@@ -84,7 +84,7 @@ mixin class ApiConstants {
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
-  static const String get_routeCredit = "get_routeCredit";
+  static const String getRouteCredit = "get_routeCredit";
 
   /// ORDER API
   static const String fetchOrder = "fetch_order";
@@ -124,6 +124,6 @@ mixin class ApiConstants {
       "Update_ValueBasedtargetValue";
 
   /// SUBSCRIBTION API
-  static const String get_subscribed_plan = "get_subscribed_plan";
-  static const String get_plan_detiails = "get_plan_detiails";
+  static const String getSubscribedPlan = "get_subscribed_plan";
+  static const String getPlanDetiails = "get_plan_detiails";
 }

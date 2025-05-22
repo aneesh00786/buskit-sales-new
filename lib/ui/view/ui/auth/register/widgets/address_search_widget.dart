@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
 import 'dart:async';
+import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_right_side_widgte.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
@@ -78,10 +81,10 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           showSuggestionsOverlay();
         }
       } else {
-        print("Error: ${response.statusCode}");
+        log("Error: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error: $e");
+      log("Error: $e");
     }
   }
 

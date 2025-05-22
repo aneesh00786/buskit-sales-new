@@ -1,4 +1,6 @@
 // ignore: file_names
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -169,7 +171,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           final settings =
                               await _apiWorker.fetchAllSettings(companyId);
                           await Future.delayed(const Duration(microseconds: 500));
-                          // ignore: use_build_context_synchronously
                           await Provider.of<CustomersProvider>(context,
                                   listen: false)
                               .fetchCustomerData();
@@ -214,7 +215,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           );
                           await calenderMapController
                               .fetchCalenderEvents(initialDay ?? DateTime.now());
-                          // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Syncing offline orders...'),

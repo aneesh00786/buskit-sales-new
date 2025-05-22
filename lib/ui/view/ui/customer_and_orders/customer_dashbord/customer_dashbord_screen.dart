@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names, deprecated_member_use
 
 import 'dart:developer';
 import 'dart:io';
@@ -940,7 +940,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               child: DataTable(
                                 headingRowColor:
                                     WidgetStateProperty.all(Colors.grey[100]),
-                                // ignore: deprecated_member_use
                                 dataRowHeight: 40,
                                 headingRowHeight: 45,
                                 columnSpacing: 10,

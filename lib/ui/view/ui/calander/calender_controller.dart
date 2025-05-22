@@ -608,7 +608,7 @@ class CalenderMapController extends GetxController {
       final data = await ApiWorker().getRouteCredit();
       routeCredit.value = data;
     } catch (e) {
-      print("Error fetching route credit: $e");
+      log("Error fetching route credit: $e");
     } finally {
       isRouteCreditLoading.value = false;
     }

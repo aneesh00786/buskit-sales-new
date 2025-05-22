@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -98,7 +100,6 @@ class _YearDropdownState extends State<YearDropdown> {
             CustomButton(
               text: 'Go',
               onPressed: () async {
-                print("Selected Year: ${provider.selectedYear}");
                 final dashboardProvider =
         Provider.of<DashboardProvider>(context, listen: false);
         await dashboardProvider.setTempToFilter();

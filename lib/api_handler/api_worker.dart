@@ -75,12 +75,12 @@ class ApiWorker with ApiConstants {
       );
 
       if (response.statusCode == 200) {
-        print("Password changed successfully: ${response.data}");
+        log("Password changed successfully: ${response.data}");
       } else {
-        print("Failed to change password: ${response.statusCode}");
+        log("Failed to change password: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error changing password: $e");
+      log("Error changing password: $e");
     }
   }
 
@@ -105,8 +105,6 @@ class ApiWorker with ApiConstants {
       if (setupIntentRes.statusCode != 200) {
         throw Exception('Failed to create setup intent');
       }
-
-      final clientSecret = setupIntentRes.data['clientSecret'];
       final stripeCustomerId = setupIntentRes.data['stripeCustomerId'];
       final paymentMethodId = cardToken;
       final endDate = DateTime.now().add(Duration(days: 14));
@@ -132,10 +130,10 @@ class ApiWorker with ApiConstants {
       if (saveResponse.statusCode != 200 || saveData['status_code'] != 200) {
         throw Exception(saveData['message'] ?? 'Failed to save subscription');
       }
-      print(
+      log(
           "✅ 14-day trial started. Login credentials have been sent to your email.");
     } catch (e) {
-      print("❌ Error: ${e.toString()}");
+      log("❌ Error: ${e.toString()}");
     }
   }
 
@@ -1694,7 +1692,7 @@ class ApiWorker with ApiConstants {
       handleExceptionMessage(
           apiName: "Send verification Email", error: e, response: e.response);
     } catch (e) {
-      print('Unexpected error: $e');
+      log('Unexpected error: $e');
     }
     return "";
   }
@@ -1739,7 +1737,7 @@ class ApiWorker with ApiConstants {
         log("Admin inserted successfully: ${response.data}");
       } else {
         handleExceptionMessage(apiName: "insert admin", response: response);
-        print(
+        log(
             "Failed to insert admin: ${response.statusCode} - ${response.data}");
       }
     } on DioException catch (e) {
@@ -1761,10 +1759,10 @@ class ApiWorker with ApiConstants {
     if (isOnline) {
       try {
         final response = await dio1.post(
-          "${ApiConstants.baseUrl}${ApiConstants.get_subscribed_plan}",
+          "${ApiConstants.baseUrl}${ApiConstants.getSubscribedPlan}",
           data: {"company_id": "$companyId"},
         );
-        log("Fetch Subscription URL: ${ApiConstants.baseUrl}${ApiConstants.get_subscribed_plan}");
+        log("Fetch Subscription URL: ${ApiConstants.baseUrl}${ApiConstants.getSubscribedPlan}");
         final subscribedPlan = SubscribedPlan.fromJson(response.data);
         log('Subscription plan fetched: ${subscribedPlan.toJson()}');
         await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
@@ -1822,16 +1820,12 @@ class ApiWorker with ApiConstants {
     if (isOnline) {
       try {
         final response = await dio1.get(
-          "${ApiConstants.baseUrl}${ApiConstants.get_plan_detiails}",
-          // queryParameters: {"company_id": companyId}, // <- Correct way for GET
+          "${ApiConstants.baseUrl}${ApiConstants.getPlanDetiails}",
         );
 
-        log("Fetch Subscription Plan Details URL: ${ApiConstants.baseUrl}${ApiConstants.get_plan_detiails}");
-
+        log("Fetch Subscription Plan Details URL: ${ApiConstants.baseUrl}${ApiConstants.getPlanDetiails}");
         final subscribedPlan = SubscribtionPlanDetails.fromJson(response.data);
         log('Subscription Plan Details fetched: ${subscribedPlan.toJson()}');
-
-        // Save to Hive
         await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
         log('Subscription Plan Details saved to Hive.');
 
@@ -1910,7 +1904,7 @@ class ApiWorker with ApiConstants {
   Future<String> getRouteCredit() async {
     try {
       final response = await dio.postbycustom(
-        ApiConstants.get_routeCredit,
+        ApiConstants.getRouteCredit,
         data: {
           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
         },

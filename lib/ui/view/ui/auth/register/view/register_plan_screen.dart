@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, library_private_types_in_public_api, use_build_context_synchronously, unused_field
 
 import 'dart:developer';
 
@@ -188,7 +188,6 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: groupedPlans.entries.map((entry) {
-                                    final planName = entry.key;
                                     final planOptions = entry.value;
 
                                     Plan? monthlyPlan =

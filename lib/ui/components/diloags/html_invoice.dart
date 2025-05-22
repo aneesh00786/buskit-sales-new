@@ -1,4 +1,6 @@
 
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -42,8 +44,8 @@ class _InvoicePreviewState extends State<InvoicePreview> {
         body: request,
       );
 
-      print("Status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+      log("Status code: ${response.statusCode}");
+      log("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -54,7 +56,7 @@ class _InvoicePreviewState extends State<InvoicePreview> {
         throw Exception('Failed to load invoice: ${response.statusCode}');
       }
     } catch (e) {
-      print("Error: $e");
+      log("Error: $e");
       setState(() {
         htmlContent = "<h2>Error loading invoice</h2>";
         isLoading = false;
@@ -111,37 +113,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                         ),
                       ),
                       nkSmallSizeBox(),
-                      // GestureDetector(
-                      //   onTap: () async {
-                      //     final cleanedHtml = sanitizeHtml(htmlContent);
-
-                      //     await Printing.layoutPdf(
-                      //       onLayout: (PdfPageFormat format) async {
-                      //         try {
-                      //           return await Printing.convertHtml(
-                      //             format: format,
-                      //             html: cleanedHtml,
-                      //           );
-                      //         } catch (e, stack) {
-                      //           debugPrint('PDF conversion failed: $e');
-                      //           debugPrint(stack.toString());
-                      //           return Uint8List(0);
-                      //         }
-                      //       },
-                      //     );
-                      //   },
-                      //   child: Container(
-                      //     color: red,
-                      //     width: 40,
-                      //     child: const Center(
-                      //       child: Icon(
-                      //         Icons.print,
-                      //         color: white,
-                      //         size: 30,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                       const Spacer(),
                       dialogCloseButton1(context, red),
                     ],

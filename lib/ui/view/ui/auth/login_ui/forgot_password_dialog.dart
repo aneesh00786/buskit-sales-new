@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -102,26 +104,6 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             _buildTextField("Confirm new password", confirmPasswordController,
                 obscure: true),
             const SizedBox(height: 20),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     String email = emailController.text.trim();
-            //     String newPass = confirmPasswordController.text.trim();
-            //     String otp = otpController.text.trim();
-            //     await ApiWorker().resetPassword(email, newPass, int.parse(otp));
-            //   },
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: primaryColor,
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(10),
-            //     ),
-            //   ),
-            //   child: const Text(
-            //     "Reset Password",
-            //     style: TextStyle(color: white),
-            //   ),
-            // ),
             Row(children: [
               Expanded(
                 child: ElevatedButton(
@@ -130,8 +112,6 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                     String newPass = newPasswordController.text.trim();
                     String confirmPass = confirmPasswordController.text.trim();
                     String otp = otpController.text.trim();
-
-                    // Email format validation
                     final emailRegex =
                         RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                     if (!emailRegex.hasMatch(email)) {
@@ -142,15 +122,11 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                           Icons.close);
                       return;
                     }
-
-                    // OTP validation
                     if (otp.isEmpty) {
                       showCustomToastDisplay(
                           context, "Please enter the OTP.", red, Icons.close);
                       return;
                     }
-
-                    // Password match validation
                     if (newPass != confirmPass) {
                       showCustomToastDisplay(
                           context, "Passwords do not match.", red, Icons.close);

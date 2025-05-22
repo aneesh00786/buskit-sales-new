@@ -543,13 +543,13 @@ class PasswordField extends StatelessWidget {
   final FormFieldValidator<String>? validator;
 
   const PasswordField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     required this.obscureText,
     required this.toggleVisibility,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

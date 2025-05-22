@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/customer_collection_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/customer_order_delevery_pie_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -51,18 +53,6 @@ class CustomerDashboardBottomWidget extends StatelessWidget {
               child: MyPopUpMenu<int>(
                   onItemSelected: (value) {
                     customerDashBoardController.selectYearIndex.value = value;
-                    // customerDashBoardController
-                    //     .getCustomerDahsboardTotalSaleData(
-                    //         customerDashBoardController
-                    //             .customerAndOrderData.value.customerId!,
-                    //         customerDashBoardController
-                    //                 .customerDashboardData
-                    //                 .value
-                    //                 .yearList?[customerDashBoardController
-                    //                     .selectYearIndex.value]
-                    //                 .year
-                    //                 ?.toString() ??
-                    //             '');
                     customerDashBoardController.updateWidget();
                   },
                   items: List.generate(
@@ -106,29 +96,6 @@ class CustomerDashboardBottomWidget extends StatelessWidget {
               Flexible(child: orderDeliveryChart())
             ],
           ),
-          //nkLargeSizeBox(),
-          //nkSmallSizeBox(),
-          // MyThemeButton(
-          //   buttonText: orderTaking,
-          //   onPressed: () {
-          //     customerDashBoardController.customerAndOrderData.value.cart =
-          //         null;
-          //     customerDashBoardController
-          //         .getCustomerCartData(customerDashBoardController
-          //             .customerAndOrderData.value.customerId!)
-          //         .then((value) {
-          //       if (value.data != null && value.data!.isNotEmpty) {
-          //         customerDashBoardController.customerAndOrderData.value.cart =
-          //             value.data?.first.cart;
-          //       }
-          //       Get.toNamed(AppRoutes.customerOrderDetails,
-          //           arguments:
-          //               customerDashBoardController.customerAndOrderData.value);
-          //     });
-          //   },
-          //   height: 26,
-          //   width: AppDimensions.instance!.width * 0.12,
-          // )
         ],
       ),
     );

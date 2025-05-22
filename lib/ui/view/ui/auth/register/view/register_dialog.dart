@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
@@ -12,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_message.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
@@ -298,48 +301,48 @@ Future<dynamic> registerDialog(BuildContext context,
                             isRoundedCorner: false,
                             buttonText: "Register",
                             onPressed: 
-                            // isAgreed
-                            //     ? 
+                            isAgreed
+                                ? 
                                 () async {
                                     final otp =
                                         loginController.otpController.text;
-                                    // if (formKey.currentState?.validate() ??
-                                    //     false) {
-                                    //   final fullPhoneNo =
-                                    //       '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                                    //   log('Full Phone Number $fullPhoneNo');
-                                    //   if (loginController.validateOtp(otp)) {
-                                    //     await ApiWorker().insertAdmin(
-                                    //         address: loginController
-                                    //             .addressController.text,
-                                    //         country: loginController
-                                    //             .countryController.text,
-                                    //         email: loginController
-                                    //             .businessEmailController.text,
-                                    //         name: loginController
-                                    //             .businessNameController.text,
-                                    //         fullPhoneNo: fullPhoneNo,
-                                    //         password: '1234',
-                                    //         state: loginController
-                                    //             .stateController.text,
-                                    //         town: loginController
-                                    //             .townController.text,
-                                    //         zipcode: loginController
-                                    //             .postCodeController.text,
-                                    //         adminFname: loginController
-                                    //             .adminFirstNameController.text,
-                                    //         adminLname: loginController
-                                    //             .adminLastnameController.text,
-                                    //         regNo: loginController
-                                    //             .companyRegController.text,
-                                    //         privacy: privacyAgreement,
-                                    //         refund: refundAgreement);
-                                    //     final prefs = await SharedPreferences
-                                    //         .getInstance();
-                                    //     await prefs.setString(
-                                    //         'selectedCountry',
-                                    //         loginController
-                                    //             .countryController.text);
+                                    if (formKey.currentState?.validate() ??
+                                        false) {
+                                      final fullPhoneNo =
+                                          '${loginController.phoneCode}${loginController.phoneNumberController.text}';
+                                      log('Full Phone Number $fullPhoneNo');
+                                      if (loginController.validateOtp(otp)) {
+                                        await ApiWorker().insertAdmin(
+                                            address: loginController
+                                                .addressController.text,
+                                            country: loginController
+                                                .countryController.text,
+                                            email: loginController
+                                                .businessEmailController.text,
+                                            name: loginController
+                                                .businessNameController.text,
+                                            fullPhoneNo: fullPhoneNo,
+                                            password: '1234',
+                                            state: loginController
+                                                .stateController.text,
+                                            town: loginController
+                                                .townController.text,
+                                            zipcode: loginController
+                                                .postCodeController.text,
+                                            adminFname: loginController
+                                                .adminFirstNameController.text,
+                                            adminLname: loginController
+                                                .adminLastnameController.text,
+                                            regNo: loginController
+                                                .companyRegController.text,
+                                            privacy: privacyAgreement,
+                                            refund: refundAgreement);
+                                        final prefs = await SharedPreferences
+                                            .getInstance();
+                                        await prefs.setString(
+                                            'selectedCountry',
+                                            loginController
+                                                .countryController.text);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -348,15 +351,15 @@ Future<dynamic> registerDialog(BuildContext context,
                                           ),
                                         );
                                         log('Form is valid, email verified, and OTP is correct.');
-                                    //   } else {
-                                    //     errorSnackbar(
-                                    //         "Please verify the email.");
-                                    //   }
-                                    // } else {
-                                    //   log("Form validation failed.");
-                                    // }
-                                  },
-                                // : null,
+                                      } else {
+                                        errorSnackbar(
+                                            "Please verify the email.");
+                                      }
+                                    } else {
+                                      log("Form validation failed.");
+                                    }
+                                  }
+                                : null,
                             btnController: loginController.registerController,
                           ),
                         ],

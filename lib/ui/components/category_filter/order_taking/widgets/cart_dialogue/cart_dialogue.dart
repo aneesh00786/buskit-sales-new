@@ -95,7 +95,7 @@ class CartDialogueState extends State<CartDialogue> {
   List<String> filteredOptions = [];
   CustomerAndOrderController customeController =
       Get.put(CustomerAndOrderController());
-        final subscriptionController = Get.find<SubscriptionController>();
+  final subscriptionController = Get.find<SubscriptionController>();
 
   final TextEditingController totalQuickController = TextEditingController();
   final TextEditingController chequeOrTransactionNumberController =
@@ -982,25 +982,25 @@ class CartDialogueState extends State<CartDialogue> {
                                     value: option,
                                     groupValue: _selectedValue,
                                     onChanged: (value) {
-                                     if (value == _options[1]) {
-                                          if (subscriptionController
-                                                  .appQuickSale.value ==
-                                              "true") {
-                                            setState(() {
-                                              _selectedValue = value!;
-                                              _dropdownValue = null;
-                                              totalQuickController.clear();
-                                            });
-                                          } else {
-                                           showUpgradePlanDialog(context);
-                                          }
-                                        } else {
+                                      if (value == _options[1]) {
+                                        if (subscriptionController
+                                                .appQuickSale.value ==
+                                            "true") {
                                           setState(() {
                                             _selectedValue = value!;
                                             _dropdownValue = null;
                                             totalQuickController.clear();
                                           });
+                                        } else {
+                                          showUpgradePlanDialog(context);
                                         }
+                                      } else {
+                                        setState(() {
+                                          _selectedValue = value!;
+                                          _dropdownValue = null;
+                                          totalQuickController.clear();
+                                        });
+                                      }
                                     },
                                   ),
                                   Text(option),
@@ -1358,15 +1358,22 @@ class CartDialogueState extends State<CartDialogue> {
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
                             onTap: () async {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                },
+                              );
                               final hasCheckInOutPermission =
-                                    subscriptionController
-                                            .customerCheckInOut.value ==
-                                        "true";
-                                final isCheckedIn = widget.active == true;
+                                  subscriptionController
+                                          .customerCheckInOut.value ==
+                                      "true";
+                              final isCheckedIn = widget.active == true;
 
                               if (isCheckedIn ||
-                                    (!isCheckedIn &&
-                                        !hasCheckInOutPermission)) {
+                                  (!isCheckedIn && !hasCheckInOutPermission)) {
                                 final sanitizedText = totalQuickController.text
                                     .replaceAll(RegExp(r'[^\d.]'), '')
                                     .trim();
@@ -1593,17 +1600,9 @@ class CartDialogueState extends State<CartDialogue> {
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(child: CircularProgressIndicator());
-        },
-      );
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
-
         if (!isOnline) {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
@@ -1656,7 +1655,6 @@ class CartDialogueState extends State<CartDialogue> {
         CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
         log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
-
         if (cartOrder != null) {
           log('[processSaveAndSend] Preparing order placement...');
           final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -2236,5 +2234,3 @@ class CartTextFields extends StatelessWidget {
     );
   }
 }
-
-

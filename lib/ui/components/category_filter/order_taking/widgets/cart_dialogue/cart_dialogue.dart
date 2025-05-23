@@ -1473,7 +1473,7 @@ class CartDialogueState extends State<CartDialogue> {
                         CustomCartButton(
                           text: 'Continue Shopping',
                           size: width > 1200 ? 14 : 10,
-                          color: primaryColor,
+                          color: const Color(0xff5bc0de),
                           onTap: () {
                             if (widget.isFromCustomerDach == true ||
                                 widget.isDashboard == true) {

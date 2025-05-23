@@ -720,7 +720,7 @@ class ApiWorker with ApiConstants {
           '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}',
           queryParameters: requestParams,
         )
-            .timeout(const Duration(seconds: 10), onTimeout: () {
+            .timeout(const Duration(seconds: 15), onTimeout: () {
           throw DioException(
             requestOptions: RequestOptions(
                 path: '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}'),

@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes, empty_catches
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';

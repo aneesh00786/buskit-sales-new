@@ -93,6 +93,7 @@ class _OrderTakingState extends State<OrderTaking>
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
+    CartDatabaseManager().getDraftItems();
     widget.productsController.fetchCategoryData();
     if (widget.isDirectDialogue) {
       customerAndOrderController.customerId.value = '';

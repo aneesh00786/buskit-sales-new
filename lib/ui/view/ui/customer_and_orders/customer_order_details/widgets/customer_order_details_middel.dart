@@ -15,9 +15,7 @@ import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../../../components/widgets/my_theme_button.dart';
-
 class CustomerOrderDetailMiddelWidget extends StatefulWidget {
   final ProductsController productsController;
 

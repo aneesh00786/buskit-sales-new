@@ -7,8 +7,6 @@ class BackupDataFunction extends ChangeNotifier {
 
   static CategoryModel? get getCategoryAndProductBackup =>
       _categoryAndProductBackup;
-
-  /// This [categoryAndProductBackup] is only Use for data backup
   static set categoryAndProductBackup(CategoryModel value) {
     _categoryAndProductBackup = value;
     

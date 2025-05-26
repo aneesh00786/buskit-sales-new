@@ -61,6 +61,7 @@ class StaffController extends GetxController {
   var targetControllers = <TextEditingController>[].obs;
   var salesmanTargetList = PerformanceData().obs;
   var isLoading = false.obs;
+  var isLoadingPass = false.obs;
   var isTopDataLoading = false.obs;
 
   var checkInOutData = Rxn<CheckInOut>();
@@ -193,8 +194,6 @@ class StaffController extends GetxController {
 
     return data;
   }
-
-  ////fetch customer////
   Future<Iterable<CustomerAndOrderData>> loadCustomer(String? id) async {
     log("SALESMAN ${selectedStaff.value.salesmanId}");
     log("StartDate ${searchModel.startDate}");
@@ -203,8 +202,6 @@ class StaffController extends GetxController {
     refresh();
     return data.custAndOrderdata!;
   }
-
-  ////fetch order////
   Future<List<OrderData>> loadOrderData(String? id) async {
     var data = await _apiWorker.getOrdersData(
         salesmanId: id,
@@ -332,7 +329,7 @@ class StaffController extends GetxController {
     } finally {
       Future.delayed(const Duration(milliseconds: 50), () {
         isTimesheetLoading.value = false;
-      }); // Ensure GetX updates UI
+      });
     }
   }
 
@@ -368,6 +365,28 @@ class StaffController extends GetxController {
     } catch (e) {
       log('Error: $e');
       rethrow;
+    }
+  }
+    Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    isLoadingPass.value = true;
+    try {
+      log("This Function Worked");
+      await ApiWorker().changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+      Get.snackbar("Success", "Password changed successfully");
+    } catch (e) {
+      log("Error from controller: $e");
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      isLoadingPass.value = false;
+      log("Error from controller:");
     }
   }
 }

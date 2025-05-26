@@ -9,9 +9,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersstatus_value_dialog.dart';
@@ -28,17 +26,15 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.da
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_category_chart_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/communication_display_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_collection_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_order_status_chart_dialog.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_revenue_chart_dialog.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/middle_top_right_component.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/top_left_component.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/topselling_product.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart'
     as model;
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
@@ -52,7 +48,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../../components/bar_and_chart/revenue_pie_chart.dart';
 import '../../provider/dash_provider.dart';
@@ -78,9 +73,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   String staffProjection = '';
   String targetType = '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-
-    final subscriptionController = Get.find<SubscriptionController>();
-
+  final subscriptionController = Get.find<SubscriptionController>();
   @override
   void initState() {
     super.initState();
@@ -107,6 +100,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       log("Error fetching settings: $e");
     }
   }
+
   TextEditingController communicationController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -127,11 +121,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   const SizedBox(height: 4.7),
                   SizedBox(
                       height: screenWidth * 0.7,
-                      child: middleTopLeftComponet()),
+                      child: middleTopLeftComponet(
+                          context: context,
+                          staffProjection: staffProjection,
+                          targetType: targetType)),
                   const SizedBox(height: 4.7),
                   SizedBox(
                       height: screenWidth * 0.7,
-                      child: middleTopRightComponet()),
+                      child: middleTopRightComponet(
+                        context: context,
+                      )),
                   const SizedBox(height: 4.7),
                   SizedBox(
                       height: screenWidth * 0.7,
@@ -139,7 +138,9 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   const SizedBox(height: 4.7),
                   SizedBox(
                       height: screenWidth * 0.7,
-                      child: topSellingProductWidget()),
+                      child: topSellingProductWidget(
+                          context: context,
+                          subscriptionController: subscriptionController)),
                   const SizedBox(height: 4.7),
                   SizedBox(
                       height: screenWidth * 0.7,
@@ -158,11 +159,15 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(child: middleTopLeftComponet()),
+                      Flexible(
+                          child: middleTopLeftComponet(
+                              context: context,
+                              staffProjection: staffProjection,
+                              targetType: targetType)),
                       const SizedBox(
                         width: 4.7,
                       ),
-                      Flexible(child: middleTopRightComponet())
+                      Flexible(child: middleTopRightComponet(context: context))
                     ],
                   ),
                 ),
@@ -176,7 +181,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       const SizedBox(
                         width: 4.7,
                       ),
-                      Flexible(child: topSellingProductWidget())
+                      Flexible(
+                          child: topSellingProductWidget(
+                              context: context,
+                              subscriptionController: subscriptionController))
                     ],
                   ),
                 ),
@@ -258,239 +266,224 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               )
             ],
             if (subscriptionController.collectionGraph.value == 'true')
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return FutureBuilder<ResponseModell>(
-                      future: provider.futureResponseModel,
-                      builder:
-                          (context, AsyncSnapshot<ResponseModell> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        } else if (!snapshot.hasData ||
-                            (snapshot.data != null &&
-                                (snapshot.data!.collection?.payment
-                                        ?.completedOrders?.isEmpty ??
-                                    true) &&
-                                (snapshot.data!.collection?.order?.pendingAmount
-                                        ?.isEmpty ??
-                                    true) &&
-                                snapshot.data!.collection?.payment
-                                        ?.completedOrders
-                                        ?.fold(
-                                      0.0,
-                                      (sum, order) =>
-                                          sum + (order.orderTotal ?? 0),
-                                    ) ==
-                                    0)) {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        } else {
-                          final responseModel = snapshot.data!;
-                          final totalCompletedAmount = responseModel
-                              .collection!.payment!.completedOrders!
-                              .fold(
-                                  0.0,
-                                  (sum, order) =>
-                                      sum + (order.orderTotal ?? 0.0));
-
-                          final pendingAmountLabel = responseModel
-                                  .collection!.order!.pendingAmount!.isNotEmpty
-                              ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'
-                              : 'Pending : \$ 0.00';
-                          final dueAmountLabel = responseModel
-                                  .collection!.order!.pendingAmount!.isNotEmpty
-                              ? 'Due : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.dueAmount)}'
-                              : 'Due : \$ 0.00';
-
-                          final overdueAmountLabel = responseModel
-                                  .collection!.order!.pendingAmount!.isNotEmpty
-                              ? 'Overdue : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.overDue)}'
-                              : 'Overdue : \$ 0.00';
-
-                          final completedOrdersLabel =
-                              'Completed : ${formatAmount(totalCompletedAmount)}';
-
-                          {
-                            return Column(
-                              children: [
-                                Expanded(
-                                  child: NestedPieChartj(
-                                    completedOrdersCount: responseModel
-                                        .collection!.payment!.completedOrders!
-                                        .fold(
-                                            0,
-                                            (sum, order) =>
-                                                sum +
-                                                (order.orderTotal?.toInt() ??
-                                                    0)),
-                                    pendingAmountCount: (responseModel
-                                                    .collection
-                                                    ?.order
-                                                    ?.pendingAmount !=
-                                                null &&
-                                            responseModel.collection!.order!
-                                                .pendingAmount!.isNotEmpty)
-                                        ? (responseModel.collection!.order!
-                                                .pendingAmount!.last.amount
-                                                ?.toInt() ??
-                                            0)
-                                        : 0,
-                                    dueAmountCount: (responseModel
-                                                .collection
-                                                ?.order
-                                                ?.pendingAmount
-                                                ?.isNotEmpty ==
-                                            true)
-                                        ? responseModel.collection!.order!
-                                                .pendingAmount!.last.dueAmount
-                                                ?.toInt() ??
-                                            0
-                                        : 0,
-                                    overdueAmountCount: (responseModel
-                                                .collection
-                                                ?.order
-                                                ?.pendingAmount
-                                                ?.isNotEmpty ==
-                                            true)
-                                        ? (responseModel.collection!.order!
-                                                .pendingAmount!.last.overDue
-                                                ?.toInt() ??
-                                            0)
-                                        : 0,
-                                    collection: responseModel.collection!,
-                                  ),
-                                ),
-                                const SizedBox(height: 10.0),
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        showValueCollectionDialog(
-                                            context,
-                                            responseModel.collection!,
-                                            'Recieved Payment');
-                                      },
-                                      child: _buildLegendItem(
-                                        const Color.fromARGB(255, 90, 119, 37),
-                                        completedOrdersLabel,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        pendingPaymentCollectionDialog(
-                                            context,
-                                            'Pending Payment',
-                                            responseModel.collection!);
-                                      },
-                                      child: _buildLegendItem(
-                                        const Color(0xffa30c13),
-                                        pendingAmountLabel,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        pendingPaymentCollectionDialog(
-                                            context,
-                                            'Due Payment',
-                                            responseModel.collection!);
-                                      },
-                                      child: _buildLegendItem(
-                                        const Color.fromARGB(
-                                            255, 255, 173, 181),
-                                        dueAmountLabel,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        pendingPaymentCollectionDialog(
-                                            context,
-                                            'Over Due Payment',
-                                            responseModel.collection!);
-                                      },
-                                      child: _buildLegendItem(
-                                        const Color.fromARGB(
-                                            255, 255, 101, 132),
-                                        overdueAmountLabel,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Consumer<DashboardProvider>(
+                    builder: (context, provider, child) {
+                      return FutureBuilder<ResponseModell>(
+                        future: provider.futureResponseModel,
+                        builder:
+                            (context, AsyncSnapshot<ResponseModell> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: SpinKitFadingCube(
+                                color: primaryColor,
+                                size: 20.0,
+                              ),
                             );
+                          } else if (snapshot.hasError) {
+                            return FutureBuilder(
+                              future:
+                                  Future.delayed(const Duration(seconds: 3)),
+                              builder: (context, delaySnapshot) {
+                                if (delaySnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const SpinKitFadingCube(
+                                    color: primaryColor,
+                                    size: 20.0,
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: NodataWidget(),
+                                  );
+                                }
+                              },
+                            );
+                          } else if (!snapshot.hasData ||
+                              (snapshot.data != null &&
+                                  (snapshot.data!.collection?.payment
+                                          ?.completedOrders?.isEmpty ??
+                                      true) &&
+                                  (snapshot.data!.collection?.order
+                                          ?.pendingAmount?.isEmpty ??
+                                      true) &&
+                                  snapshot.data!.collection?.payment
+                                          ?.completedOrders
+                                          ?.fold(
+                                        0.0,
+                                        (sum, order) =>
+                                            sum + (order.orderTotal ?? 0),
+                                      ) ==
+                                      0)) {
+                            return FutureBuilder(
+                              future:
+                                  Future.delayed(const Duration(seconds: 3)),
+                              builder: (context, delaySnapshot) {
+                                if (delaySnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const SpinKitFadingCube(
+                                    color: primaryColor,
+                                    size: 20.0,
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: NodataWidget(),
+                                  );
+                                }
+                              },
+                            );
+                          } else {
+                            final responseModel = snapshot.data!;
+                            final totalCompletedAmount = responseModel
+                                .collection!.payment!.completedOrders!
+                                .fold(
+                                    0.0,
+                                    (sum, order) =>
+                                        sum + (order.orderTotal ?? 0.0));
+
+                            final pendingAmountLabel = responseModel.collection!
+                                    .order!.pendingAmount!.isNotEmpty
+                                ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'
+                                : 'Pending : \$ 0.00';
+                            final dueAmountLabel = responseModel.collection!
+                                    .order!.pendingAmount!.isNotEmpty
+                                ? 'Due : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.dueAmount)}'
+                                : 'Due : \$ 0.00';
+
+                            final overdueAmountLabel = responseModel.collection!
+                                    .order!.pendingAmount!.isNotEmpty
+                                ? 'Overdue : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.overDue)}'
+                                : 'Overdue : \$ 0.00';
+
+                            final completedOrdersLabel =
+                                'Completed : ${formatAmount(totalCompletedAmount)}';
+
+                            {
+                              return Column(
+                                children: [
+                                  Expanded(
+                                    child: NestedPieChartj(
+                                      completedOrdersCount: responseModel
+                                          .collection!.payment!.completedOrders!
+                                          .fold(
+                                              0,
+                                              (sum, order) =>
+                                                  sum +
+                                                  (order.orderTotal?.toInt() ??
+                                                      0)),
+                                      pendingAmountCount: (responseModel
+                                                      .collection
+                                                      ?.order
+                                                      ?.pendingAmount !=
+                                                  null &&
+                                              responseModel.collection!.order!
+                                                  .pendingAmount!.isNotEmpty)
+                                          ? (responseModel.collection!.order!
+                                                  .pendingAmount!.last.amount
+                                                  ?.toInt() ??
+                                              0)
+                                          : 0,
+                                      dueAmountCount: (responseModel
+                                                  .collection
+                                                  ?.order
+                                                  ?.pendingAmount
+                                                  ?.isNotEmpty ==
+                                              true)
+                                          ? responseModel.collection!.order!
+                                                  .pendingAmount!.last.dueAmount
+                                                  ?.toInt() ??
+                                              0
+                                          : 0,
+                                      overdueAmountCount: (responseModel
+                                                  .collection
+                                                  ?.order
+                                                  ?.pendingAmount
+                                                  ?.isNotEmpty ==
+                                              true)
+                                          ? (responseModel.collection!.order!
+                                                  .pendingAmount!.last.overDue
+                                                  ?.toInt() ??
+                                              0)
+                                          : 0,
+                                      collection: responseModel.collection!,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10.0),
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          showValueCollectionDialog(
+                                              context,
+                                              responseModel.collection!,
+                                              'Recieved Payment');
+                                        },
+                                        child: buildLegendItem(
+                                          const Color.fromARGB(
+                                              255, 90, 119, 37),
+                                          completedOrdersLabel,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          pendingPaymentCollectionDialog(
+                                              context,
+                                              'Pending Payment',
+                                              responseModel.collection!);
+                                        },
+                                        child: buildLegendItem(
+                                          const Color(0xffa30c13),
+                                          pendingAmountLabel,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          pendingPaymentCollectionDialog(
+                                              context,
+                                              'Due Payment',
+                                              responseModel.collection!);
+                                        },
+                                        child: buildLegendItem(
+                                          const Color.fromARGB(
+                                              255, 255, 173, 181),
+                                          dueAmountLabel,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          pendingPaymentCollectionDialog(
+                                              context,
+                                              'Over Due Payment',
+                                              responseModel.collection!);
+                                        },
+                                        child: buildLegendItem(
+                                          const Color.fromARGB(
+                                              255, 255, 101, 132),
+                                          overdueAmountLabel,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }
                           }
-                        }
-                      },
-                    );
-                  },
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircleAvatar(
-          radius: 6,
-          backgroundColor: color,
-        ),
-        const SizedBox(width: 5),
-        MyRegularText(
-          label: label,
-          fontSize: 10.6,
-          fontWeight: FontWeight.w600,
-          color: secondaryTextColor,
-        ),
-      ],
     );
   }
 
@@ -551,369 +544,121 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               )
             ],
             if (subscriptionController.orderStatusGraph.value == 'true')
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return FutureBuilder<ResponseModell>(
-                      future: provider.futureResponseModel,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        } else if (snapshot.hasData) {
-                          final categoryPerformance = snapshot.data!.delivery;
-
-                          if (categoryPerformance == null ||
-                              categoryPerformance.order!.totalOrders!.isEmpty) {
-                            return const NodataWidget();
-                          }
-
-                          return Center(
-                            child: DoughnutDefaultDelivery(
-                              deliveryData: categoryPerformance,
-                              aColor: Colors.blue.shade300,
-                              bColor: const Color(0xffc38a42),
-                              cColor: const Color(0xff33b4a8),
-                              legend2: Wrap(
-                                alignment: WrapAlignment.center,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: [
-                                  OrderStatusLegend(
-                                    categoryPerformance: categoryPerformance,
-                                    label:
-                                        "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                                    color: Colors.blue.shade300,
-                                    onTap: () {
-                                      showValueOrderDialog(context,
-                                          categoryPerformance, "Processing", 5);
-                                    },
-                                  ),
-                                  OrderStatusLegend(
-                                    categoryPerformance: categoryPerformance,
-                                    label: categoryPerformance.order
-                                                ?.totalOrders?.isNotEmpty ==
-                                            true
-                                        ? "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}"
-                                        : "Packed & Ready for Delivery : 0",
-                                    color: const Color(0xffc38a42),
-                                    onTap: () {
-                                      if (categoryPerformance
-                                              .order?.totalOrders?.isNotEmpty ==
-                                          true) {
-                                        showValueOrderDialog(
-                                          context,
-                                          categoryPerformance,
-                                          "Packed & Ready for Delivery",
-                                          1,
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  "No data available for this status")),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  OrderStatusLegend(
-                                    categoryPerformance: categoryPerformance,
-                                    label:
-                                        "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
-                                    color: const Color(0xff33b4a8),
-                                    onTap: () {
-                                      showValueOrderDialog(
-                                          context,
-                                          categoryPerformance,
-                                          "Delivered Orders",
-                                          2);
-                                    },
-                                  ),
-                                ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Consumer<DashboardProvider>(
+                    builder: (context, provider, child) {
+                      return FutureBuilder<ResponseModell>(
+                        future: provider.futureResponseModel,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: SpinKitFadingCube(
+                                color: primaryColor,
+                                size: 20.0,
                               ),
-                              legend1: const SizedBox.shrink(),
-                            ),
-                          );
-                        } else {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+                            );
+                          } else if (snapshot.hasError) {
+                            return FutureBuilder(
+                              future:
+                                  Future.delayed(const Duration(seconds: 3)),
+                              builder: (context, delaySnapshot) {
+                                if (delaySnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const SpinKitFadingCube(
+                                    color: primaryColor,
+                                    size: 20.0,
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: NodataWidget(),
+                                  );
+                                }
+                              },
+                            );
+                          } else if (snapshot.hasData) {
+                            final categoryPerformance = snapshot.data!.delivery;
 
-  Widget middleTopLeftComponet() {
-    String displayText = '';
-    if (staffProjection == "1" && targetType == "1") {
-      displayText = "Category Target / Projection / Actuals";
-    } else if (staffProjection == "1" && targetType == "0") {
-      displayText = "Category Target / Projection / Actuals";
-    } else if (staffProjection == "0" && targetType == "1") {
-      displayText = "Category Target / Actuals";
-    } else {
-      displayText = "Category Actuals";
-    }
+                            if (categoryPerformance == null ||
+                                categoryPerformance
+                                    .order!.totalOrders!.isEmpty) {
+                              return const NodataWidget();
+                            }
 
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  fit: FlexFit.tight,
-                  child: IntrinsicWidth(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.2),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
-                        ),
-                      ),
-                      padding: const EdgeInsets.only(
-                          right: 20, left: 20, top: 5, bottom: 5),
-                      child: Text(
-                        displayText,
-                        style: const TextStyle(
-                          fontFamily: fontFamilyName,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.black,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: true,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Padding(
-                  padding: const EdgeInsets.only(right: 5, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      showCategoryChartDialog(
-                        context,
-                        // "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
-                        displayText,
-                        staffProjection,
-                        targetType,
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: primaryColor.withOpacity(0.3)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          size: 17,
-                          color: primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            nkMediumSizeBox(),
-            Expanded(
-              child: Padding(
-                padding: nkRegularPadding(),
-                child: Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return FutureBuilder<model1.ResponseModell>(
-                      future: provider.futureResponseModel,
-                      builder: (context, snapshot) {
-                          final categories = snapshot.data?.allCategory;
-                          final categoryPerformance =
-                              snapshot.data?.categoryPerformance;
-                          final monthlyPerformance =
-                              snapshot.data?.monthlyPerformance;
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
-                            ),
-                          );
-                        } else if (snapshot.hasError || !snapshot.hasData) {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        } else if (snapshot.hasData) {
-                          return Center(
-                            child: CustomBarChart(
-                              categoryPerformance: categoryPerformance??[],
-                              monthlyPerformance: monthlyPerformance ?? [],
-                              allCategory: categories??[],
-                              staffProjection: staffProjection,
-                              targetType: targetType,
-                              isMonthly: targetType == '0' ? true : false,
-                              isDayOrRange: provider.selectedFilter ==
-                                      FilterDateEnum.range ||
-                                  provider.selectedFilter ==
-                                      FilterDateEnum.today,
-                            ),
-                          );
-                        } else {
-                          return const NodataWidget();
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget middleTopRightComponet() {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                dashboardContainerHeader('Revenue'),
-                Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      showRevenueChartDialog(context, 'Revenue');
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: primaryColor.withOpacity(0.3)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          size: 17,
-                          color: primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return FutureBuilder<ResponseModell>(
-                      future: provider.futureResponseModel,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitFadingCube(
-                              color: primaryColor,
-                              size: 20.0,
-                            ),
-                          );
-                        } else if (snapshot.hasData) {
-                          final categoryPerformance = snapshot.data!.revenue;
-                          if (categoryPerformance!.orderRevenueData!.isEmpty) {
+                            return Center(
+                              child: DoughnutDefaultDelivery(
+                                deliveryData: categoryPerformance,
+                                aColor: Colors.blue.shade300,
+                                bColor: const Color(0xffc38a42),
+                                cColor: const Color(0xff33b4a8),
+                                legend2: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: [
+                                    OrderStatusLegend(
+                                      categoryPerformance: categoryPerformance,
+                                      label:
+                                          "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                      color: Colors.blue.shade300,
+                                      onTap: () {
+                                        showValueOrderDialog(
+                                            context,
+                                            categoryPerformance,
+                                            "Processing",
+                                            5);
+                                      },
+                                    ),
+                                    OrderStatusLegend(
+                                      categoryPerformance: categoryPerformance,
+                                      label: categoryPerformance.order
+                                                  ?.totalOrders?.isNotEmpty ==
+                                              true
+                                          ? "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}"
+                                          : "Packed & Ready for Delivery : 0",
+                                      color: const Color(0xffc38a42),
+                                      onTap: () {
+                                        if (categoryPerformance.order
+                                                ?.totalOrders?.isNotEmpty ==
+                                            true) {
+                                          showValueOrderDialog(
+                                            context,
+                                            categoryPerformance,
+                                            "Packed & Ready for Delivery",
+                                            1,
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    "No data available for this status")),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    OrderStatusLegend(
+                                      categoryPerformance: categoryPerformance,
+                                      label:
+                                          "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
+                                      color: const Color(0xff33b4a8),
+                                      onTap: () {
+                                        showValueOrderDialog(
+                                            context,
+                                            categoryPerformance,
+                                            "Delivered Orders",
+                                            2);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                legend1: const SizedBox.shrink(),
+                              ),
+                            );
+                          } else {
                             return FutureBuilder(
                               future:
                                   Future.delayed(const Duration(seconds: 3)),
@@ -932,85 +677,12 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                               },
                             );
                           }
-                          final bookingRevenueLength =
-                              categoryPerformance.bookingRevenueData!.isNotEmpty
-                                  ? categoryPerformance.bookingRevenueData!
-                                      .map((e) => e.orderTotal ?? 0.0)
-                                      .reduce((a, b) => a + b)
-                                  : 0.0;
-                          final orderRevenueLast =
-                              categoryPerformance.orderRevenueData!.isNotEmpty
-                                  ? categoryPerformance
-                                      .orderRevenueData!.last.totalOrderRevenue
-                                  : 0.0;
-                          return Center(
-                            child: DoughnutDefault(
-                              categoryData: categoryPerformance,
-                              booking: "Booking : 3",
-                              order: "Order : 3",
-                              aColor: Colors.blue,
-                              bColor: const Color(0xff1d3d63),
-                              legend1: const SizedBox.shrink(),
-                              legend2: Wrap(
-                                alignment: WrapAlignment.center,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          showValueDialog(context,
-                                              categoryPerformance, 'Booking');
-                                        },
-                                        child: _buildLegendItem(
-                                          const Color(0xff1d3d63),
-                                          'Bookings : ${formatAmount(bookingRevenueLength)}',
-                                        ),
-                                      ),
-                                      nkSmallSizeBox(),
-                                      InkWell(
-                                        onTap: () {
-                                          showValueDialog(context,
-                                              categoryPerformance, 'Order');
-                                        },
-                                        child: _buildLegendItem(
-                                          Colors.blue,
-                                          'Orders : ${formatAmount(orderRevenueLast)}',
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          );
-                        } else {
-                          return FutureBuilder(
-                            future: Future.delayed(const Duration(seconds: 3)),
-                            builder: (context, delaySnapshot) {
-                              if (delaySnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                );
-                              } else {
-                                return const Center(
-                                  child: NodataWidget(),
-                                );
-                              }
-                            },
-                          );
-                        }
-                      },
-                    );
-                  },
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ),
+              )
           ],
         ),
       ),
@@ -1187,183 +859,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     );
   }
 
-  Widget topSellingProductWidget() {
-    List<TopSellingProductA> topSellingProducts = [];
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                dashboardContainerHeader("Frequently Bought Products"),
-                Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      if (topSellingProducts.isNotEmpty) {
-                        return showProductListDialog<TopSellingProductA>(
-                          context: widget.context,
-                          productList: topSellingProducts,
-                          getQuantity: (product) =>
-                              product.quantity?.toDouble() ?? 0.0,
-                          getProductName: (product) =>
-                              product.productName ?? '',
-                          getVariationName: (product) =>
-                              product.variationName ?? '',
-                          getFormattedDate: (product) =>
-                              DateFormat('dd-MM-yyyy')
-                                  .format(product.createdAt!.toLocal()),
-                          getPrice: (product) => formatAmount(
-                            product.inclTax == "incl_tax"
-                                ? (double.tryParse(product
-                                        .totalAmount
-                                        .toString()) ??
-                                    0.0)
-                                : ((double.tryParse(product
-                                            .totalAmount
-                                            .toString()) ??
-                                        0.0)
-                                    //      +
-                                    // ((double.tryParse(product.tax.toString()) ??
-                                    //         0.0) *
-                                    //     (double.tryParse(
-                                    //             product.quantity.toString()) ??
-                                    //         0.0))
-                                            ),
-                          ),
-                          getBuyQuantity: (product) =>
-                              int.tryParse(product.buyquantity ?? '0') ?? 0,
-                          getInNo: (product) => product.inNo ?? '',
-                          onQuantityTap: (context, product) =>
-                              showDashTimesDialogue(
-                            context,
-                            product,
-                            (p) => p.getTimesData ?? [],
-                            (data) => data.businessName,
-                            (data) => formatAmount(data.price),
-                            (data) => formatAmount(data.tax),
-                            (data) => data.quantity.toString(),
-                            (data) => formatAmount(
-                              //data.totalAmount.toString()
-                              // product.inclTax == "incl_tax"
-                              //     ?
-                                   ((double.tryParse(
-                                          data.totalAmount.toString()) ??
-                                      0))
-                                 
-                            ),
-                            (data) => DateFormat('dd-MM-yyyy')
-                                .format(data.createdAt!),
-                            (data) => data.orderId.toString(),
-                            true,
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(widget.context).showSnackBar(
-                          const SnackBar(
-                            content: Text("No data available"),
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: primaryColor.withOpacity(0.3)),
-                        child: const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Icon(
-                            Icons.open_in_new,
-                            size: 17,
-                            color: primaryColor,
-                          ),
-                        )),
-                  ),
-                ),
-              ],
-            ),
-            nkSmallSizeBox(),
-             if (subscriptionController.frequentlyBroughtProduct1.value != 'true') ...[
-              Expanded(
-                child: Center(
-                  child: UpgradePlanButton(),
-                ),
-              )
-            ],
-            if (subscriptionController.frequentlyBroughtProduct1.value == 'true')
-            Consumer<DashboardProvider>(
-              builder: (context, provider, child) {
-                return FutureBuilder<ResponseModell>(
-                  future: provider.futureResponseModel,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Expanded(
-                        child: Center(
-                          child: SpinKitFadingCube(
-                            color: primaryColor,
-                            size: 20.0,
-                          ),
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const Expanded(
-                        child: Center(
-                          child: NodataWidget(),
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      topSellingProducts =
-                          snapshot.data!.topSellingProducts ?? [];
-                      return Expanded(
-                        child: topSellingProductList(topSellingProducts),
-                      );
-                    } else {
-                      return Expanded(
-                        child: FutureBuilder(
-                          future: Future.delayed(const Duration(seconds: 3)),
-                          builder: (context, delaySnapshot) {
-                            if (delaySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: SpinKitFadingCube(
-                                  color: primaryColor,
-                                  size: 20.0,
-                                ),
-                              );
-                            } else {
-                              return const Center(
-                                child: NodataWidget(),
-                              );
-                            }
-                          },
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
   Widget topSellingProductListComponent(model.TopSellingProduct productData) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -1956,85 +1451,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class CommunicationsDisplayWidget extends StatefulWidget {
-  const CommunicationsDisplayWidget({super.key});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _CommunicationsDisplayWidgetState createState() =>
-      _CommunicationsDisplayWidgetState();
-}
-
-class _CommunicationsDisplayWidgetState
-    extends State<CommunicationsDisplayWidget> {
-    final subscriptionController = Get.find<SubscriptionController>();
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 205, 206, 208).withOpacity(0.2),
-              blurRadius: 5,
-              offset: const Offset(4, 4),
-            ),
-          ],
-          borderRadius: 25,
-          height: 300,
-          isCommonBorder: true,
-          padding: EdgeInsets.zero,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Stack(
-              children: [
-                Container(
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 224, 224, 226)
-                        .withOpacity(0.2),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25),
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
-                  child: const Text(
-                    "Communication",
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-            if (subscriptionController.communication.value != 'true') ...[
-              Expanded(
-                child: Center(
-                  child: UpgradePlanButton(),
-                ),
-              )
-            ],
-            if (subscriptionController.communication.value == 'true')
-            const Expanded(
-              child: ChatScreen(),
-            ),
-            nkSmallSizeBox(),
-          ])),
     );
   }
 }

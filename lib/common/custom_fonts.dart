@@ -15,7 +15,6 @@ const TextStyle bodyTextStyle = TextStyle(
   fontFamily: fontFamilyName,
   fontWeight: FontWeight.normal,
   fontSize: 12.0,
-  // color: Colors.grey,
 );
 
 const TextStyle tabTextStyle = TextStyle(

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
@@ -18,11 +17,13 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart'
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/settings/widget/password_textfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class SettingsScreen extends StatefulWidget {
   final StaffController? staffController;
@@ -38,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   File? photoBrowser;
   bool isIdNotSelected = false, isBrowserNotSelected = false;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  StaffController staffController = Get.put(StaffController());
   final ConnectivityService _connectivityService = ConnectivityService();
   bool _isOnline = false;
   SalesmanData? _adminData;
@@ -130,6 +132,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: _buildChangePasswordButton(),
+                      // buildChangePasswordButton(
+                      //     confirmPasswordController: _confirmPasswordController,
+                      //     newPasswordController: _newPasswordController,
+                      //     oldPasswordController: _oldPasswordController,
+                      //     context: context,
+                      //     formKey: _formKey,
+                      //     obscureConfirm: _obscureConfirm,
+                      //     obscureNew: _obscureNew,
+                      //     obscureOld: _obscureOld,
+                      //     staffController: staffController),
                     )
                   ],
                 ),
@@ -435,22 +447,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       const SizedBox(height: 24),
                                       ElevatedButton(
                                         style: ButtonStyle(
-                                          foregroundColor: WidgetStatePropertyAll(white),
-                                          backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                                            foregroundColor:
+                                                WidgetStatePropertyAll(white),
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                                    Colors.blue)),
                                         onPressed: () {
                                           if (_formKey.currentState!
                                               .validate()) {
-                                            ApiWorker().changePassword(
-                                                currentPassword:
-                                                    _oldPasswordController.text,
-                                                newPassword:
-                                                    _newPasswordController.text,
-                                                confirmPassword:
-                                                    _confirmPasswordController
-                                                        .text);
-                                              _newPasswordController.clear();
-                                              _oldPasswordController.clear();
-                                              _confirmPasswordController.clear();
+                                            staffController
+                                                .changePassword(
+                                                    currentPassword:
+                                                        _oldPasswordController
+                                                            .text,
+                                                    newPassword:
+                                                        _newPasswordController
+                                                            .text,
+                                                    confirmPassword:
+                                                        _confirmPasswordController
+                                                            .text);
+                                            _newPasswordController.clear();
+                                            _oldPasswordController.clear();
+                                            _confirmPasswordController.clear();
                                             Navigator.pop(context);
                                           }
                                         },
@@ -535,39 +553,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-class PasswordField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final bool obscureText;
-  final VoidCallback toggleVisibility;
-  final FormFieldValidator<String>? validator;
 
-  const PasswordField({
-    super.key,
-    required this.controller,
-    required this.label,
-    required this.obscureText,
-    required this.toggleVisibility,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey)
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility),
-          onPressed: toggleVisibility,
-        ),
-      ),
-      validator: validator,
-    );
-  }
-}

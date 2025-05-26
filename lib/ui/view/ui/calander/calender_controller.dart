@@ -517,10 +517,6 @@ class CalenderMapController extends GetxController {
       events.length,
       (index) => CalendarEventData<EventData>(
         title: events[index].title ?? "No Title",
-        // date: DateTime.parse(
-        //     events[index].start ?? DateTime.now().toLocal().toString()),
-        // endDate: DateTime.parse(
-        //     events[index].end ?? DateTime.now().toLocal().toString()),
         date: DateTime.parse(events[index].start.toString())
             .toLocal()
             .copyWith(hour: 0, minute: 0, second: 0),
@@ -552,26 +548,6 @@ class CalenderMapController extends GetxController {
         return (revenueProgressBarFilledColor, primaryTextColor);
     }
   }
-
-  // Future<void> fetchCalenderEvents() async {
-  //   var salesmanId = await SessionHelper.loginSavedData?.salesmanId;
-  //     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-  //     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  //     int companyId = jsonMap['company_id'];
-  //   var sendData = {
-  //     "salesman_id": salesmanId,
-  //     "start_date": "",
-  //     "end_date": "",
-  //     "companyId":companyId,
-  //   };
-  //   List<EventData> response = await _apiWorker.getCalendarEvents(sendData);
-  //   if (response != null) {
-  //     loadCalenderEvent_v1(response);
-  //   } else {
-  //     log('No data received from the API.');
-  //   }
-  // }
-
   Future<void> fetchCalenderEvents(
     DateTime initialDay,
   ) async {

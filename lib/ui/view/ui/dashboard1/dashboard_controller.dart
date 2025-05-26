@@ -14,20 +14,11 @@ import 'provider/dash_models.dart';
 
 class DashBoardController extends GetxController {
   RecentOrderCountData recentOrderCountData = RecentOrderCountData();
-  @override
-  void onInit() {
-    //fetchDashboardData();
-    super.onInit();
-  }
-
   RxDouble totalRevenue = 0.20.obs;
   RxString revenueAmount = "107,431".obs;
   RxInt selectedCommunicationIndex = (-1).obs;
   TextEditingController communicationController = TextEditingController();
-  //Rx<Data> dashbordData = Data().obs;
   SearchModel searchModel = SearchModel();
-  // // ignore: unused_field
-  // final ApiWorker _apiWorker = ApiWorker();
   var dashbordData = ResponseModell().obs;
   var selectedFilter = FilterDateEnum.thisMonth.obs;
   var selectedStartDate = ''.obs;
@@ -38,101 +29,6 @@ class DashBoardController extends GetxController {
   var categoryPerformance = <CategoryPerformancee>[].obs;
   var futureResponseModel = Future<ResponseModell>.value(ResponseModell()).obs;
   ResponseModell response = ResponseModell();
-
-  // Future<void> fetchDashboardData() async {
-  //   try {
-  //     isLoading.value = true;
-  //     await _apiService.fetchDashboardData();
-  //     response = await fetchData();
-  //     dashbordData.value = response;
-  //   } catch (e) {
-  //     handleHttpResponseError(
-  //       statusCode: response.statusCode ?? 0,
-  //       showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //     );
-  //     errorMessage.value = 'Error fetching dashboard data345: $e';
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
-  // Future<void> fetchDashboardData() async {
-  //   try {
-  //     await _apiService.fetchDashboardData();
-  //     await _apiService.fetchChatData(true);
-  //   } catch (e) {
-  //     if (e.toString().contains('Session expired')) {
-  //       await SessionHelper().clearAll();
-  //       if (!_isDisposed) {
-  //         Get.offAllNamed(AppRoutes.login);
-  //       }
-  //       await Future.delayed(Duration(milliseconds: 500));
-  //       _handleTokenExpiration();
-  //     }
-  //     log('Error fetching dashboard data: $e');
-  //   }
-  // }
-
-  // Future<ResponseModell> fetchData() async {
-  //   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  //   try {
-  //     final now = DateTime.now();
-  //     String startDate;
-  //     String endDate;
-  //     switch (selectedFilter.value) {
-  //       case FilterDateEnum.thisMonth:
-  //         startDate = DateTime(now.year, now.month, 1)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         endDate = DateTime(now.year, now.month + 1, 0)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.today:
-  //         startDate = DateTime(now.year, now.month, now.day)
-  //             .toIso8601String()
-  //             .substring(0, 10);
-  //         endDate = startDate;
-  //         break;
-  //       case FilterDateEnum.thisWeek:
-  //         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-  //         startDate = startOfWeek.toIso8601String().substring(0, 10);
-  //         endDate = now.toIso8601String().substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.thisYear:
-  //         startDate =
-  //             DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-  //         endDate =
-  //             DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-  //         break;
-  //       case FilterDateEnum.range:
-  //         startDate = selectedStartDate.value;
-  //         endDate = selectedEndDate.value;
-  //         if (startDate.isEmpty || endDate.isEmpty) {
-  //           throw Exception(
-  //               'Start and End dates must be set for range filter.');
-  //         }
-  //         break;
-  //     }
-  //     final apiResponse = await _apiService.fetchDashboardData(
-  //       salesmanId: salesmanId,
-  //       startDate: startDate,
-  //       endDate: endDate,
-  //     );
-
-  //     log('Api Response345: ${apiResponse.statusCode}');
-  //     handleHttpResponseError(
-  //       statusCode: response.statusCode!,
-  //       showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //     );
-
-  //     return apiResponse;
-  //   } catch (e) {
-  //     log('Error fetching data: $e');
-  //     rethrow;
-  //   }
-  // }
-
   Widget revenueProgressBar(
     double value,
     Color revenueProgressBarFilledColor,
@@ -194,8 +90,6 @@ class DashBoardController extends GetxController {
       Message(text: messageText, isSentByMe: true),
     );
   }
-
-  // Function to receive a message (for demonstration purposes)
   void receiveMessage(int customerIndex, String messageText) {
     messages[customerIndex].add(
       Message(text: messageText, isSentByMe: false),
@@ -209,7 +103,7 @@ class DashBoardController extends GetxController {
     required String orderId,
   }) async {
     fetchSpecificOrderData = null;
-    isInvoiceLoading(true); // Start loading
+    isInvoiceLoading(true);
     log("Loading Specific Order Invoice Data");
 
     var data = await ApiWorker().fetchSpecificOrderInvoice(

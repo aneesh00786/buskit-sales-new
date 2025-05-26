@@ -63,17 +63,6 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
   return customerAndOrderList;
 }
 
-
-  Future<CustomerAndOrderData> loadSelectedCustomer(String customerId) async {
-    var data = await ApiWorker()
-        .getSingleCustomer(customerId)
-        .onError((error, stackTrace) {
-      return Future.error(error.toString());
-    });
-    refresh();
-    return data;
-  }
-
   // Future assignCustomerVisit(
   //     String customerId, String customerName, String eventStatus,
   //     {List<String>? selectedWeekDay}) async {

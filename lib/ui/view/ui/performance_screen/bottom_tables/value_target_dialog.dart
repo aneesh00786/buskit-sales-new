@@ -35,8 +35,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   final int currentYear = DateTime.now().year;
   bool _isLoading = true;
   @override
-  @override
-  @override
   void initState() {
     super.initState();
     _initializeControllers();
@@ -51,14 +49,27 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
   @override
   void dispose() {
-    _projectionControllers.clear();
-    _weeklyProjectionControllers.clear();
-    staffController.salesmanValueTargetList.clear();
+    for (var controller in _projectionControllers) {
+      controller.dispose();
+    }
     for (var controller in _weeklyProjectionControllers) {
       controller.dispose();
     }
+    staffController.salesmanValueTargetList.clear();
+    staffController.tabController.removeListener(_handleTabChange);
     super.dispose();
   }
+
+  // @override
+  // void dispose() {
+  //   _projectionControllers.clear();
+  //   _weeklyProjectionControllers.clear();
+  //   staffController.salesmanValueTargetList.clear();
+  //   for (var controller in _weeklyProjectionControllers) {
+  //     controller.dispose();
+  //   }
+  //   super.dispose();
+  // }
 
   void _initializeControllers() {
     final selectedMonth = DateFormat.MMMM()
@@ -83,10 +94,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     final weeklyTargetProjection =
         salesData.weeklyTargetProjection?.toJson() ?? {};
     final relevantWeeks = widget.staffController.weekList;
-    // getWeeksForMonth(
-    //   int.parse(salesData.year.toString()),
-    //   staffController.tabController.index + 1,
-    // );
     if (_weeklyProjectionControllers.isEmpty) {
       _weeklyProjectionControllers = List.generate(
         relevantWeeks.length,
@@ -119,71 +126,77 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
   }
 
   void _loadSalesmanValueTarget() async {
-    // setState(() {
-    _isLoading = true;
-    // });
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     log("WEEKLY 2345 ${staffController.isWeekly.value}");
-    await staffController
-        .loadSalesmanValueTarget(
-      SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
-      currentYear.toString(),
-      staffController.isWeekly.value
-          ? DateFormat.MMMM()
-              .format(DateTime(0, staffController.tabController.index + 1))
-          : null,
-    )
-        .then((_) {
-      setState(() {
-        if (staffController.salesmanValueTargetList.isNotEmpty) {
-          final salesData = staffController.salesmanValueTargetList.first;
-          final weeklyTargetProjection =
-              salesData.weeklyTargetProjection?.toJson() ?? {};
 
-          _projectionControllers = List.generate(
-            12,
-            (index) => TextEditingController(text: '0'),
-          );
+    try {
+      await staffController.loadSalesmanValueTarget(
+        SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
+        currentYear.toString(),
+        staffController.isWeekly.value
+            ? DateFormat.MMMM()
+                .format(DateTime(0, staffController.tabController.index + 1))
+            : null,
+      );
 
-          for (int i = 0;
-              i < staffController.salesmanValueTargetList.length;
-              i++) {
-            _projectionControllers[i].text = widget
-                .staffController.salesmanValueTargetList[i].projection
-                .toString();
-          }
-          final relevantWeeks = widget.staffController.weekList;
-          // getWeeksForMonth(
-          //     int.parse(salesData.year.toString()),
-          //     staffController.tabController.index + 1);
+      if (!mounted) return;
 
-          _weeklyProjectionControllers = List.generate(
-            relevantWeeks.length,
-            (index) => TextEditingController(text: '0'),
-          );
+      if (staffController.salesmanValueTargetList.isNotEmpty) {
+        final salesData = staffController.salesmanValueTargetList.first;
+        final weeklyTargetProjection =
+            salesData.weeklyTargetProjection?.toJson() ?? {};
 
-          log("Weekly Target Projection: $weeklyTargetProjection");
-          log("Relevant Weeks: $relevantWeeks");
+        _projectionControllers = List.generate(
+          12,
+          (index) => TextEditingController(text: '0'),
+        );
 
-          for (var i = 0; i < relevantWeeks.length; i++) {
-            final weekKey = relevantWeeks[i];
-            final weekData = weeklyTargetProjection[weekKey];
-
-            log("Week $weekKey Data: $weekData");
-
-            int projection = 0;
-            if (weekData is Map<String, dynamic>) {
-              projection = weekData["projection"] ?? 0;
-            }
-
-            log("Week $weekKey Projection: $projection");
-
-            _weeklyProjectionControllers[i].text = projection.toString();
-          }
+        for (int i = 0;
+            i < staffController.salesmanValueTargetList.length;
+            i++) {
+          _projectionControllers[i].text =
+              staffController.salesmanValueTargetList[i].projection.toString();
         }
-        setState(() {
-          _isLoading = false;
-        });
-      });
+
+        final relevantWeeks = widget.staffController.weekList;
+
+        _weeklyProjectionControllers = List.generate(
+          relevantWeeks.length,
+          (index) => TextEditingController(text: '0'),
+        );
+
+        log("Weekly Target Projection: $weeklyTargetProjection");
+        log("Relevant Weeks: $relevantWeeks");
+
+        for (var i = 0; i < relevantWeeks.length; i++) {
+          final weekKey = relevantWeeks[i];
+          final weekData = weeklyTargetProjection[weekKey];
+
+          log("Week $weekKey Data: $weekData");
+
+          int projection = 0;
+          if (weekData is Map<String, dynamic>) {
+            projection = weekData["projection"] ?? 0;
+          }
+
+          log("Week $weekKey Projection: $projection");
+
+          _weeklyProjectionControllers[i].text = projection.toString();
+        }
+      }
+    } catch (e) {
+      log("Error in _loadSalesmanValueTarget: $e");
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
     });
   }
 

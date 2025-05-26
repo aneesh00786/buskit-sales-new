@@ -64,6 +64,8 @@ class SubscriptionController extends GetxController {
   RxString appPaymentCollection = 'false'.obs;
   RxString appViewDaySchedulesVisits = 'false'.obs;
   RxString appShowRoute = 'false'.obs;
+    RxString customerYearComparison = 'false'.obs;
+
 
   Future<void> loadSubscriptionFeatures(int companyId) async {
     isSubscriptionLoading(true);
@@ -236,6 +238,9 @@ class SubscriptionController extends GetxController {
               break;
             case 'app_show_route':
               appShowRoute.value = status;
+              break;
+            case 'customer_year_comparison':
+              customerYearComparison.value = status;
               break;
           }
         });

@@ -23,9 +23,6 @@ class DioClient with ApiConstants {
     return _dio;
   }
 
-
-
-
   Future<Response> postbycustom<T>(
     String path, {
     data,
@@ -88,47 +85,47 @@ class DioClient with ApiConstants {
     throw 'Failed to complete the request after $maxRetries retries.';
   }
 }
- Future<Response<dynamic>> responsePostMethod(
-      {required Map<String, dynamic> requestData, String? endPoint,Options? options}) async {
-    final response = await Dio()
-        .post(
-      "${ApiConstants.baseUrl}$endPoint",
-      data: requestData,
-      options: options
-    )
-        .timeout(
-      const Duration(seconds: 15),
-      onTimeout: () {
-        throw DioException(
-          requestOptions:
-              RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
-          type: DioExceptionType.connectionTimeout,
-        );
-      },
-    );
-    return response;
-  }
- Future<Response<dynamic>> responseGetMethod(
-      {Map<String, dynamic>? requestData, String? endPoint,Options? options,Map<String, dynamic>?queryParameters})async {
-    final response = await Dio()
-        .post(
-      "${ApiConstants.baseUrl}$endPoint",
-      data: requestData,
-      options: options,
-      queryParameters: queryParameters
-    )
-        .timeout(
-      const Duration(seconds: 10),
-      onTimeout: () {
-        throw DioException(
-          requestOptions:
-              RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
-          type: DioExceptionType.connectionTimeout,
-        );
-      },
-    );
-    return response;
-  }
+
+Future<Response<dynamic>> responsePostMethod(
+    {required Map<String, dynamic> requestData,
+    String? endPoint,
+    Options? options}) async {
+  final response = await Dio()
+      .post("${ApiConstants.baseUrl}$endPoint",
+          data: requestData, options: options)
+      .timeout(
+    const Duration(seconds: 15),
+    onTimeout: () {
+      throw DioException(
+        requestOptions:
+            RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
+        type: DioExceptionType.connectionTimeout,
+      );
+    },
+  );
+  return response;
+}
+
+Future<Response<dynamic>> responseGetMethod(
+    {Map<String, dynamic>? requestData,
+    String? endPoint,
+    Options? options,
+    Map<String, dynamic>? queryParameters}) async {
+  final response = await Dio()
+      .post("${ApiConstants.baseUrl}$endPoint",
+          data: requestData, options: options, queryParameters: queryParameters)
+      .timeout(
+    const Duration(seconds: 10),
+    onTimeout: () {
+      throw DioException(
+        requestOptions:
+            RequestOptions(path: "${ApiConstants.baseUrl}$endPoint"),
+        type: DioExceptionType.connectionTimeout,
+      );
+    },
+  );
+  return response;
+}
 
 class DioExceptionHandler implements Exception {
   late String errorMessage;
@@ -170,10 +167,6 @@ class DioExceptionHandler implements Exception {
         errorMessage = 'An unexpected error occurred.';
         break;
     }
-
-    // if (showErrorSnakBar) {
-    //   NkCommonFunction.showErrorSnakBar(errorMessage);
-    // }
     log('Error occurred: $errorMessage');
   }
 
@@ -253,39 +246,9 @@ void handleExceptionMessage({
   }
 }
 
-
 errorSnackbar(String message) {
   NkCommonFunction.showErrorSnakBar(message);
 }
-
-// String _handleStatusCode(
-//     {required int statusCode,
-//     required Function(String message) showErrorSnackBar,
-//     dynamic storedFunction}) {
-//   switch (statusCode) {
-//     case 400:
-//       return showErrorSnackBar('Bad Request');
-//       storedFunction
-//     case 401:
-//       return 'Authentication failed.';
-//     case 403:
-//       return 'The authenticated user is not allowed to access the specified API endpoint.';
-//     case 404:
-//       return 'The requested resource does not exist.';
-//     case 405:
-//       return 'Method not allowed. Please check the Allow header for the allowed HTTP methods.';
-//     case 415:
-//       return 'Unsupported media type. The requested content type or version number is invalid.';
-//     case 422:
-//       return 'Data validation failed.';
-//     case 429:
-//       return 'Too many requests.';
-//     case 500:
-//       return 'Internal server error.';
-//     default:
-//       return 'Oops something went wrong!';
-//   }
-// }
 
 class AuthorizationInterceptor extends Interceptor {
   @override
@@ -323,11 +286,9 @@ class LoggerInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final options = err.requestOptions;
     final requestPath = '${options.baseUrl}${options.path}';
-    logger.e('${options.method} request => $requestPath'); // Debug log
-    logger.d('Error: ${err.error}, Message: ${err.message}'); // Error log
-    // Error log
+    logger.e('${options.method} request => $requestPath');
+    logger.d('Error: ${err.error}, Message: ${err.message}');
     return;
-    //super.onError(err, handler);
   }
 
   @override
@@ -339,8 +300,7 @@ class LoggerInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.d(
-        'StatusCode: ${response.statusCode}, Data: ${response.data}'); // Debug log
+    logger.d('StatusCode: ${response.statusCode}, Data: ${response.data}');
     return super.onResponse(response, handler);
   }
 }

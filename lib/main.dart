@@ -71,7 +71,6 @@ void main() async {
   await Hive.openBox('salesmanValueTargetBox');
   await Hive.openBox('subscribtionBox');
   await Hive.openBox('subscribtionPlanDetailsBox');
-  DatabaseHelper.database;
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,

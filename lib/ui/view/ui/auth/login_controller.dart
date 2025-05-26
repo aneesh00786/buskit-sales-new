@@ -237,33 +237,6 @@ class LoginController extends GetxController {
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
-        //   ApiService().fetchAllOrders(
-        //     isLogin: true,
-        //     orderType: '',
-        //     orderStatus: OrderStatus.delivered,
-        //     fetchType: "Month"),
-        // ApiService().fetchAllOrders(
-        //     isLogin: true,
-        //     orderType: 7,
-        //     orderStatus: OrderStatus.estimates,
-        //     fetchType: "Month"),
-        // ApiService().fetchAllOrders(
-        //     isLogin: true,
-        //     orderType: 0,
-        //     orderStatus: OrderStatus.preOrder,
-        //     fetchType: "Month"),
-        // ApiService().fetchAllOrders(
-        //     isLogin: true,
-        //     orderType: 4,
-        //     orderStatus: OrderStatus.draft,
-        //     fetchType: "Month"),
-        // ApiService().fetchAllOrders(
-        //     isLogin: true,
-        //     orderType: 3,
-        //     orderStatus: OrderStatus.cancelled,
-        //     fetchType: "Month"),
-        // calenderMapController
-        //     .fetchCalenderEvents(initialDay ?? DateTime.now()),
           ApiWorker().fetchDiscounts(companyId, salesmanId),
         CartDatabaseManager().getDraftItems(),
           ApiWorker()

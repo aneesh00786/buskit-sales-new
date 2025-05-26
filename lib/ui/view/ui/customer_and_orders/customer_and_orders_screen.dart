@@ -919,6 +919,8 @@ class TopTotalWidget extends StatelessWidget {
     final searchController = provider.searchController;
     final CustomerAndOrderController customerAndOrderController =
         CustomerAndOrderController();
+        SubscriptionController subscriptionController =
+      Get.find<SubscriptionController>();
     double totalTableWidth =
         120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
     return Row(
@@ -1007,45 +1009,59 @@ class TopTotalWidget extends StatelessWidget {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(2.0),
                                 ),
-                                child: DropdownButton<String>(
-                                  iconSize: 14,
-                                  value: customerAndOrderController
-                                          .selectedYear.value.isNotEmpty
-                                      ? customerAndOrderController
-                                          .selectedYear.value
-                                      : null,
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      customerAndOrderController
-                                          .updateSelectedYear(newValue);
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (subscriptionController
+                                            .customerYearComparison.value !=
+                                        'true') {
+                                      showUpgradePlanDialog(context);
                                     }
                                   },
-                                  items: customerAndOrderController.years
-                                      .map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(
-                                            fontSize:
-                                                value.length > 4 ? 8.0 : 12.0,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: myFont,
+                                  child: AbsorbPointer(
+                                    absorbing: subscriptionController
+                                            .customerYearComparison.value !=
+                                        'true',
+                                    child: DropdownButton<String>(
+                                      iconSize: 14,
+                                      value: customerAndOrderController
+                                              .selectedYear.value.isNotEmpty
+                                          ? customerAndOrderController
+                                              .selectedYear.value
+                                          : null,
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          customerAndOrderController
+                                              .updateSelectedYear(newValue);
+                                        }
+                                      },
+                                      items: customerAndOrderController.years
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 4.0),
+                                            child: Text(
+                                              value,
+                                              style: TextStyle(
+                                                fontSize:
+                                                    value.length > 4 ? 8.0 : 12.0,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: myFont,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  dropdownColor: Colors.white,
-                                  isExpanded: false,
-                                  underline: Container(),
+                                        );
+                                      }).toList(),
+                                      dropdownColor: Colors.white,
+                                      isExpanded: false,
+                                      underline: Container(),
+                                    ),
+                                  ),
                                 ),
                               ),
                             );

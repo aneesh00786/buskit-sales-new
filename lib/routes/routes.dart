@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_screen.dar
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_order_details/customer_order_details_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_binding.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -20,6 +19,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_s
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:get/get.dart';
+
+import '../ui/view/ui/customer_and_orders/customer_order_details/customer_order_details_screen.dart';
 
 class AppRoutes {
   static const String initialRoutes = login;

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl1;
   final LocalStorage localStorage = LocalStorage();
@@ -30,31 +31,31 @@ class ApiService {
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
-  ApiService() {
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final jsonString =
-            await SessionManager.getStringValue(SpString.spLogin);
-        if (jsonString.isNotEmpty) {
-          Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-          String createdToken = jsonMap['createdToken'];
-          options.headers["Authorization"] = "Bearer $createdToken";
-          log('Authorization Header Set: Bearer $createdToken');
-        }
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException error, handler) async {
-        if (error.response?.statusCode == 401 ||
-            error.response?.statusCode == 400) {
-          _handleTokenExpiration();
-        }
-        return handler.next(error);
-      },
-    ));
-  }
+  // ApiService() {
+  //   dio.interceptors.add(InterceptorsWrapper(
+  //     onRequest: (options, handler) async {
+  //       final jsonString =
+  //           await SessionManager.getStringValue(SpString.spLogin);
+  //       if (jsonString.isNotEmpty) {
+  //         Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  //         String createdToken = jsonMap['createdToken'];
+  //         options.headers["Authorization"] = "Bearer $createdToken";
+  //         log('Authorization Header Set: Bearer $createdToken');
+  //       }
+  //       return handler.next(options);
+  //     },
+  //     onResponse: (response, handler) {
+  //       return handler.next(response);
+  //     },
+  //     onError: (DioException error, handler) async {
+  //       if (error.response?.statusCode == 401 ||
+  //           error.response?.statusCode == 400) {
+  //         _handleTokenExpiration();
+  //       }
+  //       return handler.next(error);
+  //     },
+  //   ));
+  // }
   Future<CustomerRevenueResponse> fetchCustomerRevenueData(
     String customerId,
     int specifiedYear,
@@ -167,7 +168,6 @@ class ApiService {
             headers: {'Authorization': 'Bearer $createdToken'},
           ),
         );
-        // log("GET_DASHBOARD_LIST response: ${response.data}");
         if (response.statusCode == 200) {
           log("The Status code is : ${response.statusCode}");
           final jsonResponse = response.data;
@@ -922,26 +922,17 @@ class ApiService {
     required int page,
     required dynamic valueFromDw,
   }) async {
-    String value;
-    switch (valueFromDw) {
-      case 'Month':
-        value = 'This Month';
-        break;
-      case 'Day':
-        value = 'Today';
-        break;
-      case 'Week':
-        value = 'This Week';
-        break;
-      case 'Year':
-        value = 'This Year';
-        break;
-      case 'Range':
-        value = 'Range';
-        break;
-      default:
-        value = "This Month";
-        break;
+    dynamic value;
+    if (valueFromDw == 'Month') {
+      value = 'This Month';
+    } else if (valueFromDw == 'Day') {
+      value = 'Today';
+    } else if (valueFromDw == 'Week') {
+      value = 'This Week';
+    } else if (valueFromDw == 'Year') {
+      value = 'This Year';
+    } else if (valueFromDw.toString().contains('Range')) {
+      value = valueFromDw;
     }
     final requestBody = {
       "salesman_id": salesmanId,
@@ -953,6 +944,7 @@ class ApiService {
       "valueFromDw": value,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
+    log('Fetch Customer Request Body: $requestBody');
     final customerBox = Hive.box('customerBox');
 
     try {
@@ -1019,6 +1011,7 @@ class ApiService {
       throw Exception('Failed to fetch data: $e');
     }
   }
+
   Future<bool> addEvent(
       String customerId, int eventStatus, List<String> daysList) async {
     final String daysJson = jsonEncode(daysList);

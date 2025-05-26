@@ -7,263 +7,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-// Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
-//   return LayoutBuilder(
-//     builder: (context, constraints) {
-//       double availableWidth = constraints.maxWidth;
-//          double flexWidth = availableWidth * 1.3;
-
-//         double colWidth1 = flexWidth * 2.8 / 11;
-//         double colWidth2_2 = flexWidth * 1.2 / 11;
-//         double colWidth2 = flexWidth * 2 / 11;
-//         double colWidth3 = flexWidth * 1 / 11;
-//         double colWidth4 = flexWidth * 2.1 / 11;
-//         double colWidth5 = flexWidth * 1 / 11;
-
-//       double fontSize = 11;
-//       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
-//       if (topSellingProducts.isEmpty) {
-//         return const NodataWidget();
-//       } else {
-//         return SingleChildScrollView(
-//           scrollDirection: Axis.horizontal,
-//           child: Container(
-//             padding: const EdgeInsets.symmetric(horizontal: 10),
-//             width: flexWidth + 20,
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Container(
-//                   height: 35,
-//                   color: Colors.grey.shade100,
-//                   child: Row(
-//                     children: [
-//                       SizedBox(
-//                         width: colWidth1,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "Product",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: colWidth2_2,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "I/N",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: colWidth2,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "Last Purchase",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: colWidth3,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "Times",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: colWidth4,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "Price",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: colWidth5,
-//                         child: Center(
-//                           child: MyRegularText(
-//                             label: "Qty",
-//                             fontWeight: FontWeight.w600,
-//                             color: secondaryTextColor,
-//                             align: TextAlign.center,
-//                             fontSize: 11.3,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: SingleChildScrollView(
-//                     scrollDirection: Axis.vertical,
-//                     child: Column(
-//                       children: topSellingProducts.map((product) {
-//                         return SizedBox(
-//                           height: 35,
-//                           child: Row(
-//                             children: [
-//                               SizedBox(
-//                                 width: colWidth1,
-//                                 child: MyRegularText(
-//                                   label:
-//                                       '${product.productName} - ${product.variationName}',
-//                                   fontSize: fontSize - 1,
-//                                   maxlines: 2,
-//                                   overflow: TextOverflow.ellipsis,
-//                                 ),
-//                               ),
-//                              SizedBox(
-//                                   width: colWidth2_2,
-//                                   child: Center(
-//                                     child: MyRegularText(
-//                                       label: product.inNo.toString(),
-//                                       color: secondaryTextColor,
-//                                       fontSize: fontSize,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               SizedBox(
-//                                 width: colWidth2,
-//                                 child: Center(
-//                                   child: MyRegularText(
-//                                     label: DateFormat('dd-MM-yyyy')
-//                                         .format(product.createdAt!),
-//                                     color: secondaryTextColor,
-//                                     fontSize: fontSize,
-//                                   ),
-//                                 ),
-//                               ),
-//                               SizedBox(
-//                                 width: colWidth3,
-//                                 child: Center(
-//                                   child: InkWell(
-//                                     onTap: () {
-//                                       showDashTimesDialogue(
-//                                           context,
-//                                           product,
-//                                           (p) => p.getTimesData ?? [],
-//                                           (data) => data.businessName,
-//                                           (data) => formatAmount(data.price),
-//                                           (data) => formatAmount(product.tax),
-//                                           (data) => data.quantity.toString(),
-//                                           (data) => formatAmount(
-//                                             product.inclTax == "incl_tax"
-//                                                 ? ((double.tryParse(data.price.toString()) ??
-//                                                         0) *
-//                                                     (double.tryParse(data
-//                                                             .quantity
-//                                                             .toString()) ??
-//                                                         0))
-//                                                 : (((double.tryParse(data.price
-//                                                                 .toString()) ??
-//                                                             0) *
-//                                                         (double.tryParse(data
-//                                                                 .quantity
-//                                                                 .toString()) ??
-//                                                             0)) +
-//                                                     (double.tryParse(product.tax
-//                                                             .toString()) ??
-//                                                         0.0)),
-//                                           ),
-//                                           (data) => DateFormat('dd-MM-yyyy')
-//                                               .format(data.createdAt!),
-//                                           true,
-//                                         );
-//                                     },
-//                                     child: Container(
-//                                       height: 20,
-//                                       width: 20,
-//                                       decoration: const BoxDecoration(
-//                                         color: Colors.blue,
-//                                         shape: BoxShape.circle,
-//                                       ),
-//                                       child: Center(
-//                                         child: MyRegularText(
-//                                           label: product.quantity.toString(),
-//                                           color: buttonTextColor,
-//                                           align: TextAlign.center,
-//                                           fontSize: fontSize,
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                               SizedBox(
-//                                   width: colWidth4,
-//                                   child: Center(
-//                                     child: MyRegularText(
-//                                       label: formatAmount(
-//                                         product.inclTax == "incl_tax"
-//                                             ? (double.tryParse(product
-//                                                     .topSellingProductATotalPrice
-//                                                     .toString()) ??
-//                                                 0.0)
-//                                             : ((double.tryParse(product
-//                                                         .topSellingProductATotalPrice
-//                                                         .toString()) ??
-//                                                     0.0) +
-//                                                 ((double.tryParse(product.tax
-//                                                             .toString()) ??
-//                                                         0.0) *
-//                                                     (double.tryParse(product
-//                                                             .quantity
-//                                                             .toString()) ??
-//                                                         0.0))),
-//                                       ),
-//                                       color: secondaryTextColor,
-//                                       fontSize: fontSize,
-//                                       maxlines: 1,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               SizedBox(
-//                                 width: colWidth5,
-//                                 child: Center(
-//                                   child: MyRegularText(
-//                                     label: "${product.buyquantity}",
-//                                     color: secondaryTextColor,
-//                                     fontSize: fontSize,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         );
-//                       }).toList(),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       }
-//     },
-//   );
-// }
-
 Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -271,7 +14,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       double flexWidth = fullScreenWidth(context) > 660
           ? availableWidth * 1.4
           : availableWidth * 1.6;
-
       double colWidth0 = flexWidth * 1 / 12;
       double colWidth1 = flexWidth * 2.8 / 12;
       double colWidth2_2 = flexWidth * 1.2 / 12;
@@ -279,12 +21,8 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       double colWidth3 = flexWidth * 1 / 12;
       double colWidth4 = flexWidth * 2.1 / 12;
       double colWidth5 = flexWidth * 1 / 12;
-
       double fontSize = 11;
-
-      // Sort products by quantity
       topSellingProducts.sort((a, b) => b.quantity!.compareTo(a.quantity!));
-
       if (topSellingProducts.isEmpty) {
         return const NodataWidget();
       } else {
@@ -296,7 +34,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fixed Header
                 Container(
                   height: 35,
                   color: Colors.grey.shade100,
@@ -395,7 +132,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                     ],
                   ),
                 ),
-                // Scrollable Content
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -468,22 +204,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                         (data) => data.quantity.toString(),
                                         (data) => formatAmount(data
                                                   .totalAmount
-                                          // product.inclTax == "incl_tax"
-                                          //     ? ((double.tryParse(data
-                                          //             .totalAmount
-                                          //             .toString()) ??
-                                          //         0))
-                                          //     : (((double.tryParse(data
-                                          //                     .totalAmount
-                                          //                     .toString()) ??
-                                          //                 0) *
-                                          //             (double.tryParse(data
-                                          //                     .quantity
-                                          //                     .toString()) ??
-                                          //                 0)) +
-                                          //         (double.tryParse(data.tax
-                                          //                 .toString()) ??
-                                          //             0.0)),
                                         ),
                                         (data) => DateFormat('dd-MM-yyyy')
                                             .format(data.createdAt!),
@@ -526,14 +246,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                                       .totalAmount
                                                       .toString()) ??
                                                   0.0)
-                                                 // +
-                                              // ((double.tryParse(product.tax
-                                              //             .toString()) ??
-                                              //         0.0) *
-                                              //     (double.tryParse(product
-                                              //             .quantity
-                                              //             .toString()) ??
-                                              //         0.0))
                                               ),
                                     ),
                                     color: secondaryTextColor,

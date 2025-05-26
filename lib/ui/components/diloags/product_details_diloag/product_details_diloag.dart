@@ -15,9 +15,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../category_filter/category_model.dart';
-
 class ProductDetailsDialog extends Dialog {
   final ProductsController productsController;
   final ProductList productData;
@@ -57,7 +55,6 @@ class ProductDetailsDialog extends Dialog {
           Flexible(child: productVariantListTable),
           nkMediumSizeBox(),
           NkLoadingButton(
-            //btnController: productsController.btnController,
             width: AppDimensions.instance.width * 0.12,
             padding: nkRegularPadding(),
             onPressed: () {
@@ -67,8 +64,6 @@ class ProductDetailsDialog extends Dialog {
                   .toList();
 
               if (data.isEmpty) {
-                // productsController.btnController.error();
-                // productsController.btnController.reset();
                 return;
               }
               final productBYData = AddToCartModel(
@@ -97,17 +92,6 @@ class ProductDetailsDialog extends Dialog {
                     .toString(),
                 
               );
-
-              /////////////////////////////// [Item Selected in Cart Validation]///////////////////////////////////
-
-              /*  if (productBYData.any((element) => element.name!.price != 0)) {
-                productsController.addProductToCart(
-                    productBYData, productsController);
-              } else {
-                NkCommonFunction.showErrorSnakBar(noItemAddedToCart);
-                productsController.btnController.error();
-                productsController.btnController.reset();
-              }*/
               productsController.addProductToCart(
                   productBYData, productsController);
             },
@@ -189,22 +173,11 @@ class ProductDetailsDialog extends Dialog {
                             initialCount: (e.quntity ?? 0).toInt(),
                             onValueChange: (counts) {
                               e.quntity = counts;
-
-                              /*     productsController.addProductToCart(CartDartModel(
-                          variantId: e.productId,
-                            discount: 0,
-                            pack: "${e.packtype}(${e.pieces?.toInt() ?? 0} PCS) ",
-                            price: e.price,
-                            productName: productData.productname,
-                            variant: e.variants,
-                            quntity: counts,
-                            total: (e.price! * counts).toInt().toString())); */
                             },
                           )
                         : nkChildWrappedSizeBox()
                   ],
                 ))
-                // DataCell(NkIncrementDecrement(initialCount: e.stock!.toInt(),)),
               ]))
           .toList() ??
       [];

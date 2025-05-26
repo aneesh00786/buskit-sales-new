@@ -1,20 +1,15 @@
 mixin class ApiConstants {
-  // static const String baseUrl = "https://test.thrivewoo.com/";
-  // static const String baseUrl1 = "https://test.thrivewoo.com";
   static const String baseUrl = "https://thrivewoo.com/";
   static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
-
   /// Login APi END Point
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
-
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
-
   /// Dashboard API
   static const String dashboardList = "dashboard_list";
   static const String customerRevenue = "customer_Revenue";
@@ -66,30 +61,24 @@ mixin class ApiConstants {
   static const String sendVerificationMail = "sendVerificationMail";
   static const String insertadmin = "insertadmin";
   static const String sendInvoice = "send-invoice";
-
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
-
   /// Product Api
   static const String fetchproduct = "fetch_product";
-
   /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";
-
   /// CALENDAR API
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
   static const String getRouteCredit = "get_routeCredit";
-
   /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";
-
   /// PENDING  PAYMENT API
   static const String fetchPendingPayments = "fetch_pending_payments";
   static const String getAllPendingPaymentIndividuals =
@@ -114,7 +103,6 @@ mixin class ApiConstants {
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = 'https://thrivewoo.com/';
-
   //PERFORMANCE
   static const String fetchSchedule = "fetch_schedule";
   static const String getWeekelyType = "get_weekly_type";
@@ -122,7 +110,6 @@ mixin class ApiConstants {
   static const String getStaffTimeSheet = "get_StaffTimesheet";
   static const String updateValueBasedTargetValue =
       "Update_ValueBasedtargetValue";
-
   /// SUBSCRIBTION API
   static const String getSubscribedPlan = "get_subscribed_plan";
   static const String getPlanDetiails = "get_plan_detiails";

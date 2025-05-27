@@ -160,19 +160,14 @@ void showValueCollectionDialog(
                                     child: Center(
                                       child: InkWell(
                                         onTap: () {
-                                          // showDetailedOrderInvoiceDialog(
-                                          //     context, order.orderId??'', true);
                                           showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                        orderId:
-                                                                            order.orderId ?? '',
-                                                                      );
-                                                                    },
-                                                                  );
+                                            context: context,
+                                            builder: (context) {
+                                              return InvoicePreview(
+                                                orderId: order.orderId ?? '',
+                                              );
+                                            },
+                                          );
                                         },
                                         child: Text(
                                           order.invoiceId ?? '',
@@ -215,7 +210,6 @@ void showValueCollectionDialog(
                     ),
                     // Static Total Row
                     Container(
-                   
                       decoration: const BoxDecoration(
                         border: Border(
                           top: BorderSide(
@@ -245,7 +239,6 @@ void showValueCollectionDialog(
                           ],
                         ),
                       ),
-
                     ),
                   ],
                 ),

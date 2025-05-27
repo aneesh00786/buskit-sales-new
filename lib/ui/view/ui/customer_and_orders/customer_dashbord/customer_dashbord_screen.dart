@@ -8,8 +8,10 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/default_donet_customer_dash.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_chart.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -94,9 +96,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     super.initState();
     log('Is Calender :${widget.isFromCalendar}');
     log('Calender Calender Customer ID :${widget.cusId}');
-    Provider.of<CustomersProvider>(context, listen: false)
-        .fetchCustomerDashboardDataSalseData(
-            widget.cusId.toString(), selectedYear);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CustomersProvider>(context, listen: false)
+          .fetchCustomerDashboardDataSalseData(
+              widget.cusId.toString(), selectedYear);
+    });
     _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -215,6 +219,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     "true") {
                   _navigateToOrderTaking();
                 }
+                CartDatabaseManager().getCartItems(
+                    widget.productsController?.selectedCustomerId.value ?? '');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -538,348 +544,342 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
   }
 
-  Expanded OrdersPayments(
+  MyCommnonContainer OrdersPayments(
       BuildContext context, List<RecentOrder> recentOrders) {
-    return Expanded(
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
-        isCommonBorder: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.2),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
-                        ),
-                      ),
-                      padding: const EdgeInsets.only(
-                          right: 20, left: 20, top: 5, bottom: 5),
-                      child: const Text(
-                        'Orders & Payment/s',
-                        style: cardHeadingTextStyle,
-                        maxLines: 1,
-                        softWrap: false,
+    return MyCommnonContainer(
+      boxShadow: [
+        BoxShadow(
+          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+          blurRadius: 5,
+          offset: const Offset(4, 4),
+        ),
+      ],
+      borderRadius: 25,
+      height: 300,
+      isCommonBorder: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.2),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        bottomRight: Radius.circular(25),
                       ),
                     ),
-                    nkSmallSizeBox(),
-                    SizedBox(
-                      height: 25,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (subscriptionController
-                                  .customerPaymentCollection.value ==
-                              "true") {
-                            List<RecentOrder> selectedOrders = [];
-                            for (var order in recentOrders) {
-                              if (context
-                                  .read<CustomersProvider>()
-                                  .isOrderSelected(order)) {
-                                selectedOrders.add(order);
-                              }
-                            }
-                            // Show the appropriate dialog or toast based on the selection
-                            if (selectedOrders.isNotEmpty) {
-                              paymentCollectionDialog(context, selectedOrders);
-                            } else {
-                              showCustomToast(context);
-                            }
-                          } else {
-                            showUpgradePlanDialog(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff5bc0de),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Collection',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                    padding: const EdgeInsets.only(
+                        right: 20, left: 20, top: 5, bottom: 5),
+                    child: const Text(
+                      'Orders & Payment/s',
+                      style: cardHeadingTextStyle,
+                      maxLines: 1,
+                      softWrap: false,
                     ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      showCustomDialog(context, recentOrders);
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: primaryColor.withOpacity(0.3)),
-                        child: const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Icon(
-                            Icons.open_in_new,
-                            size: 17,
-                            color: primaryColor,
-                          ),
-                        )),
                   ),
-                ),
-              ],
-            ),
-            nkSmallSizeBox(),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    double availableWidth = constraints.maxWidth;
-                    double availableHeight = constraints.maxHeight;
-                    double fontSize = 11;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Row(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Date",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Invoice",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Status",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Amount",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Due By",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Select",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  nkSmallSizeBox(),
+                  SizedBox(
+                    height: 25,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (subscriptionController
+                                .customerPaymentCollection.value ==
+                            "true") {
+                          List<RecentOrder> selectedOrders = [];
+                          for (var order in recentOrders) {
+                            if (context
+                                .read<CustomersProvider>()
+                                .isOrderSelected(order)) {
+                              selectedOrders.add(order);
+                            }
+                          }
+                          if (selectedOrders.isNotEmpty) {
+                            paymentCollectionDialog(context, selectedOrders);
+                          } else {
+                            showCustomToast(context);
+                          }
+                        } else {
+                          showUpgradePlanDialog(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff5bc0de),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0, bottom: 0),
-                          child: Container(
-                            height: 1,
-                            color: Colors.grey.shade100,
-                          ),
+                      ),
+                      child: const Text(
+                        'Collection',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Column(
-                              children: recentOrders.map((order) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 0.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            getFormattedOrderCreatAt(
-                                                order.orderCreatAt),
-                                            style: TextStyle(
-                                              fontSize: fontSize,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                  child: Center(
-                                    child: InkWell(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return InvoicePreview(
-                                              orderId: order.orderId,
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: MyRegularText(
-                                        color: primaryColor,
-                                        label: order.invoiceId,
-                                        fontSize: fontSize,
-                                        maxlines: 1,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                      Expanded(
-                                        child: Center(
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: Colors.green,
-                                              //Color(0xff008000),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(4.0)),
-                                            ),
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: availableWidth / 80,
-                                                vertical: availableHeight / 100,
-                                              ),
-                                              child: Text(
-                                                getStatusName(
-                                                    order.orderStatus),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: fontSize,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            formatAmount(order.orderTotal),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: fontSize,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            // getFormattedOrderCreatAt(
-                                            //     order.duedate?.first ?? ''),
-                                            order.duedate!.isNotEmpty
-                                                ? order.duedate?.first ?? ''
-                                                : '',
-                                            // order.duedate?.first ?? '',
-                                            style: TextStyle(
-                                              color: order.duedate!.isEmpty
-                                                  ? Colors.grey
-                                                  : order.duedate?[1] >= 3
-                                                      ? Colors.green
-                                                      : order.duedate?[1] <=
-                                                                  3 &&
-                                                              order.duedate?[
-                                                                      1] >=
-                                                                  1
-                                                          ? Colors.amber
-                                                          : Colors.red,
-                                              fontSize: fontSize,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Center(
-                                          child: Consumer<CustomersProvider>(
-                                            builder:
-                                                (context, provider, child) {
-                                              return Checkbox(
-                                                value: provider
-                                                    .isOrderSelected(order),
-                                                onChanged: (bool? isSelected) {
-                                                  provider.toggleOrderSelection(
-                                                      order);
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                child: InkWell(
+                  onTap: () {
+                    showCustomDialog(context, recentOrders);
                   },
+                  child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: primaryColor.withOpacity(0.3)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.open_in_new,
+                          size: 17,
+                          color: primaryColor,
+                        ),
+                      )),
                 ),
               ),
+            ],
+          ),
+          nkSmallSizeBox(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  double availableWidth = constraints.maxWidth;
+                  double availableHeight = constraints.maxHeight;
+                  double fontSize = 11;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Row(
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Date",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Invoice",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Status",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Amount",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Due By",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                "Select",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0, bottom: 0),
+                        child: Container(
+                          height: 1,
+                          color: Colors.grey.shade100,
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            children: recentOrders.map((order) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 0.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          getFormattedOrderCreatAt(
+                                              order.orderCreatAt),
+                                          style: TextStyle(
+                                            fontSize: fontSize,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: InkWell(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return InvoicePreview(
+                                                  orderId: order.orderId,
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: MyRegularText(
+                                            color: primaryColor,
+                                            label: order.invoiceId,
+                                            fontSize: fontSize,
+                                            maxlines: 1,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.green,
+                                            //Color(0xff008000),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4.0)),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: availableWidth / 80,
+                                              vertical: availableHeight / 100,
+                                            ),
+                                            child: Text(
+                                              getStatusName(
+                                                  order.orderStatus),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: fontSize,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          formatAmount(order.orderTotal),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: fontSize,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          order.duedate!.isNotEmpty
+                                              ? order.duedate?.first ?? ''
+                                              : '',
+                                          style: TextStyle(
+                                            color: order.duedate!.isEmpty
+                                                ? Colors.grey
+                                                : order.duedate?[1] >= 3
+                                                    ? Colors.green
+                                                    : order.duedate?[1] <=
+                                                                3 &&
+                                                            order.duedate?[
+                                                                    1] >=
+                                                                1
+                                                        ? Colors.amber
+                                                        : Colors.red,
+                                            fontSize: fontSize,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Center(
+                                        child: Consumer<CustomersProvider>(
+                                          builder:
+                                              (context, provider, child) {
+                                            return Checkbox(
+                                              value: provider
+                                                  .isOrderSelected(order),
+                                              onChanged: (bool? isSelected) {
+                                                provider.toggleOrderSelection(
+                                                    order);
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -2174,39 +2174,37 @@ class UpdateCustomer extends StatelessWidget {
                                     children: [
                                       Row(
                                         children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(4.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.0),
-                                                      border: Border.all(
-                                                          color: Colors.grey),
-                                                    ),
-                                                    child: TextField(
-                                                      controller:
-                                                          remarkController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        contentPadding:
-                                                            EdgeInsets
-                                                                .symmetric(
-                                                          horizontal: 12.0,
-                                                          vertical: 16.0,
-                                                        ),
-                                                        labelText: 'Remark',
-                                                        prefixIcon:
-                                                            Icon(Icons.phone),
-                                                        border:
-                                                            InputBorder.none,
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.all(4.0),
+                                            child: Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(4.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.0),
+                                                    border: Border.all(
+                                                        color: Colors.grey),
+                                                  ),
+                                                  child: TextField(
+                                                    controller:
+                                                        remarkController,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      contentPadding:
+                                                          EdgeInsets
+                                                              .symmetric(
+                                                        horizontal: 12.0,
+                                                        vertical: 16.0,
                                                       ),
+                                                      labelText: 'Remark',
+                                                      prefixIcon:
+                                                          Icon(Icons.phone),
+                                                      border:
+                                                          InputBorder.none,
                                                     ),
                                                   ),
                                                 ),

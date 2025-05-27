@@ -60,7 +60,6 @@ Widget noDataTable(String staffProjection, {bool isDayOrRange = false}) {
                       ),
                     ),
                     if (!isDayOrRange) ...[
-                      // if (targertType == '1') ...[
                       const DialogTableHeaderText(
                         text: 'Target',
                         fontSize: 13,

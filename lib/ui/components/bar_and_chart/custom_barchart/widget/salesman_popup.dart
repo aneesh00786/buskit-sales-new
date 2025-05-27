@@ -1,4 +1,4 @@
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/bar_chart_table_dialog.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/nodata_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';

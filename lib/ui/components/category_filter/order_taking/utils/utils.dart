@@ -71,36 +71,25 @@ double calculateTotalPrice(CartItem cartItem, int localCount) {
   log('Calculating total price for cart item');
   final discountBox = Hive.box<CustomerDiscountModel>('discounts');
   CustomerDiscountModel? discountData;
-
-  // Fetch the relevant discount data from Hive
   discountData = discountBox.values.firstWhere(
     (discount) => discount.customerId == cartItem.customerId,
     orElse: () => CustomerDiscountModel(),
   );
-
-  // Proceed if the item is checked
   if (cartItem.isChecked == true) {
     double effectiveSellingPrice =
         double.tryParse(cartItem.detail.sellPrice ?? '0') ?? 0;
     int pieces = cartItem.detail.pieces?.toInt() ?? 1;
     num count = cartItem.detail.count;
     num tax = cartItem.detail.tax ?? 0;
-
     log('Initial Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
-
-    // Calculate total price based on pack or single item
     double calculatedSellPrice = cartItem.isPack == true
         ? effectiveSellingPrice * pieces
         : effectiveSellingPrice;
-
     final double totalPriceForComparison = cartItem.isPack==true
         ? calculatedSellPrice * localCount
         : calculatedSellPrice * localCount;
-
     log('Calculated Selling Price for Discount Check: $totalPriceForComparison');
-
-    // Apply discount if applicable
-    double appliedDiscountPercentage = 0.0; // Variable to store the applied discount percentage
+    double appliedDiscountPercentage = 0.0; 
     if (discountData.customerId == cartItem.customerId) {
       final applicableDiscount = discountData.discounts?.firstWhere(
         (discount) =>
@@ -109,7 +98,6 @@ double calculateTotalPrice(CartItem cartItem, int localCount) {
                 (double.tryParse(discount.value ?? '0') ?? 0),
         orElse: () => DiscountModel(),
       );
-
       if (applicableDiscount != null &&
           applicableDiscount.discount != null &&
           applicableDiscount.discount!.isNotEmpty) {

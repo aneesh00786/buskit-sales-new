@@ -1,5 +1,5 @@
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/custom_bar_chart.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/create_groups.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/create_groups_helpers.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

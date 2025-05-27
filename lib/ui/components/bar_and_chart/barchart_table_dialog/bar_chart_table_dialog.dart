@@ -1,5 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/barchart_table_dialog/widget/barchart_table_bottom_row.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/staffs_order_dialog.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -101,7 +101,6 @@ showBarchartDialog(
                               ),
                               if (staffProjection == '1') ...[
                                 Expanded(
-                                  
                                   child: DialogTableHeaderText(
                                     text: 'Projection',
                                     align: TextAlign.center,
@@ -267,42 +266,13 @@ showBarchartDialog(
                           ),
                         ),
                         height: rowHeight,
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: CustomText(
-                                    fontWeight: FontWeight.w600,
-                                    textAlign: TextAlign.center,
-                                    content: 'Total',
-                                    fontSize: 11,
-                                    maxLine: 1)),
-                            if (!isDayOrRange
-                                //  && categoryTarget == '1'
-                                )
-                              Expanded(
-                                  child: CustomText(
-                                      fontWeight: FontWeight.w600,
-                                      textAlign: TextAlign.center,
-                                      content: formatAmount(totalTarget),
-                                      fontSize: 11,
-                                      maxLine: 1)),
-                            if (!isDayOrRange && staffProjection == '1')
-                              Expanded(
-                                  child: CustomText(
-                                      fontWeight: FontWeight.w600,
-                                      textAlign: TextAlign.center,
-                                      content: formatAmount(totalProjection),
-                                      fontSize: 11,
-                                      maxLine: 1)),
-                            Expanded(
-                                child: CustomText(
-                                    fontWeight: FontWeight.w600,
-                                    textAlign: TextAlign.center,
-                                    content: formatAmount(totalActual),
-                                    fontSize: 11,
-                                    maxLine: 1)),
-                          ],
-                        ),
+                        child: BarchartDialogBottomRow(
+                            totalTarget: totalTarget,
+                            totalProjection: totalProjection,
+                            totalActual: totalActual,
+                            isDayOrRange: isDayOrRange,
+                            staffProjection: staffProjection,
+                            ),
                       ),
                     ],
                   ),

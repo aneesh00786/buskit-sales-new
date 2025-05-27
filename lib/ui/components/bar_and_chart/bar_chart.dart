@@ -67,7 +67,6 @@ class BarChartSample2State extends State<BarChartSample2> {
           maxY: 200,
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
-             // tooltipBgColor: Colors.grey,
               getTooltipItem: (a, b, c, d) => null,
             ),
             touchCallback: (FlTouchEvent event, response) {

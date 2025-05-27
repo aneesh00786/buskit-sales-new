@@ -273,10 +273,6 @@ void showDetailedOrderInvoiceDialog(
                                       DataCell(
                                         Align(
                                           alignment: Alignment.centerRight,
-                                          // child: Text(
-                                          //   "${formatAmount(item.totalPrice ?? 0)}${item.inclTax == "incl_tax" ? " (Incl. Tax)":null}",
-                                          //   maxLines: 1,
-                                          // ),
                                           child: Text.rich(
                                             TextSpan(
                                               text: formatAmount(
@@ -374,25 +370,6 @@ void showDetailedOrderInvoiceDialog(
                                     ),
                                     const Spacer(),
                                     Text(
-                                      // dashBoardController.fetchSpecificOrderData
-                                      //                 ?.tax !=
-                                      //             null &&
-                                      //         dashBoardController
-                                      //             .fetchSpecificOrderData!.tax!
-                                      //             .any((taxItem) =>
-                                      //                 taxItem.tax != null)
-                                      //     ? formatAmount(
-                                      //         '${((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) + ((dashBoardController.fetchSpecificOrderData?.orderTotal ?? 0) * (dashBoardController.fetchSpecificOrderData?.tax?.fold(0.0, (sum, taxItem) {
-                                      //               return sum! +
-                                      //                   (taxItem.tax
-                                      //                           ?.toDouble() ??
-                                      //                       0.0);
-                                      //             }) ?? 0) / 100))}',
-                                      //       )
-                                      //     : formatAmount(dashBoardController
-                                      //             .fetchSpecificOrderData
-                                      //             ?.orderTotal ??
-                                      //         0),
                                       formatAmount(dashBoardController
                                               .fetchSpecificOrderData?.cart
                                               ?.fold(

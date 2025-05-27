@@ -922,6 +922,8 @@ class ApiService {
     required int page,
     required dynamic valueFromDw,
   }) async {
+    log("valueFromDw: $valueFromDw");
+
     dynamic value;
     if (valueFromDw == 'Month') {
       value = 'This Month';
@@ -934,6 +936,7 @@ class ApiService {
     } else if (valueFromDw.toString().contains('Range')) {
       value = valueFromDw;
     }
+
     final requestBody = {
       "salesman_id": salesmanId,
       "business_name": customerName,
@@ -946,7 +949,6 @@ class ApiService {
     };
     log('Fetch Customer Request Body: $requestBody');
     final customerBox = Hive.box('customerBox');
-
     try {
       final response = await responsePostMethod(
         requestData: requestBody,

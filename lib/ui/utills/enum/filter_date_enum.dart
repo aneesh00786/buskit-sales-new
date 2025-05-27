@@ -13,15 +13,15 @@ extension FilterDateExtension on FilterDateEnum {
   String get name {
     switch (this) {
       case FilterDateEnum.thisMonth:
-        return "This Month";
+        return 'Month';
       case FilterDateEnum.today:
-        return "Today";
+        return 'Day';
       case FilterDateEnum.thisWeek:
-        return "This Week";
+        return 'Week';
       case FilterDateEnum.thisYear:
-        return "This Year";
+        return 'Year';
       case FilterDateEnum.range:
-        return "Range";
+        return 'Range';
     }
   }
 

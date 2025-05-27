@@ -164,22 +164,16 @@ void showValueOrderDialog(
                                       child: Center(
                                         child: InkWell(
                                           onTap: () {
-                                            // showDetailedOrderInvoiceDialog(
-                                            //     context,
-                                            //     orderDetails.orderId ?? '',
-                                            //     true);
-
                                             showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                        orderId:
-                                                                            orderDetails.orderId ?? '',
-                                                                      );
-                                                                    },
-                                                                  );
+                                              context: context,
+                                              builder: (context) {
+                                                return InvoicePreview(
+                                                  orderId:
+                                                      orderDetails.orderId ??
+                                                          '',
+                                                );
+                                              },
+                                            );
                                           },
                                           child: Text(
                                             orderDetails.invoiceId ?? '',

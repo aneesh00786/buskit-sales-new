@@ -106,17 +106,22 @@ class CartDialogueState extends State<CartDialogue> {
   bool _isLoading = true;
   bool isDraft = true;
 
-  final ScrollController _scrollController1 = ScrollController();
-  final ScrollController _scrollController2 = ScrollController();
+  ScrollController _scrollController1 = ScrollController();
+  ScrollController _scrollController2 = ScrollController();
 
-  final ScrollController _scrollController3 = ScrollController();
-  final ScrollController _scrollController4 = ScrollController();
+  ScrollController _scrollController3 = ScrollController();
+  ScrollController _scrollController4 = ScrollController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+
+    _scrollController1 = ScrollController();
+    _scrollController2 = ScrollController();
+    _scrollController3 = ScrollController();
+    _scrollController4 = ScrollController();
 
     _scrollController1.addListener(() {
       if (_scrollController2.hasClients &&
@@ -158,6 +163,15 @@ class CartDialogueState extends State<CartDialogue> {
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
+  }
+
+  @override
+  void dispose() {
+    _scrollController1.dispose();
+    _scrollController2.dispose();
+    _scrollController3.dispose();
+    _scrollController4.dispose();
+    super.dispose();
   }
 
   void setOptions() {
@@ -593,56 +607,52 @@ class CartDialogueState extends State<CartDialogue> {
                                             thickness: 6,
                                             thumbVisibility: true,
                                             trackVisibility: true,
+                                            controller: _scrollController3,
                                             child: SingleChildScrollView(
                                               scrollDirection: Axis.vertical,
                                               controller: _scrollController3,
-                                              child: Expanded(
-                                                child: Column(
-                                                  children: orderItems
-                                                      .where((item) =>
-                                                          item.detail.stock! >
-                                                          0)
-                                                      .map((item) =>
-                                                          item.productName)
-                                                      .toSet()
-                                                      .toList()
-                                                      .map((productName) {
-                                                    List<CartItem>
-                                                        groupedItems =
-                                                        orderItems
-                                                            .where((item) =>
-                                                                item.productName ==
-                                                                    productName &&
-                                                                item.detail
-                                                                        .stock! >
-                                                                    0)
-                                                            .toList();
+                                              child: Column(
+                                                children: orderItems
+                                                    .where((item) =>
+                                                        item.detail.stock! > 0)
+                                                    .map((item) =>
+                                                        item.productName)
+                                                    .toSet()
+                                                    .toList()
+                                                    .map((productName) {
+                                                  List<CartItem> groupedItems =
+                                                      orderItems
+                                                          .where((item) =>
+                                                              item.productName ==
+                                                                  productName &&
+                                                              item.detail
+                                                                      .stock! >
+                                                                  0)
+                                                          .toList();
 
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 20),
-                                                      child: _buildGroupedItems(
-                                                        productName:
-                                                            productName,
-                                                        groupedItems:
-                                                            groupedItems,
-                                                        availableWidth:
-                                                            availableWidth,
-                                                        fontSize: fontSize,
-                                                        rowHeight: rowHeight,
-                                                        context: context,
-                                                        productQuantityManager:
-                                                            productQuantityManager,
-                                                        deleteConfirmationDialogue:
-                                                            deleteConfirmationDialogue,
-                                                        isPreOrder: false,
-                                                        calCulateAmount:
-                                                            calculateAmounts,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ),
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 20),
+                                                    child: _buildGroupedItems(
+                                                      productName: productName,
+                                                      groupedItems:
+                                                          groupedItems,
+                                                      availableWidth:
+                                                          availableWidth,
+                                                      fontSize: fontSize,
+                                                      rowHeight: rowHeight,
+                                                      context: context,
+                                                      productQuantityManager:
+                                                          productQuantityManager,
+                                                      deleteConfirmationDialogue:
+                                                          deleteConfirmationDialogue,
+                                                      isPreOrder: false,
+                                                      calCulateAmount:
+                                                          calculateAmounts,
+                                                    ),
+                                                  );
+                                                }).toList(),
                                               ),
                                             ))),
                                   ),
@@ -676,6 +686,7 @@ class CartDialogueState extends State<CartDialogue> {
                         thumbVisibility: true,
                         trackVisibility: true,
                         thickness: 6,
+                        controller: _scrollController2,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,
@@ -1558,20 +1569,26 @@ class CartDialogueState extends State<CartDialogue> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: DataTable(
-                  headingRowHeight: 30,
-                  dataRowHeight: rowHeight,
-                  horizontalMargin: 5,
-                  columnSpacing: 15,
-                  columns: DataTableColumns.getColumns(fontSize),
-                  rows: GroupedItemDataRows.getRows(
-                    groupedItems: groupedItems,
-                    fontSize: availableWidth / 55,
-                    availableWidth: availableWidth,
-                    context: context,
-                    productQuantityManager: productQuantityManager,
-                    deleteConfirmationDialogue: deleteConfirmationDialogue,
-                    calculateAmount: calCulateAmount,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: MediaQuery.of(context).size.width *
+                        0.85, 
+                  ),
+                  child: DataTable(
+                    headingRowHeight: 30,
+                    dataRowHeight: rowHeight,
+                    horizontalMargin: 5,
+                    columnSpacing: 15,
+                    columns: DataTableColumns.getColumns(fontSize),
+                    rows: GroupedItemDataRows.getRows(
+                      groupedItems: groupedItems,
+                      fontSize: availableWidth / 55,
+                      availableWidth: availableWidth,
+                      context: context,
+                      productQuantityManager: productQuantityManager,
+                      deleteConfirmationDialogue: deleteConfirmationDialogue,
+                      calculateAmount: calCulateAmount,
+                    ),
                   ),
                 ),
               ),

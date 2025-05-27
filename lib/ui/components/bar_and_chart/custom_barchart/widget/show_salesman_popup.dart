@@ -1,5 +1,5 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/bar_chart_table_dialog.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' as dev;
@@ -18,7 +18,6 @@ void showSalesmanPopup({
   bool isConnected = await ConnectivityService().isOnline();
   isConnected
       ? showDialog(
-          // ignore: use_build_context_synchronously
           context: context,
           builder: (context) {
             return Consumer<DashboardProvider>(

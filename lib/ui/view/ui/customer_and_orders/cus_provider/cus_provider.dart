@@ -742,22 +742,22 @@ class CustomersProvider with ChangeNotifier {
 
   ScrollController get scrollController => _scrollController;
 
-  void scrollLeft() {
-    if (_scrollController.position.pixels > 0) {
-      _scrollController.jumpTo((_scrollController.position.pixels - 100)
-          .clamp(0.0, _scrollController.position.maxScrollExtent));
-      notifyListeners();
-    }
-  }
+  // void scrollLeft() {
+  //   if (_scrollController.position.pixels > 0) {
+  //     _scrollController.jumpTo((_scrollController.position.pixels - 100)
+  //         .clamp(0.0, _scrollController.position.maxScrollExtent));
+  //     notifyListeners();
+  //   }
+  // }
 
-  void scrollRight() {
-    if (_scrollController.position.pixels <
-        _scrollController.position.maxScrollExtent) {
-      _scrollController.jumpTo((_scrollController.position.pixels + 100)
-          .clamp(0.0, _scrollController.position.maxScrollExtent));
-      notifyListeners();
-    }
-  }
+  // void scrollRight() {
+  //   if (_scrollController.position.pixels <
+  //       _scrollController.position.maxScrollExtent) {
+  //     _scrollController.jumpTo((_scrollController.position.pixels + 100)
+  //         .clamp(0.0, _scrollController.position.maxScrollExtent));
+  //     notifyListeners();
+  //   }
+  // }
 
   @override
   void dispose() {

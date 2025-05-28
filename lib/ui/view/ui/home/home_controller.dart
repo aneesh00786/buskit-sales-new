@@ -466,6 +466,4 @@ Future<void> handleLogout(BuildContext context) async {
       log("Error clearing box $boxName: $e");
     }
   }
-
-  // Get.offAllNamed(AppRoutes.login);
 }

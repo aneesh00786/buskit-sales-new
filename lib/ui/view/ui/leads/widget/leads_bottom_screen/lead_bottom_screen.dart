@@ -1,26 +1,27 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_pagination/leads_customer_pagination.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_pagination/leads_bottom_pagination.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_bottom_screen/widgets/build_table_row.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_bottom_screen/widgets/helpers.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/get.dart';
 
-class LeadCustomerScreen extends StatefulWidget {
-  final CustomersController leadsCustomerController;
-  const LeadCustomerScreen({super.key, required this.leadsCustomerController});
-
+class LeadBottomScreen extends StatefulWidget {
+  final LeadsController leadsController;
+  const LeadBottomScreen({super.key, required this.leadsController});
   @override
-  State<LeadCustomerScreen> createState() => _LeadCustomerScreenState();
+  State<LeadBottomScreen> createState() => _LeadBottomScreenState();
 }
 
-class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
+class _LeadBottomScreenState extends State<LeadBottomScreen> {
   final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
+  final subscriptionController = Get.find<SubscriptionController>();
 
   @override
   void initState() {
@@ -48,9 +49,9 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
         ? MediaQuery.of(context).size.height / 10.09
         : MediaQuery.of(context).size.height / 10 -
             MediaQuery.of(context).size.height * 0.018;
+
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
-      borderRadius: 0,
       child: Obx(() {
         return _buildTableLayout(context, fixedRowHeight);
       }),
@@ -67,7 +68,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
             children: [
               Row(
                 children: [
-                  _buildTableHeader1(
+                  buildTableHeader1(
                     Center(
                       child: CustomText(
                         content: "Sl.No.",
@@ -79,12 +80,12 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                     ),
                     60,
                   ),
-                  _buildTableHeader1(
+                  buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Customers",
+                        content: "Leads",
                         textAlign: TextAlign.center,
-                        fontSize: 12,
+                        fontSize: 12.5,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -99,18 +100,17 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                   controller: vertical,
                   physics: const ClampingScrollPhysics(),
                   child: Column(
-                    children: widget.leadsCustomerController.customersDataList
+                    children: widget.leadsController.leadsCustomerDataList
                         .asMap()
                         .entries
                         .map((entry) {
                       int index = entry.key;
                       LeadCustomerData leadCustomerData = entry.value;
-    
+
                       return Container(
                         height: fixedRowHeight,
                         decoration: BoxDecoration(
-                          color:
-                              index.isEven ? Colors.grey[50] : Colors.white,
+                          color: index.isEven ? Colors.grey[50] : Colors.white,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -120,7 +120,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                                 width: 60,
                                 child: CustomText(
                                   content:
-                                      '   ${((widget.leadsCustomerController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                      '   ${((widget.leadsController.currentPage.value - 1) * 10) + (index + 1)}.',
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   overflow: TextOverflow.ellipsis,
@@ -155,15 +155,12 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    Expanded(
-                                      child: CustomText(
-                                        content:
-                                            leadCustomerData.businessName ??
-                                                '',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    CustomText(
+                                      content:
+                                          leadCustomerData.businessName ?? '',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
@@ -176,13 +173,13 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                   ),
                 ),
               ),
-              if (widget.leadsCustomerController.totalPages.value > 1)
+              if (widget.leadsController.totalPages > 1)
                 Container(
                   padding: const EdgeInsets.all(3),
                   height: 50,
                   color: Colors.grey[200],
                   child: Row(
-                    children: [LeadsCustomerPaginationWidget(), const Spacer()],
+                    children: [LeadsBottomPaginationWidget(), const Spacer()],
                   ),
                 ),
             ],
@@ -195,15 +192,13 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
               width: totalTableWidth,
               child: Column(
                 children: [
-                  SizedBox(child: _buildTableHeader()),
-                  widget.leadsCustomerController.customersDataList.isEmpty
+                  SizedBox(child: buildTableHeader()),
+                  widget.leadsController.leadsCustomerDataList.isEmpty
                       ? SizedBox(
                           height: MediaQuery.of(context).size.height * 0.4)
                       : Container(),
-                  widget.leadsCustomerController.customersDataList.isEmpty
-                      ? const Center(
-                          child: NodataWidget(),
-                        )
+                  widget.leadsController.leadsCustomerDataList.isEmpty
+                      ? const Center(child: NodataWidget())
                       : Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.vertical,
@@ -211,20 +206,19 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                             controller: vertical1,
                             child: Column(
                               children: widget
-                                  .leadsCustomerController.customersDataList
+                                  .leadsController.leadsCustomerDataList
                                   .asMap()
                                   .entries
                                   .map((entry) {
                                 int index = entry.key;
-                                LeadCustomerData leadCustomerData =
-                                    entry.value;
-                                return _buildTableRow(leadCustomerData,
-                                    context, index, fixedRowHeight);
+                                LeadCustomerData leadCustomerData = entry.value;
+                                return buildTableRow(leadCustomerData, context,
+                                    index, fixedRowHeight,widget.leadsController,subscriptionController);
                               }).toList(),
                             ),
                           ),
                         ),
-                        if (widget.leadsCustomerController.totalPages.value > 1)
+                        if (widget.leadsController.totalPages > 1)
                     Container(
                       padding: const EdgeInsets.all(3),
                       height: 50,
@@ -234,99 +228,10 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
-
-  Widget _buildTableHeader1(Widget child, double width) {
-    return Container(
-      width: width,
-      alignment: Alignment.center,
-      color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: child,
-    );
-  }
-
-  Widget _buildTableHeader() {
-    return Container(
-      color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: _buildHeaderText('Address', 13)),
-          Expanded(child: _buildHeaderText('Town', 13)),
-          Expanded(child: _buildHeaderText('State', 13)),
-          Expanded(child: _buildHeaderText('Zip Code', 13)),
-          Expanded(child: _buildHeaderText('Mobile No.', 13)),
-          Expanded(child: _buildHeaderText('Email', 13)),
-          Expanded(child: _buildHeaderText('Contact Person', 13)),
-          Expanded(child: _buildHeaderText('Contact Number', 13)),
-          const SizedBox(width: 10),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderText(String text, double fontSize) {
-    return Center(
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Poppins_Regular',
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
-      int index, double fixedRowHeight) {
-    return Container(
-      color: index.isEven ? Colors.grey[50] : Colors.white,
-      height: fixedRowHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.address ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.town ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.state ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.zipcode.toString(),
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.businessNo ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.email ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.fullname ?? '',
-          ),
-          LeadTableText(
-            leadCustomerData: leadCustomerData,
-            content: leadCustomerData.mobileno ?? '',
-          ),
-        ],
-      ),
-    );
-  }
 }
+
+

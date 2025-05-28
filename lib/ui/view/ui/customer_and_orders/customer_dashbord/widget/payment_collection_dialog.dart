@@ -14,22 +14,10 @@ void paymentCollectionDialog(
       BuildContext context, List<RecentOrder> selectedOrders) {
     List<num?> newOrderTotal =
         selectedOrders.map((order) => order.orderTotal).toList();
-
-    // List<int?> _newOrderTotal = [];
-
-    // // Populate _newOrderTotal with orderTotal values
-    // for (var order in selectedOrders) {
-    //   _newOrderTotal[selectedOrders.indexOf(order)] = order.orderTotal;
-    // }
-
-    // Function to calculate the total balance amount from _newOrderTotal
     double calculateTotalBalanceAmount() {
       return newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
     }
-
-    // Calculate the initial total balance amount
     double totalBalanceAmount = calculateTotalBalanceAmount();
-
     final balanceAmountController = TextEditingController(
       text: totalBalanceAmount.toStringAsFixed(2),
     );
@@ -51,7 +39,6 @@ void paymentCollectionDialog(
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
                     color: primaryColor,
-                    //Color(0xff008000),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),

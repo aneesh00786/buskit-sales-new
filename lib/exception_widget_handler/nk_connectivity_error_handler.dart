@@ -51,7 +51,5 @@ class NkConnectivityErrorHandler extends StatelessWidget {
 
   BoxDecoration get boxDecoration => const BoxDecoration(
         color: Colors.white,
-
-        // borderRadius: BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
       );
 }

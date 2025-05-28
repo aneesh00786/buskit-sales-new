@@ -402,7 +402,7 @@ class LocalStorage {
     );
   }
 
-  storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
+  Future<ResponseModell>storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
     if (cachedData != null) {
       try {
         final parsedJson = jsonDecode(cachedData);

@@ -132,7 +132,6 @@ class _ProductGridState extends State<ProductGrid> {
                       style: const TextStyle(fontSize: 40),
                     ))
                   : GridView.builder(
-                      // physics: BouncingScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: desiredItemWidth,
@@ -263,9 +262,6 @@ class _ProductGridState extends State<ProductGrid> {
                                               : Image.asset(
                                                   'assets/images/Image-not-found.png'),
                                         ),
-                                        // SizedBox(
-                                        //   height: imageHeight,
-                                        // ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Text(

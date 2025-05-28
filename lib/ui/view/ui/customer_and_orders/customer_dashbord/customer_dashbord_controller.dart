@@ -14,18 +14,11 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 enum PaymentStatus {
   paid,
-
-  /// 1
   pending,
-
-  /// 0
   unpaid,
-
-  /// 2
 }
 
 class CustomerDashbordController extends GetxController {
-  //final ApiWorker _apiWorker = Get.find();
   Rx<CustomerAndOrderData> customerAndOrderData = CustomerAndOrderData().obs;
 
   RxInt selectedPaymentCollectIndex = (-1).obs;
@@ -34,7 +27,6 @@ class CustomerDashbordController extends GetxController {
   GlobalKey<FormState> paymentFormKey = GlobalKey<FormState>();
 
   RxList<String> recentordersHeadingList = [
-    // "Recent Orders",
     "Orders & Payments",
     "Value",
     "Invoice No.",
@@ -92,19 +84,6 @@ class CustomerDashbordController extends GetxController {
       'Collect': false,
     },
   ].obs;
-
-  /// API OPRATION
-  /* purchasePruduct(List<CustomerCart> data) async {
-    await _apiWorker
-        .buyProduct(
-            purchaseProductSendData(data.map((e) => e.toSendJson()).toList()))
-        .onError((error, stackTrace) {
-      return Future.error(error.toString());
-    });
-
-    Get.back();
-  }*/
-
   Map<String, dynamic> purchaseProductSendData(
       List<Map<String, dynamic>> data) {
     return {
@@ -189,46 +168,5 @@ class CustomerDashbordController extends GetxController {
             markerSettings: const MarkerSettings(isVisible: true))
       ]
     ];
-  }
-
-  //// API OPERATION
-
-  // Future<CustomerDashboardResponse> getCustomerDahsboardData(
-  //     String customerId) async {
-  //   var data = await ApiWorker().getCustomerDashboard(customerId);
-  //   if (data.statusCode == 200) {
-  //     customerDashboardData.value = data.data??Data();
-  //     getCustomerDahsboardTotalSaleData(customerId,
-  //         data.data?.yearList?[selectYearIndex.value].year.toString()??'');
-  //     refresh();
-  //   }
-  //   return data;
-  // }
-
-  // Future<CustomerDashboardTotalSaleResponse> getCustomerDahsboardTotalSaleData(
-  //     String customerId, String year) async {
-  //   var data = await ApiWorker().getCustomerDashboardTotalSale(customerId, year);
-  //   if (data.statusCode == 200) {
-  //     customerDashboardTotalSaleData.value = data.data!;
-  //     refresh();
-  //   }
-  //   return data;
-  // }
-
-  // Future<CustomerCartResponce> getCustomerCartData(String customerId) async {
-  //   return await ApiWorker().getCustomerCart(customerId: customerId);
-  // }
-
-  Future setPaymentDetails(
-    String orderId,
-    String cartId,
-  ) async {
-    /*var map = {
-      'order_id': 'ORDER25',
-      'type': '1',
-      'detail': 'Completed',
-      'cart_id': cartId,
-    };
-    return await _apiWorker.setPaymentDetails(map);*/
   }
 }

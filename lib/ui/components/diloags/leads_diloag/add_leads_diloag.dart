@@ -74,7 +74,6 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Header
                           Container(
                             padding: const EdgeInsets.all(4.8),
                             decoration: const BoxDecoration(
@@ -96,7 +95,6 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                               ],
                             ),
                           ),
-
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
@@ -110,8 +108,6 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     widget.leadsController.addressController,
                                     'Address',
                                     Icons.home),
-
-                                // Town, State, Zipcode Row
                                 Row(
                                   children: [
                                     Expanded(
@@ -163,8 +159,6 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     ),
                                   ],
                                 ),
-
-                                // Contact Details Section
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 6.0),
                                   child: Align(
@@ -190,8 +184,6 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                             Icons.phone)),
                                   ],
                                 ),
-
-                                // Delivery Address Checkbox
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 6.0),

@@ -1,10 +1,4 @@
 import 'dart:convert';
-
-/// status_code : 200
-/// status : true
-/// message : "Data Fetch successfully"
-/// data : [{"id":1,"salesman_id":"SALES1","fullname":"raj patel","mobileno":"9327622916","email":"rttt@gmail.com","password":"1234","town":"wankaner","state":"Gujarat","zipcode":123,"address":"123","idimage_path":"http://139.59.3.15:1000/uploads/salesman/1687352671056.png","image_path":"http://139.59.3.15:1000/uploads/salesman/1687352670695.jpg","create_at":"2023-06-21T13:04:31.000Z","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhaiBwYXRlbCIsImlhdCI6MTY4NzM1MjY3MX0.e9-qOKpCRl7xS8VjTsdsB2MYidEM4RrSqj-1_sav8fA"},{"id":2,"salesman_id":"SALES2","fullname":"raj","mobileno":"9327622917","email":"rajranipa47@gmail.com","password":"321","town":"2332","state":"12321","zipcode":982481,"address":"123212","idimage_path":"http://139.59.3.15:1000/uploads/salesman/1687353825860.svg","image_path":"http://139.59.3.15:1000/uploads/salesman/1687353825821.svg","create_at":"2023-06-21T13:23:45.000Z","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhaiIsImlhdCI6MTY4NzM1MzgyNX0.C8DCOo7hiik5iStZyRoYXcyDUHEmbrrdXlVB4n2ziDk"},{"id":3,"salesman_id":"SALES3","fullname":"BuskitSelesTest","mobileno":"0000000000","email":"Buskit@google.com","password":"buskit123","town":"Ahd","state":"Guj","zipcode":362222,"address":"TestAAAA","idimage_path":"http://139.59.3.15:1000/uploads/salesman/1688388364357.gif","image_path":"http://139.59.3.15:1000/uploads/salesman/1688388364058.gif","create_at":"2023-07-03T12:46:04.000Z","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkJ1c2tpdFNlbGVzVGVzdCIsImlhdCI6MTY4ODM4ODM2NH0.7JPSMPXqYtgVuSBGLJ9j7hwP64P2PzkTSHf1ULQ8C-E"}]
-
 StaffResponce staffResponceFromJson(String str) =>
     StaffResponce.fromJson(json.decode(str));
 String staffResponceToJson(StaffResponce data) => json.encode(data.toJson());
@@ -44,21 +38,6 @@ class StaffResponce {
     return map;
   }
 }
-
-/// id : 1
-/// salesman_id : "SALES1"
-/// fullname : "raj patel"
-/// mobileno : "9327622916"
-/// email : "rttt@gmail.com"
-/// password : "1234"
-/// town : "wankaner"
-/// state : "Gujarat"
-/// zipcode : 123
-/// address : "123"
-/// idimage_path : "http://139.59.3.15:1000/uploads/salesman/1687352671056.png"
-/// image_path : "http://139.59.3.15:1000/uploads/salesman/1687352670695.jpg"
-/// create_at : "2023-06-21T13:04:31.000Z"
-/// token : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhaiBwYXRlbCIsImlhdCI6MTY4NzM1MjY3MX0.e9-qOKpCRl7xS8VjTsdsB2MYidEM4RrSqj-1_sav8fA"
 
 StaffData dataFromJson(String str) => StaffData.fromJson(json.decode(str));
 String dataToJson(StaffData data) => json.encode(data.toJson());

@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use
-
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/widgets/staff_orders_bottom_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/widgets/staff_orders_tablerow.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -134,8 +134,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                   dataRowHeight: fontSize * 5.5,
                                   headingRowHeight:
                                       fullScreenWidth(context) > 740 ? 45 : 75,
-                                  headingRowColor:
-                                      const WidgetStatePropertyAll(primaryColor),
+                                  headingRowColor: const WidgetStatePropertyAll(
+                                      primaryColor),
                                   columnSpacing: 10,
                                   headingTextStyle: TextStyle(
                                       fontSize: fontSize + 1,
@@ -178,21 +178,25 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                     children: [
                                                       ClipOval(
                                                         child: Container(
-                                                          height: fixedIconSize * 2,
-                                                          width: fixedIconSize * 2,
-                                                          color: Colors.grey[200],
+                                                          height:
+                                                              fixedIconSize * 2,
+                                                          width:
+                                                              fixedIconSize * 2,
+                                                          color:
+                                                              Colors.grey[200],
                                                           child: Image.network(
                                                             'http://16.50.232.153:3000/uploads/${customer?.imageUrl}',
                                                             fit: BoxFit.cover,
-                                                            errorBuilder: (context,
-                                                                error, stackTrace) {
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
                                                               return Container(
                                                                 color: const Color(
                                                                     0xffe6ecff),
                                                                 child: Icon(
                                                                   Icons.person,
-                                                                  color:
-                                                                      Colors.blue,
+                                                                  color: Colors
+                                                                      .blue,
                                                                   size:
                                                                       fixedIconSize *
                                                                           2,
@@ -224,8 +228,9 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                       FontWeight
                                                                           .bold),
                                                               maxLines: 1,
-                                                              overflow: TextOverflow
-                                                                  .ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
                                                             Text(
                                                               customer != null
@@ -235,13 +240,15 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                   fontSize:
-                                                                      fontSize - 2,
+                                                                      fontSize -
+                                                                          2,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w400),
                                                               maxLines: 1,
-                                                              overflow: TextOverflow
-                                                                  .ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
                                                             Text(
                                                               customer != null
@@ -251,13 +258,15 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                   fontSize:
-                                                                      fontSize - 2,
+                                                                      fontSize -
+                                                                          2,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w400),
                                                               maxLines: 1,
-                                                              overflow: TextOverflow
-                                                                  .ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
                                                           ],
                                                         ),
@@ -283,7 +292,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                             color: primaryColor,
                                                             fontSize: fontSize,
                                                             fontWeight:
-                                                                FontWeight.w600),
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
                                                     ),
                                                   ),
@@ -297,19 +307,21 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                       // ignore: unnecessary_null_comparison
                                                       order.orderCreatAt != null
                                                           ? NKDateUtils.commonFullDateTimeFormat(
-                                                                      NKDateUtils
-                                                                          .formatStringUTCDateTime(
-                                                                              order
-                                                                                  .orderCreatAt??'')).replaceAll(" ", "\n")
+                                                                  NKDateUtils
+                                                                      .formatStringUTCDateTime(
+                                                                          order.orderCreatAt ??
+                                                                              ''))
+                                                              .replaceAll(
+                                                                  " ", "\n")
                                                           : 'N/A',
                                                       style: TextStyle(
                                                         fontSize: fontSize,
-                                                        
                                                       ),
                                                       maxLines: 2,
                                                       overflow:
                                                           TextOverflow.ellipsis,
-                                                      textAlign: TextAlign.center,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                     ),
                                                   ),
                                                 ),
@@ -334,22 +346,16 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                   width: flexWidth * 0.9,
                                                   child: InkWell(
                                                     onTap: () {
-                                                      // showDetailedOrderInvoiceDialog(
-                                                      //     context,
-                                                      //     order.orderId ?? '',
-                                                      //     true);
-
                                                       showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                        orderId:
-                                                                            order.orderId ?? '',
-                                                                      );
-                                                                    },
-                                                                  );
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return InvoicePreview(
+                                                            orderId:
+                                                                order.orderId ??
+                                                                    '',
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     child: Center(
                                                       child: Text(
@@ -362,7 +368,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                             color: primaryColor,
                                                             fontSize: fontSize,
                                                             fontWeight:
-                                                                FontWeight.w600),
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
                                                     ),
                                                   ),
@@ -375,7 +382,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                     child: Container(
                                                       decoration: BoxDecoration(
                                                         color:
-                                                            order.paymentStatus == 0
+                                                            order.paymentStatus ==
+                                                                    0
                                                                 ? Colors.red
                                                                 : Colors.green,
                                                         shape: BoxShape.circle,
@@ -384,14 +392,16 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                 order.paymentStatus ==
                                                                         0
                                                                     ? Colors.red
-                                                                    : Colors.green),
+                                                                    : Colors
+                                                                        .green),
                                                       ),
                                                       child: Padding(
                                                         padding:
-                                                            const EdgeInsets.all(
-                                                                1.0),
+                                                            const EdgeInsets
+                                                                .all(1.0),
                                                         child: Icon(
-                                                            order.paymentStatus == 0
+                                                            order.paymentStatus ==
+                                                                    0
                                                                 ? Icons.close
                                                                 : Icons.done,
                                                             color: white,
@@ -406,20 +416,23 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                   width: flexWidth * 1.2,
                                                   child: Center(
                                                     child: Container(
-                                                      clipBehavior: Clip.antiAlias,
+                                                      clipBehavior:
+                                                          Clip.antiAlias,
                                                       decoration:
                                                           const BoxDecoration(
-                                                        color: Color(0xffffdbb8),
+                                                        color:
+                                                            Color(0xffffdbb8),
                                                         borderRadius:
                                                             BorderRadius.all(
                                                                 Radius.circular(
                                                                     15.0)),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 0.0,
-                                                            vertical: 0.0),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 0.0,
+                                                                vertical: 0.0),
                                                         child: Column(
                                                           mainAxisSize:
                                                               MainAxisSize.min,
@@ -428,21 +441,23 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                               padding:
                                                                   const EdgeInsets
                                                                       .symmetric(
-                                                                      vertical: 6,
+                                                                      vertical:
+                                                                          6,
                                                                       horizontal:
                                                                           12.0),
                                                               child: Text(
-                                                                getStatusName(order
-                                                                        .orderStatus ??
-                                                                    0),
+                                                                getStatusName(
+                                                                    order.orderStatus ??
+                                                                        0),
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         fontSize,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600),
-                                                                textAlign: TextAlign
-                                                                    .center,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
                                                               ),
                                                             ),
                                                             if (order.orderStatus ==
@@ -450,22 +465,21 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                 order.deliveryDatetime !=
                                                                     null) ...[
                                                               Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal:
-                                                                            8.0),
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        8.0),
                                                                 child: Text(
                                                                   NKDateUtils.commonFullDateTimeFormat(
                                                                       NKDateUtils
                                                                           .formatStringUTCDateTime(
-                                                                              order
-                                                                                  .deliveryDatetime!)),
+                                                                              order.deliveryDatetime!)),
                                                                   textAlign:
                                                                       TextAlign
                                                                           .center,
                                                                   maxLines: 2,
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     fontSize:
                                                                         fontSize -
                                                                             2,
@@ -476,7 +490,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                 ),
                                                               ),
                                                             ],
-                                                            if (order.orderStatus ==
+                                                            if (order
+                                                                    .orderStatus ==
                                                                 14) ...[
                                                               const SizedBox(
                                                                   height: 5),
@@ -490,10 +505,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                               Text(
                                                                             'Quick Sale',
                                                                             style: TextStyle(
-                                                                                color:
-                                                                                    white,
-                                                                                fontWeight:
-                                                                                    FontWeight.bold,
+                                                                                color: white,
+                                                                                fontWeight: FontWeight.bold,
                                                                                 fontSize: 10),
                                                                           ),
                                                                         )),
@@ -516,333 +529,25 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                               ),
                             ),
                           ),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            controller: _scrollController3,
-                            child: SizedBox(
-                              width: fullScreenWidth(context) > 640
-                                  ? fullScreenWidth(context) * 1
-                                  : fullScreenWidth(context) * 1.1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: DataTable(
-                                        dataRowHeight: 0,
-                                        headingRowHeight: 30,
-                                        headingRowColor:
-                                            const WidgetStatePropertyAll(
-                                                primaryColor),
-                                        columnSpacing: 10,
-                                        columns: [
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.5,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 0.9,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1,
-                                            child:  Center(
-                                              child: CustomText(
-                                              content:  'Total',
-                                              color: white,
-                                              fontSize: fontSize,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1,
-                                            child: Center(
-                                              child: CustomText(
-                                              content:   formatAmount(
-                                                    filteredOrders.fold<double>(
-                                                  0.0,
-                                                  (sum, order) =>
-                                                      sum +
-                                                      (order.orderTotal ?? 0.0),
-                                                )),
-                                                color: white,
-                                                fontSize: fontSize,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 0.9,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.2,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.2,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          )),
-                                          const DataColumn(
-                                              label: Expanded(
-                                            child: Center(
-                                              child: Text(
-                                                '',
-                                              ),
-                                            ),
-                                          )),
-                                        ],
-                                        rows: [
-                                          DataRow(
-                                            cells: [
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1.5),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 0.9),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 0.9),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1.1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1.1),
-                                              ),
-                                              const DataCell(Text('')),
-                                            ],
-                                          ),
-                                        ]),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          StaffOrdersBottomWidget(
+                              scrollController3: _scrollController3,
+                              flexWidth: flexWidth,
+                              fontSize: fontSize,
+                              filteredOrders: filteredOrders),
                         ],
                       ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: _scrollController2,
-                        child: SizedBox(
-                          width: fullScreenWidth(context) > 640
-                              ? fullScreenWidth(context) * 1
-                              : fullScreenWidth(context) * 1.1,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: DataTable(
-                                    dataRowHeight: 0,
-                                    headingRowHeight:
-                                        fullScreenWidth(context) > 740 ? 45 : 75,
-                                    headingRowColor:
-                                        const WidgetStatePropertyAll(primaryColor),
-                                    columnSpacing: 10,
-                                    columns: [
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 1.5,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                             content:  'Customer List',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                              
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 0.9,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                              content:'Order No.',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 1,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                             content:  'Created',
-                                             color: white,
-                                             fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 1,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                             content:  'Amount',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 0.9,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                             content:  'Invoice',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 1.2,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                            content:  'Payment Status',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: SizedBox(
-                                        width: flexWidth * 1.2,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: fullScreenWidth(context) > 740
-                                                  ? 0
-                                                  : 30),
-                                          child:  Center(
-                                            child: CustomText(
-                                             content:  'Status',
-                                              color: white,
-                                              fontSize: fontSize + 1,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                      const DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            '',
-                                          ),
-                                        ),
-                                      )),
-                                    ],
-                                    rows: [
-                                      DataRow(
-                                        cells: [
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.5),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 0.9),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 0.9),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.2),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.1),
-                                          ),
-                                          const DataCell(Text('')),
-                                        ],
-                                      ),
-                                    ]),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      StaffOrdersTableRow(
+                          scrollController2: _scrollController2,
+                          flexWidth: flexWidth,
+                          fontSize: fontSize),
                       Positioned(
                         top: 0,
                         right: 0,
                         child: SizedBox(
                           height: 45,
                           width: 45,
-                          child: Center(child: dialogCloseButton1(context, red)),
+                          child:
+                              Center(child: dialogCloseButton1(context, red)),
                         ),
                       ),
                     ],

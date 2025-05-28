@@ -145,8 +145,6 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
 
     _timerCallback;
   }
-
-  /// [_timerCallback] 3 attempt when data is empty to retry button show
   get _timerCallback => _timer =
           Timer.periodic(Duration(milliseconds: (_attemt + 1) * 300), (timer) {
         if (_attemt >= 3 || !widget.isShowRetrySection) {
@@ -162,7 +160,6 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
     if (isNullEmptyOrFalse(value)) {
       _attemt++;
       _attemt >= 3 ? _streamController!.addError('No Data Yet...!') : null;
-      //log("ATTEPT CHEK ${_attemt}");
     } else {
       _streamController!.add(widget.data);
     }

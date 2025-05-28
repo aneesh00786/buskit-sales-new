@@ -66,16 +66,6 @@ void dispose() {
   _delayTimer?.cancel();
   super.dispose();
 }
-
-  //   void _startDelay() {
-  //   Future.delayed(const Duration(seconds: 2), () {
-  //     setState(() {
-  //       widget.orderController.isLoadingPayment.value = false; 
-  //     });
-  //   });
-  // }
-
-
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(

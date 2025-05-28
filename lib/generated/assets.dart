@@ -43,5 +43,4 @@ class Assets {
   static const String iconsIcLoginLogo = 'assets/icons/ic_login_logo.svg';
   static const String iconsIcView = 'assets/icons/ic_view.svg';
   static const String pngThriveWoo = 'assets/icons/png_thrive_woo.png';
-  //static const String iconsIcAddStaffAddress = 'assets/icons/ic_add_staff_address.svg';
 }

@@ -110,8 +110,6 @@ class _PendingPaymentBottomWidgetState
       headerHeight = 55;
       fontSize = 13;
     }
-
-    // If subscriptionController.bookingView.value == 'true'
     return Align(
       alignment: FractionalOffset.topCenter,
       child: Container(
@@ -216,11 +214,6 @@ class _PendingPaymentBottomWidgetState
   Widget _buildOrderList(
       BuildContext context, PendingPaymentController orderController) {
     double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 53 : 58;
-    // if (subscriptionController.appPendingPaymentList.value != 'true') {
-    //   return Center(
-    //     child: UpgradePlanButton(),
-    //   );
-    // }
     return Align(
       alignment: FractionalOffset.topCenter,
       child: Container(
@@ -231,6 +224,7 @@ class _PendingPaymentBottomWidgetState
               width: 210,
               child: Scrollbar(
                 thumbVisibility: true,
+                
                 child: ListView.builder(
                   itemCount: widget.orderController.orderDataList.length + 1,
                   itemBuilder: (context, index) {
@@ -259,6 +253,7 @@ class _PendingPaymentBottomWidgetState
                   trackBorderColor: WidgetStateProperty.all(Colors.grey[400]),
                   thickness: WidgetStateProperty.all(5),
                   radius: const Radius.circular(10),
+                  
                 ),
                 child: Scrollbar(
                   controller: _orderScrollController,
@@ -270,6 +265,7 @@ class _PendingPaymentBottomWidgetState
                     child: SizedBox(
                       width: fullScreenWidth(context) * 0.9,
                       child: ListView.builder(
+                        
                         itemCount:
                             widget.orderController.orderDataList.length + 1,
                         itemBuilder: (context, index) {

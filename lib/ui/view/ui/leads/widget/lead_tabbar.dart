@@ -2,9 +2,9 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_bottom_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_customer_screen.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_rejected_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_customer_screen/lead_customer_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_rejected_screen/lead_rejected_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_bottom_screen/lead_bottom_screen.dart';
 import 'package:flutter/material.dart';
 
 class LeadsTabBar extends StatefulWidget {

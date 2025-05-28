@@ -46,7 +46,6 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
               ),
               widget.customerList.isNotEmpty
                   ?
-                  //widget.staffController.customerAndOrderList.isNotEmpty?
                   Flexible(
                       child: ListView.separated(
                           padding: nkRegularPadding(),
@@ -57,7 +56,7 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
                                 highlightColor: Colors.transparent,
                                 splashFactory: NoSplash.splashFactory,
                                 onTap: () {
-                                  //navigateTo(25.022702, 45.052659);
+
                                 },
                                 child: Row(
                                   mainAxisAlignment:
@@ -65,7 +64,6 @@ class _DashBoardCustomerDialogState extends State<DashBoardCustomerDialog> {
                                   children: [
                                     customerDetailsWidget(
                                         widget.customerList[index]),
-                                    //  widget.staffController.customerAndOrderList[index]),
                                   ],
                                 ),
                               ),

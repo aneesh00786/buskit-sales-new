@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editab
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+
 void pendingPaymentCollectionDialog(
     BuildContext context, String title, Collection collection) {
   final ScrollController scrollController = ScrollController();
@@ -21,6 +22,7 @@ void pendingPaymentCollectionDialog(
     final dateFormat = DateFormat("dd/MM/yyyy");
     return dateFormat.parse(dateStr);
   }
+
   RxList<bool> selectedItems = <bool>[].obs;
   List<PendingAmount> filteredPendingAmount = [];
   void updateSelectedItems() {
@@ -39,6 +41,7 @@ void pendingPaymentCollectionDialog(
         (date.isAfter(startOfToday) && date.isBefore(endOfThreeDaysFromNow)) ||
         date.isAtSameMomentAs(endOfThreeDaysFromNow);
   }
+
   if (title == 'Due Payment') {
     filteredPendingAmount = collection.due!.dueAmount!.toList();
   } else if (title == 'Over Due Payment') {
@@ -101,10 +104,7 @@ void pendingPaymentCollectionDialog(
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
-
-
-      } else {
-      }
+      } else {}
     }
   }
 
@@ -206,18 +206,14 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(
                   child: InkWell(
                       onTap: () {
-                        // showDetailedOrderInvoiceDialog(context, payment.orderId??'', true);
                         showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                        orderId:
-                                                                            payment.orderId ?? '',
-                                                                      );
-                                                                    },
-                                                                  );
+                          context: context,
+                          builder: (context) {
+                            return InvoicePreview(
+                              orderId: payment.orderId ?? '',
+                            );
+                          },
+                        );
                       },
                       child: Text(
                         payment.invoiceId.toString(),
@@ -289,8 +285,7 @@ void pendingPaymentCollectionDialog(
                       orderId: payment.orderId.toString(),
                       orderTotal: payment.orderTotal?.toInt() ?? 0,
                       receivable: payment.pendingAmount,
-                      onValueChanged: (newValue, index) {
-                      },
+                      onValueChanged: (newValue, index) {},
                       amountEdited: payment.amountEdited,
                     ),
                   ),
@@ -353,9 +348,7 @@ void pendingPaymentCollectionDialog(
               child: Text(
                 formatAmount(
                   filteredPendingAmount
-                      .map((e) =>
-                          e.pendingAmount ??
-                          0.0)
+                      .map((e) => e.pendingAmount ?? 0.0)
                       .fold(0.0, (a, b) => a + b),
                 ),
                 style: const TextStyle(
@@ -630,9 +623,7 @@ void pendingPaymentCollectionDialog(
                                           selectedItemsList, enteredAmount);
 
                                       updateSelectedItems();
-                                    } else {
-                                     
-                                    }
+                                    } else {}
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.transparent,
@@ -661,6 +652,7 @@ void pendingPaymentCollectionDialog(
     },
   );
 }
+
 DateTime normalizeDate(DateTime date) =>
     DateTime(date.year, date.month, date.day);
 

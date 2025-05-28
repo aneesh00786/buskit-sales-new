@@ -1,9 +1,6 @@
 // ignore_for_file: overridden_fields
 
 import 'package:flutter/material.dart';
-
-/// Return [DateTimeRange] on date selected
-
 class CalenderDateRangePicker extends DateRangePickerDialog {
   @override
   final DateTime firstDate;

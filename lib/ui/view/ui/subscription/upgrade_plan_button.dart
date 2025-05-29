@@ -1,4 +1,4 @@
-import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:flutter/material.dart';
 
 class UpgradePlanButton extends StatelessWidget {

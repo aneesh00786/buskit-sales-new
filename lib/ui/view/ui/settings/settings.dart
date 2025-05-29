@@ -132,16 +132,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: _buildChangePasswordButton(),
-                      // buildChangePasswordButton(
-                      //     confirmPasswordController: _confirmPasswordController,
-                      //     newPasswordController: _newPasswordController,
-                      //     oldPasswordController: _oldPasswordController,
-                      //     context: context,
-                      //     formKey: _formKey,
-                      //     obscureConfirm: _obscureConfirm,
-                      //     obscureNew: _obscureNew,
-                      //     obscureOld: _obscureOld,
-                      //     staffController: staffController),
                     )
                   ],
                 ),

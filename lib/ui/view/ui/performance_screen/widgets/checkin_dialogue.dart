@@ -83,7 +83,8 @@ Widget buildCheckInOutDialogContent(
                 ),
               ),
               TableViewCell(
-                  child: Text(check.eventId ?? 'N/A', textAlign: TextAlign.center)),
+                  child: Text(check.eventId ?? 'N/A',
+                      textAlign: TextAlign.center)),
               TableViewCell(
                   child: Text(
                 check.individualVisit?.toString() ?? 'N/A',
@@ -106,68 +107,52 @@ Widget buildCheckInOutDialogContent(
           );
         }).toList();
 
-return LayoutBuilder(
-  builder: (BuildContext context, BoxConstraints constraints) {
-    double availableWidth = constraints.maxWidth;
-    double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
-    double headerHeight = 60;
-    double rowHeight = 80;
-    double contentHeight = headerHeight + (rows.length * rowHeight);
-    double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+  return LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      double availableWidth = constraints.maxWidth;
+      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+      double headerHeight = 60;
+      double rowHeight = 80;
+      double contentHeight = headerHeight + (rows.length * rowHeight);
+      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-    return Stack(
-      children: [
-        // Header Background
-        Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
+      return Stack(
+        children: [
+          // Header Background
+          Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              color: primaryColor,
             ),
-            color: primaryColor,
+            height: headerHeight,
           ),
-          height: headerHeight,
-        ),
-        // Table Content
-        SizedBox(
-          width: availableWidth,
-          height: containerHeight,
-          child: Column(
-            children: [
-              // Table Header
-              Container(
-                height: headerHeight,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                  color: primaryColor,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2, 
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(
-                          headers[0],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+          // Table Content
+          SizedBox(
+            width: availableWidth,
+            height: containerHeight,
+            child: Column(
+              children: [
+                // Table Header
+                Container(
+                  height: headerHeight,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
                     ),
-                    ...headers.sublist(1).map((label) {
-                      return Expanded(
-                        flex: 1,
+                    color: primaryColor,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
                         child: Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                            label,
+                            headers[0],
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -176,69 +161,84 @@ return LayoutBuilder(
                             textAlign: TextAlign.center,
                           ),
                         ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: ListView.builder(
-                  itemCount: rows.length,
-                  shrinkWrap: true,
-                  physics: contentHeight > maxDialogHeight
-                      ? const AlwaysScrollableScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 0.5,
-                          ),
-                        ),
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: rows[index].cells[0].child,
+                      ...headers.sublist(1).map((label) {
+                        return Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                          ...rows[index]
-                              .cells
-                              .sublist(1)
-                              .map((cell) => Expanded(
-                                    flex: 1, 
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: cell.child,
-                                    ),
-                                  )),
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: rows.length,
+                    shrinkWrap: true,
+                    physics: contentHeight > maxDialogHeight
+                        ? const AlwaysScrollableScrollPhysics()
+                        : const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: rows[index].cells[0].child,
+                              ),
+                            ),
+                            ...rows[index]
+                                .cells
+                                .sublist(1)
+                                .map((cell) => Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: cell.child,
+                                      ),
+                                    )),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: SizedBox(
-            height: 45,
-            width: 45,
-            child: Center(child: dialogCloseButton1(context, red)),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 45,
+              width: 45,
+              child: Center(child: dialogCloseButton1(context, red)),
+            ),
           ),
-        ),
-      ],
-    );
-  },
-);
-
+        ],
+      );
+    },
+  );
 }

@@ -75,37 +75,22 @@ class LeadsController extends GetxController {
   void deleteLead(int id) {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
-
-  // Future updateLeads(LeadCustomerData leadData) async {
-  //   var data = await ApiWorker()
-  //       .updateCustomer(leadData.toUpdateJson())
-  //       .onError((error, stackTrace) {
-  //     btnController.error();
-  //     btnController.reset();
-  //     return Future.error(error.toString());
-  //   });
-
-  //   if (data.statusCode == 200) {
-  //     btnController.success();
-  //     Get.back<LeadCustomerData>(result: leadData);
-  //   }
-  // }
-
-  Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
-    var data = await ApiWorker()
-        .updateCustomer(leadData, leadImage)
-        .onError((error, stackTrace) {
-      btnController.error();
-      btnController.reset();
-      return Future.error(error.toString());
-    });
+Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
+  try {
+    final data = await ApiWorker().updateCustomer(leadData, leadImage);
 
     if (data.statusCode == 200) {
       btnController.success();
       Get.back();
-      loadLeadsCustomerData;
+      loadLeadsCustomerData; 
     }
+  } catch (error) {
+    btnController.error();
+    btnController.reset();
+    log("updateLeads error: $error");
   }
+}
+
 
   Future<Map<String, dynamic>> addLeadsMapData() async {
     Map<String, dynamic> data = {

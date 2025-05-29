@@ -1,6 +1,3 @@
-// To parse this JSON data, do
-//
-//     final customerData = customerDataFromJson(jsonString?);
 
 // ignore_for_file: constant_identifier_names
 

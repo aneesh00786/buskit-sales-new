@@ -35,7 +35,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   Map<dynamic, String> weeklyTargets = {};
   final int currentMonth = DateTime.now().month;
   final int currentYear = DateTime.now().year;
-  // bool isWeekly = false;
   bool isLoading = true;
   @override
   void initState() {
@@ -259,8 +258,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                   if (widget.staffController.isWeekly.value == true) ...[
                     Builder(
                       builder: (context) {
-                        // final selectedMonth =
-                        //     widget.staffController.tabController.index + 1;
                         final relevantWeeks =widget.staffController.weekList;
                         return SizedBox(
                           child: SingleChildScrollView(
@@ -498,38 +495,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       );
     });
   }
-
-  // int getWeekNumber(DateTime date) {
-  //   DateTime startOfYear = DateTime(date.year, 1, 1);
-  //   int daysSinceStartOfYear = date.difference(startOfYear).inDays;
-  //   int weekNumber = (daysSinceStartOfYear / 7).floor() + 1;
-  //   return weekNumber;
-  // }
-
-  // List<int> getWeeksForMonth(int year, int month) {
-  //   List<int> weeks = [];
-
-  //   try {
-  //     DateTime firstDayOfMonth = DateTime(year, month, 1);
-  //     DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
-  //     DateTime currentDay = firstDayOfMonth;
-
-  //     while (currentDay.isBefore(lastDayOfMonth) ||
-  //         currentDay.isAtSameMomentAs(lastDayOfMonth)) {
-  //       int weekNumber = getWeekNumber(currentDay);
-  //       if (weekNumber != 0 && !weeks.contains(weekNumber)) {
-  //         weeks.add(weekNumber);
-  //       }
-  //       currentDay = currentDay.add(const Duration(days: 1));
-  //     }
-  //   } catch (e) {
-  //     // ignore: avoid_print
-  //     print('Error while calculating weeks for month $month in year $year: $e');
-  //   }
-
-  //   return weeks;
-  // }
-
   List<TableRow> _buildCategoryWeeklyRows(List<String> relevantWeeks) {
     final allWeeklyRows = <TableRow>[];
 

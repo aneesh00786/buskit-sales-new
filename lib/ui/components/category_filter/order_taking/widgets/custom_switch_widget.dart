@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,8 +29,7 @@ class CustomSwitch extends StatefulWidget {
 }
 
 class _CustomSwitchState extends State<CustomSwitch> {
-    final subscriptionController = Get.find<SubscriptionController>();
-
+  final subscriptionController = Get.find<SubscriptionController>();
 
   late bool isOn;
 
@@ -60,46 +59,45 @@ class _CustomSwitchState extends State<CustomSwitch> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:
-      subscriptionController.customerCheckInOut.value == "true" ?
-       widget.selectedName.isNotEmpty
-          ? _toggleSwitch
-          : () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    actions: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.orange,
-                            size: 50,
+      onTap: subscriptionController.customerCheckInOut.value == "true"
+          ? widget.selectedName.isNotEmpty
+              ? _toggleSwitch
+              : () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        actions: [
+                          const SizedBox(
+                            height: 20,
                           ),
-                        ),
-                      ),
-                      Center(
-                          child: CustomText(
-                        content: 'Please select a customer to check-in',
-                        fontSize: 17,
-                      )),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Ok'))
-                    ],
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.orange,
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                          Center(
+                              child: CustomText(
+                            content: 'Please select a customer to check-in',
+                            fontSize: 17,
+                          )),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Ok'))
+                        ],
+                      );
+                    },
                   );
-                },
-              );
-            }:(){
-                                    showUpgradePlanDialog(context);
-
+                }
+          : () {
+              showUpgradePlanDialog(context);
             },
       child: Container(
         width: 140.0,
@@ -113,7 +111,9 @@ class _CustomSwitchState extends State<CustomSwitch> {
           alignment: isOn ? Alignment.centerLeft : Alignment.centerRight,
           children: [
             Padding(
-              padding: isOn ? const EdgeInsets.only(left: 8):const EdgeInsets.only(right: 8),
+              padding: isOn
+                  ? const EdgeInsets.only(left: 8)
+                  : const EdgeInsets.only(right: 8),
               child: MyRegularText(
                 label: isOn ? "Check-in" : "Check-out",
                 color: white,
@@ -144,7 +144,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     isOn
                         ? EneftyIcons.tick_circle_outline
                         : EneftyIcons.close_circle_outline,
-                    color: isOn ? Colors.green : Colors.red,size: 30,
+                    color: isOn ? Colors.green : Colors.red,
+                    size: 30,
                   ),
                 ),
               ),

@@ -338,8 +338,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
                           }
-                    // => _showTileDialog(
-                    //     context, _selectedMonthName ?? '', 1, true),
                     ),
                 OptionData(
                   title: 'Check-in/out',
@@ -349,7 +347,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   onTap: targetContent?.salesmanInOut?.length.toString() == '0'
                       ? () => showCustomToastDisplay(
                           context, 'Record Not Found', red, Icons.close)
-                      : () => _showTileDialog(
+                      : () => showTileDialog(
                           context, _selectedMonthName ?? '', 2, true),
                 ),
                 OptionData(
@@ -366,8 +364,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   staffController: staffController),
                             );
                           }
-                    // _showTileDialog(
-                    //     context, _selectedMonthName ?? '', 3, false),
                     ),
                 OptionData(
                   title: 'Customers',
@@ -377,7 +373,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   onTap: targetContent?.customer?.toString() == '0'
                       ? () => showCustomToastDisplay(
                           context, 'Record Not Found', red, Icons.close)
-                      : () => _showTileDialog(
+                      : () => showTileDialog(
                           context, _selectedMonthName ?? '', 4, true),
                 ),
               ],
@@ -395,10 +391,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      // border: Border.all(
-                      //   color: Colors.grey,
-                      //   width: 0.4,
-                      // ),
                     ),
                     child: Obx(() {
                       if (staffController.isLoading.value) {
@@ -441,9 +433,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             valuePerformance: valuePerformance!,
                             staffProjection: staffProjection,
                             targetType: targetType,
-                            // staffProjection:
-                            //     targetType == '1' ? staffProjection : '0',
-                            // targetType: targetType == '1' ? '1' : '0',
                           ),
                         ),
                       );
@@ -493,7 +482,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     );
   }
 
-  void _showTileDialog(
+  void showTileDialog(
       BuildContext context, String monthName, int tabStatus, bool isFull) {
     staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
       showDialog(

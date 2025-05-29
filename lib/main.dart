@@ -19,7 +19,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/products/product_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -167,9 +166,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         connectivityChecker.startMonitoring();
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider(
-              create: (context) => ProductProvider(),
-            ),
             ChangeNotifierProvider(
               create: (context) =>
                   CustomersProvider(apiService: ApiService(), logger: Logger()),

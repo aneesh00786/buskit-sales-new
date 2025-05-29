@@ -18,14 +18,14 @@ class CheckInOut {
   });
 
   factory CheckInOut.fromJson(Map<String, dynamic> json) => CheckInOut(
-        statusCode: json["status_code"] ?? 0, // Provide a default value
-        status: json["status"] ?? false, // Default to `false`
-        message: json["message"] ?? '', // Default to an empty string
+        statusCode: json["status_code"] ?? 0,
+        status: json["status"] ?? false,
+        message: json["message"] ?? '',
         data: json["data"] != null
             ? List<CheckInCheckoutData>.from(
                 json["data"].map((x) => CheckInCheckoutData.fromJson(x)),
               )
-            : [], // Ensure `data` is never null
+            : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -68,21 +68,21 @@ class CheckInCheckoutData {
   });
 
   factory CheckInCheckoutData.fromJson(Map<String, dynamic> json) => CheckInCheckoutData(
-        customerId: json["customer_id"] ?? '', // Default to an empty string
-        id: json["id"] ?? 0, // Default to 0
-        fullname: json["fullname"] ?? '', // Default to an empty string
-        email: json["email"] ?? '', // Default to an empty string
-        mobileno: json["mobileno"] ?? '', // Default to an empty string
-        imageUrl: json["image_url"] ?? '', // Default to an empty string
-        salesmanId: json["salesman_id"] ?? '', // Default to an empty string
-        eventId: json["event_id"] ?? '', // Default to an empty string
-        individualVisit: json["individual_visit"] ?? 0, // Default to 0
-        totalVisits: json["total_visits"] ?? '0', // Default to '0'
+        customerId: json["customer_id"] ?? '',
+        id: json["id"] ?? 0,
+        fullname: json["fullname"] ?? '', 
+        email: json["email"] ?? '', 
+        mobileno: json["mobileno"] ?? '', 
+        imageUrl: json["image_url"] ?? '', 
+        salesmanId: json["salesman_id"] ?? '', 
+        eventId: json["event_id"] ?? '', 
+        individualVisit: json["individual_visit"] ?? 0, 
+        totalVisits: json["total_visits"] ?? '0', 
         checkIn: json["check_in"] != null
-            ? DateTime.tryParse(json["check_in"]) // Safely parse DateTime
+            ? DateTime.tryParse(json["check_in"])
             : null,
         checkOut: json["check_out"] != null
-            ? DateTime.tryParse(json["check_out"]) // Safely parse DateTime
+            ? DateTime.tryParse(json["check_out"])
             : null,
       );
 

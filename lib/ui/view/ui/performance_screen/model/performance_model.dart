@@ -78,46 +78,6 @@ class PerformanceData {
             months != null ? List<dynamic>.from(months!.map((x) => x)) : [],
       };
 }
-// class ValueTargetDatum {
-//     ValueTargetDatum({
-//          this.id,
-//          this.target,
-//          this.projection,
-//          this.salesId,
-//          this.month,
-//          this.year,
-//          this.companyId,
-//     });
-//     final int? id;
-//     final int? target;
-//     final int? projection;
-//     final String? salesId;
-//     final String? month;
-//     final String? year;
-//     final int? companyId;
-
-//     factory ValueTargetDatum.fromJson(Map<String, dynamic> json){
-//         return ValueTargetDatum(
-//             id: json["id"],
-//             target: json["target"],
-//             projection: json["projection"],
-//             salesId: json["sales_id"],
-//             month: json["month"],
-//             year: json["year"],
-//             companyId: json["company_id"],
-//         );
-//     }
-//       Map<String, dynamic> toJson() => {
-//         "cid": id,
-//         "target": target,
-//         "projection": projection,
-//         "sales_id": salesId,
-//         "month": month,
-//         "year": year,
-//         "company_id":companyId,
-//       };
-// }
-
 class ValueTargetDatum {
   num? actualProjection;
   num? actualTarget;

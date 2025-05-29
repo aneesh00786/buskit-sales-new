@@ -398,11 +398,6 @@ class ProductsController extends GetxController {
         BackupDataFunction.getCategoryAndProductBackup ?? CategoryModel();
     refresh();
   }
-  // Future<res.Response> deleteCartItem(
-  //     String customerId, String cartId, String variationId) async {
-  //   return await ApiWorker().deleteCartItem(cartId, variationId);
-  // }
-
   addTOServerCart(AddToCartModel data) async {
     await ApiWorker().addToCart(data.toJson());
   }

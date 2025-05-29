@@ -85,7 +85,7 @@ class WeeklyTargetTableClass {
         if (key.startsWith('week')) {
           return MapEntry(key, value as int?);
         }
-        return MapEntry(key, null); // Ignore keys that don't match "weekX"
+        return MapEntry(key, null);
       }),
     );
   }

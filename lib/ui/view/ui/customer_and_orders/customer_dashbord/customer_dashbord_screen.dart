@@ -1,5 +1,4 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names, deprecated_member_use
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -35,9 +34,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -2357,7 +2356,6 @@ class UpdateCustomer extends StatelessWidget {
                   child: SizedBox(
                     height: 44,
                     width: double.infinity,
-                    //  color: const Color(0xffffffff),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
@@ -2534,98 +2532,4 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-class CustomerTotalSalePages extends StatelessWidget {
-  final String customerId;
-  final int year;
 
-  const CustomerTotalSalePages(
-      {super.key, required this.customerId, required this.year});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<CustomersProvider>(context);
-    provider.fetchCustomerDashboardDataSalseData(customerId, year);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Customer Total Sale Data'),
-      ),
-      body: Consumer<CustomersProvider>(
-        builder: (context, provider, child) {
-          return FutureBuilder<CustomerTotalSaleResponse>(
-            future: provider.customerTotalSaleResponseFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                final data = snapshot.data!.data;
-
-                return ListView(
-                  padding: const EdgeInsets.all(16.0),
-                  children: [
-                    Text('Payment Completed',
-                        style: Theme.of(context).textTheme.labelLarge),
-                    DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Count')),
-                        DataColumn(label: Text('Percentage')),
-                        DataColumn(label: Text('Total Amount')),
-                      ],
-                      rows: [
-                        DataRow(cells: [
-                          DataCell(Text(data.totalSale.paymentCompleted.count
-                              .toString())),
-                          DataCell(Text(
-                              '${data.totalSale.paymentCompleted.percentage}%')),
-                          DataCell(Text(data
-                              .totalSale.paymentCompleted.totalAmount
-                              .toString())),
-                        ]),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Payment Remaining',
-                        style: Theme.of(context).textTheme.labelLarge),
-                    DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Count')),
-                        DataColumn(label: Text('Percentage')),
-                        DataColumn(label: Text('Total Amount')),
-                      ],
-                      rows: [
-                        DataRow(cells: [
-                          DataCell(Text(data.totalSale.paymentRemaining.count
-                              .toString())),
-                          DataCell(Text(
-                              '${data.totalSale.paymentRemaining.percentage}%')),
-                          DataCell(Text(data
-                              .totalSale.paymentRemaining.totalAmount
-                              .toString())),
-                        ]),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Discount Data',
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    ...data.discountData.map((discount) {
-                      return Card(
-                        child: ListTile(
-                          title: Text('Category: ${discount.category}'),
-                          subtitle: Text('Discount: ${discount.discount}'),
-                          trailing: Text('Value: ${discount.value}'),
-                        ),
-                      );
-                    }),
-                  ],
-                );
-              } else {
-                return const NodataWidget();
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-}

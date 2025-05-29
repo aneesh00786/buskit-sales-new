@@ -1,6 +1,4 @@
-// To parse this JSON data, do
-//
-//     final pendingPaymentResponse = pendingPaymentResponseFromJson(jsonString);
+//Check From Here
 
 import 'dart:convert';
 
@@ -9,7 +7,6 @@ PendingPaymentResponse pendingPaymentResponseFromJson(String str) =>
 
 String pendingPaymentResponseToJson(PendingPaymentResponse data) =>
     json.encode(data.toJson());
-
 class PendingPaymentResponse {
   int statusCode;
   bool status;

@@ -98,7 +98,7 @@ Widget buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
                       child: IconButton(
                         onPressed: () {
                           EditLeadsDialog.showEditLeadsDialog(
-                              context, leadCustomerData);
+                              context, leadCustomerData, leadsController);
                         },
                         padding: const EdgeInsets.all(2),
                         constraints: const BoxConstraints(),

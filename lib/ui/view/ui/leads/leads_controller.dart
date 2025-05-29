@@ -76,9 +76,24 @@ class LeadsController extends GetxController {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
 
-  Future updateLeads(LeadCustomerData leadData) async {
+  // Future updateLeads(LeadCustomerData leadData) async {
+  //   var data = await ApiWorker()
+  //       .updateCustomer(leadData.toUpdateJson())
+  //       .onError((error, stackTrace) {
+  //     btnController.error();
+  //     btnController.reset();
+  //     return Future.error(error.toString());
+  //   });
+
+  //   if (data.statusCode == 200) {
+  //     btnController.success();
+  //     Get.back<LeadCustomerData>(result: leadData);
+  //   }
+  // }
+
+  Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
     var data = await ApiWorker()
-        .updateCustomer(leadData.toUpdateJson())
+        .updateCustomer(leadData, leadImage)
         .onError((error, stackTrace) {
       btnController.error();
       btnController.reset();
@@ -87,7 +102,8 @@ class LeadsController extends GetxController {
 
     if (data.statusCode == 200) {
       btnController.success();
-      Get.back<LeadCustomerData>(result: leadData);
+      Get.back();
+      loadLeadsCustomerData;
     }
   }
 

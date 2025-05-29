@@ -29,22 +29,6 @@ class RejectedLeadsController extends GetxController {
     selectedTabIndex.value = newIndex;
   }
 
-  Future updateRejectedLead(LeadCustomerData leadData) async {
-    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final sendData = leadData.toUpdateJson();
-    sendData['companyId'] = companyId;
-    var data =
-        await ApiWorker().updateCustomer(sendData).onError((error, stackTrace) {
-      btnController.error();
-      btnController.reset();
-      return Future.error(error.toString());
-    });
-    if (data.statusCode == 200) {
-      btnController.success();
-      Get.back<LeadCustomerData>(result: leadData);
-    }
-  }
-
   handleRejectedLeadStatus(int customerId, String statusResponse) async {
     await ApiWorker()
         .handleLeadStatus(customerId, statusResponse)

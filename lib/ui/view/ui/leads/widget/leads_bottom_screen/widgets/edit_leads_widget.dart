@@ -1,41 +1,84 @@
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/file_size_checker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class EditLeadsDialog extends StatelessWidget {
+class EditLeadsDialog extends StatefulWidget {
   final LeadCustomerData leadCustomerData;
+  final LeadsController leadsController;
   const EditLeadsDialog({
     super.key,
     required this.leadCustomerData,
+    required this.leadsController,
   });
   @override
+  State<EditLeadsDialog> createState() => _EditLeadsDialogState();
+
+  static Future<void> showEditLeadsDialog(BuildContext context,
+      LeadCustomerData leadCustomerData, LeadsController leadsController) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return EditLeadsDialog(
+          leadCustomerData: leadCustomerData,
+          leadsController: leadsController,
+        );
+      },
+    );
+  }
+}
+
+class _EditLeadsDialogState extends State<EditLeadsDialog> {
+  @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController =
-        TextEditingController(text: leadCustomerData.fullname);
-    TextEditingController phoneController =
-        TextEditingController(text: leadCustomerData.mobileno);
+    final TextEditingController businessNameController =
+        TextEditingController(text: widget.leadCustomerData.businessName);
+
+    TextEditingController mobilenoController =
+        TextEditingController(text: widget.leadCustomerData.mobileno);
     TextEditingController emailController =
-        TextEditingController(text: leadCustomerData.email);
+        TextEditingController(text: widget.leadCustomerData.email);
     TextEditingController townController =
-        TextEditingController(text: leadCustomerData.town);
+        TextEditingController(text: widget.leadCustomerData.town);
     TextEditingController stateController =
-        TextEditingController(text: leadCustomerData.state);
+        TextEditingController(text: widget.leadCustomerData.state);
     TextEditingController zipcodeController =
-        TextEditingController(text: leadCustomerData.zipcode.toString());
+        TextEditingController(text: widget.leadCustomerData.zipcode.toString());
     TextEditingController addressController =
-        TextEditingController(text: leadCustomerData.address);
-    TextEditingController bsNameController =
-        TextEditingController(text: leadCustomerData.businessName);
-    TextEditingController bsNumController =
-        TextEditingController(text: leadCustomerData.businessNo);
+        TextEditingController(text: widget.leadCustomerData.address);
+    TextEditingController fullnameController =
+        TextEditingController(text: widget.leadCustomerData.fullname);
+    TextEditingController businesscontactController =
+        TextEditingController(text: widget.leadCustomerData.businessNo);
     TextEditingController remarkController =
-        TextEditingController(text: leadCustomerData.remark);
+        TextEditingController(text: widget.leadCustomerData.remark);
     String imageFile =
-        '${ApiConstants.baseUrl}uploads/${leadCustomerData.imageUrl}';
+        '${ApiConstants.baseUrl}uploads/${widget.leadCustomerData.imageUrl}';
+
+    File? leadsImage;
+
+    Future<void> pickImage(ImageSource source) async {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+
+      if (pickedFile != null) {
+        setState(() {
+          leadsImage = File(pickedFile.path); // Store selected image
+        });
+      }
+    }
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -114,69 +157,39 @@ class EditLeadsDialog extends StatelessWidget {
                       border: Border.all(color: Colors.grey),
                     ),
                     child: TextField(
-                      controller: nameController,
+                      controller: businessNameController,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12.0,
                           vertical: 16.0,
                         ),
-                        labelText: 'Full Name',
+                        labelText: 'Business Name',
                         prefixIcon: Icon(Icons.person),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: TextField(
-                            controller: phoneController,
-                            decoration: const InputDecoration(
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                                vertical: 16.0,
-                              ),
-                              labelText: 'Mobile Number',
-                              prefixIcon: Icon(Icons.phone),
-                              border: InputBorder.none,
-                            ),
-                          ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: TextField(
+                      controller: addressController,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 16.0,
                         ),
+                        labelText: 'Address',
+                        prefixIcon: Icon(Icons.home),
+                        border: InputBorder.none,
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: TextField(
-                            controller: emailController,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                                vertical: 16.0,
-                              ),
-                              labelText: 'Email',
-                              prefixIcon: Icon(Icons.email),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 Row(
                   children: [
@@ -253,27 +266,6 @@ class EditLeadsDialog extends StatelessWidget {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: TextField(
-                      controller: addressController,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 16.0,
-                        ),
-                        labelText: 'Address',
-                        prefixIcon: Icon(Icons.home),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
                 Row(
                   children: [
                     Expanded(
@@ -281,17 +273,18 @@ class EditLeadsDialog extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.grey),
                           ),
                           child: TextField(
-                            controller: bsNameController,
+                            controller: mobilenoController,
                             decoration: const InputDecoration(
+                              fillColor: Colors.white,
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
-                              labelText: 'Busniness Name',
+                              labelText: 'Mobile Number',
                               prefixIcon: Icon(Icons.phone),
                               border: InputBorder.none,
                             ),
@@ -308,13 +301,63 @@ class EditLeadsDialog extends StatelessWidget {
                             border: Border.all(color: Colors.grey),
                           ),
                           child: TextField(
-                            controller: bsNumController,
+                            controller: emailController,
                             decoration: const InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
-                              labelText: 'Business Contact',
+                              labelText: 'Email',
+                              prefixIcon: Icon(Icons.email),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: TextField(
+                            controller: fullnameController,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12.0,
+                                vertical: 16.0,
+                              ),
+                              labelText: 'Contact Person Name',
+                              prefixIcon: Icon(Icons.phone),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: TextField(
+                            controller: businesscontactController,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12.0,
+                                vertical: 16.0,
+                              ),
+                              labelText: 'Contact Number',
                               prefixIcon: Icon(Icons.phone_callback),
                               border: InputBorder.none,
                             ),
@@ -357,62 +400,93 @@ class EditLeadsDialog extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
-                          // onTap: provider.pickImage,
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Select Method'),
+                                  actions: [
+                                    IconButton(
+                                      onPressed: () {
+                                        pickImage(ImageSource.camera);
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: const Icon(
+                                          EneftyIcons.camera_outline),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        pickImage(ImageSource.gallery);
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon:
+                                          const Icon(EneftyIcons.gallery_bold),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              border: Border.all(color: Colors.grey),
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade300,
+                                  blurRadius: 6.0,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                                vertical: 16.0,
+                                horizontal: 16.0,
+                                vertical: 18.0,
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  Column(
-                                    children: [
-                                      const Icon(Icons.image,
-                                          color: Colors.grey),
-                                      const SizedBox(height: 12.0),
-                                      Text(
-                                        // ignore: unnecessary_null_comparison
-                                        imageFile == null
-                                            ? 'Pick an image from gallery'
-                                            : 'Image selected',
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                    ],
+                                  Icon(
+                                    Icons.image,
+                                    color: Colors.grey.shade600,
+                                    size: 28.0,
                                   ),
-                                  // ignore: unnecessary_null_comparison
-                                  if (imageFile != null) ...[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        height: 100.0,
-                                        width: 100.0, // Set a fixed width here
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          border:
-                                              Border.all(color: Colors.grey),
-                                        ),
-                                        child: kIsWeb
-                                            ? Image.network(
-                                                imageFile,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Image.file(
-                                                File(imageFile),
-                                                fit: BoxFit.cover,
-                                              ),
+                                  const SizedBox(width: 12.0),
+                                  Expanded(
+                                    child: Text(
+                                      leadsImage == null && imageFile.isEmpty
+                                          ? 'Pick an image from gallery'
+                                          : 'Image selected',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ],
+                                  ),
+                                  SizedBox(
+                                    height: 100,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                          NkGeneralSize.nkCommonBorderRadius()),
+                                      child: leadsImage != null
+                                          ? Image.file(
+                                              leadsImage!,
+                                              height: AppDimensions
+                                                      .instance.height *
+                                                  0.2,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : MyNetworkImage(
+                                              imageUrl: imageFile,
+                                              height: AppDimensions
+                                                      .instance.height *
+                                                  0.2,
+                                            ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -429,18 +503,71 @@ class EditLeadsDialog extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
-                          
+                          if (businessNameController.text.isEmpty ||
+                              addressController.text.isEmpty ||
+                              townController.text.isEmpty ||
+                              stateController.text.isEmpty ||
+                              zipcodeController.text.isEmpty ||
+                              mobilenoController.text.isEmpty ||
+                              emailController.text.isEmpty ||
+                              fullnameController.text.isEmpty ||
+                              businesscontactController.text.isEmpty ||
+                              remarkController.text.isEmpty) {
+                            showCustomToastDisplay(context,
+                                'All fields must be filled.', red, Icons.close);
+                            return;
+                          }
+
+                          if (mobilenoController.text.length != 10 ||
+                              businesscontactController.text.length != 10) {
+                            showCustomToastDisplay(
+                                context,
+                                'Phone numbers must be exactly 10 digits.',
+                                red,
+                                Icons.close);
+                            return;
+                          }
+
+                          if (leadsImage != null) {
+                            bool isValid =
+                                await isFileSizeWithinLimit(leadsImage!);
+                            if (!isValid) {
+                              showCustomToastDisplay(context,
+                                  'File exceeds 1MB.', red, Icons.close);
+                              return;
+                            }
+                          }
+
+                          final sendData = {
+                            "businessname": businessNameController.text,
+                            "address": addressController.text,
+                            "town": townController.text,
+                            "state": stateController.text,
+                            "zipcode": int.tryParse(zipcodeController.text),
+                            "mobileno": int.tryParse(mobilenoController.text),
+                            "email": emailController.text,
+                            "fullname": fullnameController.text,
+                            "businesscontact":
+                                int.tryParse(businesscontactController.text),
+                            "remark": remarkController.text,
+                            "customer_id": widget.leadCustomerData.customerId,
+                            "oldimage_url": widget.leadCustomerData.imageUrl,
+                            "companyId":
+                                SessionHelper.loginSavedData?.company_id ?? 0,
+                          };
+
+                          await widget.leadsController
+                              .updateLeads(sendData, leadsImage);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              primaryColor,
+                          backgroundColor: primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
                         child: const Text(
                           'Update',
-                          style: TextStyle(color: white),
+                          style: TextStyle(color: Colors.black),
                         ),
                       )
                     ],
@@ -451,18 +578,6 @@ class EditLeadsDialog extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  static Future<void> showEditLeadsDialog(
-      BuildContext context, LeadCustomerData leadCustomerData) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return EditLeadsDialog(
-          leadCustomerData: leadCustomerData,
-        );
-      },
     );
   }
 }

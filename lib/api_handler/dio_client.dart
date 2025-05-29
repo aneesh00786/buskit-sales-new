@@ -84,6 +84,34 @@ class DioClient with ApiConstants {
 
     throw 'Failed to complete the request after $maxRetries retries.';
   }
+
+  Future<Response> patchbycustom<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
+      );
+      return response;
+    } on DioException catch (err) {
+      final errorMessage = DioExceptionHandler.fromDioError(err).toString();
+      return Future.error(errorMessage);
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
 }
 
 Future<Response<dynamic>> responsePostMethod(

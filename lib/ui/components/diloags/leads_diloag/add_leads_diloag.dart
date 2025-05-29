@@ -1,8 +1,7 @@
-
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -11,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/custom_button_leads.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/input_field_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -336,8 +336,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title:
-                                                      const Text('Select Method'),
+                                                  title: const Text(
+                                                      'Select Method'),
                                                   actions: [
                                                     IconButton(
                                                       onPressed: () {
@@ -346,18 +346,20 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                         Navigator.of(context)
                                                             .pop();
                                                       },
-                                                      icon: const Icon(EneftyIcons
-                                                          .camera_outline),
+                                                      icon: const Icon(
+                                                          EneftyIcons
+                                                              .camera_outline),
                                                     ),
                                                     IconButton(
                                                       onPressed: () {
-                                                        pickImage(
-                                                            ImageSource.gallery);
+                                                        pickImage(ImageSource
+                                                            .gallery);
                                                         Navigator.of(context)
                                                             .pop();
                                                       },
-                                                      icon: const Icon(EneftyIcons
-                                                          .gallery_bold),
+                                                      icon: const Icon(
+                                                          EneftyIcons
+                                                              .gallery_bold),
                                                     ),
                                                   ],
                                                 );
@@ -378,12 +380,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                               ],
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 16.0,
                                                 vertical: 18.0,
                                               ),
                                               child: Row(
-                                                
                                                 children: [
                                                   Icon(
                                                     Icons.image,
@@ -397,8 +399,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                           ? 'Pick an image from gallery'
                                                           : 'Image selected',
                                                       style: TextStyle(
-                                                        color:
-                                                            Colors.grey.shade700,
+                                                        color: Colors
+                                                            .grey.shade700,
                                                         fontSize: 16.0,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -414,7 +416,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                         borderRadius: BorderRadius
                                                             .circular(NkGeneralSize
                                                                 .nkCommonBorderRadius()),
-                                                        child: leadsImage != null
+                                                        child: leadsImage !=
+                                                                null
                                                             ? Image.file(
                                                                 leadsImage!,
                                                                 height: AppDimensions
@@ -443,12 +446,137 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          if (leadsImage != null) {
-                                            widget.leadsController.addLeads(
-                                              leadsImage: leadsImage!,
-                                              context: context,
-                                            );
+                                          final fields = {
+                                            'Business Name': widget
+                                                .leadsController
+                                                .businessNameController,
+                                            'Address': widget.leadsController
+                                                .addressController,
+                                            'Town': widget
+                                                .leadsController.townController,
+                                            'State': widget.leadsController
+                                                .stateController,
+                                            'Zip Code': widget.leadsController
+                                                .zipcodeController,
+                                            'Mobile Number': widget
+                                                .leadsController
+                                                .mobileNoController,
+                                            'Email': widget.leadsController
+                                                .emailController,
+                                            'Telephone': widget.leadsController
+                                                .telephoneController,
+                                            'Contact Person': widget
+                                                .leadsController
+                                                .fullnameController,
+                                            'Contact Number': widget
+                                                .leadsController
+                                                .businessContactController,
+                                            'Delivery Address': widget
+                                                .leadsController
+                                                .deliveryAddressController,
+                                            'Delivery Town': widget
+                                                .leadsController
+                                                .deliveryTownController,
+                                            'Delivery State': widget
+                                                .leadsController
+                                                .deliveryStateController,
+                                            'Delivery Zip Code': widget
+                                                .leadsController
+                                                .deliveryZipcodeController,
+                                            'Remark': widget.leadsController
+                                                .remarkController,
+                                          };
+
+                                          // Check for missing field
+                                          for (var entry in fields.entries) {
+                                            if (entry.value.text
+                                                .trim()
+                                                .isEmpty) {
+                                              showCustomToastDisplay(
+                                                context,
+                                                '${entry.key} is required',
+                                                red,
+                                                Icons.close,
+                                              );
+                                              return;
+                                            }
                                           }
+
+                                          // Validate phone numbers
+                                          final phoneFields = {
+                                            'Mobile Number': widget
+                                                .leadsController
+                                                .mobileNoController,
+                                            'Telephone': widget.leadsController
+                                                .telephoneController,
+                                            'Contact Number': widget
+                                                .leadsController
+                                                .businessContactController,
+                                          };
+
+                                          for (var entry
+                                              in phoneFields.entries) {
+                                            final phone =
+                                                entry.value.text.trim();
+                                            if (!RegExp(r'^\d{10}$')
+                                                .hasMatch(phone)) {
+                                              showCustomToastDisplay(
+                                                context,
+                                                '${entry.key} must be 10 digits',
+                                                red,
+                                                Icons.close,
+                                              );
+                                              return;
+                                            }
+                                          }
+
+                                          // Validate email
+                                          final email = widget.leadsController
+                                              .emailController.text
+                                              .trim();
+                                          final emailRegex = RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                          if (!emailRegex.hasMatch(email)) {
+                                            showCustomToastDisplay(
+                                              context,
+                                              'Invalid Email format',
+                                              red,
+                                              Icons.close,
+                                            );
+                                            return;
+                                          }
+
+                                          // Check image
+                                          if (leadsImage == null) {
+                                            showCustomToastDisplay(
+                                              context,
+                                              'Image is required',
+                                              red,
+                                              Icons.close,
+                                            );
+                                            return;
+                                          }
+
+                                          if (leadsImage != null) {
+                                            bool isValid =
+                                                await isFileSizeWithinLimit(
+                                                    leadsImage!);
+                                            if (!isValid) {
+                                              showCustomToastDisplay(
+                                                  context,
+                                                  'File exceeds 1MB.',
+                                                  red,
+                                                  Icons.close);
+                                              return;
+                                            }
+                                          }
+
+                                          // All validations passed
+                                          widget.leadsController.addLeads(
+                                            leadsImage: leadsImage!,
+                                            context: context,
+                                          );
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: primaryColor,
@@ -480,7 +608,3 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
     );
   }
 }
-
-
-
-

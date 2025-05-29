@@ -727,16 +727,53 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<Response> updateCustomer(Map<String, dynamic> sendData) async {
-    log("Send DATA: ${FormData.fromMap(sendData).fields}");
-    final response = await dio
-        .postbycustom(ApiConstants.updateCustomer,
-            data: FormData.fromMap(sendData))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(error));
-    });
-    return response;
+  // Future<Response> updateCustomer(Map<String, dynamic> sendData) async {
+  //   log("Send DATA: ${FormData.fromMap(sendData).fields}");
+  //   final response = await dio
+  //       .postbycustom(ApiConstants.updateCustomer,
+  //           data: FormData.fromMap(sendData))
+  //       .onError((DioException error, stackTrace) {
+  //     log(error.toString());
+  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
+  //   });
+  //   return response;
+  // }
+
+  Future<Response> updateCustomer(
+    Map<String, dynamic> sendData,
+    File? leadsImage,
+  ) async {
+    try {
+      if (leadsImage != null) {
+        final customerPicture = await MultipartFile.fromFile(
+          leadsImage.path,
+          filename: leadsImage.path.split('/').last,
+        );
+        sendData['cutomerpicture'] = customerPicture;
+      }
+
+      final formData = FormData.fromMap(sendData);
+      log("data: $sendData");
+
+      final response = await dio.patchbycustom(
+        ApiConstants.updateCustomer,
+        data: formData,
+      );
+
+      return response;
+    } on DioException catch (error) {
+      log("DioException: ${error.message}");
+
+      handleExceptionMessage(
+        apiName: 'Update Customer',
+        response: error.response,
+      );
+
+      throw DioExceptionHandler.fromDioError(error);
+    } catch (error) {
+      log("Unexpected error: $error");
+      return Future.error(error);
+    }
   }
 
   Future<LeadResponce> getLeadsData(int currentPage) async {

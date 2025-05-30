@@ -1,0 +1,2 @@
+C:/Users/PRO/Desktop/buskit/buskit-sales-new/android/app/.cxx/Debug/3f6k5y31/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/PRO/Desktop/buskit/buskit-sales-new/android/app/.cxx/Debug/3f6k5y31/armeabi-v7a/CMakeFiles/rebuild_cache.dir

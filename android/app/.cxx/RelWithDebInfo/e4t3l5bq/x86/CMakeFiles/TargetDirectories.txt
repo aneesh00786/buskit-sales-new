@@ -1,0 +1,2 @@
+C:/Users/PRO/Desktop/buskit/buskit-sales-new/android/app/.cxx/RelWithDebInfo/e4t3l5bq/x86/CMakeFiles/edit_cache.dir
+C:/Users/PRO/Desktop/buskit/buskit-sales-new/android/app/.cxx/RelWithDebInfo/e4t3l5bq/x86/CMakeFiles/rebuild_cache.dir

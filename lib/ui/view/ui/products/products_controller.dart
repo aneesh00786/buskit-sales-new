@@ -104,6 +104,7 @@ class ProductsController extends GetxController {
         Navigator.pop(context);
         return;
       }
+      
       final cartDetails =
           await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
       await Future.delayed(const Duration(seconds: 1));

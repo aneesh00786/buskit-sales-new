@@ -1,8 +1,3 @@
-# These are some examples of commonly ignored file patterns.
-# You should customize this list as applicable to your project.
-# Learn more about .gitignore:
-#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
-
 # Flutter/Dart
 .dart_tool/
 .flutter-plugins
@@ -17,11 +12,12 @@ android/app/debug/
 android/app/profile/
 android/app/release/
 android/app/build/
+android/app/.cxx/
 android/local.properties
 android/.idea/
 android/.vscode/
 android/app/src/main/kotlin/**/GeneratedPluginRegistrant.kt
-
+hs_err_pid*.log
 # iOS
 ios/Flutter/.last_build_id
 ios/Flutter/Flutter.framework
@@ -37,8 +33,6 @@ ios/Flutter/Flutter.podspec
 ios/.idea/
 ios/.vscode/
 
-build/
-
 # Web
 web/index.html
 
@@ -53,7 +47,6 @@ web/index.html
 *.war
 *.mp3
 *.mp4
-
 # Directories to ignore
 target/
 .build/

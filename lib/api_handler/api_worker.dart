@@ -1527,12 +1527,13 @@ class ApiWorker with ApiConstants {
     log('Sending API request to updateCategoryTargetValue...');
     log('API Payload: ${jsonEncode(requestPayload)}');
 
-    final response = await dio1
-        .post(
-      // ApiConstants.updateCategoryTargetValue,
-      'http://16.50.232.153:3000/Update_CategorytargetValue',
-      data: requestPayload,
-    )
+    final response = await responsePostMethod(requestData:requestPayload ,endPoint:'Update_CategorytargetValue')
+    // dio1
+    //     .post(
+    //   // ApiConstants.updateCategoryTargetValue,
+    //   'http://16.50.232.153:3000/Update_CategorytargetValue',
+    //   data: requestPayload,
+    // )
         .onError((DioException error, stackTrace) {
       log("Dio Error: ${error.toString()}");
       return Future.error(DioExceptionHandler.fromDioError(error));

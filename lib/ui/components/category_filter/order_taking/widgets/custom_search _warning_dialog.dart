@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
 

@@ -1,4 +1,4 @@
-  // ignore_for_file: use_build_context_synchronously
+  // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';

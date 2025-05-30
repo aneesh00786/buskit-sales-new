@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls
+// ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
 
 import 'dart:developer';
 
@@ -101,7 +101,6 @@ class ProductsController extends GetxController {
         offlineMode1(context);
         CartDatabaseManager().cartItems.clear();
         CartDatabaseManager().clearCart(customerId: customerId);
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
         return;
       }

@@ -337,6 +337,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   }
 
   void _saveTargets() async {
+    log('This function Called _saveTargets ');
     final selectedMonth = widget.staffController.tabController.index + 1;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));

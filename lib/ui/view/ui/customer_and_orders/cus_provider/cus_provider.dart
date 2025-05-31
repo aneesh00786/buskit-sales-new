@@ -122,7 +122,6 @@ class CustomersProvider with ChangeNotifier {
             return BarChartGroupData(
               x: index,
               barRods: [
-                // if (targetType == "1")
                 BarChartRodData(
                   toY: target.toDouble(),
                   color: const Color(0xff3b6491),
@@ -222,8 +221,6 @@ class CustomersProvider with ChangeNotifier {
         startDate: selectedStartDate,
         endDate: selectedEndDate,
       );
-
-      // notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;
@@ -244,14 +241,13 @@ class CustomersProvider with ChangeNotifier {
 
     try {
       if (query.isEmpty) {
-        // _filteredCustomers = _customers;
         _filteredCustomers.clear();
         await fetchCustomerData();
       } else {
         _filteredCustomers.clear();
         notifyListeners();
 
-        await fetchCustomerData(); // API call
+        await fetchCustomerData();
       }
     } catch (e) {
       log("Error fetching customer data: $e");
@@ -260,12 +256,6 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  // void setCustomers(List<CustomerModelxx> customers, int totalPages) {
-  //   _customers = customers;
-  //   _filteredCustomers = customers;
-  //   _totalPages = totalPages;
-  //   notifyListeners();
-  // }
   void setCustomers(List<CustomerModelxx> customers, int totalPages) {
     _customers = customers;
     _filteredCustomers = customers;
@@ -358,9 +348,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       await _apiService
           .addCustomer(
-              model: admin,
-              adminProfilePicture: image,
-              salesmanId: salsmanId)
+              model: admin, adminProfilePicture: image, salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
       log('Admin ${admin.businessName}');
       log('Image File $image');
@@ -512,17 +500,9 @@ class CustomersProvider with ChangeNotifier {
   }
 
   List<YearList> get yearList => _yearList;
-
   int? get selectedYear => _selectedYear;
-  void setSelectedYear(int year) {
-    _selectedYear = year;
-    notifyListeners();
-  }
-
   final List<RecentOrder> _selectedOrders = [];
-
   List<RecentOrder> get selectedOrders => _selectedOrders;
-
   void toggleOrderSelection(RecentOrder order) {
     if (_selectedOrders.contains(order)) {
       _selectedOrders.remove(order);
@@ -739,26 +719,7 @@ class CustomersProvider with ChangeNotifier {
   }
 
   final ScrollController _scrollController = ScrollController();
-
   ScrollController get scrollController => _scrollController;
-
-  // void scrollLeft() {
-  //   if (_scrollController.position.pixels > 0) {
-  //     _scrollController.jumpTo((_scrollController.position.pixels - 100)
-  //         .clamp(0.0, _scrollController.position.maxScrollExtent));
-  //     notifyListeners();
-  //   }
-  // }
-
-  // void scrollRight() {
-  //   if (_scrollController.position.pixels <
-  //       _scrollController.position.maxScrollExtent) {
-  //     _scrollController.jumpTo((_scrollController.position.pixels + 100)
-  //         .clamp(0.0, _scrollController.position.maxScrollExtent));
-  //     notifyListeners();
-  //   }
-  // }
-
   @override
   void dispose() {
     _scrollController.dispose();

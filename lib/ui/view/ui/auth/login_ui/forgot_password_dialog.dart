@@ -215,7 +215,6 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
       obscureText: obscure,
       decoration: InputDecoration(
         labelText: hint,
-        // hintText: hint,
         enabled: hint != "Enter your email",
         filled: true,
         fillColor: Colors.grey[100],

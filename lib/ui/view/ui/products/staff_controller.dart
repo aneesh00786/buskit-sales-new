@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -57,13 +58,11 @@ class StaffController extends GetxController {
   TextEditingController addressTextController = TextEditingController();
   TextEditingController cityTextController = TextEditingController();
   TextEditingController stateTextController = TextEditingController();
-  // RxBool isTargetLoading = false.obs;
   var targetControllers = <TextEditingController>[].obs;
   var salesmanTargetList = PerformanceData().obs;
   var isLoading = false.obs;
   var isLoadingPass = false.obs;
   var isTopDataLoading = false.obs;
-
   var checkInOutData = Rxn<CheckInOut>();
   var visitData = Rxn<VisitData>();
   var customerDatas = Rxn<CustomerData>();
@@ -87,10 +86,8 @@ class StaffController extends GetxController {
         salesId: salesmanId,
         isfromLogin: isFromLogin,
       );
-
       if (response != null) {
         log('📊 Response contains categoryPerformance: $response');
-
         salesmanTargetList.update((list) {
           if (list != null) {
             list.navbarAndTargetContent = response.navbarAndTargetContent;
@@ -114,7 +111,6 @@ class StaffController extends GetxController {
     try {
       final jsonData =
           await ApiWorker().fetchSalesmanTopBarData(monthName, tabStatus);
-
       if (jsonData != null) {
         switch (tabStatus) {
           case 1:
@@ -380,13 +376,15 @@ class StaffController extends GetxController {
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       );
-      Get.snackbar("Success", "Password changed successfully");
+      Get.snackbar(
+        colorText: white,
+        backgroundColor: Colors.green,
+        "Success", "Password changed successfully");
     } catch (e) {
       log("Error from controller: $e");
       Get.snackbar("Error", "Something went wrong");
     } finally {
       isLoadingPass.value = false;
-      log("Error from controller:");
     }
   }
 }

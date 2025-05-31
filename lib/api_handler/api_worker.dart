@@ -1355,7 +1355,6 @@ class ApiWorker with ApiConstants {
             ApiConstants.fetchSalesmanTarget,
             data: requestPayload,
           );
-
           if (response.statusCode == 200) {
             final dynamic jsonData = response.data;
             log("Fetched Salesman Target Data: $jsonData");
@@ -1528,12 +1527,6 @@ class ApiWorker with ApiConstants {
     log('API Payload: ${jsonEncode(requestPayload)}');
 
     final response = await responsePostMethod(requestData:requestPayload ,endPoint:'Update_CategorytargetValue')
-    // dio1
-    //     .post(
-    //   // ApiConstants.updateCategoryTargetValue,
-    //   'http://16.50.232.153:3000/Update_CategorytargetValue',
-    //   data: requestPayload,
-    // )
         .onError((DioException error, stackTrace) {
       log("Dio Error: ${error.toString()}");
       return Future.error(DioExceptionHandler.fromDioError(error));

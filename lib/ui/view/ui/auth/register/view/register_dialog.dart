@@ -6,11 +6,11 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_right_side_widgte.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_plan_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/address_search_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/business_email_textfield.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register_phone_number_field.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register_textfield.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_message.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -291,11 +291,7 @@ Future<dynamic> registerDialog(BuildContext context,
                             },
                           ),
                           const SizedBox(
-                            height: 30,
-                          ),
-                          
-                          const SizedBox(
-                            height: 30,
+                            height: 60,
                           ),
                           NkLoadingButton(
                             isRoundedCorner: false,

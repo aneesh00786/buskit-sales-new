@@ -3,8 +3,8 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_right_side_widgte.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register_textfield.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

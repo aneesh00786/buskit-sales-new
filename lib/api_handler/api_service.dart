@@ -31,31 +31,6 @@ class ApiService {
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
-  // ApiService() {
-  //   dio.interceptors.add(InterceptorsWrapper(
-  //     onRequest: (options, handler) async {
-  //       final jsonString =
-  //           await SessionManager.getStringValue(SpString.spLogin);
-  //       if (jsonString.isNotEmpty) {
-  //         Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  //         String createdToken = jsonMap['createdToken'];
-  //         options.headers["Authorization"] = "Bearer $createdToken";
-  //         log('Authorization Header Set: Bearer $createdToken');
-  //       }
-  //       return handler.next(options);
-  //     },
-  //     onResponse: (response, handler) {
-  //       return handler.next(response);
-  //     },
-  //     onError: (DioException error, handler) async {
-  //       if (error.response?.statusCode == 401 ||
-  //           error.response?.statusCode == 400) {
-  //         _handleTokenExpiration();
-  //       }
-  //       return handler.next(error);
-  //     },
-  //   ));
-  // }
   Future<CustomerRevenueResponse> fetchCustomerRevenueData(
     String customerId,
     int specifiedYear,
@@ -786,66 +761,6 @@ class ApiService {
     } on DioException catch (error) {
       handleExceptionMessage(
           response: error.response, apiName: "fetch all orders", error: error);
-      throw Exception('Failed to fetch orders: $error');
-    }
-  }
-
-  Future<OrderResponse> fetchCustomerDashOrderstoCart({
-    required String cusId,
-    required String salesmanId,
-    required String startDate,
-    required String endDate,
-    required dynamic orderType,
-    OrderStatus? orderStatus,
-  }) async {
-    final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "customer_id": cusId,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "order_type": orderType,
-      "payment_type": "1",
-      "start_date": startDate,
-      "end_date": endDate,
-      "limit": 1000,
-      "page": 1,
-    };
-    log("Request Body Of fetchCustomerDashOrderstoCart $requestBody");
-    try {
-      final response = await responsePostMethod(
-        requestData: requestBody,
-        endPoint: ApiConstants.fetchAllOrders,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
-      if (response.statusCode == 200) {
-        var jsonResponse = response.data;
-        log('Fetch All Orders Response: $jsonResponse');
-        Pagination pagination =
-            Pagination.fromJson(jsonResponse['pagination'] ?? {});
-        List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
-        log('Fetch All Orders Customer Pagination: ${pagination.totalRecord}');
-
-        List<OrdersDash> orders = [];
-        if (orderData != null) {
-          orders = orderData
-              .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
-              .toList();
-        }
-        return OrderResponse(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: orders,
-          pagination: pagination,
-        );
-      } else {
-        handleExceptionMessage(response: response, apiName: "fetch all order");
-        throw Exception('Failed to fetch orders - ${response.statusCode}');
-      }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "fetch all order", error: error);
       throw Exception('Failed to fetch orders: $error');
     }
   }

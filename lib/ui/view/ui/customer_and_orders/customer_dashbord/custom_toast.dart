@@ -26,8 +26,8 @@ class _CustomToastState extends State<CustomToast>
     );
 
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, -1), // Start position (above the screen)
-      end: Offset.zero, // End position (top of the screen)
+      begin: const Offset(0, -1),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,

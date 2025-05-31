@@ -16,11 +16,12 @@ import 'package:busskit_salesexecutive/ui/components/option/widgets/nodata_dialo
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart' as ext; 
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/helpers/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
@@ -295,7 +296,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     ),
                     CustomText(
                       content:
-                          _getCountForTitle(optionData.title, orderCountList),
+                          getCountForTitle(optionData.title, orderCountList),
                       fontSize: ResponsiveInfo.isMobileDimension(context)
                           ? 7.7
                           : 15.3,
@@ -312,75 +313,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
     );
   }
 
-  String _getCountForTitle(String title, OrderDataas orderCountList) {
-    switch (title.toLowerCase()) {
-      case 'orders':
-        return orderCountList.totalOrder.toString();
-      case 'estimates':
-        return orderCountList.estimateOrder.toString();
-      case 'bookings':
-        return orderCountList.preorderOrder.toString();
-      case 'drafts':
-        return orderCountList.draftOrder.toString();
-      case 'cancelled':
-        return orderCountList.cancelOrder.toString();
-      default:
-        return "0";
-    }
-  }
 
-  String getOrderStatusString(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.preOrder:
-        return 'Pre Order';
-      case OrderStatus.outOfDelivery:
-        return 'Out For Delivery';
-      case OrderStatus.delivered:
-        return 'Delivered';
-      case OrderStatus.cancelled:
-        return 'Cancelled';
-      case OrderStatus.draft:
-        return 'Draft';
-      case OrderStatus.processing:
-        return 'Processing';
-      case OrderStatus.pending:
-        return 'Pending';
-      case OrderStatus.estimates:
-        return 'Estimates';
-
-      default:
-        throw Exception('Unsupported order status: $status');
-    }
-  }
-
-  String getOrderStatusName(int orderStatus) {
-    switch (orderStatus) {
-      case 0:
-        return 'Pre Order';
-      case 1:
-        return 'Out For Delivery';
-      case 2:
-        return 'Delivered';
-      case 3:
-        return 'Cancelled';
-      case 4:
-        return 'Draft';
-      case 5:
-        return 'Processing';
-      case 6:
-        return 'Pending';
-      case 7:
-        return 'Estimates';
-      case 8:
-        return 'Accept By Admin';
-      case 9:
-        return 'Reject By Admin';
-      case 10:
-        return 'Packed For Delivery';
-      default:
-        return '';
-    }
-  }
 
   void _showOrderStatusDialog(BuildContext context, CustomersProvider provider,
       OrderStatus selectedOrderStatus) {
@@ -410,9 +343,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           );
                         } else {
                           final orders = snapshot.data?.data ?? [];
-
                           final filteredOrders = orders.toList();
-
                           return LayoutBuilder(
                             builder: (BuildContext context,
                                 BoxConstraints constraints) {
@@ -687,7 +618,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                               width: flexWidth * 1,
                                                               child: Center(
                                                                 child: Text(
-                                                                  formatAmount(order
+                                                                  ext.formatAmount(order
                                                                       .orderTotal),
                                                                   maxLines: 1,
                                                                   style: TextStyle(
@@ -966,7 +897,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                         width: flexWidth * 1,
                                                         child: Center(
                                                           child: Text(
-                                                            formatAmount(
+                                                            ext.formatAmount(
                                                                 filteredOrders
                                                                     .fold<
                                                                         double>(
@@ -1658,7 +1589,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           1,
                                                                   child: Center(
                                                                     child: Text(
-                                                                      formatAmount(
+                                                                      ext.formatAmount(
                                                                           order
                                                                               .orderTotal),
                                                                       maxLines: 1,
@@ -1973,7 +1904,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                         label: Expanded(
                                                       child: Center(
                                                         child: Text(
-                                                          formatAmount(filteredOrders.fold<
+                                                          ext.formatAmount(filteredOrders.fold<
                                                                   double>(
                                                               0.0,
                                                               (sum, order) =>

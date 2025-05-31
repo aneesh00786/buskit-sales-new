@@ -1,4 +1,3 @@
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -6,6 +5,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/custom_dialog_heading.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +27,6 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
             double listHeight = recentOrders.length * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,
@@ -75,8 +74,6 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                     selectedOrders.add(order);
                                   }
                                 }
-
-                                // Show the appropriate dialog or toast based on the selection
                                 if (selectedOrders.isNotEmpty) {
                                   paymentCollectionDialog(
                                       context, selectedOrders);
@@ -106,38 +103,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                         ],
                       ),
                     ),
-                    Container(
-                      color: const Color.fromARGB(255, 248, 248, 249),
-                      height: headerHeight,
-                      child: const Row(
-                        children: [
-                          DialogTableHeaderText(
-                            text: "Date",
-                            fontSize: 13,
-                          ),
-                          DialogTableHeaderText(
-                            text: "Invoice",
-                            fontSize: 13,
-                          ),
-                          DialogTableHeaderText(
-                            text: "Status",
-                            fontSize: 13,
-                          ),
-                          DialogTableHeaderText(
-                            text: "Amount",
-                            fontSize: 13,
-                          ),
-                          DialogTableHeaderText(
-                            text: "Due By",
-                            fontSize: 13,
-                          ),
-                          DialogTableHeaderText(
-                            text: "Select",
-                            fontSize: 13,
-                          ),
-                        ],
-                      ),
-                    ),
+                    CustomDialogHeading(headerHeight: headerHeight),
                     Flexible(
                       child: SizedBox(
                         height: contentHeight,
@@ -260,3 +226,5 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
     },
   );
 }
+
+

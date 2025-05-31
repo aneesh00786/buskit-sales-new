@@ -56,6 +56,23 @@ void showDetailedOrderInvoiceDialog(
                           ),
                         ),
                         const Spacer(),
+                        const Text(
+                          "DATE : ",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          NKDateUtils.commonFullDateTimeFormat2(
+                              orderInvoiceData.orderCreatAt!),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         Text(
                           NKDateUtils.commonDayFormat2(
                             NKDateUtils.formatStringUTCDateTime(

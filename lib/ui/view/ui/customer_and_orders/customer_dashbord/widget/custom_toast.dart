@@ -23,10 +23,7 @@ void showCustomToast(BuildContext context) {
         ],
       ),
     );
-
     overlay.insert(overlayEntry);
-
-    // Automatically remove the toast after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });

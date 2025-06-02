@@ -352,10 +352,11 @@ Future<dynamic> registerDialog(BuildContext context,
                                         errorSnackbar(
                                             "Please verify the email.");
                                       }
+                                    
                                     } else {
                                       log("Form validation failed.");
                                     }
-                                    Navigator.pop(context);
+                                    
                                   }
                                 : null,
                             btnController: loginController.registerController,

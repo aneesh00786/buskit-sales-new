@@ -55,6 +55,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     return 'Subscribe ${selectedPlan!.planName} for ${_formatCurrency(totalPrice)}$durationLabel';
   }
 
+
   Map<String, List<Plan>> _groupPlansByName(List<Plan> plans) {
     final Map<String, List<Plan>> grouped = {};
 

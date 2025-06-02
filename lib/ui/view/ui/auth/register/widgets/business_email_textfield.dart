@@ -70,10 +70,10 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           ],
         ),
         Obx(() {
-          final message = widget.loginController.successMessage.value;
+          final isOtpSent = widget.loginController.isOtpSent.value;
           final isVerified = widget.loginController.isEmailVerified.value;
-          if (message ==
-              "Your email verification is successful, and an OTP has been sent to your email.") {
+          final message = widget.loginController.successMessage.value;
+          if (isOtpSent) {
             return Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Column(
@@ -81,7 +81,7 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
                   Text(
                     message,
                     style: TextStyle(
-                      color: Colors.green,
+                      color: isVerified ? Colors.green : Colors.red,
                       fontSize: 14,
                     ),
                   ),
@@ -131,7 +131,7 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
                             ),
                           ),
                           child: const Text('Submit'),
-                        )
+                        ),
                       ],
                     ),
                 ],
@@ -140,7 +140,7 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
           }
 
           return const SizedBox.shrink();
-        })
+        }),
       ],
     );
   }

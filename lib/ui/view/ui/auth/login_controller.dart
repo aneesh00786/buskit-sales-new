@@ -94,7 +94,7 @@ class LoginController extends GetxController {
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
-  
+  RxBool isOtpSent = false.obs;
 
   TextEditingController otpController = TextEditingController();
 
@@ -118,6 +118,7 @@ class LoginController extends GetxController {
         successMessage.value =
             "Your email verification is successful, and an OTP has been sent to your email.";
         isEmailVerified.value = false;
+        isOtpSent.value = true;
       } else {
         log('Error: ${response.data['message'] ?? 'Unknown error occurred.'}');
         successMessage.value = "Verification failed. Please try again.";
@@ -181,6 +182,24 @@ class LoginController extends GetxController {
     _tabController = TabController(length: length, vsync: vsync);
   }
 
+  void clearAllFields() {
+    businessEmailController.clear();
+    otpController.clear();
+    phoneNumberController.clear();
+    addressController.clear();
+    countryController.clear();
+    businessNameController.clear();
+    stateController.clear();
+    townController.clear();
+    postCodeController.clear();
+    adminFirstNameController.clear();
+    adminLastnameController.clear();
+    companyRegController.clear();
+
+    isEmailVerified.value = false;
+    successMessage.value = '';
+  }
+
   Future<bool> performLogin(BuildContext context) async {
     DateTime now = DateTime.now();
     String currentMonthName = DateFormat('MMMM').format(now);
@@ -239,7 +258,7 @@ class LoginController extends GetxController {
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
           ApiWorker().fetchDiscounts(companyId, salesmanId),
-        CartDatabaseManager().getDraftItems(),
+          CartDatabaseManager().getDraftItems(),
           ApiWorker()
               .getRecentOrdersData(
                 searchModel: searchData,

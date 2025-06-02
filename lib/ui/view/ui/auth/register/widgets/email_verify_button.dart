@@ -42,45 +42,44 @@ class _VerifyButtonState extends State<VerifyButton> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Obx(() {
-    return SizedBox(
-      height: 40,
-      width: 80,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleVerify,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: widget.loginController.isEmailVerified.value
-              ? Colors.green
-              : primaryColor,
-          disabledBackgroundColor: Colors.grey.shade400,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          padding: const EdgeInsets.all(8),
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  color: white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                widget.loginController.isEmailVerified.value
-                    ? 'Verified'
-                    : 'Verify',
-                style: const TextStyle(
-                  color: white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-      ),
-    );
-  });
-}
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isVerified = widget.loginController.isEmailVerified.value;
 
+      return SizedBox(
+        height: 40,
+        width: 80,
+        child: AbsorbPointer(
+          absorbing: _isLoading || isVerified, // disables click but keeps style
+          child: ElevatedButton(
+            onPressed: _handleVerify,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isVerified ? Colors.green : primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.all(8),
+            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    isVerified ? 'Verified' : 'Verify',
+                    style: const TextStyle(
+                      color: white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
+        ),
+      );
+    });
+  }
 }

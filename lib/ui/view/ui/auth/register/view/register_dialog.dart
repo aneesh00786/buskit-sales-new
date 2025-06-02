@@ -340,6 +340,7 @@ Future<dynamic> registerDialog(BuildContext context,
                                             loginController
                                                 .countryController.text);
                                         loginController.clearAllFields();
+                                        Navigator.of(context, rootNavigator: true).pop();
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(

@@ -20,11 +20,9 @@ import '../csord_model/customers_orders_model.dart';
 class CustomersProvider with ChangeNotifier {
   final ApiService _apiService;
   final Logger _logger;
-
+  List<YearList> get yearList => _yearList;
   int _selectedIndex = 1;
-
   int get selectedIndex => _selectedIndex;
-
   void setSelectedIndex(int index) {
     _selectedIndex = index;
     notifyListeners();
@@ -36,29 +34,18 @@ class CustomersProvider with ChangeNotifier {
   })  : _apiService = apiService,
         _logger = logger {
     fetchCustomerData();
-    // fetchcustomersDash();
   }
-
   String _errorMessage = '';
   bool _isLoading = false;
   Future<CustomerResponseModelxx>? _customersFuture;
-
   FilterDateEnum _selectedFilter = FilterDateEnum.thisMonth;
   String _selectedStartDate = '';
   String _selectedEndDate = '';
-
-  void setCurrentMonthDates() {
-    final now = DateTime.now();
-    final firstDayOfMonth = DateTime(now.year, now.month, 1);
-    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    _selectedStartDate = dateFormat.format(firstDayOfMonth);
-    _selectedEndDate = dateFormat.format(lastDayOfMonth);
-  }
-
+  File _imageFile = File('');
+  final ImagePicker _picker = ImagePicker();
+  File get imageFile => _imageFile;
   int _currentPage = 1;
   int _totalPages = 1;
-
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   Future<CustomerResponseModelxx>? get customersFuture => _customersFuture;
@@ -87,7 +74,9 @@ class CustomersProvider with ChangeNotifier {
   Future<ApiResponsees>? _countFuture;
 
   Future<ApiResponsees>? get countFuture => _countFuture;
-
+  int? get selectedYear => _selectedYear;
+  final List<RecentOrder> _selectedOrders = [];
+  List<RecentOrder> get selectedOrders => _selectedOrders;
   // ignore: unused_field
   List<CustomerModelxx> _customers = [];
   List<CustomerModelxx> _filteredCustomers = [];
@@ -104,6 +93,18 @@ class CustomersProvider with ChangeNotifier {
   Future<ProductResponse>? get productResponse => _productResponse;
   int cartItemCount = 0;
   List<BarChartGroupData> barGroups = [];
+  Future<OrderResponse>? _orderResponse;
+  Future<OrderResponse>? get orderResponse => _orderResponse;
+  Future<CustomerResponse>? _customerResponse;
+  Future<CustomerResponse>? get customerResponse => _customerResponse;
+    void setCurrentMonthDates() {
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    _selectedStartDate = dateFormat.format(firstDayOfMonth);
+    _selectedEndDate = dateFormat.format(lastDayOfMonth);
+  }
   void createBarGroups({
     required List<CategoryPerformance> categoryPerformance,
     required List<ValueTargetDatum> valuePerformance,
@@ -157,7 +158,6 @@ class CustomersProvider with ChangeNotifier {
             return BarChartGroupData(
               x: index,
               barRods: [
-                // if (targetType == "1")
                 BarChartRodData(
                   toY: target.toDouble(),
                   color: const Color(0xff3b6491),
@@ -286,34 +286,11 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<OrderResponse>? _orderResponse;
-  Future<OrderResponse>? get orderResponse => _orderResponse;
-  Future<CustomerResponse>? _customerResponse;
-  Future<CustomerResponse>? get customerResponse => _customerResponse;
-  File _imageFile = File('');
-  final ImagePicker _picker = ImagePicker();
-  File get imageFile => _imageFile;
   Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       _imageFile = File(pickedFile.path);
       notifyListeners();
-    }
-  }
-
-  Future<void> updateCustomerDash({
-    required CustomerDashMo admin,
-    required String cusId,
-  }) async {
-    try {
-      await _apiService
-          .updateCustomerDashDetails(
-              model: admin, adminProfilePicture: imageFile, customerId: cusId)
-          .then((value) => fetchCustomerDashboardCountData(cusId));
-
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to update admin: $e');
     }
   }
 
@@ -328,14 +305,8 @@ class CustomersProvider with ChangeNotifier {
               adminProfilePicture: imageFile,
               salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
-      log('Admin $admin');
-      log('Image File $imageFile');
-      log('Salesman Id  $salsmanId');
       notifyListeners();
     } catch (e) {
-      log('Admin $admin');
-      log('Image File $imageFile');
-      log('Salesman Id  $salsmanId');
       throw Exception('Failed to update admin: $e');
     }
   }
@@ -350,14 +321,8 @@ class CustomersProvider with ChangeNotifier {
           .addCustomer(
               model: admin, adminProfilePicture: image, salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
-      log('Admin ${admin.businessName}');
-      log('Image File $image');
-      log('Salesman Id  $salsmanId');
       notifyListeners();
     } catch (e) {
-      log('Admin ${admin.businessName},${admin.address},${admin.email}');
-      log('Image File $imageFile');
-      log('Salesman Id  $salsmanId');
       throw Exception('Failed to update admin: $e');
     }
   }
@@ -439,12 +404,6 @@ class CustomersProvider with ChangeNotifier {
             endDate: endDate,
             orderStatus: s);
       });
-      log("sadfdfoijgdiof sabik kavungal ponmala pllippadi k ${s.type}");
-
-      notifyListeners();
-
-      log("sabik kkavungal ponmala pllippadi kkdc.fc.v.v.v.v.v.v.v.v.v.v.v.v. .. .  . . . .$_orderResponse");
-
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
@@ -498,11 +457,6 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
-
-  List<YearList> get yearList => _yearList;
-  int? get selectedYear => _selectedYear;
-  final List<RecentOrder> _selectedOrders = [];
-  List<RecentOrder> get selectedOrders => _selectedOrders;
   void toggleOrderSelection(RecentOrder order) {
     if (_selectedOrders.contains(order)) {
       _selectedOrders.remove(order);

@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class VerifyButton extends StatefulWidget {
   final LoginController loginController;
@@ -41,15 +42,18 @@ class _VerifyButtonState extends State<VerifyButton> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
+  return Obx(() {
     return SizedBox(
       height: 40,
       width: 80,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleVerify,
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
+          backgroundColor: widget.loginController.isEmailVerified.value
+              ? Colors.green
+              : primaryColor,
           disabledBackgroundColor: Colors.grey.shade400,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -65,14 +69,18 @@ class _VerifyButtonState extends State<VerifyButton> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'Verify',
-                style: TextStyle(
+            : Text(
+                widget.loginController.isEmailVerified.value
+                    ? 'Verified'
+                    : 'Verify',
+                style: const TextStyle(
                   color: white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
       ),
     );
-  }
+  });
+}
+
 }

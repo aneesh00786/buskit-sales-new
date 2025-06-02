@@ -94,6 +94,7 @@ class LoginController extends GetxController {
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
+  
 
   TextEditingController otpController = TextEditingController();
 

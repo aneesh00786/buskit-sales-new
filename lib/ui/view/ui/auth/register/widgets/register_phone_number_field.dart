@@ -69,15 +69,18 @@ class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
                 counterText: '',
                 errorText: _validationMessage,
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderSide:
+                      BorderSide(color: Colors.grey.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderSide:
+                      BorderSide(color: Colors.grey.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                  borderSide:
+                      BorderSide(color: Colors.grey.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 prefixIcon: Container(
@@ -85,7 +88,8 @@ class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                      right:
+                          BorderSide(color: Colors.grey.withOpacity(0.5)),
                     ),
                   ),
                   child: Text(

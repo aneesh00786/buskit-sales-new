@@ -1,12 +1,8 @@
 // ignore_for_file: deprecated_member_use, library_private_types_in_public_api, use_build_context_synchronously, unused_field
-
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/payment_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plan_amount_selection.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/quantity_manager.dart';
@@ -14,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/table_it
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPlanScreen extends StatefulWidget {
   const RegisterPlanScreen({super.key});
@@ -25,67 +20,32 @@ class RegisterPlanScreen extends StatefulWidget {
 
 class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
   late Future<List<Plan>> _fetchedPlans;
-  String _currencySymbol = '\$';
-  double _conversionRate = 1.0;
   int _selectedQuantity = 1;
   List<Plan>? plans;
-  String? duration;
-  late ScaffoldMessengerState _scaffoldMessenger;
+  Plan? selectedPlan;
   @override
   void initState() {
     super.initState();
-    _fetchedPlans = ApiWorker().fetchPlans();
-    _loadCountryAndSetCurrency();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _scaffoldMessenger = ScaffoldMessenger.of(context);
-  }
-
-  Plan? selectedPlan;
-  Future<void> _loadCountryAndSetCurrency() async {
-    final prefs = await SharedPreferences.getInstance();
-    final selectedCountry = prefs.getString('selectedCountry') ?? 'USA';
-    final currencyDetails = CurrencyUtils.findCurrency(selectedCountry);
-    if (currencyDetails == null || currencyDetails['code'] == 'N/A') {
-      log("Currency not found for country $selectedCountry, using default.");
-      setState(() {
-        _currencySymbol = '\$';
-        _conversionRate = 1.0;
-      });
-      return;
-    }
-    final currencySymbol = currencyDetails['symbol'] ?? '';
-    try {
-      final conversionResult = await CurrencyUtils.convertToLocalCurrency(
-        amount: 1.0,
-        fromCurrency: 'USD',
-        listOfSavedData: [
-          {"country": selectedCountry}
-        ],
+    _fetchedPlans = ApiWorker().fetchPlans().then((fetched) {
+      plans = fetched;
+      selectedPlan = plans!.firstWhereOrNull(
+        (p) =>
+            (p.planName?.toLowerCase().trim() == 'basic') &&
+            (p.billingCycle?.toLowerCase().trim() == 'monthly'),
       );
-      setState(() {
-        _currencySymbol = currencySymbol;
-        _conversionRate =
-            double.tryParse(conversionResult['price'].toString()) ?? 1.0;
-      });
-    } catch (e) {
-      setState(() {
-        _currencySymbol = currencySymbol;
-        _conversionRate = 1.0;
-      });
-    }
+      selectedPlan ??= plans!.isNotEmpty ? plans!.first : null;
+      setState(() {});
+      return plans!;
+    });
   }
 
   String _formatCurrency(double amount) {
-    return '$_currencySymbol ${(amount * _conversionRate).toStringAsFixed(2)}';
+    return '\$${amount.toStringAsFixed(2)}';
   }
 
   String _getSelectedPlanText() {
     if (selectedPlan == null) {
-      return 'Subscribe Basic for ₹0.00/Yr';
+      return 'Subscribe Basic for \$0.00/Yr';
     }
     final price = double.tryParse(selectedPlan!.price.toString()) ?? 0.0;
     final totalPrice = price * _selectedQuantity;
@@ -160,11 +120,6 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       }
                       plans = snapshot.data ?? [];
                       final groupedPlans = _groupPlansByName(plans!);
-                      if (plans!.length < 6) {
-                        return const Center(
-                            child: Text('Insufficient plan data.'));
-                      }
-
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: ConstrainedBox(
@@ -331,7 +286,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                         showPaymentDialog(context, selectedPlan!, totalAmount,
                             _selectedQuantity);
                       } else {
-                        if (!mounted) return; // double-check
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text('Please select a plan first.')),

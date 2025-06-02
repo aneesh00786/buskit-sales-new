@@ -16,6 +16,7 @@ class AddressSearchField extends StatefulWidget {
   final TextEditingController townController;
   final TextEditingController stateController;
   final TextEditingController countryController;
+  final TextEditingController postCodeController;
   final FocusNode currentFocusNode;
   final FocusNode nextFocusNode;
   final LoginController loginController;
@@ -30,6 +31,7 @@ class AddressSearchField extends StatefulWidget {
     required this.currentFocusNode,
     required this.nextFocusNode,
     required this.loginController,
+    required this.postCodeController,
   });
 
   @override
@@ -44,6 +46,15 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   final GlobalKey _textFieldKey = GlobalKey();
   bool isAddressSelected = false;
   bool isPhoneNumberValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.textEditingController.addListener(() {
+      onAddressChanged(widget.textEditingController.text);
+    });
+  }
+
   void onAddressChanged(String value) {
     if (isAddressSelected) {
       return;
@@ -72,8 +83,8 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           suggestions = data.map((item) {
             return {
               'description': item['description'],
+              'place_id': item['place_id'],
               'secondary_text': item['structured_formatting']['secondary_text'],
-              'terms': item['terms'] as List,
             };
           }).toList();
         });
@@ -118,11 +129,23 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
                     final suggestion = suggestions[index];
                     return ListTile(
                       title: Text(suggestion['description']),
-                      onTap: () {
+                      onTap: () async {
                         isAddressSelected = true;
-                        widget.textEditingController.text =
-                            suggestion['description'];
-                        populateAdditionalFields(suggestion['terms'] as List);
+                        final placeId = suggestion['place_id'];
+                        final structuredFormatting =
+                            suggestion['structured_formatting'];
+                        final mainText = structuredFormatting != null
+                            ? structuredFormatting['main_text'] ??
+                                suggestion['description']
+                                    .toString()
+                                    .split(',')
+                                    .first
+                            : suggestion['description']
+                                .toString()
+                                .split(',')
+                                .first;
+                        widget.textEditingController.text = mainText;
+                        await fetchPlaceDetails(placeId);
                         hideSuggestionsOverlay();
                         widget.nextFocusNode.requestFocus();
                       },
@@ -139,47 +162,9 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  void populateAdditionalFields(List terms) {
-    String town = '';
-    String state = '';
-    String country = '';
-    String phoneCode = '';
-    if (terms.isNotEmpty) {
-      if (terms.length >= 3) {
-        town = terms[terms.length - 3]['value'];
-        state = terms[terms.length - 2]['value'];
-        country = terms[terms.length - 1]['value'];
-      } else if (terms.length == 2) {
-        state = terms[0]['value'];
-        country = terms[1]['value'];
-      } else if (terms.length == 1) {
-        country = terms[0]['value'];
-      }
-    }
-    phoneCode = CurrencyUtils.countryCurrencyMap.entries
-            .firstWhere(
-              (entry) => entry.value['name'] == country,
-              orElse: () => MapEntry("", {"phoneCode": ""}),
-            )
-            .value['phoneCode'] ??
-        '';
-    widget.townController.text = town;
-    widget.stateController.text = state;
-    widget.countryController.text = country;
-    widget.loginController.updatePhoneCode(phoneCode);
-  }
-
   void hideSuggestionsOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget.textEditingController.addListener(() {
-      onAddressChanged(widget.textEditingController.text);
-    });
   }
 
   @override
@@ -218,5 +203,42 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         },
       ),
     );
+  }
+
+  Future<void> fetchPlaceDetails(String placeId) async {
+    final url =
+        Uri.parse("https://thrivewoo.com/get-place-details?place_id=$placeId");
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        extractAndPopulateFields(data);
+      } else {
+        log("Place details error: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Place details exception: $e");
+    }
+  }
+
+  void extractAndPopulateFields(Map<String, dynamic>? data) {
+    if (data == null) return;
+
+    final town = data['town']?.toString() ?? '';
+    final state = data['state']?.toString() ?? '';
+    final country = data['country_name']?.toString() ?? '';
+    final postCode = data['postal_code']?.toString() ?? '';
+    final phoneCode = CurrencyUtils.countryCurrencyMap.entries
+            .firstWhere(
+              (entry) => entry.value['name'] == country,
+              orElse: () => MapEntry("", {"phoneCode": ""}),
+            )
+            .value['phoneCode'] ??
+        '';
+    widget.townController.text = town;
+    widget.stateController.text = state;
+    widget.countryController.text = country;
+    widget.postCodeController.text = postCode;
+    widget.loginController.updatePhoneCode(phoneCode);
   }
 }

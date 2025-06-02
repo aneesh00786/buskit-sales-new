@@ -533,19 +533,6 @@ class ApiWorker with ApiConstants {
       return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }
-
-  // Future<Response> deleteCartItem(String cartId, String variationId) async {
-  //   final response = await dio
-  //       .postbycustom(ApiConstants.cartDelete,
-  //           data: FormData.fromMap(
-  //               {"cart_id": cartId, "variation_id": variationId}))
-  //       .onError((DioException error, stackTrace) {
-  //     log(error.toString());
-  //     return Future.error(throw DioExceptionHandler.fromDioError(error));
-  //   });
-  //   return response;
-  // }
-
   Future<Response> deleteCustomer(String id) async {
     final response = await dio.postbycustom(ApiConstants.deletCustomer, data: {
       "companyId": companyId,

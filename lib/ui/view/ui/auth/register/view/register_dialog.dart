@@ -130,6 +130,7 @@ Future<dynamic> registerDialog(BuildContext context,
                                 loginController.addressController,
                             townController: loginController.townController,
                             stateController: loginController.stateController,
+                            postCodeController: loginController.postCodeController,
                             countryController:
                                 loginController.countryController,
                             currentFocusNode: loginController.addressFocusNode,

@@ -249,3 +249,27 @@ class FeatureItem {
         "name": name,
       };
 }
+
+class UserVerificationResponse {
+    int statusCode;
+    bool status;
+    String message;
+
+    UserVerificationResponse({
+        required this.statusCode,
+        required this.status,
+        required this.message,
+    });
+
+    factory UserVerificationResponse.fromJson(Map<String, dynamic> json) => UserVerificationResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+    };
+}

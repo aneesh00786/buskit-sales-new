@@ -82,9 +82,8 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  Future<void> submitCardForm({
+  Future<bool> submitCardForm({
     required String cardName,
-    required String customerEmail,
     required String cardToken,
     required int adminId,
     required int checkedPlanId,
@@ -92,23 +91,23 @@ class ApiWorker with ApiConstants {
     required String currencyCode,
     required double amount,
   }) async {
+    log('ADMIN ID : $adminId');
     try {
       final setupIntentRes = await dio1.post(
-        'https://thrivewoo.com/create-setup-intent',
-        data: {
-          'customerEmail': customerEmail,
-        },
+        '${ApiConstants.baseUrl}${ApiConstants.createSetUpIntent}',
+        data: {'adminId': adminId},
       );
-
-      if (setupIntentRes.statusCode != 200) {
-        throw Exception('Failed to create setup intent');
+      if (setupIntentRes.statusCode != 200 ||
+          setupIntentRes.data['stripeCustomerId'] == null) {
+        log('❌ Failed to create setup intent: ${setupIntentRes.data}');
+        return false;
       }
       final stripeCustomerId = setupIntentRes.data['stripeCustomerId'];
       final paymentMethodId = cardToken;
       final endDate = DateTime.now().add(Duration(days: 14));
       final endDateFormatted = DateFormat('yyyy-MM-dd').format(endDate);
       final saveResponse = await dio1.post(
-        'https://thrivewoo.com/insert_transaction_and_subscription_details',
+        '${ApiConstants.baseUrl}${ApiConstants.insertTransactionAndSubscriptionDetails}',
         data: {
           'user_id': adminId,
           'plan_id': checkedPlanId,
@@ -122,15 +121,19 @@ class ApiWorker with ApiConstants {
           'currency': currencyCode,
         },
       );
-
       final saveData = saveResponse.data;
-
-      if (saveResponse.statusCode != 200 || saveData['status_code'] != 200) {
-        throw Exception(saveData['message'] ?? 'Failed to save subscription');
+      final bool isSuccess =
+          saveResponse.statusCode == 200 && saveData['status_code'] == 200;
+      if (isSuccess) {
+        log("✅ 14-day trial started. Login credentials have been sent to your email.");
+        return true;
+      } else {
+        log("❌ Failed to save subscription: ${saveData['message']}");
+        return false;
       }
-      log("✅ 14-day trial started. Login credentials have been sent to your email.");
     } catch (e) {
-      log("❌ Error: ${e.toString()}");
+      log("❌ Error in submitCardForm: $e");
+      return false;
     }
   }
 
@@ -533,6 +536,7 @@ class ApiWorker with ApiConstants {
       return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }
+
   Future<Response> deleteCustomer(String id) async {
     final response = await dio.postbycustom(ApiConstants.deletCustomer, data: {
       "companyId": companyId,
@@ -714,6 +718,7 @@ class ApiWorker with ApiConstants {
       return Future.error(error);
     }
   }
+
   Future<Response> updateCustomer(
     Map<String, dynamic> sendData,
     File? leadsImage,
@@ -1513,7 +1518,8 @@ class ApiWorker with ApiConstants {
     log('Sending API request to updateCategoryTargetValue...');
     log('API Payload: ${jsonEncode(requestPayload)}');
 
-    final response = await responsePostMethod(requestData:requestPayload ,endPoint:'Update_CategorytargetValue')
+    final response = await responsePostMethod(
+            requestData: requestPayload, endPoint: 'Update_CategorytargetValue')
         .onError((DioException error, stackTrace) {
       log("Dio Error: ${error.toString()}");
       return Future.error(DioExceptionHandler.fromDioError(error));
@@ -1570,8 +1576,40 @@ class ApiWorker with ApiConstants {
     }
   }
 
+  Future<dynamic> getRegisteredAddress() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      int? adminId = prefs.getInt('admin_id');
+      if (adminId == null) {
+        log("Admin ID not found.");
+        return null;
+      }
+      log("Fetching registered address for admin ID: $adminId");
+      final response = await dio1.post(
+        "${ApiConstants.baseUrl}${ApiConstants.getRegisteredAddressAdmin}",
+        data: {'admin_id': adminId},
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      final data = response.data;
+      log("dataRegist: ${data['data']}");
+
+      if (response.statusCode == 200 && data['data'] != null) {
+        return data['data'];
+      } else {
+        log("Error: ${data['message']}");
+      }
+    } catch (e) {
+      log("❌ Error fetching registered address: $e");
+    }
+
+    return null;
+  }
+
   Future<List<Plan>> fetchPlans() async {
-    const String url = 'https://test.thrivewoo.com/get_plan_detiails';
+    const String url = '${ApiConstants.baseUrl}${ApiConstants.getPlanDetiails}';
     try {
       Response response = await dio1.get(url);
       if (response.statusCode == 200 && response.data['status'] == true) {
@@ -1656,6 +1694,10 @@ class ApiWorker with ApiConstants {
       final response = await responsePostMethod(
           requestData: requestData, endPoint: ApiConstants.insertadmin);
       if (response.statusCode == 200) {
+        final data = response.data['data'][0];
+        final int adminId = data['id_admin'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('admin_id', adminId);
         log("Admin inserted successfully: ${response.data}");
       } else {
         handleExceptionMessage(apiName: "insert admin", response: response);
@@ -1835,6 +1877,40 @@ class ApiWorker with ApiConstants {
     } catch (error) {
       log("Unexpected error: $error");
       return Future.error(Exception("Unexpected error: $error"));
+    }
+  }
+
+  Future<UserVerificationResponse> userVerification(
+    int companyId,
+    String salesId,
+  ) async {
+    log("user Verification");
+
+    try {
+      Map<String, dynamic> data = {
+        "companyId": companyId,
+        "salesman_id": salesId,
+        "usertype": "sales",
+        "loginType": "app"
+      };
+
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.userVerification,
+        requestData: data,
+      );
+
+      if (response.statusCode == 200) {
+        log("userVerification log : ${response.data}");
+        return UserVerificationResponse.fromJson(response.data);
+      } else {
+        final message = response.data['message'] ?? 'Verification failed';
+        throw Exception(message);
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? 'Verification failed';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception("Unexpected error during user verification");
     }
   }
 }

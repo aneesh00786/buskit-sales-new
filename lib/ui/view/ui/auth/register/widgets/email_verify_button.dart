@@ -23,7 +23,6 @@ class VerifyButton extends StatefulWidget {
 
 class _VerifyButtonState extends State<VerifyButton> {
   bool _isLoading = false;
-
   void _handleVerify() async {
     setState(() {
       _isLoading = true;
@@ -46,12 +45,12 @@ class _VerifyButtonState extends State<VerifyButton> {
   Widget build(BuildContext context) {
     return Obx(() {
       final isVerified = widget.loginController.isEmailVerified.value;
-
+      final isResendOtp = widget.loginController.isResend.value;
       return SizedBox(
         height: 40,
         width: 80,
         child: AbsorbPointer(
-          absorbing: _isLoading || isVerified, // disables click but keeps style
+          absorbing: _isLoading || isVerified,
           child: ElevatedButton(
             onPressed: _handleVerify,
             style: ElevatedButton.styleFrom(
@@ -71,7 +70,11 @@ class _VerifyButtonState extends State<VerifyButton> {
                     ),
                   )
                 : Text(
-                    isVerified ? 'Verified' : 'Verify',
+                    isResendOtp
+                        ? 'Resend OTP'
+                        : isVerified
+                            ? 'Verified'
+                            : 'Verify',
                     style: const TextStyle(
                       color: white,
                       fontWeight: FontWeight.w600,

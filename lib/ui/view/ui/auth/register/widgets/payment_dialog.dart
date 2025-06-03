@@ -6,6 +6,8 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaymentDialogContent extends StatefulWidget {
@@ -27,6 +29,8 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
   final CardEditController controller = CardEditController();
   final TextEditingController _nameController = TextEditingController();
   CardFieldInputDetails? cardDetails;
+  bool _isProcessing = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,51 +54,95 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     super.dispose();
   }
 
-void handleAddCard() async {
-  if (cardDetails?.complete == true && _nameController.text.trim().isNotEmpty) {
-    try {
-      final paymentMethod = await Stripe.instance.createPaymentMethod(
-        params: PaymentMethodParams.card(
-          paymentMethodData: PaymentMethodData(
-            billingDetails: BillingDetails(name: _nameController.text.trim()),
+  void handleAddCard() async {
+    if (cardDetails?.complete == true &&
+        _nameController.text.trim().isNotEmpty) {
+      setState(() => _isProcessing = true);
+      try {
+        final paymentMethod = await Stripe.instance.createPaymentMethod(
+          params: PaymentMethodParams.card(
+            paymentMethodData: PaymentMethodData(
+              billingDetails: BillingDetails(name: _nameController.text.trim()),
+            ),
           ),
-        ),
-      );
-      final String cardName = _nameController.text.trim();
-      final String cardToken = paymentMethod.id;
-      final String customerEmail = 'test@example.com'; 
-      final int adminId = 123; 
-      final int checkedPlanId = widget.plan.id!;
-      final String licenses = widget.selectedQuantity.toString();
-      final String currencyCode = "USD";
-      final double amount = widget.totalAmount;
+        );
+        final prefs = await SharedPreferences.getInstance();
+        final int? adminId = prefs.getInt('admin_id');
+        final String cardName = _nameController.text.trim();
+        final String cardToken = paymentMethod.id;
+        final int checkedPlanId = widget.plan.id!;
+        final String licenses = widget.selectedQuantity.toString();
+        final String currencyCode = "USD";
+        final double amount = widget.totalAmount;
 
-      await ApiWorker().submitCardForm(
-        cardName: cardName,
-        customerEmail: customerEmail,
-        cardToken: cardToken,
-        adminId: adminId,
-        checkedPlanId: checkedPlanId,
-        licenses: licenses,
-        currencyCode: currencyCode,
-        amount: amount,
-      );
-
+        bool isSuccess = await ApiWorker().submitCardForm(
+          cardName: cardName,
+          cardToken: cardToken,
+          adminId: adminId ?? 0,
+          checkedPlanId: checkedPlanId,
+          licenses: licenses,
+          currencyCode: currencyCode,
+          amount: amount,
+        );
+        cardAddedDialog(isSuccess);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ Payment failed: $e")),
+        );
+      } finally {
+        setState(() => _isProcessing = false);
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("✅ Trial started successfully")),
-      );
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Payment failed: $e")),
+        SnackBar(content: Text("Please complete all required details")),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Please complete all required details")),
+  }
+
+  Future<dynamic> cardAddedDialog(bool isSuccess) {
+    return showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        content: Column(
+          mainAxisSize:
+              MainAxisSize.min, 
+          children: [
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: Lottie.asset(
+                isSuccess
+                    ? 'assets/images/Animation - 1726906882515.json'
+                    : 'assets/images/Warning_animation.json',
+              ),
+            ),
+            const SizedBox(height: 16),
+            CustomText(
+              content: isSuccess
+                  ? "Trial started successfully."
+                  : "Trial activation failed. Please try again.",
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ),
+        ],
+      ),
     );
   }
-}
 
   Future<String> fetchPaymentIntentFromBackend() async {
     return 'pi_..._secret_...';
@@ -179,10 +227,8 @@ void handleAddCard() async {
                 const SizedBox(height: 16),
                 CardField(
                   controller: controller,
-                  decoration: inputDecoration.copyWith(
-                    labelText: "Card Number",
-                    hintText: "**** **** **** ****",
-                  ),
+                  decoration: inputDecoration,
+                  numberHintText: "Enter Card Number",
                   style: TextStyle(fontSize: 16),
                 ),
                 if (cardDetails != null && !cardDetails!.complete)
@@ -207,19 +253,21 @@ void handleAddCard() async {
                   children: [
                     infoBox("Ends on", _getEndDate()),
                     const SizedBox(width: 16),
-                    infoBox("Amount", "${widget.totalAmount}"),
+                    infoBox("Amount", "${widget.totalAmount} USD"),
                     const SizedBox(width: 16),
                     infoBox("Licenses", "${widget.selectedQuantity}"),
                   ],
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: handleAddCard,
+                  onPressed: _isProcessing ? null : handleAddCard,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.lightBlueAccent,
                     minimumSize: Size(double.infinity, 40),
                   ),
-                  child: CustomText(content: "Add Card", color: white),
+                  child: CustomText(
+                      content: _isProcessing ? "Processing..." : "Add Card",
+                      color: white),
                 ),
               ],
             ),

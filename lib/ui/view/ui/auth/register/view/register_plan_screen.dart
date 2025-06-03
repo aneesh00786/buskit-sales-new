@@ -173,7 +173,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                           if (monthlyPlan != null)
                                             PlanCheckboxRow(
                                               planName:
-                                                  "${monthlyPlan.planName} ${_formatCurrency(double.tryParse(monthlyPlan.price ?? '0.0') ?? 0.0)}/Mo",
+                                                  "${monthlyPlan.planName} ${_formatCurrency(double.tryParse(monthlyPlan.price ?? '0.0') ?? 0.0)}/Mo USD",
                                               isSelected: selectedPlan
                                                       ?.planIdentifier ==
                                                   monthlyPlan.planIdentifier,
@@ -183,7 +183,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                                           if (yearlyPlan != null)
                                             PlanCheckboxRow(
                                               planName:
-                                                  "${_formatCurrency(double.tryParse(yearlyPlan.price ?? '0.0') ?? 0.0)}/Year",
+                                                  "${_formatCurrency(double.tryParse(yearlyPlan.price ?? '0.0') ?? 0.0)}/Year USD",
                                               isSelected: selectedPlan
                                                       ?.planIdentifier ==
                                                   yearlyPlan.planIdentifier,

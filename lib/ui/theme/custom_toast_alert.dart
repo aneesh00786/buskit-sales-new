@@ -101,7 +101,7 @@ class _CustomToastState extends State<CustomToastPopup>
 }
 
 void showCustomToastDisplay(
-    BuildContext context, String message, Color color, IconData icon) {
+    BuildContext context, String message, Color color, IconData icon, {int duration = 3}) {
   final overlay = Overlay.of(context);
   final overlayEntry = OverlayEntry(
     builder: (context) => Stack(
@@ -126,7 +126,7 @@ void showCustomToastDisplay(
     ),
   );
   overlay.insert(overlayEntry);
-  Future.delayed(const Duration(seconds: 2), () {
+  Future.delayed(Duration(seconds: duration), () {
     overlayEntry.remove();
   });
 }

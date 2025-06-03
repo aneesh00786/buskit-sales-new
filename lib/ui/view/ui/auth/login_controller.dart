@@ -13,6 +13,8 @@ import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -95,7 +97,7 @@ class LoginController extends GetxController {
   var successMessage = "".obs;
   String? serverGeneratedOtp;
   RxBool isOtpSent = false.obs;
-
+  RxBool isResend = false.obs;
   TextEditingController otpController = TextEditingController();
 
   void updatePhoneCode(String code) {
@@ -109,6 +111,7 @@ class LoginController extends GetxController {
         "email": email,
         "otp": serverGeneratedOtp,
       };
+      isResend.value = true;
       final response = await responsePostMethod(
         requestData: requestData,
         endPoint: ApiConstants.sendVerificationMail,
@@ -144,10 +147,12 @@ class LoginController extends GetxController {
   bool validateOtp(String enteredOtp) {
     if (enteredOtp == serverGeneratedOtp) {
       isEmailVerified.value = true;
+      isResend.value = false;
       successMessage.value = "OTP verified successfully.";
       return true;
     } else {
       isEmailVerified.value = false;
+      isResend.value = true;
       successMessage.value = "Invalid OTP. Please try again.";
       return false;
     }
@@ -223,6 +228,48 @@ class LoginController extends GetxController {
       );
       log("Response Body: ${loginResponce?.toJson()}");
       log("StatusCode: ${loginResponce?.statusCode}");
+
+      if (loginResponce?.statusCode == 200) {
+        try {
+          final response = await ApiWorker().userVerification(
+              loginResponce?.data?.company_id ?? 0,
+              loginResponce?.data?.salesmanId ?? '');
+
+          if (response.statusCode == 200) {
+            log('success', name: 'userVerification');
+          } else {
+            final message = response.message;
+            Get.snackbar(
+              "Error",
+              message,
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red.withOpacity(0.5),
+              colorText: Colors.white,
+              duration: const Duration(seconds: 5),
+            );
+            log(message, name: 'userVerification');
+            showCustomToastDisplay(
+              context,
+              response.message,
+              red,
+              Icons.close,
+              duration: 5,
+            );
+            return false; 
+          }
+        } catch (e) {
+          log('userVerification exception: $e', name: 'userVerification');
+          showCustomToastDisplay(
+            context,
+            "App not activated, Please contact admin",
+            red,
+            Icons.close,
+            duration: 5,
+          );
+          return false;
+        }
+      }
+
       if (loginResponce?.statusCode == 200) {
         loginButtonController.success();
         Get.to(() => SplashScreen(message: "Logging in..."),

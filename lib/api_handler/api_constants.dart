@@ -113,4 +113,8 @@ mixin class ApiConstants {
   /// SUBSCRIBTION API
   static const String getSubscribedPlan = "get_subscribed_plan";
   static const String getPlanDetiails = "get_plan_detiails";
+  static const String userVerification = "user_verification";
+  static const String createSetUpIntent = "create-setup-intent";
+  static const String insertTransactionAndSubscriptionDetails = "insert_transaction_and_subscription_details";
+  static const String getRegisteredAddressAdmin = "get_registered_address_admin";
 }

@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
@@ -407,6 +408,8 @@ class HomeController extends GetxController {
 }
 
 Future<void> handleLogout(BuildContext context) async {
+  showCustomToastDisplay(context, "LOGGING OUT", red, Icons.close,
+        duration: 5);
   await SessionManager.clearData();
   await SessionHelper().clearSettingsData();
   await SessionHelper().clearAll();
@@ -466,4 +469,6 @@ Future<void> handleLogout(BuildContext context) async {
       log("Error clearing box $boxName: $e");
     }
   }
+
+  Get.offAllNamed(AppRoutes.login);
 }

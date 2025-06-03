@@ -344,12 +344,12 @@ class _OrderTakingState extends State<OrderTaking>
               //           builder: (BuildContext context) {
               //             return AlertDialog(
               //               title: Center(
-              //                 child: SizedBox(
-              //                   height: 100,
-              //                   width: 100,
-              //                   child: Lottie.asset(
-              //                       'assets/images/Animation - 1726906882515.json'),
-              //                 ),
+                              // child: SizedBox(
+                              //   height: 100,
+                              //   width: 100,
+                              //   child: Lottie.asset(
+                              //       'assets/images/Animation - 1726906882515.json'),
+                              // ),
               //               ),
               //               content: CustomText(
               //                 content:

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
@@ -14,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -48,9 +50,37 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-  @override
-  void initState() {
-    super.initState();
+
+  Future<void> checkUserVerification() async {
+    try {
+      final response = await ApiWorker().userVerification(
+        SessionHelper.loginSavedData?.company_id ?? 0,
+        SessionHelper.loginSavedData?.salesmanId ?? ''
+      );
+
+      if (response.statusCode == 200) {
+        log('success', name: 'userVerification');
+      } else {
+        final message = response.message;
+        Get.snackbar(
+          "Error",
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.5),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+        log(message, name: 'userVerification');
+        handleLogout(context);
+      }
+    } catch (e) {
+      log('userVerification exception: $e', name: 'userVerification');
+    }
+  }
+
+  Future<void> _initData() async {
+    await checkUserVerification();
+
     final dashboardProvider =
         Provider.of<DashboardProvider>(context, listen: false);
     dashboardProvider.resetFilter();
@@ -61,6 +91,12 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       });
       dashboardProvider.fetchChatData(salesmanId);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initData();
   }
 
   @override

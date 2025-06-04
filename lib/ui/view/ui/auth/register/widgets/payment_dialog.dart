@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -7,8 +9,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_p
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:lottie/lottie.dart';
+import 'package:paypal_payment/paypal_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentDialogContent extends StatefulWidget {
   Plan plan;
@@ -106,8 +109,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         content: Column(
-          mainAxisSize:
-              MainAxisSize.min, 
+          mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
               height: 100,
@@ -148,15 +150,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     return 'pi_..._secret_...';
   }
 
-  void goToPaypalScreen() async {
-    final Uri paypalLoginUrl = Uri.parse('https://www.paypal.com/signin');
-    if (await canLaunchUrl(paypalLoginUrl)) {
-      await launchUrl(paypalLoginUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch PayPal';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     const InputBorder lightGreyBorder = OutlineInputBorder(
@@ -193,11 +186,8 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
             ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: goToPaypalScreen,
-            icon: Icon(Icons.account_balance_wallet, color: Colors.white),
-            label: Text('PayPal', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+          PayPalButton(
+            onPressed: () => startPayPalPaymentFlow(context),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -313,6 +303,235 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
         CustomText(content: title, color: Colors.grey, fontSize: 18),
         CustomText(content: value, fontWeight: FontWeight.bold, fontSize: 18),
       ],
+    );
+  }
+
+  void startPayPalPaymentFlow(BuildContext context) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final int? adminId = prefs.getInt('admin_id');
+      final orderId = await ApiWorker().createPayPalOrder(
+        amount: widget.totalAmount.toString(),
+        currency: "USD",
+        adminId: adminId??0,
+      );
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaypalSubscriptionPayment(
+            sandboxMode: true,
+            clientId:
+                "AQClUH-2qmN7z-AKcULb_uy5Zze1GEWNeWTDAFLRsvL0QUcNdIYNXebyqashLoXTkKWaPDR04HPbQeZs",
+            secretKey:
+                "EHQqbzwTNz8r-t2fv83G7by1gmiigPZUUCJZ7mF8kuVwoil0dUR5IqUjw7bB5Io9DuKce4w60ObJAaCX",
+            productName: 'Buskit Subscription',
+            type: "DIGITAL",
+            planName: widget.plan.planName??'',
+            billingCycles: [
+              {
+                'tenure_type': 'REGULAR',
+                'sequence': 1,
+                "total_cycles": 12,
+                'pricing_scheme': {
+                  'fixed_price': {
+                    'currency_code': "USD",
+                    'value': widget.totalAmount,
+                  }
+                },
+                'frequency': {
+                  "interval_unit": "MONTH",
+                  "interval_count": 1,
+                }
+              }
+            ],
+            paymentPreferences: const {
+              "auto_bill_outstanding": true,
+              "setup_fee_failure_action": "CONTINUE",
+              "payment_failure_threshold": 3,
+            },
+            returnURL: '',
+            cancelURL: '',
+            onSuccess: (data) async {
+              log("PayPal subscription success: $data");
+              await ApiWorker().saveSubscription(
+                userId: adminId??0,
+                planId: widget.plan.id ?? 0,
+                orderId: orderId??'',
+                amount: double.tryParse(widget.totalAmount.toString()) ?? 0.0,
+                licenses: widget.selectedQuantity.toString(),
+                currency: "USD",
+              );
+              _showSuccessDialog(context);
+            },
+            onError: (error) {
+              debugPrint("PayPal error: $error");
+              _showErrorDialog(
+                context,
+              );
+            },
+            onCancel: () {
+              debugPrint("PayPal cancelled");
+              _showErrorDialog(
+                context,
+              );
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: Lottie.asset(
+                'assets/images/Animation - 1726906882515.json',
+              ),
+            ),
+            Text("Success"),
+          ],
+        ),
+        content: Text(
+            "14-day trial started. Login credentials have been sent to your email."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/');
+            },
+            child: Text("Go to Login"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(
+    BuildContext context,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset('assets/images/Warning_animation.json'),
+            Text("Error"),
+          ],
+        ),
+        content: Text('The trial has been Failed'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PayPalWebView extends StatefulWidget {
+  final String orderID;
+
+  const PayPalWebView({super.key, required this.orderID});
+
+  @override
+  State<PayPalWebView> createState() => _PayPalWebViewState();
+}
+
+class _PayPalWebViewState extends State<PayPalWebView> {
+  late final WebViewController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final approvalUrl =
+        'https://www.sandbox.paypal.com/checkoutnow?token=${widget.orderID}';
+
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent(
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Mobile Safari/537.36")
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+
+            // Optional: Print URL for debug
+            debugPrint("Navigating to: $url");
+
+            if (url.contains("yourdomain.com/success")) {
+              Navigator.pop(context, true);
+              return NavigationDecision.prevent;
+            } else if (url.contains("yourdomain.com/cancel")) {
+              Navigator.pop(context, false);
+              return NavigationDecision.prevent;
+            }
+
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(approvalUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Pay with PayPal")),
+      body: WebViewWidget(controller: controller),
+    );
+  }
+}
+
+class PayPalButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final double height;
+  final Color color;
+  final String label;
+
+  const PayPalButton({
+    super.key,
+    required this.onPressed,
+    this.height = 50,
+    this.color = const Color(0xFFFFCC00),
+    this.label = 'Pay with PayPal',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Image.asset(
+          'assets/images/2-2-paypal-logo-transparent-png.png',
+          height: height * 0.6,
+        ),
+        label: CustomText(
+          content: label,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
     );
   }
 }

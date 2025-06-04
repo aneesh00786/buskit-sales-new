@@ -117,4 +117,5 @@ mixin class ApiConstants {
   static const String createSetUpIntent = "create-setup-intent";
   static const String insertTransactionAndSubscriptionDetails = "insert_transaction_and_subscription_details";
   static const String getRegisteredAddressAdmin = "get_registered_address_admin";
+  static const String createPaypalAuth = "create-paypal-auth";
 }

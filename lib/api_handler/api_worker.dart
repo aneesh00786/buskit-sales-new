@@ -1913,4 +1913,72 @@ class ApiWorker with ApiConstants {
       throw Exception("Unexpected error during user verification");
     }
   }
+
+  Future<void> saveSubscription({
+    required int userId,
+    required int planId,
+    required String orderId,
+    required double amount,
+    required String licenses,
+    required String currency,
+  }) async {
+    log('This function has been called');
+    final endDate =
+        DateTime.now().add(Duration(days: 14)).toIso8601String().split('T')[0];
+    final response = await dio1.post(
+      '${ApiConstants.baseUrl}${ApiConstants.insertTransactionAndSubscriptionDetails}',
+      options: Options(headers: {'Content-Type': 'application/json'}),
+      data: jsonEncode({
+        'user_id': userId,
+        'plan_id': planId,
+        'card_token': orderId,
+        'end_date': endDate,
+        'amount': amount,
+        'payment_method': 'pay-pal',
+        'status': 'trial',
+        'licenses': licenses,
+        'stripeCustomerId': '',
+        'currency': currency
+      }),
+    );
+    final data = response.data;
+    if (data['status_code'] != 200) {
+      throw Exception(data['message'] ?? 'Failed to save subscription');
+    }
+  }
+
+  Future<String?> createPayPalOrder({
+    required String amount,
+    required String currency,
+    required int adminId,
+  }) async {
+    log('Admin ID :$adminId');
+    try {
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.createPaypalAuth}',
+        data: {
+          'amount': amount,
+          'currency': currency,
+          'adminId': adminId,
+        },
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      final data = response.data;
+      if (response.statusCode == 200 && data['orderID'] != null) {
+        return data['orderID'];
+      } else {
+        throw Exception(data['error'] ?? 'Failed to create PayPal order');
+      }
+    } catch (e) {
+      if (e is DioError) {
+        final errorData = e.response?.data;
+        throw Exception(errorData?['error'] ?? e.message);
+      } else {
+        throw Exception(e.toString());
+      }
+    }
+  }
 }

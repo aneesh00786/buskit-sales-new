@@ -16,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/warning_
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 Future<dynamic> registerDialog(BuildContext context,
     LoginController loginController, GlobalKey<FormState> formKey) {

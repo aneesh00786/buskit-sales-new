@@ -1,0 +1,151 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>PayPal Checkout</title>
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AQClUH-2qmN7z-AKcULb_uy5Zze1GEWNeWTDAFLRsvL0QUcNdIYNXebyqashLoXTkKWaPDR04HPbQeZs&disable-funding=credit,card,venmo&intent=authorize"></script>
+</head>
+
+<body>
+    <!-- Add your message -->
+    <div style="text-align:center; margin-bottom: 10px;">
+        <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal Logo"
+            style="height:40px; vertical-align: middle; margin-right: 8px;">
+        <span style="font-size: 16px; font-weight: 600;">Secure Payment with PayPal</span>
+    </div>
+    <div id="paypal-button-container"></div>
+    <div id="paypal-error" style="display:none;color:red;"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('paypal-button-container').innerHTML = '';
+            document.getElementById('paypal-error').style.display = 'none';
+            const urlParams = new URLSearchParams(window.location.search);
+            const adminId = parseInt(urlParams.get("adminId"));
+            const checkedID = parseInt(urlParams.get("planId"));
+            const licenses = urlParams.get("licenses") || '1';
+            const amount = parseFloat(urlParams.get("amount") || '0.00');
+            const currencyCode = urlParams.get("currency") || "USD";
+            paypal.Buttons({
+                style: {
+                    layout: 'horizontal',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'paypal',
+                    height: 50,
+                    tagline: false
+                },
+                createOrder: function (data, actions) {
+                    console.log("[DEBUG] Creating order...", amount, adminId, currencyCode);
+                    return fetch('https://thrivewoo.com/create-paypal-auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount,
+                            adminId,
+                            currency: currencyCode
+                        })
+                    }).then(res => {
+                        console.log("[DEBUG] Auth response status:", res.status);
+                        if (!res.ok) {
+                            return res.json().then(err => {
+                                console.error("[DEBUG] Auth error:", err);
+                                throw new Error(err.error || 'Failed to create PayPal order');
+                            });
+                        }
+                        return res.json();
+                    }).then(data => {
+                        console.log("[DEBUG] Order created:", data.orderID);
+                        if (!data.orderID) throw new Error('Missing order ID');
+                        return data.orderID;
+                    });
+                },
+                onApprove: function (data, actions) {
+                    const end_date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+                        .toISOString().split("T")[0];
+                    const payload = {
+                        user_id: adminId,
+                        plan_id: checkedID,
+                        card_token: data.orderID,
+                        end_date: end_date,
+                        amount: amount,
+                        payment_method: 'pay-pal',
+                        status: 'trial',
+                        licenses: licenses,
+                        stripeCustomerId: '',
+                        currency: currencyCode
+                    };
+                    console.log("[DEBUG] Sending subscription details to server:", JSON.stringify(payload));
+                    return fetch('https://thrivewoo.com/insert_transaction_and_subscription_details', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(async res => {
+                            const text = await res.text();
+                            console.log("[DEBUG] Response status:", res.status);
+                            console.log("[DEBUG] Response body:", text);
+                            if (!res.ok) {
+                                throw new Error(`HTTP ${res.status} - ${text}`);
+                            }
+                            let responseJson;
+                            try {
+                                responseJson = JSON.parse(text);
+                            } catch (err) {
+                                throw new Error("Invalid JSON from server: " + text);
+                            }
+                            if (!responseJson || responseJson.status_code !== 200) {
+                                throw new Error(responseJson?.message || "Failed to save subscription");
+                            }
+                            if (window.flutter_inappwebview) {
+                                window.flutter_inappwebview.callHandler('paymentSuccess', {
+                                    orderId: data.orderID,
+                                    adminId,
+                                    planId: checkedID,
+                                    amount,
+                                    currency: currencyCode,
+                                    licenses
+                                });
+                            }
+                            if (typeof closepopup === 'function') closepopup(subscription_plan_dialog);
+                            const msgBox = document.getElementById("succsessbox");
+                            if (msgBox) {
+                                document.getElementById("trial_confirmation_message").textContent =
+                                    "14-day trial started. Login credentials have been sent to your email.";
+                                msgBox.showModal();
+
+                                document.getElementById("go_to_login_btn")?.addEventListener("click", () => {
+                                    msgBox.close();
+                                    window.location.href = "/";
+                                }, { once: true });
+                            }
+
+                        })
+                        .catch(err => {
+                            console.error("[PayPal Save Error]", err);
+                            document.getElementById('paypal-error').textContent = err.message;
+                            document.getElementById('paypal-error').style.display = 'block';
+                        })
+                        .finally(() => {
+                            if (typeof loadingIndicator !== 'undefined') {
+                                loadingIndicator.style.display = 'none';
+                            }
+                        });
+                },
+
+                onError: function (err) {
+                    console.error('PayPal error:', err);
+                    document.getElementById('paypal-error').textContent =
+                        'Payment failed. Please try again or use another payment method.';
+                    document.getElementById('paypal-error').style.display = 'block';
+                }
+
+            }).render('#paypal-button-container');
+        });
+    </script>
+</body>
+
+</html>

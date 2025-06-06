@@ -1,12 +1,10 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously
 
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_button_webview.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
@@ -15,10 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:lottie/lottie.dart';
-import 'package:paypal_payment/paypal_payment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class PaymentDialogContent extends StatefulWidget {
   Plan plan;
@@ -196,7 +191,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              
               ApplePayButton(
                 onPressed: () {},
               ),
@@ -208,6 +202,16 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                     selectedQuantity: widget.selectedQuantity,
                     totalAmount: widget.totalAmount),
               ),
+              // SizedBox(
+              //   height: 100,
+              //   width: 200,
+              //   child: PayPalWebViewScreen(
+              //     adminId: 89 ?? 0,
+              //     amount: widget.totalAmount,
+              //     planId: widget.plan.id ?? 0,
+              //     orderId: '',
+              //   ),
+              // )
             ],
           ),
           Padding(
@@ -367,6 +371,7 @@ class ApplePayButton extends StatelessWidget {
     );
   }
 }
+
 class PayPalWebViewScreen extends StatefulWidget {
   final int adminId;
   final int planId;
@@ -470,30 +475,53 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Column(
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 100,
-              width: 100,
+              height: 150,
+              width: 150,
               child: Lottie.asset(
                 'assets/images/Animation - 1726906882515.json',
               ),
             ),
-            Text("Success"),
+            SizedBox(height: 12),
+            CustomText(
+              content: "Success",
+              fontSize: 18,
+              color: Colors.green,
+              fontWeight: FontWeight.w800,
+            ),
+            SizedBox(height: 12),
+            CustomText(
+              content:
+                  "14-day trial started. Login credentials have been sent to your email.",
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text("Ok"),
+              ),
+            ),
           ],
         ),
-        content: Text(
-            "14-day trial started. Login credentials have been sent to your email."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/');
-            },
-            child: Text("Go to Login"),
-          ),
-        ],
       ),
     );
   }
@@ -522,4 +550,3 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
     );
   }
 }
-

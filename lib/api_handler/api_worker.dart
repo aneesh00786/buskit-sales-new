@@ -1973,7 +1973,7 @@ class ApiWorker with ApiConstants {
         throw Exception(data['error'] ?? 'Failed to create PayPal order');
       }
     } catch (e) {
-      if (e is DioError) {
+      if (e is DioException) {
         final errorData = e.response?.data;
         throw Exception(errorData?['error'] ?? e.message);
       } else {

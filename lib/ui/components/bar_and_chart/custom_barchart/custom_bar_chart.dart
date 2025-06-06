@@ -77,6 +77,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
       [50, 10],
     ].firstWhere((pair) => dynamicMaxY! >= pair[0], orElse: () => [0, 5])[1];
   }
+  
   @override
   Widget build(BuildContext context) {
     return Column(

@@ -38,7 +38,6 @@ class CustomBarChartCustomerDash extends StatefulWidget {
 class _CustomBarChartCustomerDashState
     extends State<CustomBarChartCustomerDash> {
   List<BarChartGroupData> barGroups = [];
-
   @override
   void initState() {
     super.initState();
@@ -81,16 +80,46 @@ class _CustomBarChartCustomerDashState
     }).toList();
   }
 
+  // Widget getBottomTitles(double value, TitleMeta meta) {
+  //   Widget text = Transform.rotate(
+  //     angle: -1.34 / 4,
+  //     child: MyRegularText(
+  //       label: widget.allCategory[value.toInt()].categoryName,
+  //       fontWeight: FontWeight.w500,
+  //       fontSize: 11,
+  //       color: Colors.black,
+  //     ),
+  //   );
+  //   return Container(
+  //     margin: const EdgeInsets.only(top: 12),
+  //     child: text,
+  //   );
+  // }
+
   Widget getBottomTitles(double value, TitleMeta meta) {
+    int index = value.toInt();
+    String? categoryName = widget.allCategory[index].categoryName;
+
     Widget text = Transform.rotate(
       angle: -1.34 / 4,
-      child: MyRegularText(
-        label: widget.allCategory[value.toInt()].categoryName,
-        fontWeight: FontWeight.w500,
-        fontSize: 11,
-        color: Colors.black,
+      child: GestureDetector(
+        onTap: () {
+          CategoryPerformancez perf = widget.categoryPerformance.firstWhere(
+              (performance) =>
+                  performance.category ==
+                  widget.allCategory[index].categoryName);
+
+          showSalesmanPopup(
+              cid: perf.cid,
+              category: widget.allCategory[index].categoryName,
+              context: context,
+              customerId: widget.customerId,
+              year: widget.year);
+        },
+        child: customUnderlinedText(categoryName),
       ),
     );
+
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: text,
@@ -141,41 +170,48 @@ class _CustomBarChartCustomerDashState
                 .reduce((a, b) => a > b ? a : b))
             .reduce((a, b) => a > b ? a : b);
         dev.log("MAX BAR VALUE : $maxBarValue");
+
+        int calculateNiceInterval(int maxY, int maxDivisions) {
+          if (maxY <= 0) return 1;
+
+          double roughInterval = maxY / maxDivisions;
+
+          int exponent = (log(roughInterval) / ln10).floor();
+          double base = pow(10, exponent).toDouble();
+
+          List<double> steps = [1, 2, 5, 10];
+          double niceInterval = steps.first;
+          for (double step in steps) {
+            if (base * step >= roughInterval) {
+              niceInterval = base * step;
+              break;
+            }
+          }
+
+          return niceInterval.toInt();
+        }
+
+        dev.log("MAX BAR VALUE : $maxBarValue");
         final int magnitude =
             pow(10, maxBarValue.toInt().toString().length - 1).toInt();
         final int dynamicMaxY = ((maxBarValue / magnitude).ceil()) * magnitude;
-        final int dynamicInterval;
-        if (dynamicMaxY >= 1000000000) {
-          dynamicInterval = 200000000;
-        } else if (dynamicMaxY >= 100000000) {
-          dynamicInterval = 20000000;
-        } else if (dynamicMaxY >= 10000000) {
-          dynamicInterval = 2000000;
-        } else if (dynamicMaxY >= 1000000) {
-          dynamicInterval = 200000;
-        } else if (dynamicMaxY >= 500000) {
-          dynamicInterval = 100000;
-        } else if (dynamicMaxY >= 200000) {
-          dynamicInterval = 50000;
-        } else if (dynamicMaxY >= 100000) {
-          dynamicInterval = 20000;
-        } else if (dynamicMaxY >= 50000) {
-          dynamicInterval = 10000;
-        } else if (dynamicMaxY >= 10000) {
-          dynamicInterval = 5000;
-        } else if (dynamicMaxY >= 5000) {
-          dynamicInterval = 1000;
-        } else if (dynamicMaxY >= 1000) {
-          dynamicInterval = 500;
-        } else if (dynamicMaxY >= 500) {
-          dynamicInterval = 100;
-        } else if (dynamicMaxY >= 100) {
-          dynamicInterval = 50;
-        } else if (dynamicMaxY >= 50) {
-          dynamicInterval = 10;
-        } else {
-          dynamicInterval = 5;
-        }
+        int maxDivisions = 6;
+        int dynamicInterval = calculateNiceInterval(dynamicMaxY, maxDivisions);
+
+        dev.log("Dynamic intervals VALUE : $dynamicInterval");
+        final dummyBarGroups = List.generate(
+          barGroups.length,
+          (index) => BarChartGroupData(
+            x: barGroups[index].x,
+            barRods: [
+              BarChartRodData(
+                toY: 0,
+                width: 0,
+                color: Colors.transparent,
+              )
+            ],
+          ),
+        );
         return Column(
           children: [
             if (widget.isScroll) ...[
@@ -183,16 +219,16 @@ class _CustomBarChartCustomerDashState
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbColor:
-                        WidgetStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(WidgetState.dragged)) {
+                        MaterialStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(MaterialState.dragged)) {
                         return Colors.blueAccent.shade700;
                       }
                       return Colors.blueAccent.shade400;
                     }),
-                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
+                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
                     trackBorderColor:
-                        WidgetStateProperty.all(Colors.blue.shade100),
-                    thickness: WidgetStateProperty.all(6),
+                        MaterialStateProperty.all(Colors.blue.shade100),
+                    thickness: MaterialStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
                   ),
@@ -212,7 +248,8 @@ class _CustomBarChartCustomerDashState
                             physics: const ClampingScrollPhysics(),
                             controller: provider.scrollController,
                             child: SizedBox(
-                              width: barGroups.length * 66.0,
+                              height: 300,
+                              width: barGroups.length * 66.0, // Chart width
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 3.0),
                                 child: BarChart(
@@ -223,13 +260,172 @@ class _CustomBarChartCustomerDashState
                                     titlesData: FlTitlesData(
                                       leftTitles: AxisTitles(
                                         sideTitles: SideTitles(
+                                            showTitles:
+                                                false), // hide left titles here
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
                                           showTitles: true,
-                                          interval: dynamicInterval.toDouble(),
-                                          getTitlesWidget: getLeftTitles,
-                                          reservedSize:
-                                              dynamicMaxY.toString().length *
-                                                      7 +
-                                                  10,
+                                          getTitlesWidget: getBottomTitles,
+                                          reservedSize: 40,
+                                        ),
+                                      ),
+                                      topTitles: AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
+                                      ),
+                                      rightTitles: AxisTitles(
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(
+                                      show: true,
+                                      border: Border.all(
+                                        color: const Color(0xffe0e0e0),
+                                        width: 0.9,
+                                      ),
+                                    ),
+                                    barTouchData: BarTouchData(
+                                      touchCallback: (FlTouchEvent event,
+                                          BarTouchResponse? touchResponse) {
+                                        if (touchResponse != null &&
+                                            touchResponse.spot != null &&
+                                            event is FlTapUpEvent) {
+                                          final int index = touchResponse
+                                              .spot!.touchedBarGroupIndex;
+
+                                          CategoryPerformancez perf = widget
+                                              .categoryPerformance
+                                              .firstWhere(
+                                            (performance) =>
+                                                performance.category ==
+                                                widget.allCategory[index]
+                                                    .categoryName,
+                                          );
+
+                                          showSalesmanPopup(
+                                            cid: perf.cid,
+                                            category: widget.allCategory[index]
+                                                .categoryName,
+                                            context: context,
+                                            customerId: widget.customerId,
+                                            year: widget.year,
+                                          );
+                                        }
+                                      },
+                                      touchTooltipData: BarTouchTooltipData(
+                                        tooltipPadding: EdgeInsets.zero,
+                                        tooltipMargin: 8,
+                                        getTooltipItem: (
+                                          BarChartGroupData group,
+                                          int groupIndex,
+                                          BarChartRodData rod,
+                                          int rodIndex,
+                                        ) {
+                                          return BarTooltipItem(
+                                            rod.toY.toString(),
+                                            const TextStyle(
+                                              color: Colors.blueGrey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Fixed left Y-axis container overlaid on left side
+                      Positioned(
+                        left: 0,
+                        top: 0,
+                        bottom: 10, // same bottom padding as chart
+                        child: Container(
+                          width: dynamicMaxY.toString().length * 7 + 10,
+                          color: Colors
+                              .white, // use white or your background color
+                          padding: const EdgeInsets.only(top: 3),
+                          child: BarChart(
+                            BarChartData(
+                              alignment: BarChartAlignment.spaceAround,
+                              barGroups: dummyBarGroups, // dummy bars (no bars)
+                              maxY: dynamicMaxY.toDouble(),
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    interval: dynamicInterval.toDouble(),
+                                    getTitlesWidget: getLeftTitles,
+                                    reservedSize:
+                                        dynamicMaxY.toString().length * 7 + 10,
+                                  ),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                topTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                rightTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                              ),
+                              borderData: FlBorderData(show: false),
+                              gridData: FlGridData(show: false),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            if (!widget.isScroll) ...[
+              Expanded(
+                child: Stack(
+                  children: [
+                    Scrollbar(
+                      controller: provider.scrollController,
+                      trackVisibility: true,
+                      thumbVisibility: true,
+                      radius: const Radius.circular(10),
+                      thickness: 5,
+                      interactive: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          double chartWidth = barGroups.length * 100.0;
+                          double minWidth = constraints.maxWidth;
+                          double finalWidth =
+                              chartWidth > minWidth ? chartWidth : minWidth;
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: const ClampingScrollPhysics(),
+                            controller: provider.scrollController,
+                            child: SizedBox(
+                              width: finalWidth,
+                              height:
+                                  300, // match height for alignment with left axis
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3.0),
+                                child: BarChart(
+                                  BarChartData(
+                                    alignment: BarChartAlignment.spaceAround,
+                                    barGroups: barGroups,
+                                    maxY: dynamicMaxY.toDouble(),
+                                    titlesData: FlTitlesData(
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles:
+                                              false, // hide left titles here
                                         ),
                                       ),
                                       bottomTitles: AxisTitles(
@@ -266,19 +462,21 @@ class _CustomBarChartCustomerDashState
 
                                           CategoryPerformancez perf = widget
                                               .categoryPerformance
-                                              .firstWhere((performance) =>
-                                                  performance.category ==
-                                                  widget.allCategory[index]
-                                                      .categoryName);
+                                              .firstWhere(
+                                            (performance) =>
+                                                performance.category ==
+                                                widget.allCategory[index]
+                                                    .categoryName,
+                                          );
 
                                           showSalesmanPopup(
-                                              cid: perf.cid,
-                                              category: widget
-                                                  .allCategory[index]
-                                                  .categoryName,
-                                              context: context,
-                                              customerId: widget.customerId,
-                                              year: widget.year);
+                                            cid: perf.cid,
+                                            category: widget.allCategory[index]
+                                                .categoryName,
+                                            context: context,
+                                            customerId: widget.customerId,
+                                            year: widget.year,
+                                          );
                                         }
                                       },
                                       touchTooltipData: BarTouchTooltipData(
@@ -304,166 +502,27 @@ class _CustomBarChartCustomerDashState
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Container(
-                          padding: const EdgeInsets.only(bottom: 0, top: 3),
-                          color: white,
-                          width: dynamicMaxY.toString().length * 7 + 10,
-                          child: BarChart(
-                            BarChartData(
-                              alignment: BarChartAlignment.spaceAround,
-                              maxY: dynamicMaxY.toDouble(),
-                              // barGroups: barGroups,
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    interval: dynamicInterval.toDouble(),
-                                    getTitlesWidget: getLeftTitles,
-                                    reservedSize:
-                                        dynamicMaxY.toString().length * 7 + 10,
-                                  ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: getBottomTitlesDummy,
-                                    reservedSize: 40,
-                                  ),
-                                ),
-                                topTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              borderData: FlBorderData(
-                                show: true,
-                                border: Border.all(
-                                  color: Colors.transparent,
-                                  width: 0.9,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-            if (!widget.isScroll) ...[
-              Expanded(
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: SizedBox(
-                        width: barGroups.length * 66.0,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3.0),
-                          child: BarChart(
-                            BarChartData(
-                              alignment: BarChartAlignment.spaceAround,
-                              barGroups: barGroups,
-                              maxY: dynamicMaxY.toDouble(),
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    interval: dynamicInterval.toDouble(),
-                                    getTitlesWidget: getLeftTitles,
-                                    reservedSize:
-                                        dynamicMaxY.toString().length * 7 + 10,
-                                  ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: getBottomTitles,
-                                    reservedSize: 40,
-                                  ),
-                                ),
-                                topTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              borderData: FlBorderData(
-                                show: true,
-                                border: Border.all(
-                                  color: const Color(0xffe0e0e0),
-                                  width: 0.9,
-                                ),
-                              ),
-                              barTouchData: BarTouchData(
-                                touchCallback: (FlTouchEvent event,
-                                    BarTouchResponse? touchResponse) {
-                                  if (touchResponse != null &&
-                                      touchResponse.spot != null &&
-                                      event is FlTapUpEvent) {
-                                    final int index = touchResponse
-                                        .spot!.touchedBarGroupIndex;
-
-                                    CategoryPerformancez perf = widget
-                                        .categoryPerformance
-                                        .firstWhere((performance) =>
-                                            performance.category ==
-                                            widget.allCategory[index]
-                                                .categoryName);
-
-                                    showSalesmanPopup(
-                                        cid: perf.cid,
-                                        category: widget
-                                            .allCategory[index].categoryName,
-                                        context: context,
-                                        customerId: widget.customerId,
-                                        year: widget.year);
-                                  }
-                                },
-                                touchTooltipData: BarTouchTooltipData(
-                                  tooltipPadding: EdgeInsets.zero,
-                                  tooltipMargin: 8,
-                                  getTooltipItem: (
-                                    BarChartGroupData group,
-                                    int groupIndex,
-                                    BarChartRodData rod,
-                                    int rodIndex,
-                                  ) {
-                                    return BarTooltipItem(
-                                      rod.toY.toString(),
-                                      const TextStyle(
-                                        color: Colors.blueGrey,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        }),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
+
+                    // Fixed left Y-axis overlay
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 10, // same bottom padding as main chart
                       child: Container(
-                        padding: const EdgeInsets.only(bottom: 0, top: 3),
-                        color: white,
                         width: dynamicMaxY.toString().length * 7 + 10,
+                        height: 300, // fixed height to match chart height
+                        color: Colors
+                            .white, // background color to overlay correctly
+                        padding: const EdgeInsets.only(top: 3),
                         child: BarChart(
                           BarChartData(
                             alignment: BarChartAlignment.spaceAround,
+                            barGroups: dummyBarGroups,
                             maxY: dynamicMaxY.toDouble(),
-                            // barGroups: barGroups,
                             titlesData: FlTitlesData(
                               leftTitles: AxisTitles(
                                 sideTitles: SideTitles(
@@ -475,11 +534,7 @@ class _CustomBarChartCustomerDashState
                                 ),
                               ),
                               bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: getBottomTitlesDummy,
-                                  reservedSize: 40,
-                                ),
+                                sideTitles: SideTitles(showTitles: false),
                               ),
                               topTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false),
@@ -488,13 +543,8 @@ class _CustomBarChartCustomerDashState
                                 sideTitles: SideTitles(showTitles: false),
                               ),
                             ),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(
-                                color: Colors.transparent,
-                                width: 0.9,
-                              ),
-                            ),
+                            borderData: FlBorderData(show: false),
+                            gridData: FlGridData(show: false),
                           ),
                         ),
                       ),
@@ -516,4 +566,31 @@ class _CustomBarChartCustomerDashState
         .reduce((a, b) => a > b ? a : b);
     return (maxValue / 50).ceil() * 50;
   }
+}
+
+Widget customUnderlinedText(String text) {
+  return Stack(
+    alignment: Alignment.centerLeft,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: MyRegularText(
+          label: text,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 6,
+        child: Container(
+          height: 1.5,
+          width: text.length * 8.0,
+          color: primaryColor,
+        ),
+      ),
+    ],
+  );
 }

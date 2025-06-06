@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/salesman_popup.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/show_salesman_popup.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -60,17 +61,38 @@ class CustomBarChartView extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, meta) {
-                    final label = allCategory[value.toInt()].category ?? '';
+                    final category = allCategory[value.toInt()].category ?? '';
+
                     return Transform.rotate(
                       angle: -1.34 / 4,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: MyRegularText(
-                          label: label,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 11,
-                          color: Colors.black,
-                        ),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (targetType == '0') {
+                            final MonthlyPerformancee perf = monthlyPerformance
+                                .firstWhere((e) => e.cid == category);
+                            showSalesmanPopupMonthly(
+                              cid: perf.cid ?? '',
+                              month: perf.cid ?? '',
+                              context: context,
+                              isDayOrRange: isDayOrRange,
+                              staffProjection: staffProjection,
+                              targetType: targetType,
+                            );
+                          } else {
+                            final CategoryPerformancee perf =
+                                categoryPerformance
+                                    .firstWhere((e) => e.category == category);
+                            showSalesmanPopup(
+                              cid: perf.cid ?? 0,
+                              category: category,
+                              context: context,
+                              isDayOrRange: isDayOrRange,
+                              staffProjection: staffProjection,
+                              targetType: targetType,
+                            );
+                          }
+                        },
+                        child: customUnderlinedText(allCategory[value.toInt()].category ?? ''),
                       ),
                     );
                   },
@@ -122,4 +144,31 @@ class CustomBarChartView extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget customUnderlinedText(String text) {
+  return Stack(
+    alignment: Alignment.centerLeft,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: MyRegularText(
+          label: text,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      Positioned(
+        bottom: 12,
+        child: Container(
+          height: 1.5,
+          width: text.length * 8.0,
+          color: primaryColor,
+        ),
+      ),
+    ],
+  );
 }

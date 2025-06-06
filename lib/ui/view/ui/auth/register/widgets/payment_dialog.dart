@@ -196,7 +196,8 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
               ),
               SizedBox(width: 16),
               PayPalButton(
-                onPressed: () => startPayPalPaymentFlow(
+                onPressed: () => 
+                startPayPalPaymentFlow(
                     context: context,
                     plan: widget.plan,
                     selectedQuantity: widget.selectedQuantity,
@@ -503,8 +504,10 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             Align(
               alignment: Alignment.center,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
+                  Navigator.of(context, rootNavigator: true).pop();
+                  await Future.delayed(Duration(milliseconds: 100));
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => LoginScreen()),

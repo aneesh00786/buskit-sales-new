@@ -506,17 +506,15 @@ class _CustomBarChartCustomerDashState
                         }),
                       ),
                     ),
-
-                    // Fixed left Y-axis overlay
                     Positioned(
                       left: 0,
                       top: 0,
-                      bottom: 10, // same bottom padding as main chart
+                      bottom: 10, 
                       child: Container(
                         width: dynamicMaxY.toString().length * 7 + 10,
-                        height: 300, // fixed height to match chart height
+                        height: 300, 
                         color: Colors
-                            .white, // background color to overlay correctly
+                            .white,
                         padding: const EdgeInsets.only(top: 3),
                         child: BarChart(
                           BarChartData(

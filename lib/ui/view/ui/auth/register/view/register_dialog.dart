@@ -17,8 +17,11 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<dynamic> registerDialog(BuildContext context,
-    LoginController loginController, GlobalKey<FormState> formKey) {
+Future<dynamic> registerDialog(
+  BuildContext context,
+  LoginController loginController,
+) {
+  final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
   String privacyAgreement = "false";
   String refundAgreement = "false";
   return showDialog(
@@ -35,7 +38,7 @@ Future<dynamic> registerDialog(BuildContext context,
           return SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
             child: Form(
-              key: formKey,
+              key: registerFormKey,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -302,7 +305,7 @@ Future<dynamic> registerDialog(BuildContext context,
                                 ? () async {
                                     final otp =
                                         loginController.otpController.text;
-                                    if (formKey.currentState?.validate() ??
+                                    if (registerFormKey.currentState?.validate() ??
                                         false) {
                                       final fullPhoneNo =
                                           '${loginController.phoneCode}${loginController.phoneNumberController.text}';
@@ -340,7 +343,7 @@ Future<dynamic> registerDialog(BuildContext context,
                                             loginController
                                                 .countryController.text);
                                         loginController.clearAllFields();
-                                        Navigator.of(context, rootNavigator: true).pop();
+                                        Navigator.pop(context);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -353,11 +356,9 @@ Future<dynamic> registerDialog(BuildContext context,
                                         errorSnackbar(
                                             "Please verify the email.");
                                       }
-                                    
                                     } else {
                                       log("Form validation failed.");
                                     }
-                                    
                                   }
                                 : null,
                             btnController: loginController.registerController,
@@ -375,5 +376,3 @@ Future<dynamic> registerDialog(BuildContext context,
     },
   );
 }
-
-

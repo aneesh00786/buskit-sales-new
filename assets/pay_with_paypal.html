@@ -21,54 +21,66 @@
     }
 
     .paypal-container {
+      background-color: white;
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      text-align: center;
+      gap: 16px;
     }
 
     .paypal-logo {
       height: 40px;
-      vertical-align: middle;
-      margin-right: 8px;
+      margin-bottom: 12px;
     }
 
     .paypal-message {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: bold;
     }
 
     #paypal-button-container {
-      width: 300px;
+      width: 100%;
     }
 
     #paypal-error {
       color: red;
       margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .paypal-logo-box {
+      background-color: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .paypal-logo {
+      width: 80px;
+      height: auto;
     }
   </style>
 </head>
 
 <body>
   <div class="paypal-container">
-    <div style="
-  display: inline-block;
-  padding: 10px;
-  background-color: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-">
-  <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal Logo"
-        style="width: 80px; height: auto;">
+    <div class="paypal-logo-box">
+      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal Logo" class="paypal-logo">
     </div>
-    <span class="paypal-message" style="font-size: 18px; font-weight: bold;">
-      Secure Payment with PayPal
-    </span>
-    <p style="margin-top: 5px; font-size: 14px; color: #555;">
+    <span class="paypal-message">Secure Payment with PayPal</span>
+    <p style="margin: 0; font-size: 14px; color: #555;">
       Your transaction is encrypted and protected by PayPal's secure gateway.
     </p>
+
     <div id="paypal-button-container"></div>
     <div id="paypal-error"></div>
   </div>

@@ -1,4 +1,3 @@
-// ignore_for_file: must_be_immutable, deprecated_member_use, use_build_context_synchronously
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/widgets/forgot_password_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_dialog.dart';
@@ -14,193 +13,179 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 
 class LoginRightSideWidget extends StatefulWidget {
   final LoginController loginController;
+
   const LoginRightSideWidget({super.key, required this.loginController});
+
   @override
   State<LoginRightSideWidget> createState() => _LoginRightSideWidgetState();
 }
 
 class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
-  ValueNotifier<String> changeNotify = ValueNotifier(Assets.iconsIcLoginLogo);
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  @override
-  void initState() {
-    super.initState();
-    widget.loginController.loginResponce?.statusCode == null;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final appDimensions = AppDimensions.instance;
+
+    final statusCode = widget.loginController.loginResponce?.statusCode;
+
     return Container(
       padding: nkSymmetricPadding(vertical: 0),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
-      child: Center(child: getFillWidget(context)),
-    );
-  }
-
-  Widget getFillWidget(BuildContext context) {
-    final appDimensions = AppDimensions.instance;
-    return Form(
-      key: widget.loginController.formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                Assets.pngThriveWoo,
-                height: appDimensions.width / 5.5,
-                fit: BoxFit.contain,
-              ),
-              
-            ],
-          ),
-          TextFormField(
-            controller: widget.loginController.emailController,
-            decoration: InputDecoration(
-              focusColor: Colors.blue,
-              labelText: 'Email',
-              prefixIcon: const Icon(
-                Icons.alternate_email_outlined,
-                color: primaryColor,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                    color: widget.loginController.loginResponce?.statusCode ==
-                                422 ||
-                            widget.loginController.loginResponce?.statusCode ==
-                                409
-                        ? Colors.red
-                        : Colors.grey,
-                    width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                    color: widget.loginController.loginResponce?.statusCode ==
-                                422 ||
-                            widget.loginController.loginResponce?.statusCode ==
-                                409
-                        ? Colors.red
-                        : primaryButtonColor,
-                    width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      color: Colors.white,
+      child: Center(
+        child: Form(
+          key: widget.loginController.formKey,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Image.asset(
+                      Assets.pngThriveWoo,
+                      height: appDimensions.width / 5.5,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: widget.loginController.emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.alternate_email_outlined,
+                          color: primaryColor),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: (statusCode == 422 || statusCode == 409)
+                              ? Colors.red
+                              : Colors.grey,
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: (statusCode == 422 || statusCode == 409)
+                              ? Colors.red
+                              : primaryButtonColor,
+                          width: 1.5,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      } else if (!NkCommonFunction.chckEmailValidation(value)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (statusCode == 422 || statusCode == 409)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4.0),
+                      child: Text('Incorrect E-mail',
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: widget.loginController.passwordController,
+                    obscureText: widget.loginController.isPasswordVisible.value,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(EneftyIcons.lock_2_outline,
+                          color: primaryColor),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: (statusCode == 401) ? Colors.red : Colors.grey,
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: (statusCode == 401)
+                              ? Colors.red
+                              : primaryButtonColor,
+                          width: 1.5,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5),
+                      ),
+                      suffixIcon: widget.loginController.getIsPasswordVisible,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      } 
+                      return null;
+                    },
+                  ),
+                  if (statusCode == 401)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4.0),
+                      child: Text('Incorrect Password',
+                          style: TextStyle(color: Colors.red)),
+                    ),
+                  const Align(
+                    alignment: Alignment.centerRight,
+                    child: ForgotPasswordScreen(),
+                  ),
+                  nkMediumSizeBox(),
+                  Row(
+                    children: [
+                      Expanded(child: _buildLoginButton(context)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildRegisterButton(context)),
+                    ],
+                  ),
+                ],
               ),
             ),
-            autocorrect: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              } else if (!NkCommonFunction.chckEmailValidation(value)) {
-                return 'Please enter valid email';
-              }
-              return null;
-            },
           ),
-          widget.loginController.loginResponce?.statusCode == 422 ||
-                  widget.loginController.loginResponce?.statusCode == 409
-              ? const Text(
-                  'Incorrect E-mail',
-                  style: TextStyle(color: Colors.red),
-                )
-              : const Text(''),
-          TextFormField(
-            controller: widget.loginController.passwordController,
-            obscureText: widget.loginController.isPasswordVisible.value,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              prefixIcon: const Icon(
-                EneftyIcons.lock_2_outline,
-                color: primaryColor,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                    color:
-                        widget.loginController.loginResponce?.statusCode == 401
-                            ? Colors.red
-                            : Colors.grey,
-                    width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                    color:
-                        widget.loginController.loginResponce?.statusCode == 401
-                            ? Colors.red
-                            : primaryButtonColor,
-                    width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.red, width: 1.5),
-              ),
-              suffixIcon: widget.loginController.getIsPasswordVisible,
-            ),
-          ),
-          widget.loginController.loginResponce?.statusCode == 401
-              ? const Text(
-                  'Incorrect Password',
-                  style: TextStyle(color: Colors.red),
-                )
-              : const Text(''),
-          const Align(
-              alignment: Alignment.centerRight, child: ForgotPasswordScreen()),
-          nkMediumSizeBox(),
-          nkMediumSizeBox(),
-          Row(
-            children: [
-              Expanded(child: getLoginButton(context)),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(child: getRegisterButton(context)),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget getLoginButton(BuildContext context) => Center(
-        child: NkLoadingButton(
-          isRoundedCorner: true,
-          buttonText: singIn,
-          onPressed: () async {
-            widget.loginController.loginResponce == null;
-            if (widget.loginController.formKey.currentState!.validate()) {
-              bool success = await widget.loginController.performLogin(context);
-              if (!success) {
-                widget.loginController.loginButtonController.stop();
-                widget.loginController.loginButtonController.reset();
-              }
-            } else {
-              widget.loginController.loginButtonController.stop();
-              widget.loginController.loginButtonController.reset();
-            }
-          },
-          btnController: widget.loginController.loginButtonController,
-        ),
-      );
-  Widget getRegisterButton(BuildContext context) => Center(
-        child: NkLoadingButton(
-          isRoundedCorner: true,
-          buttonText: "Register",
-          onPressed: () async {
-            registerDialog(context, widget.loginController, _formKey);
-          },
-          btnController: widget.loginController.registerButtonController,
-        ),
-      );
+  Widget _buildLoginButton(BuildContext context) {
+    return NkLoadingButton(
+      isRoundedCorner: true,
+      buttonText: singIn,
+      onPressed: () async {
+        if (widget.loginController.formKey.currentState!.validate()) {
+          bool success = await widget.loginController.performLogin(context);
+          if (!success) {
+            widget.loginController.loginButtonController.stop();
+            widget.loginController.loginButtonController.reset();
+          }
+        } else {
+          widget.loginController.loginButtonController.stop();
+          widget.loginController.loginButtonController.reset();
+        }
+      },
+      btnController: widget.loginController.loginButtonController,
+    );
+  }
+
+  Widget _buildRegisterButton(BuildContext context) {
+    return NkLoadingButton(
+      isRoundedCorner: true,
+      buttonText: "Register",
+      onPressed: () async {
+        registerDialog(context, widget.loginController);
+      },
+      btnController: widget.loginController.registerButtonController,
+    );
+  }
 }
-
-
-
-

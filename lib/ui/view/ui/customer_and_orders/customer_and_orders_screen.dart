@@ -523,7 +523,7 @@ class _TableeeState extends State<Tableee> {
                                           Expanded(
                                             child: buildInputField(
                                                 townController,
-                                                'Town',
+                                                'City or Suburb',
                                                 Icons.location_city),
                                           ),
                                           const SizedBox(width: 8.0),
@@ -537,7 +537,7 @@ class _TableeeState extends State<Tableee> {
                                           Expanded(
                                             child: buildInputField(
                                                 zipcodeController,
-                                                'Zip Code',
+                                                'Zip/Post/Pin Code',
                                                 Icons.pin_drop),
                                           ),
                                         ],
@@ -561,7 +561,7 @@ class _TableeeState extends State<Tableee> {
                                           Expanded(
                                             child: buildInputField(
                                                 telephoneController,
-                                                'Telephone',
+                                                'Business Reg.No',
                                                 Icons.phone_in_talk),
                                           ),
                                         ],
@@ -648,25 +648,35 @@ class _TableeeState extends State<Tableee> {
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryTownController,
-                                                'Delivery Town',
+                                                'City or Suburb',
                                                 Icons.location_city),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryStateController,
-                                                'Delivery State',
+                                                'State',
                                                 Icons.map),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryZipcodeController,
-                                                'Delivery Zip Code',
+                                                'Zip/Post/Pin Code',
                                                 Icons.pin_drop),
                                           ),
                                         ],
                                       ),
+                                      const SizedBox(
+                                  height: 30,
+                                  child: Row(
+                                    children: [
+                                      Spacer(),
+                                      SizedBox(width: 16.0),
+                                      Expanded(child: Text("Company logo"))
+                                    ],
+                                  ),
+                                ),
                                       Row(
                                         children: [
                                           // Remark Input Field
@@ -1701,7 +1711,7 @@ class AddLeadsBt extends StatelessWidget {
                                                     horizontal: 12.0,
                                                     vertical: 16.0,
                                                   ),
-                                                  labelText: 'Town',
+                                                  labelText: 'City or Suburb',
                                                   prefixIcon:
                                                       Icon(Icons.location_city),
                                                   border: InputBorder.none,

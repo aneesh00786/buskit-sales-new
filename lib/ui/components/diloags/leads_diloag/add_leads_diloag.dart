@@ -114,7 +114,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget
                                                 .leadsController.townController,
-                                            'Town',
+                                            'City or Suburb',
                                             Icons.location_city)),
                                     const SizedBox(width: 8.0),
                                     Expanded(
@@ -128,7 +128,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .zipcodeController,
-                                            'Zip Code',
+                                            'Zip/Post/Pin Code',
                                             Icons.pin_drop)),
                                   ],
                                 ),
@@ -154,7 +154,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       child: buildInputField(
                                           widget.leadsController
                                               .telephoneController,
-                                          'Telephone',
+                                          'Business Reg.No',
                                           Icons.phone_in_talk),
                                     ),
                                   ],
@@ -255,7 +255,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       child: buildInputField(
                                           widget.leadsController
                                               .deliveryTownController,
-                                          'Delivery Town',
+                                          'City or Suburb',
                                           Icons.location_city),
                                     ),
                                     const SizedBox(width: 8.0),
@@ -263,7 +263,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       child: buildInputField(
                                           widget.leadsController
                                               .deliveryStateController,
-                                          'Delivery State',
+                                          'State',
                                           Icons.map),
                                     ),
                                     const SizedBox(width: 8.0),
@@ -271,10 +271,20 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       child: buildInputField(
                                           widget.leadsController
                                               .deliveryZipcodeController,
-                                          'Delivery Zip Code',
+                                          'Zip/Post/Pin Code',
                                           Icons.pin_drop),
                                     ),
                                   ],
+                                ),
+                                const SizedBox(
+                                  height: 30,
+                                  child: Row(
+                                    children: [
+                                      Spacer(),
+                                      SizedBox(width: 16.0),
+                                      Expanded(child: Text("Company logo"))
+                                    ],
+                                  ),
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,

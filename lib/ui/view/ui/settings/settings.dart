@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   label: (_adminData?.zipcode ?? '').toString(),
                                   isReadOnly: true,
                                   borderColor: Colors.grey,
-                                  labelText: 'Zip Code',
+                                  labelText: 'Zip/Post/Pin Code',
                                   prefixIcon:
                                       filedIcon(Assets.iconsIcAddLeadsRemark),
                                 ),
@@ -239,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               Flexible(
                                 child: formFiled(
                                   label: _adminData?.town ?? '',
-                                  labelText: 'Town',
+                                  labelText: 'City or Suburb',
                                   isReadOnly: true,
                                   borderColor: Colors.grey,
                                   textInputType: TextInputType.visiblePassword,

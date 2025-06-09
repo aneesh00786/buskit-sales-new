@@ -14,7 +14,7 @@ class CustomerTotalSalePages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<CustomersProvider>(context);
-    provider.fetchCustomerDashboardDataSalseData(customerId, year);
+    provider.fetchCustomerDashboardDataSalseData(customerId);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customer Total Sale Data'),

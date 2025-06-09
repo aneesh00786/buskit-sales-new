@@ -126,7 +126,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
 }
 class ChartData2 {
   final String label;
-  final int value;
+  final num value;
   final Color color;
 
   ChartData2(this.label, this.value, this.color);

@@ -2551,24 +2551,18 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .customerDashboardView
                                                                 .value ==
                                                             'true') {
+
+                                                          
+
                                                           provider
                                                               .setCurrentMonthDates();
                                                           provider.fetchCustomerDashboardData(
                                                               customer
-                                                                  .customerId,
-                                                              2024,
-                                                              provider
-                                                                  .selectedStartDate,
-                                                              provider
-                                                                  .selectedEndDate);
+                                                                  .customerId,);
                                                           provider.fetchCustomerDashboardRevenueData(
                                                               customer
                                                                   .customerId,
-                                                              2024,
-                                                              provider
-                                                                  .selectedStartDate,
-                                                              provider
-                                                                  .selectedEndDate);
+                                                             );
                                                           provider
                                                               .fetchCustomerDashboardCountData(
                                                                   customer
@@ -2597,16 +2591,31 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   milliseconds:
                                                                       100));
 
+                                                                      final now =
+                                                            DateTime.now();
+                                                        final dateFormat =
+                                                            DateFormat(
+                                                                'yyyy-MM-dd');
+
+                                                        final firstDayOfYear =
+                                                            DateTime(
+                                                                now.year, 1, 1);
+                                                        final lastDayOfYear =
+                                                            DateTime(now.year,
+                                                                12, 31);
+
                                                           Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
                                                               builder: (context) =>
                                                                   CustomerDachScreen(
                                                                 year: 2024,
-                                                                startDate: provider
-                                                                    .selectedStartDate,
-                                                                endDate: provider
-                                                                    .selectedEndDate,
+                                                                startDate: dateFormat
+                                                                  .format(
+                                                                      firstDayOfYear),
+                                                              endDate: dateFormat
+                                                                  .format(
+                                                                      lastDayOfYear),
                                                                 isFromOrder:
                                                                     true,
                                                                 cusId: customer

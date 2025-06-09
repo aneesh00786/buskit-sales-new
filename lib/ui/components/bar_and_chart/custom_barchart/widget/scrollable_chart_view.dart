@@ -25,7 +25,7 @@ class ScrollableChartView extends StatelessWidget {
     final scrollController =
         Provider.of<DashboardProvider>(context, listen: false).scrollController;
 
-    double chartWidth = barGroups.length * 66.0;
+    double chartWidth = barGroups.length * 100.0;
     double finalWidth = chartWidth > MediaQuery.of(context).size.width
         ? chartWidth
         : MediaQuery.of(context).size.width;

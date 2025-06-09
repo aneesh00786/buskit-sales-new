@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class NestedPieChartj extends StatelessWidget {
-  final int completedOrdersCount;
-  final int pendingAmountCount;
-  final int dueAmountCount;
-  final int overdueAmountCount;
+  final num completedOrdersCount;
+  final num pendingAmountCount;
+  final num dueAmountCount;
+  final num overdueAmountCount;
   final Collection collection;
 
   final bool isBig;

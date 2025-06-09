@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/payment_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plan_amount_selection.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/quantity_manager.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/table_items.dart';
@@ -54,7 +55,6 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
 
     return 'Subscribe ${selectedPlan!.planName} for ${_formatCurrency(totalPrice)}$durationLabel';
   }
-
 
   Map<String, List<Plan>> _groupPlansByName(List<Plan> plans) {
     final Map<String, List<Plan>> grouped = {};
@@ -325,16 +325,24 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
       Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
       await Stripe.instance.applySettings();
     }
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: PaymentDialogContent(
-          plan: plan,
-          totalAmount: totalAmount,
-          selectedQuantity: selectedQuantity,
-        ),
-      ),
-    );
+    startPayPalPaymentFlow(
+        context: context,
+        plan: plan,
+        selectedQuantity: selectedQuantity,
+        totalAmount: totalAmount);
+
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => SizedBox(
+    //     child: Dialog(
+    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    //       child: PaymentDialogContent(
+    //         plan: plan,
+    //         totalAmount: totalAmount,
+    //         selectedQuantity: selectedQuantity,
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }

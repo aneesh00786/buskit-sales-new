@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barcha
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/show_salesman_popup.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -63,13 +64,17 @@ class CustomBarChartView extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     final category = allCategory[value.toInt()].category ?? '';
 
-                    return Transform.rotate(
-                      angle: -1.34 / 4,
-                      child: GestureDetector(
-                        onTap: () {
-                          if (targetType == '0') {
-                            final MonthlyPerformancee perf = monthlyPerformance
-                                .firstWhere((e) => e.cid == category);
+                    return GestureDetector(
+                      onTap: () {
+                        if (targetType == '0') {
+                          final MonthlyPerformancee perf = monthlyPerformance
+                              .firstWhere((e) => e.cid == category);
+                          if (perf.actualProjection == 0 &&
+                              perf.actualSales == 0 &&
+                              perf.actualTarget == 0) {
+                            showCustomToastDisplay(
+                                context, "No Record Found", red, Icons.close);
+                          } else {
                             showSalesmanPopupMonthly(
                               cid: perf.cid ?? '',
                               month: perf.cid ?? '',
@@ -78,10 +83,16 @@ class CustomBarChartView extends StatelessWidget {
                               staffProjection: staffProjection,
                               targetType: targetType,
                             );
+                          }
+                        } else {
+                          final CategoryPerformancee perf = categoryPerformance
+                              .firstWhere((e) => e.category == category);
+                          if (perf.actualProjection == 0 &&
+                              perf.actualSales == 0 &&
+                              perf.actualTarget == 0) {
+                            showCustomToastDisplay(
+                                context, "No Record Found", red, Icons.close);
                           } else {
-                            final CategoryPerformancee perf =
-                                categoryPerformance
-                                    .firstWhere((e) => e.category == category);
                             showSalesmanPopup(
                               cid: perf.cid ?? 0,
                               category: category,
@@ -91,9 +102,10 @@ class CustomBarChartView extends StatelessWidget {
                               targetType: targetType,
                             );
                           }
-                        },
-                        child: customUnderlinedText(allCategory[value.toInt()].category ?? ''),
-                      ),
+                        }
+                      },
+                      child: customUnderlinedText(
+                          allCategory[value.toInt()].category ?? ''),
                     );
                   },
                   reservedSize: 40,

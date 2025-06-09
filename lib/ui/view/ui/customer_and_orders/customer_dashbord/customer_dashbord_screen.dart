@@ -85,7 +85,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(
-              widget.cusId.toString(), selectedYear);
+              widget.cusId.toString());
     });
     _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
@@ -437,16 +437,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                     listen: false)
                                 .fetchCustomerDashboardData(
                                     widget.cusId ?? '',
-                                    selectedYear,
-                                    widget.startDate,
-                                    widget.endDate);
+                                );
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.cusId ?? '',
-                                    selectedYear,
-                                    widget.startDate,
-                                    widget.endDate);
+                                    widget.cusId ?? '');
                           });
                         },
                         items: provider.yearList
@@ -683,7 +678,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
                                               widget.cusId.toString(),
-                                              selectedYear);
+                                              );
                                     });
                                   },
                                   items: provider.yearList

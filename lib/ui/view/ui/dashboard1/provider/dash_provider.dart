@@ -255,7 +255,7 @@ class DashboardProvider with ChangeNotifier {
   SalesmanChat? selectedChat;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
 
-  Future<void> fetchOrdersSabik(OrderStatus s) async {
+  Future<void> fetchOrdersData(OrderStatus s) async {
     try {
       Object orderType;
 

@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -12,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/option/model/option_order_r
 import 'package:busskit_salesexecutive/ui/components/option/widgets/estimated_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/show_orderstatus_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -145,26 +145,32 @@ class _OptionWidgetState extends State<OptionWidget> {
   Widget options(OrderCountListt? orderCountList, BuildContext context,
       DashboardProvider provider) {
     return Row(
-      children: _defaultOption(context, provider)
+      children: _defaultOption(context, provider, orderCountList)
           .map((e) => orderOptions(e, orderCountList, context))
           .toList(),
     );
   }
 
-  List<OptionData> _defaultOption(
-          BuildContext context, DashboardProvider provider) =>
+  List<OptionData> _defaultOption(BuildContext context,
+          DashboardProvider provider, OrderCountListt? orderCountList) =>
       [
         OptionData(
-            title: 'Orders',
-            count: widget.orderCount?.toString() ?? "0",
-            svg: Assets.iconsIcDashboardShoppingCart,
-            svgBgColor: const Color.fromARGB(255, 229, 242, 254),
-            color: const Color.fromARGB(255, 55, 74, 134),
-            onTap: () {
-              provider.fetchOrdersSabik(OrderStatus.delivered);
+          title: 'Orders',
+          count: widget.orderCount.toString(),
+          svg: Assets.iconsIcDashboardShoppingCart,
+          svgBgColor: const Color.fromARGB(255, 229, 242, 254),
+          color: const Color.fromARGB(255, 55, 74, 134),
+          onTap: () {
+            if (orderCountList?.totalOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {
+              provider.fetchOrdersData(OrderStatus.delivered);
               showOrderStatusDialog(context, provider, OrderStatus.delivered,
                   _scrollController1, _scrollController2, _scrollController3);
-            }),
+            }
+          },
+        ),
         OptionData(
             title: 'Estimates',
             count: widget.eastimatesCount?.toString() ?? "0",
@@ -172,16 +178,21 @@ class _OptionWidgetState extends State<OptionWidget> {
             svgBgColor: const Color.fromARGB(255, 226, 249, 243),
             color: const Color.fromARGB(255, 36, 108, 44),
             onTap: () {
-              provider.fetchOrdersSabik(OrderStatus.estimates);
-              showEstimatesDialog(
-                  context,
-                  provider,
-                  OrderStatus.estimates,
-                  'Estimate',
-                  false,
-                  productsController,
-                  customerOrderController,
-                  widget.homeController);
+              if (orderCountList?.estimateOrder.toString() == "0") {
+                showCustomToastDisplay(
+                    context, "No Record Found", red, Icons.close);
+              } else {
+                provider.fetchOrdersData(OrderStatus.estimates);
+                showEstimatesDialog(
+                    context,
+                    provider,
+                    OrderStatus.estimates,
+                    'Estimate',
+                    false,
+                    productsController,
+                    customerOrderController,
+                    widget.homeController);
+              }
             }),
         OptionData(
             title: 'Bookings',
@@ -191,7 +202,10 @@ class _OptionWidgetState extends State<OptionWidget> {
             color: const Color.fromARGB(255, 45, 104, 116),
             onTap: () {
               if (subscriptionController.bookingView.value == 'true') {
-                provider.fetchOrdersSabik(OrderStatus.preOrder);
+                if (orderCountList?.preorderOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersData(OrderStatus.preOrder);
                 showEstimatesDialog(
                     context,
                     provider,
@@ -200,7 +214,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                     false,
                     productsController,
                     customerOrderController,
-                    widget.homeController);
+                    widget.homeController);}
               } else {
                 showUpgradePlanDialog(context);
               }
@@ -212,7 +226,10 @@ class _OptionWidgetState extends State<OptionWidget> {
             svgBgColor: const Color.fromARGB(255, 255, 227, 255),
             color: const Color.fromARGB(255, 100, 43, 109),
             onTap: () {
-              provider.fetchOrdersSabik(OrderStatus.draft);
+              if (orderCountList?.draftOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersData(OrderStatus.draft);
               showEstimatesDialog(
                   context,
                   provider,
@@ -222,7 +239,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   productsController,
                   customerOrderController,
                   widget.homeController);
-              CartDatabaseManager().getDraftItems();
+              CartDatabaseManager().getDraftItems();}
             }),
         OptionData(
             title: 'Cancelled',
@@ -231,7 +248,10 @@ class _OptionWidgetState extends State<OptionWidget> {
             svgBgColor: const Color.fromARGB(255, 255, 228, 228),
             color: const Color.fromARGB(255, 139, 27, 27),
             onTap: () {
-              provider.fetchOrdersSabik(OrderStatus.cancelled);
+              if (orderCountList?.cancelOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersData(OrderStatus.cancelled);
               showEstimatesDialog(
                   context,
                   provider,
@@ -240,7 +260,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   false,
                   productsController,
                   customerOrderController,
-                  widget.homeController);
+                  widget.homeController);}
             }),
       ];
 
@@ -350,7 +370,3 @@ Text text(List<InvoiceDash> invoices, dynamic s) {
         fontWeight: FontWeight.w400,
       ));
 }
-
-
-
-

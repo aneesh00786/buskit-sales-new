@@ -196,13 +196,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
               ),
               SizedBox(width: 16),
               PayPalButton(
-                onPressed: () => 
-                startPayPalPaymentFlow(
-                    context: context,
-                    plan: widget.plan,
-                    selectedQuantity: widget.selectedQuantity,
-                    totalAmount: widget.totalAmount),
-              ),
+                onPressed: () {})
               // SizedBox(
               //   height: 100,
               //   width: 200,
@@ -395,7 +389,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
   InAppWebViewController? webViewController;
   String? _htmlContent;
   late String _queryParams;
-
   @override
   void initState() {
     super.initState();
@@ -418,7 +411,7 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.75,
+        height: MediaQuery.of(context).size.height * 0.5,
         child: _htmlContent == null
             ? const Center(child: CircularProgressIndicator())
             : ClipRRect(
@@ -432,20 +425,19 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
                   ),
                   onWebViewCreated: (controller) {
                     webViewController = controller;
-
                     controller.addJavaScriptHandler(
                       handlerName: 'paymentSuccess',
                       callback: (args) async {
                         final data = args[0];
-
                         final orderId = widget.orderId;
-                        final adminId = data['adminId'] ?? 0;
-                        final planId = data['planId'] ?? 0;
+                        final adminId =
+                            int.tryParse(data['adminId'].toString()) ?? 0;
+                        final planId =
+                            int.tryParse(data['planId'].toString()) ?? 0;
                         final amount =
                             double.tryParse(data['amount'].toString()) ?? 0.0;
                         final currency = data['currency'] ?? 'USD';
                         final licenses = data['licenses'] ?? '1';
-
                         await ApiWorker().saveSubscription(
                           userId: adminId,
                           planId: planId,

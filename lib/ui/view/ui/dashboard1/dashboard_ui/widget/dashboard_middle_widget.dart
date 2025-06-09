@@ -337,12 +337,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             );
                           } else {
                             final responseModel = snapshot.data!;
-                            final totalCompletedAmount = responseModel
-                                .collection!.payment!.completedOrders!
-                                .fold(
-                                    0.0,
-                                    (sum, order) =>
-                                        sum + (order.orderTotal ?? 0.0));
+                            final totalCompletedAmount = 
+                            // responseModel
+                            //     .collection!.payment!.completedOrders!
+                            //     .fold(
+                            //         0.0,
+                            //         (sum, order) =>
+                            //             sum + (order.orderTotal ?? 0.0));
+                           responseModel
+                                            .collection?.payment?.payedAmount ??
+                                        0.0;
 
                             final pendingAmountLabel = responseModel.collection!
                                     .order!.pendingAmount!.isNotEmpty
@@ -359,21 +363,27 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 : 'Overdue : \$ 0.00';
 
                             final completedOrdersLabel =
-                                'Completed : ${formatAmount(totalCompletedAmount)}';
+                                'Completed : ${formatAmount(responseModel
+                                            .collection?.payment?.payedAmount ??
+                                        0.0)}';
 
                             {
                               return Column(
                                 children: [
                                   Expanded(
                                     child: NestedPieChartj(
-                                      completedOrdersCount: responseModel
-                                          .collection!.payment!.completedOrders!
-                                          .fold(
-                                              0,
-                                              (sum, order) =>
-                                                  sum +
-                                                  (order.orderTotal?.toInt() ??
-                                                      0)),
+                                      completedOrdersCount: 
+                                      // responseModel
+                                      //     .collection!.payment!.completedOrders!
+                                      //     .fold(
+                                      //         0,
+                                      //         (sum, order) =>
+                                      //             sum +
+                                      //             (order.orderTotal?.toInt() ??
+                                      //                 0)),
+                                      responseModel
+                                            .collection?.payment?.payedAmount ??
+                                        0.0,
                                       pendingAmountCount: (responseModel
                                                       .collection
                                                       ?.order

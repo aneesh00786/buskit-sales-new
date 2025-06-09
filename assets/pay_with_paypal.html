@@ -1,199 +1,405 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>PayPal Checkout</title>
+  <title>Checkout</title>
+
   <script
-    src="https://www.paypal.com/sdk/js?client-id=AQClUH-2qmN7z-AKcULb_uy5Zze1GEWNeWTDAFLRsvL0QUcNdIYNXebyqashLoXTkKWaPDR04HPbQeZs&disable-funding=credit,card,venmo&intent=authorize">
-    </script>
+    src="https://www.paypal.com/sdk/js?client-id=AQClUH-2qmN7z-AKcULb_uy5Zze1GEWNeWTDAFLRsvL0QUcNdIYNXebyqashLoXTkKWaPDR04HPbQeZs&disable-funding=credit,card,venmo&intent=authorize"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+
   <style>
+    html,
     body {
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      height: 100%;
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      background: #ffffff;
     }
 
-    .paypal-container {
-      background-color: white;
-      border-radius: 16px;
-      padding: 32px 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
+    .dialog-container {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+
+
+    .top-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .top-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .apple-btn {
+      background: black;
+      color: white;
+    }
+
+    .paypal-btn {
+      background: #ffc439;
+    }
+
+    .divider {
+      display: flex;
       align-items: center;
-      gap: 16px;
+      text-align: center;
+      margin: 16px 0;
     }
 
-    .paypal-logo {
-      height: 40px;
-      margin-bottom: 12px;
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #ccc;
     }
 
-    .paypal-message {
-      font-size: 18px;
+    .divider:not(:empty)::before {
+      margin-right: .75em;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: .75em;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    #stripe-card-element {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    .summary-row span {
       font-weight: bold;
     }
 
-    #paypal-button-container {
+    .add-btn {
       width: 100%;
+      padding: 12px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
     }
 
+    #paypal-button-container,
+    #paypal-error,
+    #card-error {
+      margin-top: 8px;
+    }
+
+    #card-error,
     #paypal-error {
       color: red;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .paypal-logo-box {
-      background-color: white;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .paypal-logo {
-      width: 80px;
-      height: auto;
+      font-size: 13px;
     }
   </style>
 </head>
 
 <body>
-  <div class="paypal-container">
-    <div class="paypal-logo-box">
-      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal Logo" class="paypal-logo">
+  <div class="dialog-container">
+    <div class="top-buttons">
+      <div id="apple-pay-button-container"></div>
+      <div id="apple-pay-error" style="color: red; display: none;"></div>
+      <div id="paypal-button-container"></div>
+      <div id="paypal-error"></div>
     </div>
-    <span class="paypal-message">Secure Payment with PayPal</span>
-    <p style="margin: 0; font-size: 14px; color: #555;">
-      Your transaction is encrypted and protected by PayPal's secure gateway.
-    </p>
 
-    <div id="paypal-button-container"></div>
-    <div id="paypal-error"></div>
+    <div class="divider">OR</div>
+
+    <form id="card-form" class="form-group">
+      <input type="text" id="cardName" placeholder="Card holder name" required />
+      <div id="stripe-card-element"></div>
+      <div id="card-error"></div>
+
+      <div class="summary-row">
+        <div>Ends on<br><span id="end-date">-</span></div>
+        <div>Amount<br><span id="amount">-</span> USD</div>
+        <div>Licenses<br><span id="licenses">-</span></div>
+      </div>
+
+      <button type="submit" class="add-btn">Add Card</button>
+    </form>
+
+
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('paypal-button-container').innerHTML = '';
-      document.getElementById('paypal-error').style.display = 'none';
+    const stripe = Stripe('pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#stripe-card-element');
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const adminId = parseInt(urlParams.get("adminId"));
-      const checkedID = parseInt(urlParams.get("planId"));
-      const licenses = urlParams.get("licenses") || '1';
-      const amount = parseFloat(urlParams.get("amount") || '0.00');
-      const currencyCode = urlParams.get("currency") || "USD";
-
-      paypal.Buttons({
-        style: {
-          layout: 'horizontal',
-          color: 'gold',
-          shape: 'rect',
-          label: 'paypal',
-          height: 50,
-          tagline: false
-        },
-        createOrder: function (data, actions) {
-          return fetch('https://thrivewoo.com/create-paypal-auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount,
-              adminId,
-              currency: currencyCode
-            })
-          }).then(res => {
-            if (!res.ok) {
-              return res.json().then(err => {
-                throw new Error(err.error || 'Failed to create PayPal order');
-              });
-            }
-            return res.json();
-          }).then(data => {
-            if (!data.orderID) throw new Error('Missing order ID');
-            return data.orderID;
-          });
-        },
-        onApprove: function (data, actions) {
-          const end_date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-            .toISOString().split("T")[0];
-
-          const payload = {
-            user_id: adminId,
-            plan_id: checkedID,
-            card_token: data.orderID,
-            end_date: end_date,
-            amount: amount,
-            payment_method: 'pay-pal',
-            status: 'trial',
-            licenses: licenses,
-            stripeCustomerId: '',
-            currency: currencyCode
-          };
-
-          return fetch('https://thrivewoo.com/insert_transaction_and_subscription_details', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          })
-            .then(async res => {
-              const text = await res.text();
-              if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
-              let responseJson = JSON.parse(text);
-              if (responseJson?.status_code !== 200) throw new Error(responseJson.message);
-
-              if (window.flutter_inappwebview) {
-                window.flutter_inappwebview.callHandler('paymentSuccess', {
-                  orderId: data.orderID,
-                  adminId,
-                  planId: checkedID,
-                  amount,
-                  currency: currencyCode,
-                  licenses
-                });
-              }
-
-              const msgBox = document.getElementById("succsessbox");
-              if (msgBox) {
-                document.getElementById("trial_confirmation_message").textContent =
-                  "14-day trial started. Login credentials have been sent to your email.";
-                msgBox.showModal();
-                document.getElementById("go_to_login_btn")?.addEventListener("click", () => {
-                  msgBox.close();
-                  window.location.href = "/";
-                }, { once: true });
-              }
-
-            })
-            .catch(err => {
-              document.getElementById('paypal-error').textContent = err.message;
-              document.getElementById('paypal-error').style.display = 'block';
-            });
-        },
-        onError: function (err) {
-          document.getElementById('paypal-error').textContent =
-            'Payment failed. Please try again or use another payment method.';
-          document.getElementById('paypal-error').style.display = 'block';
-        }
-      }).render('#paypal-button-container')
+    const urlParams = new URLSearchParams(window.location.search);
+    const endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
     });
+
+    const amount = urlParams.get("amount") || "15.00";
+    const licenses = urlParams.get("licenses") || "1";
+    const adminId = urlParams.get("adminId") || 1;
+    const planId = urlParams.get("planId") || 1;
+    const currency = urlParams.get("currency") || "USD";
+
+    document.getElementById("end-date").innerText = endDate;
+    document.getElementById("amount").innerText = amount;
+    document.getElementById("licenses").innerText = licenses;
+    document.getElementById("card-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cardName = document.getElementById("cardName").value;
+      const setupIntentRes = await fetch("https://thrivewoo.com/create-setup-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerEmail: "email@example.com" })
+      });
+      const { clientSecret, stripeCustomerId } = await setupIntentRes.json();
+
+      const result = await stripe.confirmCardSetup(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: cardName }
+        }
+      });
+
+      if (result.error) {
+        document.getElementById("card-error").innerText = result.error.message;
+      } else {
+        const payload = {
+          user_id: adminId,
+          plan_id: planId,
+          card_token: result.setupIntent.payment_method,
+          end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+          amount: amount,
+          payment_method: 'card',
+          status: 'trial',
+          licenses: licenses,
+          stripeCustomerId,
+          currency
+        };
+        await fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (window.flutter_inappwebview) {
+          window.flutter_inappwebview.callHandler("paymentSuccess", {
+            orderId: result.setupIntent.payment_method,
+            adminId, planId, amount, currency, licenses
+          });
+        }
+      }
+    });
+
+    paypal.Buttons({
+      createOrder: () => {
+        console.log("[FRONTEND] Requesting PayPal order creation...");
+        return fetch("https://thrivewoo.com/create-paypal-auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, adminId, currency })
+        })
+          .then(res => {
+            console.log("[FRONTEND] Response status:", res.status);
+            return res.json();
+          })
+          .then(data => {
+            console.log("[FRONTEND] Received data:", data);
+            if (!data.orderID) throw new Error("No orderID returned");
+            return data.orderID;
+          })
+          .catch(err => {
+            console.error("[FRONTEND ERROR] Failed to create PayPal order:", err);
+            document.getElementById("paypal-error").innerText = "Error creating PayPal order";
+          });
+      }
+      ,
+      onApprove: (data) => {
+        const payload = {
+          user_id: adminId,
+          plan_id: planId,
+          card_token: data.orderID,
+          end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+          amount,
+          payment_method: 'pay-pal',
+          status: 'trial',
+          licenses,
+          stripeCustomerId: '',
+          currency
+        };
+
+        fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (window.flutter_inappwebview) {
+          window.flutter_inappwebview.callHandler("paymentSuccess", {
+            orderId: data.orderID,
+            adminId, planId, amount, currency, licenses
+          });
+        }
+      }
+    }).render('#paypal-button-container');
+    document.getElementById('apple-pay-btn').addEventListener('click', async () => {
+      // Clear previous container & error
+      document.getElementById('apple-pay-button-container').innerHTML = '';
+      document.getElementById('apple-pay-error').style.display = 'none';
+
+      await setupApplePay();
+    });
+    async function setupApplePay() {
+      const stripe = Stripe("pk_test_51RUJXhRKWRyfggDzbiE9Ylz6FUt97E3vU7jxqBzYTkIIG4Rrkog3h1NmXuO2dpTxvpYx4u6GHTZAFGNPTEDxkiI700vBxCU4O7");
+
+      document.getElementById('apple-pay-button-container').innerHTML = '';
+      document.getElementById('apple-pay-error').style.display = 'none';
+
+      const planAmountEl = document.getElementById('plan_amount');
+      if (!planAmountEl) {
+        console.error("plan_amount not found in DOM");
+        return;
+      }
+
+      const amountText = planAmountEl.textContent.replace(/[^\d.]/g, '');
+      const amount = Math.round(parseFloat(amountText) * 100);
+
+      const response = await fetch("https://thrivewoo.com/create_payment_intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId: getUserId() })
+      });
+
+      const { clientSecret, customerId } = await response.json();
+
+
+      console.log("hiii", clientSecret);
+      console.log("heee", customerId);
+
+      const paymentRequest = stripe.paymentRequest({
+        country: 'US',
+        currency: 'usd',
+        total: { label: 'Trial Subscription', amount },
+        requestPayerName: false,
+        requestPayerEmail: false,
+      });
+
+      const result = await paymentRequest.canMakePayment();
+      if (!result || !result.applePay) {
+        // document.getElementById('apple-pay-button-container').innerHTML = 
+        // '<p>Apple Pay not available</p>';
+        return;
+      }
+
+      const elements = stripe.elements();
+      const prButton = elements.create('paymentRequestButton', {
+        paymentRequest,
+        style: {
+          paymentRequestButton: { height: '48px' }
+        }
+      });
+      prButton.mount('#apple-pay-button-container');
+
+
+
+
+      console.log("hiii", clientSecret);
+      console.log("heee", customerId);
+      paymentRequest.on('paymentmethod', async (ev) => {
+        console.log("Received payment method:", ev.paymentMethod.id);
+        const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
+          payment_method: ev.paymentMethod.id
+        });
+        console.log("SetupIntent result:", error, setupIntent);
+
+        if (error) {
+          ev.complete('fail');
+          document.getElementById('apple-pay-error').textContent = error.message;
+          document.getElementById('apple-pay-error').style.display = 'block';
+        } else {
+          ev.complete('success');
+
+          const adminId = parseInt(localStorage.getItem("addressFind"));
+          const licenses = document.getElementById('license_display')?.textContent || '1';
+          const amount = parseFloat(document.getElementById('plan_amount')?.textContent.replace(/[^\d.]/g, '')) || 0;
+          const end_date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+          try {
+            const saveResponse = await saveSubscripitonDetails(
+              adminId,
+              checkedID,
+              setupIntent.payment_method,
+              end_date,
+              amount,
+              "apple-pay",
+              "trial",
+              licenses,
+              customerId,
+              "USD"
+            );
+
+            if (!saveResponse || saveResponse.status_code !== 200) {
+              throw new Error(saveResponse?.message || 'Failed to save subscription');
+            }
+
+            closepopup(subscription_plan_dialog);
+            document.getElementById("trial_confirmation_message").textContent =
+              "14-day trial started. Login credentials have been sent to your email.";
+            document.getElementById("succsessbox").showModal();
+
+            document.getElementById("go_to_login_btn").addEventListener("click", () => {
+              document.getElementById("succsessbox").close();
+              window.location.href = "/";
+            }, { once: true });
+
+          } catch (err) {
+            document.getElementById('apple-pay-error').textContent = err.message;
+            document.getElementById('apple-pay-error').style.display = 'block';
+          }
+        }
+      });
+    }
   </script>
+
 </body>
 
 </html>

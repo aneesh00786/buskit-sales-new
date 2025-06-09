@@ -74,7 +74,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   final CalenderMapController _mapController = Get.put(CalenderMapController());
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());
-    final subscriptionController = Get.find<SubscriptionController>();
+  final subscriptionController = Get.find<SubscriptionController>();
 
   bool navigatedToMap = false;
   Customer? selectedCustomer;
@@ -139,8 +139,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   homeController.sidebarXController.selectIndex(1);
                   homeController.selectedIndex.value = 1;
                   final now = DateTime.now();
-                  final startDate = DateTime(now.year, now.month, 1);
-                  final endDate = DateTime(now.year, now.month + 1, 0);
+                  final startDate = DateTime(now.year, 1, 1);
+                  final endDate = DateTime(now.year, 12, 31);
+
                   final formattedStartDate =
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
@@ -161,16 +162,16 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   final customerId = customer.customerId.toString();
                   final customersProvider =
                       Provider.of<CustomersProvider>(context, listen: false);
+
                   await Future.wait([
-                    customersProvider.fetchCustomerDashboardData(customerId,
-                        currentYear, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardData(
+                      customerId,
+                    ),
                     customersProvider.fetchCustomerDashboardRevenueData(
-                        customerId,
-                        currentYear,
-                        formattedStartDate,
-                        formattedEndDate),
-                    customersProvider.fetchCustomerDashboardDataSalseData(
-                        customerId, currentYear),
+                      customerId,
+                    ),
+                    customersProvider
+                        .fetchCustomerDashboardDataSalseData(customerId),
                     customersProvider.fetchCustomersDataDash(customerId),
                     customersProvider
                         .fetchCustomerDashboardCountData(customerId),

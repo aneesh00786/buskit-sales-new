@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/widget/show_salesman_popup.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -100,24 +101,28 @@ class _CustomBarChartCustomerDashState
     int index = value.toInt();
     String? categoryName = widget.allCategory[index].categoryName;
 
-    Widget text = Transform.rotate(
-      angle: -1.34 / 4,
-      child: GestureDetector(
-        onTap: () {
+    Widget text = GestureDetector(
+      onTap: () {
+        {
           CategoryPerformancez perf = widget.categoryPerformance.firstWhere(
               (performance) =>
                   performance.category ==
                   widget.allCategory[index].categoryName);
 
-          showSalesmanPopup(
-              cid: perf.cid,
-              category: widget.allCategory[index].categoryName,
-              context: context,
-              customerId: widget.customerId,
-              year: widget.year);
-        },
-        child: customUnderlinedText(categoryName),
-      ),
+          if (perf.totalPrice == 0) {
+            showCustomToastDisplay(
+                context, "No Record Found", red, Icons.close);
+          } else {
+            showSalesmanPopup(
+                cid: perf.cid,
+                category: widget.allCategory[index].categoryName,
+                context: context,
+                customerId: widget.customerId,
+                year: widget.year);
+          }
+        }
+      },
+      child: customUnderlinedText(categoryName),
     );
 
     return Container(
@@ -145,14 +150,11 @@ class _CustomBarChartCustomerDashState
   }
 
   Widget getBottomTitlesDummy(double value, TitleMeta meta) {
-    Widget text = Transform.rotate(
-      angle: -1.34 / 4,
-      child: MyRegularText(
-        label: widget.allCategory[value.toInt()].categoryName,
-        fontWeight: FontWeight.w500,
-        fontSize: 11,
-        color: Colors.white,
-      ),
+    Widget text = MyRegularText(
+      label: widget.allCategory[value.toInt()].categoryName,
+      fontWeight: FontWeight.w500,
+      fontSize: 11,
+      color: Colors.white,
     );
     return Container(
       margin: const EdgeInsets.only(top: 12),
@@ -249,7 +251,7 @@ class _CustomBarChartCustomerDashState
                             controller: provider.scrollController,
                             child: SizedBox(
                               height: 300,
-                              width: barGroups.length * 66.0, // Chart width
+                              width: barGroups.length * 100.0, // Chart width
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 3.0),
                                 child: BarChart(
@@ -260,8 +262,11 @@ class _CustomBarChartCustomerDashState
                                     titlesData: FlTitlesData(
                                       leftTitles: AxisTitles(
                                         sideTitles: SideTitles(
-                                            showTitles:
-                                                false), // hide left titles here
+                                            reservedSize:
+                                                dynamicMaxY.toString().length *
+                                                        7 +
+                                                    10,
+                                            showTitles: true),
                                       ),
                                       bottomTitles: AxisTitles(
                                         sideTitles: SideTitles(
@@ -367,7 +372,8 @@ class _CustomBarChartCustomerDashState
                                   ),
                                 ),
                                 bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
+                                  sideTitles: SideTitles(
+                                      showTitles: true, reservedSize: 40),
                                 ),
                                 topTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
@@ -509,12 +515,11 @@ class _CustomBarChartCustomerDashState
                     Positioned(
                       left: 0,
                       top: 0,
-                      bottom: 10, 
+                      bottom: 10,
                       child: Container(
                         width: dynamicMaxY.toString().length * 7 + 10,
-                        height: 300, 
-                        color: Colors
-                            .white,
+                        height: 300,
+                        color: Colors.white,
                         padding: const EdgeInsets.only(top: 3),
                         child: BarChart(
                           BarChartData(

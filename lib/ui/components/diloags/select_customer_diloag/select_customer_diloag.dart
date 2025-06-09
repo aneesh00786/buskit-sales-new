@@ -134,12 +134,11 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                   final customersProvider =
                       Provider.of<CustomersProvider>(context, listen: false);
                   await Future.wait([
-                    customersProvider.fetchCustomerDashboardData(
-                        customerId, 2024, formattedStartDate, formattedEndDate),
-                    customersProvider.fetchCustomerDashboardRevenueData(
-                        customerId, 2024, formattedStartDate, formattedEndDate),
+                    customersProvider.fetchCustomerDashboardData(customerId),
+                    customersProvider
+                        .fetchCustomerDashboardRevenueData(customerId),
                     customersProvider.fetchCustomerDashboardDataSalseData(
-                        customerId, 2024),
+                        customerId),
                     customersProvider.fetchCustomersDataDash(customerId),
                     customersProvider
                         .fetchCustomerDashboardCountData(customerId),
@@ -319,27 +318,22 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                         context,
                                                         listen: false)
                                                     .fetchCustomerDashboardData(
-                                                        event.event!.customerId
-                                                            .toString(),
-                                                        2024,
-                                                        formattedStartDate,
-                                                        formattedEndDate);
+                                                  event.event!.customerId
+                                                      .toString(),
+                                                );
                                                 Provider.of<CustomersProvider>(
                                                         context,
                                                         listen: false)
                                                     .fetchCustomerDashboardRevenueData(
-                                                        event.event!.customerId
-                                                            .toString(),
-                                                        2024,
-                                                        formattedStartDate,
-                                                        formattedEndDate);
+                                                  event.event!.customerId
+                                                      .toString(),
+                                                );
                                                 Provider.of<CustomersProvider>(
                                                         context,
                                                         listen: false)
                                                     .fetchCustomerDashboardDataSalseData(
                                                         event.event!.customerId
-                                                            .toString(),
-                                                        2024);
+                                                            .toString());
                                                 Provider.of<CustomersProvider>(
                                                         context,
                                                         listen: false)

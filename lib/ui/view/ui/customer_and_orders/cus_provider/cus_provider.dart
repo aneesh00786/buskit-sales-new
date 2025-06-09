@@ -97,7 +97,7 @@ class CustomersProvider with ChangeNotifier {
   Future<OrderResponse>? get orderResponse => _orderResponse;
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
-    void setCurrentMonthDates() {
+  void setCurrentMonthDates() {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
@@ -105,6 +105,7 @@ class CustomersProvider with ChangeNotifier {
     _selectedStartDate = dateFormat.format(firstDayOfMonth);
     _selectedEndDate = dateFormat.format(lastDayOfMonth);
   }
+
   void createBarGroups({
     required List<CategoryPerformance> categoryPerformance,
     required List<ValueTargetDatum> valuePerformance,
@@ -213,13 +214,20 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
+    //comeback
+    final now = DateTime.now();
+    final dateFormat = DateFormat('yyyy-MM-dd');
+
+    final firstDayOfYear = DateTime(now.year, 1, 1);
+    final lastDayOfYear = DateTime(now.year, 12, 31);
+
     try {
       _productResponse = _apiService.fetchCustomerDashboardCartData(
         customerId: customerId,
         catId: catId,
         selectedYearCategory: selectedYearCategory,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
+        startDate: dateFormat.format(firstDayOfYear),
+        endDate: dateFormat.format(lastDayOfYear),
       );
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
@@ -275,9 +283,16 @@ class CustomersProvider with ChangeNotifier {
   Future<void> fetchCustomerDashboardCountData(
     String customerId,
   ) async {
+    final now = DateTime.now();
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    final firstDayOfYear = DateTime(now.year, 1, 1);
+    final lastDayOfYear = DateTime(now.year, 12, 31);
     try {
       _countFuture = _apiService.fetchOrderCount(
-          customerId, _selectedStartDate, _selectedEndDate);
+        customerId,
+        dateFormat.format(firstDayOfYear),
+        dateFormat.format(lastDayOfYear),
+      );
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching customer dashboard data',
@@ -414,10 +429,12 @@ class CustomersProvider with ChangeNotifier {
   List<YearList> _yearList = [];
   int? _selectedYear;
   Future<void> fetchCustomerDashboardDataSalseData(
-      String customerId, int specifiedYear) async {
+      String customerId) async {
+        final now = DateTime.now();
+        int currentYear = now.year;
     try {
       _customerTotalSaleResponseFuture =
-          _apiService.fetchCustomerTotalSale(customerId, specifiedYear);
+          _apiService.fetchCustomerTotalSale(customerId, currentYear);
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching customer dashboard data',
@@ -426,11 +443,18 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchCustomerDashboardRevenueData(String customerId,
-      int specifiedYear, String startDate, String endDate) async {
+  Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
+        final now = DateTime.now();
+    final startDate1 = DateTime(now.year, 1, 1);
+    final endDate1 = DateTime(now.year, 12, 31);
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
+    int currentYear = now.year;
+
     try {
       _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
-          customerId, specifiedYear, startDate, endDate);
+          customerId, currentYear, formattedStartDate, formattedEndDate);
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching customer dashboard data',
@@ -439,13 +463,21 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchCustomerDashboardData(String customerId, int specifiedYear,
-      String? startDate, String? endDate) async {
-    log('Start Date End Date $startDate, $endDate');
+  Future<void> fetchCustomerDashboardData(String customerId) async {
+    final now = DateTime.now();
+    final startDate1 = DateTime(now.year, 1, 1);
+    final endDate1 = DateTime(now.year, 12, 31);
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
+    int currentYear = now.year;
+
+    log('Start Date End Date $formattedStartDate, $formattedEndDate');
+
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
-              customerId, specifiedYear, startDate ?? '', endDate ?? '')
+              customerId, currentYear, formattedStartDate, formattedEndDate)
           .then((response) {
         _yearList = response.data.yearList;
         notifyListeners();
@@ -457,6 +489,7 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+
   void toggleOrderSelection(RecentOrder order) {
     if (_selectedOrders.contains(order)) {
       _selectedOrders.remove(order);

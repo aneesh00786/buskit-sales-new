@@ -60,9 +60,12 @@ Future<dynamic> registerDialog(
                           ),
                           InkWell(
                               onTap: () => Navigator.pop(context),
-                              child: Icon(
-                                Icons.close_rounded,
-                                size: 20,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 2,top: 8),
+                                child: Icon(
+                                  EneftyIcons.close_circle_outline,
+                                  size: 25,
+                                ),
                               ))
                         ],
                       ),
@@ -305,7 +308,8 @@ Future<dynamic> registerDialog(
                                 ? () async {
                                     final otp =
                                         loginController.otpController.text;
-                                    if (registerFormKey.currentState?.validate() ??
+                                    if (registerFormKey.currentState
+                                            ?.validate() ??
                                         false) {
                                       final fullPhoneNo =
                                           '${loginController.phoneCode}${loginController.phoneNumberController.text}';

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_revenue_chart_dialog.dart';
@@ -130,8 +131,16 @@ Widget middleTopRightComponet({
                                   children: [
                                     InkWell(
                                       onTap: () {
-                                        showValueDialog(context,
-                                            categoryPerformance, 'Booking');
+                                        if (bookingRevenueLength != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Booking');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
                                       },
                                       child: buildLegendItem(
                                         const Color(0xff1d3d63),
@@ -141,8 +150,16 @@ Widget middleTopRightComponet({
                                     nkSmallSizeBox(),
                                     InkWell(
                                       onTap: () {
-                                        showValueDialog(context,
-                                            categoryPerformance, 'Order');
+                                        if (orderRevenueLast != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Order');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
                                       },
                                       child: buildLegendItem(
                                         Colors.blue,

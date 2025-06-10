@@ -356,8 +356,12 @@ class CustomersProvider with ChangeNotifier {
   Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
     try {
       final now = DateTime.now();
-      String startDate;
-      String endDate;
+      final startDate = DateTime(now.year, 1, 1);
+      final endDate = DateTime(now.year, 12 + 1, 0);
+
+      final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+      final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
+
       dynamic orderType;
 
       switch (s) {
@@ -374,49 +378,50 @@ class CustomersProvider with ChangeNotifier {
         default:
           orderType = '';
       }
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          startDate = DateTime(now.year, now.month, 1)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = DateTime(now.year, now.month + 1, 0)
-              .toIso8601String()
-              .substring(0, 10);
-          break;
-        case FilterDateEnum.today:
-          startDate = DateTime(now.year, now.month, now.day)
-              .toIso8601String()
-              .substring(0, 10);
-          endDate = startDate;
-          break;
-        case FilterDateEnum.thisWeek:
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          startDate = startOfWeek.toIso8601String().substring(0, 10);
-          endDate = now.toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.thisYear:
-          startDate =
-              DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-          endDate =
-              DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-          break;
-        case FilterDateEnum.range:
-          startDate = _selectedStartDate;
-          endDate = _selectedEndDate;
-          break;
-      }
-      if (_selectedFilter == FilterDateEnum.range &&
-          (startDate.isEmpty || endDate.isEmpty)) {
-        throw Exception('Select both start and end dates');
-      }
+      // switch (_selectedFilter) {
+      //   case FilterDateEnum.thisMonth:
+      //     startDate = DateTime(now.year, now.month, 1)
+      //         .toIso8601String()
+      //         .substring(0, 10);
+      //     endDate = DateTime(now.year, now.month + 1, 0)
+      //         .toIso8601String()
+      //         .substring(0, 10);
+      //     break;
+      //   case FilterDateEnum.today:
+      //     startDate = DateTime(now.year, now.month, now.day)
+      //         .toIso8601String()
+      //         .substring(0, 10);
+      //     endDate = startDate;
+      //     break;
+      //   case FilterDateEnum.thisWeek:
+      //     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+      //     startDate = startOfWeek.toIso8601String().substring(0, 10);
+      //     endDate = now.toIso8601String().substring(0, 10);
+      //     break;
+      //   case FilterDateEnum.thisYear:
+      //     startDate =
+      //         DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+      //     endDate =
+      //         DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+      //     break;
+      //   case FilterDateEnum.range:
+      //     startDate = _selectedStartDate;
+      //     endDate = _selectedEndDate;
+      //     break;
+      // }
+      // if (_selectedFilter == FilterDateEnum.range &&
+      //     (startDate.isEmpty || endDate.isEmpty)) {
+      //   throw Exception('Select both start and end dates');
+      // }
+
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         return _apiService.fetchCustomerDashOrders(
             cusId: custId,
             salesmanId: salesmanId,
             orderType: orderType,
-            startDate: startDate,
-            endDate: endDate,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
             orderStatus: s);
       });
       notifyListeners();

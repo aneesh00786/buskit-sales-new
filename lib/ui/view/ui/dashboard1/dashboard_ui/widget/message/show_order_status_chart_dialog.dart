@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/show_ordersst
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -134,6 +135,12 @@ void showOrderStatusChartDialog(
                                                     categoryPerformance,
                                                     "Processing Orders",
                                                     5);
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
@@ -154,6 +161,12 @@ void showOrderStatusChartDialog(
                                                     categoryPerformance,
                                                     "Packed & Ready for Delivery",
                                                     1);
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
@@ -174,6 +187,12 @@ void showOrderStatusChartDialog(
                                                     categoryPerformance,
                                                     "Delivered Orders",
                                                     2);
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(

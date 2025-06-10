@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/default_donet
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -81,7 +82,7 @@ void showCustomerRevenueChartDialog(
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (snapshot.hasData) {
                                   final categoryPerformance = snapshot.data!;
-                        
+
                                   final paymentCompleted = categoryPerformance
                                               .data
                                               .revenue
@@ -108,7 +109,7 @@ void showCustomerRevenueChartDialog(
                                           .last
                                           .totalOrderRevenue
                                       : 0;
-                        
+
                                   return Center(
                                     child: DoughnutDefaultCustomerDash(
                                       isBig: true,
@@ -123,34 +124,56 @@ void showCustomerRevenueChartDialog(
                                             MainAxisAlignment.center,
                                         children: [
                                           InkWell(
-                                            onTap: () {
-                                              showValueDialogCusDash(
-                                                  context,
-                                                  categoryPerformance.data.revenue
-                                                          .bookingRevenueData
-                                                      as List<dynamic>,
-                                                  'Booking');
-                                            },
-                                            child: _buildLegendItem(
-                                              Colors.blue.shade900,
-                                              'Bookings : ${formatAmount(paymentCompleted)}',
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          InkWell(
-                                            onTap: () {
-                                              showValueDialogCusDash(
-                                                  context,
-                                                  categoryPerformance.data.revenue
-                                                          .orderRevenueData
-                                                      as List<dynamic>,
-                                                  'Order');
-                                            },
-                                            child: _buildLegendItem(
-                                              Colors.blue,
-                                              'Orders : ${formatAmount(remaCompleted)}',
-                                            ),
-                                          ),
+                                      onTap: () {
+                                        if (paymentCompleted == 0) {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        } else {
+                                          if (categoryPerformance.data.revenue
+                                              .bookingRevenueData!.isNotEmpty) {
+                                            showValueDialogCusDash(
+                                                context,
+                                                categoryPerformance.data.revenue
+                                                        .bookingRevenueData
+                                                    as List<dynamic>,
+                                                'Booking');
+                                          }
+                                        }
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue.shade900,
+                                        'Bookings : ${formatAmount(paymentCompleted)}',
+                                      ),
+                                    ),
+                                    SizedBox(width:10),
+                                    InkWell(
+                                      onTap: () {
+                                        if (remaCompleted == 0) {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        } else {
+                                          if (categoryPerformance.data.revenue
+                                              .orderRevenueData!.isNotEmpty) {
+                                            showValueDialogCusDash(
+                                                context,
+                                                categoryPerformance.data.revenue
+                                                        .orderRevenueData
+                                                    as List<dynamic>,
+                                                'Order');
+                                          }
+                                        }
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue,
+                                        'Orders : ${formatAmount(remaCompleted)}',
+                                      ),
+                                    ),
                                         ],
                                       ),
                                     ),

@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/nodata_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart' as ext; 
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -165,11 +166,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           color: const Color.fromARGB(255, 55, 74, 134),
           onTap: () {
-            provider.fetchOrdersForCustomDash(
+            if (orderCountList.totalOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else{provider.fetchOrdersForCustomDash(
               OrderStatus.delivered,
               widget.customerId,
             );
-            _showOrderStatusDialog(context, provider, OrderStatus.delivered);
+            _showOrderStatusDialog(context, provider, OrderStatus.delivered);}
           },
         ),
         OptionData(
@@ -179,12 +183,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
           color: const Color.fromARGB(255, 36, 108, 44),
           onTap: () {
-            provider.fetchOrdersForCustomDash(
+            if (orderCountList.estimateOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersForCustomDash(
               OrderStatus.estimates,
               widget.customerId,
             );
             _showOrderTypeDialog(
-                context, provider, OrderStatus.estimates, 'Estimate');
+                context, provider, OrderStatus.estimates, 'Estimate');}
           },
         ),
         OptionData(
@@ -194,12 +201,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
           color: const Color.fromARGB(255, 45, 104, 116),
           onTap: () {
-            provider.fetchOrdersForCustomDash(
+            if (orderCountList.preorderOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersForCustomDash(
               OrderStatus.preOrder,
               widget.customerId,
             );
             _showOrderTypeDialog(
-                context, provider, OrderStatus.preOrder, 'Booking');
+                context, provider, OrderStatus.preOrder, 'Booking');}
           },
         ),
         OptionData(
@@ -209,13 +219,16 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
           color: const Color.fromARGB(255, 100, 43, 109),
           onTap: () {
-            provider.fetchOrdersForCustomDash(
+            if (orderCountList.draftOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersForCustomDash(
               OrderStatus.draft,
               widget.customerId,
             );
             _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft',
                 onContinueShopping: widget.onContinueShopping);
-            CartDatabaseManager().getDraftItems();
+            CartDatabaseManager().getDraftItems();}
           },
         ),
         OptionData(
@@ -225,12 +238,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 255, 228, 228),
           color: const Color.fromARGB(255, 139, 27, 27),
           onTap: () {
-            provider.fetchOrdersForCustomDash(
+            if (orderCountList.cancelOrder.toString() == "0") {
+              showCustomToastDisplay(
+                  context, "No Record Found", red, Icons.close);
+            } else {provider.fetchOrdersForCustomDash(
               OrderStatus.cancelled,
               widget.customerId,
             );
             _showOrderTypeDialog(
-                context, provider, OrderStatus.cancelled, 'Cancelled');
+                context, provider, OrderStatus.cancelled, 'Cancelled');}
           },
         ),
       ];

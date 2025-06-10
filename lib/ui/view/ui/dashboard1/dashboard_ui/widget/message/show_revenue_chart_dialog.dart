@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_c
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -134,27 +135,42 @@ void showRevenueChartDialog(
                                         runSpacing: 4,
                                         children: [
                                           InkWell(
-                                            onTap: () {
-                                              showValueDialog(
-                                                  context,
-                                                  categoryPerformance,
-                                                  'Booking');
-                                            },
-                                            child: _buildLegendItem(
-                                              const Color(0xff1d3d63),
-                                              'Bookings : ${formatAmount(bookingRevenueLength)}',
-                                            ),
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              showValueDialog(context,
-                                                  categoryPerformance, 'Order');
-                                            },
-                                            child: _buildLegendItem(
-                                              Colors.blue,
-                                              'Orders : ${formatAmount(orderRevenueLast)}',
-                                            ),
-                                          ),
+                                      onTap: () {
+                                        if (bookingRevenueLength != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Booking');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
+                                      },
+                                      child: _buildLegendItem(
+                                        const Color(0xff1d3d63),
+                                        'Bookings : ${formatAmount(bookingRevenueLength)}',
+                                      ),
+                                    ),
+                                    SizedBox(width:10),
+                                    InkWell(
+                                      onTap: () {
+                                        if (orderRevenueLast != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Order');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue,
+                                        'Orders : ${formatAmount(orderRevenueLast)}',
+                                      ),
+                                    ),
                                         ],
                                       ),
                                     ),

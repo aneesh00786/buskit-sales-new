@@ -103,12 +103,33 @@ class _CustomBarChartCustomerDashState
 
     Widget text = GestureDetector(
       onTap: () {
-        {
-          CategoryPerformancez perf = widget.categoryPerformance.firstWhere(
-              (performance) =>
-                  performance.category ==
-                  widget.allCategory[index].categoryName);
+        // {
+        //   CategoryPerformancez perf = widget.categoryPerformance.firstWhere(
+        //       (performance) =>
+        //           performance.category ==
+        //           widget.allCategory[index].categoryName);
 
+        //   if (perf.totalPrice == 0) {
+        //     showCustomToastDisplay(
+        //         context, "No Record Found", red, Icons.close);
+        //   } else {
+        //     showSalesmanPopup(
+        //         cid: perf.cid,
+        //         category: widget.allCategory[index].categoryName,
+        //         context: context,
+        //         customerId: widget.customerId,
+        //         year: widget.year);
+        //   }
+        // }
+        final perfIndex = widget.categoryPerformance.indexWhere(
+          (performance) =>
+              performance.category == widget.allCategory[index].categoryName,
+        );
+
+        if (perfIndex == -1) {
+          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+        } else {
+          final perf = widget.categoryPerformance[perfIndex];
           if (perf.totalPrice == 0) {
             showCustomToastDisplay(
                 context, "No Record Found", red, Icons.close);

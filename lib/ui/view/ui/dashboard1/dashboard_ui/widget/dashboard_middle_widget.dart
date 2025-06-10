@@ -27,6 +27,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart'
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -337,16 +338,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             );
                           } else {
                             final responseModel = snapshot.data!;
-                            final totalCompletedAmount = 
-                            // responseModel
-                            //     .collection!.payment!.completedOrders!
-                            //     .fold(
-                            //         0.0,
-                            //         (sum, order) =>
-                            //             sum + (order.orderTotal ?? 0.0));
-                           responseModel
-                                            .collection?.payment?.payedAmount ??
-                                        0.0;
+                            final totalCompletedAmount =
+                                // responseModel
+                                //     .collection!.payment!.completedOrders!
+                                //     .fold(
+                                //         0.0,
+                                //         (sum, order) =>
+                                //             sum + (order.orderTotal ?? 0.0));
+                                responseModel
+                                        .collection?.payment?.payedAmount ??
+                                    0.0;
 
                             final pendingAmountLabel = responseModel.collection!
                                     .order!.pendingAmount!.isNotEmpty
@@ -363,27 +364,25 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                 : 'Overdue : \$ 0.00';
 
                             final completedOrdersLabel =
-                                'Completed : ${formatAmount(responseModel
-                                            .collection?.payment?.payedAmount ??
-                                        0.0)}';
+                                'Completed : ${formatAmount(responseModel.collection?.payment?.payedAmount ?? 0.0)}';
 
                             {
                               return Column(
                                 children: [
                                   Expanded(
                                     child: NestedPieChartj(
-                                      completedOrdersCount: 
-                                      // responseModel
-                                      //     .collection!.payment!.completedOrders!
-                                      //     .fold(
-                                      //         0,
-                                      //         (sum, order) =>
-                                      //             sum +
-                                      //             (order.orderTotal?.toInt() ??
-                                      //                 0)),
-                                      responseModel
-                                            .collection?.payment?.payedAmount ??
-                                        0.0,
+                                      completedOrdersCount:
+                                          // responseModel
+                                          //     .collection!.payment!.completedOrders!
+                                          //     .fold(
+                                          //         0,
+                                          //         (sum, order) =>
+                                          //             sum +
+                                          //             (order.orderTotal?.toInt() ??
+                                          //                 0)),
+                                          responseModel.collection?.payment
+                                                  ?.payedAmount ??
+                                              0.0,
                                       pendingAmountCount: (responseModel
                                                       .collection
                                                       ?.order
@@ -431,10 +430,26 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showValueCollectionDialog(
-                                              context,
-                                              responseModel.collection!,
-                                              'Recieved Payment');
+                                          if (completedOrdersLabel ==
+                                              'Completed : ${formatAmount(0)}') {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "No Record Found",
+                                                red,
+                                                Icons.close);
+                                          } else {
+                                            if (responseModel
+                                                    .collection
+                                                    ?.payment
+                                                    ?.completedOrders
+                                                    ?.isNotEmpty ??
+                                                false) {
+                                              showValueCollectionDialog(
+                                                  context,
+                                                  responseModel.collection!,
+                                                  'Recieved Payment');
+                                            }
+                                          }
                                         },
                                         child: buildLegendItem(
                                           const Color.fromARGB(
@@ -444,10 +459,26 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          pendingPaymentCollectionDialog(
-                                              context,
-                                              'Pending Payment',
-                                              responseModel.collection!);
+                                          if (pendingAmountLabel ==
+                                              'Pending : ${formatAmount(0)}') {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "No Record Found",
+                                                red,
+                                                Icons.close);
+                                          } else {
+                                            if (responseModel
+                                                    .collection
+                                                    ?.order
+                                                    ?.pendingAmount
+                                                    ?.isNotEmpty ??
+                                                false) {
+                                              pendingPaymentCollectionDialog(
+                                                  context,
+                                                  'Pending Payment',
+                                                  responseModel.collection!);
+                                            }
+                                          }
                                         },
                                         child: buildLegendItem(
                                           const Color(0xffa30c13),
@@ -456,10 +487,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          pendingPaymentCollectionDialog(
-                                              context,
-                                              'Due Payment',
-                                              responseModel.collection!);
+                                          if (dueAmountLabel ==
+                                              'Due : ${formatAmount(0)}') {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "No Record Found",
+                                                red,
+                                                Icons.close);
+                                          } else {
+                                            if (responseModel.collection?.due
+                                                    ?.dueAmount?.isNotEmpty ??
+                                                false) {
+                                              pendingPaymentCollectionDialog(
+                                                  context,
+                                                  'Due Payment',
+                                                  responseModel.collection!);
+                                            }
+                                          }
                                         },
                                         child: buildLegendItem(
                                           const Color.fromARGB(
@@ -469,10 +513,26 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          pendingPaymentCollectionDialog(
-                                              context,
-                                              'Over Due Payment',
-                                              responseModel.collection!);
+                                          if (overdueAmountLabel ==
+                                              'Overdue : ${formatAmount(0)}') {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "No Record Found",
+                                                red,
+                                                Icons.close);
+                                          } else {
+                                            if (responseModel
+                                                    .collection
+                                                    ?.overdue
+                                                    ?.overdueAmount
+                                                    ?.isNotEmpty ??
+                                                false) {
+                                              pendingPaymentCollectionDialog(
+                                                  context,
+                                                  'Over Due Payment',
+                                                  responseModel.collection!);
+                                            }
+                                          }
                                         },
                                         child: buildLegendItem(
                                           const Color.fromARGB(
@@ -616,11 +676,24 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                           "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
                                       color: Colors.blue.shade300,
                                       onTap: () {
-                                        showValueOrderDialog(
-                                            context,
-                                            categoryPerformance,
-                                            "Processing",
-                                            5);
+                                        if (categoryPerformance
+                                                .order!
+                                                .totalOrders!
+                                                .last
+                                                .orderProcessing !=
+                                            0) {
+                                          showValueOrderDialog(
+                                              context,
+                                              categoryPerformance,
+                                              "Processing Orders",
+                                              5);
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
                                       },
                                     ),
                                     OrderStatusLegend(
@@ -632,22 +705,23 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                           : "Packed & Ready for Delivery : 0",
                                       color: const Color(0xffc38a42),
                                       onTap: () {
-                                        if (categoryPerformance.order
-                                                ?.totalOrders?.isNotEmpty ==
-                                            true) {
+                                        if (categoryPerformance
+                                                .order!
+                                                .totalOrders!
+                                                .last
+                                                .outForDelivery !=
+                                            0) {
                                           showValueOrderDialog(
-                                            context,
-                                            categoryPerformance,
-                                            "Packed & Ready for Delivery",
-                                            1,
-                                          );
+                                              context,
+                                              categoryPerformance,
+                                              "Packed & Ready for Delivery",
+                                              1);
                                         } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    "No data available for this status")),
-                                          );
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
                                         }
                                       },
                                     ),
@@ -657,11 +731,21 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                           "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
                                       color: const Color(0xff33b4a8),
                                       onTap: () {
-                                        showValueOrderDialog(
-                                            context,
-                                            categoryPerformance,
-                                            "Delivered Orders",
-                                            2);
+                                        if (categoryPerformance.order!
+                                                .totalOrders!.last.deliverd !=
+                                            0) {
+                                          showValueOrderDialog(
+                                              context,
+                                              categoryPerformance,
+                                              "Delivered Orders",
+                                              2);
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
                                       },
                                     ),
                                   ],

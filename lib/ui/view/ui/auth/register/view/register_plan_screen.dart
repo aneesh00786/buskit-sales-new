@@ -3,7 +3,6 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/payment_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plan_amount_selection.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/quantity_manager.dart';

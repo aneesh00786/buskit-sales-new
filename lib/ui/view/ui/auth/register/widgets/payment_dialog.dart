@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_button_webview.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -147,11 +146,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
       ),
     );
   }
-
-  Future<String> fetchPaymentIntentFromBackend() async {
-    return 'pi_..._secret_...';
-  }
-
   @override
   Widget build(BuildContext context) {
     const InputBorder lightGreyBorder = OutlineInputBorder(
@@ -195,18 +189,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
                 onPressed: () {},
               ),
               SizedBox(width: 16),
-              PayPalButton(
-                onPressed: () {})
-              // SizedBox(
-              //   height: 100,
-              //   width: 200,
-              //   child: PayPalWebViewScreen(
-              //     adminId: 89 ?? 0,
-              //     amount: widget.totalAmount,
-              //     planId: widget.plan.id ?? 0,
-              //     orderId: '',
-              //   ),
-              // )
             ],
           ),
           Padding(

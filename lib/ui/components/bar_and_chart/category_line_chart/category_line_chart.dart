@@ -221,16 +221,16 @@ class _CustomBarChartCustomerDashState
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.dragged)) {
+                        WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.dragged)) {
                         return Colors.blueAccent.shade700;
                       }
                       return Colors.blueAccent.shade400;
                     }),
-                    trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
                     trackBorderColor:
-                        MaterialStateProperty.all(Colors.blue.shade100),
-                    thickness: MaterialStateProperty.all(6),
+                        WidgetStateProperty.all(Colors.blue.shade100),
+                    thickness: WidgetStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
                   ),

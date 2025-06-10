@@ -127,6 +127,17 @@
       margin-top: 8px;
     }
 
+    .title-container {
+      background: linear-gradient(to right, #69c0ff, #a8dcfc);
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: left;
+    }
+
     #card-error,
     #paypal-error {
       color: red;
@@ -137,6 +148,7 @@
 
 <body>
   <div class="dialog-container">
+    <div class="title-container">Add Card Details</div>
     <div class="top-buttons">
       <div id="apple-pay-button-container"></div>
       <div id="apple-pay-error" style="color: red; display: none;"></div>
@@ -186,13 +198,22 @@
     document.getElementById("card-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const cardName = document.getElementById("cardName").value;
-      const setupIntentRes = await fetch("https://thrivewoo.com/create-setup-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerEmail: "email@example.com" })
+      const setupIntentRes = await fetch('https://thrivewoo.com/create-setup-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: adminId })
       });
-      const { clientSecret, stripeCustomerId } = await setupIntentRes.json();
 
+      const jsonRes = await setupIntentRes.json();
+      console.log("[DEBUG] create-setup-intent response:", JSON.stringify(jsonRes, null, 2));
+
+      const { clientSecret, stripeCustomerId } = jsonRes;
+      if (!clientSecret) {
+        console.error("❌ Missing clientSecret:", jsonRes);
+        document.getElementById("card-error").innerText =
+          "Internal error. Try again later.";
+        return;
+      }
       const result = await stripe.confirmCardSetup(clientSecret, {
         payment_method: {
           card: cardElement,
@@ -282,7 +303,6 @@
       }
     }).render('#paypal-button-container');
     document.getElementById('apple-pay-btn').addEventListener('click', async () => {
-      // Clear previous container & error
       document.getElementById('apple-pay-button-container').innerHTML = '';
       document.getElementById('apple-pay-error').style.display = 'none';
 

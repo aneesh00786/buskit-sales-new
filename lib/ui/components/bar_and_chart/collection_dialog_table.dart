@@ -193,9 +193,10 @@ void showValueCollectionDialog(
                                   Expanded(
                                     child: Center(
                                       child: Text(
-                                        formatAmount(order.orderTotal ?? 0.0),
+                                        formatAmount(
+                                            order.receivedAmount ?? 0.0),
                                         style: const TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 14,
                                           color: secondaryTextColor,
                                         ),
                                       ),
@@ -210,6 +211,7 @@ void showValueCollectionDialog(
                     ),
                     // Static Total Row
                     Container(
+                      padding: EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         border: Border(
                           top: BorderSide(
@@ -218,26 +220,23 @@ void showValueCollectionDialog(
                           ),
                         ),
                       ),
-                      height: 60,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const DialogTableHeaderText(
-                              text: 'Total',
-                              fontSize: 12,
-                              align: TextAlign.left,
-                            ),
-                            DialogTableHeaderText(
-                              text: formatAmount(completedOrders
-                                  .map((e) => e.orderTotal ?? 0.0)
-                                  .reduce((a, b) => a + b)),
-                              fontSize: 13,
-                              align: TextAlign.right,
-                            ),
-                          ],
-                        ),
+                      height: rowHeight,
+                      child: Row(
+                        children: [
+                          const DialogTableHeaderText(
+                            text: 'Total',
+                            fontSize: 11,
+                          ),
+                          const Expanded(child: SizedBox.shrink()),
+                          const Expanded(child: SizedBox.shrink()),
+                          const Expanded(child: SizedBox.shrink()),
+                          DialogTableHeaderText(
+                            text: formatAmount(completedOrders
+                                .map((e) => e.receivedAmount ?? 0.0)
+                                .reduce((a, b) => a + b)),
+                            fontSize: 11,
+                          ),
+                        ],
                       ),
                     ),
                   ],

@@ -142,15 +142,18 @@ void showCollectionChartDialog(
                                       'Overdue: ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.overDue ?? 0.0)}';
 
                                   final completedOrdersLabel =
-                                      'Completed: ${formatAmount(totalCompletedAmount)}';
+                                      'Completed: ${formatAmount(responseModel.collection?.payment?.payedAmount)}';
 
                                   return Column(
                                     children: [
                                       Expanded(
                                         child: NestedPieChartj(
                                           isBig: true,
-                                          completedOrdersCount:
-                                              totalCompletedAmount.toInt(),
+                                          completedOrdersCount: responseModel
+                                                  .collection
+                                                  ?.payment
+                                                  ?.payedAmount ??
+                                              0.0,
                                           pendingAmountCount: (responseModel
                                                           .collection
                                                           ?.order
@@ -197,111 +200,123 @@ void showCollectionChartDialog(
                                         runSpacing: 4,
                                         children: [
                                           InkWell(
-                                        onTap: () {
-                                          if (completedOrdersLabel ==
-                                            'Completed: ${formatAmount(0)}') {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        } else {
-                                          if (responseModel
-                                                  .collection
-                                                  ?.payment
-                                                  ?.completedOrders
-                                                  ?.isNotEmpty ??
-                                              false) {
-                                            showValueCollectionDialog(
-                                                context,
-                                                responseModel.collection!,
-                                                'Recieved Payment');
-                                          }
-                                        }
-                                        },
-                                        child: _buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 90, 119, 37),
-                                          completedOrdersLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                         if (pendingAmountLabel ==
-                                            'Pending: ${formatAmount(0)}') {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        } else {
-                                          if (responseModel.collection?.order
-                                                  ?.pendingAmount?.isNotEmpty ??
-                                              false) {
-                                            pendingPaymentCollectionDialog(
-                                                context,
-                                                'Pending Payment',
-                                                responseModel.collection!);
-                                          }
-                                        }
-                                        },
-                                        child: _buildLegendItem(
-                                          const Color(0xffa30c13),
-                                          pendingAmountLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (dueAmountLabel ==
-                                            'Due: ${formatAmount(0)}') {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        } else {
-                                          if (responseModel.collection?.due
-                                                  ?.dueAmount?.isNotEmpty ??
-                                              false) {
-                                            pendingPaymentCollectionDialog(
-                                                context,
-                                                'Due Payment',
-                                                responseModel.collection!);
-                                          }
-                                        }
-                                        },
-                                        child: _buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 255, 173, 181),
-                                          dueAmountLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (overdueAmountLabel ==
-                                            'Overdue: ${formatAmount(0)}') {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        } else {
-                                          if (responseModel.collection?.overdue
-                                                  ?.overdueAmount?.isNotEmpty ??
-                                              false) {
-                                            pendingPaymentCollectionDialog(
-                                                context,
-                                                'Over Due Payment',
-                                                responseModel.collection!);
-                                          }
-                                        }
-                                        },
-                                        child: _buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 255, 101, 132),
-                                          overdueAmountLabel,
-                                        ),
-                                      ),
+                                            onTap: () {
+                                              if (completedOrdersLabel ==
+                                                  'Completed: ${formatAmount(0)}') {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              } else {
+                                                if (responseModel
+                                                        .collection
+                                                        ?.payment
+                                                        ?.completedOrders
+                                                        ?.isNotEmpty ??
+                                                    false) {
+                                                  showValueCollectionDialog(
+                                                      context,
+                                                      responseModel.collection!,
+                                                      'Recieved Payment');
+                                                }
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              const Color.fromARGB(
+                                                  255, 90, 119, 37),
+                                              completedOrdersLabel,
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              if (pendingAmountLabel ==
+                                                  'Pending: ${formatAmount(0)}') {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              } else {
+                                                if (responseModel
+                                                        .collection
+                                                        ?.order
+                                                        ?.pendingAmount
+                                                        ?.isNotEmpty ??
+                                                    false) {
+                                                  pendingPaymentCollectionDialog(
+                                                      context,
+                                                      'Pending Payment',
+                                                      responseModel
+                                                          .collection!);
+                                                }
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              const Color(0xffa30c13),
+                                              pendingAmountLabel,
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              if (dueAmountLabel ==
+                                                  'Due: ${formatAmount(0)}') {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              } else {
+                                                if (responseModel
+                                                        .collection
+                                                        ?.due
+                                                        ?.dueAmount
+                                                        ?.isNotEmpty ??
+                                                    false) {
+                                                  pendingPaymentCollectionDialog(
+                                                      context,
+                                                      'Due Payment',
+                                                      responseModel
+                                                          .collection!);
+                                                }
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              const Color.fromARGB(
+                                                  255, 255, 173, 181),
+                                              dueAmountLabel,
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              if (overdueAmountLabel ==
+                                                  'Overdue: ${formatAmount(0)}') {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              } else {
+                                                if (responseModel
+                                                        .collection
+                                                        ?.overdue
+                                                        ?.overdueAmount
+                                                        ?.isNotEmpty ??
+                                                    false) {
+                                                  pendingPaymentCollectionDialog(
+                                                      context,
+                                                      'Over Due Payment',
+                                                      responseModel
+                                                          .collection!);
+                                                }
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              const Color.fromARGB(
+                                                  255, 255, 101, 132),
+                                              overdueAmountLabel,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ],

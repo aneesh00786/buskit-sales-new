@@ -77,25 +77,35 @@ void showValueOrderDialog(
                       height: headerHeight,
                       child: const Row(
                         children: [
-                          DialogTableHeaderText(
-                            text: 'Customer',
-                            fontSize: 13,
+                          Expanded(
+                            child: DialogTableHeaderText(
+                              text: 'Customer',
+                              fontSize: 13,
+                            ),
                           ),
-                          DialogTableHeaderText(
-                            text: 'Date',
-                            fontSize: 13,
+                          Expanded(
+                            child: DialogTableHeaderText(
+                              text: 'Date',
+                              fontSize: 13,
+                            ),
                           ),
-                          DialogTableHeaderText(
-                            text: 'Invoice',
-                            fontSize: 13,
+                          Expanded(
+                            child: DialogTableHeaderText(
+                              text: 'Invoice',
+                              fontSize: 13,
+                            ),
                           ),
-                          DialogTableHeaderText(
-                            text: 'Status',
-                            fontSize: 13,
+                          Expanded(
+                            child: DialogTableHeaderText(
+                              text: 'Status',
+                              fontSize: 13,
+                            ),
                           ),
-                          DialogTableHeaderText(
-                            text: 'Amount',
-                            fontSize: 13,
+                          Expanded(
+                            child: DialogTableHeaderText(
+                              text: 'Amount',
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),

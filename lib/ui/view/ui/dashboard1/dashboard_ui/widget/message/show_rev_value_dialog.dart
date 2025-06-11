@@ -114,88 +114,103 @@ void showValueDialog(
                           constraints: BoxConstraints(
                             maxHeight: contentHeight,
                           ),
-                          child: ListView.builder(
-                            itemCount: displayData?.isEmpty ?? true
-                                ? 1
-                                : displayData?.length ?? 0,
-                            physics: const ClampingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              if (displayData?.isEmpty ?? true) {
-                                return buildEmptyRow();
-                              } else {
-                                
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  height: rowHeight,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: buildRowData(
-                                          getFormattedOrderCreatAt(
-                                            title == "Order"
-                                                ? categoryData
-                                                    .orderRevenueData![index]
-                                                    .orderCreatAt
-                                                : categoryData
-                                                    .bookingRevenueData![index]
-                                                    .orderCreatAt,
+                          child: ScrollbarTheme(
+                            data: const ScrollbarThemeData(
+                              minThumbLength: 150,
+                              thickness: WidgetStatePropertyAll(5),
+                              thumbColor: WidgetStatePropertyAll(Colors.blue),
+                            ),
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              trackVisibility: true,
+                              child: ListView.builder(
+                                itemCount: displayData?.isEmpty ?? true
+                                    ? 1
+                                    : displayData?.length ?? 0,
+                                physics: const ClampingScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  if (displayData?.isEmpty ?? true) {
+                                    return buildEmptyRow();
+                                  } else {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: Colors.grey.shade300,
+                                            width: 0.5,
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        child: buildRowData(
-                                          (title == "Order"
-                                                  ? categoryData
-                                                      .orderRevenueData![index]
-                                                      .orderId
-                                                  : categoryData
-                                                      .bookingRevenueData![
-                                                          index]
-                                                      .orderId)
-                                              .toString(),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: buildRowData(
-                                          getStatusName(
-                                            (title == "Order"
+                                      height: rowHeight,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: buildRowData(
+                                              getFormattedOrderCreatAt(
+                                                title == "Order"
                                                     ? categoryData
                                                         .orderRevenueData![
                                                             index]
-                                                        .orderStatus
+                                                        .orderCreatAt
                                                     : categoryData
                                                         .bookingRevenueData![
                                                             index]
-                                                        .orderStatus)!
-                                                .toInt(),
+                                                        .orderCreatAt,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: buildRowData(
-                                          formatAmount(
-                                            title == "Order"
-                                                ? categoryData
-                                                    .orderRevenueData![index]
-                                                    .orderTotal
-                                                : categoryData
-                                                    .bookingRevenueData![index]
-                                                    .orderTotal,
+                                          Expanded(
+                                            child: buildRowData(
+                                              (title == "Order"
+                                                      ? categoryData
+                                                          .orderRevenueData![
+                                                              index]
+                                                          .orderId
+                                                      : categoryData
+                                                          .bookingRevenueData![
+                                                              index]
+                                                          .orderId)
+                                                  .toString(),
+                                            ),
                                           ),
-                                        ),
+                                          Expanded(
+                                            child: buildRowData(
+                                              getStatusName(
+                                                (title == "Order"
+                                                        ? categoryData
+                                                            .orderRevenueData![
+                                                                index]
+                                                            .orderStatus
+                                                        : categoryData
+                                                            .bookingRevenueData![
+                                                                index]
+                                                            .orderStatus)!
+                                                    .toInt(),
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: buildRowData(
+                                              formatAmount(
+                                                title == "Order"
+                                                    ? categoryData
+                                                        .orderRevenueData![
+                                                            index]
+                                                        .orderTotal
+                                                    : categoryData
+                                                        .bookingRevenueData![
+                                                            index]
+                                                        .orderTotal,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -356,46 +371,58 @@ void showValueDialogCusDash(
                     Flexible(
                       child: SizedBox(
                         height: contentHeight,
-                        child: ListView.builder(
-                          itemCount:
-                              orderDetails.isEmpty ? 1 : orderDetails.length,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (orderDetails.isEmpty) {
-                              return buildEmptyRow();
-                            } else {
-                              var item = orderDetails[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 0.5,
+                        child: ScrollbarTheme(
+                          data: const ScrollbarThemeData(
+                            minThumbLength: 150,
+                            thickness: WidgetStatePropertyAll(5),
+                            thumbColor: WidgetStatePropertyAll(Colors.blue),
+                          ),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: ListView.builder(
+                              itemCount: orderDetails.isEmpty
+                                  ? 1
+                                  : orderDetails.length,
+                              physics: const ClampingScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                if (orderDetails.isEmpty) {
+                                  return buildEmptyRow();
+                                } else {
+                                  var item = orderDetails[index];
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade300,
+                                          width: 0.5,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                height: rowHeight,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: buildRowData(
-                                            getFormattedOrderCreatAt(
-                                                item.orderCreatAt))),
-                                    Expanded(
-                                        child: buildRowData(
-                                            item.orderId ?? 'N/A')),
-                                    Expanded(
-                                        child: buildRowData(getStatusName(
-                                            item.orderStatus ?? 0))),
-                                    Expanded(
-                                        child: buildRowData(
-                                            formatAmount(item.orderTotal))),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
+                                    height: rowHeight,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                            child: buildRowData(
+                                                getFormattedOrderCreatAt(
+                                                    item.orderCreatAt))),
+                                        Expanded(
+                                            child: buildRowData(
+                                                item.orderId ?? 'N/A')),
+                                        Expanded(
+                                            child: buildRowData(getStatusName(
+                                                item.orderStatus ?? 0))),
+                                        Expanded(
+                                            child: buildRowData(
+                                                formatAmount(item.orderTotal))),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

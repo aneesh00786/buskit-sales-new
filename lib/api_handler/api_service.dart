@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl1;
@@ -629,22 +630,39 @@ class ApiService {
       default:
         sendData = selectedMonths;
     }
-    final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "order_type": orderType,
-      "categories_id": "",
-      "customer_id": "",
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "time_range": fetchType,
-      "selected_range": sendData,
-      "payment_type": "",
-      "year": 2025,
-      "limit": 1000,
-      "page": 1
-    };
-    log("Fetch All Orders Request : $requestBody");
-    final cacheKey = 'orders_$orderType';
+    final requestBody = isLogin
+        ? {
+            "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+            "order_type": orderType,
+            "categories_id": "",
+            "customer_id": "",
+            "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+            "time_range": "Month",
+            "selected_range": [DateFormat('MMMM').format(DateTime.now())],
+            "payment_type": "",
+            "year": DateTime.now().year,
+            "limit": 1000,
+            "page": 1,
+          }
+        : {
+            "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+            "order_type": orderType,
+            "categories_id": "",
+            "customer_id": "",
+            "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+            "time_range": fetchType,
+            "selected_range": sendData,
+            "payment_type": "",
+            "year": fetchType == "Year" ? year : DateTime.now().year,
+            "limit": 1000,
+            "page": 1,
+          };
+    log("Request Body: $requestBody");
+
+    final cacheKey =
+        '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType';
     final orderBox = Hive.box('fetchAllOrdersBox');
+
     try {
       final isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
@@ -652,57 +670,35 @@ class ApiService {
         final cachedData = orderBox.get(cacheKey);
         if (cachedData != null) {
           log("Cached data found: $cachedData");
-          final convertedData = localStorage
-              .castToStringDynamic(cachedData as Map<dynamic, dynamic>);
-          log("Converted cached data: $convertedData");
-          return OrderResponse.fromJson(convertedData);
+          return OrderResponse.fromJson(jsonDecode(cachedData));
         }
       }
+
       final response = await responsePostMethod(
-        requestData: requestBody,
         endPoint: ApiConstants.fetchAllOrderByRange,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+        requestData: requestBody,
       );
+
       if (response.statusCode == 200) {
-        var jsonResponse = response.data;
+        final jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
-        await orderBox.put(cacheKey, jsonResponse);
+        await orderBox.put(cacheKey, response.data);
         return OrderResponse.fromJson(jsonResponse);
       } else {
-        handleExceptionMessage(
-            response: response, apiName: "fetch all order by range");
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } on SocketException {
-      errorSnackbar("Socket Error: Failed to fetch chat");
       log("Network error, attempting to fetch cached data for key: $cacheKey");
-
       final cachedData = orderBox.get(cacheKey);
       if (cachedData != null) {
-        final convertedData = localStorage
-            .castToStringDynamic(cachedData as Map<dynamic, dynamic>);
-        log("Using cached data after network failure: $convertedData");
-        return OrderResponse.fromJson(convertedData);
+        log("Using cached data after network failure: $cachedData");
+        return OrderResponse.fromJson(jsonDecode(cachedData));
       } else {
         throw Exception('Network error, and no cached data is available.');
       }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response,
-          apiName: "fetch all order by range",
-          error: error);
-      log('Unexpected error occurred: $error');
-      final cachedData = orderBox.get(cacheKey);
-      if (cachedData != null) {
-        final convertedData = localStorage
-            .castToStringDynamic(cachedData as Map<dynamic, dynamic>);
-        log("Using cached data after network failure: $convertedData");
-        return OrderResponse.fromJson(convertedData);
-      } else {
-        throw Exception('Network error, and no cached data is available.');
-      }
+    } catch (e) {
+      log('Unexpected error occurred: $e');
+      throw Exception('Unexpected error occurred: $e');
     }
   }
 

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:math' as rand;
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -15,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -319,6 +321,34 @@ class LoginController extends GetxController {
                   log("Recent orders fetched successfully. Data: ${data.data}"))
               .catchError((e) => log("Error while fetching recent orders: $e"))
         ]);
+
+        // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: '',
+            orderStatus: OrderStatus.delivered,
+            fetchType: "Month");
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 7,
+            orderStatus: OrderStatus.estimates,
+            fetchType: "Month");
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 0,
+            orderStatus: OrderStatus.preOrder,
+            fetchType: "Month");
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 4,
+            orderStatus: OrderStatus.draft,
+            fetchType: "Month");
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 3,
+            orderStatus: OrderStatus.cancelled,
+            fetchType: "Month");
+
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }

@@ -412,10 +412,6 @@
         }
       });
       prButton.mount('#apple-pay-button-container');
-
-
-
-
       console.log("hiii", clientSecret);
       console.log("heee", customerId);
       paymentRequest.on('paymentmethod', async (ev) => {
@@ -431,12 +427,10 @@
           document.getElementById('apple-pay-error').style.display = 'block';
         } else {
           ev.complete('success');
-
           const adminId = parseInt(localStorage.getItem("addressFind"));
           const licenses = document.getElementById('license_display')?.textContent || '1';
           const amount = parseFloat(document.getElementById('plan_amount')?.textContent.replace(/[^\d.]/g, '')) || 0;
           const end_date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-
           try {
             const saveResponse = await saveSubscripitonDetails(
               adminId,

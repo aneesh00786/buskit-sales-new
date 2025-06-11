@@ -152,127 +152,139 @@ void showProductListDialog<T>({
                         constraints: BoxConstraints(
                           maxHeight: contentHeight - headerHeight,
                         ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: productList.length,
-                          physics: productList.length * rowHeight <=
-                                  contentHeight - headerHeight
-                              ? const NeverScrollableScrollPhysics()
-                              : const ClampingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            T product = productList[index];
-                            return Container(
-                              height: rowHeight,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 0.5,
+                        child: ScrollbarTheme(
+                                        data: const ScrollbarThemeData(
+                                          minThumbLength: 150,
+                                          thickness: WidgetStatePropertyAll(5),
+                                          thumbColor: WidgetStatePropertyAll(
+                                              Colors.blue),
+                                        ),
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          trackVisibility: true,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: productList.length,
+                              physics: productList.length * rowHeight <=
+                                      contentHeight - headerHeight
+                                  ? const NeverScrollableScrollPhysics()
+                                  : const ClampingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                T product = productList[index];
+                                return Container(
+                                  height: rowHeight,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 0.5,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    SizedBox(
-                                      width: colWidth0,
-                                      child: MyRegularText(
-                                        label: '${index + 1}.',
-                                        fontSize: 12,
-                                        maxlines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        align: TextAlign.center,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth1,
-                                      child: MyRegularText(
-                                        label:
-                                            '${getProductName(product)} - ${getVariationName(product)}',
-                                        fontSize: 12,
-                                        maxlines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth2_2,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: getInNo(product),
-                                          fontSize: 12,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: colWidth0,
+                                          child: MyRegularText(
+                                            label: '${index + 1}.',
+                                            fontSize: 12,
+                                            maxlines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            align: TextAlign.center,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth2,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: getFormattedDate(product),
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
+                                        SizedBox(
+                                          width: colWidth1,
+                                          child: MyRegularText(
+                                            label:
+                                                '${getProductName(product)} - ${getVariationName(product)}',
+                                            fontSize: 12,
+                                            maxlines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth3,
-                                      child: Center(
-                                        child: InkWell(
-                                          onTap: () =>
-                                              onQuantityTap(context, product),
-                                          child: Container(
-                                            height: 20,
-                                            width: 20,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.blue,
-                                              shape: BoxShape.circle,
+                                        SizedBox(
+                                          width: colWidth2_2,
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: getInNo(product),
+                                              fontSize: 12,
                                             ),
-                                            child: Center(
-                                              child: MyRegularText(
-                                                label:
-                                                    '${getQuantity(product).toInt()}',
-                                                color: buttonTextColor,
-                                                align: TextAlign.center,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: colWidth2,
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: getFormattedDate(product),
+                                              color: secondaryTextColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: colWidth3,
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  onQuantityTap(context, product),
+                                              child: Container(
+                                                height: 20,
+                                                width: 20,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.blue,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Center(
+                                                  child: MyRegularText(
+                                                    label:
+                                                        '${getQuantity(product).toInt()}',
+                                                    color: buttonTextColor,
+                                                    align: TextAlign.center,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth4,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: getPrice(product),
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
-                                          maxlines: 1,
+                                        SizedBox(
+                                          width: colWidth4,
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: getPrice(product),
+                                              color: secondaryTextColor,
+                                              fontSize: 12,
+                                              maxlines: 1,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: colWidth5,
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: getBuyQuantity(product)
-                                              .toString(),
-                                          color: secondaryTextColor,
-                                          fontSize: 12,
+                                        SizedBox(
+                                          width: colWidth5,
+                                          child: Center(
+                                            child: MyRegularText(
+                                              label: getBuyQuantity(product)
+                                                  .toString(),
+                                              color: secondaryTextColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        SizedBox(
+                                          width: colWidth6,
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(
-                                      width: colWidth6,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

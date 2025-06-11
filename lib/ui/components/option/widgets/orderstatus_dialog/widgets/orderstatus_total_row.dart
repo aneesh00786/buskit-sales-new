@@ -44,38 +44,9 @@ class OrderstatusTotalRow extends StatelessWidget {
                   columns: [
                     DataColumn(
                         label: SizedBox(
-                      width: flexWidth * 1.5,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 0.9,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 1,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 1,
-                      child: const Center(
+                      width: flexWidth * 4.5,
+                      child: const Align(
+                        alignment: Alignment.centerRight,
                         child: Text(
                           'Total',
                           maxLines: 2,
@@ -84,8 +55,10 @@ class OrderstatusTotalRow extends StatelessWidget {
                     )),
                     DataColumn(
                         label: SizedBox(
-                      width: flexWidth * 1,
-                      child: Center(
+                      // color: red,
+                      width: flexWidth * 4.1,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
                         child: Text(
                           formatAmount(filteredOrders.fold<double>(
                             0.0,
@@ -95,73 +68,12 @@ class OrderstatusTotalRow extends StatelessWidget {
                         ),
                       ),
                     )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 0.9,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 1.1,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    DataColumn(
-                        label: SizedBox(
-                      width: flexWidth * 1.2,
-                      child: const Center(
-                        child: Text(
-                          '',
-                          maxLines: 2,
-                        ),
-                      ),
-                    )),
-                    const DataColumn(
-                        label: Expanded(
-                      child: Center(
-                        child: Text(
-                          '',
-                        ),
-                      ),
-                    )),
                   ],
                   rows: [
                     DataRow(
                       cells: [
-                        DataCell(
-                          SizedBox(width: flexWidth * 1.5),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 0.9),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 0.9),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1.1),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1.1),
-                        ),
-                        const DataCell(Text('')),
+                        DataCell(SizedBox(width: flexWidth * 4.5)),
+                        DataCell(SizedBox(width: flexWidth * 4.1)),
                       ],
                     ),
                   ]),

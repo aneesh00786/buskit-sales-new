@@ -96,116 +96,128 @@ void showValueCollectionDialog(
                         ],
                       ),
                     ),
-                    // Scrollable Content
                     Flexible(
                       child: SizedBox(
                         height: contentHeight,
-                        child: ListView.builder(
-                          itemCount: completedOrders.isEmpty
-                              ? 1
-                              : completedOrders.length,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (completedOrders.isEmpty) {
-                              return Container(
-                                height: rowHeight,
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'No data available',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              );
-                            }
-                            final order = completedOrders[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              height: rowHeight,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        order.businessName ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
+                        child: ScrollbarTheme(
+                          data: const ScrollbarThemeData(
+                            minThumbLength: 150,
+                            thickness: WidgetStatePropertyAll(5),
+                            thumbColor: WidgetStatePropertyAll(Colors.blue),
+                          ),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: ListView.builder(
+                              itemCount: completedOrders.isEmpty
+                                  ? 1
+                                  : completedOrders.length,
+                              physics: const ClampingScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                if (completedOrders.isEmpty) {
+                                  return Container(
+                                    height: rowHeight,
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      'No data available',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final order = completedOrders[index];
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 0.5,
                                       ),
                                     ),
                                   ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getFormattedOrderCreatAt(
-                                            order.orderCreatAt ?? ''),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return InvoicePreview(
-                                                orderId: order.orderId ?? '',
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: Text(
-                                          order.invoiceId ?? '',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: primaryColor,
+                                  height: rowHeight,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            order.businessName ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: secondaryTextColor,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        getStatusName(order.orderStatus ?? 0),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: secondaryTextColor,
+                                      Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            getFormattedOrderCreatAt(
+                                                order.orderCreatAt ?? ''),
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: secondaryTextColor,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Center(
-                                      child: Text(
-                                        formatAmount(
-                                            order.receivedAmount ?? 0.0),
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: secondaryTextColor,
+                                      Expanded(
+                                        child: Center(
+                                          child: InkWell(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return InvoicePreview(
+                                                    orderId:
+                                                        order.orderId ?? '',
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              order.invoiceId ?? '',
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                color: primaryColor,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            getStatusName(
+                                                order.orderStatus ?? 0),
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: secondaryTextColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            formatAmount(
+                                                order.receivedAmount ?? 0.0),
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: secondaryTextColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

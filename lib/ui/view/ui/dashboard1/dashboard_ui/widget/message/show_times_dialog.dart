@@ -115,103 +115,115 @@ Future<dynamic> showDashTimesDialogue<T>(
                     Flexible(
                       child: SizedBox(
                         height: contentHeight,
-                        child: ListView.builder(
-                          itemCount:
-                              timesDataList.isEmpty ? 1 : timesDataList.length,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (timesDataList.isEmpty) {
-                              return buildEmptyRow();
-                            } else {
-                              var timesData = timesDataList[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 0.5,
+                        child: ScrollbarTheme(
+                                        data: const ScrollbarThemeData(
+                                          minThumbLength: 150,
+                                          thickness: WidgetStatePropertyAll(5),
+                                          thumbColor: WidgetStatePropertyAll(
+                                              Colors.blue),
+                                        ),
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          trackVisibility: true,
+                            child: ListView.builder(
+                              itemCount:
+                                  timesDataList.isEmpty ? 1 : timesDataList.length,
+                              physics: const ClampingScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                if (timesDataList.isEmpty) {
+                                  return buildEmptyRow();
+                                } else {
+                                  var timesData = timesDataList[index];
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade300,
+                                          width: 0.5,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                height: rowHeight,
-                                child: Row(
-                                  children: [
-                                    if (isDash) ...[
-                                      SizedBox(
-                                          width: 50,
-                                          child:
-                                              buildRowData("  ${index + 1}.")),
-                                      Expanded(
-                                          flex: 2,
-                                          child: buildRowData(
-                                              getCustomer(timesData))),
-                                      Expanded(
-                                          child: InkWell(
-                                        onTap: () {
-                                          showDetailedOrderInvoiceDialog(
-                                              context,
-                                              getOrderId(timesData),
-                                              false);
-                                        },
-                                        child: buildRowData(
-                                            getOrderId(timesData),
-                                            textColor: primaryColor),
-                                      )),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getPurchasedAt(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getPrice(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getQuantity(timesData))),
-                                      Expanded(
-                                          child:
-                                              buildRowData(getTax(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getTotalPrice(timesData))),
-                                    ],
-                                    if (!isDash) ...[
-                                      SizedBox(
-                                          width: 50,
-                                          child:
-                                              buildRowData("  ${index + 1}.")),
-                                      Expanded(
-                                          child: InkWell(
-                                        onTap: () {
-                                          showDetailedOrderInvoiceDialog(
-                                              context,
-                                              getOrderId(timesData),
-                                              false);
-                                        },
-                                        child: buildRowData(
-                                            getOrderId(timesData),
-                                            textColor: primaryColor),
-                                      )),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getPurchasedAt(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getPrice(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getQuantity(timesData))),
-                                      Expanded(
-                                          child:
-                                              buildRowData(getTax(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              getTotalPrice(timesData))),
-                                    ],
-                                  ],
-                                ),
-                              );
-                            }
-                          },
+                                    height: rowHeight,
+                                    child: Row(
+                                      children: [
+                                        if (isDash) ...[
+                                          SizedBox(
+                                              width: 50,
+                                              child:
+                                                  buildRowData("  ${index + 1}.")),
+                                          Expanded(
+                                              flex: 2,
+                                              child: buildRowData(
+                                                  getCustomer(timesData))),
+                                          Expanded(
+                                              child: InkWell(
+                                            onTap: () {
+                                              showDetailedOrderInvoiceDialog(
+                                                  context,
+                                                  getOrderId(timesData),
+                                                  false);
+                                            },
+                                            child: buildRowData(
+                                                getOrderId(timesData),
+                                                textColor: primaryColor),
+                                          )),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getPurchasedAt(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getPrice(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getQuantity(timesData))),
+                                          Expanded(
+                                              child:
+                                                  buildRowData(getTax(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getTotalPrice(timesData))),
+                                        ],
+                                        if (!isDash) ...[
+                                          SizedBox(
+                                              width: 50,
+                                              child:
+                                                  buildRowData("  ${index + 1}.")),
+                                          Expanded(
+                                              child: InkWell(
+                                            onTap: () {
+                                              showDetailedOrderInvoiceDialog(
+                                                  context,
+                                                  getOrderId(timesData),
+                                                  false);
+                                            },
+                                            child: buildRowData(
+                                                getOrderId(timesData),
+                                                textColor: primaryColor),
+                                          )),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getPurchasedAt(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getPrice(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getQuantity(timesData))),
+                                          Expanded(
+                                              child:
+                                                  buildRowData(getTax(timesData))),
+                                          Expanded(
+                                              child: buildRowData(
+                                                  getTotalPrice(timesData))),
+                                        ],
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

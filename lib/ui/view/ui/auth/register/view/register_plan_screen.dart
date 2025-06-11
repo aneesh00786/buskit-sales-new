@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/payment_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/plan_amount_selection.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/quantity_manager.dart';
@@ -10,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/table_it
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPlanScreen extends StatefulWidget {
   const RegisterPlanScreen({super.key});
@@ -275,7 +277,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       if (!mounted) return;
 
                       if (selectedPlan != null) {
@@ -283,8 +285,42 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                             double.tryParse(selectedPlan!.price ?? '0') ?? 0.0;
                         final totalAmount = unitPrice * _selectedQuantity;
 
-                        showPaymentDialog(context, selectedPlan!, totalAmount,
-                            _selectedQuantity);
+                        // Show loading spinner dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+
+                        try {
+                          final prefs = await SharedPreferences.getInstance();
+                          final int? adminId = prefs.getInt('admin_id');
+                          final orderId = await ApiWorker().createPayPalOrder(
+                            amount: totalAmount.toString(),
+                            currency: "USD",
+                            adminId: adminId ?? 0,
+                          );
+                          if (mounted) Navigator.of(context).pop();
+                          await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => PayPalWebViewScreen(
+                              adminId: adminId ?? 0,
+                              amount: totalAmount,
+                              planId: selectedPlan!.id ?? 0,
+                              orderId: orderId ?? '',
+                            ),
+                          );
+                        } catch (e) {
+                          if (mounted)
+                            Navigator.of(context)
+                                .pop(); // remove loader if error
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: ${e.toString()}")),
+                          );
+                        }
                       } else {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -318,8 +354,8 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     );
   }
 
-  void showPaymentDialog(BuildContext context, Plan plan, double totalAmount,
-      int selectedQuantity) async {
+  Future<void> showPaymentDialog(BuildContext context, Plan plan,
+      double totalAmount, int selectedQuantity) async {
     if (Stripe.publishableKey.isEmpty) {
       Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
       await Stripe.instance.applySettings();
@@ -329,19 +365,5 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
         plan: plan,
         selectedQuantity: selectedQuantity,
         totalAmount: totalAmount);
-
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => SizedBox(
-    //     child: Dialog(
-    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    //       child: PaymentDialogContent(
-    //         plan: plan,
-    //         totalAmount: totalAmount,
-    //         selectedQuantity: selectedQuantity,
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }

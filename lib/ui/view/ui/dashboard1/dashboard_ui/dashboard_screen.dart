@@ -16,6 +16,7 @@ class DashBoardScreen extends StatefulWidget {
   @override
   State<DashBoardScreen> createState() => _DashBoardScreenState();
 }
+
 class _DashBoardScreenState extends State<DashBoardScreen> {
   CalenderMapController calenderMapController =
       Get.put(CalenderMapController());
@@ -26,6 +27,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     super.initState();
     calenderMapController.requestLocationPermission();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

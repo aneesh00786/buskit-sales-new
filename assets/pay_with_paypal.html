@@ -143,6 +143,26 @@
       color: red;
       font-size: 13px;
     }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2196f3;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -165,11 +185,23 @@
 
       <div class="summary-row">
         <div>Ends on<br><span id="end-date">-</span></div>
-        <div>Amount<br><span id="amount">-</span> USD</div>
+        <div>
+          Amount<br>
+          $<span id="amount">-</span> USD
+        </div>
+
         <div>Licenses<br><span id="licenses">-</span></div>
       </div>
 
-      <button type="submit" class="add-btn">Add Card</button>
+      <div id="button-wrapper">
+        <button type="submit" class="add-btn" id="submit-button">
+          Add Card
+        </button>
+        <div id="loading-spinner" style="display: none; margin-top: 10px; text-align: center;">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
     </form>
 
 
@@ -197,59 +229,81 @@
     document.getElementById("licenses").innerText = licenses;
     document.getElementById("card-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const cardName = document.getElementById("cardName").value;
-      const setupIntentRes = await fetch('https://thrivewoo.com/create-setup-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminId: adminId })
-      });
 
-      const jsonRes = await setupIntentRes.json();
-      console.log("[DEBUG] create-setup-intent response:", JSON.stringify(jsonRes, null, 2));
+      // Show loading spinner and disable button
+      const submitBtn = document.getElementById("submit-button");
+      const spinner = document.getElementById("loading-spinner");
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing...";
+      spinner.style.display = "block";
 
-      const { clientSecret, stripeCustomerId } = jsonRes;
-      if (!clientSecret) {
-        console.error("❌ Missing clientSecret:", jsonRes);
-        document.getElementById("card-error").innerText =
-          "Internal error. Try again later.";
-        return;
-      }
-      const result = await stripe.confirmCardSetup(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: { name: cardName }
-        }
-      });
+      try {
+        const cardName = document.getElementById("cardName").value;
 
-      if (result.error) {
-        document.getElementById("card-error").innerText = result.error.message;
-      } else {
-        const payload = {
-          user_id: adminId,
-          plan_id: planId,
-          card_token: result.setupIntent.payment_method,
-          end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          amount: amount,
-          payment_method: 'card',
-          status: 'trial',
-          licenses: licenses,
-          stripeCustomerId,
-          currency
-        };
-        await fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+        const setupIntentRes = await fetch('https://thrivewoo.com/create-setup-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminId: adminId })
         });
 
-        if (window.flutter_inappwebview) {
-          window.flutter_inappwebview.callHandler("paymentSuccess", {
-            orderId: result.setupIntent.payment_method,
-            adminId, planId, amount, currency, licenses
-          });
+        const jsonRes = await setupIntentRes.json();
+        console.log("[DEBUG] create-setup-intent response:", JSON.stringify(jsonRes, null, 2));
+
+        const { clientSecret, stripeCustomerId } = jsonRes;
+
+        if (!clientSecret) {
+          console.error("❌ Missing clientSecret:", jsonRes);
+          document.getElementById("card-error").innerText = "Internal error. Try again later.";
+          return;
         }
+
+        const result = await stripe.confirmCardSetup(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: { name: cardName }
+          }
+        });
+
+        if (result.error) {
+          document.getElementById("card-error").innerText = result.error.message;
+        } else {
+          const payload = {
+            user_id: adminId,
+            plan_id: planId,
+            card_token: result.setupIntent.payment_method,
+            end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+            amount: amount,
+            payment_method: 'card',
+            status: 'trial',
+            licenses: licenses,
+            stripeCustomerId,
+            currency
+          };
+
+          await fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (window.flutter_inappwebview) {
+            window.flutter_inappwebview.callHandler("paymentSuccess", {
+              orderId: result.setupIntent.payment_method,
+              adminId, planId, amount, currency, licenses
+            });
+          }
+        }
+      } catch (err) {
+        console.error("💥 Error in submission:", err);
+        document.getElementById("card-error").innerText = err.message || "Something went wrong.";
+      } finally {
+        // Re-enable button and hide spinner
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Add Card";
+        spinner.style.display = "none";
       }
     });
+
 
     paypal.Buttons({
       createOrder: () => {

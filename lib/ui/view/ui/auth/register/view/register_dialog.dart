@@ -61,7 +61,8 @@ Future<dynamic> registerDialog(
                           InkWell(
                               onTap: () => Navigator.pop(context),
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 2,top: 8),
+                                padding:
+                                    const EdgeInsets.only(right: 2, top: 8),
                                 child: Icon(
                                   EneftyIcons.close_circle_outline,
                                   size: 25,

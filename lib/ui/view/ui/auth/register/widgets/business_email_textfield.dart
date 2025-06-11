@@ -80,7 +80,7 @@ class _BusinessEmailFieldState extends State<BusinessEmailField> {
                   Text(
                     message,
                     style: TextStyle(
-                      color: isVerified ? Colors.green : Colors.red,
+                      color: Colors.green,
                       fontSize: 14,
                     ),
                   ),

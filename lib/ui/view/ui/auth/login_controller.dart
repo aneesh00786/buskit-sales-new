@@ -119,7 +119,7 @@ class LoginController extends GetxController {
       if (response.data['status'] == true) {
         log('Verification mail sent successfully.');
         successMessage.value =
-            "Your email verification is successful, and an OTP has been sent to your email.";
+            "An OTP has been sent to your email. Please enter the OTP below to verify your email.";
         isEmailVerified.value = false;
         isOtpSent.value = true;
       } else {
@@ -255,7 +255,7 @@ class LoginController extends GetxController {
               Icons.close,
               duration: 5,
             );
-            return false; 
+            return false;
           }
         } catch (e) {
           log('userVerification exception: $e', name: 'userVerification');

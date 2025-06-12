@@ -83,7 +83,6 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
         return 0;
       case 6:
         return 0;
-
       default:
         return 0;
     }

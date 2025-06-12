@@ -347,7 +347,7 @@ class ApiWorker with ApiConstants {
       }
     } on DioException catch (error) {
       handleExceptionMessage(
-          response: error.response, apiName: "perfromance", error: error);
+          response: error.response, apiName: "performance", error: error);
       return localStorage.storedPerfromanceData(performanceBox, cacheKey);
     } catch (e) {
       log("Error fetching salesman Performance: $e");

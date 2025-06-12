@@ -322,7 +322,6 @@ class LoginController extends GetxController {
                   log("Recent orders fetched successfully. Data: ${data.data}"))
               .catchError((e) => log("Error while fetching recent orders: $e"))
         ]);
-
         // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
         ApiService().fetchAllOrders(
             isLogin: true,
@@ -349,7 +348,6 @@ class LoginController extends GetxController {
             orderType: 3,
             orderStatus: OrderStatus.cancelled,
             fetchType: "Month");
-
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }

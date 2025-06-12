@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
@@ -67,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
 
       if (!_isOnline) {
-        showNoInternetSnackBar(context);
+        errorSnackbar("No internet connection . please check your network");
       }
     }
   }
@@ -101,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _isOnline = hasInternet;
         });
         if (!_isOnline) {
-          showNoInternetSnackBar(context);
+          errorSnackbar("No internet connection . please check your network");
         }
       }
     } else {
@@ -109,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         setState(() {
           _isOnline = false;
         });
-        showNoInternetSnackBar(context);
+        errorSnackbar("No internet connection . please check your network");
       }
     }
   }

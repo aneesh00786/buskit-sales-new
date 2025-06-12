@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api
 
 import 'dart:math';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -10,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/hel
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/salesman_popup.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CustomPerfoBarChart extends StatefulWidget {
@@ -35,8 +37,12 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
 
   @override
   void initState() {
+    //final currentDate = DateTime.now();
+// final monthName = DateFormat('MMMM').format(currentDate); // e.g., "June"
+// final year = currentDate.year;
     final provider = Provider.of<CustomersProvider>(context, listen: false);
     super.initState();
+    // ApiWorker().fetchSalesmanPerformanceData(monthName: monthName, year: year, isfromLogin: false);
     provider.createBarGroups(
         categoryPerformance: widget.categoryPerformance,
         valuePerformance: widget.valuePerformance,

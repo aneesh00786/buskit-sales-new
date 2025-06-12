@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
@@ -30,7 +31,7 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
     bool isConnected = await ConnectivityService().isOnline();
     if (!mounted) return;
     if (!isConnected) {
-      showNoInternetSnackBar(context);
+      errorSnackbar("No internet connection . please check your network");
       return;
     }
     if (newValue != null) {
@@ -118,7 +119,7 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
     if (!mounted) return;
 
     if (!isConnected) {
-      showNoInternetSnackBar(context);
+      errorSnackbar("No internet connection . please check your network");
       return;
     }
 

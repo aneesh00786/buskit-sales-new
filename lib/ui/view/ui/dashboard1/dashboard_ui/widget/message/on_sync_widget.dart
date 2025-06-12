@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -105,7 +106,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
           child: InkWell(
             onTap: !_isOnline
                 ? () {
-                    showNoInternetSnackBar(context);
+                    errorSnackbar("No internet connection . please check your network");
                   }
                 : _startSyncing,
             child: Center(
@@ -121,7 +122,7 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                         Text(
+                        Text(
                           'Sync',
                           style: TextStyle(
                             color: Colors.white,
@@ -172,20 +173,20 @@ class _SyncButtonWidgetState extends State<SyncButtonWidget> {
   }
 }
 
-void showNoInternetSnackBar(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.warning_amber, color: Colors.red),
-          SizedBox(width: 10),
-          Text(
-            'You are offline. Please check your connection.',
-            style: TextStyle(color: Colors.black),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.white,
-    ),
-  );
-}
+// void showNoInternetSnackBar(BuildContext context) {
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     const SnackBar(
+//       content: Row(
+//         children: [
+//           Icon(Icons.warning_amber, color: Colors.red),
+//           SizedBox(width: 10),
+//           Text(
+//             'You are offline. Please check your connection.',
+//             style: TextStyle(color: Colors.black),
+//           ),
+//         ],
+//       ),
+//       backgroundColor: Colors.white,
+//     ),
+//   );
+// }

@@ -4,6 +4,7 @@
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -284,7 +285,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             staffProjection: staffProjection,
                             targetType: targetType);
                       } else {
-                        showNoInternetSnackBar(context);
+                        errorSnackbar("No internet connection . please check your network");
                       }
                     },
                     child: Container(

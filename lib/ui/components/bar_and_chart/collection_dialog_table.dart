@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -119,13 +120,7 @@ void showValueCollectionDialog(
                                   return Container(
                                     height: rowHeight,
                                     alignment: Alignment.center,
-                                    child: const Text(
-                                      'No data available',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
+                                    child: const NodataWidget()
                                   );
                                 }
                                 final order = completedOrders[index];

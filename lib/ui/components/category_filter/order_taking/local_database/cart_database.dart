@@ -11,7 +11,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 class CartDatabaseManager {
   static final CartDatabaseManager _instance = CartDatabaseManager._internal();
   factory CartDatabaseManager() => _instance;

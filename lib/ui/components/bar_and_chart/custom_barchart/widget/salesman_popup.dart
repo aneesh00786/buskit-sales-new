@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/nodata_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -48,7 +49,7 @@ void showSalesmanPopupMonthly({
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                   content: Center(
-                    child: Text('No data available'),
+                    child: NodataWidget(),
                   ),
                 );
               }

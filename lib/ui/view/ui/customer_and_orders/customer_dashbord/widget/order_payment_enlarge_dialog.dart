@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -116,7 +117,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                             if (recentOrders.isEmpty) {
                               return SizedBox(
                                 height: rowHeight,
-                                child: const Center(child: Text('No data available')),
+                                child:  Center(child: NodataWidget()),
                               );
                             } else {
                               var order = recentOrders[index];

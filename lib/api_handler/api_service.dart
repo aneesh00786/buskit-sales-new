@@ -630,6 +630,7 @@ class ApiService {
       default:
         sendData = selectedMonths;
     }
+
     final requestBody = isLogin
         ? {
             "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
@@ -657,12 +658,11 @@ class ApiService {
             "limit": 1000,
             "page": 1,
           };
-    log("Request Body: $requestBody");
 
+    log("Request Body: $requestBody");
     final cacheKey =
         '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType';
     final orderBox = Hive.box('fetchAllOrdersBox');
-
     try {
       final isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
@@ -670,7 +670,9 @@ class ApiService {
         final cachedData = orderBox.get(cacheKey);
         if (cachedData != null) {
           log("Cached data found: $cachedData");
-          return OrderResponse.fromJson(jsonDecode(cachedData));
+          final castedData = LocalStorage()
+              .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+          return OrderResponse.fromJson(castedData);
         }
       }
 
@@ -682,8 +684,8 @@ class ApiService {
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
-        await orderBox.put(cacheKey, response.data);
-        return OrderResponse.fromJson(jsonResponse);
+        await orderBox.put(cacheKey, jsonResponse); // response.data is Map
+        return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
       } else {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
@@ -692,7 +694,9 @@ class ApiService {
       final cachedData = orderBox.get(cacheKey);
       if (cachedData != null) {
         log("Using cached data after network failure: $cachedData");
-        return OrderResponse.fromJson(jsonDecode(cachedData));
+        final castedData = LocalStorage()
+            .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+        return OrderResponse.fromJson(castedData);
       } else {
         throw Exception('Network error, and no cached data is available.');
       }

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api
 
 import 'dart:math';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -105,10 +106,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
             ? const SizedBox(
                 height: 200,
                 child: Center(
-                  child: Text(
-                    'No data available',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
+                  child: NodataWidget()
                 ),
               )
             : Column(

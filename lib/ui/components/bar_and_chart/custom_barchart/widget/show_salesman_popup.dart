@@ -63,7 +63,7 @@ void showSalesmanPopup({
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         content: Center(
-                          child: Text('No data available'),
+                          child: NodataWidget(),
                         ),
                       );
                     }

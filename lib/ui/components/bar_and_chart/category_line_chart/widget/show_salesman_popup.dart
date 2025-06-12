@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -265,7 +266,7 @@ void showSalesmanPopup(
                   ),
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const Center(child: NodataWidget());
               }
             },
           );

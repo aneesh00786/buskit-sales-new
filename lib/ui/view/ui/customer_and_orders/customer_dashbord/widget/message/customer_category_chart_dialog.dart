@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -79,7 +80,7 @@ void showCustomerCategoryChartDialog(
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData) {
                                   return const Center(
-                                      child: Text('No data available'));
+                                      child: NodataWidget());
                                 } else {
                                   final responseModel = snapshot.data!;
                                   final categoryPerformance =

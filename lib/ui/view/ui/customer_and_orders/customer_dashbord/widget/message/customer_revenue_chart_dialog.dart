@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/default_donet_customer_dash.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -180,7 +181,7 @@ void showCustomerRevenueChartDialog(
                                   );
                                 } else {
                                   return const Center(
-                                      child: Text('No data available'));
+                                      child: NodataWidget());
                                 }
                               },
                             );

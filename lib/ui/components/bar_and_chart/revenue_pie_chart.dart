@@ -1,5 +1,6 @@
 
 // ignore_for_file: deprecated_member_use
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
@@ -63,10 +64,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
 
     if (totalRevenue == 0) {
       return const Center(
-        child: Text(
-          "No data available",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        child: NodataWidget()
       );
     }
 

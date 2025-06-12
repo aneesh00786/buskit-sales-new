@@ -308,6 +308,7 @@ class LoginController extends GetxController {
           leadsRejectedController.loadRejectedLeadsData,
           ApiWorker().fetchDiscounts(companyId, salesmanId),
           CartDatabaseManager().getDraftItems(),
+          calenderMapController.fetchCalenderEvents(DateTime.now()),
           ApiWorker()
               .getRecentOrdersData(
                 searchModel: searchData,

@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/default_donet_customer_dash.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -157,7 +158,7 @@ Widget TotalSalse(BuildContext context) {
                 ),
               );
             } else {
-              return const Center(child: Text('No data available'));
+              return const Center(child: NodataWidget());
             }
           },
         );

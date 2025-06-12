@@ -504,7 +504,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData) {
                               return const Center(
-                                  child: Text('No data available'));
+                                  child: NodataWidget());
                             } else {
                               final responseModel = snapshot.data!;
                               final categoryPerformance =
@@ -708,7 +708,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                return const Center(child: NodataWidget());
               }
             });
       }),

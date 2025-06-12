@@ -2470,7 +2470,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
           ),
         );
       } else if (provider.customersFuture == null) {
-        return const Center(child: Text('No data available'));
+        return const Center(child: NodataWidget());
       } else {
         return FutureBuilder<CustomerResponseModelxx>(
           future: provider.customersFuture!,

@@ -121,17 +121,6 @@ void showCollectionChartDialog(
                                   return const NodataWidget();
                                 } else {
                                   final responseModel = snapshot.data!;
-
-                                  // Safely calculate total amounts with fallback values
-                                  final totalCompletedAmount = responseModel
-                                          .collection?.payment?.completedOrders
-                                          ?.fold(
-                                        0.0,
-                                        (sum, order) =>
-                                            sum + (order.orderTotal ?? 0.0),
-                                      ) ??
-                                      0.0;
-
                                   final pendingAmountLabel =
                                       'Pending: ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.amount ?? 0.0)}';
 

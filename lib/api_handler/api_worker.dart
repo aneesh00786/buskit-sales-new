@@ -1713,23 +1713,73 @@ class ApiWorker with ApiConstants {
   /// *******************************  SUBSCRIPTION  *******************************/
 
   Future<SubscribedPlan?> fetchSubscribtionPlan(int companyId) async {
-    final cacheKey = 'subscribed_plan_data_$companyId';
+    final cacheKey =
+        '${SessionHelper.loginSavedData?.company_id ?? -1}_subscribed_plan_data';
     final subscribtionBox = Hive.box('subscribtionBox');
     log('Fetching subscription plan for company ID: $companyId');
 
-    bool isOnline = await ConnectivityService().isOnline();
+    final isConnected = await ConnectivityService().isOnline();
 
-    if (isOnline) {
+    Future<SubscribedPlan?> loadFromCache() async {
+      try {
+        final cachedData = subscribtionBox.get(cacheKey);
+
+        if (cachedData == null) {
+          log("No cached subscription data available.");
+          NkCommonFunction.showErrorSnakBar(
+              'No offline subscription data available.');
+          return null;
+        }
+
+        if (cachedData is Map) {
+          log("Loaded subscription plan from cache (Map): $cachedData");
+          return SubscribedPlan.fromJson(
+              localStorage.castToStringDynamic(cachedData));
+        }
+
+        if (cachedData is String) {
+          try {
+            final decoded = jsonDecode(cachedData);
+            if (decoded is Map<String, dynamic>) {
+              log("Loaded subscription plan from cache (JSON String): $decoded");
+              return SubscribedPlan.fromJson(decoded);
+            } else {
+              throw const FormatException("Decoded JSON is not a map.");
+            }
+          } catch (e) {
+            log("Invalid cached string format. Expected valid JSON, got Dart-style map string.");
+            NkCommonFunction.showErrorSnakBar(
+                'Offline cache is corrupt. Please refresh with an internet connection.');
+            return null;
+          }
+        }
+        log("Unexpected cache type: ${cachedData.runtimeType}");
+        NkCommonFunction.showErrorSnakBar('Offline cache format is invalid.');
+      } catch (e) {
+        log('Error reading from Hive: $e');
+        NkCommonFunction.showErrorSnakBar(
+            '1 Error accessing offline subscription data.');
+      }
+
+      return null;
+    }
+
+    if (isConnected) {
       try {
         final response = await dio1.post(
           "${ApiConstants.baseUrl}${ApiConstants.getSubscribedPlan}",
           data: {"company_id": "$companyId"},
         );
+
         log("Fetch Subscription URL: ${ApiConstants.baseUrl}${ApiConstants.getSubscribedPlan}");
+
         final subscribedPlan = SubscribedPlan.fromJson(response.data);
         log('Subscription plan fetched: ${subscribedPlan.toJson()}');
+
+        // ✅ Save as Map, not string
         await subscribtionBox.put(cacheKey, subscribedPlan.toJson());
         log('Subscription plan saved to Hive.');
+
         return subscribedPlan;
       } on DioException catch (dioError) {
         log("Dio error while fetching subscription plan: ${dioError.response?.data}");
@@ -1737,39 +1787,16 @@ class ApiWorker with ApiConstants {
           apiName: 'Fetch Subscription Plan',
           response: dioError.response,
         );
-        final cachedData = subscribtionBox.get(cacheKey);
-        if (cachedData != null) {
-          log('Loaded subscription plan from cache: $cachedData');
-          return SubscribedPlan.fromJson(Map<String, dynamic>.from(cachedData));
-        } else {
-          log("No cached subscription data available.");
-          NkCommonFunction.showErrorSnakBar(
-              'No offline subscription data available.');
-        }
+        return await loadFromCache();
       } catch (e) {
         log("Unexpected error: $e");
         NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+        return await loadFromCache();
       }
     } else {
       log("No internet connection. Trying to load subscription plan from Hive.");
+      return await loadFromCache();
     }
-    try {
-      final cachedData = subscribtionBox.get(cacheKey);
-      if (cachedData != null) {
-        log('Loaded subscription plan from cache: $cachedData');
-        return SubscribedPlan.fromJson(Map<String, dynamic>.from(cachedData));
-      } else {
-        log("No cached subscription data available.");
-        NkCommonFunction.showErrorSnakBar(
-            'No offline subscription data available.');
-      }
-    } catch (e) {
-      log('Error reading from Hive: $e');
-      NkCommonFunction.showErrorSnakBar(
-          'Error accessing offline subscription data.');
-    }
-
-    return null;
   }
 
   Future<SubscribtionPlanDetails?> fetchPlanDetails() async {
@@ -1885,7 +1912,6 @@ class ApiWorker with ApiConstants {
     String salesId,
   ) async {
     log("user Verification");
-
     try {
       Map<String, dynamic> data = {
         "companyId": companyId,
@@ -1898,7 +1924,6 @@ class ApiWorker with ApiConstants {
         endPoint: ApiConstants.userVerification,
         requestData: data,
       );
-
       if (response.statusCode == 200) {
         log("userVerification log : ${response.data}");
         return UserVerificationResponse.fromJson(response.data);

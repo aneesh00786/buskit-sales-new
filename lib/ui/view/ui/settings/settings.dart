@@ -16,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/product_details_dil
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/widget/password_textfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -373,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               maxHeight: maxDialogHeight,
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(10.0),
                               child: Form(
                                 key: _formKey,
                                 child: SingleChildScrollView(
@@ -383,7 +382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Text(
                                         'Change Password',
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 15,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(height: 16),
@@ -486,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             child: const Center(
               child: Padding(
-                padding: EdgeInsets.all(15.0),
+                padding: EdgeInsets.all(10.0),
                 child: Text(
                   'Change Password',
                   style: TextStyle(

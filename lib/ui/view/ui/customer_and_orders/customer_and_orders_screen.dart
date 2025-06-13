@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
@@ -515,30 +516,30 @@ class _TableeeState extends State<Tableee> {
                                   child: Column(
                                     children: [
                                       buildInputField(bsNameController,
-                                          'Business Name', Icons.business),
+                                          'Business Name', Assets.icBusiness),
                                       buildInputField(addressController,
-                                          'Address', Icons.home),
+                                          'Address', Assets.icLocation),
                                       Row(
                                         children: [
                                           Expanded(
                                             child: buildInputField(
                                                 townController,
                                                 'City or Suburb',
-                                                Icons.location_city),
+                                                Assets.icCity),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 stateController,
                                                 'State',
-                                                Icons.map),
+                                                Assets.icState),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 zipcodeController,
                                                 'Zip/Post/Pin Code',
-                                                Icons.pin_drop),
+                                                Assets.icZipcode),
                                           ),
                                         ],
                                       ),
@@ -548,21 +549,21 @@ class _TableeeState extends State<Tableee> {
                                             child: buildInputField(
                                                 phoneController,
                                                 'Mobile Number',
-                                                Icons.phone),
+                                                Assets.icMobile),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 emailController,
                                                 'Email',
-                                                Icons.email),
+                                                Assets.icEmail),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 telephoneController,
                                                 'Business Reg.No',
-                                                Icons.phone_in_talk),
+                                                Assets.icBusinessReg),
                                           ),
                                         ],
                                       ),
@@ -583,14 +584,14 @@ class _TableeeState extends State<Tableee> {
                                             child: buildInputField(
                                                 contactPersonNameController,
                                                 'Contact Person',
-                                                Icons.person),
+                                                Assets.icUser),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 contactNumController,
                                                 'Contact Number',
-                                                Icons.phone),
+                                                Assets.icPhone),
                                           ),
                                         ],
                                       ),
@@ -642,41 +643,42 @@ class _TableeeState extends State<Tableee> {
                                       buildInputField(
                                           deliveryAddressController,
                                           'Delivery Address',
-                                          Icons.location_on),
+                                          Assets.icLocation),
                                       Row(
                                         children: [
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryTownController,
                                                 'City or Suburb',
-                                                Icons.location_city),
+                                                Assets.icCity),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryStateController,
                                                 'State',
-                                                Icons.map),
+                                                Assets.icState),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Expanded(
                                             child: buildInputField(
                                                 deliveryZipcodeController,
                                                 'Zip/Post/Pin Code',
-                                                Icons.pin_drop),
+                                                Assets.icZipcode),
                                           ),
                                         ],
                                       ),
                                       const SizedBox(
-                                  height: 30,
-                                  child: Row(
-                                    children: [
-                                      Spacer(),
-                                      SizedBox(width: 16.0),
-                                      Expanded(child: Text("Company logo"))
-                                    ],
-                                  ),
-                                ),
+                                        height: 30,
+                                        child: Row(
+                                          children: [
+                                            Spacer(),
+                                            SizedBox(width: 16.0),
+                                            Expanded(
+                                                child: Text("Company logo"))
+                                          ],
+                                        ),
+                                      ),
                                       Row(
                                         children: [
                                           // Remark Input Field
@@ -708,10 +710,8 @@ class _TableeeState extends State<Tableee> {
                                                   labelStyle: TextStyle(
                                                       color:
                                                           Colors.grey.shade600),
-                                                  prefixIcon: Icon(
-                                                      Icons.comment,
-                                                      color:
-                                                          Colors.grey.shade600),
+                                                  prefixIcon: filledIcon(
+                                                      Assets.icRemark),
                                                   focusedBorder:
                                                       OutlineInputBorder(
                                                     borderRadius:
@@ -869,7 +869,7 @@ class _TableeeState extends State<Tableee> {
   }
 
   Widget buildInputField(
-      TextEditingController controller, String labelText, IconData icon) {
+      TextEditingController controller, String labelText, String icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
@@ -891,7 +891,7 @@ class _TableeeState extends State<Tableee> {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
             labelText: labelText,
             labelStyle: TextStyle(color: Colors.grey.shade600),
-            prefixIcon: Icon(icon, color: Colors.grey.shade600),
+            prefixIcon: filledIcon(icon),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
               borderSide: const BorderSide(color: Colors.blue, width: 1.5),
@@ -929,8 +929,8 @@ class TopTotalWidget extends StatelessWidget {
     final searchController = provider.searchController;
     final CustomerAndOrderController customerAndOrderController =
         CustomerAndOrderController();
-        SubscriptionController subscriptionController =
-      Get.find<SubscriptionController>();
+    SubscriptionController subscriptionController =
+        Get.find<SubscriptionController>();
     double totalTableWidth =
         120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
     return Row(
@@ -1055,8 +1055,9 @@ class TopTotalWidget extends StatelessWidget {
                                             child: Text(
                                               value,
                                               style: TextStyle(
-                                                fontSize:
-                                                    value.length > 4 ? 8.0 : 12.0,
+                                                fontSize: value.length > 4
+                                                    ? 8.0
+                                                    : 12.0,
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: myFont,
@@ -2551,18 +2552,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .customerDashboardView
                                                                 .value ==
                                                             'true') {
-
-                                                          
-
                                                           provider
                                                               .setCurrentMonthDates();
-                                                          provider.fetchCustomerDashboardData(
-                                                              customer
-                                                                  .customerId,);
-                                                          provider.fetchCustomerDashboardRevenueData(
-                                                              customer
-                                                                  .customerId,
-                                                             );
+                                                          provider
+                                                              .fetchCustomerDashboardData(
+                                                            customer.customerId,
+                                                          );
+                                                          provider
+                                                              .fetchCustomerDashboardRevenueData(
+                                                            customer.customerId,
+                                                          );
                                                           provider
                                                               .fetchCustomerDashboardCountData(
                                                                   customer
@@ -2591,18 +2590,18 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   milliseconds:
                                                                       100));
 
-                                                                      final now =
-                                                            DateTime.now();
-                                                        final dateFormat =
-                                                            DateFormat(
-                                                                'yyyy-MM-dd');
+                                                          final now =
+                                                              DateTime.now();
+                                                          final dateFormat =
+                                                              DateFormat(
+                                                                  'yyyy-MM-dd');
 
-                                                        final firstDayOfYear =
-                                                            DateTime(
-                                                                now.year, 1, 1);
-                                                        final lastDayOfYear =
-                                                            DateTime(now.year,
-                                                                12, 31);
+                                                          final firstDayOfYear =
+                                                              DateTime(now.year,
+                                                                  1, 1);
+                                                          final lastDayOfYear =
+                                                              DateTime(now.year,
+                                                                  12, 31);
 
                                                           Navigator.push(
                                                             context,
@@ -2610,12 +2609,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               builder: (context) =>
                                                                   CustomerDachScreen(
                                                                 year: 2024,
-                                                                startDate: dateFormat
-                                                                  .format(
-                                                                      firstDayOfYear),
-                                                              endDate: dateFormat
-                                                                  .format(
-                                                                      lastDayOfYear),
+                                                                startDate:
+                                                                    dateFormat
+                                                                        .format(
+                                                                            firstDayOfYear),
+                                                                endDate: dateFormat
+                                                                    .format(
+                                                                        lastDayOfYear),
                                                                 isFromOrder:
                                                                     true,
                                                                 cusId: customer
@@ -3583,8 +3583,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     filteredOrders.fold<double>(
                                                   0.0,
                                                   (sum, order) =>
-                                                      sum +
-                                                      (order.orderTotal),
+                                                      sum + (order.orderTotal),
                                                 )),
                                                 maxLines: 2,
                                               ),

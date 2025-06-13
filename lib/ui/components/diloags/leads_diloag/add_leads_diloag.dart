@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
+import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -10,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/custom_button_leads.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/input_field_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -103,11 +105,11 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     widget
                                         .leadsController.businessNameController,
                                     'Business Name',
-                                    Icons.business),
+                                    Assets.icBusiness),
                                 buildInputField(
                                     widget.leadsController.addressController,
                                     'Address',
-                                    Icons.home),
+                                    Assets.icLocation),
                                 Row(
                                   children: [
                                     Expanded(
@@ -115,21 +117,21 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                             widget
                                                 .leadsController.townController,
                                             'City or Suburb',
-                                            Icons.location_city)),
+                                            Assets.icCity)),
                                     const SizedBox(width: 8.0),
                                     Expanded(
                                         child: buildInputField(
                                             widget.leadsController
                                                 .stateController,
                                             'State',
-                                            Icons.map)),
+                                            Assets.icState)),
                                     const SizedBox(width: 8.0),
                                     Expanded(
                                         child: buildInputField(
                                             widget.leadsController
                                                 .zipcodeController,
                                             'Zip/Post/Pin Code',
-                                            Icons.pin_drop)),
+                                            Assets.icZipcode)),
                                   ],
                                 ),
                                 Row(
@@ -139,7 +141,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget.leadsController
                                               .mobileNoController,
                                           'Mobile Number',
-                                          Icons.phone),
+                                          Assets.icMobile),
                                     ),
                                     const SizedBox(width: 8.0),
                                     Expanded(
@@ -147,7 +149,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget
                                               .leadsController.emailController,
                                           'Email',
-                                          Icons.email),
+                                          Assets.icEmail),
                                     ),
                                     const SizedBox(width: 8.0),
                                     Expanded(
@@ -155,7 +157,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget.leadsController
                                               .telephoneController,
                                           'Business Reg.No',
-                                          Icons.phone_in_talk),
+                                          Assets.icBusinessReg),
                                     ),
                                   ],
                                 ),
@@ -174,14 +176,14 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                             widget.leadsController
                                                 .fullnameController,
                                             'Contact Person',
-                                            Icons.person)),
+                                            Assets.icUser)),
                                     const SizedBox(width: 8.0),
                                     Expanded(
                                         child: buildInputField(
                                             widget.leadsController
                                                 .businessContactController,
                                             'Contact Number',
-                                            Icons.phone)),
+                                            Assets.icPhone)),
                                   ],
                                 ),
                                 Padding(
@@ -248,7 +250,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     widget.leadsController
                                         .deliveryAddressController,
                                     'Delivery Address',
-                                    Icons.location_on),
+                                    Assets.icLocation),
                                 Row(
                                   children: [
                                     Expanded(
@@ -256,7 +258,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget.leadsController
                                               .deliveryTownController,
                                           'City or Suburb',
-                                          Icons.location_city),
+                                          Assets.icCity),
                                     ),
                                     const SizedBox(width: 8.0),
                                     Expanded(
@@ -264,7 +266,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget.leadsController
                                               .deliveryStateController,
                                           'State',
-                                          Icons.map),
+                                          Assets.icState),
                                     ),
                                     const SizedBox(width: 8.0),
                                     Expanded(
@@ -272,7 +274,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           widget.leadsController
                                               .deliveryZipcodeController,
                                           'Zip/Post/Pin Code',
-                                          Icons.pin_drop),
+                                          Assets.icZipcode),
                                     ),
                                   ],
                                 ),
@@ -314,8 +316,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                             labelText: 'Remark',
                                             labelStyle: TextStyle(
                                                 color: Colors.grey.shade600),
-                                            prefixIcon: Icon(Icons.comment,
-                                                color: Colors.grey.shade600),
+                                            prefixIcon:
+                                                filledIcon(Assets.icRemark),
                                             focusedBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.0),

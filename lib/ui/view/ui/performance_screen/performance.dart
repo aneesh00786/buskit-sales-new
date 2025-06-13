@@ -15,7 +15,6 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/bottom_tables/target_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/bottom_tables/value_target_dialog.dart';

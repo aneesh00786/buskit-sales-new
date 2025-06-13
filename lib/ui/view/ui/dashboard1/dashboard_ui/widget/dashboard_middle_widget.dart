@@ -338,17 +338,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                             );
                           } else {
                             final responseModel = snapshot.data!;
-                            final totalCompletedAmount =
-                                // responseModel
-                                //     .collection!.payment!.completedOrders!
-                                //     .fold(
-                                //         0.0,
-                                //         (sum, order) =>
-                                //             sum + (order.orderTotal ?? 0.0));
-                                responseModel
-                                        .collection?.payment?.payedAmount ??
-                                    0.0;
-
                             final pendingAmountLabel = responseModel.collection!
                                     .order!.pendingAmount!.isNotEmpty
                                 ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'

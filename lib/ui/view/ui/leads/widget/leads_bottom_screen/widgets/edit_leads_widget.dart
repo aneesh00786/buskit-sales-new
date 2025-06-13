@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
@@ -65,8 +67,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
         TextEditingController(text: widget.leadCustomerData.businessNo);
     TextEditingController remarkController =
         TextEditingController(text: widget.leadCustomerData.remark);
-    String imageFile =
-        '${ApiConstants.baseUrl}uploads/${widget.leadCustomerData.imageUrl}';
+    String imageFile = '${widget.leadCustomerData.imageUrl}';
 
     File? leadsImage;
 
@@ -159,13 +160,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                     ),
                     child: TextField(
                       controller: businessNameController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12.0,
                           vertical: 16.0,
                         ),
                         labelText: 'Business Name',
-                        prefixIcon: Icon(Icons.person),
+                        prefixIcon: filledIcon(Assets.icBusiness),
                         border: InputBorder.none,
                       ),
                     ),
@@ -180,13 +181,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                     ),
                     child: TextField(
                       controller: addressController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12.0,
                           vertical: 16.0,
                         ),
                         labelText: 'Address',
-                        prefixIcon: Icon(Icons.home),
+                        prefixIcon: filledIcon(Assets.icLocation),
                         border: InputBorder.none,
                       ),
                     ),
@@ -205,13 +206,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             ),
                             child: TextField(
                               controller: townController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 12.0,
                                   vertical: 16.0,
                                 ),
                                 labelText: 'City or Suburb',
-                                prefixIcon: Icon(Icons.location_city),
+                                prefixIcon: filledIcon(Assets.icCity),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -229,13 +230,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: stateController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'State',
-                              prefixIcon: Icon(Icons.location_city),
+                              prefixIcon: filledIcon(Assets.icState),
                               border: InputBorder.none,
                             ),
                           ),
@@ -252,13 +253,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: zipcodeController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'Zip/Post/Pin Code',
-                              prefixIcon: Icon(Icons.map),
+                              prefixIcon: filledIcon(Assets.icZipcode),
                               border: InputBorder.none,
                             ),
                           ),
@@ -279,14 +280,14 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: mobilenoController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               fillColor: Colors.white,
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'Mobile Number',
-                              prefixIcon: Icon(Icons.phone),
+                              prefixIcon: filledIcon(Assets.icMobile),
                               border: InputBorder.none,
                             ),
                           ),
@@ -303,13 +304,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: emailController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'Email',
-                              prefixIcon: Icon(Icons.email),
+                              prefixIcon: filledIcon(Assets.icEmail),
                               border: InputBorder.none,
                             ),
                           ),
@@ -330,13 +331,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: fullnameController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'Contact Person Name',
-                              prefixIcon: Icon(Icons.phone),
+                              prefixIcon: filledIcon(Assets.icUser),
                               border: InputBorder.none,
                             ),
                           ),
@@ -353,13 +354,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                           child: TextField(
                             controller: businesscontactController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12.0,
                                 vertical: 16.0,
                               ),
                               labelText: 'Contact Number',
-                              prefixIcon: Icon(Icons.phone_callback),
+                              prefixIcon: filledIcon(Assets.icPhone),
                               border: InputBorder.none,
                             ),
                           ),
@@ -383,13 +384,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             ),
                             child: TextField(
                               controller: remarkController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 12.0,
                                   vertical: 16.0,
                                 ),
                                 labelText: 'Remark',
-                                prefixIcon: Icon(Icons.phone),
+                                prefixIcon: filledIcon(Assets.icRemark),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -485,6 +486,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                               height: AppDimensions
                                                       .instance.height *
                                                   0.2,
+                                                  errorWidget:(context, url, error) =>  CircularProgressIndicator(),
                                             ),
                                     ),
                                   ),

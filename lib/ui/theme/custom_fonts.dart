@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const String fontFamilyName = 'Poppins_Regular';
 const String myFont = 'Poppins_Regular';
@@ -196,5 +198,15 @@ Widget dashboardContainerHeader(String text) {
       maxLines: 1,
       softWrap: false,
     ),
+  );
+}
+
+
+Widget filledIcon(String svgIconPath) {
+  return SvgPicture.asset(
+    svgIconPath,
+    fit: BoxFit.scaleDown,
+    height: AppDimensions.instance.height * 0.014,
+    width: AppDimensions.instance.width * 0.014,
   );
 }

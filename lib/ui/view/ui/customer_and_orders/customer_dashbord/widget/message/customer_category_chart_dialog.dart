@@ -85,8 +85,6 @@ void showCustomerCategoryChartDialog(
                                   final responseModel = snapshot.data!;
                                   final categoryPerformance =
                                       snapshot.data!.data.categoryPerformance;
-                                  // Map categoryPerformance to a list of cids
-
                                   return Center(
                                     child: CustomBarChartCustomerDash(
                                       categoryPerformance: categoryPerformance,

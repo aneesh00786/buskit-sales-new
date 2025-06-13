@@ -48,7 +48,7 @@ class CalenderMapController extends GetxController {
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
 
-   RxString routeCredit = ''.obs;
+  RxString routeCredit = ''.obs;
 
   void initializeCheckedList(
       int length, List<CalendarEventData<EventData>> eventData) {
@@ -518,18 +518,16 @@ class CalenderMapController extends GetxController {
       (index) => CalendarEventData<EventData>(
         title: events[index].title ?? "No Title",
         date: DateTime.parse(events[index].start.toString())
-            .toLocal()
             .copyWith(hour: 0, minute: 0, second: 0),
         endDate: DateTime.parse(events[index].end.toString())
-            .toLocal()
             .copyWith(hour: 0, minute: 0, second: 0),
-
         event: events[index],
         description: events[index].title ?? "No Description",
         color: getColor(events[index].type ?? 3).$1,
       ),
     );
     eventControllerv1.addAll(eventData);
+    log("Events loaded: $eventData");
     log("Events loaded: ${eventData.length}");
     refresh();
   }
@@ -548,6 +546,7 @@ class CalenderMapController extends GetxController {
         return (revenueProgressBarFilledColor, primaryTextColor);
     }
   }
+
   Future<void> fetchCalenderEvents(
     DateTime initialDay,
   ) async {
@@ -575,7 +574,7 @@ class CalenderMapController extends GetxController {
     }
     return customerDataList;
   }
-  
+
   RxBool isRouteCreditLoading = false.obs;
 
   Future<void> getRouteCredit() async {

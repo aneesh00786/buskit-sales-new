@@ -123,13 +123,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                     ),
                     id: 2,
                   );
-                  final now = DateTime.now();
-                  final startDate = DateTime(now.year, now.month, 1);
-                  final endDate = DateTime(now.year, now.month + 1, 0);
-                  final formattedStartDate =
-                      DateFormat('yyyy-MM-dd').format(startDate);
-                  final formattedEndDate =
-                      DateFormat('yyyy-MM-dd').format(endDate);
                   final customerId = customer.customerId.toString();
                   final customersProvider =
                       Provider.of<CustomersProvider>(context, listen: false);
@@ -303,17 +296,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                   Get.lazyPut<ApiWorker>(
                                                       () => ApiWorker());
                                                 }), id: 2);
-                                                final now = DateTime.now();
-                                                final startDate = DateTime(
-                                                    now.year, now.month, 1);
-                                                final endDate = DateTime(
-                                                    now.year, now.month + 1, 0);
-                                                final formattedStartDate =
-                                                    DateFormat('yyyy-MM-dd')
-                                                        .format(startDate);
-                                                final formattedEndDate =
-                                                    DateFormat('yyyy-MM-dd')
-                                                        .format(endDate);
                                                 Provider.of<CustomersProvider>(
                                                         context,
                                                         listen: false)

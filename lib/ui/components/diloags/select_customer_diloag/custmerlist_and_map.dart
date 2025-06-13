@@ -146,8 +146,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
-                  int currentYear = now.year;
-
                   Get.to(
                     () => CustomerDachScreen(
                       isFromGoogle: true,

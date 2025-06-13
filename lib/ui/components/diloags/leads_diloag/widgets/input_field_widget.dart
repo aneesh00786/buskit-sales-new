@@ -1,7 +1,8 @@
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:flutter/material.dart';
 
 Widget buildInputField(
-    TextEditingController controller, String labelText, IconData icon) {
+    TextEditingController controller, String labelText, String icon) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Container(
@@ -24,7 +25,7 @@ Widget buildInputField(
           labelText: labelText,
           labelStyle:
               TextStyle(color: Colors.grey.shade600),
-          prefixIcon: Icon(icon, color: Colors.grey.shade600),
+          prefixIcon: filledIcon(icon),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(

@@ -10,7 +10,7 @@ mixin class ApiConstants {
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
-  /// Dashboard API
+
   static const String dashboardList = "dashboard_list";
   static const String customerRevenue = "customer_Revenue";
   static const String fetchOrderByRange = "fetch_orderByRange";

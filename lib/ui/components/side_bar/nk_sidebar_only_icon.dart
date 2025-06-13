@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -69,6 +70,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   void dispose() {
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
@@ -116,6 +118,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     String customerId = customerOrderController.customerId.value.isNotEmpty
         ? customerOrderController.customerId.value
         : productController.selectedCustomerId.value;
+    final subscriptionController = Get.find<SubscriptionController>();
     bool isRecentOrders = index == 7;
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
@@ -127,6 +130,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
           handleBackNavigation(
               context, false, productController, customerOrderController, () {
+            subscriptionController.loadSubscriptionFeatures(
+                SessionHelper.loginSavedData?.company_id ?? 0);
             setState(() {
               widget.sidebarXController.selectIndex(index);
               sideBarData.onTap?.call();
@@ -142,12 +147,16 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
           productController.selectedCustomerId.value = "";
           productController.selectedCustomerName.value = "";
           productController.selectedCustomerImageUrl.value = "";
+          subscriptionController.loadSubscriptionFeatures(
+              SessionHelper.loginSavedData?.company_id ?? 0);
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();
             widget.onTap?.call(widget.sidebarXController.selectedIndex);
           });
         } else {
+          subscriptionController.loadSubscriptionFeatures(
+              SessionHelper.loginSavedData?.company_id ?? 0);
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();
@@ -282,12 +291,11 @@ void handleBackNavigation(
                       : e.count.toString(),
                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                   price: e.sellPrice.toString(),
-                  discount: e.discount??0,
+                  discount: e.discount ?? 0,
                   quantity: e.count.toInt(),
                   variantName: e.variationName ?? ''))
               .toList(),
           total: productController.finalAmount.value.toStringAsFixed(0),
-          
         );
 
         CartOrderModel? cartOrder =
@@ -334,7 +342,8 @@ void handleBackNavigation(
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          CartDatabaseManager().clearCart(customerId: customerId);
+                          CartDatabaseManager()
+                              .clearCart(customerId: customerId);
                           updateTabIndex();
                         },
                         child: const Text('OK'),

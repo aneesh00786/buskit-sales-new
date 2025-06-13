@@ -65,8 +65,11 @@ class SubscribedPlanData {
         price: json["price"],
         billingCycle: json["billing_cycle"],
         planIdentifier: json["plan_identifier"],
-        planFeatures:
-            PlanFeatures.fromJson(jsonDecode(json["plan_features"].toString())),
+        planFeatures: PlanFeatures.fromJson(
+          json["plan_features"] is String
+              ? jsonDecode(json["plan_features"])
+              : json["plan_features"],
+        ),
       );
 
   Map<String, dynamic> toJson() => {
@@ -251,25 +254,26 @@ class FeatureItem {
 }
 
 class UserVerificationResponse {
-    int statusCode;
-    bool status;
-    String message;
+  int statusCode;
+  bool status;
+  String message;
 
-    UserVerificationResponse({
-        required this.statusCode,
-        required this.status,
-        required this.message,
-    });
+  UserVerificationResponse({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+  });
 
-    factory UserVerificationResponse.fromJson(Map<String, dynamic> json) => UserVerificationResponse(
+  factory UserVerificationResponse.fromJson(Map<String, dynamic> json) =>
+      UserVerificationResponse(
         statusCode: json["status_code"],
         status: json["status"],
         message: json["message"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "status_code": statusCode,
         "status": status,
         "message": message,
-    };
+      };
 }

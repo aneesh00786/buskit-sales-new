@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, use_build_context_synchronously
+// ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';

@@ -1,6 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';

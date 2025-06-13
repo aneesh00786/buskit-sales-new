@@ -163,6 +163,12 @@
         transform: rotate(360deg);
       }
     }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -174,6 +180,11 @@
       <div id="apple-pay-error" style="color: red; display: none;"></div>
       <div id="paypal-button-container"></div>
       <div id="paypal-error"></div>
+    </div>
+    <div id="paypal-spinner" style="display:none; text-align:center; margin-bottom: 10px;">
+      <div class="spinner"
+        style="width:30px; height:30px; border:4px solid #ccc; border-top:4px solid #0070ba; border-radius:50%; animation: spin 1s linear infinite;">
+      </div>
     </div>
 
     <div class="divider">OR</div>
@@ -189,7 +200,6 @@
           Amount<br>
           $<span id="amount">-</span> USD
         </div>
-
         <div>Licenses<br><span id="licenses">-</span></div>
       </div>
 
@@ -210,7 +220,9 @@
   <script>
     const stripe = Stripe('pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM');
     const elements = stripe.elements();
-    const cardElement = elements.create('card');
+    const cardElement = elements.create('card', {
+      hidePostalCode: true
+    });
     cardElement.mount('#stripe-card-element');
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -307,7 +319,8 @@
 
     paypal.Buttons({
       createOrder: () => {
-        console.log("[FRONTEND] Requesting PayPal order creation...");
+        document.getElementById("paypal-spinner").style.display = "block"; // ⏳ Show spinner
+
         return fetch("https://thrivewoo.com/create-paypal-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -324,10 +337,11 @@
           })
           .catch(err => {
             console.error("[FRONTEND ERROR] Failed to create PayPal order:", err);
-            document.getElementById("paypal-error").innerText = "Error creating PayPal order";
+            document.getElementById("paypal-error").innerText = "Error creating PayPal order.";
+            document.getElementById("paypal-spinner").style.display = "none";
           });
-      }
-      ,
+      },
+
       onApprove: (data) => {
         const payload = {
           user_id: adminId,
@@ -346,14 +360,28 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        });
-
-        if (window.flutter_inappwebview) {
-          window.flutter_inappwebview.callHandler("paymentSuccess", {
-            orderId: data.orderID,
-            adminId, planId, amount, currency, licenses
+        })
+          .then(() => {
+            if (window.flutter_inappwebview) {
+              window.flutter_inappwebview.callHandler("paymentSuccess", {
+                orderId: data.orderID,
+                adminId, planId, amount, currency, licenses
+              });
+            }
+          })
+          .catch(err => {
+            console.error("[FRONTEND ERROR] Failed to insert transaction:", err);
+            document.getElementById("paypal-error").innerText = "Payment was successful but saving data failed.";
+          })
+          .finally(() => {
+            document.getElementById("paypal-spinner").style.display = "none";
           });
-        }
+      },
+
+      onError: (err) => {
+        console.error("💥 PayPal Error:", err);
+        document.getElementById("paypal-error").innerText = "Something went wrong with PayPal.";
+        document.getElementById("paypal-spinner").style.display = "none";
       }
     }).render('#paypal-button-container');
     document.getElementById('apple-pay-btn').addEventListener('click', async () => {

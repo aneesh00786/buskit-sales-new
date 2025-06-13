@@ -43,4 +43,18 @@ class Assets {
   static const String iconsIcLoginLogo = 'assets/icons/ic_login_logo.svg';
   static const String iconsIcView = 'assets/icons/ic_view.svg';
   static const String pngThriveWoo = 'assets/icons/png_thrive_woo.png';
+
+    // NEW ICONS
+  static const String icUser = 'assets/new_icons/ic_user.svg';
+  static const String icBusinessReg = 'assets/new_icons/ic_business_reg.svg';
+  static const String icBusiness = 'assets/new_icons/ic_business.svg';
+  static const String icCity = 'assets/new_icons/ic_city.svg';
+  static const String icEmail = 'assets/new_icons/ic_email.svg';
+  static const String icLocation = 'assets/new_icons/ic_location.svg';
+  static const String icLock = 'assets/new_icons/ic_lock.svg';
+  static const String icMobile = 'assets/new_icons/ic_mobile.svg';
+  static const String icPhone = 'assets/new_icons/ic_phone.svg';
+  static const String icRemark = 'assets/new_icons/ic_remark.svg';
+  static const String icState = 'assets/new_icons/ic_state.svg';
+  static const String icZipcode = 'assets/new_icons/ic_zipcode.svg';
 }

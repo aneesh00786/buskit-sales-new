@@ -608,7 +608,7 @@ class ApiService {
     int? year,
     OrderStatus? orderStatus,
     required dynamic orderType,
-    bool isLogin = true,
+    bool isLogin = false,
   }) async {
     Object? sendData;
     switch (fetchType) {
@@ -684,7 +684,7 @@ class ApiService {
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         log('Fetch All Orders Response: $jsonResponse');
-        await orderBox.put(cacheKey, jsonResponse); // response.data is Map
+        await orderBox.put(cacheKey, jsonResponse);
         return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
       } else {
         throw Exception('Failed to fetch orders - ${response.statusCode}');

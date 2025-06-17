@@ -1,6 +1,6 @@
 //nk Side Bar
 
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:developer';
 
@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -188,13 +189,25 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                   widget.sidebarXController.selectedIndex == index ? 1.2 : 1.0,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: Icon(
-                sideBarData.icon!,
-                size: 24,
+              child: SvgPicture.asset(
+                getSidebarIcon(index),
+                height: index == 8 || index == 9 ? 30 : 24,
+                width: index == 8 || index == 9 ? 30 : 24,
                 color: widget.sidebarXController.selectedIndex == index
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
+                    ? index == 8 || index == 9
+                        ? null
+                        : Theme.of(context).primaryColor
+                    : index == 8 || index == 9
+                        ? null
+                        : Colors.grey,
               ),
+              // Icon(
+              //   sideBarData.icon!,
+              //   size: 24,
+              //   color: widget.sidebarXController.selectedIndex == index
+              //       ? Theme.of(context).primaryColor
+              //       : Colors.grey,
+              // ),
             ),
             if (isRecentOrders)
               Positioned(

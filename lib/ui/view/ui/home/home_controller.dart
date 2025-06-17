@@ -29,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -226,16 +227,16 @@ class HomeController extends GetxController {
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
-      sideBarComponent(sidebarName[0], Icons.dashboard),
-      sideBarComponent(sidebarName[1], EneftyIcons.profile_2user_bold),
-      sideBarComponent(sidebarName[2], EneftyIcons.a_3d_cube_bold),
-      sideBarComponent(sidebarName[3], EneftyIcons.moneys_bold),
-      sideBarComponent(sidebarName[4], SIdeBarIcon.ic_leads),
-      sideBarComponent(sidebarName[5], EneftyIcons.chart_square_bold),
-      sideBarComponent(sidebarName[6], EneftyIcons.calendar_bold),
-      sideBarComponent(sidebarName[7], EneftyIcons.shopping_cart_bold),
-      sideBarComponent(sidebarName[8], EneftyIcons.setting_2_bold),
-      sideBarComponent(sidebarName[9], SIdeBarIcon.ic_log_out,
+      sideBarComponent(sidebarName[0], index:0,  Icons.dashboard),
+      sideBarComponent(sidebarName[1], index:1,  EneftyIcons.profile_2user_bold),
+      sideBarComponent(sidebarName[2], index:2,  EneftyIcons.a_3d_cube_bold),
+      sideBarComponent(sidebarName[3], index:3,  EneftyIcons.moneys_bold),
+      sideBarComponent(sidebarName[4], index:4,  SIdeBarIcon.ic_leads),
+      sideBarComponent(sidebarName[5], index:5,  EneftyIcons.chart_square_bold),
+      sideBarComponent(sidebarName[6], index:6,  EneftyIcons.calendar_bold),
+      sideBarComponent(sidebarName[7], index:7,  EneftyIcons.shopping_cart_bold),
+      sideBarComponent(sidebarName[8], index:8,  EneftyIcons.setting_2_bold),
+      sideBarComponent(sidebarName[9], index:9,  SIdeBarIcon.ic_log_out,
           context: context),
     ];
   }
@@ -244,13 +245,20 @@ class HomeController extends GetxController {
     String barTitle,
     IconData iconData, {
     BuildContext? context,
+    int? index,
   }) {
     final NotificationController notificationController =
         Get.put(NotificationController());
 
+        int previousIndex = 0;
+
     bool isLogout = (barTitle == logOut);
     bool isRecentOrders = (barTitle == todayOrders);
     bool isLeads = (barTitle == leads);
+
+    if (!isLogout) {
+      previousIndex = sidebarXController.selectedIndex;
+    }
 
     return SidebarXItem(
       icon: iconData,
@@ -259,6 +267,7 @@ class HomeController extends GetxController {
         if (isLogout) {
           showDialog(
             context: context!,
+            barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
                 title: CustomText(content: 'Log out ?'),
@@ -267,10 +276,9 @@ class HomeController extends GetxController {
                 actions: [
                   TextButton(
                     onPressed: () {
-                      if (Navigator.canPop(context)) {
-                        Navigator.pop(context);
-                      }
-                    },
+                              Navigator.pop(context);
+                              sidebarXController.selectIndex(previousIndex);
+                            },
                     child: CustomText(content: 'Cancel'),
                   ),
                   ElevatedButton(
@@ -319,11 +327,24 @@ class HomeController extends GetxController {
           ),
           child: Row(
             children: [
-              Icon(
-                iconData,
-                size: 20,
-                color: Colors.black.withOpacity(0.7),
-                weight: 700,
+              // Icon(
+              //   iconData,
+              //   size: 20,
+              //   color: Colors.black.withOpacity(0.7),
+              //   weight: 700,
+              // ),
+              SvgPicture.asset(
+                getSidebarIcon(index ?? 0),
+                // 'assets/new_icons/ic_user.svg',
+                height: index == 8 || index == 9 ? 30 : 24,
+                width: index == 8 || index == 9 ? 30 : 24,
+                color: sidebarXController.selectedIndex == index
+                    ? index == 8 || index == 9
+                        ? null
+                        : primaryColor
+                    : index == 8 || index == 9
+                        ? null
+                        : Colors.grey,
               ),
               const SizedBox(width: 20),
               Stack(
@@ -408,8 +429,6 @@ class HomeController extends GetxController {
 }
 
 Future<void> handleLogout(BuildContext context) async {
-  showCustomToastDisplay(context, "LOGGING OUT", red, Icons.close,
-        duration: 5);
   await SessionManager.clearData();
   await SessionHelper().clearSettingsData();
   await SessionHelper().clearAll();
@@ -471,4 +490,31 @@ Future<void> handleLogout(BuildContext context) async {
   }
 
   Get.offAllNamed(AppRoutes.login);
+}
+
+String getSidebarIcon(int index) {
+  switch (index) {
+    case 0:
+      return "assets/sidebar_icons/homeicon.svg";
+    case 1:
+      return "assets/sidebar_icons/customer.svg";
+    case 2:
+      return "assets/sidebar_icons/product.svg";
+    case 3:
+      return "assets/sidebar_icons/paymenticon.svg";
+    case 4:
+      return "assets/sidebar_icons/leadicon.svg";
+    case 5:
+      return "assets/sidebar_icons/calendaricon.svg";
+    case 6:
+      return "assets/sidebar_icons/stafficon.svg";
+    case 7:
+      return "assets/sidebar_icons/ordericon.svg";
+    case 8:
+      return "assets/sidebar_icons/settingsicon.svg";
+    case 9:
+      return "assets/sidebar_icons/logouticon.svg";
+    default:
+      return "assets/sidebar_icons/ic_user.svg";
+  }
 }

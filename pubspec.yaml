@@ -104,6 +104,7 @@ flutter:
     - assets/font_icons/
     - assets/icons/
     - assets/new_icons/
+    - assets/sidebar_icons/
     - assets/images/
 
   fonts:

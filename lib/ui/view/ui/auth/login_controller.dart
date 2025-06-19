@@ -298,10 +298,10 @@ class LoginController extends GetxController {
               monthName: currentMonthName,
               compId: companyId,
               isFromLogin: true),
-          _apiWorker.fetchSalesmanTarget(salesmanId, currentMonthName, "2025",
+          _apiWorker.fetchSalesmanTarget(salesmanId, currentMonthName, DateTime.now().year.toString(),
               compId: companyId, isFromLogin: true),
           _apiWorker.fetchSalesmanValueTarget(
-              salesmanId, "2025", currentMonthName,
+              salesmanId, DateTime.now().year.toString(), currentMonthName,
               compid: companyId, isFromLogin: true),
           leadsController.loadLeadsCustomerData,
           leadsCustomerController.loadLeadsCustomerData,

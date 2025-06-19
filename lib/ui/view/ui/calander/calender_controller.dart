@@ -47,6 +47,8 @@ class CalenderMapController extends GetxController {
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
+    RxList<FetchOnlyCustomerData> customerOnlyList =
+      <FetchOnlyCustomerData>[].obs;
 
   RxString routeCredit = ''.obs;
 
@@ -101,7 +103,7 @@ class CalenderMapController extends GetxController {
 
   void showSelectedCustomerRoute(BuildContext context) {
     if (selectedCustomers.isNotEmpty) {
-      log('${selectedCustomers.length}');
+      log('$selectedCustomers');
       Get.to(() => const CustomerMapScreen());
     } else {
       log('No customers selected');
@@ -586,6 +588,32 @@ class CalenderMapController extends GetxController {
       log("Error fetching route credit: $e");
     } finally {
       isRouteCreditLoading.value = false;
+    }
+  }
+
+    RxBool isOnlyCustomerLoading = false.obs;
+  Future<void> loadOnlyCustomerData(
+      String eventDate, List<String> customerIds) async {
+    try {
+      isOnlyCustomerLoading.value = true;
+      log("Fetching for $customerIds");
+
+      var response =
+          await ApiWorker().fetchOnlyCustomerData(eventDate, customerIds);
+
+      log("loadOnlyCustomerData response : $response");
+      if (response.data.isNotEmpty) {
+        customerOnlyList.value = response.data;
+      } else {
+        customerOnlyList.clear();
+      }
+
+      log("Customer data loaded successfully.");
+    } catch (error) {
+      log("Error loading customer data: $error");
+      customerOnlyList.clear();
+    } finally {
+      isOnlyCustomerLoading.value = false;
     }
   }
 }

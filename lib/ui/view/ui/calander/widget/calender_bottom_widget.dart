@@ -17,6 +17,7 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
+import 'package:intl/intl.dart';
 
 class CalenderBottomWidget extends StatefulWidget {
   final CalenderMapController calenderController;
@@ -103,11 +104,22 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
         bool isCurrentMonth = isInMonth;
 
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
             if (subscriptionController.appViewDaySchedulesVisits.value ==
                 "true") {
               if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
                 widget.calenderController.clearSelections();
+                await widget.calenderController.loadOnlyCustomerData(
+                  DateFormat('yyyy-MM-dd').format(date),
+                  event
+                      .where((e) => e.event?.customerId != null)
+                      .map((e) => e.event!.customerId!)
+                      .toList(),
+                  // salesmanCustomers[salesmanVisits
+                  //         .keys
+                  //         .elementAt(i)] ??
+                  //     []
+                );
                 Get.dialog(SelectCustomerDiloag(
                   dateTime: date,
                   calenderMapController: widget.calenderController,

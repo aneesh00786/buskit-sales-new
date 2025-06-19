@@ -31,6 +31,9 @@ import '../../product_list/view/product_list.dart';
 // ignore: must_be_immutable
 class OrderTaking extends StatefulWidget {
   final ProductsController productsController;
+  final String? selectedCustId;
+  final String? selectedCustName;
+  final String? selectedCustImageUrl;
   final bool? isReached;
   final bool isFromCalender;
   final bool isDirectDialogue;
@@ -41,6 +44,9 @@ class OrderTaking extends StatefulWidget {
   OrderTaking({
     super.key,
     required this.productsController,
+    this.selectedCustId = '',
+    this.selectedCustName = '',
+    this.selectedCustImageUrl = '',
     this.isReached,
     this.isFromCalender = false,
     this.isDirectDialogue = false,
@@ -75,7 +81,7 @@ class _OrderTakingState extends State<OrderTaking>
   bool isLoading = true;
   bool _isDrawerOpen = true;
   final double _drawerWidth = 300.0;
-  bool active = false;
+  // bool active = false;
   String _selectedCategory = '';
   int _expandedIndex = -1;
   final String _dialogMessage = '';
@@ -105,14 +111,15 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    final customerId = customerAndOrderController.customerId.value.isNotEmpty
-        ? customerAndOrderController.customerId.value
-        : widget.productsController.selectedCustomerId.value;
+    final customerId = widget.selectedCustId;
+    // customerAndOrderController.customerId.value.isNotEmpty
+    //     ? customerAndOrderController.customerId.value
+    //     : widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    CartDatabaseManager().getCartItems(customerId);
-    cartProvider.getCartItemCounts(customerId);
+    CartDatabaseManager().getCartItems(customerId ?? '');
+    cartProvider.getCartItemCounts(customerId ??'');
     CartDatabaseManager().addListener(() {
-      cartProvider.updateCartCount(customerId);
+      cartProvider.updateCartCount(customerId ??'');
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -148,7 +155,7 @@ class _OrderTakingState extends State<OrderTaking>
     _drawerTimer?.cancel();
     animationController.dispose();
     CartDatabaseManager().removeListener(() {
-      cartProvider.updateCartCount(customerAndOrderController.customerId.value);
+      cartProvider.updateCartCount(widget.selectedCustId ?? '');
     });
     super.dispose();
   }
@@ -232,17 +239,18 @@ class _OrderTakingState extends State<OrderTaking>
         leading: SingleChildScrollView(
           child: IconButton(
             onPressed: () async {
-              final customerId =
-                  customerAndOrderController.customerId.isNotEmpty
-                      ? customerAndOrderController.customerId.value
-                      : widget.productsController.selectedCustomerId.value;
+              final customerId = widget.selectedCustId;
+                  // customerAndOrderController.customerId.isNotEmpty
+                  //     ? customerAndOrderController.customerId.value
+                  //     : widget.productsController.selectedCustomerId.value;
 
               widget.productsController.handleBackNavigation(
                 context: context,
                 isDirectDialogue: widget.isDirectDialogue,
                 isFromOrder: widget.isFromOrder,
                 isFromCalender: widget.isFromCalender,
-                customerId: customerId,
+                customerId: widget.productsController.selectedCustomerId.value,
+                // customerId??'',
                 homeController: homeController,
               );
               // final connectivityService = ConnectivityService();
@@ -344,12 +352,12 @@ class _OrderTakingState extends State<OrderTaking>
               //           builder: (BuildContext context) {
               //             return AlertDialog(
               //               title: Center(
-                              // child: SizedBox(
-                              //   height: 100,
-                              //   width: 100,
-                              //   child: Lottie.asset(
-                              //       'assets/images/Animation - 1726906882515.json'),
-                              // ),
+              // child: SizedBox(
+              //   height: 100,
+              //   width: 100,
+              //   child: Lottie.asset(
+              //       'assets/images/Animation - 1726906882515.json'),
+              // ),
               //               ),
               //               content: CustomText(
               //                 content:
@@ -737,7 +745,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                           .updateCartCount(customer
                                                                   .customerId ??
                                                               '');
-                                                      if (active == true) {
+                                                      if (customerAndOrderController.isActive.value == true) {
                                                         _showWarningDialog(
                                                           // ignore: use_build_context_synchronously
                                                           context,
@@ -860,13 +868,14 @@ class _OrderTakingState extends State<OrderTaking>
                           ),
                           IntrinsicWidth(
                             child: CustomSwitch(
-                              initialValue: active,
+                              initialValue: customerAndOrderController.isActive.value,
                               onChanged: (value) {
-                                active = value;
+                                customerAndOrderController.isActive.value = value;
                               },
-                              active: active,
+                              active: customerAndOrderController.isActive.value,
                               selectedName: widget.productsController
                                   .selectedCustomerName.value,
+                                  customerId: widget.selectedCustId ?? '',
                             ),
                           )
                         ],
@@ -1036,11 +1045,12 @@ class _OrderTakingState extends State<OrderTaking>
       builder: (BuildContext context) {
         return CartDialogue(
           key: dialogKey,
-          active: active,
+          active: customerAndOrderController.isActive.value,
           cartItemCount: cartProvider.cartItemCount,
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
           isDashboard: false,
+          customerId: widget.selectedCustId,
         );
       },
     );

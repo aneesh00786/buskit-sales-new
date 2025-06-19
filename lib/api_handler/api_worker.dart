@@ -291,7 +291,7 @@ class ApiWorker with ApiConstants {
       final requestPayload = {
         "companyId": companyId,
         "salesman_id": salesmanId,
-        "year": 2025,
+        "year": DateTime.now().year,
         "month": monthName,
         "status_of_tile": tabStatus,
       };
@@ -2004,6 +2004,89 @@ class ApiWorker with ApiConstants {
       } else {
         throw Exception(e.toString());
       }
+    }
+  }
+
+  Future<Response> updateCustomerCheckInOut({
+    String? date,
+    String? time,
+    String? direction,
+    String? lat,
+    String? long,
+    String? customerId,
+  }) async {
+    var request = {
+      "custid": customerId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "direction": direction,
+      "time": time,
+      "longitude": long,
+      "latitude": lat,
+    };
+    log("customer check-in : $request");
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.updateCheckinCustomer,
+        requestData: request,
+      );
+
+      return response;
+    } catch (error) {
+      log("Error occurred during customer check-in/out update: $error");
+      handleExceptionMessage(
+        apiName: 'Customer Check-In/Out',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to update customer check-in/out: $error');
+    }
+  }
+
+  Future<FetchOnlyCustomer> fetchOnlyCustomerData(
+      String eventDate, List<String> customerIds) async {
+    try {
+      var request = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "customer_id": customerIds,
+        // "event_id": eventId,
+        "date": eventDate,
+      };
+      log(request.toString());
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.fetchOnlyCustomerData,
+        requestData: request,
+      );
+
+      return FetchOnlyCustomer.fromJson(response.data);
+    } catch (error) {
+      log("Error occurred while fetching only customer data: $error");
+      handleExceptionMessage(
+        apiName: 'Fetch Only Customer Data',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch only customer data: $error');
+    }
+  }
+
+    Future<Response> scheduleVisit({
+    List<Map<String, String>>? events,
+  }) async {
+    var request = {"companyId": 1, "events": events};
+    log(request.toString());
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.scheduleVisit,
+        requestData: request,
+      );
+
+      return response;
+    } catch (error) {
+      log("Error saving schedule visits: $error");
+      handleExceptionMessage(
+        apiName: 'Schedule Visit',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to save schedule visits: $error');
     }
   }
 }

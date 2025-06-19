@@ -126,4 +126,6 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     }
     refresh();
   }
+
+  RxBool isActive = false.obs;
 }

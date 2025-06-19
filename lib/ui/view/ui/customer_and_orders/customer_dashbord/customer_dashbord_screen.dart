@@ -11,9 +11,11 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
+import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -30,6 +32,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -69,13 +72,14 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
-  int selectedYear = 2025;
+  int selectedYear = DateTime.now().year;
   late TabController _tabController;
   late int _tabIndex;
   HomeController homeController = Get.put(HomeController());
   CustomerAndOrderController customerOrderController =
-      Get.put(CustomerAndOrderController());
+      Get.find<CustomerAndOrderController>();
   final subscriptionController = Get.find<SubscriptionController>();
+  final productsController = Get.find<ProductsController>();
   ApiWorker apiWorker = Get.put(ApiWorker());
   @override
   void initState() {
@@ -84,8 +88,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     log('Calender Calender Customer ID :${widget.cusId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(
-              widget.cusId.toString());
+          .fetchCustomerDashboardDataSalseData(widget.cusId.toString());
     });
     _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
@@ -110,21 +113,96 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       context,
       MaterialPageRoute(
         builder: (context) => OrderTaking(
-          productsController: widget.productsController ?? ProductsController(),
+          productsController: productsController,
+          selectedCustId: widget.cusId ??  widget.productsController?.selectedCustomerId.value,
+          selectedCustName: widget.cusName,
+          selectedCustImageUrl: widget.cusImage,
+          //  ?? ProductsController(),
           isFromCalender: widget.isFromCalendar,
           isDirectDialogue: widget.isDirectDialogue,
           isFromOrder: widget.isFromOrder,
         ),
       ),
     ).then((value) {
-      cartProvider.fetchCustomerDashboardCountData(customerId ?? '');
+      cartProvider.fetchCustomerDashboardCountData(customerId ?? widget.productsController?.selectedCustomerId.value?? '');
     });
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
+    _tabController.dispose();
+    checkCustomerOut();
+    customerOrderController.isActive.value = false;
+  }
+
+  Future<bool> checkCustomerOut() async {
+    if (customerOrderController.isActive.value == false) {
+      return true;
+    }
+
+    bool shouldProceed = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
+        log("Customer Id checkout: ${widget.cusId ??  widget.productsController?.selectedCustomerId.value}");
+        return AlertDialog(
+          title: const Text('Customer Check-Out'),
+          content: const Text('Customer will be checked-out !'),
+          actions: [
+            TextButton(
+              child: const Text('Stay'),
+              onPressed: () {
+                shouldProceed = false;
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Check-out and leave'),
+              onPressed: () async {
+                if (!await handleLocationPermission(context)) {
+                  Navigator.of(context).pop();
+                  return;
+                }
+
+                try {
+                  Position position = await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.high,
+                  );
+
+                  final response = await ApiWorker().updateCustomerCheckInOut(
+                    date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                    time: DateFormat('yyyy-MM-dd hh:mm:ss')
+                        .format(DateTime.now())
+                        .toString(),
+                    direction: "OUT",
+                    lat: position.latitude.toString(),
+                    long: position.longitude.toString(),
+                    customerId: widget.productsController?.selectedCustomerId.value ,
+                  );
+
+                  if (response.statusCode != 200) {
+                    showCustomToastDisplay(context,
+                        response.statusMessage.toString(), red, Icons.close);
+                  } else {
+                    await ApiWorker().saveSwitchState(false);
+                    shouldProceed = true;
+                  }
+                } catch (e) {
+                  log('Error: $e');
+                }
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return shouldProceed;
   }
 
   @override
@@ -152,11 +230,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
-              onTap: () {
-                log('Is Direct ${widget.isDirectDialogue}');
-                log('Is Calender ${widget.isFromCalendar}');
+              onTap: () async {
+                log("Customer Id backbutton : ${widget.cusId??  widget.productsController?.selectedCustomerId.value}");
+                log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
+                // log('Is Direct ${widget.isDirectDialogue}');
+                // log('Is Calender ${widget.isFromCalendar}');
                 if (widget.isFromGoogle) {
-                  homeController.sidebarXController.selectIndex(6);
+                   bool shouldProceed = await checkCustomerOut();
+                  if (shouldProceed){homeController.sidebarXController.selectIndex(6);
                   homeController.selectedIndex.value = 6;
                   Navigator.of(context).push(
                     PageRouteBuilder(
@@ -169,13 +250,21 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         return FadeTransition(opacity: animation, child: child);
                       },
                     ),
-                  );
+                  );}
                 } else if (widget.isDirectDialogue) {
-                  homeController.sidebarXController.selectIndex(6);
-                  homeController.selectedIndex.value = 6;
-                  Get.toNamed(AppRoutes.calender, id: 2);
+                  bool shouldProceed = await checkCustomerOut();
+                  if (shouldProceed) {
+                    homeController.sidebarXController.selectIndex(6);
+                    homeController.selectedIndex.value = 6;
+                    customerOrderController.isActive.value = false;
+                    Get.toNamed(AppRoutes.calender, id: 2);
+                  }
                 } else {
-                  Navigator.pop(context);
+                  bool shouldProceed = await checkCustomerOut();
+                  if (shouldProceed) {
+                    customerOrderController.isActive.value = false;
+                    Navigator.pop(context);
+                  }
                 }
               },
               child: Container(
@@ -297,7 +386,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: widget.cusId ?? '',
+                          customerId: widget.cusId ??  widget.productsController?.selectedCustomerId.value ?? '',
                           customType: "",
                           customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,
@@ -436,12 +525,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                                    widget.cusId ?? '',
-                                );
+                              widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
+                            );
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.cusId ?? '');
+                                    widget.cusId??  widget.productsController?.selectedCustomerId.value?? '');
                           });
                         },
                         items: provider.yearList
@@ -465,7 +554,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           showCustomerCategoryChartDialog(
                             context,
                             "Category Sales",
-                            widget.cusId ?? '',
+                            widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
                             selectedYear,
                           );
                         },
@@ -503,8 +592,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               return Center(
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData) {
-                              return const Center(
-                                  child: NodataWidget());
+                              return const Center(child: NodataWidget());
                             } else {
                               final responseModel = snapshot.data!;
                               final categoryPerformance =
@@ -514,7 +602,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.cusId ?? '',
+                                  customerId: widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
                                   year: selectedYear,
                                 ),
                               );
@@ -677,8 +765,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Provider.of<CustomersProvider>(context,
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
-                                              widget.cusId.toString(),
-                                              );
+                                        widget.cusId ??  widget.productsController?.selectedCustomerId.value??'',
+                                      );
                                     });
                                   },
                                   items: provider.yearList

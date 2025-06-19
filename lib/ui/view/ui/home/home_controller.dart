@@ -144,14 +144,14 @@ class HomeController extends GetxController {
           page: () => const LeadsScreen(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.performance &&
-        sidebarXController.selectedIndex == 5) {
+        sidebarXController.selectedIndex == 6) {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
           page: () => const PerformanceScreen(),
           binding: CommonBinding());
     } else if (settings.name == AppRoutes.calender &&
-        sidebarXController.selectedIndex == 6) {
+        sidebarXController.selectedIndex == 5) {
       return GetPageRoute(
           transition: Transition.leftToRightWithFade,
           settings: settings,
@@ -197,10 +197,10 @@ class HomeController extends GetxController {
         Get.offNamed(AppRoutes.leads, id: 2);
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
-        Get.offNamed(AppRoutes.performance, id: 2);
+        Get.offNamed(AppRoutes.calender, id: 2);
       } else if (sidebarXController.selectedIndex == 6 &&
           selectedIndex.value != 6) {
-        Get.offNamed(AppRoutes.calender, id: 2);
+        Get.offNamed(AppRoutes.performance, id: 2);
       } else if (sidebarXController.selectedIndex == 7 &&
           selectedIndex.value != 7) {
         Get.offNamed(AppRoutes.ordersScreen, id: 2);

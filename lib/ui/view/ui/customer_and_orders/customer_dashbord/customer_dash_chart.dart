@@ -1513,6 +1513,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                       onContinueShopping: onContinueShopping,
                                                                                       isFromCustomerDach: true,
                                                                                       isDashboard: false,
+                                                                                      customerId: widget.customerId,
                                                                                     );
                                                                                   },
                                                                                 );

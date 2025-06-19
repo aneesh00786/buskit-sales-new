@@ -384,47 +384,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     });
   }
 
-  Future<bool> _handleLocationPermission(BuildContext context) async {
-    PermissionStatus status = await Permission.locationWhenInUse.status;
-
-    if (status.isDenied) {
-      status = await Permission.locationWhenInUse.request();
-      if (status.isGranted) {
-        return true;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied')),
-        );
-        return false;
-      }
-    } else if (status.isPermanentlyDenied) {
-      bool? openSettings = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Permission Required'),
-          content: const Text(
-              'Location permission is permanently denied. Open settings to enable it.'),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            ElevatedButton(
-              child: const Text('Open Settings'),
-              onPressed: () {
-                openAppSettings();
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        ),
-      );
-      return openSettings ?? false;
-    }
-
-    return true; 
-  }
-
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !_onSwitchSelected;
     bool? confirmAction = await showDialog<bool>(
@@ -449,7 +408,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     );
 
     if (confirmAction == true) {
-      if (!await _handleLocationPermission(context)) {
+      if (!await handleLocationPermission(context)) {
         return;
       }
 
@@ -489,3 +448,44 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
     }
   }
 }
+
+Future<bool> handleLocationPermission(BuildContext context) async {
+    PermissionStatus status = await Permission.locationWhenInUse.status;
+
+    if (status.isDenied) {
+      status = await Permission.locationWhenInUse.request();
+      if (status.isGranted) {
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permission denied')),
+        );
+        return false;
+      }
+    } else if (status.isPermanentlyDenied) {
+      bool? openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+              'Location permission is permanently denied. Open settings to enable it.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              child: const Text('Open Settings'),
+              onPressed: () {
+                openAppSettings();
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        ),
+      );
+      return openSettings ?? false;
+    }
+
+    return true; 
+  }

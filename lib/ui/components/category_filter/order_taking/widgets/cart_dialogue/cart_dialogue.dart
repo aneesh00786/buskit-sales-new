@@ -156,10 +156,12 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     localCounts = List<int>.filled(cartItems.length, 0);
-    log('Customer ID in INitstate : ${widget.customerOrderController?.customerId.value ?? ''}');
+    log('Customer ID in INitstate : ${widget.customerId ?? ''}');
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
-        widget.customerOrderController?.customerId.value ?? '');
+        // widget.customerOrderController?.customerId.value ?? ''
+        widget.customerId ?? ''
+        );
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
@@ -184,11 +186,12 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _loadCartItems() async {
     try {
-      final customerId =
-          (widget.customerOrderController!.customerId.value.isNotEmpty
-              ? widget.customerOrderController!.customerId.value
-              : widget.productsController.selectedCustomerId.value);
-      cartItems = await CartDatabaseManager().getCartItems(customerId);
+      final customerId = widget.customerId;
+
+          // (widget.customerOrderController!.customerId.value.isNotEmpty
+          //     ? widget.customerOrderController!.customerId.value
+          //     : widget.productsController.selectedCustomerId.value);
+      cartItems = await CartDatabaseManager().getCartItems(customerId??'');
       log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
@@ -495,7 +498,7 @@ class CartDialogueState extends State<CartDialogue> {
                             height: 100,
                             child: Center(
                               child: CustomText(
-                                content: 'Your cart is empty.',
+                                content: 'Your cart is empty 2.',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: black,
@@ -1383,6 +1386,9 @@ class CartDialogueState extends State<CartDialogue> {
                                       "true";
                               final isCheckedIn = widget.active == true;
 
+                              log("isCheckedIn: $isCheckedIn");
+                              log("hasCheckInOutPermission: $hasCheckInOutPermission");
+
                               if (isCheckedIn ||
                                   (!isCheckedIn && !hasCheckInOutPermission)) {
                                 final sanitizedText = totalQuickController.text
@@ -1400,13 +1406,16 @@ class CartDialogueState extends State<CartDialogue> {
                                 }
 
                                 final finalAmount = double.parse(sanitizedText);
-                                final customerId =
-                                    customeController.customerId.isNotEmpty
-                                        ? customeController.customerId.value
-                                        : widget.productsController
-                                            .selectedCustomerId.value;
+                                final customerId = widget.customerId;
+                                    // customeController.customerId.isNotEmpty
+                                    //     ? customeController.customerId.value
+                                    //     : 
+                                    // widget.productsController
+                                    //         .selectedCustomerId.value;
+
+                                log("new customerId : $customerId");
                                 final cartDetails = await CartDatabaseManager()
-                                    .getDraftAndCartIdsFromApi(customerId);
+                                    .getDraftAndCartIdsFromApi(customerId ?? '');
                                 await Future.delayed(
                                     const Duration(seconds: 1));
                                 final firstOrder = cartDetails.isNotEmpty
@@ -1438,7 +1447,7 @@ class CartDialogueState extends State<CartDialogue> {
                                     );
                                   }
                                 } else {
-                                  log('CustomerId : $customerId');
+                                  log('CustomerIdz : $customerId');
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
                                     context: context,
@@ -1610,13 +1619,16 @@ class CartDialogueState extends State<CartDialogue> {
       ...orderItems.where((item) => item.isChecked == true),
       ...preorderItems.where((item) => item.isChecked == true),
     ];
-    String customerId = customeController.customerId.isNotEmpty
-        ? customeController.customerId.value
-        : widget.productsController.selectedCustomerId.value;
+    String customerId = widget.customerId??'';
+    // customeController.customerId.isNotEmpty
+    //     ? customeController.customerId.value
+    //     : widget.productsController.selectedCustomerId.value;
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
-        (customeController.customerId.value.isNotEmpty ||
-            widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+        (widget.customerId!=''
+          // customeController.customerId.value.isNotEmpty ||
+          //   widget.productsController.selectedCustomerId.value.isNotEmpty
+            )) {
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
@@ -1788,8 +1800,11 @@ class CartDialogueState extends State<CartDialogue> {
       }
     } else {
       Navigator.pop(context);
-      if (customeController.customerId.value.isEmpty ||
-          widget.productsController.selectedCustomerId.value.isEmpty) {
+      if (
+        // customeController.customerId.value.isEmpty ||
+        //   widget.productsController.selectedCustomerId.value.isEmpty
+        widget.customerId == ''
+          ) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
@@ -1801,7 +1816,7 @@ class CartDialogueState extends State<CartDialogue> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Your cart is empty'),
+            content: Text('Your cart is empty 1'),
             duration: Duration(seconds: 3),
           ),
         );
@@ -1885,9 +1900,10 @@ class CartDialogueState extends State<CartDialogue> {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
     final orderData = {
       'order_id': orderId,
-      'customer_id': customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
+      'customer_id': widget.customerId ?? '',
+      // customeController.customerId.isNotEmpty
+      //     ? customeController.customerId.value
+      //     : widget.productsController.selectedCustomerId.value,
       'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
       'order_price': finalAmount,
       'paymentType': paymentType,
@@ -1976,10 +1992,10 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<dynamic> showVariantDeleteDialog(
       BuildContext context, String productName, bool isPreOrder, bool isDraft) {
-    String customerId =
-        widget.customerOrderController!.customerId.value.isNotEmpty
-            ? widget.customerOrderController?.customerId.value ?? ''
-            : widget.productsController.selectedCustomerId.value;
+    String customerId = widget.customerId??'';
+        // widget.customerOrderController!.customerId.value.isNotEmpty
+        //     ? widget.customerOrderController?.customerId.value ?? ''
+        //     : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
@@ -2045,10 +2061,10 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
-    final String customerId =
-        widget.customerOrderController!.customerId.value.isNotEmpty
-            ? widget.customerOrderController!.customerId.value
-            : widget.productsController.selectedCustomerId.value;
+    final String customerId = widget.customerId ?? '';
+        // widget.customerOrderController!.customerId.value.isNotEmpty
+        //     ? widget.customerOrderController!.customerId.value
+        //     : widget.productsController.selectedCustomerId.value;
     setState(() {
       variantToDelete.detail.count = 0;
       CartDatabaseManager().updateCart(variantToDelete);

@@ -335,3 +335,86 @@ class RouteCreditResponse {
     };
 }
 
+class FetchOnlyCustomer {
+  int statusCode;
+  bool status;
+  String message;
+  List<FetchOnlyCustomerData> data;
+
+  FetchOnlyCustomer({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory FetchOnlyCustomer.fromJson(Map<String, dynamic> json) =>
+      FetchOnlyCustomer(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: List<FetchOnlyCustomerData>.from(
+            json["data"].map((x) => FetchOnlyCustomerData.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+      };
+}
+
+class FetchOnlyCustomerData {
+  String eventId;
+  String scheduleTime;
+  DateTime? checkIn;
+  DateTime start;
+  String customerId;
+  String fullname;
+  String mobileno;
+  String email;
+  String businessName;
+  String imageUrl;
+
+  FetchOnlyCustomerData({
+    required this.eventId,
+    required this.scheduleTime,
+    required this.checkIn,
+    required this.start,
+    required this.customerId,
+    required this.fullname,
+    required this.mobileno,
+    required this.email,
+    required this.businessName,
+    required this.imageUrl,
+  });
+
+  factory FetchOnlyCustomerData.fromJson(Map<String, dynamic> json) =>
+      FetchOnlyCustomerData(
+        eventId: json["event_id"],
+        scheduleTime: json["schedule_time"],
+        checkIn:
+            json["check_in"] == null ? null : DateTime.parse(json["check_in"]),
+        start: DateTime.parse(json["start"]),
+        customerId: json["customer_id"],
+        fullname: json["fullname"],
+        mobileno: json["mobileno"],
+        email: json["email"],
+        businessName: json["business_name"],
+        imageUrl: json["image_url"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "event_id": eventId,
+        "schedule_time": scheduleTime,
+        "check_in": checkIn?.toIso8601String(),
+        "start": start.toIso8601String(),
+        "customer_id": customerId,
+        "fullname": fullname,
+        "mobileno": mobileno,
+        "email": email,
+        "business_name": businessName,
+        "image_url": imageUrl,
+      };
+}

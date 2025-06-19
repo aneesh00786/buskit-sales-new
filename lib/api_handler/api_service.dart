@@ -224,7 +224,7 @@ class ApiService {
       "time_range": fetchType,
       "selected_range": sendData,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "year": 2025,
+      "year": DateTime.now().year,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
@@ -271,7 +271,7 @@ class ApiService {
     final requestBody = {
       "month": catId,
       "time_range": "Month",
-      "year": 2025,
+      "year": DateTime.now().year,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };

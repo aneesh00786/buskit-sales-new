@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -71,10 +72,12 @@ void navigateToo(
 
 class _CustomerMapScreenState extends State<CustomerMapScreen>
     with WidgetsBindingObserver {
-  final CalenderMapController _mapController = Get.put(CalenderMapController());
+  final CalenderMapController _mapController = Get.find<CalenderMapController>();
   final HomeController homeController = Get.put(HomeController());
   final ProductsController productsController = Get.put(ProductsController());
   final subscriptionController = Get.find<SubscriptionController>();
+  final CustomerAndOrderController customerAndOrderController =
+      Get.find<CustomerAndOrderController>();
 
   bool navigatedToMap = false;
   Customer? selectedCustomer;
@@ -146,6 +149,21 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
+                      customerAndOrderController
+                      .setCustomerId(customer.customerId ?? '');
+                      productsController
+                                                        .selectedCustomerName
+                                                        .value =
+                                                    customer.businessName ?? '';
+                                                productsController
+                                                        .selectedCustomerId
+                                                        .value =
+                                                    customer.customerId ?? '';
+                                                productsController
+                                                    .selectedCustomerImageUrl
+                                                    .value = customer
+                                                        .imageUrl ?? 
+                                                    '';
                   Get.to(
                     () => CustomerDachScreen(
                       isFromGoogle: true,
@@ -277,7 +295,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 ),
               ),
               Expanded(child: Obx(() {
-                log('Customer List Length: ${_mapController.selectedCustomers.length}');
+                log('Customer List Length: ${_mapController.selectedCustomers}');
                 return ListView.builder(
                   itemCount: _mapController.selectedCustomers.length,
                   itemBuilder: (context, index) {

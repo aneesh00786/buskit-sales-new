@@ -65,6 +65,7 @@ mixin class ApiConstants {
   static const String fetchcategories = "fetch_categories";
   /// Product Api
   static const String fetchproduct = "fetch_product";
+  static const String updateCheckinCustomer = "Update_checkin_customer";
   /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
@@ -76,6 +77,8 @@ mixin class ApiConstants {
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
   static const String getRouteCredit = "get_routeCredit";
+    static const String fetchOnlyCustomerData = "fetch_only_customer_data";
+      static const String scheduleVisit = "ScheduleVisit";
   /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";

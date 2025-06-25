@@ -72,9 +72,10 @@ void navigateToo(
 
 class _CustomerMapScreenState extends State<CustomerMapScreen>
     with WidgetsBindingObserver {
-  final CalenderMapController _mapController = Get.find<CalenderMapController>();
+  final CalenderMapController _mapController =
+      Get.find<CalenderMapController>();
   final HomeController homeController = Get.put(HomeController());
-  final ProductsController productsController = Get.put(ProductsController());
+  final ProductsController productsController = Get.find<ProductsController>();
   final subscriptionController = Get.find<SubscriptionController>();
   final CustomerAndOrderController customerAndOrderController =
       Get.find<CustomerAndOrderController>();
@@ -149,21 +150,14 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       DateFormat('yyyy-MM-dd').format(startDate);
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
-                      customerAndOrderController
+                  customerAndOrderController
                       .setCustomerId(customer.customerId ?? '');
-                      productsController
-                                                        .selectedCustomerName
-                                                        .value =
-                                                    customer.businessName ?? '';
-                                                productsController
-                                                        .selectedCustomerId
-                                                        .value =
-                                                    customer.customerId ?? '';
-                                                productsController
-                                                    .selectedCustomerImageUrl
-                                                    .value = customer
-                                                        .imageUrl ?? 
-                                                    '';
+                  productsController.selectedCustomerName.value =
+                      customer.businessName ?? '';
+                  productsController.selectedCustomerId.value =
+                      customer.customerId ?? '';
+                  productsController.selectedCustomerImageUrl.value =
+                      customer.imageUrl ?? '';
                   Get.to(
                     () => CustomerDachScreen(
                       isFromGoogle: true,
@@ -210,8 +204,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
         leading: InkWell(
             onTap: () {
               Navigator.pop(context);
-              homeController.sidebarXController.selectIndex(6);
-              homeController.selectedIndex.value = 6;
+              homeController.sidebarXController.selectIndex(5);
+              homeController.selectedIndex.value = 5;
               Get.toNamed(AppRoutes.calender, id: 2);
             },
             child: const Icon(

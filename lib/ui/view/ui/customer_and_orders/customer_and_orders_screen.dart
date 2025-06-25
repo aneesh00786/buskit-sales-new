@@ -2417,7 +2417,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       Get.put(CustomerAndOrderController());
   final StaffController staffController = Get.put(StaffController());
   final LeadsController leadsController = Get.put(LeadsController());
-  final ProductsController prodController = Get.put(ProductsController());
+  final ProductsController prodController = Get.find<ProductsController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
   String? startDate;

@@ -52,8 +52,11 @@ class CalenderMapController extends GetxController {
 
   RxString routeCredit = ''.obs;
 
+  RxBool initChecklistLoading = false.obs;
+
   void initializeCheckedList(
       int length, List<CalendarEventData<EventData>> eventData) {
+        initChecklistLoading.value = true;
     checkedList.value = List<bool>.filled(length, true).toList();
     for (int i = 0; i < eventData.length; i++) {
       if (checkedList[i]) {
@@ -72,6 +75,7 @@ class CalenderMapController extends GetxController {
             !selectedCustomers.contains(customer), customer);
       }
     }
+    initChecklistLoading.value = false;
   }
 
   void clearSelections() {

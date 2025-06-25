@@ -104,17 +104,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   void _navigateToOrderTaking() {
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    final customerId = widget.productsController?.selectedCustomerId.value;
+    final customerId = productsController.selectedCustomerId.value;
     customerOrderController
         .setCustomerId(customerOrderController.customerId.value);
     cartProvider.updateCartCount(customerOrderController.customerId.value);
-    log('Customer Id :${customerOrderController.customerId.value}');
+    log('CustomerId 2 :${customerOrderController.customerId.value}');
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => OrderTaking(
           productsController: productsController,
-          selectedCustId: widget.cusId ??  widget.productsController?.selectedCustomerId.value,
+          selectedCustId:
+              widget.cusId ?? productsController.selectedCustomerId.value,
           selectedCustName: widget.cusName,
           selectedCustImageUrl: widget.cusImage,
           //  ?? ProductsController(),
@@ -124,7 +125,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         ),
       ),
     ).then((value) {
-      cartProvider.fetchCustomerDashboardCountData(customerId ?? widget.productsController?.selectedCustomerId.value?? '');
+      cartProvider.fetchCustomerDashboardCountData(customerId);
     });
   }
 
@@ -147,7 +148,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       context: context,
       builder: (context) {
         log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
-        log("Customer Id checkout: ${widget.cusId ??  widget.productsController?.selectedCustomerId.value}");
+        log("Customer Id checkout: ${widget.cusId ?? productsController.selectedCustomerId.value}");
         return AlertDialog(
           title: const Text('Customer Check-Out'),
           content: const Text('Customer will be checked-out !'),
@@ -180,7 +181,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     direction: "OUT",
                     lat: position.latitude.toString(),
                     long: position.longitude.toString(),
-                    customerId: widget.productsController?.selectedCustomerId.value ,
+                    customerId: productsController.selectedCustomerId.value,
                   );
 
                   if (response.statusCode != 200) {
@@ -209,10 +210,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget build(BuildContext context) {
     final customerName = widget.isFromCalendar
         ? widget.cusName ?? ''
-        : widget.productsController?.selectedCustomerName.value;
+        : productsController.selectedCustomerName.value;
     final customerImage = widget.isFromCalendar
         ? widget.cusImage ?? ''
-        : widget.productsController?.selectedCustomerImageUrl.value;
+        : productsController.selectedCustomerImageUrl.value;
     String? startDate;
     String? endDate;
     double screenWidth = fullScreenWidth(context);
@@ -231,31 +232,34 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () async {
-                log("Customer Id backbutton : ${widget.cusId??  widget.productsController?.selectedCustomerId.value}");
+                log("Customer Id backbutton : ${widget.cusId ?? productsController.selectedCustomerId.value}");
                 log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
                 // log('Is Direct ${widget.isDirectDialogue}');
                 // log('Is Calender ${widget.isFromCalendar}');
                 if (widget.isFromGoogle) {
-                   bool shouldProceed = await checkCustomerOut();
-                  if (shouldProceed){homeController.sidebarXController.selectIndex(6);
-                  homeController.selectedIndex.value = 6;
-                  Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          CustomerMapScreen(
-                        istoGoogleMap: widget.isFromGoogle,
+                  bool shouldProceed = await checkCustomerOut();
+                  if (shouldProceed) {
+                    homeController.sidebarXController.selectIndex(5);
+                    homeController.selectedIndex.value = 5;
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            CustomerMapScreen(
+                          istoGoogleMap: widget.isFromGoogle,
+                        ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
                       ),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
-                    ),
-                  );}
+                    );
+                  }
                 } else if (widget.isDirectDialogue) {
                   bool shouldProceed = await checkCustomerOut();
                   if (shouldProceed) {
-                    homeController.sidebarXController.selectIndex(6);
-                    homeController.selectedIndex.value = 6;
+                    homeController.sidebarXController.selectIndex(5);
+                    homeController.selectedIndex.value = 5;
                     customerOrderController.isActive.value = false;
                     Get.toNamed(AppRoutes.calender, id: 2);
                   }
@@ -294,8 +298,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     "true") {
                   _navigateToOrderTaking();
                 }
-                CartDatabaseManager().getCartItems(
-                    widget.productsController?.selectedCustomerId.value ?? '');
+                CartDatabaseManager()
+                    .getCartItems(productsController.selectedCustomerId.value);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -349,7 +353,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               constraints: const BoxConstraints(
                                   maxWidth: double.infinity),
                               child: MyRegularText(
-                                label: customerName ?? '',
+                                label: customerName,
                                 fontSize: 8.8,
                                 maxlines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -386,14 +390,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: widget.cusId ??  widget.productsController?.selectedCustomerId.value ?? '',
+                          customerId: widget.cusId ??
+                              productsController.selectedCustomerId.value,
                           customType: "",
                           customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,
                           userId: "",
                           startDate: startDate,
                           endDate: endDate,
-                          productsController: widget.productsController,
+                          productsController: productsController,
                           onContinueShopping: _navigateToOrderTaking,
                         ),
                         const SizedBox(height: 5.7),
@@ -525,12 +530,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                              widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
+                              widget.cusId ??
+                                  productsController.selectedCustomerId.value,
                             );
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.cusId??  widget.productsController?.selectedCustomerId.value?? '');
+                                    widget.cusId ??
+                                        productsController
+                                            .selectedCustomerId.value);
                           });
                         },
                         items: provider.yearList
@@ -554,7 +562,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           showCustomerCategoryChartDialog(
                             context,
                             "Category Sales",
-                            widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
+                            widget.cusId ??
+                                productsController.selectedCustomerId.value,
                             selectedYear,
                           );
                         },
@@ -602,7 +611,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.cusId ??  widget.productsController?.selectedCustomerId.value?? '',
+                                  customerId: widget.cusId ??
+                                      productsController
+                                          .selectedCustomerId.value,
                                   year: selectedYear,
                                 ),
                               );
@@ -765,7 +776,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Provider.of<CustomersProvider>(context,
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
-                                        widget.cusId ??  widget.productsController?.selectedCustomerId.value??'',
+                                        widget.cusId ??
+                                            productsController
+                                                .selectedCustomerId.value,
                                       );
                                     });
                                   },

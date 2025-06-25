@@ -115,16 +115,13 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                       .where((e) => e.event?.customerId != null)
                       .map((e) => e.event!.customerId!)
                       .toList(),
-                  // salesmanCustomers[salesmanVisits
-                  //         .keys
-                  //         .elementAt(i)] ??
-                  //     []
                 );
                 Get.dialog(SelectCustomerDiloag(
                   dateTime: date,
                   calenderMapController: widget.calenderController,
                   eventData: event,
-                ));
+                ),
+                barrierDismissible: false,);
                 log('Date : $date');
               }
             } else {

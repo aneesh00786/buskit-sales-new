@@ -298,7 +298,8 @@ class LoginController extends GetxController {
               monthName: currentMonthName,
               compId: companyId,
               isFromLogin: true),
-          _apiWorker.fetchSalesmanTarget(salesmanId, currentMonthName, DateTime.now().year.toString(),
+          _apiWorker.fetchSalesmanTarget(
+              salesmanId, currentMonthName, DateTime.now().year.toString(),
               compId: companyId, isFromLogin: true),
           _apiWorker.fetchSalesmanValueTarget(
               salesmanId, DateTime.now().year.toString(), currentMonthName,
@@ -307,21 +308,9 @@ class LoginController extends GetxController {
           leadsCustomerController.loadLeadsCustomerData,
           leadsRejectedController.loadRejectedLeadsData,
           ApiWorker().fetchDiscounts(companyId, salesmanId),
-          CartDatabaseManager().getDraftItems(),
-          calenderMapController.fetchCalenderEvents(DateTime.now()),
-          ApiWorker()
-              .getRecentOrdersData(
-                searchModel: searchData,
-                orderStatus: 11,
-                isLogin: true,
-                startDate: '',
-                endDate: '',
-                page: 1,
-              )
-              .then((data) =>
-                  log("Recent orders fetched successfully. Data: ${data.data}"))
-              .catchError((e) => log("Error while fetching recent orders: $e"))
         ]);
+        calenderMapController.fetchCalenderEvents(DateTime.now());
+        CartDatabaseManager().getDraftItems();
         // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
         ApiService().fetchAllOrders(
             isLogin: true,
@@ -348,6 +337,18 @@ class LoginController extends GetxController {
             orderType: 3,
             orderStatus: OrderStatus.cancelled,
             fetchType: "Month");
+        ApiWorker()
+            .getRecentOrdersData(
+              searchModel: searchData,
+              orderStatus: 11,
+              isLogin: true,
+              startDate: '',
+              endDate: '',
+              page: 1,
+            );
+            // .then((data) =>
+            //     log("Recent orders fetched successfully. Data: ${data.data}"))
+            // .catchError((e) => log("Error while fetching recent orders: $e"));
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
         }

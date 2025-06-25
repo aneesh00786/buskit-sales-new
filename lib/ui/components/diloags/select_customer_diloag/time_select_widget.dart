@@ -33,249 +33,65 @@ class _TimePickerFieldState extends State<TimePickerField> {
     super.initState();
     log('TIMEE widget : ${widget.initialHour} : ${widget.initialMinute}   ${widget.initialPeriod}');
     selectedHour = widget.initialHour;
-    //  == '' ? widget.initialHour : '__';
     selectedMinute = widget.initialMinute;
-    //  == '' ? widget.initialMinute : '__';
     selectedPeriod = widget.initialPeriod;
-    //  == '' ? widget.initialPeriod : '_';
     log('TIMEE : $selectedHour : $selectedMinute   $selectedPeriod');
   }
 
-  void showTimePickerPopup() {
-    showDialog(
+  void showTimePickerPopup() async {
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
-      builder: (context) {
-        return Dialog(
-          clipBehavior: Clip.antiAlias,
-          child: SizedBox(
-            height: 400,
-            width: 300,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            "Hr",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            "Min",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            "AM/PM",
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 1,
-                  child: Divider(
-                    color: black,
-                    thickness: 1,
-                  ),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // Scroll lists
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Hour
-                          Expanded(
-                            child: ListWheelScrollView.useDelegate(
-                              itemExtent: 40,
-                              onSelectedItemChanged: (index) {
-                                setState(() {
-                                  selectedHour = hourList[index];
-                                });
-                              },
-                              perspective: 0.002,
-                              physics: const FixedExtentScrollPhysics(),
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                childCount: hourList.length,
-                                builder: (context, index) {
-                                  return Center(
-                                    child: Text(
-                                      hourList[index],
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-
-                          // Minute
-                          Expanded(
-                            child: ListWheelScrollView.useDelegate(
-                              itemExtent: 40,
-                              onSelectedItemChanged: (index) {
-                                setState(() {
-                                  selectedMinute = minuteList[index];
-                                });
-                              },
-                              perspective: 0.002,
-                              physics: const FixedExtentScrollPhysics(),
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                childCount: minuteList.length,
-                                builder: (context, index) {
-                                  return Center(
-                                    child: Text(
-                                      minuteList[index],
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-
-                          // AM/PM
-                          Expanded(
-                            child: ListWheelScrollView.useDelegate(
-                              itemExtent: 40,
-                              onSelectedItemChanged: (index) {
-                                setState(() {
-                                  selectedPeriod = periodList[index];
-                                });
-                              },
-                              perspective: 0.002,
-                              physics: const FixedExtentScrollPhysics(),
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                childCount: periodList.length,
-                                builder: (context, index) {
-                                  return Center(
-                                    child: Text(
-                                      periodList[index],
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Highlight overlay (center selection lines)
-                      Align(
-                        alignment: Alignment.center,
-                        child: IgnorePointer(
-                          child: Container(
-                            height: 40, // Same as itemExtent
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black12,
-                              border: Border(
-                                top: BorderSide(color: Colors.blue, width: 2),
-                                bottom:
-                                    BorderSide(color: Colors.blue, width: 2),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 1,
-                  child: Divider(
-                    color: black,
-                    thickness: 1,
-                  ),
-                ),
-                SizedBox(
-                  height: 60,
-                  child: Center(
-                    child: CustomButton(
-                      text: "OK",
-                      color: primaryColor,
-                      onPressed: () {
-                        if (selectedHour == "__") {
-                          setState(() {
-                            selectedHour = "01";
-                          });
-                        }
-                        if (selectedMinute == "__") {
-                          setState(() {
-                            selectedMinute = "00";
-                          });
-                        }
-                        if (selectedPeriod == "_") {
-                          setState(() {
-                            selectedPeriod = "AM";
-                          });
-                        }
-
-                        // Convert to 24-hour format
-                        int hour = int.parse(
-                            selectedHour == '__' ? '01' : selectedHour);
-                        String minute =
-                            selectedMinute == '__' ? '00' : selectedMinute;
-
-                        if (selectedPeriod == 'PM' && hour != 12) {
-                          hour += 12;
-                        } else if (selectedPeriod == 'AM' && hour == 12) {
-                          hour = 0;
-                        }
-
-                        final formattedTime =
-                            '${hour.toString().padLeft(2, '0')}:$minute';
-
-                        // Send back to parent
-                        widget.onTimeSelected(widget.eventId, formattedTime);
-
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ),
-              ],
+      initialTime: TimeOfDay(
+        hour: int.tryParse(widget.initialHour) ?? 1,
+        minute: int.tryParse(widget.initialMinute) ?? 0,
+      ),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: Colors.white,
+              dialHandColor: primaryColor, // color of the moving clock hand
+              dialBackgroundColor: Colors.blue.shade50,
+              hourMinuteColor: WidgetStateColor.resolveWith(
+                  (states) => Colors.blue), // background of hour/min container
+              hourMinuteTextColor: WidgetStateColor.resolveWith(
+                  (states) => Colors.white), // text color inside hour/min
+              entryModeIconColor: primaryColor, // icon color
+            ),
+            colorScheme: ColorScheme.light(
+              primary: primaryColor, // selected hour/minute color
+              onPrimary: Colors.white, // text color on selected
+              onSurface: Colors.black, // other text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: primaryColor, // OK / CANCEL button color
+              ),
             ),
           ),
+          child: child!,
         );
       },
     );
+
+    if (picked != null) {
+      int hour = picked.hour;
+      int minute = picked.minute;
+
+      // Determine AM/PM
+      String period = hour >= 12 ? 'PM' : 'AM';
+      int displayHour = hour % 12 == 0 ? 12 : hour % 12;
+
+      setState(() {
+        selectedHour = displayHour.toString().padLeft(2, '0');
+        selectedMinute = minute.toString().padLeft(2, '0');
+        selectedPeriod = period;
+      });
+
+      final formattedTime =
+          '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+      widget.onTimeSelected(widget.eventId, formattedTime);
+    }
   }
 
   List<String> hourList =

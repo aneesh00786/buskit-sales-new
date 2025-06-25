@@ -25,7 +25,7 @@ class _CustomerOrderDetailsScreenState
     extends State<CustomerOrderDetailsScreen> {
   CustomerOrderDetailsController customerOrderDetailsController =
       Get.put(CustomerOrderDetailsController());
-  ProductsController productsController = Get.put(ProductsController());
+  ProductsController productsController = Get.find<ProductsController>();
 
   @override
   void initState() {

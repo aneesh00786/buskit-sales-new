@@ -69,7 +69,7 @@ class _OptionWidgetState extends State<OptionWidget> {
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
 
-  ProductsController productsController = Get.put(ProductsController());
+  ProductsController productsController = Get.find<ProductsController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
   final ScrollController _scrollController1 = ScrollController();

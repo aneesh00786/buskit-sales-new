@@ -926,11 +926,11 @@ class ApiWorker with ApiConstants {
       }
     }
 
-    if (allEvents.isEmpty) {
-      log('⚠️ No events found in API or cache');
-      throw Exception(
-          'No events available, and no internet connection to fetch them.');
-    }
+    // if (allEvents.isEmpty) {
+    //   log('⚠️ No events found in API or cache');
+    //   throw Exception(
+    //       'No events available, and no internet connection to fetch them.');
+    // }
 
     log('Events loaded: ${allEvents.length}');
     return allEvents;
@@ -1137,8 +1137,9 @@ class ApiWorker with ApiConstants {
         if (ordersBox.containsKey(cacheKey)) {
           return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
         } else {
-          errorSnackbar("No cached data available after API failure.");
-          throw Exception('Failed to fetch data and no cached data available.');
+          log("No cached data available after API failure.");
+          // errorSnackbar("No cached data available after API failure.");
+          // throw Exception('Failed to fetch data and no cached data available.');
         }
       }
     }
@@ -1146,7 +1147,8 @@ class ApiWorker with ApiConstants {
       return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
     } else {
       log('No cached data available offline for key: $cacheKey');
-      throw Exception("No internet connection and no cached data available.");
+      // throw Exception("No internet connection and no cached data available.");
+      return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
     }
   }
 

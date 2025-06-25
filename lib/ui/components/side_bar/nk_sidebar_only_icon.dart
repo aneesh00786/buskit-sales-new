@@ -48,7 +48,7 @@ class NkSideBarOnlyIcon extends StatefulWidget {
 }
 
 class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
-  ProductsController productController = Get.put(ProductsController());
+  ProductsController productController = Get.find<ProductsController>();
   CustomerAndOrderController customerOrderController =
       Get.put(CustomerAndOrderController());
   HomeController homeController = Get.put(HomeController());

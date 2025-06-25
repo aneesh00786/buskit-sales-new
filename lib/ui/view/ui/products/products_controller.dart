@@ -75,7 +75,7 @@ class ProductsController extends GetxController {
     final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
     log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
 
-    log("handle back nav customerID : $customerId");
+    log("handle back nav customerID 3 : $customerId");
 
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customerId.isNotEmpty &&
@@ -190,8 +190,8 @@ class ProductsController extends GetxController {
           homeController.sidebarXController.selectIndex(0);
           homeController.selectedIndex.value = 0;
           Get.toNamed(AppRoutes.dashboard, id: 2);
-          selectedCustomerName.value = '';
-          selectedCustomerImageUrl.value = '';
+          // selectedCustomerName.value = '';
+          // selectedCustomerImageUrl.value = '';
         });
         CartDatabaseManager().cartItems.clear();
         CartDatabaseManager().clearCart(customerId: customerId);
@@ -257,8 +257,8 @@ class ProductsController extends GetxController {
         homeController.sidebarXController.selectIndex(0);
         homeController.selectedIndex.value = 0;
         Get.toNamed(AppRoutes.dashboard, id: 2);
-        selectedCustomerName.value = '';
-        selectedCustomerImageUrl.value = '';
+        // selectedCustomerName.value = '';
+        // selectedCustomerImageUrl.value = '';
       });
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearCart(customerId: customerId);

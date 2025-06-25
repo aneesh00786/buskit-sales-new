@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -23,13 +22,18 @@ class _CalenderScreenState extends State<CalenderScreen> {
   HomeController homeController = Get.find<HomeController>();
   @override
   void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future initialize() async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    calenderController.fetchCalenderEvents(startOfMonth);
+    await calenderController.fetchCalenderEvents(startOfMonth);
     calenderController.loadCalenderEventV1;
-        calenderController.getRouteCredit();
-    super.initState();
+    await calenderController.getRouteCredit();
   }
+
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
@@ -66,11 +70,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                           children: [
                             CustomText(content: 'Route Credit :  '),
                             CustomText(
-                              content: calenderController
-                                      .isRouteCreditLoading.value
-                                  ? 'Loading...'
-                                  : formatAmount(
-                                      calenderController.routeCredit.value),
+                              content:
+                                  calenderController.isRouteCreditLoading.value
+                                      ? 'Loading...'
+                                      : formatAmount(
+                                          calenderController.routeCredit.value),
                               color: Colors.blue.shade600,
                             ),
                           ],

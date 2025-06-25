@@ -64,7 +64,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
       Get.put(RejectedLeadsController());
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
-  ProductsController productsController = Get.put(ProductsController());
+  ProductsController productsController = Get.find<ProductsController>();
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
     SearchModel searchData = SearchModel();

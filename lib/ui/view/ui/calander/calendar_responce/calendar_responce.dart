@@ -367,7 +367,7 @@ class FetchOnlyCustomer {
 
 class FetchOnlyCustomerData {
   String eventId;
-  String scheduleTime;
+  String? scheduleTime;
   DateTime? checkIn;
   DateTime start;
   String customerId;

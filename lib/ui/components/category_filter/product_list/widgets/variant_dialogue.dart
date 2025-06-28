@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -143,22 +144,183 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                   padding: const EdgeInsets.only(left: 20),
                   child: Row(
                     children: [
-                      Hero(
-                        tag: 'product_image',
-                        child: Container(
-                          height: screenHeight * 0.12,
-                          width: screenHeight * 0.12,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: widget.product.imageUrl == null
-                                  ? const AssetImage('assets/images/otp.png')
-                                      as ImageProvider
-                                  : NetworkImage(
-                                      '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}' 
+                      GestureDetector(
+                        onTap: () {
+                          if (widget.product.imageUrl == null) {
+                            // Show asset image directly
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadiusGeometry.circular(20)),
+                                backgroundColor: Colors.transparent,
+                                insetPadding: const EdgeInsets.all(50.0),
+                                content: SizedBox(
+                                  width: constraints.maxWidth * 0.8,
+                                  height: constraints.maxWidth * 0.8,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.black,
+                                        ),
+                                        padding: const EdgeInsets.all(10),
+                                        child: Center(
+                                          child: InteractiveViewer(
+                                            minScale: 0.5,
+                                            maxScale: 4.0,
+                                            child: Image.asset(
+                                                'assets/images/otp.png'),
                                           ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: dialogCloseButton1(context, red),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Show loading dialog first for network images
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                backgroundColor: Colors.transparent,
+                                content: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            );
+
+                            // Check if image is loaded
+                            final imageUrl =
+                                '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}';
+                            final imageProvider = NetworkImage(imageUrl);
+
+                            imageProvider
+                                .resolve(const ImageConfiguration())
+                                .addListener(
+                                  ImageStreamListener((info, _) {
+                                    Navigator.of(context).pop();
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadiusGeometry.circular(
+                                                    20)),
+                                        backgroundColor: Colors.transparent,
+                                        insetPadding:
+                                            const EdgeInsets.all(50.0),
+                                        content: SizedBox(
+                                          width: constraints.maxWidth * 0.8,
+                                          height: constraints.maxWidth * 0.8,
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  color: Colors.white,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                child: Center(
+                                                  child: InteractiveViewer(
+                                                    minScale: 0.5,
+                                                    maxScale: 4.0,
+                                                    child: Image.network(
+                                                      imageUrl,
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return const Center(
+                                                          child: Icon(
+                                                            Icons.error_outline,
+                                                            color: Colors.white,
+                                                            size: 50,
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: dialogCloseButton1(
+                                                    context, red),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }, onError: (exception, stackTrace) {
+                                    // Image failed to load, close loading dialog and show error
+                                    Navigator.of(context).pop();
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        backgroundColor: Colors.transparent,
+                                        content: const Center(
+                                          child: Icon(
+                                            Icons.error_outline,
+                                            color: Colors.white,
+                                            size: 50,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                );
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                              height: screenHeight * 0.12,
+                              width: screenHeight * 0.12,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             ),
-                          ),
+                            Hero(
+                              tag: 'product_image',
+                              child: Container(
+                                padding: const EdgeInsets.all(15),
+                                height: screenHeight * 0.12,
+                                width: screenHeight * 0.12,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: widget.product.imageUrl == null
+                                        ? const AssetImage(
+                                            'assets/images/otp.png')
+                                        : NetworkImage(
+                                                '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}')
+                                            as ImageProvider,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(
@@ -199,434 +361,451 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 SizedBox(
-                  width: screenWidth * 0.85,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SizedBox(
-                      width: screenWidth * 0.85,
-                      child: DataTable(
-                        headingRowHeight: screenHeight * 0.03,
-                        // ignore: deprecated_member_use
-                        dataRowHeight: screenHeight * 0.05,
-                        columnSpacing: columnSpacing,
-                        headingRowColor:
-                            const WidgetStatePropertyAll(secondaryColor),
-                        columns: [
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Variant',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Unit',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Sale price',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Tax',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Pack',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Total',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Stock',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Sale by',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Center(
-                                child: CustomText(
-                                  content: 'Quantity',
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        rows: List.generate(
-                          widget.detailsCopy.length,
-                          (i) {
-                            Detail detail = widget.detailsCopy[i];
-                            return DataRow(
-                              cells: [
-                                DataCell(Center(
+                  width: double.maxFinite,
+                  child: ScrollbarTheme(
+                    data: const ScrollbarThemeData(
+                      thumbColor: WidgetStatePropertyAll(Colors.blue),
+                    ),
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                           width: constraints.maxWidth,
+                          child: DataTable(
+                            headingRowHeight: screenHeight * 0.03,
+                            // ignore: deprecated_member_use
+                            dataRowHeight: screenHeight * 0.05,
+                            columnSpacing: columnSpacing,
+                            headingRowColor:
+                                const WidgetStatePropertyAll(secondaryColor),
+                            columns: [
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: CustomText(
-                                  content: detail.variationName ?? '',
-                                  fontSize: fontSize,
-                                ))),
-                                DataCell(CustomText(
-                                    content: '${detail.unitType}',
-                                    fontSize: fontSize)),
-                                DataCell(Center(
+                                      content: 'Variant',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: CustomText(
-                                  content: formatAmount(detail.sellPrice),
-                                  fontSize: fontSize,
-                                ))),
-                                DataCell(Center(
+                                      content: 'Unit',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: CustomText(
-                                  content: formatAmount(detail.tax),
-                                  fontSize: fontSize,
-                                ))),
-                                DataCell(Center(
+                                      content: 'Sale price',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: CustomText(
-                                  content: '${detail.pieces ?? 0}',
-                                  fontSize: fontSize,
-                                ))),
-                                DataCell(Center(
+                                      content: 'Tax',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
                                     child: CustomText(
-                                  content:
-                                      formatAmount(detail.sellingPackPrice),
-                                  fontSize: fontSize,
-                                ))),
-                                DataCell(
-                                  Center(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: detail.stock == 0
-                                            ? Colors.red
-                                            : detail.stock! < detail.lowstock!
-                                                ? Colors.orange
-                                                : Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(1.0),
-                                        child: Icon(
-                                          detail.stock == 0
-                                              ? Icons.close
-                                              : detail.stock! < detail.lowstock!
-                                                  ? Icons.warning_amber_rounded
-                                                  : Icons.check,
-                                          color: Colors.white,
-                                          size: 14.0,
+                                      content: 'Pack',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: CustomText(
+                                      content: 'Total',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: CustomText(
+                                      content: 'Stock',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: CustomText(
+                                      content: 'Sale by',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Center(
+                                    child: CustomText(
+                                      content: 'Quantity',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: fontSize,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows: List.generate(
+                              widget.detailsCopy.length,
+                              (i) {
+                                Detail detail = widget.detailsCopy[i];
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Center(
+                                        child: CustomText(
+                                      content: detail.variationName ?? '',
+                                      fontSize: fontSize,
+                                      maxLine: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ))),
+                                    DataCell(CustomText(
+                                      content: '${detail.unitType}',
+                                      fontSize: fontSize,
+                                      maxLine: 1,
+                                    )),
+                                    DataCell(Center(
+                                        child: CustomText(
+                                      content: formatAmount(detail.sellPrice),
+                                      fontSize: fontSize,
+                                      maxLine: 1,
+                                    ))),
+                                    DataCell(Center(
+                                        child: CustomText(
+                                      content: formatAmount(detail.tax),
+                                      fontSize: fontSize,
+                                      maxLine: 1,
+                                    ))),
+                                    DataCell(Center(
+                                        child: CustomText(
+                                      content: '${detail.pieces ?? 0}',
+                                      fontSize: fontSize,
+                                      maxLine: 1,
+                                    ))),
+                                    DataCell(Center(
+                                        child: CustomText(
+                                      content:
+                                          formatAmount(detail.sellingPackPrice),
+                                      fontSize: fontSize,
+                                      maxLine: 1,
+                                    ))),
+                                    DataCell(
+                                      Center(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: detail.stock == 0
+                                                ? Colors.red
+                                                : detail.stock! < detail.lowstock!
+                                                    ? Colors.orange
+                                                    : Colors.green,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(1.0),
+                                            child: Icon(
+                                              detail.stock == 0
+                                                  ? Icons.close
+                                                  : detail.stock! < detail.lowstock!
+                                                      ? Icons.warning_amber_rounded
+                                                      : Icons.check,
+                                              color: Colors.white,
+                                              size: 14.0,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Center(
-                                    child: DropdownButton<String>(
-                                      dropdownColor: white,
-                                      value: detail.saleBy ?? droDownItem[0],
-                                      items: droDownItem
-                                          .map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: CustomText(
-                                            content: value,
-                                            fontSize: fontSize,
-                                          ),
-                                        );
-                                      }).toList(),
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          detail.saleBy = newValue;
-                                        });
-                                      },
+                                    DataCell(
+                                      Center(
+                                        child: DropdownButton<String>(
+                                          dropdownColor: white,
+                                          value: detail.saleBy ?? droDownItem[0],
+                                          items: droDownItem
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: CustomText(
+                                                content: value,
+                                                fontSize: fontSize,
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              detail.saleBy = newValue;
+                                            });
+                                          },
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: const Color.fromARGB(255, 240, 239, 239),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Container(
-                                          decoration: const BoxDecoration(
-                                            color: primaryColor,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(5),
-                                              bottomLeft: Radius.circular(5),
-                                            ),
-                                          ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                if (localCounts[i] > 0) {
-                                                  localCounts[i]--;
-                                                }
-                                              });
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(2.5),
-                                              child: Icon(
-                                                Icons.remove,
-                                                color: Colors.white,
-                                                size: iconSize,
+                                    DataCell(
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(5),
+                                          color: const Color.fromARGB(255, 240, 239, 239),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Container(
+                                              decoration: const BoxDecoration(
+                                                color: primaryColor,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(5),
+                                                  bottomLeft: Radius.circular(5),
+                                                ),
+                                              ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    if (localCounts[i] > 0) {
+                                                      localCounts[i]--;
+                                                    }
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5),
+                                                  child: Icon(
+                                                    Icons.remove,
+                                                    color: Colors.white,
+                                                    size: iconSize,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        CustomText(
-                                          content:
-                                              localCounts[i].toStringAsFixed(0),
-                                          fontSize: fontSize,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          decoration: const BoxDecoration(
-                                            color: primaryColor,
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(5),
-                                              bottomRight: Radius.circular(5),
+                                            const SizedBox(width: 8),
+                                            CustomText(
+                                              content:
+                                                  localCounts[i].toStringAsFixed(0),
+                                              fontSize: fontSize,
                                             ),
-                                          ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                detail.saleBy ??= 'Pack';
-                                                if (detail.stock == 0) {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        title: const Row(
-                                                          children: [
-                                                            Icon(
-                                                                Icons
-                                                                    .info_outline,
-                                                                color:
-                                                                    Colors.red),
-                                                            SizedBox(
-                                                                width: 8),
-                                                            Text(
-                                                              'Out of Stock',
-                                                              style: TextStyle(
-                                                                fontSize: 20,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              decoration: const BoxDecoration(
+                                                color: primaryColor,
+                                                borderRadius: BorderRadius.only(
+                                                  topRight: Radius.circular(5),
+                                                  bottomRight: Radius.circular(5),
+                                                ),
+                                              ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    detail.saleBy ??= 'Pack';
+                                                    if (detail.stock == 0) {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (BuildContext context) {
+                                                          return AlertDialog(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(15),
                                                             ),
-                                                          ],
-                                                        ),
-                                                        content: const Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Text(
-                                                              'This item is out of stock.',
-                                                              style: TextStyle(
-                                                                fontSize: 16,
-                                                                color: Colors
-                                                                    .black87,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            title: const Row(
+                                                              children: [
+                                                                Icon(
+                                                                    Icons
+                                                                        .info_outline,
+                                                                    color:
+                                                                        Colors.red),
+                                                                SizedBox(
+                                                                    width: 8),
+                                                                Text(
+                                                                  'Out of Stock',
+                                                                  style: TextStyle(
+                                                                    fontSize: 20,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                            SizedBox(
-                                                                height: 10),
-                                                            Text(
-                                                              'Do you want to add this as a pre-order?',
-                                                              style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                            content: const Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize.min,
+                                                              children: [
+                                                                Text(
+                                                                  'This item is out of stock.',
+                                                                  style: TextStyle(
+                                                                    fontSize: 16,
+                                                                    color: Colors
+                                                                        .black87,
+                                                                  ),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                ),
+                                                                SizedBox(
+                                                                    height: 10),
+                                                                Text(
+                                                                  'Do you want to add this as a pre-order?',
+                                                                  style: TextStyle(
+                                                                    fontSize: 16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ],
-                                                        ),
-                                                        actions: [
-                                                          ElevatedButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .redAccent,
-                                                              shape:
-                                                                  RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
+                                                            actions: [
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                style:
+                                                                    ElevatedButton
+                                                                        .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .redAccent,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(
+                                                                                8),
+                                                                  ),
+                                                                ),
+                                                                child: const Text(
+                                                                  'No',
+                                                                  style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
                                                               ),
-                                                            ),
-                                                            child: const Text(
-                                                              'No',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  setState(() {
+                                                                    localCounts[
+                                                                        i]++;
+                                                                  });
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                style:
+                                                                    ElevatedButton
+                                                                        .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors.green,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(
+                                                                                8),
+                                                                  ),
+                                                                ),
+                                                                child: const Text(
+                                                                  'Yes',
+                                                                  style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                          ElevatedButton(
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                localCounts[
-                                                                    i]++;
-                                                              });
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.green,
-                                                              shape:
-                                                                  RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                            ),
-                                                            child: const Text(
-                                                              'Yes',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
+                                                            ],
+                                                          );
+                                                        },
                                                       );
-                                                    },
-                                                  );
-                                                } else if (detail.stock == 0) {
-                                                  localCounts[i]++;
-                                                } else {
-                                                  localCounts[i]++;
-                                                }
-                                              });
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(2.5),
-                                              child: Icon(
-                                                Icons.add,
-                                                color: Colors.white,
-                                                size: iconSize,
+                                                    } else if (detail.stock == 0) {
+                                                      localCounts[i]++;
+                                                    } else {
+                                                      localCounts[i]++;
+                                                    }
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5),
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    color: Colors.white,
+                                                    size: iconSize,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

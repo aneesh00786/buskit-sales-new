@@ -105,14 +105,29 @@ class CalenderMapController extends GetxController {
     }
   }
 
-  void showSelectedCustomerRoute(BuildContext context) {
+  // void showSelectedCustomerRoute(BuildContext context) {
+  //   if (selectedCustomers.isNotEmpty) {
+  //     log('$selectedCustomers');
+  //     Get.to(() => const CustomerMapScreen());
+  //   } else {
+  //     log('No customers selected');
+  //     Get.snackbar(
+  //         'No Route Available', 'Please select at least one customer.');
+  //   }
+  // }
+
+    void showSelectedCustomerRoute(
+    BuildContext context,
+    List<String> customerIds,
+    List<String> eventIds,
+  ) {
     if (selectedCustomers.isNotEmpty) {
-      log('$selectedCustomers');
-      Get.to(() => const CustomerMapScreen());
+      Get.to(() => CustomerMapScreen(
+            customerIds: customerIds,
+            eventIds: eventIds,
+          ));
     } else {
       log('No customers selected');
-      Get.snackbar(
-          'No Route Available', 'Please select at least one customer.');
     }
   }
 
@@ -618,6 +633,33 @@ class CalenderMapController extends GetxController {
       customerOnlyList.clear();
     } finally {
       isOnlyCustomerLoading.value = false;
+    }
+  }
+
+    Future<void> updateCredit(String credit) async {
+    routeCredit.value = credit;
+  }
+
+  RxList<Result> showRouteResultList = <Result>[].obs;
+
+    RxBool isShowRouteLoading = false.obs;
+  Future<void> loadShowRoute(List<String> eventIds) async {
+    try {
+      isShowRouteLoading.value = true;
+
+      var response = await ApiWorker().showRoutes(eventList: eventIds);
+
+      showRouteResultList.clear();
+      if (response.results.isNotEmpty) {
+        showRouteResultList.addAll(response.results);
+      }
+
+      log("show route data loaded successfully.");
+    } catch (error) {
+      log("Error loading show route data: $error");
+      showRouteResultList.clear();
+    } finally {
+      isShowRouteLoading.value = false;
     }
   }
 }

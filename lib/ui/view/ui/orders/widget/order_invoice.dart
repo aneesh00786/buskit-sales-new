@@ -85,7 +85,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                         const Spacer(),
                         Text(
-                          'Created At : ${(NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt?.toIso8601String() ?? '')))}',
+                          'Created At : ${(NKDateUtils.commonFullDateTimeFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt?.toIso8601String() ?? '')))}',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,

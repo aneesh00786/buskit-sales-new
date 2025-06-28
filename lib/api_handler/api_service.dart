@@ -1,4 +1,4 @@
-// ignore_for_file: library_prefixes, empty_catches
+// ignore_for_file: library_prefixes, empty_catches, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:developer';
@@ -11,9 +11,12 @@ import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
@@ -929,34 +932,86 @@ class ApiService {
     }
   }
 
-  Future<bool> addEvent(
-      String customerId, int eventStatus, List<String> daysList) async {
+  // Future<bool> addEvent(
+  //     String customerId, int eventStatus, List<String> daysList) async {
+  //   final String daysJson = jsonEncode(daysList);
+  //   final url = Uri.parse('$_baseUrl/add_events');
+  //   final bodyMap = {
+  //     'customer_id': customerId,
+  //     'event_status': eventStatus,
+  //     'days_list': daysJson,
+  //     'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
+  //   };
+
+  //   final body = jsonEncode(bodyMap);
+
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: body,
+  //     );
+  //     if (response.statusCode == 200) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
+  Future<AddEvent> addEvent(
+    String customerId,
+    int eventStatus,
+    List<String> daysList,
+    String period,
+    BuildContext context,
+  ) async {
     final String daysJson = jsonEncode(daysList);
-    final url = Uri.parse('$_baseUrl/add_events');
+
     final bodyMap = {
       'customer_id': customerId,
-      'event_status': eventStatus,
+      'event_status': eventStatus.toString(),
       'days_list': daysJson,
+      'period': period,
       'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
-    final body = jsonEncode(bodyMap);
-
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: body,
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.addEvents,
+        requestData: bodyMap,
       );
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
+
+      final AddEvent result = AddEvent.fromJson(response.data);
+      result.statusCode = response.statusCode ?? 0;
+
+      if (response.statusCode != 200) {
+        showCustomToastDisplay(
+          context,
+          result.message,
+          red,
+          Icons.close,
+        );
+        await Future.delayed(const Duration(seconds: 3));
       }
+
+      return result;
     } catch (e) {
-      return false;
+      log('🔥 Exception in addEvent: $e');
+
+      showCustomToastDisplay(
+        context,
+        "Please Assign Staff",
+        red,
+        Icons.close,
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+      rethrow;
     }
   }
 

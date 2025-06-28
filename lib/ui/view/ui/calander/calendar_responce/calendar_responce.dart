@@ -418,3 +418,117 @@ class FetchOnlyCustomerData {
         "image_url": imageUrl,
       };
 }
+
+class DebitCreditResponse {
+    int statusCode;
+    bool status;
+    int credit;
+    String message;
+
+    DebitCreditResponse({
+        required this.statusCode,
+        required this.status,
+        required this.credit,
+        required this.message,
+    });
+
+    factory DebitCreditResponse.fromJson(Map<String, dynamic> json) => DebitCreditResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        credit: json["credit"],
+        message: json["message"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "credit": credit,
+        "message": message,
+    };
+}
+
+class ShowRouteResponse {
+  List<Result> results;
+
+  ShowRouteResponse({
+    required this.results,
+  });
+
+  factory ShowRouteResponse.fromJson(Map<String, dynamic> json) =>
+      ShowRouteResponse(
+        results:
+            List<Result>.from(json["results"].map((x) => Result.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "results": List<dynamic>.from(results.map((x) => x.toJson())),
+      };
+}
+
+class Result {
+  String businessName;
+  String email;
+  String mobileno;
+  String customerId;
+  String address;
+  String town;
+  String state;
+  int zipcode;
+  String imageUrl;
+  String scheduleTime;
+  double latitude;
+  double longitude;
+  String formattedAddress;
+
+  Result({
+    required this.businessName,
+    required this.email,
+    required this.mobileno,
+    required this.customerId,
+    required this.address,
+    required this.town,
+    required this.state,
+    required this.zipcode,
+    required this.imageUrl,
+    required this.scheduleTime,
+    required this.latitude,
+    required this.longitude,
+    required this.formattedAddress,
+  });
+
+  factory Result.fromJson(Map<String, dynamic> json) => Result(
+        businessName: json["business_name"],
+        email: json["email"],
+        mobileno: json["mobileno"],
+        customerId: json["customer_id"],
+        address: json["address"],
+        town: json["town"],
+        state: json["state"],
+        zipcode: json["zipcode"],
+        imageUrl: json["image_url"],
+        scheduleTime: json["schedule_time"],
+        latitude: json["latitude"] != "error"
+            ? json["latitude"]?.toDouble()
+            : "error",
+        longitude: json["longitude"] != "error"
+            ? json["longitude"]?.toDouble()
+            : "error",
+        formattedAddress: json["formatted_address"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "business_name": businessName,
+        "email": email,
+        "mobileno": mobileno,
+        "customer_id": customerId,
+        "address": address,
+        "town": town,
+        "state": state,
+        "zipcode": zipcode,
+        "image_url": imageUrl,
+        "schedule_time": scheduleTime,
+        "latitude": latitude,
+        "longitude": longitude,
+        "formatted_address": formattedAddress,
+      };
+}

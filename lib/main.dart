@@ -165,7 +165,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return LayoutBuilder(
       builder: (context, sizingConstraints) {
         AppDimensions.createInstance(context, sizingConstraints);

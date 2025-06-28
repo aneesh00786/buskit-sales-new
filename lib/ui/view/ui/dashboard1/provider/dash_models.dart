@@ -1837,6 +1837,7 @@ class Messages {
   final String source;
   final String salesman;
   final dynamic updatedAt;
+  final dynamic createdAt;
 
   Messages({
     this.message,
@@ -1844,6 +1845,7 @@ class Messages {
     required this.source,
     required this.salesman,
     this.updatedAt,
+    this.createdAt,
   });
   Map<String, dynamic> toMap() {
     return {
@@ -1852,6 +1854,7 @@ class Messages {
       'source': source,
       'salesman': salesman,
       'updated_at': updatedAt!,
+      'created_at': createdAt!,
     };
   }
 
@@ -1860,6 +1863,7 @@ class Messages {
   String get getSource => source;
   String get getSalesman => salesman;
   DateTime? get getUpdatedAt => updatedAt;
+  DateTime? get getCreatedAt => createdAt;
 
   factory Messages.fromJson(Map<String, dynamic> json) {
     return Messages(
@@ -1868,6 +1872,7 @@ class Messages {
       source: json['source'] ?? '',
       salesman: json['salesman'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+      createdAt: json['created_at'] ?? '',
     );
   }
 }

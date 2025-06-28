@@ -261,3 +261,27 @@ class CustomerAssignedSalesman {
     return json;
   }
 }
+
+class AddEvent {
+    int statusCode;
+    bool status;
+    String message;
+
+    AddEvent({
+        required this.statusCode,
+        required this.status,
+        required this.message,
+    });
+
+    factory AddEvent.fromJson(Map<String, dynamic> json) => AddEvent(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+    };
+}

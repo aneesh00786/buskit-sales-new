@@ -76,6 +76,7 @@ class CustomerModelxx {
   final String salesmanName;
   final String discount;
   final int eventType;
+  final int eventPeriod;
   final List<String> eventDays;
   final List<CreditPeriodxx> creditPeriod;
   final int companyId;
@@ -117,6 +118,7 @@ class CustomerModelxx {
     required this.salesmanName,
     required this.discount,
     required this.eventType,
+    required this.eventPeriod,
     required this.eventDays,
     required this.creditPeriod,
     required this.companyId,
@@ -160,6 +162,7 @@ class CustomerModelxx {
       salesmanName: json['salesman_name'] ?? '',
       discount: json['discount'] ?? '',
       eventType: json['event_type'] ?? 0,
+      eventPeriod: json['event_period'] ?? 0,
       eventDays: _parseEventDays(json['event_days']),
       creditPeriod: List<CreditPeriodxx>.from(
           (json['credit_period'] ?? []).map((x) => CreditPeriodxx.fromJson(x))),
@@ -205,6 +208,7 @@ class CustomerModelxx {
         'salesman_name': salesmanName,
         'discount': discount,
         'event_type': eventType,
+        'event_period': eventPeriod,
         'event_days': jsonEncode(eventDays),
         'credit_period': creditPeriod.map((x) => x.toJson()).toList(),
         'company_id': companyId,

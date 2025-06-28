@@ -55,7 +55,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
   final CustomerAndOrderController customerAndOrderController =
       Get.find<CustomerAndOrderController>();
 
-  List<Map<String, String>> selectedEventTimes = [];
+  bool isSaving = false;
+
+  Map<String, String> selectedEventTimes = {}; // eventId → time
 
   @override
   void initState() {
@@ -234,22 +236,26 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 .calenderMapController.customerOnlyList[index];
                             log('${customerEvent.event?.imageUrl}');
 
-                            final parts = customer.scheduleTime?.split(':');
-                            int hour = 0;
-                            //  = int.parse(parts[0]);
-                            int minute = 0;
-                            //  = int.parse(parts[1]);
-                            // String period;
-                            //  = hour >= 12 ? 'PM' : 'AM';
-                            int hour12 = 0;
-                            //  = hour % 12 == 0 ? 12 : hour % 12;
+                           String initialHour = '__';
+                          String initialMinute = '__';
+                          String initialPeriod = '_';
 
-                            if (customer.scheduleTime != null) {
-                              hour = int.parse(parts![0]);
-                              minute = int.parse(parts[1]);
-                              // period = hour >= 12 ? 'PM' : 'AM';
-                              hour12 = hour % 12 == 0 ? 12 : hour % 12;
-                            }
+                          final time = customer.scheduleTime;
+
+                          if (time != null &&
+                              time.isNotEmpty &&
+                              time.contains(":")) {
+                            final parts = time.split(":");
+                            int hour = int.tryParse(parts[0]) ?? 0;
+                            int minute = int.tryParse(parts[1]) ?? 0;
+                            int displayHour = hour % 12 == 0 ? 12 : hour % 12;
+                            String period = hour >= 12 ? 'PM' : 'AM';
+
+                            initialHour =
+                                displayHour.toString().padLeft(2, '0');
+                            initialMinute = minute.toString().padLeft(2, '0');
+                            initialPeriod = period;
+                          }
 
                             return Padding(
                               padding: nkSmallPadding(left: 0, right: 0),
@@ -293,14 +299,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  // CustomText(
-                                                  //   content: customer.address ??
-                                                  //       '',
-                                                  //   fontSize: 12,
-                                                  //   maxLine: 1,
-                                                  //   overflow:
-                                                  //       TextOverflow.ellipsis,
-                                                  // ),
                                                   CustomText(
                                                     content: customer.mobileno,
                                                     fontSize: 12,
@@ -325,47 +323,16 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
 
                                         // Red container (right of subtitle)
                                         TimePickerField(
-                                            eventId:
-                                                customerEvent.event?.eventId ??
-                                                    '',
-                                            initialHour:
-                                                customer.scheduleTime != null
-                                                    ? (hour12.toString() == '0'
-                                                        ? '00'
-                                                        : hour12
-                                                                    .toString()
-                                                                    .length ==
-                                                                1
-                                                            ? "0$hour12"
-                                                            : hour12.toString())
-                                                    : '__',
-                                            initialMinute:
-                                                customer.scheduleTime != null
-                                                    ? (minute.toString() == '0'
-                                                        ? '00'
-                                                        : minute
-                                                                    .toString()
-                                                                    .length ==
-                                                                1
-                                                            ? "0$minute"
-                                                            : minute.toString())
-                                                    : '__',
-                                            initialPeriod:
-                                                customer.scheduleTime != null
-                                                    ? (hour >= 12 ? 'PM' : 'AM')
-                                                    : '_',
-                                            onTimeSelected: (eventId, time) {
-                                              setState(() {
-                                                selectedEventTimes.removeWhere(
-                                                    (e) =>
-                                                        e['event_id'] ==
-                                                        eventId);
-                                                selectedEventTimes.add({
-                                                  "event_id": eventId,
-                                                  "time": time
-                                                });
-                                              });
-                                            }),
+                                        eventId: customer.eventId,
+                                        initialHour: initialHour,
+                                        initialMinute: initialMinute,
+                                        initialPeriod: initialPeriod,
+                                        onTimeSelected: (eventId, time) {
+                                          setState(() {
+                                            selectedEventTimes[eventId] = time;
+                                          });
+                                        },
+                                      ),
 
                                         const SizedBox(width: 8),
 
@@ -599,50 +566,238 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                         ),
                       )
                     : const SizedBox(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 30),
-                  child: ElevatedButton.icon(
-                    label: CustomText(
-                        content: selectedEventTimes.isNotEmpty
-                            ? 'Save and Show Route'
-                            : 'Show Route',
-                        color: white),
-                    onPressed: () async {
-                      if (selectedEventTimes.isNotEmpty) {
-                        var saveVisit = await ApiWorker()
-                            .scheduleVisit(events: selectedEventTimes);
-                        if (saveVisit.statusCode == 200) {
-                          selectedEventTimes.clear();
-                          showCustomToastDisplay(context, "Visits Saved",
-                              Colors.green, Icons.check);
-                        }
-                      }
+                // Padding(
+                //   padding: const EdgeInsets.only(bottom: 30),
+                //   child: ElevatedButton.icon(
+                //     label: CustomText(
+                //         content: selectedEventTimes.isNotEmpty
+                //             ? 'Save and Show Route'
+                //             : 'Show Route',
+                //         color: white),
+                //     onPressed: () async {
+                //       if (selectedEventTimes.isNotEmpty) {
+                //         var saveVisit = await ApiWorker()
+                //             .scheduleVisit(events: selectedEventTimes);
+                //         if (saveVisit.statusCode == 200) {
+                //           selectedEventTimes.clear();
+                //           showCustomToastDisplay(context, "Visits Saved",
+                //               Colors.green, Icons.check);
+                //         }
+                //       }
 
-                      if (subscriptionController.appShowRoute.value == 'true') {
-                        if (widget.calenderMapController.selectedCustomers
-                            .isNotEmpty) {
-                          Navigator.pop(context);
-                          widget.calenderMapController
-                              .showSelectedCustomerRoute(context);
-                          widget.calenderMapController.fetchDistanceAndTime();
-                        } else {
-                          Get.snackbar('No Route Available',
-                              'Please select at least one customer.');
-                        }
-                      } else {
-                        showUpgradePlanDialog(context);
-                      }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(primaryColor),
-                    ),
-                    icon: const Icon(
-                      EneftyIcons.location_outline,
-                      color: white,
-                      size: 25,
-                    ),
-                  ),
-                ),
+                //       if (subscriptionController.appShowRoute.value == 'true') {
+                //         if (widget.calenderMapController.selectedCustomers
+                //             .isNotEmpty) {
+                //           Navigator.pop(context);
+                //           widget.calenderMapController
+                //               .showSelectedCustomerRoute(context);
+                //           widget.calenderMapController.fetchDistanceAndTime();
+                //         } else {
+                //           Get.snackbar('No Route Available',
+                //               'Please select at least one customer.');
+                //         }
+                //       } else {
+                //         showUpgradePlanDialog(context);
+                //       }
+                //     },
+                //     style: ButtonStyle(
+                //       backgroundColor: WidgetStateProperty.all(primaryColor),
+                //     ),
+                //     icon: const Icon(
+                //       EneftyIcons.location_outline,
+                //       color: white,
+                //       size: 25,
+                //     ),
+                //   ),
+                // ),
+                isSaving
+                    ? const Padding(
+                        padding: EdgeInsets.only(bottom: 30),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(bottom: 30),
+                        child: ElevatedButton.icon(
+                          label: CustomText(
+                            content: selectedEventTimes.isNotEmpty
+                                ? 'Save'
+                                : 'Show Route',
+                            color: white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          style: ButtonStyle(
+                            padding: const WidgetStatePropertyAll(
+                                EdgeInsets.all(20)),
+                            backgroundColor: MaterialStateProperty.all(
+                              selectedEventTimes.isNotEmpty
+                                  ? Colors.green
+                                  : primaryColor,
+                            ),
+                          ),
+                          icon: Icon(
+                            selectedEventTimes.isNotEmpty
+                                ? Icons.save_rounded
+                                : EneftyIcons.location_outline,
+                            color: white,
+                            size: 25,
+                          ),
+                          onPressed: () async {
+                            // === Save Mode ===
+                            if (selectedEventTimes.isNotEmpty) {
+                              setState(() => isSaving = true);
+
+                              final events = widget.eventData
+                                  .map((customer) {
+                                    final eventId =
+                                        customer.event?.eventId ?? '';
+                                    return {
+                                      'event_id': eventId,
+                                      'time': selectedEventTimes[eventId] ?? '',
+                                    };
+                                  })
+                                  .where((e) => e['time']!.isNotEmpty)
+                                  .toList();
+
+                              log(selectedEventTimes.toString());
+
+                              var saveVisit = await ApiWorker()
+                                  .scheduleVisit(events: events);
+
+                              if (saveVisit.statusCode == 200) {
+                                selectedEventTimes.clear();
+                                showCustomToastDisplay(context, "Visits Saved",
+                                    Colors.green, Icons.check);
+                              }
+
+                              setState(() => isSaving = false);
+
+                              return;
+                            }
+
+                            // === Show Route Mode ===
+                            if (subscriptionController.appShowRoute.value ==
+                                'true') {
+                              if (widget.calenderMapController.routeCredit
+                                          .value !=
+                                      '0' &&
+                                  widget.calenderMapController.routeCredit
+                                          .value !=
+                                      '') {
+                                DateTime today = DateTime.now();
+                                DateTime currentDate = DateTime(
+                                    today.year, today.month, today.day);
+                                DateTime widgetDate = DateTime(
+                                    widget.dateTime.year,
+                                    widget.dateTime.month,
+                                    widget.dateTime.day);
+
+                                // ✅ Check if all selected customers have a scheduleTime
+                                // bool allHaveScheduleTime = widget
+                                //     .calenderMapController.selectedCustomers
+                                //     .every((customer) =>
+                                //         customer. != null &&
+                                //         customer.scheduleTime
+                                //             .toString()
+                                //             .isNotEmpty);
+
+                                // if (!allHaveScheduleTime) {
+                                //   showCustomToastDisplay(
+                                //     context,
+                                //     'All selected customers must have a schedule time.',
+                                //     Colors.orange,
+                                //     Icons.warning,
+                                //   );
+                                //   return; // stop execution here
+                                // }
+
+                                if (widgetDate.isAfter(currentDate)) {
+                                  showCustomToastDisplay(
+                                    context,
+                                    'This route can be accessed from $formattedDate',
+                                    Colors.orange,
+                                    Icons.warning,
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+
+                                  List<String> addresses = widget
+                                      .calenderMapController.selectedCustomers
+                                      .map((customer) =>
+                                          customer.address.toString())
+                                      .toList();
+
+                                  log("Addresses: $addresses");
+
+                                  var creditResponse =
+                                      await ApiWorker().debitRouteCredits(
+                                    amount: addresses.length * 3,
+                                    details: 'TESTING',
+                                    addresses: addresses,
+                                  );
+
+                                  await widget.calenderMapController
+                                      .updateCredit(
+                                    creditResponse.credit.toString(),
+                                  );
+
+                                  // widget.calenderMapController
+                                  //     .showSelectedCustomerRoute(
+                                  //   context,
+                                  // );
+                 {
+                                    final selectedCustomerIds = widget
+                                        .calenderMapController.selectedCustomers
+                                        .map((c) => c.customerId)
+                                        .toSet();
+
+                                    final selectedEventIds = widget.eventData
+                                        .where((event) =>
+                                            event.event != null &&
+                                            selectedCustomerIds.contains(event
+                                                .event!.customerId
+                                                .toString()))
+                                        .map((event) => event.event!.eventId)
+                                        .whereType<
+                                            String>() // removes nulls and casts to List<String>
+                                        .toList();
+
+                                        final selectedCustomerIdList = widget.eventData
+                                        .where((event) =>
+                                            event.event != null &&
+                                            selectedCustomerIds.contains(event
+                                                .event!.customerId
+                                                .toString()))
+                                        .map((event) => event.event!.customerId)
+                                        .whereType<String>()
+                                        .toList();
+
+                                    widget.calenderMapController
+                                        .showSelectedCustomerRoute(
+                                      context,
+                                      selectedCustomerIdList,
+                                      selectedEventIds,
+                                    );
+                                  }
+
+                                  widget.calenderMapController
+                                      .fetchDistanceAndTime();
+                                }
+                              } else {
+                                showCustomToastDisplay(
+                                  context,
+                                  "Buy More Credits to Continue",
+                                  red,
+                                  Icons.close,
+                                );
+                              }
+                            } else {
+                              showUpgradePlanDialog(context);
+                            }
+                          },
+                        ),
+                      ),
               ],
             ),
           ),

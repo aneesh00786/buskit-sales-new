@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -701,13 +702,26 @@ class CustomersProvider with ChangeNotifier {
     fetchCustomerData(page: _currentPage);
   }
 
-  Future<void> addEvent(
-      String customerId, int eventStatus, List<String> daysList) async {
-    final success =
-        await _apiService.addEvent(customerId, eventStatus, daysList);
-    if (success) {
-    } else {}
-    notifyListeners();
+  // Future<void> addEvent(
+  //     String customerId, int eventStatus, List<String> daysList) async {
+  //   final success =
+  //       await _apiService.addEvent(customerId, eventStatus, daysList);
+  //   if (success) {
+  //   } else {}
+  //   notifyListeners();
+  // }
+
+    Future<AddEvent> addEvent(
+    String customerId,
+    int eventStatus,
+    List<String> daysList,
+    String period,
+    BuildContext context,
+  ) async {
+    final response = await _apiService.addEvent(
+        customerId, eventStatus, daysList, period, context);
+    // notifyListeners(); // Keep this if needed
+    return response;
   }
 
   final ScrollController _scrollController = ScrollController();

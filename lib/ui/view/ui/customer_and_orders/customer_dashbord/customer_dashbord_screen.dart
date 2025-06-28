@@ -241,19 +241,19 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   if (shouldProceed) {
                     homeController.sidebarXController.selectIndex(5);
                     homeController.selectedIndex.value = 5;
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            CustomerMapScreen(
-                          istoGoogleMap: widget.isFromGoogle,
-                        ),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                              opacity: animation, child: child);
-                        },
-                      ),
-                    );
+                    // Navigator.of(context).push(
+                    //   PageRouteBuilder(
+                    //     pageBuilder: (context, animation, secondaryAnimation) =>
+                    //         CustomerMapScreen(
+                    //       istoGoogleMap: widget.isFromGoogle,
+                    //     ),
+                    //     transitionsBuilder:
+                    //         (context, animation, secondaryAnimation, child) {
+                    //       return FadeTransition(
+                    //           opacity: animation, child: child);
+                    //     },
+                    //   ),
+                    // );
                   }
                 } else if (widget.isDirectDialogue) {
                   bool shouldProceed = await checkCustomerOut();

@@ -3,10 +3,12 @@ mixin class ApiConstants {
   static const String baseUrl1 = "https://thrivewoo.com";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
+
   /// Login APi END Point
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
+
   /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
@@ -61,27 +63,34 @@ mixin class ApiConstants {
   static const String sendVerificationMail = "sendVerificationMail";
   static const String insertadmin = "insertadmin";
   static const String sendInvoice = "send-invoice";
+
   /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
+
   /// Product Api
   static const String fetchproduct = "fetch_product";
   static const String updateCheckinCustomer = "Update_checkin_customer";
+
   /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";
+
   /// CALENDAR API
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
   static const String getRouteCredit = "get_routeCredit";
-    static const String fetchOnlyCustomerData = "fetch_only_customer_data";
-      static const String scheduleVisit = "ScheduleVisit";
+  static const String fetchOnlyCustomerData = "fetch_only_customer_data";
+  static const String scheduleVisit = "ScheduleVisit";
+  static const String deductCreditRoute = "DeductCreditRoute";
+
   /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";
+
   /// PENDING  PAYMENT API
   static const String fetchPendingPayments = "fetch_pending_payments";
   static const String getAllPendingPaymentIndividuals =
@@ -113,12 +122,17 @@ mixin class ApiConstants {
   static const String getStaffTimeSheet = "get_StaffTimesheet";
   static const String updateValueBasedTargetValue =
       "Update_ValueBasedtargetValue";
+
   /// SUBSCRIBTION API
   static const String getSubscribedPlan = "get_subscribed_plan";
   static const String getPlanDetiails = "get_plan_detiails";
   static const String userVerification = "user_verification";
   static const String createSetUpIntent = "create-setup-intent";
-  static const String insertTransactionAndSubscriptionDetails = "insert_transaction_and_subscription_details";
-  static const String getRegisteredAddressAdmin = "get_registered_address_admin";
+  static const String insertTransactionAndSubscriptionDetails =
+      "insert_transaction_and_subscription_details";
+  static const String getRegisteredAddressAdmin =
+      "get_registered_address_admin";
   static const String createPaypalAuth = "create-paypal-auth";
+
+  static const String showRoute = "show-route";
 }

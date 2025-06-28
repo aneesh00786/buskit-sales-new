@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
@@ -2066,342 +2067,342 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-enum EventType {
-  select,
-  weekly,
-  fortnightly,
-  monthly,
-  daily,
-}
+// enum EventType {
+//   select,
+//   weekly,
+//   fortnightly,
+//   monthly,
+//   daily,
+// }
 
-extension EventTypeExtension on EventType {
-  String get displayName {
-    switch (this) {
-      case EventType.select:
-        return "-Select-";
-      case EventType.weekly:
-        return "Weekly";
-      case EventType.fortnightly:
-        return "Fortnightly";
-      case EventType.monthly:
-        return "Monthly";
-      case EventType.daily:
-        return "Daily";
-    }
-  }
+// extension EventTypeExtension on EventType {
+//   String get displayName {
+//     switch (this) {
+//       case EventType.select:
+//         return "-Select-";
+//       case EventType.weekly:
+//         return "Weekly";
+//       case EventType.fortnightly:
+//         return "Fortnightly";
+//       case EventType.monthly:
+//         return "Monthly";
+//       case EventType.daily:
+//         return "Daily";
+//     }
+//   }
 
-  int get value {
-    switch (this) {
-      case EventType.select:
-        return 0;
-      case EventType.weekly:
-        return 2;
-      case EventType.fortnightly:
-        return 3;
-      case EventType.monthly:
-        return 4;
-      case EventType.daily:
-        return 5;
-    }
-  }
+//   int get value {
+//     switch (this) {
+//       case EventType.select:
+//         return 0;
+//       case EventType.weekly:
+//         return 2;
+//       case EventType.fortnightly:
+//         return 3;
+//       case EventType.monthly:
+//         return 4;
+//       case EventType.daily:
+//         return 5;
+//     }
+//   }
 
-  static EventType fromValue(int value) {
-    switch (value) {
-      case 0:
-        return EventType.select;
-      case 2:
-        return EventType.weekly;
-      case 3:
-        return EventType.fortnightly;
-      case 4:
-        return EventType.monthly;
-      case 5:
-        return EventType.daily;
-      default:
-        return EventType.weekly;
-    }
-  }
-}
+//   static EventType fromValue(int value) {
+//     switch (value) {
+//       case 0:
+//         return EventType.select;
+//       case 2:
+//         return EventType.weekly;
+//       case 3:
+//         return EventType.fortnightly;
+//       case 4:
+//         return EventType.monthly;
+//       case 5:
+//         return EventType.daily;
+//       default:
+//         return EventType.weekly;
+//     }
+//   }
+// }
 
-class EventTypeDropdown extends StatefulWidget {
-  final EventType initialValue;
-  final Function(EventType) onChanged;
-  final List<String> defaultEventDays;
-  final String customerId;
-  final int eventStatus;
-  final CustomersProvider provider;
+// class EventTypeDropdown extends StatefulWidget {
+//   final EventType initialValue;
+//   final Function(EventType) onChanged;
+//   final List<String> defaultEventDays;
+//   final String customerId;
+//   final int eventStatus;
+//   final CustomersProvider provider;
 
-  const EventTypeDropdown({
-    super.key,
-    required this.initialValue,
-    required this.onChanged,
-    required this.defaultEventDays,
-    required this.customerId,
-    required this.eventStatus,
-    required this.provider,
-  });
+//   const EventTypeDropdown({
+//     super.key,
+//     required this.initialValue,
+//     required this.onChanged,
+//     required this.defaultEventDays,
+//     required this.customerId,
+//     required this.eventStatus,
+//     required this.provider,
+//   });
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _EventTypeDropdownState createState() => _EventTypeDropdownState();
-}
+//   @override
+//   // ignore: library_private_types_in_public_api
+//   _EventTypeDropdownState createState() => _EventTypeDropdownState();
+// }
 
-class _EventTypeDropdownState extends State<EventTypeDropdown> {
-  SubscriptionController subscriptionController =
-      Get.find<SubscriptionController>();
+// class _EventTypeDropdownState extends State<EventTypeDropdown> {
+//   SubscriptionController subscriptionController =
+//       Get.find<SubscriptionController>();
 
-  late EventType selectedValue;
+//   late EventType selectedValue;
 
-  @override
-  void initState() {
-    super.initState();
-    selectedValue = widget.initialValue;
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     selectedValue = widget.initialValue;
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const ClampingScrollPhysics(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                color: Color(0xffdddefc),
-                borderRadius: BorderRadius.all(Radius.circular(5))),
-            height: 38,
-            width: 90,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 2),
-              child: GestureDetector(
-                onTap: () {
-                  if (subscriptionController.visitSetting.value != 'true') {
-                    showUpgradePlanDialog(context);
-                  }
-                },
-                child: AbsorbPointer(
-                  absorbing:
-                      subscriptionController.visitSetting.value != 'true',
-                  child: DropdownButton<EventType>(
-                    iconSize: 17.5,
-                    value: selectedValue,
-                    onChanged: (EventType? newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          selectedValue = newValue;
-                          widget.onChanged(newValue);
+//   @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       scrollDirection: Axis.horizontal,
+//       physics: const ClampingScrollPhysics(),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         children: [
+//           Container(
+//             decoration: const BoxDecoration(
+//                 color: Color(0xffdddefc),
+//                 borderRadius: BorderRadius.all(Radius.circular(5))),
+//             height: 38,
+//             width: 90,
+//             child: Padding(
+//               padding: const EdgeInsets.only(left: 8, right: 2),
+//               child: GestureDetector(
+//                 onTap: () {
+//                   if (subscriptionController.visitSetting.value != 'true') {
+//                     showUpgradePlanDialog(context);
+//                   }
+//                 },
+//                 child: AbsorbPointer(
+//                   absorbing:
+//                       subscriptionController.visitSetting.value != 'true',
+//                   child: DropdownButton<EventType>(
+//                     iconSize: 17.5,
+//                     value: selectedValue,
+//                     onChanged: (EventType? newValue) {
+//                       if (newValue != null) {
+//                         setState(() {
+//                           selectedValue = newValue;
+//                           widget.onChanged(newValue);
 
-                          if (newValue == EventType.fortnightly) {
-                            _selectDate(context, 3);
-                          } else if (newValue == EventType.daily) {
-                            widget.provider.addEvent(
-                              widget.customerId,
-                              // widget.eventStatus,
-                              5,
-                              [DateTime.now().toIso8601String()],
-                            );
-                            widget.provider.fetchCustomerData();
-                          } else if (newValue == EventType.monthly) {
-                            widget.provider.addEvent(
-                              widget.customerId,
-                              // widget.eventStatus,
-                              4,
-                              [DateTime.now().toIso8601String()],
-                            );
-                            widget.provider.fetchCustomerData();
-                          } else if (newValue == EventType.weekly) {
-                            showDaysOfWeekPopup(
-                              context,
-                              widget.defaultEventDays,
-                              widget.customerId,
-                              newValue.value,
-                              widget.provider,
-                            );
-                          } else {
-                            showDaysOfWeekPopup(
-                              context,
-                              widget.defaultEventDays,
-                              widget.customerId,
-                              newValue.value,
-                              widget.provider,
-                            );
-                          }
-                        });
-                      }
-                    },
-                    items: EventType.values
-                        .map<DropdownMenuItem<EventType>>((EventType value) {
-                      return DropdownMenuItem<EventType>(
-                        value: value,
-                        child: Text(
-                          value.displayName,
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            //fontFamily: 'Poppins_Regular',
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    underline: Container(),
-                    isExpanded: true,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 5.0,
-          ),
-          if (widget.defaultEventDays.isNotEmpty)
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: GestureDetector(
-                  onTap: () {
-                    showDaysOfWeekPopup(context, widget.defaultEventDays,
-                        widget.customerId, widget.eventStatus, widget.provider);
-                  },
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'i',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  )),
-            ),
-        ],
-      ),
-    );
-  }
+//                           if (newValue == EventType.fortnightly) {
+//                             _selectDate(context, 3);
+//                           } else if (newValue == EventType.daily) {
+//                             widget.provider.addEvent(
+//                               widget.customerId,
+//                               // widget.eventStatus,
+//                               5,
+//                               [DateTime.now().toIso8601String()],
+//                             );
+//                             widget.provider.fetchCustomerData();
+//                           } else if (newValue == EventType.monthly) {
+//                             widget.provider.addEvent(
+//                               widget.customerId,
+//                               // widget.eventStatus,
+//                               4,
+//                               [DateTime.now().toIso8601String()],
+//                             );
+//                             widget.provider.fetchCustomerData();
+//                           } else if (newValue == EventType.weekly) {
+//                             showDaysOfWeekPopup(
+//                               context,
+//                               widget.defaultEventDays,
+//                               widget.customerId,
+//                               newValue.value,
+//                               widget.provider,
+//                             );
+//                           } else {
+//                             showDaysOfWeekPopup(
+//                               context,
+//                               widget.defaultEventDays,
+//                               widget.customerId,
+//                               newValue.value,
+//                               widget.provider,
+//                             );
+//                           }
+//                         });
+//                       }
+//                     },
+//                     items: EventType.values
+//                         .map<DropdownMenuItem<EventType>>((EventType value) {
+//                       return DropdownMenuItem<EventType>(
+//                         value: value,
+//                         child: Text(
+//                           value.displayName,
+//                           style: const TextStyle(
+//                             fontSize: 11.5,
+//                             color: Colors.black87,
+//                             fontWeight: FontWeight.bold,
+//                             //fontFamily: 'Poppins_Regular',
+//                           ),
+//                         ),
+//                       );
+//                     }).toList(),
+//                     underline: Container(),
+//                     isExpanded: true,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           const SizedBox(
+//             width: 5.0,
+//           ),
+//           if (widget.defaultEventDays.isNotEmpty)
+//             SizedBox(
+//               width: 24,
+//               height: 24,
+//               child: GestureDetector(
+//                   onTap: () {
+//                     showDaysOfWeekPopup(context, widget.defaultEventDays,
+//                         widget.customerId, widget.eventStatus, widget.provider);
+//                   },
+//                   child: Container(
+//                     width: 24,
+//                     height: 24,
+//                     decoration: BoxDecoration(
+//                       color: primaryColor,
+//                       borderRadius: BorderRadius.circular(15),
+//                       boxShadow: [
+//                         BoxShadow(
+//                           color: Colors.grey.withOpacity(0.3),
+//                           spreadRadius: 1,
+//                           blurRadius: 4,
+//                           offset: const Offset(0, 2),
+//                         ),
+//                       ],
+//                     ),
+//                     child: const Center(
+//                       child: Text(
+//                         'i',
+//                         style: TextStyle(
+//                           fontSize: 12,
+//                           color: Colors.white,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                       ),
+//                     ),
+//                   )),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
 
-  void showDaysOfWeekPopup(BuildContext context, List<String> selectedDays,
-      String cusID, int eventSt, CustomersProvider provider) {
-    final List<String> daysOfWeek = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-    ];
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              content: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ListBody(
-                  children: daysOfWeek.map((day) {
-                    return CheckboxListTile(
-                      title: Text(day),
-                      value: selectedDays.contains(day.toLowerCase()),
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            selectedDays.add(day.toLowerCase());
-                          } else {
-                            selectedDays.remove(day.toLowerCase());
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-              actions: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffdcdefc),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: primaryColor),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Add To Calender',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () async {
-                        await provider.addEvent(
-                          cusID,
-                          eventSt,
-                          selectedDays,
-                        );
-                        provider.fetchCustomerData();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+//   void showDaysOfWeekPopup(BuildContext context, List<String> selectedDays,
+//       String cusID, int eventSt, CustomersProvider provider) {
+//     final List<String> daysOfWeek = [
+//       'Monday',
+//       'Tuesday',
+//       'Wednesday',
+//       'Thursday',
+//     ];
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return StatefulBuilder(
+//           builder: (context, setState) {
+//             return AlertDialog(
+//               content: SingleChildScrollView(
+//                 physics: const ClampingScrollPhysics(),
+//                 child: ListBody(
+//                   children: daysOfWeek.map((day) {
+//                     return CheckboxListTile(
+//                       title: Text(day),
+//                       value: selectedDays.contains(day.toLowerCase()),
+//                       onChanged: (bool? value) {
+//                         setState(() {
+//                           if (value == true) {
+//                             selectedDays.add(day.toLowerCase());
+//                           } else {
+//                             selectedDays.remove(day.toLowerCase());
+//                           }
+//                         });
+//                       },
+//                     );
+//                   }).toList(),
+//                 ),
+//               ),
+//               actions: <Widget>[
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.end,
+//                   children: [
+//                     ElevatedButton(
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: const Color(0xffdcdefc),
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(4.0),
+//                         ),
+//                       ),
+//                       child: const Text(
+//                         'Cancel',
+//                         style: TextStyle(color: primaryColor),
+//                       ),
+//                       onPressed: () {
+//                         Navigator.of(context).pop();
+//                       },
+//                     ),
+//                     const SizedBox(
+//                       width: 5,
+//                     ),
+//                     ElevatedButton(
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: primaryColor,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(4.0),
+//                         ),
+//                       ),
+//                       child: const Text(
+//                         'Add To Calender',
+//                         style: TextStyle(color: Colors.white),
+//                       ),
+//                       onPressed: () async {
+//                         await provider.addEvent(
+//                           cusID,
+//                           eventSt,
+//                           selectedDays,
+//                         );
+//                         provider.fetchCustomerData();
+//                         Navigator.of(context).pop();
+//                       },
+//                     ),
+//                   ],
+//                 ),
+//               ],
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
 
-  Future<void> _selectDate(BuildContext context, int eventStatus) async {
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+//   Future<void> _selectDate(BuildContext context, int eventStatus) async {
+//     DateTime? selectedDate = await showDatePicker(
+//       context: context,
+//       initialDate: DateTime.now(),
+//       firstDate: DateTime(2000),
+//       lastDate: DateTime(2101),
+//     );
 
-    if (selectedDate != null) {
-      widget.provider.addEvent(
-        widget.customerId,
-        eventStatus,
-        // widget.eventStatus,
-        [selectedDate.toIso8601String()],
-      );
-      widget.provider.fetchCustomerData();
-    }
-  }
-}
+//     if (selectedDate != null) {
+//       widget.provider.addEvent(
+//         widget.customerId,
+//         eventStatus,
+//         // widget.eventStatus,
+//         [selectedDate.toIso8601String()],
+//       );
+//       widget.provider.fetchCustomerData();
+//     }
+//   }
+// }
 
 class FrozenHeaderTable extends StatefulWidget {
   final ScrollController scrollController;
@@ -3055,8 +3056,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 child: EventTypeDropdown(
                                                   initialValue:
                                                       EventTypeExtension
-                                                          .fromValue(customer
-                                                              .eventType),
+                                                    .fromValue(
+                                                        customer.eventType),
                                                   onChanged:
                                                       (EventType newType) {},
                                                   defaultEventDays:
@@ -3065,6 +3066,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       customer.customerId,
                                                   eventStatus:
                                                       customer.eventType,
+                                                  eventPeriod: customer.eventPeriod,
                                                   provider: provider,
                                                 ),
                                               ),

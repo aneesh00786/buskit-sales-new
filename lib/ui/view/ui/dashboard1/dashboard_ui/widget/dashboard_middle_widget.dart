@@ -1113,7 +1113,8 @@ class _ChatScreenState extends State<ChatScreen> {
         image: msg['image'],
         source: msg['source'],
         salesman: msg['salesman'],
-        updatedAt: msg['created_at'],
+        updatedAt: msg['updated_at'],
+        createdAt: msg['created_at'],
       );
       log('Date Time :${newMessage.updatedAt}');
       Provider.of<DashboardProvider>(context, listen: false)
@@ -1198,7 +1199,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               NKDateUtils.commonFullDateTimeFormat2(
                 NKDateUtils.formatStringUTCDateTime(
-                    message.updatedAt.toString()),
+                    message.createdAt.toString()),
               ),
               style: const TextStyle(
                   fontSize: 11,
@@ -1238,7 +1239,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Text(
                     NKDateUtils.commonFullDateTimeFormat2(
                       NKDateUtils.formatStringUTCDateTime(
-                          message.updatedAt.toString()),
+                          message.createdAt.toString()),
                     ),
                     style: const TextStyle(
                         fontSize: 11,
@@ -1279,7 +1280,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               NKDateUtils.commonFullDateTimeFormat2(
                 NKDateUtils.formatStringUTCDateTime(
-                    message.updatedAt.toString()),
+                    message.createdAt.toString()),
               ),
               style: const TextStyle(
                   fontSize: 11,

@@ -2091,4 +2091,58 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to save schedule visits: $error');
     }
   }
+
+  Future<DebitCreditResponse> debitRouteCredits({
+    required int? amount,
+    required String? details,
+    required List<String>? addresses,
+  }) async {
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.deductCreditRoute,
+        requestData: {
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "amount": amount,
+          "details": details,
+          "addresses": addresses
+        },
+      ).onError((DioException error, stackTrace) {
+        log(error.toString());
+        handleExceptionMessage(
+            apiName: 'Debit Route Credits', response: error.response);
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+
+      var res = DebitCreditResponse.fromJson(response.data);
+      return res;
+    } catch (e) {
+      log("Error Debit Route Credits: $e");
+      rethrow;
+    }
+  }
+
+  Future<ShowRouteResponse> showRoutes({
+    required List<String>? eventList,
+  }) async {
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.showRoute,
+        requestData: {
+          "companyId": 1,
+          "eventlist": eventList
+        },
+      ).onError((DioException error, stackTrace) {
+        log(error.toString());
+        handleExceptionMessage(
+            apiName: 'Show Routes API', response: error.response);
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+
+      var res = ShowRouteResponse.fromJson(response.data);
+      return res;
+    } catch (e) {
+      log("Error in Show Routes: $e");
+      rethrow;
+    }
+  }
 }

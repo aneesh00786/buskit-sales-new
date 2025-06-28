@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -54,32 +56,34 @@ class _CalenderScreenState extends State<CalenderScreen> {
             children: [
               nkMediumSizeBox(),
               Obx(() {
+                log(calenderController.isRouteCreditLoading.value.toString());
                 return SizedBox(
                   height: 40,
                   child: Row(
                     children: [
                       Spacer(),
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomText(content: 'Route Credit :  '),
-                            CustomText(
-                              content:
-                                  calenderController.isRouteCreditLoading.value
-                                      ? 'Loading...'
-                                      : formatAmount(
-                                          calenderController.routeCredit.value),
-                              color: Colors.blue.shade600,
-                            ),
-                          ],
-                        ),
-                      ),
+                      // come back
+                      // Container(
+                      //   padding: EdgeInsets.all(10),
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.blue.shade50,
+                      //     borderRadius: BorderRadius.circular(5),
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children: [
+                      //       CustomText(content: 'Route Credit :  '),
+                      //       CustomText(
+                      //         content:
+                      //             calenderController.isRouteCreditLoading.value
+                      //                 ? 'Loading...'
+                      //                 : formatAmount(
+                      //                     calenderController.routeCredit.value),
+                      //         color: Colors.blue.shade600,
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       nkMediumSizeBox(),
                     ],
                   ),

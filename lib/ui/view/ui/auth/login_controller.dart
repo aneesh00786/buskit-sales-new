@@ -681,6 +681,42 @@ class LoginController extends GetxController {
               .toIso8601String(),
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
+
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: '',
+            orderStatus: OrderStatus.delivered,
+            fetchType: "Month"),
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 7,
+            orderStatus: OrderStatus.estimates,
+            fetchType: "Month"),
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 0,
+            orderStatus: OrderStatus.preOrder,
+            fetchType: "Month"),
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 4,
+            orderStatus: OrderStatus.draft,
+            fetchType: "Month"),
+        ApiService().fetchAllOrders(
+            isLogin: true,
+            orderType: 3,
+            orderStatus: OrderStatus.cancelled,
+            fetchType: "Month"),
+
+        ApiWorker().getRecentOrdersData(
+          searchModel: searchData,
+          orderStatus: 11,
+          isLogin: true,
+          startDate: '',
+          endDate: '',
+          page: 1,
+        ),
+
         // --- Performance/Staff module API calls ---
         withTimeoutAndLog(ApiWorker().getWeeklyType(), 'getWeeklyType'),
         withTimeoutAndLog(

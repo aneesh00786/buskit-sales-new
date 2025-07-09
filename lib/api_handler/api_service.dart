@@ -856,7 +856,7 @@ class ApiService {
     }
 
     final requestBody = {
-      "salesman_id": salesmanId,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "business_name": customerName,
       "start_date": startDate,
       "end_date": endDate,

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -15,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -124,7 +126,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         bool hasDraftId = CartDatabaseManager()
             .cartItems
             .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
@@ -156,6 +158,19 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             widget.onTap?.call(widget.sidebarXController.selectedIndex);
           });
         } else {
+          // Check connectivity for recent orders
+          if (isRecentOrders) {
+            final isOnline = await ConnectivityService().isOnline();
+            if (!isOnline) {
+              showCustomToastDisplay(
+                context,
+                'You are offline. Recent orders will not function.',
+                red,
+                Icons.close,
+              );
+              // return;
+            }
+          }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
           setState(() {
@@ -201,13 +216,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         ? null
                         : Colors.grey,
               ),
-              // Icon(
-              //   sideBarData.icon!,
-              //   size: 24,
-              //   color: widget.sidebarXController.selectedIndex == index
-              //       ? Theme.of(context).primaryColor
-              //       : Colors.grey,
-              // ),
             ),
             if (isRecentOrders)
               Positioned(

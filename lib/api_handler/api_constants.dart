@@ -135,4 +135,6 @@ mixin class ApiConstants {
   static const String createPaypalAuth = "create-paypal-auth";
 
   static const String showRoute = "show-route";
+  static const String fetchCategories = "fetch_categories";
+  static const String fetchProduct = "fetch_product";
 }

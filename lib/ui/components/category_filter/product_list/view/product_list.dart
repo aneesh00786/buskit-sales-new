@@ -98,38 +98,39 @@ class _ProductGridState extends State<ProductGrid> {
           products = scidGroup.products;
           isLoading = false;
         });
-      } else {
-        log('No scid group found for subcategory: $selectedSubCatId');
-        // Fallback to legacy cache - filter by scid
-        var productBox = Hive.box<ProductModel>('products');
-        if (productBox.isNotEmpty) {
-          log('Legacy cache has ${productBox.length} products');
+        return;
+      }
+      
+      log('No scid group found for subcategory: $selectedSubCatId');
+      // Fallback to legacy cache - filter by scid
+      var productBox = Hive.box<ProductModel>('products');
+      if (productBox.isNotEmpty) {
+        log('Legacy cache has ${productBox.length} products');
 
-          // Show all available scids in legacy cache for debugging
-          final allScids =
-              productBox.values.map((p) => p.scid).toSet().toList();
-          log('All scids available in legacy cache: $allScids');
+        // Show all available scids in legacy cache for debugging
+        final allScids =
+            productBox.values.map((p) => p.scid).toSet().toList();
+        log('All scids available in legacy cache: $allScids');
 
-          List<ProductModel> offlineProducts = productBox.values
-              .where((product) => product.scid == selectedSubCatId)
-              .toList();
-          log("Loaded ${offlineProducts.length} products for subcategory $selectedSubCatId from legacy cache");
+        List<ProductModel> offlineProducts = productBox.values
+            .where((product) => product.scid == selectedSubCatId)
+            .toList();
+        log("Loaded ${offlineProducts.length} products for subcategory $selectedSubCatId from legacy cache");
 
-          if (offlineProducts.isNotEmpty) {
-            log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
-          }
-
-          setState(() {
-            products = offlineProducts;
-            isLoading = false;
-          });
-        } else {
-          log("No products available offline for subcategory $selectedSubCatId");
-          setState(() {
-            products = [];
-            isLoading = false;
-          });
+        if (offlineProducts.isNotEmpty) {
+          log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
         }
+
+        setState(() {
+          products = offlineProducts;
+          isLoading = false;
+        });
+      } else {
+        log("No products available offline for subcategory $selectedSubCatId");
+        setState(() {
+          products = [];
+          isLoading = false;
+        });
       }
     } catch (e) {
       log('Error loading products from Hive: $e');
@@ -249,10 +250,10 @@ class _ProductGridState extends State<ProductGrid> {
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
               : products.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
-                      'No Data Available :${products.length}',
-                      style: const TextStyle(fontSize: 40),
+                      'No Products Available',
+                      style: TextStyle(fontSize: 25),
                     ))
                   : GridView.builder(
                       gridDelegate:

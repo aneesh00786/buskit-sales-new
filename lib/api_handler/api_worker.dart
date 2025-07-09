@@ -574,7 +574,7 @@ class ApiWorker with ApiConstants {
 
   /// ************************ CATEGORY SECTION ***************** ///
 
-  Future<CategoryModel> getCategory() async {
+  Future<CategoryModel> getCategory({required int companyid}) async {
     try {
       final isConnected = await ConnectivityService().isOnline();
       final cacheKey =
@@ -593,9 +593,9 @@ class ApiWorker with ApiConstants {
         }
       } else {
         final response = await dio.getbycustom(
-          ApiConstants.fetchcategories,
+          ApiConstants.fetchCategories,
           queryParameters: {
-            "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+            "company_id": companyid,
           },
         );
 
@@ -630,7 +630,7 @@ class ApiWorker with ApiConstants {
         };
         log('API Request Parameters: $queryParams');
 
-        final response = await dio.getbycustom(ApiConstants.fetchproduct,
+        final response = await dio.getbycustom(ApiConstants.fetchProduct,
             queryParameters: queryParams);
 
         log('API Response Status Code: ${response.statusCode}');
@@ -774,14 +774,14 @@ class ApiWorker with ApiConstants {
         final queryParams = {"company_id": companyId};
         log('API Request Parameters: $queryParams');
 
-        final response = await dio.getbycustom(ApiConstants.fetchproduct,
+        final response = await dio.getbycustom(ApiConstants.fetchProduct,
             queryParameters: queryParams);
 
         log('API Response Status Code: ${response.statusCode}');
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          log('API Response Data: $responseData');
+          log('[getAllProducts] API Response Data: $responseData');
 
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
@@ -802,6 +802,9 @@ class ApiWorker with ApiConstants {
           await _cacheProductsByScid(productApiResponse.data);
           log('All products cached successfully for ${productApiResponse.data.length} scid groups');
           log('Cached scid groups: ${productApiResponse.data.map((group) => '${group.scid}(${group.products.length} products)').toList()}');
+
+          // Verify cache was successful
+          await _verifyProductCache();
 
           log('=== getAllProducts END (Online) ===');
           return allProducts;
@@ -826,6 +829,45 @@ class ApiWorker with ApiConstants {
       log('Loaded ${cachedProducts.length} products from cache');
       log('=== getAllProducts END (Offline) ===');
       return cachedProducts;
+    }
+  }
+
+  // Method to verify product cache status
+  Future<void> _verifyProductCache() async {
+    log('=== _verifyProductCache START ===');
+    try {
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      log('Cache verification:');
+      log('- ScidProductGroups box has ${scidGroupBox.length} entries');
+      log('- Products box has ${productBox.length} entries');
+      log('- Available scid keys: ${scidGroupBox.keys.toList()}');
+
+      if (scidGroupBox.isNotEmpty) {
+        for (var key in scidGroupBox.keys) {
+          final group = scidGroupBox.get(key);
+          log('- Scid group $key: ${group?.products.length ?? 0} products');
+        }
+      }
+
+      log('=== _verifyProductCache END ===');
+    } catch (e) {
+      log('Error verifying product cache: $e');
+      log('=== _verifyProductCache END (Error) ===');
     }
   }
 

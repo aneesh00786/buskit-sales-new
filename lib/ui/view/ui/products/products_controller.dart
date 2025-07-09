@@ -29,6 +29,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'product_ui/product_responce/product_responce_temp.dart';
 
 class ProductsController extends GetxController {
+  final ApiWorker _apiWorker = Get.put(ApiWorker());
   var optionName = ''.obs;
   TextEditingController searchCustomerController = TextEditingController();
   Rx<CategoryModel> categoryData = CategoryModel().obs;
@@ -300,10 +301,19 @@ class ProductsController extends GetxController {
         return [];
       }
 
+      // Validate that subCatId is a valid number or string
+      if (subCatId.trim().isEmpty) {
+        log('fetchProducts: ERROR - subCatId is empty after trimming');
+        isLoading.value = false;
+        products.clear();
+        return [];
+      }
+
+      log('fetchProducts: Valid subCatId: $subCatId');
       isLoading.value = true;
       log('fetchProducts: Fetching products from API...');
 
-      List<ProductModel> fetchedProducts = await ApiWorker().getTempProduct(
+      List<ProductModel> fetchedProducts = await _apiWorker.getTempProduct(
         subCatId,
         companyid: SessionHelper.loginSavedData?.company_id ?? 0,
       );
@@ -339,13 +349,13 @@ class ProductsController extends GetxController {
   Future<void> clearProductsForSubCategory(String subCatId) async {
     try {
       log('clearProductsForSubCategory: Clearing products for subcategory: $subCatId');
-
+      
       // Clear from memory
       products.clear();
-
+      
       // Clear from cache
-      await ApiWorker().clearProductsForSubCategory(subCatId);
-
+      await _apiWorker.clearProductsForSubCategory(subCatId);
+      
       log('clearProductsForSubCategory: Products cleared successfully');
     } catch (e) {
       log('clearProductsForSubCategory: Error occurred: $e');
@@ -360,14 +370,13 @@ class ProductsController extends GetxController {
   }
 
   // Method to clear cache and reload products for a specific subcategory
-  Future<List<ProductModel>> reloadProductsForSubCategory(
-      String subCatId) async {
+  Future<List<ProductModel>> reloadProductsForSubCategory(String subCatId) async {
     log('reloadProductsForSubCategory: Reloading products for subcategory: $subCatId');
-
+    
     try {
       // Clear cache for this subcategory
-      await ApiWorker().clearProductsForSubCategory(subCatId);
-
+      await _apiWorker.clearProductsForSubCategory(subCatId);
+      
       // Fetch fresh products
       return await fetchProducts(subCatId);
     } catch (e) {
@@ -381,10 +390,9 @@ class ProductsController extends GetxController {
     log('debugProductList: Current products count: ${products.length}');
     log('debugProductList: Product IDs: ${products.map((p) => p.productId).toList()}');
     log('debugProductList: Product names: ${products.map((p) => p.productName).toList()}');
-
+    
     // Check for duplicates
-    final productIds =
-        products.map((p) => p.productId).where((id) => id != null).toList();
+    final productIds = products.map((p) => p.productId).where((id) => id != null).toList();
     final uniqueIds = productIds.toSet();
     if (productIds.length != uniqueIds.length) {
       log('debugProductList: WARNING - Found ${productIds.length - uniqueIds.length} duplicate product IDs');
@@ -412,7 +420,9 @@ class ProductsController extends GetxController {
       //   log('Retrieved from Hive : ${categoryModel?.data?.length}');
       // } else {
       log('fetchCategoryData: Fetching from API...');
-      categoryModel = await ApiWorker().getCategory();
+      categoryModel = await _apiWorker.getCategory(
+        companyid: SessionHelper.loginSavedData?.company_id ?? 0,
+      );
       log('fetchCategoryData: API response received. Data length: ${categoryModel.data?.length ?? 0}');
 
       await storeCategoryData(categoryModel);
@@ -476,7 +486,9 @@ class ProductsController extends GetxController {
 
   Future<CategoryModel> loadDataOfCategories() async {
     try {
-      final categoryModel = await ApiWorker().getCategory();
+      final categoryModel = await _apiWorker.getCategory(
+        companyid: SessionHelper.loginSavedData?.company_id ?? 0,
+      );
       await storeCategoryData(categoryModel);
       return categoryModel;
     } catch (e) {
@@ -662,11 +674,66 @@ class ProductsController extends GetxController {
     return ready;
   }
 
+  /// Check cache status for debugging
+  Future<void> checkCacheStatus() async {
+    log('=== checkCacheStatus START ===');
+    try {
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox = await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      log('Cache Status:');
+      log('- ScidProductGroups box: ${scidGroupBox.length} entries');
+      log('- Products box: ${productBox.length} entries');
+      log('- Available scid keys: ${scidGroupBox.keys.toList()}');
+      log('- Current selectedSubCategoryId: ${selectedSubCategoryId.value}');
+      log('- Current selectedSubCategoryName: ${selectedSubCategoryName.value}');
+      
+      if (scidGroupBox.isNotEmpty) {
+        for (var key in scidGroupBox.keys) {
+          final group = scidGroupBox.get(key);
+          log('- Scid group $key: ${group?.products.length ?? 0} products');
+        }
+      }
+
+      if (productBox.isNotEmpty) {
+        final allScids = productBox.values.map((p) => p.scid).toSet().toList();
+        log('- All scids in legacy cache: $allScids');
+      }
+
+      log('=== checkCacheStatus END ===');
+    } catch (e) {
+      log('Error checking cache status: $e');
+      log('=== checkCacheStatus END (Error) ===');
+    }
+  }
+
   /// Select a subcategory and load its products
   Future<void> selectSubCategory(
       String subCategoryId, String subCategoryName) async {
     try {
       log('selectSubCategory: Selecting subcategory: $subCategoryName (ID: $subCategoryId)');
+
+      if (subCategoryId.isEmpty) {
+        log('selectSubCategory: ERROR - subCategoryId is empty');
+        return;
+      }
+
+      if (subCategoryName.isEmpty) {
+        log('selectSubCategory: ERROR - subCategoryName is empty');
+        return;
+      }
 
       selectedSubCategoryId.value = subCategoryId;
       selectedSubCategoryName.value = subCategoryName;

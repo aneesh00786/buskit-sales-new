@@ -295,32 +295,25 @@ class LoginController extends GetxController {
         await SessionHelper().setLoginData(loginResponce!.data!);
         await SessionHelper().getLoginData();
         log("Fetching settings after login...");
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(seconds: 2));
+        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final settings = await _apiWorker
             .fetchAllSettings(SessionHelper.loginSavedData?.company_id ?? 0);
 
         bool syncInBackground = false;
         late void Function() onSyncInBackground;
-        final requiredDataFuture = loadAllInitialData(
-            context, SessionHelper.loginSavedData?.company_id ?? 0);
+        final requiredDataFuture = loadAllInitialData(context, companyId);
         final customerSyncFuture =
             isSameUser ? Future.value() : fetchAllCustomerPages(context);
         final navigationCompleter = Completer<void>();
         onSyncInBackground = () {
-          log('[SyncInBackground] Button pressed');
           if (!syncInBackground) {
             syncInBackground = true;
             requiredDataFuture.then((_) {
-              log('[SyncInBackground] requiredDataFuture completed');
               if (!navigationCompleter.isCompleted) {
-                log('[SyncInBackground] Completing navigationCompleter');
                 navigationCompleter.complete();
-              } else {
-                log('[SyncInBackground] navigationCompleter already completed');
               }
             });
-          } else {
-            log('[SyncInBackground] Already syncing in background');
           }
         };
 
@@ -517,7 +510,7 @@ class LoginController extends GetxController {
       for (page = 2; page <= totalPages; page++) {
         log('[fetchAllCustomerPages] Fetching customer page $page');
         final response = await apiService.fetchCustomer(
-          salesmanId: '',
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           customerName: provider.searchCustomerName,
           startDate: '',
           endDate: '',
@@ -648,11 +641,10 @@ class LoginController extends GetxController {
   }
 
   Future<void> loadAllInitialData(BuildContext context, int companyId) async {
+    final formatter = DateFormat('yyyy-MM-dd');
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final startDate = formatter.format(firstDayOfMonth);
     final endDate = formatter.format(lastDayOfMonth);
 
@@ -660,6 +652,8 @@ class LoginController extends GetxController {
     log("📆 Month passed : $currentMonth");
 
     try {
+      log('loadAllInitialData: Starting to load all initial data...');
+      
       await Future.wait([
         subscriptionController.loadSubscriptionFeatures(companyId),
         Provider.of<DashboardProvider>(context, listen: false).fetchData(),
@@ -671,7 +665,6 @@ class LoginController extends GetxController {
         leadsController.loadLeadsCustomerData,
         leadsCustomerController.loadLeadsCustomerData,
         leadsRejectedController.loadRejectedLeadsData,
-        // staffController.loadStaffDataList,
         orderController.loadOrderCountData(),
         _apiWorker.getAllProducts(),
         calenderMapController.getRouteCredit(),
@@ -707,15 +700,6 @@ class LoginController extends GetxController {
             orderType: 3,
             orderStatus: OrderStatus.cancelled,
             fetchType: "Month"),
-
-        ApiWorker().getRecentOrdersData(
-          searchModel: searchData,
-          orderStatus: 11,
-          isLogin: true,
-          startDate: '',
-          endDate: '',
-          page: 1,
-        ),
 
         // --- Performance/Staff module API calls ---
         withTimeoutAndLog(ApiWorker().getWeeklyType(), 'getWeeklyType'),
@@ -780,6 +764,11 @@ class LoginController extends GetxController {
           'fetchSchedule',
         ),
       ]);
+      
+      // Check cache status after loading all data
+      log('loadAllInitialData: Checking cache status after data loading...');
+      await productsController.checkCacheStatus();
+      
     } catch (e, stack) {
       log('Error in Future.wait during login: $e\n$stack');
       // Optionally: Show a user-friendly error message here

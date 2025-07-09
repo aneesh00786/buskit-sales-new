@@ -170,14 +170,18 @@ class _OrderTakingState extends State<OrderTaking>
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =
             categories[0].subCategoryItem![0].subCategory ?? '';
+        final firstSubCategoryId =
+            categories[0].subCategoryItem![0].id ?? '';
         _selectedOption = firstSubCategory;
-        _loadProductsForSubCategory(firstSubCategory);
+        _loadProductsForSubCategory(firstSubCategoryId);
       }
     }
   }
 
   void _loadProductsForSubCategory(String subCategory) {
-    widget.productsController.fetchProducts(subCategory);
+    if (subCategory.isNotEmpty) {
+      widget.productsController.fetchProducts(subCategory);
+    }
   }
 
   void _toggleDrawer() {
@@ -191,6 +195,11 @@ class _OrderTakingState extends State<OrderTaking>
       _id = categoryId;
       log('Fetching products for category ID: $categoryId');
     });
+    
+    // Actually fetch the products using the products controller
+    if (categoryId.isNotEmpty) {
+      await widget.productsController.fetchProducts(categoryId);
+    }
   }
 
   int getCartItemCount() {
@@ -658,11 +667,17 @@ class _OrderTakingState extends State<OrderTaking>
                                           selectedCategory
                                                   .subCategoryItem!.first.id ??
                                               '';
-                                      widget.productsController
-                                              .selectedSubCategoryName.value =
+                                      String firstSubCategoryName =
                                           selectedCategory.subCategoryItem!
                                               .first.subCategory
                                               .toString();
+                                      widget.productsController
+                                              .selectedSubCategoryName.value =
+                                          firstSubCategoryName;
+                                      widget.productsController
+                                              .selectedSubCategoryId.value =
+                                          firstSubCategoryId;
+                                      _selectedOption = firstSubCategoryName;
                                       _fetchProductsByCategory(
                                           firstSubCategoryId);
                                     }
@@ -708,10 +723,8 @@ class _OrderTakingState extends State<OrderTaking>
                       );
                     }).toList(),
                     onOptionSelected: (selectedSubcategoryId) {
-                      String categoryId =
-                          selectedSubCategory(selectedSubcategoryId);
-                      log('Selected Subcategory ID: $categoryId');
-                      _fetchProductsByCategory(categoryId);
+                      log('Selected Subcategory ID: $selectedSubcategoryId');
+                      _fetchProductsByCategory(selectedSubcategoryId);
                     },
                     onDrawerToggle: _toggleDrawer,
                     selectedCategory: _selectedCategory,
@@ -733,17 +746,7 @@ class _OrderTakingState extends State<OrderTaking>
     log('Selected Category: $_selectedCategory');
   }
 
-  String selectedSubCategory(String selectedOption) {
-    var selectedCategory = widget.productsController.categoryData.value.data!
-        .firstWhere((e) =>
-            e.subCategoryItem
-                ?.any((sub) => sub.subCategory == selectedOption) ??
-            false);
-    var selectedSubcategory = selectedCategory.subCategoryItem?.firstWhere(
-        (sub) => sub.subCategory == selectedOption,
-        orElse: () => SubCategoryItem());
-    return selectedSubcategory?.id ?? '';
-  }
+
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);

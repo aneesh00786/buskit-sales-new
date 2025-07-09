@@ -47,6 +47,8 @@ void main() async {
   Hive.registerAdapter(DiscountModelAdapter());
   Hive.registerAdapter(AddToCartModelAdapter());
   Hive.registerAdapter(SendCartDataAdapter());
+  Hive.registerAdapter(ProductApiResponseAdapter());
+  Hive.registerAdapter(ScidProductGroupAdapter());
   await Hive.openBox<CustomerDiscountModel>('discounts');
   await Hive.openBox<CartItem>('cartBox');
   await Hive.openBox<CartItem>('cartPreorderBox');
@@ -57,7 +59,6 @@ void main() async {
   await Hive.openBox('customerTotalSaleBox');
   await Hive.openBox('weeklyTypeBox');
   await Hive.openBox('customerBox');
-  await Hive.openBox('productBox');
   await Hive.openBox('chatBox');
   await Hive.openBox('pendingPaymentBox');
   await Hive.openBox('performanceBox');
@@ -75,6 +76,8 @@ void main() async {
   await Hive.openBox('topBarDataBox');
   await Hive.openBox('timesheetBox');
   await Hive.openBox('scheduleBox');
+  await Hive.openBox<ProductModel>('products');
+  await Hive.openBox<ScidProductGroup>('scidProductGroups');
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -93,10 +96,10 @@ void main() async {
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
   final subscriptionController = Get.put(SubscriptionController());
-  
+
   Get.put(CalenderMapController());
   Get.put(ProductsController());
-  
+
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
   final connectivityService = ConnectivityService();
@@ -169,7 +172,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, sizingConstraints) {
         AppDimensions.createInstance(context, sizingConstraints);
@@ -179,7 +182,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ChangeNotifierProvider(
               create: (context) =>
                   CustomersProvider(apiService: ApiService(), logger: Logger()),
-                
             ),
             ChangeNotifierProvider(
               create: (context) =>

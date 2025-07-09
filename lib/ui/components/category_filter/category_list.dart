@@ -160,13 +160,21 @@ class _CategoryListState extends State<CategoryList> {
                             children: category.subCategoryItem!.map((option) {
                               return GestureDetector(
                                 onTap: () {
-                                      widget.onOptionSelected(
-                                          option.subCategory ?? '');
+                                      if (option.id == null || option.id!.isEmpty) {
+                                        log('ERROR: Subcategory ${option.subCategory} has no ID');
+                                        return;
+                                      }
+                                      
+                                      log('Selecting subcategory: ${option.subCategory} with ID: ${option.id}');
+                                      widget.onOptionSelected(option.id!);
                                       widget.productsController
                                               .selectedSubCategoryName.value =
                                           option.subCategory.toString();
+                                      widget.productsController
+                                              .selectedSubCategoryId.value =
+                                          option.id!;
                                       widget.onDrawerToggle();
-                                      log(option.subCategory ?? '');
+                                      log('Selected subcategory: ${option.subCategory} with ID: ${option.id}');
                                     },
                                 child: Padding(
                                   padding: const EdgeInsets.only(

@@ -72,6 +72,9 @@ void main() async {
   await Hive.openBox('subscribtionBox');
   await Hive.openBox('subscribtionPlanDetailsBox');
   await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
+  await Hive.openBox('topBarDataBox');
+  await Hive.openBox('timesheetBox');
+  await Hive.openBox('scheduleBox');
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,

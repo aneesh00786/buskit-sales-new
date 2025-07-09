@@ -194,7 +194,7 @@ class LocalStorage {
   storedSettingsData(Box<dynamic> settingsBox, String cacheKey) {
     final cachedData = settingsBox.get(cacheKey);
     if (cachedData != null) {
-      log('Fetched settings from Hive: $cachedData');
+      // log('Fetched settings from Hive: $cachedData');
       final settingsList = (cachedData as List<dynamic>)
           .map((item) => AllCompanySettingsData.fromJson(LocalStorage()
               .castToStringDynamic(Map<dynamic, dynamic>.from(item))))
@@ -398,7 +398,8 @@ class LocalStorage {
     );
   }
 
-  Future<ResponseModell>storedDashboardDatas(dynamic cachedData, Box<dynamic> dashboardBox) async {
+  Future<ResponseModell> storedDashboardDatas(
+      dynamic cachedData, Box<dynamic> dashboardBox) async {
     if (cachedData != null) {
       try {
         final parsedJson = jsonDecode(cachedData);

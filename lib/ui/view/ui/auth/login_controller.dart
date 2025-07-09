@@ -626,6 +626,27 @@ class LoginController extends GetxController {
     }
   }
 
+  // Helper to wrap futures with timeout and error logging
+  Future<T?> withTimeoutAndLog<T>(
+    Future<T> future,
+    String label, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    log('\x1B[32m******************************** $label ********************************\x1B[0m');
+    try {
+      return await future.timeout(
+        timeout,
+        onTimeout: () async {
+          log('[Timeout] $label did not complete in ${timeout.inSeconds}s');
+          return Future.value(null); // ✅ ensure it's Future<T?>
+        },
+      );
+    } catch (e, stack) {
+      log('[Error] $label failed: $e\n$stack');
+      return null;
+    }
+  }
+
   Future<void> loadAllInitialData(BuildContext context, int companyId) async {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
@@ -634,6 +655,10 @@ class LoginController extends GetxController {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final startDate = formatter.format(firstDayOfMonth);
     final endDate = formatter.format(lastDayOfMonth);
+
+    final String currentMonth = DateFormat.MMMM().format(DateTime.now());
+    log("📆 Month passed : $currentMonth");
+
     try {
       await Future.wait([
         subscriptionController.loadSubscriptionFeatures(companyId),
@@ -657,42 +682,67 @@ class LoginController extends GetxController {
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
         // --- Performance/Staff module API calls ---
-        // ApiWorker().getWeeklyType(),
-        // // Use SessionHelper for salesmanId, current month/year
-        // ApiWorker().fetchSalesmanPerformanceData(
-        //   monthName: DateFormat.MMMM().format(DateTime.now()),
-        //   year: DateTime.now().year,
-        //   compId: companyId,
-        //   salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
-        //   isfromLogin: true,
-        // ),
-        // // Top bar data for all 4 tabs (1: Timesheet, 2: Check-in/out, 3: Visits, 4: Customers)
-        // ApiWorker().fetchSalesmanTopBarData(
-        //     DateFormat.MMMM().format(DateTime.now()), 1),
-        // ApiWorker().fetchSalesmanTopBarData(
-        //     DateFormat.MMMM().format(DateTime.now()), 2),
-        // ApiWorker().fetchSalesmanTopBarData(
-        //     DateFormat.MMMM().format(DateTime.now()), 3),
-        // ApiWorker().fetchSalesmanTopBarData(
-        //     DateFormat.MMMM().format(DateTime.now()), 4),
-        // ApiWorker().fetchSalesmanValueTarget(
-        //   SessionHelper.loginSavedData?.salesmanId ?? '',
-        //   DateTime.now().year.toString(),
-        //   DateFormat.MMMM().format(DateTime.now()),
-        // ),
-        // ApiWorker().fetchSalesmanTarget(
-        //   SessionHelper.loginSavedData?.salesmanId ?? '',
-        //   DateFormat.MMMM().format(DateTime.now()),
-        //   DateTime.now().year.toString(),
-        // ),
-        // ApiWorker().getTimeSheetData(
-        //   startDate: startDate,
-        //   endDate: endDate,
-        // ),
-        // ApiWorker().fetchSchedule(
-        //   endDate,
-        //   startDate,
-        // ),
+        withTimeoutAndLog(ApiWorker().getWeeklyType(), 'getWeeklyType'),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanPerformanceData(
+            monthName: DateFormat.MMMM().format(DateTime.now()),
+            year: DateTime.now().year,
+            compId: companyId,
+            salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
+            isfromLogin: true,
+          ),
+          'fetchSalesmanPerformanceData',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanTopBarData(
+              DateFormat.MMMM().format(DateTime.now()), 1),
+          'fetchSalesmanTopBarData-1',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanTopBarData(
+              DateFormat.MMMM().format(DateTime.now()), 2),
+          'fetchSalesmanTopBarData-2',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanTopBarData(
+              DateFormat.MMMM().format(DateTime.now()), 3),
+          'fetchSalesmanTopBarData-3',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanTopBarData(
+              DateFormat.MMMM().format(DateTime.now()), 4),
+          'fetchSalesmanTopBarData-4',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanValueTarget(
+            SessionHelper.loginSavedData?.salesmanId ?? '',
+            DateTime.now().year.toString(), null,
+            // currentMonth,
+          ),
+          'fetchSalesmanValueTarget',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSalesmanTarget(
+            SessionHelper.loginSavedData?.salesmanId ?? '',
+            currentMonth,
+            DateTime.now().year.toString(),
+          ),
+          'fetchSalesmanTarget',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().getTimeSheetData(
+            startDate: startDate,
+            endDate: endDate,
+          ),
+          'getTimeSheetData',
+        ),
+        withTimeoutAndLog(
+          ApiWorker().fetchSchedule(
+            endDate,
+            startDate,
+          ),
+          'fetchSchedule',
+        ),
       ]);
     } catch (e, stack) {
       log('Error in Future.wait during login: $e\n$stack');

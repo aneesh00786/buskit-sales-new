@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -236,26 +237,26 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 .calenderMapController.customerOnlyList[index];
                             log('${customerEvent.event?.imageUrl}');
 
-                           String initialHour = '__';
-                          String initialMinute = '__';
-                          String initialPeriod = '_';
+                            String initialHour = '__';
+                            String initialMinute = '__';
+                            String initialPeriod = '_';
 
-                          final time = customer.scheduleTime;
+                            final time = customer.scheduleTime;
 
-                          if (time != null &&
-                              time.isNotEmpty &&
-                              time.contains(":")) {
-                            final parts = time.split(":");
-                            int hour = int.tryParse(parts[0]) ?? 0;
-                            int minute = int.tryParse(parts[1]) ?? 0;
-                            int displayHour = hour % 12 == 0 ? 12 : hour % 12;
-                            String period = hour >= 12 ? 'PM' : 'AM';
+                            if (time != null &&
+                                time.isNotEmpty &&
+                                time.contains(":")) {
+                              final parts = time.split(":");
+                              int hour = int.tryParse(parts[0]) ?? 0;
+                              int minute = int.tryParse(parts[1]) ?? 0;
+                              int displayHour = hour % 12 == 0 ? 12 : hour % 12;
+                              String period = hour >= 12 ? 'PM' : 'AM';
 
-                            initialHour =
-                                displayHour.toString().padLeft(2, '0');
-                            initialMinute = minute.toString().padLeft(2, '0');
-                            initialPeriod = period;
-                          }
+                              initialHour =
+                                  displayHour.toString().padLeft(2, '0');
+                              initialMinute = minute.toString().padLeft(2, '0');
+                              initialPeriod = period;
+                            }
 
                             return Padding(
                               padding: nkSmallPadding(left: 0, right: 0),
@@ -323,16 +324,17 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
 
                                         // Red container (right of subtitle)
                                         TimePickerField(
-                                        eventId: customer.eventId,
-                                        initialHour: initialHour,
-                                        initialMinute: initialMinute,
-                                        initialPeriod: initialPeriod,
-                                        onTimeSelected: (eventId, time) {
-                                          setState(() {
-                                            selectedEventTimes[eventId] = time;
-                                          });
-                                        },
-                                      ),
+                                          eventId: customer.eventId,
+                                          initialHour: initialHour,
+                                          initialMinute: initialMinute,
+                                          initialPeriod: initialPeriod,
+                                          onTimeSelected: (eventId, time) {
+                                            setState(() {
+                                              selectedEventTimes[eventId] =
+                                                  time;
+                                            });
+                                          },
+                                        ),
 
                                         const SizedBox(width: 8),
 
@@ -521,7 +523,19 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                         size: 25,
                                                         color: red,
                                                       ),
-                                                      onPressed: () {
+                                                      onPressed: () async {
+                                                      final isOnline =
+                                                          await ConnectivityService()
+                                                              .isOnline();
+                                                      if (!isOnline) {
+                                                        showCustomToastDisplay(
+                                                          context,
+                                                          'You are offline. Show Route is disabled.',
+                                                          red,
+                                                          Icons.close,
+                                                        );
+                                                        return;
+                                                      }
                                                         if (subscriptionController
                                                                 .visitNavigation
                                                                 .value ==
@@ -644,6 +658,17 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                             size: 25,
                           ),
                           onPressed: () async {
+                            final isOnline =
+                                await ConnectivityService().isOnline();
+                            if (!isOnline) {
+                              showCustomToastDisplay(
+                                context,
+                                'You are offline. Show Route is disabled.',
+                                red,
+                                Icons.close,
+                              );
+                              return;
+                            }
                             // === Save Mode ===
                             if (selectedEventTimes.isNotEmpty) {
                               setState(() => isSaving = true);
@@ -746,7 +771,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   //     .showSelectedCustomerRoute(
                                   //   context,
                                   // );
-                 {
+                                  {
                                     final selectedCustomerIds = widget
                                         .calenderMapController.selectedCustomers
                                         .map((c) => c.customerId)
@@ -763,7 +788,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                             String>() // removes nulls and casts to List<String>
                                         .toList();
 
-                                        final selectedCustomerIdList = widget.eventData
+                                    final selectedCustomerIdList = widget
+                                        .eventData
                                         .where((event) =>
                                             event.event != null &&
                                             selectedCustomerIds.contains(event

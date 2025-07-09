@@ -288,11 +288,28 @@ class ApiWorker with ApiConstants {
 
   Future<Map<String, dynamic>?> fetchSalesmanTopBarData(
       String monthName, int tabStatus) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+    final year = DateTime.now().year;
+    final cacheKey =
+        'topBarData_${companyId}_${salesmanId}_${year}_${monthName}_$tabStatus';
+    final box = Hive.box('topBarDataBox');
+
+    // Check cache first
+    final cachedData = box.get(cacheKey);
+    if (cachedData != null) {
+      try {
+        return Map<String, dynamic>.from(cachedData);
+      } catch (e) {
+        log('Cache parse error for $cacheKey: $e');
+      }
+    }
+
     try {
       final requestPayload = {
-        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-        "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-        "year": DateTime.now().year,
+        "companyId": companyId,
+        "salesman_id": salesmanId,
+        "year": year,
         "month": monthName,
         "status_of_tile": tabStatus,
       };
@@ -300,6 +317,8 @@ class ApiWorker with ApiConstants {
           requestData: requestPayload,
           endPoint: ApiConstants.salesmanDashNavContent);
       if (response.statusCode == 200) {
+        // Cache the response
+        await box.put(cacheKey, response.data);
         return response.data as Map<String, dynamic>;
       } else {
         handleExceptionMessage(
@@ -1512,13 +1531,7 @@ class ApiWorker with ApiConstants {
       }
     }
 
-    // if (allEvents.isEmpty) {
-    //   log('⚠️ No events found in API or cache');
-    //   throw Exception(
-    //       'No events available, and no internet connection to fetch them.');
-    // }
-
-    log('Events loaded: ${allEvents.length}');
+    log('Events loaded 2: ${allEvents.length}');
     return allEvents;
   }
 
@@ -1794,13 +1807,29 @@ class ApiWorker with ApiConstants {
 
   Future<ScheduleListResponse> fetchSchedule(
       String endDate, String startDate) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+    final cacheKey =
+        'schedule_${companyId}_${salesmanId}_${startDate}_$endDate';
+    final scheduleBox = Hive.box('scheduleBox');
+
+    // Check cache first
+    final cachedData = scheduleBox.get(cacheKey);
+    if (cachedData != null) {
+      try {
+        return ScheduleListResponse.fromJson(cachedData);
+      } catch (e) {
+        log('Cache parse error for $cacheKey: $e');
+      }
+    }
+
     final response = await dio
         .postbycustom(ApiConstants.fetchSchedule,
             data: FormData.fromMap({
               "end_date": endDate,
-              "salesman_id": SessionHelper.loginSavedData?.salesmanId,
+              "salesman_id": salesmanId,
               "start_date": startDate,
-              "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+              "company_id": companyId,
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -1808,6 +1837,8 @@ class ApiWorker with ApiConstants {
         error,
       ));
     });
+    // Cache the response
+    await scheduleBox.put(cacheKey, response.data);
     return ScheduleListResponse.fromJson(response.data);
   }
 
@@ -1815,6 +1846,7 @@ class ApiWorker with ApiConstants {
     const cacheKey = 'weekly_type';
     final weeklyTypeBox = Hive.box('weeklyTypeBox');
     try {
+      log("[getWeekelyType]");
       bool isOnline = await _connectivityService.isOnline();
       final requestBody = {
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0
@@ -1847,19 +1879,28 @@ class ApiWorker with ApiConstants {
   }
 
   Future<SalesmanValueTargetResponse?> fetchSalesmanValueTarget(
-      String salesmanId, String year, String? month,
-      {int? compid, bool? isFromLogin}) async {
+    String salesmanId,
+    String year,
+    String? month, {
+    int? compid,
+    bool? isFromLogin,
+  }) async {
+    log('\x1B[32m******************************** fetch Salesman Value Target ********************************\x1B[0m');
+
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
       if (month != null) "month": month,
-      "companyId": isFromLogin ?? false
+      "companyId": (isFromLogin ?? false)
           ? compid
           : SessionHelper.loginSavedData?.company_id ?? 0,
     };
+
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
+
     final targetBox = Hive.box('salesmanValueTargetBox');
+
     try {
       bool isOnline = await _connectivityService.isOnline();
       if (isOnline) {
@@ -1867,26 +1908,43 @@ class ApiWorker with ApiConstants {
           ApiConstants.fetchSalesmanValueTarget,
           data: requestPayload,
         );
+
         if (response.statusCode == 200 &&
             response.data is Map<String, dynamic>) {
           final jsonData = response.data;
-          log("Salesman Value Target fetched from API: $jsonData");
+          log('\x1B[36m[API Response]\x1B[0m $jsonData');
+
           if (jsonData != null && jsonData is Map<String, dynamic>) {
             await targetBox.put(cacheKey, jsonData);
-            log("Salesman Value Target data saved to Hive with key: $cacheKey");
+            log("✅ Salesman Value Target data saved to Hive with key: $cacheKey");
             return SalesmanValueTargetResponse.fromJson(jsonData);
           } else {
-            log("Invalid data format received from API. Data not cached.");
+            log("⚠️ Invalid data format received from API. Data not cached.");
           }
         } else {
-          log("Failed to fetch Salesman Value Target data: ${response.statusCode}, ${response.statusMessage}");
+          log("❌ Failed to fetch Salesman Value Target data: ${response.statusCode}, ${response.statusMessage}");
         }
+      } else {
+        log("📴 Device offline. Attempting to load cached data for key: $cacheKey");
       }
     } catch (e) {
-      log("Error while fetching Salesman Value Target from API: $e");
+      log("❌ Error while fetching Salesman Value Target from API: $e");
     }
 
     // Fallback to Hive
+    try {
+      final cachedData = targetBox.get(cacheKey);
+      if (cachedData != null) {
+        log('\x1B[33m[Cached Response]\x1B[0m $cachedData');
+        return SalesmanValueTargetResponse.fromJson(
+          Map<String, dynamic>.from(cachedData),
+        );
+      } else {
+        log("⚠️ No cached Salesman Value Target data found for key: $cacheKey");
+      }
+    } catch (e) {
+      log("❌ Error while reading Salesman Value Target from Hive: $e");
+    }
 
     return null;
   }
@@ -1923,6 +1981,7 @@ class ApiWorker with ApiConstants {
   Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
       String salesmanId, String month, String year,
       {int? compId, bool? isFromLogin}) async {
+    log('\x1B[31m******************************** fetch Salesman Target ********************************\x1B[31m');
     final requestPayload = {
       "salesman_id": salesmanId,
       "year": year,
@@ -2000,24 +2059,39 @@ class ApiWorker with ApiConstants {
     String? startDate,
     String? endDate,
   }) async {
-    log("🔍 API Request: startDate=$startDate, endDate=$endDate, id=${SessionHelper.loginSavedData?.id}");
+    final id = SessionHelper.loginSavedData?.id ?? '';
+    final cacheKey = 'timesheet_${id}_${startDate ?? ''}_${endDate ?? ''}';
+    final timesheetBox = Hive.box('timesheetBox');
 
+    // Check cache first
+    final cachedData = timesheetBox.get(cacheKey);
+    if (cachedData != null) {
+      try {
+        return StaffTimesheetResponse.fromJson(cachedData);
+      } catch (e) {
+        log('Cache parse error for $cacheKey: $e');
+      }
+    }
+
+    log("🔍 API Request: startDate=$startDate, endDate=$endDate, id=$id");
     try {
       final response = await dio.postbycustom(
         ApiConstants.getStaffTimeSheet,
         data: FormData.fromMap({
           "startdate": startDate,
           "enddate": endDate,
-          "id": SessionHelper.loginSavedData?.id,
+          "id": id,
         }),
       );
 
-      log("✅ API Response: ${response.statusMessage}, Data: ${response.data}");
+      log("✅ API Response: \\${response.statusMessage}, Data: \\${response.data}");
+      // Cache the response
+      await timesheetBox.put(cacheKey, response.data);
       return StaffTimesheetResponse.fromJson(response.data);
     } on DioException catch (error) {
       handleExceptionMessage(
           response: error.response, apiName: "time sheet", error: error);
-      log("❌ API Error: ${error.response?.statusCode} - ${error.message}");
+      log("❌ API Error: \\${error.response?.statusCode} - \\${error.message}");
       throw DioExceptionHandler.fromDioError(error);
     } catch (e) {
       log("❌ Unknown API Error: $e");
@@ -2329,7 +2403,7 @@ class ApiWorker with ApiConstants {
         }
 
         if (cachedData is Map) {
-          log("Loaded subscription plan from cache (Map): $cachedData");
+          // log("Loaded subscription plan from cache (Map): $cachedData");
           return SubscribedPlan.fromJson(
               localStorage.castToStringDynamic(cachedData));
         }
@@ -2338,7 +2412,7 @@ class ApiWorker with ApiConstants {
           try {
             final decoded = jsonDecode(cachedData);
             if (decoded is Map<String, dynamic>) {
-              log("Loaded subscription plan from cache (JSON String): $decoded");
+              // log("Loaded subscription plan from cache (JSON String): $decoded");
               return SubscribedPlan.fromJson(decoded);
             } else {
               throw const FormatException("Decoded JSON is not a map.");

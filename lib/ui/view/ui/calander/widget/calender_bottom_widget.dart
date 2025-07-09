@@ -2,12 +2,14 @@
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/select_customer_diloag.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
@@ -35,6 +37,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
   bool navigatedToMap = false;
   Customer? selectedCustomer;
   final subscriptionController = Get.find<SubscriptionController>();
+  DateTime _currentMonth = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +93,24 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
             fontWeight: FontWeight.w700,
             fontFamily: "Poppins_Regular"),
       ),
-      onPageChange: (date, page) {
+      onPageChange: (date, page) async {
+        final isOnline = await ConnectivityService().isOnline();
+        if (!isOnline) {
+          showCustomToastDisplay(
+            context,
+            'You are offline. Month change is disabled.',
+            red,
+            Icons.close,
+          );
+          // Force rebuild to keep calendar on previous month
+          setState(() {});
+          return;
+        }
+        // Allow month change
         final startOfSelectedMonth = DateTime(date.year, date.month, 1);
+        setState(() {
+          _currentMonth = startOfSelectedMonth;
+        });
         widget.calenderController.fetchCalenderEvents(startOfSelectedMonth);
         widget.calenderController.loadCalenderEventV1;
       },
@@ -116,12 +135,14 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                       .map((e) => e.event!.customerId!)
                       .toList(),
                 );
-                Get.dialog(SelectCustomerDiloag(
-                  dateTime: date,
-                  calenderMapController: widget.calenderController,
-                  eventData: event,
-                ),
-                barrierDismissible: false,);
+                Get.dialog(
+                  SelectCustomerDiloag(
+                    dateTime: date,
+                    calenderMapController: widget.calenderController,
+                    eventData: event,
+                  ),
+                  barrierDismissible: false,
+                );
                 log('Date : $date');
               }
             } else {
@@ -229,7 +250,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
       },
       startDay: WeekDays.monday,
       controller: widget.calenderController.eventControllerv1,
-      initialMonth: DateTime.now(),
+      initialMonth: _currentMonth,
       maxMonth: DateTime(DateTime.now().year, 12, 31),
       minMonth: DateTime(DateTime.now().year, 1, 1),
     );

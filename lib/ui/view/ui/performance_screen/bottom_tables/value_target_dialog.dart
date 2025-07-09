@@ -60,6 +60,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     staffController.tabController.removeListener(_handleTabChange);
     super.dispose();
   }
+
   void _initializeControllers() {
     final selectedMonth = DateFormat.MMMM()
         .format(DateTime(0, staffController.tabController.index + 1));
@@ -247,7 +248,7 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                             buildTableHeader('Month'),
                             buildTableHeader('Target'),
                             if (widget.isProjection)
-                            buildTableHeader('Projection'),
+                              buildTableHeader('Projection'),
                           ],
                         ),
                         ..._buildCategoryRows(),
@@ -304,7 +305,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           );
   }
 
-
   List<TableRow> _buildCategoryRows() {
     while (_projectionControllers.length < 12) {
       _projectionControllers.add(TextEditingController());
@@ -343,8 +343,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       });
     }
   }
-
-
 
   List<TableRow> _buildCategoryWeeklyRows() {
     final allWeeklyRows = <TableRow>[];
@@ -416,7 +414,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
     return allWeeklyRows;
   }
-
 
   void _saveTargets() async {
     Map<String, dynamic> monthTarget = {};

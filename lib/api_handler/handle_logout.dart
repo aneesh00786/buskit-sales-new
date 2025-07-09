@@ -24,7 +24,7 @@ Future<void> handleLogout(BuildContext context) async {
 
   // Clear subscription cache
   try {
-    final subscriptionController = Get.find<SubscriptionController>();
+    // final subscriptionController = Get.find<SubscriptionController>();
     // subscriptionController.clearSubscriptionCache();
   } catch (e) {
     log("Error clearing subscription cache: $e");

@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -283,20 +284,21 @@ class HomeController extends GetxController {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      if (!_isDisposed) {
-                        Navigator.pop(context);
-                        await handleLogout(context);
-                        dio.interceptors.clear();
-                        if (!_isDisposed) {
-                          Get.offAllNamed(AppRoutes.login);
-                        }
-                        if (!_isDisposed) {
-                          Provider.of<DashboardProvider>(context, listen: false)
-                              .resetProvider();
-                          Provider.of<DashboardProvider>(context, listen: false)
-                              .resetFilter();
-                        }
-                      }
+                      // if (!_isDisposed) {
+                      //   Navigator.pop(context);
+                      //   await handleLogout(context);
+                      //   dio.interceptors.clear();
+                      //   if (!_isDisposed) {
+                      //     Get.offAllNamed(AppRoutes.login);
+                      //   }
+                      //   if (!_isDisposed) {
+                      //     Provider.of<DashboardProvider>(context, listen: false)
+                      //         .resetProvider();
+                      //     Provider.of<DashboardProvider>(context, listen: false)
+                      //         .resetFilter();
+                      //   }
+                      // }
+                      await handleLogoutOnConfirmation(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
@@ -426,71 +428,86 @@ class HomeController extends GetxController {
       )),
     );
   }
+
+  Future<void> handleLogoutOnConfirmation(BuildContext context) async {
+    // Create backup of current login data before clearing
+    SessionHelper().createLoginDataBackup();
+
+    // Clear subscription cache
+    // final subscriptionController = Get.find<SubscriptionController>();
+    // subscriptionController.clearSubscriptionCache();
+
+    // Clear settings data and original login data
+    // await SessionHelper().clearSettingsData();
+    await SessionHelper().clearLoginDataKeepBackup();
+
+    Get.offAllNamed(AppRoutes.login);
+  }
 }
 
-Future<void> handleLogout(BuildContext context) async {
-  await SessionManager.clearData();
-  await SessionHelper().clearSettingsData();
-  await SessionHelper().clearAll();
-  await CartDatabaseManager().clearCompleteCart();
-  if (Hive.isBoxOpen('discounts')) {
-    await Hive.box<CustomerDiscountModel>('discounts').clear();
-  }
+// Future<void> handleLogout(BuildContext context) async {
+//   await SessionManager.clearData();
+//   await SessionHelper().clearSettingsData();
+//   await SessionHelper().clearAll();
+//   await CartDatabaseManager().clearCompleteCart();
+//   if (Hive.isBoxOpen('discounts')) {
+//     await Hive.box<CustomerDiscountModel>('discounts').clear();
+//   }
 
-  if (Hive.isBoxOpen('cartBox')) {
-    await Hive.box<CartItem>('cartBox').clear();
-  }
+//   if (Hive.isBoxOpen('cartBox')) {
+//     await Hive.box<CartItem>('cartBox').clear();
+//   }
 
-  if (Hive.isBoxOpen('cartPreorderBox')) {
-    await Hive.box<CartItem>('cartPreorderBox').clear();
-  }
+//   if (Hive.isBoxOpen('cartPreorderBox')) {
+//     await Hive.box<CartItem>('cartPreorderBox').clear();
+//   }
 
-  if (Hive.isBoxOpen('draftBox')) {
-    await Hive.box<CartItem>('draftBox').clear();
-  }
+//   if (Hive.isBoxOpen('draftBox')) {
+//     await Hive.box<CartItem>('draftBox').clear();
+//   }
 
-  if (Hive.isBoxOpen('products')) {
-    await Hive.box<ProductModel>('products').close();
-  }
-  await Hive.deleteBoxFromDisk('products');
-  final untypedBoxNames = [
-    'dashboardBox',
-    'customerdashboardBox',
-    'customerRevenueBox',
-    'customerTotalSaleBox',
-    'weeklyTypeBox',
-    'customerBox',
-    'productBox',
-    'chatBox',
-    'pendingPaymentBox',
-    'performanceBox',
-    'leadsBox',
-    'leadsRejectBox',
-    'ordersBox',
-    'fetchAllOrdersBox',
-    'settingsBox',
-    'calendarEventsBox',
-    'salesmanTargetBox',
-    'salesmanValueTargetBox',
-    'subscribtionBox',
-    'subscribtionPlanDetailsBox',
-  ];
+//   if (Hive.isBoxOpen('products')) {
+//     await Hive.box<ProductModel>('products').close();
+//   }
+//   await Hive.deleteBoxFromDisk('products');
+//   final untypedBoxNames = [
+//     'dashboardBox',
+//     'customerdashboardBox',
+//     'customerRevenueBox',
+//     'customerTotalSaleBox',
+//     'weeklyTypeBox',
+//     'customerBox',
+//     'productBox',
+//     'chatBox',
+//     'pendingPaymentBox',
+//     'performanceBox',
+//     'leadsBox',
+//     'leadsRejectBox',
+//     'ordersBox',
+//     'fetchAllOrdersBox',
+//     'settingsBox',
+//     'calendarEventsBox',
+//     'salesmanTargetBox',
+//     'salesmanValueTargetBox',
+//     'subscribtionBox',
+//     'subscribtionPlanDetailsBox',
+//   ];
 
-  for (final boxName in untypedBoxNames) {
-    try {
-      if (Hive.isBoxOpen(boxName)) {
-        await Hive.box(boxName).clear();
-      } else {
-        final box = await Hive.openBox(boxName);
-        await box.clear();
-      }
-    } catch (e) {
-      log("Error clearing box $boxName: $e");
-    }
-  }
+//   for (final boxName in untypedBoxNames) {
+//     try {
+//       if (Hive.isBoxOpen(boxName)) {
+//         await Hive.box(boxName).clear();
+//       } else {
+//         final box = await Hive.openBox(boxName);
+//         await box.clear();
+//       }
+//     } catch (e) {
+//       log("Error clearing box $boxName: $e");
+//     }
+//   }
 
-  Get.offAllNamed(AppRoutes.login);
-}
+//   Get.offAllNamed(AppRoutes.login);
+// }
 
 String getSidebarIcon(int index) {
   switch (index) {

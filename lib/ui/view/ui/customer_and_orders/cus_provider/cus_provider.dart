@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
+import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -12,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/perfo
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -249,6 +253,7 @@ class CustomersProvider with ChangeNotifier {
     log("updateSearchQuery query : $query");
     _searchCustomerName = query;
     _currentPage = 1;
+    _errorMessage = ''; // Clear previous error messages
 
     try {
       if (query.isEmpty) {
@@ -436,10 +441,9 @@ class CustomersProvider with ChangeNotifier {
 
   List<YearList> _yearList = [];
   int? _selectedYear;
-  Future<void> fetchCustomerDashboardDataSalseData(
-      String customerId) async {
-        final now = DateTime.now();
-        int currentYear = now.year;
+  Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
+    final now = DateTime.now();
+    int currentYear = now.year;
     try {
       _customerTotalSaleResponseFuture =
           _apiService.fetchCustomerTotalSale(customerId, currentYear);
@@ -452,7 +456,7 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
-        final now = DateTime.now();
+    final now = DateTime.now();
     final startDate1 = DateTime(now.year, 1, 1);
     final endDate1 = DateTime(now.year, 12, 31);
 
@@ -512,9 +516,54 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
+    log("Filter type : " +
+        (_selectedFilter == FilterDateEnum.range
+            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+                .toString()
+            : _selectedFilter.name));
+
     _errorMessage = '';
     NotificationController notificationController =
         Get.find<NotificationController>();
+
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final customerBox = Hive.box('customerBox');
+    final cacheKey = '${companyId}_customer_list_$page';
+    bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      log('[fetchCustomerData] Offline mode. Looking for cacheKey: $cacheKey');
+      final cachedData = customerBox.get(cacheKey);
+      if (cachedData != null) {
+        try {
+          // This safely converts the Hive-stored map into a Map<String, dynamic>
+          final safeMap =
+              jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+
+          final response = CustomerResponseModelxx.fromJson(safeMap);
+          log('[fetchCustomerData] Loaded [${response.data.length}] customers from cacheKey: $cacheKey');
+          setCustomers(response.data, response.pagination.totalPages);
+          setOrderTotal(response.orderTotal);
+          setYearList(response.yearsListOfAll);
+          _isLoading = false;
+          notifyListeners();
+          return;
+        } catch (e) {
+          log('[fetchCustomerData] Error parsing cached data for page $page: $e');
+          _filteredCustomers = [];
+          _errorMessage = 'Corrupted offline data for this page.';
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
+      } else {
+        log('[fetchCustomerData] No cached data for page $page');
+        _filteredCustomers = [];
+        _errorMessage = 'No offline data for this page.';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+    }
 
     if (_selectedFilter == FilterDateEnum.thisMonth ||
         _selectedFilter == FilterDateEnum.today ||
@@ -522,64 +571,30 @@ class CustomersProvider with ChangeNotifier {
         _selectedFilter == FilterDateEnum.thisYear ||
         _selectedFilter == FilterDateEnum.range) {
       try {
-        final now = DateTime.now();
-        String startDate;
-        String endDate;
-
-        switch (_selectedFilter) {
-          case FilterDateEnum.thisMonth:
-            startDate = DateTime(now.year, now.month, 1)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = DateTime(now.year, now.month + 1, 0)
-                .toIso8601String()
-                .substring(0, 10);
-            break;
-          case FilterDateEnum.today:
-            startDate = DateTime(now.year, now.month, now.day)
-                .toIso8601String()
-                .substring(0, 10);
-            endDate = startDate;
-            break;
-          case FilterDateEnum.thisWeek:
-            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-            startDate = startOfWeek.toIso8601String().substring(0, 10);
-            endDate = now.toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.thisYear:
-            startDate =
-                DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
-            endDate =
-                DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
-            break;
-          case FilterDateEnum.range:
-            startDate = _selectedStartDate;
-            endDate = _selectedEndDate;
-            if (startDate.isEmpty || endDate.isEmpty) {
-              return;
-            }
-            break;
-        }
-
         _isLoading = true;
         log("fetchCustomer query : $_searchCustomerName");
+        final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
+            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+            : _selectedFilter.name;
+
+        log('Final valueFromDw sent to API: $valueFromDw');
+
         _customersFuture = _apiService.fetchCustomer(
-          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          salesmanId: '',
           customerName: _searchCustomerName,
           startDate: "",
           endDate: "",
           limit: 10,
           page: page,
-          valueFromDw: _selectedFilter.name == 'Range'
-              ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-              : _selectedFilter.name,
+          valueFromDw: valueFromDw,
         );
-        log('Selecetd Filters : ${_selectedFilter.name}');
+        log('Selecetd Filters : $_selectedFilter');
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
           setYearList(value.yearsListOfAll);
-          notificationController.loadNotificationData(startDate, endDate);
+          log('year list : ${value.yearsListOfAll.first.orderYears ?? ''}');
+          // notificationController.loadNotificationData();
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {
@@ -632,6 +647,7 @@ class CustomersProvider with ChangeNotifier {
         Get.find<NotificationController>();
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
+      _errorMessage = ''; // Clear previous error messages
       if (_selectedFilter != FilterDateEnum.range) {
         _selectedStartDate = '';
         _selectedEndDate = '';
@@ -701,7 +717,13 @@ class CustomersProvider with ChangeNotifier {
   }
 
   void refreshCurrentPage() {
+    _errorMessage = ''; // Clear error message on refresh
     fetchCustomerData(page: _currentPage);
+  }
+
+  void clearErrorMessage() {
+    _errorMessage = '';
+    notifyListeners();
   }
 
   // Future<void> addEvent(
@@ -713,7 +735,7 @@ class CustomersProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-    Future<AddEvent> addEvent(
+  Future<AddEvent> addEvent(
     String customerId,
     int eventStatus,
     List<String> daysList,

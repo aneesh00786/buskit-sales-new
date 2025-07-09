@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
+import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -280,8 +281,6 @@ class LoginController extends GetxController {
       if (loginResponce?.statusCode == 200) {
         loginButtonController.success();
 
-        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-
         await SessionHelper().getLoginData();
         final oldSalesmanId = SessionHelper.backupLoginData?.salesmanId;
         final newSalesmanId = loginResponce?.data?.salesmanId;
@@ -297,22 +296,31 @@ class LoginController extends GetxController {
         await SessionHelper().getLoginData();
         log("Fetching settings after login...");
         await Future.delayed(const Duration(milliseconds: 500));
-        final settings = await _apiWorker.fetchAllSettings(companyId);
+        final settings = await _apiWorker
+            .fetchAllSettings(SessionHelper.loginSavedData?.company_id ?? 0);
 
         bool syncInBackground = false;
         late void Function() onSyncInBackground;
-        final requiredDataFuture = loadAllInitialData(context, companyId);
+        final requiredDataFuture = loadAllInitialData(
+            context, SessionHelper.loginSavedData?.company_id ?? 0);
         final customerSyncFuture =
             isSameUser ? Future.value() : fetchAllCustomerPages(context);
         final navigationCompleter = Completer<void>();
         onSyncInBackground = () {
+          log('[SyncInBackground] Button pressed');
           if (!syncInBackground) {
             syncInBackground = true;
             requiredDataFuture.then((_) {
+              log('[SyncInBackground] requiredDataFuture completed');
               if (!navigationCompleter.isCompleted) {
+                log('[SyncInBackground] Completing navigationCompleter');
                 navigationCompleter.complete();
+              } else {
+                log('[SyncInBackground] navigationCompleter already completed');
               }
             });
+          } else {
+            log('[SyncInBackground] Already syncing in background');
           }
         };
 
@@ -326,20 +334,29 @@ class LoginController extends GetxController {
         );
 
         requiredDataFuture.then((_) async {
+          log('[SyncInBackground] requiredDataFuture.then triggered');
           if (settings != null) {
             await SessionHelper().setSettingsData(settings);
             await SessionHelper().getSettingsData();
           }
           // If sync in background was pressed, navigate to home immediately
           if (syncInBackground) {
+            log('[SyncInBackground] syncInBackground is true, navigating home');
             if (!navigationCompleter.isCompleted) {
+              log('[SyncInBackground] Completing navigationCompleter (from then)');
               navigationCompleter.complete();
+            } else {
+              log('[SyncInBackground] navigationCompleter already completed (from then)');
             }
           } else {
             // Otherwise, wait for customer sync to finish before navigating
+            log('[SyncInBackground] Waiting for customerSyncFuture');
             await customerSyncFuture;
             if (!navigationCompleter.isCompleted) {
+              log('[SyncInBackground] Completing navigationCompleter (after customerSyncFuture)');
               navigationCompleter.complete();
+            } else {
+              log('[SyncInBackground] navigationCompleter already completed (after customerSyncFuture)');
             }
           }
         });
@@ -639,9 +656,48 @@ class LoginController extends GetxController {
               .toIso8601String(),
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
+        // --- Performance/Staff module API calls ---
+        // ApiWorker().getWeeklyType(),
+        // // Use SessionHelper for salesmanId, current month/year
+        // ApiWorker().fetchSalesmanPerformanceData(
+        //   monthName: DateFormat.MMMM().format(DateTime.now()),
+        //   year: DateTime.now().year,
+        //   compId: companyId,
+        //   salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
+        //   isfromLogin: true,
+        // ),
+        // // Top bar data for all 4 tabs (1: Timesheet, 2: Check-in/out, 3: Visits, 4: Customers)
+        // ApiWorker().fetchSalesmanTopBarData(
+        //     DateFormat.MMMM().format(DateTime.now()), 1),
+        // ApiWorker().fetchSalesmanTopBarData(
+        //     DateFormat.MMMM().format(DateTime.now()), 2),
+        // ApiWorker().fetchSalesmanTopBarData(
+        //     DateFormat.MMMM().format(DateTime.now()), 3),
+        // ApiWorker().fetchSalesmanTopBarData(
+        //     DateFormat.MMMM().format(DateTime.now()), 4),
+        // ApiWorker().fetchSalesmanValueTarget(
+        //   SessionHelper.loginSavedData?.salesmanId ?? '',
+        //   DateTime.now().year.toString(),
+        //   DateFormat.MMMM().format(DateTime.now()),
+        // ),
+        // ApiWorker().fetchSalesmanTarget(
+        //   SessionHelper.loginSavedData?.salesmanId ?? '',
+        //   DateFormat.MMMM().format(DateTime.now()),
+        //   DateTime.now().year.toString(),
+        // ),
+        // ApiWorker().getTimeSheetData(
+        //   startDate: startDate,
+        //   endDate: endDate,
+        // ),
+        // ApiWorker().fetchSchedule(
+        //   endDate,
+        //   startDate,
+        // ),
       ]);
-    } catch (e) {
-      log('Error in Future.wait during login: $e');
+    } catch (e, stack) {
+      log('Error in Future.wait during login: $e\n$stack');
+      // Optionally: Show a user-friendly error message here
+      // Do NOT rethrow, so the future always completes
     }
   }
 }

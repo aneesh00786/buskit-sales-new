@@ -42,8 +42,8 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
-  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  // final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  // final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
   final targetType = SessionHelper.settingsData
           ?.firstWhere(
             (setting) => setting.key == 'targetType',
@@ -60,8 +60,8 @@ class ApiWorker with ApiConstants {
     required String confirmPassword,
   }) async {
     final requestData = {
-      "company_id": companyId,
-      "salesman_id": salesmanId,
+      "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "current_password": currentPassword,
       "newpwd": newPassword,
       "cnewpwd": confirmPassword,
@@ -231,8 +231,8 @@ class ApiWorker with ApiConstants {
 
   Future<LeadsCountData> fetchLeadsCount() async {
     final Map<String, dynamic> requestData = {
-      'companyId': companyId,
-      'salesman_id': salesmanId,
+      'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
+      'salesman_id': SessionHelper.loginSavedData?.salesmanId ?? '',
     };
     try {
       final response = await responsePostMethod(
@@ -290,8 +290,8 @@ class ApiWorker with ApiConstants {
       String monthName, int tabStatus) async {
     try {
       final requestPayload = {
-        "companyId": companyId,
-        "salesman_id": salesmanId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
         "year": DateTime.now().year,
         "month": monthName,
         "status_of_tile": tabStatus,
@@ -326,13 +326,17 @@ class ApiWorker with ApiConstants {
     required bool isfromLogin,
   }) async {
     final requestPayload = {
-      "companyId": isfromLogin ? compId : companyId,
-      "salesman_id": isfromLogin ? salesId : salesmanId,
+      "companyId":
+          isfromLogin ? compId : SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": isfromLogin
+          ? salesId
+          : SessionHelper.loginSavedData?.salesmanId ?? '',
       "year": year,
       "month": monthName,
       "targetType": targetType,
     };
-    final cacheKey = 'performance_data_${salesmanId}_${year}_$monthName';
+    final cacheKey =
+        'performance_data_${SessionHelper.loginSavedData?.salesmanId ?? ''}_${year}_$monthName';
     final performanceBox = Hive.box('performanceBox');
     try {
       Response response = await responsePostMethod(
@@ -362,7 +366,7 @@ class ApiWorker with ApiConstants {
       final bool isOnline = await ConnectivityService().isOnline();
       final requestData = {
         "order_id": orderId,
-        "companyId": companyId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
       if (!isOnline) {
         NkCommonFunction.showErrorSnakBar(
@@ -402,8 +406,8 @@ class ApiWorker with ApiConstants {
       log('This function has been calledsss');
       bool isOnline = await ConnectivityService().isOnline();
       final requestBody = {
-        "company_id": companyId,
-        "salesman_id": salesmanId,
+        "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+        "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       };
       if (isOnline) {
         log('This function has been calledsss');
@@ -441,8 +445,8 @@ class ApiWorker with ApiConstants {
     String? endDate,
   }) async {
     final Map<String, dynamic> requestData = {
-      'companyId': companyId,
-      "salesman_id": salesmanId,
+      'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
     };
     log('Request Data : $requestData');
     bool isOnline = await ConnectivityService().isOnline();
@@ -467,7 +471,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
-    sendData['companyId'] = companyId;
+    sendData['companyId'] = SessionHelper.loginSavedData?.company_id ?? 0;
     log('[addToCart] Request Data: ${sendData.toString()}');
     try {
       final response = await dio1
@@ -503,7 +507,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<CartOrderModel?> addToDraft(Map<String, dynamic> sendData) async {
-    sendData['companyId'] = companyId;
+    sendData['companyId'] = SessionHelper.loginSavedData?.company_id ?? 0;
     log('[addToDraft] Request Data: ${sendData.toString()}');
     try {
       final response = await dio1
@@ -540,7 +544,7 @@ class ApiWorker with ApiConstants {
 
   Future<Response> deleteCustomer(String id) async {
     final response = await dio.postbycustom(ApiConstants.deletCustomer, data: {
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "id": id,
     }).onError((DioException error, stackTrace) {
       log(error.toString());
@@ -550,7 +554,7 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ CATEGORY SECTION ***************** ///
-  
+
   Future<CategoryModel> getCategory() async {
     try {
       final isConnected = await ConnectivityService().isOnline();
@@ -1238,8 +1242,8 @@ class ApiWorker with ApiConstants {
   Future<void> fetchDiscounts(int companyId, String salesmanId) async {
     try {
       Map<String, dynamic> requestPayload = {
-        "companyId": companyId,
-        "salesman_id": salesmanId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       };
       Response response = await responsePostMethod(
           requestData: requestPayload, endPoint: ApiConstants.fetchAllDiscount);
@@ -1344,10 +1348,11 @@ class ApiWorker with ApiConstants {
     final requestData = {
       "page": currentPage,
       "limit": 10,
-      "salesman_id": salesmanId,
-      "companyId": companyId,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    final cacheKey = 'leads_data_${salesmanId}_$currentPage';
+    final cacheKey =
+        'leads_data_${SessionHelper.loginSavedData?.salesmanId ?? ''}_$currentPage';
     final leadsBox = await Hive.openBox('leadsBox');
     bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
@@ -1384,8 +1389,8 @@ class ApiWorker with ApiConstants {
     final requestData = {
       "page": currentPage,
       "limit": 10,
-      "salesman_id": salesmanId,
-      "companyId": companyId,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
     if (isOnline) {
       try {
@@ -1523,7 +1528,7 @@ class ApiWorker with ApiConstants {
       final requestData = {
         "customer_id": customerId,
         "status": statusResponce,
-        "companyId": companyId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
       log('This function has been called handleLeadStatus');
       final response = await responsePostMethod(
@@ -1610,7 +1615,9 @@ class ApiWorker with ApiConstants {
       "limit": paginationModel?.limit.toString(),
       "page": paginationModel?.currentPage.toString(),
       "salesman_id": salesmanId ?? '',
-      "companyId": isLogin == true ? compId : companyId,
+      "companyId": isLogin == true
+          ? compId
+          : SessionHelper.loginSavedData?.company_id ?? 0,
     };
     log('RequestBody Pending : $requestData');
     final cacheKey =
@@ -1704,8 +1711,8 @@ class ApiWorker with ApiConstants {
           "end_date": end ?? '',
           "limit": 10,
           "page": page,
-          "companyId": companyId,
-          "salesman_id": salesmanId,
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
         };
         log('Request Data $requestData');
         final response = await responsePostMethod(
@@ -1741,7 +1748,7 @@ class ApiWorker with ApiConstants {
       final requestBody = {
         "order_id": orderId,
         "order_status": orderStatus,
-        "companyId": companyId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
       final response = await responsePostMethod(
           requestData: requestBody, endPoint: ApiConstants.orderProcessInvoice);
@@ -1775,7 +1782,7 @@ class ApiWorker with ApiConstants {
       data: FormData.fromMap({
         "order_id": orderId,
         "updatedOrders": [],
-        "companyId": companyId,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       }),
     )
         .onError((DioException error, stackTrace) {
@@ -1793,7 +1800,7 @@ class ApiWorker with ApiConstants {
               "end_date": endDate,
               "salesman_id": SessionHelper.loginSavedData?.salesmanId,
               "start_date": startDate,
-              "company_id": companyId,
+              "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
             }))
         .onError((DioException error, stackTrace) {
       log(error.toString());
@@ -1809,7 +1816,9 @@ class ApiWorker with ApiConstants {
     final weeklyTypeBox = Hive.box('weeklyTypeBox');
     try {
       bool isOnline = await _connectivityService.isOnline();
-      final requestBody = {"companyId": companyId};
+      final requestBody = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0
+      };
       if (isOnline) {
         final response = await responsePostMethod(
           requestData: requestBody,
@@ -1844,7 +1853,9 @@ class ApiWorker with ApiConstants {
       "salesman_id": salesmanId,
       "year": year,
       if (month != null) "month": month,
-      "companyId": isFromLogin ?? false ? compid : companyId,
+      "companyId": isFromLogin ?? false
+          ? compid
+          : SessionHelper.loginSavedData?.company_id ?? 0,
     };
     final cacheKey =
         'salesman_value_target_${salesmanId}_${year}_${month ?? 'all'}';
@@ -1916,7 +1927,9 @@ class ApiWorker with ApiConstants {
       "salesman_id": salesmanId,
       "year": year,
       "month": month,
-      "companyId": isFromLogin ?? false ? compId : companyId,
+      "companyId": isFromLogin ?? false
+          ? compId
+          : SessionHelper.loginSavedData?.company_id ?? 0,
     };
     final cacheKey = 'salesman_target_${salesmanId}_${year}_$month';
     final targetBox = Hive.box('salesmanTargetBox');
@@ -2035,7 +2048,7 @@ class ApiWorker with ApiConstants {
         .postbycustom(ApiConstants.updateCheckinOut,
             data: FormData.fromMap(
               {
-                "companyId": companyId,
+                "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
                 "date": date,
                 "sales_id": SessionHelper.loginSavedData?.id,
                 "time": time,
@@ -2066,7 +2079,7 @@ class ApiWorker with ApiConstants {
       "month_target": monthTarget,
       "weekly_target": weeklyTarget,
       "month_to_insert": month,
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
     log("request: $request");
@@ -2095,7 +2108,7 @@ class ApiWorker with ApiConstants {
       "sales_id": salesmanId,
       "year": int.parse(year),
       "month": month,
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
     log('Sending API request to updateCategoryTargetValue...');
@@ -2111,15 +2124,16 @@ class ApiWorker with ApiConstants {
   }
 
   Future<LeadResponce> getLeadsCustomerData(int currentPage) async {
-    final cacheKey = 'leads_customer_${salesmanId}_$currentPage';
+    final cacheKey =
+        'leads_customer_${SessionHelper.loginSavedData?.salesmanId ?? ''}_$currentPage';
     final leadsBox = await Hive.openBox('leadsCustomerBox');
     bool isOnline = await ConnectivityService().isOnline();
     log('Has Internet: $isOnline');
     final requestData = {
       "page": currentPage,
       "limit": 10,
-      "salesman_id": salesmanId,
-      "companyId": companyId,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
     if (isOnline) {
       try {
@@ -2767,7 +2781,7 @@ class ApiWorker with ApiConstants {
   //   }
   // }
 
-    Future<Response> scheduleVisit({
+  Future<Response> scheduleVisit({
     List<Map<String, String>>? events,
   }) async {
     var request = {"companyId": 1, "events": events};
@@ -2824,10 +2838,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await responsePostMethod(
         endPoint: ApiConstants.showRoute,
-        requestData: {
-          "companyId": 1,
-          "eventlist": eventList
-        },
+        requestData: {"companyId": 1, "eventlist": eventList},
       ).onError((DioException error, stackTrace) {
         log(error.toString());
         handleExceptionMessage(

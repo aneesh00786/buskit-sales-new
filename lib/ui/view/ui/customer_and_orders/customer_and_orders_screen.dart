@@ -2466,643 +2466,572 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
-            provider.errorMessage.endsWith("404")
+            provider.errorMessage.endsWith("Failed to load data")
                 ? "NO CUSTOMERS FOUND"
-                : provider.errorMessage,
+                : provider.errorMessage.contains("No element")
+                    ? "NO CUSTOMERS FOUND"
+                    : provider.errorMessage,
           ),
         );
-      } else if (provider.customersFuture == null) {
-        return const Center(child: NodataWidget());
+      } else if (provider.filteredCustomers.isEmpty) {
+        return const Center(child: Text('No customers found'));
       } else {
-        return FutureBuilder<CustomerResponseModelxx>(
-          future: provider.customersFuture!,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
-              return const Center(child: Text('No customers found'));
-            } else {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 260,
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 260,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: vertical,
-                            physics: const ClampingScrollPhysics(),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 58.0),
-                              child: Column(
-                                children: List.generate(
-                                  provider.filteredCustomers.length,
-                                  (index) {
-                                    var customer =
-                                        provider.filteredCustomers[index];
-                                    return Container(
-                                      height: fixedRowHeight,
-                                      color: index.isEven
-                                          ? Colors.grey[50]
-                                          : Colors.white,
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Row(
-                                                children: [
-                                                  ClipOval(
-                                                    child: Container(
-                                                      height: 50,
-                                                      width: 50,
-                                                      color: Colors.grey[200],
-                                                      child: Image.network(
-                                                        '${ApiConstants.baseUrl}uploads/${customer.imageUrl}',
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return Container(
-                                                            color: Colors
-                                                                .grey[200],
-                                                            child: const Icon(
-                                                              Icons.person,
-                                                              color:
-                                                                  Colors.grey,
-                                                              size: 30,
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Expanded(
-                                                    child: GestureDetector(
-                                                      behavior: HitTestBehavior
-                                                          .opaque,
-                                                      onTap: () async {
-                                                        if (subscriptionController
-                                                                .customerDashboardView
-                                                                .value ==
-                                                            'true') {
-                                                          provider
-                                                              .setCurrentMonthDates();
-                                                          provider
-                                                              .fetchCustomerDashboardData(
-                                                            customer.customerId,
-                                                          );
-                                                          provider
-                                                              .fetchCustomerDashboardRevenueData(
-                                                            customer.customerId,
-                                                          );
-                                                          provider
-                                                              .fetchCustomerDashboardCountData(
-                                                                  customer
-                                                                      .customerId);
-                                                          prodController
-                                                                  .selectedCustomerName
-                                                                  .value =
-                                                              customer
-                                                                  .businessName;
-                                                          prodController
-                                                                  .selectedCustomerId
-                                                                  .value =
-                                                              customer
-                                                                  .customerId;
-                                                          prodController
-                                                                  .selectedCustomerImageUrl
-                                                                  .value =
-                                                              customer.imageUrl;
-                                                          customerAndOrderController
-                                                              .setCustomerId(
-                                                                  customer
-                                                                      .customerId);
-                                                          log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
-                                                          await Future.delayed(
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      100));
-
-                                                          final now =
-                                                              DateTime.now();
-                                                          final dateFormat =
-                                                              DateFormat(
-                                                                  'yyyy-MM-dd');
-
-                                                          final firstDayOfYear =
-                                                              DateTime(now.year,
-                                                                  1, 1);
-                                                          final lastDayOfYear =
-                                                              DateTime(now.year,
-                                                                  12, 31);
-
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  CustomerDachScreen(
-                                                                year: 2024,
-                                                                startDate:
-                                                                    dateFormat
-                                                                        .format(
-                                                                            firstDayOfYear),
-                                                                endDate: dateFormat
-                                                                    .format(
-                                                                        lastDayOfYear),
-                                                                isFromOrder:
-                                                                    true,
-                                                                cusId: customer
-                                                                    .customerId,
-                                                                cusName: customer
-                                                                    .businessName,
-                                                                cusImage: customer
-                                                                    .imageUrl,
-                                                                productsController:
-                                                                    prodController,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          showUpgradePlanDialog(
-                                                              context);
-                                                        }
-                                                      },
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            customer
-                                                                .businessName,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontFamily:
-                                                                  'Poppins_Regular',
-                                                            ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 1,
-                                                          ),
-                                                          Text(
-                                                            customer.town,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 10,
-                                                              fontFamily:
-                                                                  'Poppins_Regular',
-                                                            ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 1,
-                                                          ),
-                                                          Text(
-                                                            customer.email,
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 10,
-                                                              fontFamily:
-                                                                  'Poppins_Regular',
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   Expanded(
                     child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      controller: vertical,
                       physics: const ClampingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      controller: widget.scrollController,
-                      child: SizedBox(
-                        width: totalTableWidth,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 58.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                physics: const ClampingScrollPhysics(),
-                                scrollDirection: Axis.vertical,
-                                controller: vertical1,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 58),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount:
-                                        provider.filteredCustomers.length,
-                                    itemBuilder: (context, index) {
-                                      var customer =
-                                          provider.filteredCustomers[index];
-
-                                      return Container(
-                                        height: fixedRowHeight,
-                                        color: index.isEven
-                                            ? Colors.grey[50]
-                                            : Colors.white,
+                          children: List.generate(
+                            provider.filteredCustomers.length,
+                            (index) {
+                              var customer = provider.filteredCustomers[index];
+                              return Container(
+                                height: fixedRowHeight,
+                                color: index.isEven
+                                    ? Colors.grey[50]
+                                    : Colors.white,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4.0),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
                                           children: [
-                                            _buildTableCell(
-                                              Center(
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    _showOrderDataDialog(
-                                                        context,
-                                                        customer,
-                                                        customer.orderData
-                                                            .previousYearSales);
+                                            ClipOval(
+                                              child: Container(
+                                                height: 50,
+                                                width: 50,
+                                                color: Colors.grey[200],
+                                                child: Image.network(
+                                                  '${ApiConstants.baseUrl}uploads/${customer.imageUrl}',
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      color: Colors.grey[200],
+                                                      child: const Icon(
+                                                        Icons.person,
+                                                        color: Colors.grey,
+                                                        size: 30,
+                                                      ),
+                                                    );
                                                   },
-                                                  child: CustomText(
-                                                    content: formatAmount(
-                                                        customer
-                                                            .previousYearSales),
-                                                    fontSize: 12,
-                                                  ),
                                                 ),
                                               ),
-                                              120,
                                             ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.sales == 0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                          context,
-                                                          customer,
-                                                          customer.orderData
-                                                              .totalSales,
-                                                        );
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.sales
-                                                            .toString(),
-                                                        customer.totalSales
-                                                                ?.toString() ??
-                                                            '0',
-                                                        Colors.blue,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.delivery ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .outOfDiviery);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.delivery
-                                                            .toString(),
-                                                        customer.deliveryPrice
-                                                                ?.toString() ??
-                                                            '0',
-                                                        Colors.green.shade700,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.payment ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .payment);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.payment
-                                                            .toString(),
-                                                        customer.paymentPrice
-                                                                ?.toString() ??
-                                                            '0',
-                                                        Colors.orange,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(0.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.preOrder ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .preOrder);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.preOrder
-                                                            .toString(),
-                                                        customer
-                                                            .orderData.preOrder
-                                                            .takeLast(customer
-                                                                .preOrder
-                                                                .toInt())
-                                                            .fold(
-                                                                0.0,
-                                                                (a, b) =>
-                                                                    a +
-                                                                    b.orderTotal)
-                                                            .toString(),
-                                                        Colors.cyan,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                              height: fixedRowHeight,
-                                              bgColor: const Color.fromRGBO(
-                                                      239, 240, 207, 1)
-                                                  .withOpacity(0.4),
-                                              padding: EdgeInsets.zero,
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.estimates ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .estimate);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.estimates
-                                                            .toString(),
-                                                        customer.estimatesPrice
-                                                                ?.toString() ??
-                                                            '0',
-                                                        Colors.purple,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                              height: fixedRowHeight,
-                                              bgColor: const Color.fromRGBO(
-                                                      239, 240, 207, 1)
-                                                  .withOpacity(0.4),
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.drafts ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .draft);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                        customer.drafts
-                                                            .toString(),
-                                                        customer.orderData.draft
-                                                            .takeLast(customer
-                                                                .drafts
-                                                                .toInt())
-                                                            .fold(
-                                                                0.0,
-                                                                (a, b) =>
-                                                                    a +
-                                                                    b.orderTotal)
-                                                            .toString(),
-                                                        Colors.grey.shade700,
-                                                        false),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                              height: fixedRowHeight,
-                                              bgColor: const Color.fromRGBO(
-                                                      239, 240, 207, 1)
-                                                  .withOpacity(0.4),
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4.0),
-                                                child: Center(
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      if (customer.cancelled ==
-                                                          0) {
-                                                        showCustomToastDisplay(
-                                                            context,
-                                                            'Record Not Found',
-                                                            red,
-                                                            Icons.close);
-                                                      } else {
-                                                        _showOrderDataDialog(
-                                                            context,
-                                                            customer,
-                                                            customer.orderData
-                                                                .cancel);
-                                                      }
-                                                    },
-                                                    child: _buildDataCell(
-                                                      customer.cancelled
-                                                          .toString(),
-                                                      customer.orderData.cancel
-                                                          .takeLast(customer
-                                                              .cancelled
-                                                              .toInt())
-                                                          .fold(
-                                                              0.0,
-                                                              (a, b) =>
-                                                                  a +
-                                                                  b.orderTotal)
-                                                          .toString(),
-                                                      Colors.red.shade600,
-                                                      false,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              140,
-                                              height: fixedRowHeight,
-                                              bgColor: const Color.fromRGBO(
-                                                      239, 240, 207, 1)
-                                                  .withOpacity(0.4),
-                                            ),
-                                            _buildTableCell(
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 4),
-                                                child: EventTypeDropdown(
-                                                  initialValue:
-                                                      EventTypeExtension
-                                                    .fromValue(
-                                                        customer.eventType),
-                                                  onChanged:
-                                                      (EventType newType) {},
-                                                  defaultEventDays:
-                                                      customer.eventDays,
-                                                  customerId:
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () async {
+                                                  if (subscriptionController
+                                                          .customerDashboardView
+                                                          .value ==
+                                                      'true') {
+                                                    provider
+                                                        .setCurrentMonthDates();
+                                                    provider
+                                                        .fetchCustomerDashboardData(
                                                       customer.customerId,
-                                                  eventStatus:
-                                                      customer.eventType,
-                                                  eventPeriod: customer.eventPeriod,
-                                                  provider: provider,
+                                                    );
+                                                    provider
+                                                        .fetchCustomerDashboardRevenueData(
+                                                      customer.customerId,
+                                                    );
+                                                    provider
+                                                        .fetchCustomerDashboardCountData(
+                                                            customer
+                                                                .customerId);
+                                                    prodController
+                                                            .selectedCustomerName
+                                                            .value =
+                                                        customer.businessName;
+                                                    prodController
+                                                            .selectedCustomerId
+                                                            .value =
+                                                        customer.customerId;
+                                                    prodController
+                                                        .selectedCustomerImageUrl
+                                                        .value = customer.imageUrl;
+                                                    customerAndOrderController
+                                                        .setCustomerId(customer
+                                                            .customerId);
+                                                    log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
+                                                    await Future.delayed(
+                                                        const Duration(
+                                                            milliseconds: 100));
+
+                                                    final now = DateTime.now();
+                                                    final dateFormat =
+                                                        DateFormat(
+                                                            'yyyy-MM-dd');
+
+                                                    final firstDayOfYear =
+                                                        DateTime(
+                                                            now.year, 1, 1);
+                                                    final lastDayOfYear =
+                                                        DateTime(
+                                                            now.year, 12, 31);
+
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CustomerDachScreen(
+                                                          year: 2024,
+                                                          startDate:
+                                                              dateFormat.format(
+                                                                  firstDayOfYear),
+                                                          endDate:
+                                                              dateFormat.format(
+                                                                  lastDayOfYear),
+                                                          isFromOrder: true,
+                                                          cusId: customer
+                                                              .customerId,
+                                                          cusName: customer
+                                                              .businessName,
+                                                          cusImage:
+                                                              customer.imageUrl,
+                                                          productsController:
+                                                              prodController,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    showUpgradePlanDialog(
+                                                        context);
+                                                  }
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      customer.businessName,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                    Text(
+                                                      customer.town,
+                                                      style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                    Text(
+                                                      customer.email,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 10,
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                              160,
                                             ),
-                                            // _buildTableCell(
-                                            //   Padding(
-                                            //     padding:
-                                            //         const EdgeInsets.all(4.0),
-                                            //     child: Center(
-                                            //       child: CustomText(
-                                            //         content:
-                                            //             customer.salesmanName,
-                                            //         fontSize: 12,
-                                            //       ),
-                                            //     ),
-                                            //   ),
-                                            //   120,
-                                            // ),
                                           ],
                                         ),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ),
-                          ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ],
-              );
-            }
-          },
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                controller: widget.scrollController,
+                child: SizedBox(
+                  width: totalTableWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          controller: vertical1,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 58),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: provider.filteredCustomers.length,
+                              itemBuilder: (context, index) {
+                                var customer =
+                                    provider.filteredCustomers[index];
+
+                                return Container(
+                                  height: fixedRowHeight,
+                                  color: index.isEven
+                                      ? Colors.grey[50]
+                                      : Colors.white,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      _buildTableCell(
+                                        Center(
+                                          child: InkWell(
+                                            onTap: () {
+                                              _showOrderDataDialog(
+                                                  context,
+                                                  customer,
+                                                  customer.orderData
+                                                      .previousYearSales);
+                                            },
+                                            child: CustomText(
+                                              content: formatAmount(
+                                                  customer.previousYearSales),
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        120,
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.sales == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                    context,
+                                                    customer,
+                                                    customer
+                                                        .orderData.totalSales,
+                                                  );
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.sales.toString(),
+                                                  customer.totalSales
+                                                          ?.toString() ??
+                                                      '0',
+                                                  Colors.blue,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.delivery == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer.orderData
+                                                          .outOfDiviery);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.delivery.toString(),
+                                                  customer.deliveryPrice
+                                                          ?.toString() ??
+                                                      '0',
+                                                  Colors.green.shade700,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.payment == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer
+                                                          .orderData.payment);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.payment.toString(),
+                                                  customer.paymentPrice
+                                                          ?.toString() ??
+                                                      '0',
+                                                  Colors.orange,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(0.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.preOrder == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer
+                                                          .orderData.preOrder);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.preOrder.toString(),
+                                                  customer.orderData.preOrder
+                                                      .takeLast(customer
+                                                          .preOrder
+                                                          .toInt())
+                                                      .fold(
+                                                          0.0,
+                                                          (a, b) =>
+                                                              a + b.orderTotal)
+                                                      .toString(),
+                                                  Colors.cyan,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                        height: fixedRowHeight,
+                                        bgColor: const Color.fromRGBO(
+                                                239, 240, 207, 1)
+                                            .withOpacity(0.4),
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.estimates == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer
+                                                          .orderData.estimate);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.estimates.toString(),
+                                                  customer.estimatesPrice
+                                                          ?.toString() ??
+                                                      '0',
+                                                  Colors.purple,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                        height: fixedRowHeight,
+                                        bgColor: const Color.fromRGBO(
+                                                239, 240, 207, 1)
+                                            .withOpacity(0.4),
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.drafts == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer.orderData.draft);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                  customer.drafts.toString(),
+                                                  customer.orderData.draft
+                                                      .takeLast(customer.drafts
+                                                          .toInt())
+                                                      .fold(
+                                                          0.0,
+                                                          (a, b) =>
+                                                              a + b.orderTotal)
+                                                      .toString(),
+                                                  Colors.grey.shade700,
+                                                  false),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                        height: fixedRowHeight,
+                                        bgColor: const Color.fromRGBO(
+                                                239, 240, 207, 1)
+                                            .withOpacity(0.4),
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Center(
+                                            child: InkWell(
+                                              onTap: () {
+                                                if (customer.cancelled == 0) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      'Record Not Found',
+                                                      red,
+                                                      Icons.close);
+                                                } else {
+                                                  _showOrderDataDialog(
+                                                      context,
+                                                      customer,
+                                                      customer
+                                                          .orderData.cancel);
+                                                }
+                                              },
+                                              child: _buildDataCell(
+                                                customer.cancelled.toString(),
+                                                customer.orderData.cancel
+                                                    .takeLast(customer.cancelled
+                                                        .toInt())
+                                                    .fold(
+                                                        0.0,
+                                                        (a, b) =>
+                                                            a + b.orderTotal)
+                                                    .toString(),
+                                                Colors.red.shade600,
+                                                false,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        140,
+                                        height: fixedRowHeight,
+                                        bgColor: const Color.fromRGBO(
+                                                239, 240, 207, 1)
+                                            .withOpacity(0.4),
+                                      ),
+                                      _buildTableCell(
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 4),
+                                          child: EventTypeDropdown(
+                                            initialValue:
+                                                EventTypeExtension.fromValue(
+                                                    customer.eventType),
+                                            onChanged: (EventType newType) {},
+                                            defaultEventDays:
+                                                customer.eventDays,
+                                            customerId: customer.customerId,
+                                            eventStatus: customer.eventType,
+                                            eventPeriod: customer.eventPeriod,
+                                            provider: provider,
+                                          ),
+                                        ),
+                                        160,
+                                      ),
+                                      // _buildTableCell(
+                                      //   Padding(
+                                      //     padding:
+                                      //         const EdgeInsets.all(4.0),
+                                      //     child: Center(
+                                      //       child: CustomText(
+                                      //         content:
+                                      //             customer.salesmanName,
+                                      //         fontSize: 12,
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      //   120,
+                                      // ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       }
     });

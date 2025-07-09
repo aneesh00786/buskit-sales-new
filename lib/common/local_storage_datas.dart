@@ -310,7 +310,7 @@ class LocalStorage {
       final safeData = safeMapFromCache(cachedData);
       return CustomerRevenueResponse.fromJson(safeData);
     } else {
-      errorSnackbar("No customer revenue cached data available");
+      // errorSnackbar("No customer revenue cached data available");
       throw Exception('No cached data available for customerId: $customerId');
     }
   }

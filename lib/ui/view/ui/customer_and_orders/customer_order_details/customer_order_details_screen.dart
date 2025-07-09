@@ -31,8 +31,8 @@ class _CustomerOrderDetailsScreenState
   void initState() {
     customerOrderDetailsController.customerAndOrderData.value =
         widget.customerAndOrderData;
-    productsController.loadDataOfCategory.whenComplete(() {
-    });
+    // productsController.loadDataOfCategory.whenComplete(() {
+    // });
     productsController.updateCustomerAndOrderData(widget.customerAndOrderData);
     log("DATATATAA ${widget.customerAndOrderData.fullname}");
     super.initState();

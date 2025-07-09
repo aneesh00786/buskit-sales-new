@@ -307,12 +307,8 @@ class LocalStorage {
 
   storedCustomerRevenueData(dynamic cachedData, String customerId) {
     if (cachedData != null) {
-      if (cachedData is Map<String, dynamic>) {
-        return CustomerRevenueResponse.fromJson(cachedData);
-      } else {
-        throw Exception(
-            'Invalid cached data format for customerId: $customerId');
-      }
+      final safeData = safeMapFromCache(cachedData);
+      return CustomerRevenueResponse.fromJson(safeData);
     } else {
       errorSnackbar("No customer revenue cached data available");
       throw Exception('No cached data available for customerId: $customerId');
@@ -418,6 +414,18 @@ class LocalStorage {
       }
     } else {
       throw Exception('No cached data available.');
+    }
+  }
+
+  Map<String, dynamic> safeMapFromCache(dynamic cachedData) {
+    if (cachedData is String) {
+      // If it's a JSON string, decode and cast
+      return castToStringDynamic(jsonDecode(cachedData));
+    } else if (cachedData is Map) {
+      // If it's a Map, cast keys to String
+      return castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
+    } else {
+      throw Exception('Invalid cached data format.');
     }
   }
 }

@@ -6,6 +6,86 @@ part of 'product_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
+class ProductApiResponseAdapter extends TypeAdapter<ProductApiResponse> {
+  @override
+  final int typeId = 12;
+
+  @override
+  ProductApiResponse read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ProductApiResponse(
+      statusCode: fields[0] as int,
+      status: fields[1] as bool,
+      message: fields[2] as String,
+      data: (fields[3] as List).cast<ScidProductGroup>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ProductApiResponse obj) {
+    writer
+      ..writeByte(4)
+      ..writeByte(0)
+      ..write(obj.statusCode)
+      ..writeByte(1)
+      ..write(obj.status)
+      ..writeByte(2)
+      ..write(obj.message)
+      ..writeByte(3)
+      ..write(obj.data);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProductApiResponseAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ScidProductGroupAdapter extends TypeAdapter<ScidProductGroup> {
+  @override
+  final int typeId = 13;
+
+  @override
+  ScidProductGroup read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ScidProductGroup(
+      scid: fields[0] as String,
+      products: (fields[1] as List).cast<ProductModel>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ScidProductGroup obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.scid)
+      ..writeByte(1)
+      ..write(obj.products);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScidProductGroupAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class ProductModelAdapter extends TypeAdapter<ProductModel> {
   @override
   final int typeId = 2;
@@ -31,13 +111,14 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       companyId: fields[11] as int?,
       stock: fields[12] as String?,
       detail: (fields[13] as List?)?.cast<Detail>(),
+      productCode: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +146,9 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(12)
       ..write(obj.stock)
       ..writeByte(13)
-      ..write(obj.detail);
+      ..write(obj.detail)
+      ..writeByte(14)
+      ..write(obj.productCode);
   }
 
   @override

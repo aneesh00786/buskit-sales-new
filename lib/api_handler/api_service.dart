@@ -843,13 +843,13 @@ class ApiService {
     log("valueFromDw: $valueFromDw");
 
     dynamic value;
-    if (valueFromDw == 'Month') {
+    if (valueFromDw == 'This Month') {
       value = 'This Month';
-    } else if (valueFromDw == 'Day') {
+    } else if (valueFromDw == 'Today') {
       value = 'Today';
-    } else if (valueFromDw == 'Week') {
+    } else if (valueFromDw == 'This Week') {
       value = 'This Week';
-    } else if (valueFromDw == 'Year') {
+    } else if (valueFromDw == 'This Year') {
       value = 'This Year';
     } else if (valueFromDw.toString().contains('Range')) {
       value = valueFromDw;
@@ -865,41 +865,54 @@ class ApiService {
       "valueFromDw": value,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    log('Fetch Customer Request Body: $requestBody');
+
     final customerBox = Hive.box('customerBox');
+
+    final cacheKey =
+        '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
+
+    log('[fetchCustomer] Requesting page: $page, cacheKey: $cacheKey');
+
     try {
+      log('API URL: ${ApiConstants.fetchCustomer}');
+      log('Customer Request Body: $requestBody');
+
       final response = await responsePostMethod(
-        requestData: requestBody,
         endPoint: ApiConstants.fetchCustomer,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+        requestData: requestBody,
       );
+
+      log('fetchCustomer : ${response.statusCode}');
+      log('fetchCustomer Body: ${response.data}');
+
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
+
         if (jsonResponse['status'] != true) {
           throw Exception('API returned error: ${jsonResponse['message']}');
         }
-        List<CustomerModelxx> customers = [];
-        List<OrderTotalxx> orderTotal = [];
-        List<YearsListOfAll> yearList = [];
-        if (jsonResponse['data'] is List) {
-          customers = (jsonResponse['data'] as List)
-              .map((json) => CustomerModelxx.fromJson(json))
-              .toList();
-        }
-        if (jsonResponse['orderTotal'] is List) {
-          orderTotal = (jsonResponse['orderTotal'] as List)
-              .map((json) => OrderTotalxx.fromJson(json))
-              .toList();
-        }
-        if (jsonResponse['years_list_of_all'] is List) {
-          yearList = (jsonResponse['years_list_of_all'] as List)
-              .map((json) => YearsListOfAll.fromJson(json))
-              .toList();
-        }
-        await customerBox.put('fetchCustomerData', jsonResponse);
-        log('Saved customer data to Hive.');
+
+        final customers = (jsonResponse['data'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => CustomerModelxx.fromJson(json))
+                .toList() ??
+            [];
+
+        final orderTotal = (jsonResponse['orderTotal'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => OrderTotalxx.fromJson(json))
+                .toList() ??
+            [];
+
+        final yearList = (jsonResponse['years_list_of_all'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => YearsListOfAll.fromJson(json))
+                .toList() ??
+            [];
+
+        await customerBox.put(cacheKey, jsonResponse);
+        log('Customer List Length: ${customers.length}');
+
         return CustomerResponseModelxx(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -910,25 +923,60 @@ class ApiService {
           yearsListOfAll: yearList,
         );
       } else {
-        handleExceptionMessage(
-          response: response,
-          apiName: "fetch customer",
-        );
-        return localStorage.storedCustomerData(customerBox);
+        throw Exception('Request failed with status: ${response.statusCode}');
       }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "fetch customer", error: error);
-      log('DioException: $error');
-      return localStorage.storedCustomerData(customerBox);
     } catch (e) {
-      log('General Exception: $e');
+      log('Customer Exception: $e');
+
+      handleHttpResponseError(
+        statusCode: e is http.Response ? e.statusCode : 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: 'Customer',
+      );
+
       final isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        log('Using cached data due to offline mode.');
-        return localStorage.storedCustomerData(customerBox);
+      if (!isOnline) log('Using cached data due to offline mode');
+
+      final cachedData = customerBox.get(cacheKey);
+
+      if (cachedData != null) {
+        final castedData = castToStringDynamic(cachedData);
+
+        final customers = (castedData['data'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => CustomerModelxx.fromJson(json))
+                .toList() ??
+            [];
+
+        final orderTotal = (castedData['orderTotal'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => OrderTotalxx.fromJson(json))
+                .toList() ??
+            [];
+
+        final yearList = (castedData['years_list_of_all'] as List?)
+                ?.where((json) => json != null)
+                .map((json) => YearsListOfAll.fromJson(json))
+                .toList() ??
+            [];
+
+        return CustomerResponseModelxx(
+          statusCode: castedData['status_code'] ?? 0,
+          status: castedData['status'] ?? false,
+          message: castedData['message'] ?? '',
+          data: customers,
+          orderTotal: orderTotal,
+          pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
+          yearsListOfAll: yearList,
+        );
+      } else {
+        handleHttpResponseError(
+          statusCode: 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: 'No cached data available',
+        );
+        throw Exception('No cached data available');
       }
-      throw Exception('Failed to fetch data: $e');
     }
   }
 
@@ -1432,5 +1480,21 @@ class ApiService {
     } catch (e) {
       throw Exception('Failed to update admin details: $e');
     }
+  }
+
+  Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
+    return input.map((key, value) {
+      final newKey = key is String ? key : key.toString();
+      final newValue = value is Map
+          ? castToStringDynamic(Map<dynamic, dynamic>.from(value))
+          : (value is List
+              ? value
+                  .map((e) => e is Map
+                      ? castToStringDynamic(Map<dynamic, dynamic>.from(e))
+                      : e)
+                  .toList()
+              : value);
+      return MapEntry(newKey, newValue);
+    });
   }
 }

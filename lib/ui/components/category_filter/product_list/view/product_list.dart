@@ -4,12 +4,14 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/category_mo
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
 class ProductGrid extends StatefulWidget {
@@ -42,15 +44,109 @@ class _ProductGridState extends State<ProductGrid> {
   @override
   void initState() {
     super.initState();
-    _fetchInitialProducts();
+    _checkInternetConnection();
     log('Option name : ${widget.optionName}');
+  }
+
+  Future<void> _checkInternetConnection() async {
+    final List<ConnectivityResult> connectivityResult =
+        await (Connectivity().checkConnectivity());
+    hasInternet = !connectivityResult.contains(ConnectivityResult.none);
+    log('Has Internet: $hasInternet');
+
+    if (hasInternet) {
+      _fetchInitialProducts();
+    } else {
+      _loadProductsFromHive();
+    }
+  }
+
+  Future<void> _loadProductsFromHive() async {
+    final selectedSubCatId =
+        widget.productsController.selectedSubCategoryId.value;
+    log('Loading products from Hive for subcategory: $selectedSubCatId');
+
+    try {
+      // Try to load from scid-based cache first
+      Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box');
+      }
+
+      // Check if the box has any data
+      if (scidGroupBox.isEmpty) {
+        log('ScidProductGroups cache is empty');
+        setState(() {
+          products = [];
+          isLoading = false;
+        });
+        return;
+      }
+
+      log('ScidProductGroups cache has ${scidGroupBox.length} entries');
+      log('Available scid keys: ${scidGroupBox.keys.toList()}');
+
+      final scidGroup = scidGroupBox.get(selectedSubCatId);
+      if (scidGroup != null) {
+        log('Found scid group: ${scidGroup.scid} with ${scidGroup.products.length} products');
+        setState(() {
+          products = scidGroup.products;
+          isLoading = false;
+        });
+      } else {
+        log('No scid group found for subcategory: $selectedSubCatId');
+        // Fallback to legacy cache - filter by scid
+        var productBox = Hive.box<ProductModel>('products');
+        if (productBox.isNotEmpty) {
+          log('Legacy cache has ${productBox.length} products');
+
+          // Show all available scids in legacy cache for debugging
+          final allScids =
+              productBox.values.map((p) => p.scid).toSet().toList();
+          log('All scids available in legacy cache: $allScids');
+
+          List<ProductModel> offlineProducts = productBox.values
+              .where((product) => product.scid == selectedSubCatId)
+              .toList();
+          log("Loaded ${offlineProducts.length} products for subcategory $selectedSubCatId from legacy cache");
+
+          if (offlineProducts.isNotEmpty) {
+            log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
+          }
+
+          setState(() {
+            products = offlineProducts;
+            isLoading = false;
+          });
+        } else {
+          log("No products available offline for subcategory $selectedSubCatId");
+          setState(() {
+            products = [];
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      log('Error loading products from Hive: $e');
+      setState(() {
+        products = [];
+        isLoading = false;
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant ProductGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.id != oldWidget.id) {
-      _fetchProductsByCategory(widget.id);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _fetchProductsByCategory(widget.id);
+      });
     }
   }
 
@@ -58,23 +154,32 @@ class _ProductGridState extends State<ProductGrid> {
     try {
       SubCategoryItem? subCategoryItem =
           widget.productsController.getInitialSubCategoryIdAndName();
+      name = subCategoryItem?.subCategory ?? '';
 
-      if (subCategoryItem == null) {
-        log("No subcategory item found. Aborting fetch.");
+      log('_fetchInitialProducts: SubCategoryItem - ID: ${subCategoryItem?.id}, Name: ${subCategoryItem?.subCategory}');
+      log('_fetchInitialProducts: Current selectedSubCategoryId: ${widget.productsController.selectedSubCategoryId.value}');
+
+      if (subCategoryItem?.id != null && subCategoryItem!.id!.isNotEmpty) {
+        log('_fetchInitialProducts: Fetching products for SCID: ${subCategoryItem.id}');
+        List<ProductModel> fetchedProducts = await widget.productsController
+            .fetchProducts(subCategoryItem.id.toString());
+
+        log('_fetchInitialProducts: API returned ${fetchedProducts.length} products');
+        log('_fetchInitialProducts: Product SCIDs: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
+        log('_fetchInitialProducts: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
+
+        setState(() {
+          products = fetchedProducts;
+          isLoading = false;
+        });
+
+        log('_fetchInitialProducts: Final product count: ${products.length} for subcategory: ${subCategoryItem.subCategory}');
+      } else {
+        log('_fetchInitialProducts: No valid subcategory ID found');
         setState(() {
           isLoading = false;
         });
-        return;
       }
-
-      name = subCategoryItem.subCategory ?? '';
-      List<ProductModel> fetchedProducts = await widget.productsController
-          .fetchProducts(subCategoryItem.id ?? '');
-
-      setState(() {
-        products = fetchedProducts;
-        isLoading = false;
-      });
     } catch (e) {
       log('Error fetching initial products: $e');
       setState(() {
@@ -84,18 +189,36 @@ class _ProductGridState extends State<ProductGrid> {
   }
 
   Future<void> _fetchProductsByCategory(String categoryId) async {
+    if (categoryId.isEmpty) {
+      log('Category ID is empty, skipping product fetch');
+      return;
+    }
+
+    log('_fetchProductsByCategory: Fetching products for categoryId: $categoryId');
+    log('_fetchProductsByCategory: Current selectedSubCategoryId: ${widget.productsController.selectedSubCategoryId.value}');
+
     setState(() {
-      isLoading = true;
+      widget.productsController.isLoading.value = true;
     });
+
     try {
-      products = await widget.productsController.fetchProducts(categoryId);
+      List<ProductModel> fetchedProducts =
+          await widget.productsController.fetchProducts(categoryId);
+
+      log('_fetchProductsByCategory: API returned ${fetchedProducts.length} products');
+      log('_fetchProductsByCategory: Product SCIDs: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
+      log('_fetchProductsByCategory: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
+
       setState(() {
-        isLoading = false;
+        products = fetchedProducts;
+        widget.productsController.isLoading.value = false;
       });
+
+      log('_fetchProductsByCategory: Final product count: ${products.length} for category: $categoryId');
     } catch (e) {
       log('Error fetching products for category: $e');
       setState(() {
-        isLoading = false;
+        widget.productsController.isLoading.value = false;
       });
     }
   }

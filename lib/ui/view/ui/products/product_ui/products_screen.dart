@@ -19,7 +19,7 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    productsController.loadDataOfCategory.whenComplete(() {});
+    // productsController.loadDataOfCategory.whenComplete(() {});
   }
 
   @override

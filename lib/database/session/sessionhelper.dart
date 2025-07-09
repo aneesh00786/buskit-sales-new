@@ -22,6 +22,34 @@ class SessionHelper {
   static LoginData? loginSavedData;
   static List<AllCompanySettingsData>? settingsData;
 
+  static LoginData? backupLoginData; // Alternate for loginSavedData
+
+  // Create backup of current login data
+  void createLoginDataBackup() {
+    if (loginSavedData != null) {
+      backupLoginData = loginSavedData;
+      log('Login data backup created: ${backupLoginData!.company_id}');
+    }
+  }
+
+  // Get backup login data
+  LoginData? getBackupLoginData() {
+    return backupLoginData;
+  }
+
+  // Clear backup login data
+  void clearBackupLoginData() {
+    backupLoginData = null;
+    log('Backup login data cleared.');
+  }
+
+  // Clear original login data but keep backup
+  Future<void> clearLoginDataKeepBackup() async {
+    await SessionManager.clearData();
+    loginSavedData = null;
+    log('Original login data cleared, backup preserved.');
+  }
+
   Future<void> setLoginData(LoginData loginResponse) async {
     await SessionManager.setStringValue(
         SpString.spLogin, jsonEncode(loginResponse.toJson()));

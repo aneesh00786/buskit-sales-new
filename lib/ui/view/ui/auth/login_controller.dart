@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as rand;
 
@@ -16,13 +17,16 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/splash_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
@@ -34,6 +38,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_cont
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
@@ -274,94 +279,88 @@ class LoginController extends GetxController {
 
       if (loginResponce?.statusCode == 200) {
         loginButtonController.success();
-        Get.to(() => SplashScreen(message: "Logging in..."),
-            transition: Transition.fade);
-        await SessionHelper().setLoginData(loginResponce!.data!);
-        log('Login Data ${loginResponce!.data!.createdToken}');
+
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
+        await SessionHelper().getLoginData();
+        final oldSalesmanId = SessionHelper.backupLoginData?.salesmanId;
+        final newSalesmanId = loginResponce?.data?.salesmanId;
+        bool isSameUser =
+            (oldSalesmanId != null && oldSalesmanId == newSalesmanId);
+        if (oldSalesmanId != null && oldSalesmanId != newSalesmanId) {
+          await handleLogout(context);
+          productsController.categoryData.value = CategoryModel();
+          productsController.products.clear();
+        }
+
+        await SessionHelper().setLoginData(loginResponce!.data!);
+        await SessionHelper().getLoginData();
         log("Fetching settings after login...");
         await Future.delayed(const Duration(milliseconds: 500));
         final settings = await _apiWorker.fetchAllSettings(companyId);
-        await Future.wait([
-          Provider.of<CustomersProvider>(context, listen: false)
-              .fetchCustomerData(),
-          Provider.of<DashboardProvider>(context, listen: false).fetchData(),
-          customerAndOrderController.loadCustomer(),
-          productsController.fetchCategoryData(),
-          pendingPaymentController.loadOrderData(
-              chartIndex: 0, compId: companyId, isLogin: true),
-          staffController.loadSalesmanTargetForSelectedTab(
-              currentYear: currentYear.toString(),
-              selectedTabIndex: _tabController!.index + 1,
-              staffId: salesmanId,
-              monthName: currentMonthName,
-              compId: companyId,
-              isFromLogin: true),
-          _apiWorker.fetchSalesmanTarget(
-              salesmanId, currentMonthName, DateTime.now().year.toString(),
-              compId: companyId, isFromLogin: true),
-          _apiWorker.fetchSalesmanValueTarget(
-              salesmanId, DateTime.now().year.toString(), currentMonthName,
-              compid: companyId, isFromLogin: true),
-          leadsController.loadLeadsCustomerData,
-          leadsCustomerController.loadLeadsCustomerData,
-          leadsRejectedController.loadRejectedLeadsData,
-          ApiWorker().fetchDiscounts(companyId, salesmanId),
-        ]);
-        calenderMapController.fetchCalenderEvents(DateTime.now());
-        CartDatabaseManager().getDraftItems();
-        // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
-        ApiService().fetchAllOrders(
-            isLogin: true,
-            orderType: '',
-            orderStatus: OrderStatus.delivered,
-            fetchType: "Month");
-        ApiService().fetchAllOrders(
-            isLogin: true,
-            orderType: 7,
-            orderStatus: OrderStatus.estimates,
-            fetchType: "Month");
-        ApiService().fetchAllOrders(
-            isLogin: true,
-            orderType: 0,
-            orderStatus: OrderStatus.preOrder,
-            fetchType: "Month");
-        ApiService().fetchAllOrders(
-            isLogin: true,
-            orderType: 4,
-            orderStatus: OrderStatus.draft,
-            fetchType: "Month");
-        ApiService().fetchAllOrders(
-            isLogin: true,
-            orderType: 3,
-            orderStatus: OrderStatus.cancelled,
-            fetchType: "Month");
-        ApiWorker()
-            .getRecentOrdersData(
-              searchModel: searchData,
-              orderStatus: 11,
-              isLogin: true,
-              startDate: '',
-              endDate: '',
-              page: 1,
-            );
-            // .then((data) =>
-            //     log("Recent orders fetched successfully. Data: ${data.data}"))
-            // .catchError((e) => log("Error while fetching recent orders: $e"));
-        if (settings != null) {
-          await SessionHelper().setSettingsData(settings);
-        }
-        SubCategoryItem? subCategoryItem =
-            productsController.getInitialSubCategoryIdAndName();
-        if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
-          await productsController.fetchProducts(subCategoryItem.id!);
-        } else {
-          log("No subcategory found. Products not fetched.");
-        }
-        await subscriptionController.loadSubscriptionFeatures(companyId);
+
+        bool syncInBackground = false;
+        late void Function() onSyncInBackground;
+        final requiredDataFuture = loadAllInitialData(context, companyId);
+        final customerSyncFuture =
+            isSameUser ? Future.value() : fetchAllCustomerPages(context);
+        final navigationCompleter = Completer<void>();
+        onSyncInBackground = () {
+          if (!syncInBackground) {
+            syncInBackground = true;
+            requiredDataFuture.then((_) {
+              if (!navigationCompleter.isCompleted) {
+                navigationCompleter.complete();
+              }
+            });
+          }
+        };
+
+        Get.to(
+          () => SplashScreenLogging(
+            message:
+                "We are settling up your App and it might take a few minutes. Thanks for your patience.",
+            onSyncInBackground: isSameUser ? null : onSyncInBackground,
+          ),
+          transition: Transition.fade,
+        );
+
+        requiredDataFuture.then((_) async {
+          if (settings != null) {
+            await SessionHelper().setSettingsData(settings);
+            await SessionHelper().getSettingsData();
+          }
+          // If sync in background was pressed, navigate to home immediately
+          if (syncInBackground) {
+            if (!navigationCompleter.isCompleted) {
+              navigationCompleter.complete();
+            }
+          } else {
+            // Otherwise, wait for customer sync to finish before navigating
+            await customerSyncFuture;
+            if (!navigationCompleter.isCompleted) {
+              navigationCompleter.complete();
+            }
+          }
+        });
+
+        await navigationCompleter.future;
         Get.offAllNamed(AppRoutes.home);
         return true;
+
+        // if (settings != null) {
+        //   await SessionHelper().setSettingsData(settings);
+        // }
+        // SubCategoryItem? subCategoryItem =
+        //     productsController.getInitialSubCategoryIdAndName();
+        // if (subCategoryItem != null && (subCategoryItem.id ?? '').isNotEmpty) {
+        //   await productsController.fetchProducts(subCategoryItem.id!);
+        // } else {
+        //   log("No subcategory found. Products not fetched.");
+        // }
+        // await subscriptionController.loadSubscriptionFeatures(companyId);
+        // Get.offAllNamed(AppRoutes.home);
+        // return true;
       } else {
         return _handleLoginError(loginResponce);
       }
@@ -457,6 +456,192 @@ class LoginController extends GetxController {
         ),
         barrierDismissible: false,
       );
+    }
+  }
+
+  Future<void> fetchAllCustomerPages(BuildContext context) async {
+    final provider = Provider.of<CustomersProvider>(context, listen: false);
+    final apiService = ApiService();
+    List<CustomerModelxx> allCustomers = [];
+    List<OrderTotalxx> allOrderTotals = [];
+    List<YearsListOfAll> allYearsList = [];
+    int totalPages = 1;
+    int page = 1;
+    try {
+      // Fetch first page to get totalPages
+      log('[fetchAllCustomerPages] Fetching customer page 1');
+      final firstResponse = await apiService.fetchCustomer(
+        salesmanId: '',
+        customerName: provider.searchCustomerName,
+        startDate: '',
+        endDate: '',
+        limit: 10,
+        page: 1,
+        valueFromDw: provider.selectedFilter == FilterDateEnum.range
+            ? [
+                provider.selectedFilter.name,
+                provider.selectedStartDate,
+                provider.selectedEndDate
+              ]
+            : provider.selectedFilter.name,
+      );
+      allCustomers.addAll(firstResponse.data);
+      allOrderTotals.addAll(firstResponse.orderTotal);
+      allYearsList.addAll(firstResponse.yearsListOfAll);
+      totalPages = firstResponse.pagination.totalPages;
+      log('[fetchAllCustomerPages] First page fetched, totalPages reported: $totalPages');
+      // Save first page to Hive with cacheKey
+      final customerBox = Hive.box('customerBox');
+      final cacheKeyFirst =
+          '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
+      await customerBox.put(cacheKeyFirst, firstResponse.toJson());
+      log('[fetchAllCustomerPages] Caching page 1 with ${firstResponse.data.length} customers');
+      // Fetch remaining pages if any
+      for (page = 2; page <= totalPages; page++) {
+        log('[fetchAllCustomerPages] Fetching customer page $page');
+        final response = await apiService.fetchCustomer(
+          salesmanId: '',
+          customerName: provider.searchCustomerName,
+          startDate: '',
+          endDate: '',
+          limit: 10,
+          page: page,
+          valueFromDw: provider.selectedFilter == FilterDateEnum.range
+              ? [
+                  provider.selectedFilter.name,
+                  provider.selectedStartDate,
+                  provider.selectedEndDate
+                ]
+              : provider.selectedFilter.name,
+        );
+        allCustomers.addAll(response.data);
+        allOrderTotals.addAll(response.orderTotal);
+        allYearsList.addAll(response.yearsListOfAll);
+        final cacheKey =
+            '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
+        await customerBox.put(cacheKey, response.toJson());
+        log('[fetchAllCustomerPages] Caching page $page with ${response.data.length} customers');
+      }
+      provider.setCustomers(allCustomers, totalPages);
+      provider.setOrderTotal(allOrderTotals);
+      provider.setYearList(allYearsList);
+      log('[fetchAllCustomerPages] Finished fetching all pages. Total pages: $totalPages, Total customers: ${allCustomers.length}');
+      // Build unique customerId list from all pages
+      final allCustomerIds = allCustomers
+          .map((c) => c.customerId)
+          .where((id) => id.isNotEmpty)
+          .toSet()
+          .toList();
+      await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
+    } catch (e) {
+      log('Error fetching all customer pages : $e');
+      rethrow;
+    }
+  }
+
+  Future<void> loadAllCachedCustomerPages(BuildContext context) async {
+    final provider = Provider.of<CustomersProvider>(context, listen: false);
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final customerBox = Hive.box('customerBox');
+    List<CustomerModelxx> allCustomers = [];
+    List<OrderTotalxx> allOrderTotals = [];
+    List<YearsListOfAll> allYearsList = [];
+    int totalPages = 1;
+    int page = 1;
+
+    while (true) {
+      final cacheKey = '${companyId}_customer_list_$page';
+      final cachedData = customerBox.get(cacheKey);
+      if (cachedData == null) break;
+      try {
+        final response = CustomerResponseModelxx.fromJson(cachedData);
+        allCustomers.addAll(response.data);
+        allOrderTotals.addAll(response.orderTotal);
+        allYearsList.addAll(response.yearsListOfAll);
+        totalPages = response.pagination.totalPages;
+      } catch (e) {
+        log('Error parsing cached customer page $page: $e');
+      }
+      page++;
+    }
+    if (allCustomers.isNotEmpty) {
+      provider.setCustomers(allCustomers, totalPages);
+      provider.setOrderTotal(allOrderTotals);
+      provider.setYearList(allYearsList);
+    }
+  }
+
+  Future<void> prefetchAndCacheAllCustomerDashboards(
+      BuildContext context, List<String> customerIds) async {
+    final apiService = ApiService();
+    final now = DateTime.now();
+    final year = now.year;
+    final startDate = DateFormat('yyyy-MM-dd').format(DateTime(year, 1, 1));
+    final endDate = DateFormat('yyyy-MM-dd').format(DateTime(year, 12, 31));
+    for (final customerId in customerIds) {
+      if (customerId.isEmpty) continue;
+      try {
+        log('[prefetchDash] Dashboard for $customerId');
+        await apiService.fetchCustomerDashboardDataa(
+            customerId, year, startDate, endDate);
+      } catch (e) {
+        log('Error prefetching dashboard data $e');
+      }
+      try {
+        log('[prefetchDash] TotalSale for $customerId');
+        await apiService.fetchCustomerTotalSale(customerId, year);
+      } catch (e) {
+        log('Error prefetching total sale $e');
+      }
+      try {
+        log('[prefetchDash] Revenue for $customerId');
+        await apiService.fetchCustomerRevenueData(
+            customerId, year, startDate, endDate);
+      } catch (e) {
+        log('Error prefetching revenue $e');
+      }
+      try {
+        log('[prefetchDash] OrderCount for $customerId');
+        await apiService.fetchOrderCount(customerId, startDate, endDate);
+      } catch (e) {
+        log('Error prefetching order count $e');
+      }
+    }
+  }
+
+  Future<void> loadAllInitialData(BuildContext context, int companyId) async {
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    final startDate = formatter.format(firstDayOfMonth);
+    final endDate = formatter.format(lastDayOfMonth);
+    try {
+      await Future.wait([
+        subscriptionController.loadSubscriptionFeatures(companyId),
+        Provider.of<DashboardProvider>(context, listen: false).fetchData(),
+        customerAndOrderController.loadCustomer(),
+        productsController.loadCategoriesAndDefaultProducts(),
+        pendingPaymentController.loadOrderData(
+            chartIndex: 0, compId: companyId, isLogin: true),
+        ApiWorker().fetchDiscounts(companyId, ""),
+        leadsController.loadLeadsCustomerData,
+        leadsCustomerController.loadLeadsCustomerData,
+        leadsRejectedController.loadRejectedLeadsData,
+        // staffController.loadStaffDataList,
+        orderController.loadOrderCountData(),
+        _apiWorker.getAllProducts(),
+        calenderMapController.getRouteCredit(),
+        _apiWorker.getCalendarEvents({
+          'companyId': companyId,
+          'initialDay': DateTime(DateTime.now().year, DateTime.now().month, 1)
+              .toIso8601String(),
+        }),
+        _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
+      ]);
+    } catch (e) {
+      log('Error in Future.wait during login: $e');
     }
   }
 }

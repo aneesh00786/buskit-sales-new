@@ -1,10 +1,80 @@
-//Product Model
-
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'product_model.g.dart';
 
-@HiveType(typeId: 2)
+// New response model for the updated API structure
+@HiveType(typeId: 12)
+class ProductApiResponse {
+  @HiveField(0)
+  final int statusCode;
+  @HiveField(1)
+  final bool status;
+  @HiveField(2)
+  final String message;
+  @HiveField(3)
+  final List<ScidProductGroup> data;
+
+  ProductApiResponse({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory ProductApiResponse.fromJson(Map<String, dynamic> json) {
+    return ProductApiResponse(
+      statusCode: json['status_code'] ?? 0,
+      status: json['status'] ?? false,
+      message: json['message'] ?? '',
+      data: (json['data'] as List<dynamic>?)
+              ?.map((item) => ScidProductGroup.fromJson(item))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status_code': statusCode,
+      'status': status,
+      'message': message,
+      'data': data.map((item) => item.toJson()).toList(),
+    };
+  }
+}
+
+// Model for scid-based product grouping
+@HiveType(typeId: 13)
+class ScidProductGroup {
+  @HiveField(0)
+  final String scid;
+  @HiveField(1)
+  final List<ProductModel> products;
+
+  ScidProductGroup({
+    required this.scid,
+    required this.products,
+  });
+
+  factory ScidProductGroup.fromJson(Map<String, dynamic> json) {
+    return ScidProductGroup(
+      scid: json['scid'] ?? '',
+      products: (json['product'] as List<dynamic>?)
+              ?.map((item) => ProductModel.fromJson(item))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'scid': scid,
+      'product': products.map((product) => product.toJson()).toList(),
+    };
+  }
+}
+
+@HiveType(typeId: 2)  
 class ProductModel {
   @HiveField(0)
   int? id;
@@ -41,12 +111,15 @@ class ProductModel {
 
   @HiveField(11)
   int? companyId;
-
+  
   @HiveField(12)
   String? stock;
 
   @HiveField(13)
   List<Detail>? detail;
+  
+  @HiveField(14)
+  String? productCode;
 
   ProductModel({
     this.id,
@@ -63,6 +136,7 @@ class ProductModel {
     this.companyId,
     this.stock,
     this.detail,
+    this.productCode,
   });
 
   ProductModel.fromJson(Map<String, dynamic> json) {
@@ -79,6 +153,7 @@ class ProductModel {
     catId = json['catId'];
     companyId = json['company_id'];
     stock = json['stock'];
+    productCode = json['product_code'];
     if (json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -102,6 +177,7 @@ class ProductModel {
     data['catId'] = catId;
     data['company_id'] = companyId;
     data['stock'] = stock;
+    data['product_code'] = productCode;
     if (detail != null) {
       data['detail'] = detail!.map((v) => v.toJson()).toList();
     }

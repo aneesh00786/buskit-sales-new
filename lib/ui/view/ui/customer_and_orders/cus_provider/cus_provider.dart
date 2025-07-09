@@ -54,6 +54,8 @@ class CustomersProvider with ChangeNotifier {
 
   String get selectedStartDate => _selectedStartDate;
   String get selectedEndDate => _selectedEndDate;
+  String get searchCustomerName => _searchCustomerName;
+
   final TextEditingController searchController = TextEditingController();
   var _searchCustomerName = '';
   String get selectedCustomerName => _searchCustomerName;

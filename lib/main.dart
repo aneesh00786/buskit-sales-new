@@ -71,6 +71,7 @@ void main() async {
   await Hive.openBox('salesmanValueTargetBox');
   await Hive.openBox('subscribtionBox');
   await Hive.openBox('subscribtionPlanDetailsBox');
+  await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -175,6 +176,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ChangeNotifierProvider(
               create: (context) =>
                   CustomersProvider(apiService: ApiService(), logger: Logger()),
+                
             ),
             ChangeNotifierProvider(
               create: (context) =>

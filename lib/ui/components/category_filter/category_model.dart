@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
 
-part 'category_model.g.dart'; 
+part 'category_model.g.dart';
 
-@HiveType(typeId: 3) 
+@HiveType(typeId: 3)
 class CategoryModel extends HiveObject {
   @HiveField(0)
   int? statusCode;
@@ -85,7 +85,7 @@ class CategoryData extends HiveObject {
     if (json['categoryTax'] != null) {
       categoryTax = [];
       json['categoryTax'].forEach((v) {
-        categoryTax?.add(CategoryTax.fromJson(Map<String, dynamic>.from(v ?? {})));
+        categoryTax?.add(CategoryTax.fromJson(v ?? {}));
       });
     } else {
       categoryTax = [];
@@ -160,7 +160,6 @@ class CategoryTax extends HiveObject {
         "tax": tax ?? 0,
       };
 }
-
 
 class ProductList {
   int? id;
@@ -289,31 +288,9 @@ class Variant {
     updatedAt = json['updated_at'] as String?;
   }
 
-/*  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = <String, dynamic>{};
-    json['id'] = id;
-    json['product_id'] = productId;
-    json['variation_id'] = variationId;
-    json['variation_name'] = variationName;
-    json['unitType'] = unitType;
-    json['price'] = price;
-    json['tax'] = tax;
-    json['packtype'] = packtype;
-    json['pieces'] = pieces;
-    json['stock'] = stock;
-    json['lowstock'] = lowstock;
-    json['fullstock'] = fullstock;
-    json['image_url'] = imageUrl;
-    json['status'] = status;
-    json['created_at'] = createdAt;
-    json['updated_at'] = updatedAt;
-    return json;
-  }*/
-
   Map<String, dynamic> toJsonTemp() {
     final map = <String, dynamic>{};
     map['id'] = productId;
-    //map['product_id'] = productId;
     map['variant'] = variants;
     map['unitPrice'] = price;
     map['unitType'] = variantType;
@@ -328,7 +305,6 @@ class Variant {
 
   Map<String, dynamic> toJson() => {
         'id': productId,
-        //'product_id': productId,
         'variants': variants,
         'unitType': variantType,
         'price': price,
@@ -342,90 +318,142 @@ class Variant {
       };
 }
 
-/* {
-  "status_code": 200,
-  "status": true,
-  "message": "Data Fetch Successfully",
-  "data": [
-    {
-      "categoryName": "Drinks",
-      "id": "C17",
-      "categoryItem": [
-        {
-          "sub_category": "pepsi",
-          "id": "C17SC45",
-          "productList": [
-            {
-              "Productname": "pepsi ",
-              "description": "pepsi is very testy",
-              "image_path": "http://139.59.3.15:1000/uploads/product/1686914853650.jpg",
-              "variant": [
-                {
-                  "id": 24,
-                  "pid": "C17SC45PD24",
-                  "variants": "200ml",
-                  "price": 20,
-                  "tax": 3,
-                  "packtype": "Carton",
-                  "pieces": 12,
-                  "stock": 100,
-                  "lowstock": 5,
-                  "fullstock": 1000
-                },
-                {
-                  "id": 24,
-                  "pid": "C17SC45PD24",
-                  "variants": "200ml",
-                  "price": 20,
-                  "tax": 3,
-                  "packtype": "Carton",
-                  "pieces": 12,
-                  "stock": 100,
-                  "lowstock": 5,
-                  "fullstock": 1000
-                },
-                {
-                  "id": 24,
-                  "pid": "C17SC45PD24",
-                  "variants": "200ml",
-                  "price": 20,
-                  "tax": 3,
-                  "packtype": "Carton",
-                  "pieces": 12,
-                  "stock": 100,
-                  "lowstock": 5,
-                  "fullstock": 1000
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "sub_category": "Cola",
-          "id": "C17SC46",
-          "productList": [
-            {
-              "Productname": "pepsi ",
-              "description": "pepsi is very testy",
-              "image_path": "http://139.59.3.15:1000/uploads/product/1686914853650.jpg",
-              "variant": [
-                {
-                  "id": 24,
-                  "pid": "C17SC45PD24",
-                  "variants": "200ml",
-                  "price": 20,
-                  "tax": 3,
-                  "packtype": "Carton",
-                  "pieces": 12,
-                  "stock": 100,
-                  "lowstock": 5,
-                  "fullstock": 1000
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-} */
+class AddProductRequestModel {
+  int? companyId;
+  String? brandName;
+  String? productName;
+  String? productDescription;
+  String? inclTax;
+  String? description;
+  String? imageUrl;
+  String? scId;
+  String? cId;
+
+  AddProductRequestModel(
+      {this.companyId,
+      this.brandName,
+      this.productName,
+      this.productDescription,
+      this.inclTax,
+      this.description,
+      this.imageUrl,
+      this.scId,
+      this.cId});
+
+  AddProductRequestModel.fromJson(Map<String, dynamic> json) {
+    companyId = json['companyId'] as int?;
+    brandName = json['brandName'] as String?;
+    productName = json['product_name'] as String?;
+    productDescription = json['productDiscription'] as String?;
+    inclTax = json['incl_tax'] as String?;
+    description = json['description'] as String?;
+    imageUrl = json['image_url'] as String?;
+    scId = json['sub_category_id'] as String?;
+    cId = json['category_id'] as String?;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+    json['companyId'] = companyId;
+    json['brandName'] = brandName;
+    json['product_name'] = productName;
+    json['productDiscription'] = productDescription;
+    json['incl_tax'] = inclTax;
+    json['description'] = description;
+    json['image_url'] = imageUrl;
+    json['sub_category_id'] = scId;
+    json['category_id'] = cId;
+    return json;
+  }
+}
+
+class AddProductResponse {
+  int statusCode;
+  bool status;
+  String message;
+  List<AddProductResponseData> data;
+
+  AddProductResponse({
+    required this.statusCode,
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory AddProductResponse.fromJson(Map<String, dynamic> json) =>
+      AddProductResponse(
+        statusCode: json["status_code"],
+        status: json["status"],
+        message: json["message"],
+        data: List<AddProductResponseData>.from(
+            json["data"].map((x) => AddProductResponseData.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+      };
+}
+
+class AddProductResponseData {
+  int id;
+  String productId;
+  String brandname;
+  String productName;
+  String description;
+  dynamic reasonBySalesman;
+  String imageUrl;
+  String inclTax;
+  int status;
+  String scid;
+  int catId;
+  int companyId;
+
+  AddProductResponseData({
+    required this.id,
+    required this.productId,
+    required this.brandname,
+    required this.productName,
+    required this.description,
+    required this.reasonBySalesman,
+    required this.imageUrl,
+    required this.inclTax,
+    required this.status,
+    required this.scid,
+    required this.catId,
+    required this.companyId,
+  });
+
+  factory AddProductResponseData.fromJson(Map<String, dynamic> json) =>
+      AddProductResponseData(
+        id: json["id"],
+        productId: json["product_id"],
+        brandname: json["brandname"],
+        productName: json["product_name"],
+        description: json["description"],
+        reasonBySalesman: json["reason_by_salesman"],
+        imageUrl: json["image_url"],
+        inclTax: json["incl_tax"],
+        status: json["status"],
+        scid: json["scid"],
+        catId: json["catId"],
+        companyId: json["company_id"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "product_id": productId,
+        "brandname": brandname,
+        "product_name": productName,
+        "description": description,
+        "reason_by_salesman": reasonBySalesman,
+        "image_url": imageUrl,
+        "incl_tax": inclTax,
+        "status": status,
+        "scid": scid,
+        "catId": catId,
+        "company_id": companyId,
+      };
+}

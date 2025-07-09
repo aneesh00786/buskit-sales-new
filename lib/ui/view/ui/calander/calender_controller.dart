@@ -22,6 +22,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
@@ -47,7 +48,7 @@ class CalenderMapController extends GetxController {
   RxList<bool> checkedList = <bool>[].obs;
   var suggestions = <Map<String, dynamic>>[].obs;
   RxSet<Polyline> polylines = <Polyline>{}.obs;
-    RxList<FetchOnlyCustomerData> customerOnlyList =
+  RxList<FetchOnlyCustomerData> customerOnlyList =
       <FetchOnlyCustomerData>[].obs;
 
   RxString routeCredit = ''.obs;
@@ -56,7 +57,7 @@ class CalenderMapController extends GetxController {
 
   void initializeCheckedList(
       int length, List<CalendarEventData<EventData>> eventData) {
-        initChecklistLoading.value = true;
+    initChecklistLoading.value = true;
     checkedList.value = List<bool>.filled(length, true).toList();
     for (int i = 0; i < eventData.length; i++) {
       if (checkedList[i]) {
@@ -116,7 +117,7 @@ class CalenderMapController extends GetxController {
   //   }
   // }
 
-    void showSelectedCustomerRoute(
+  void showSelectedCustomerRoute(
     BuildContext context,
     List<String> customerIds,
     List<String> eventIds,
@@ -610,15 +611,27 @@ class CalenderMapController extends GetxController {
     }
   }
 
-    RxBool isOnlyCustomerLoading = false.obs;
+  RxBool isOnlyCustomerLoading = false.obs;
   Future<void> loadOnlyCustomerData(
       String eventDate, List<String> customerIds) async {
     try {
       isOnlyCustomerLoading.value = true;
       log("Fetching for $customerIds");
 
-      var response =
-          await ApiWorker().fetchOnlyCustomerData(eventDate, customerIds);
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+      final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+      final DateFormat formatter = DateFormat('yyyy-MM-dd');
+      final startDate = formatter.format(firstDayOfMonth);
+      final endDate = formatter.format(lastDayOfMonth);
+
+      var response = await ApiWorker().fetchOnlyCustomerData(
+        eventDate,
+        customerIds,
+        startDate,
+        endDate,
+      );
 
       log("loadOnlyCustomerData response : $response");
       if (response.data.isNotEmpty) {
@@ -636,13 +649,13 @@ class CalenderMapController extends GetxController {
     }
   }
 
-    Future<void> updateCredit(String credit) async {
+  Future<void> updateCredit(String credit) async {
     routeCredit.value = credit;
   }
 
   RxList<Result> showRouteResultList = <Result>[].obs;
 
-    RxBool isShowRouteLoading = false.obs;
+  RxBool isShowRouteLoading = false.obs;
   Future<void> loadShowRoute(List<String> eventIds) async {
     try {
       isShowRouteLoading.value = true;

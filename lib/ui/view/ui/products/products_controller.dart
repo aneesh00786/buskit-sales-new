@@ -106,7 +106,7 @@ class ProductsController extends GetxController {
         Navigator.pop(context);
         return;
       }
-      
+
       final cartDetails =
           await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
       await Future.delayed(const Duration(seconds: 1));
@@ -290,42 +290,142 @@ class ProductsController extends GetxController {
   }
 
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
-    isLoading.value = true;
-    List<ProductModel> fetchedProducts =
-        await ApiWorker().getTempProduct(subCatId);
+    try {
+      log('fetchProducts: Starting with subCatId: $subCatId');
 
-    if (fetchedProducts.isNotEmpty) {
-      log('Fetched stock value ${fetchedProducts.first.stock ?? ''}');
-      log('Fetched detail stock value ${fetchedProducts.first.detail?.map(
-        (e) => e.stock,
-      )}');
-    } else {
-      log('Fetched products list is empty.');
+      if (subCatId.isEmpty) {
+        log('fetchProducts: ERROR - subCatId is empty');
+        isLoading.value = false;
+        products.clear();
+        return [];
+      }
+
+      isLoading.value = true;
+      log('fetchProducts: Fetching products from API...');
+
+      List<ProductModel> fetchedProducts = await ApiWorker().getTempProduct(
+        subCatId,
+        companyid: SessionHelper.loginSavedData?.company_id ?? 0,
+      );
+
+      log('fetchProducts: API response received. Products count: ${fetchedProducts.length}');
+      log('fetchProducts: Product SCIDs in response: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
+      log('fetchProducts: Expected SCID: $subCatId');
+      log('fetchProducts: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
+
+      // Clear existing products and set new ones (no deduplication)
+      products.clear();
+      products.addAll(fetchedProducts);
+      isLoading.value = false;
+
+      log('fetchProducts: Final products length: ${products.length}');
+      log('fetchProducts: Final product SCIDs: ${products.map((p) => p.scid).toSet().toList()}');
+      log('fetchProducts: Products: ${fetchedProducts.map((p) => '${p.productName} (SCID: ${p.scid}, ${p.detail?.length ?? 0} variants)').toList()}');
+
+      // Debug the product list to check for duplicates
+      debugProductList();
+
+      return fetchedProducts;
+    } catch (e) {
+      log('fetchProducts: Error occurred: $e');
+      log('fetchProducts: Stack trace: ${StackTrace.current}');
+      isLoading.value = false;
+      products.clear();
+      return [];
     }
+  }
 
-    products.value = fetchedProducts;
+  // Method to clear products for a specific subcategory
+  Future<void> clearProductsForSubCategory(String subCatId) async {
+    try {
+      log('clearProductsForSubCategory: Clearing products for subcategory: $subCatId');
+
+      // Clear from memory
+      products.clear();
+
+      // Clear from cache
+      await ApiWorker().clearProductsForSubCategory(subCatId);
+
+      log('clearProductsForSubCategory: Products cleared successfully');
+    } catch (e) {
+      log('clearProductsForSubCategory: Error occurred: $e');
+    }
+  }
+
+  // Method to clear all products
+  void clearAllProducts() {
+    log('clearAllProducts: Clearing all products from memory');
+    products.clear();
     isLoading.value = false;
-    log('Final Products Length: ${products.length}');
-    return fetchedProducts;
+  }
+
+  // Method to clear cache and reload products for a specific subcategory
+  Future<List<ProductModel>> reloadProductsForSubCategory(
+      String subCatId) async {
+    log('reloadProductsForSubCategory: Reloading products for subcategory: $subCatId');
+
+    try {
+      // Clear cache for this subcategory
+      await ApiWorker().clearProductsForSubCategory(subCatId);
+
+      // Fetch fresh products
+      return await fetchProducts(subCatId);
+    } catch (e) {
+      log('reloadProductsForSubCategory: Error occurred: $e');
+      return [];
+    }
+  }
+
+  // Method to debug product list
+  void debugProductList() {
+    log('debugProductList: Current products count: ${products.length}');
+    log('debugProductList: Product IDs: ${products.map((p) => p.productId).toList()}');
+    log('debugProductList: Product names: ${products.map((p) => p.productName).toList()}');
+
+    // Check for duplicates
+    final productIds =
+        products.map((p) => p.productId).where((id) => id != null).toList();
+    final uniqueIds = productIds.toSet();
+    if (productIds.length != uniqueIds.length) {
+      log('debugProductList: WARNING - Found ${productIds.length - uniqueIds.length} duplicate product IDs');
+      final duplicates = <String>[];
+      for (var id in uniqueIds) {
+        if (productIds.where((pid) => pid == id).length > 1) {
+          duplicates.add(id!);
+        }
+      }
+      log('debugProductList: Duplicate IDs: $duplicates');
+    }
   }
 
   Future<void> fetchCategoryData() async {
-    CategoryModel? categoryModel;
-    final List<ConnectivityResult> connectivityResult =
-        await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      categoryModel = await retrieveCategoryData();
-      log('Retrieved from Hive : ${categoryModel?.data?.length}');
-    } else {
+    try {
+      log('fetchCategoryData: Starting...');
+      CategoryModel? categoryModel;
+
+      final List<ConnectivityResult> connectivityResult =
+          await Connectivity().checkConnectivity();
+      log('fetchCategoryData: Connectivity result: $connectivityResult');
+
+      // if (connectivityResult.contains(ConnectivityResult.none)) {
+      //   categoryModel = await retrieveCategoryData();
+      //   log('Retrieved from Hive : ${categoryModel?.data?.length}');
+      // } else {
+      log('fetchCategoryData: Fetching from API...');
       categoryModel = await ApiWorker().getCategory();
+      log('fetchCategoryData: API response received. Data length: ${categoryModel.data?.length ?? 0}');
+
       await storeCategoryData(categoryModel);
       log('DataStored in Hive : ${categoryModel.data?.length}');
-    }
-    if (categoryModel != null) {
+      // }
+
+      log('fetchCategoryData: Setting categoryData.value...');
       categoryData.value = categoryModel;
-    } else {
-      log('No data available to display');
-      throw Exception('No data available');
+      log('fetchCategoryData: categoryData.value set. Length: ${categoryData.value.data?.length ?? 0}');
+    } catch (e) {
+      log('fetchCategoryData: Error occurred: $e');
+      log('fetchCategoryData: Stack trace: ${StackTrace.current}');
+      rethrow;
     }
   }
 
@@ -334,15 +434,25 @@ class ProductsController extends GetxController {
       if (categoryData.value.data != null &&
           categoryData.value.data!.isNotEmpty) {
         var firstCategory = categoryData.value.data!.first;
+
+        // Check if subCategoryItem exists and is not empty
         if (firstCategory.subCategoryItem != null &&
             firstCategory.subCategoryItem!.isNotEmpty) {
           var firstSubcategory = firstCategory.subCategoryItem!.first;
-          log("Fetching initial subcategory ID: ${firstSubcategory.id}");
-          log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
+
+          log("Fetching initial subcategory ID: ${firstSubcategory?.id}");
+          log("Fetching initial subcategory name: ${firstSubcategory?.subCategory}");
+
+          selectedSubCategoryId.value = "${firstSubcategory?.id}";
+          log("getInitialSubCategoryIdAndName : selectedSubCategoryId.value : ${selectedSubCategoryId.value}");
+
           return firstSubcategory;
+        } else {
+          log("No subcategories found in the first category: ${firstCategory.categoryName}");
+          return null;
         }
       }
-      log("No subcategory found. Returning null.");
+      log("No categories found in categoryData");
       return null;
     } catch (e) {
       log("Error fetching initial subcategory details: $e");
@@ -358,17 +468,8 @@ class ProductsController extends GetxController {
   Future<CategoryModel?> retrieveCategoryData() async {
     final box = await Hive.openBox('categoriesBox');
     final jsonString = box.get('categoryData');
-
     if (jsonString != null) {
-      try {
-        final convertedData = LocalStorage().castToStringDynamic(
-          Map<String, dynamic>.from(jsonString),
-        );
-        return CategoryModel.fromJson(convertedData);
-      } catch (e) {
-        log("Error converting category data: $e");
-        return null;
-      }
+      return CategoryModel.fromJson(jsonString);
     }
     return null;
   }
@@ -388,18 +489,77 @@ class ProductsController extends GetxController {
     }
   }
 
-  Future<Set<CategoryModel>> get loadDataOfCategory async => {
-        categoryData.value = await ApiWorker().getCategory(),
-      };
-  void updateCustomerAndOrderData(CustomerAndOrderData newData) {
-    productList.clear();
-    productListBackup.clear();
-    categoryData.value = CategoryModel();
-    customerAndOrderData.value = newData;
-    categoryData.value =
-        BackupDataFunction.getCategoryAndProductBackup ?? CategoryModel();
-    refresh();
+  /// Check if categories and default products are ready
+  bool get isCategoriesAndProductsReady {
+    return categoryData.value.data != null &&
+        categoryData.value.data!.isNotEmpty &&
+        selectedSubCategoryId.value.isNotEmpty &&
+        selectedSubCategoryName.value.isNotEmpty;
   }
+
+  /// Loads categories and automatically loads products for the first subcategory
+  Future<void> loadCategoriesAndDefaultProducts() async {
+    try {
+      log('Starting loadCategoriesAndDefaultProducts...');
+      debugCategoryData();
+
+      // Check if we already have categories and products loaded
+      if (isCategoriesAndProductsReady && products.isNotEmpty) {
+        log('Categories and default products already loaded. Skipping...');
+        log('Current product count: ${products.length}');
+        log('Current selected subcategory: ${selectedSubCategoryName.value}');
+        return;
+      }
+
+      // First, fetch categories
+      log('Fetching category data...');
+      await fetchCategoryData();
+      log('Categories loaded successfully. Category count: ${categoryData.value.data?.length ?? 0}');
+      debugCategoryData();
+
+      // Debug: Check if categories were actually loaded
+      if (categoryData.value.data == null || categoryData.value.data!.isEmpty) {
+        log('ERROR: No categories loaded after fetchCategoryData()');
+        log('categoryData.value: ${categoryData.value}');
+        return;
+      }
+
+      // Then, get the initial subcategory and load its products
+      log('Getting initial subcategory...');
+      SubCategoryItem? initialSubCategory = getInitialSubCategoryIdAndName();
+      if (initialSubCategory != null && initialSubCategory.id != null) {
+        log('Loading default products for subcategory: ${initialSubCategory.subCategory} (ID: ${initialSubCategory.id})');
+
+        // Set the selected subcategory name for UI immediately
+        selectedSubCategoryName.value = initialSubCategory.subCategory ?? '';
+
+        // Load products
+        await fetchProducts(initialSubCategory.id.toString());
+
+        // Set category tax if available
+        if (categoryData.value.data != null &&
+            categoryData.value.data!.isNotEmpty) {
+          var firstCategory = categoryData.value.data!.first;
+          // selectedCategoryTax.value = firstCategory.categoryTax ?? [];
+          // calculateTotalTax();
+          // log('Category tax set. Tax count: ${selectedCategoryTax.length}');
+        }
+
+        log('Default products loaded successfully. Product count: ${products.length}');
+        log('Selected subcategory name: ${selectedSubCategoryName.value}');
+        log('Selected subcategory ID: ${selectedSubCategoryId.value}');
+        debugCategoryData();
+      } else {
+        log('No initial subcategory found or subcategory ID is null');
+        log('Category data: ${categoryData.value.data?.map((e) => '${e.categoryName}: ${e.subCategoryItem?.length ?? 0} subcategories')}');
+      }
+    } catch (e) {
+      log('Error loading categories and default products: $e');
+      log('Stack trace: ${StackTrace.current}');
+      // Don't throw the error to avoid breaking the login flow
+    }
+  }
+
   addTOServerCart(AddToCartModel data) async {
     await ApiWorker().addToCart(data.toJson());
   }
@@ -451,5 +611,96 @@ class ProductsController extends GetxController {
         ],
       ),
     );
+  }
+
+  void debugCategoryData() {
+    log('=== Category Data Debug ===');
+    log('categoryData.value.data: ${categoryData.value.data}');
+    log('categoryData.value.data?.length: ${categoryData.value.data?.length ?? 0}');
+    if (categoryData.value.data != null &&
+        categoryData.value.data!.isNotEmpty) {
+      log('First category: ${categoryData.value.data!.first.categoryName}');
+      log('First category subcategories: ${categoryData.value.data!.first.subCategoryItem?.length ?? 0}');
+      if (categoryData.value.data!.first.subCategoryItem != null &&
+          categoryData.value.data!.first.subCategoryItem!.isNotEmpty) {
+        log('First subcategory: ${categoryData.value.data!.first.subCategoryItem!.first.subCategory}');
+        log('First subcategory ID: ${categoryData.value.data!.first.subCategoryItem!.first.id}');
+      }
+    }
+    log('selectedSubCategoryId.value: ${selectedSubCategoryId.value}');
+    log('selectedSubCategoryName.value: ${selectedSubCategoryName.value}');
+    log('products.length: ${products.length}');
+    log('==========================');
+  }
+
+  /// Force refresh products for the current subcategory
+  Future<void> refreshProducts() async {
+    try {
+      log('refreshProducts: Starting...');
+      if (selectedSubCategoryId.value.isNotEmpty) {
+        log('refreshProducts: Refreshing products for subcategory: ${selectedSubCategoryName.value} (ID: ${selectedSubCategoryId.value})');
+        await fetchProducts(selectedSubCategoryId.value);
+      } else {
+        log('refreshProducts: No subcategory selected, cannot refresh products');
+      }
+    } catch (e) {
+      log('refreshProducts: Error refreshing products: $e');
+    }
+  }
+
+  /// Wait for categories to be loaded (useful for UI widgets)
+  Future<bool> waitForCategories({int maxAttempts = 20}) async {
+    int attempts = 0;
+    while (!isCategoriesAndProductsReady && attempts < maxAttempts) {
+      log('waitForCategories: Waiting... attempt ${attempts + 1}');
+      await Future.delayed(const Duration(milliseconds: 250));
+      attempts++;
+    }
+
+    bool ready = isCategoriesAndProductsReady;
+    log('waitForCategories: Categories ready: $ready after $attempts attempts');
+    return ready;
+  }
+
+  /// Select a subcategory and load its products
+  Future<void> selectSubCategory(
+      String subCategoryId, String subCategoryName) async {
+    try {
+      log('selectSubCategory: Selecting subcategory: $subCategoryName (ID: $subCategoryId)');
+
+      selectedSubCategoryId.value = subCategoryId;
+      selectedSubCategoryName.value = subCategoryName;
+
+      log('selectSubCategory: Loading products for subcategory: $subCategoryName');
+      await fetchProducts(subCategoryId);
+
+      log('selectSubCategory: Products loaded successfully. Count: ${products.length}');
+    } catch (e) {
+      log('selectSubCategory: Error selecting subcategory: $e');
+    }
+  }
+
+  void updateCustomerAndOrderData(CustomerAndOrderData newData) {
+    productList.clear();
+    productListBackup.clear();
+    categoryData.value = CategoryModel();
+    customerAndOrderData.value = newData;
+    categoryData.value =
+        BackupDataFunction.getCategoryAndProductBackup ?? CategoryModel();
+    refresh();
+    //log('CHANGEDDDDDD: ${categoryData.value.data?.map((e) => e.subCategoryItem?.map((e) => e.productList?.map((e) => e.variant?.map((e) => e.toJson()))))}');
+
+    if (categoryData.value.data != null) {
+      // updateProductList(
+      //     categoryData
+      //             .value
+      //             .data![selectedCategoryIndex.value]
+      //             .subCategoryItem?[selectedSubCategoryIndex.value]
+      //             .productList ??
+      //         [],
+      //     isBackupUpdate: true
+      //     );
+    }
+    refresh();
   }
 }

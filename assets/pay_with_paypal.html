@@ -319,7 +319,7 @@
 
     paypal.Buttons({
       createOrder: () => {
-        document.getElementById("paypal-spinner").style.display = "block"; // ⏳ Show spinner
+        document.getElementById("paypal-spinner").style.display = "block";
 
         return fetch("https://thrivewoo.com/create-paypal-auth", {
           method: "POST",

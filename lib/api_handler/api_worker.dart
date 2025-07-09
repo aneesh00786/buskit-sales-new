@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -549,109 +550,689 @@ class ApiWorker with ApiConstants {
   }
 
   /// ************************ CATEGORY SECTION ***************** ///
+  
   Future<CategoryModel> getCategory() async {
-    bool isOnline = await ConnectivityService().isOnline();
-    if (!isOnline) {
+    try {
+      final isConnected = await ConnectivityService().isOnline();
+      final cacheKey =
+          "${SessionHelper.loginSavedData?.company_id ?? 0}_categoryData";
+
       final box = await Hive.openBox('categoriesBox');
-      return localStorage.storedCategoryData(box);
-    } else {
-      try {
-        final response = await dio1.get(
-          '${ApiConstants.baseUrl}${ApiConstants.fetchcategories}',
-          queryParameters: {"company_id": companyId},
-        ).timeout(const Duration(seconds: 10), onTimeout: () {
-          throw DioException(
-            requestOptions: RequestOptions(
-                path: '${ApiConstants.baseUrl}${ApiConstants.fetchcategories}'),
-            type: DioExceptionType.connectionTimeout,
+
+      if (!isConnected) {
+        final savedCategory = box.get(cacheKey) as Map?;
+        if (savedCategory != null) {
+          return CategoryModel.fromJson(
+            ApiService().castToStringDynamic(savedCategory),
           );
-        });
-        final category = CategoryModel.fromJson(response.data);
-        final box = await Hive.openBox('categoriesBox');
-        await box.put('categoryItem', category.toJson());
-        return category;
-      } on DioException catch (error) {
-        if (error.type == DioExceptionType.connectionTimeout ||
-            error.type == DioExceptionType.receiveTimeout) {
-          log("Fetch Leads Count Timeout: $error");
-          errorSnackbar(
-              'Request timed out. Please check your internet connection and try again.');
-          return Future.error(
-            'Request timed out. Please check your internet connection and try again.',
-          );
+        } else {
+          throw Exception('No data available offline');
         }
-        log("to This Exception");
-        handleExceptionMessage(
-            response: error.response,
-            apiName: "product category",
-            error: error);
-        final box = await Hive.openBox('categoriesBox');
-        return localStorage.storedCategoryData(box);
+      } else {
+        final response = await dio.getbycustom(
+          ApiConstants.fetchcategories,
+          queryParameters: {
+            "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+          },
+        );
+
+        final category = CategoryModel.fromJson(response.data);
+        await box.put(cacheKey, category.toJson());
+
+        return category;
       }
+    } catch (error) {
+      log('Error occurred while fetching category: $error');
+      handleExceptionMessage(
+        apiName: 'Fetch Category',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch category data: $error');
     }
   }
 
-  /// ************************ PRODUCT SECTION ***************** ///
-  Future<List<ProductModel>> getTempProduct(String subCatId) async {
-    List<ProductModel> allProducts = [];
-    bool isOnline = await ConnectivityService().isOnline();
-    if (isOnline) {
+  Future<List<ProductModel>> getTempProduct(String subCatId,
+      {required int companyid}) async {
+    log('=== getTempProduct START ===');
+    log('Request Parameters: subCatId=$subCatId, companyId=$companyid');
+
+    final isConnected = await ConnectivityService().isOnline();
+    log('Internet Connection: $isConnected');
+
+    if (isConnected) {
       try {
-        final requestParams = {"company_id": companyId};
-        final response = await dio1
-            .get(
-          '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}',
-          queryParameters: requestParams,
-        )
-            .timeout(const Duration(seconds: 15), onTimeout: () {
-          throw DioException(
-            requestOptions: RequestOptions(
-                path: '${ApiConstants.baseUrl}${ApiConstants.fetchproduct}'),
-            type: DioExceptionType.connectionTimeout,
-          );
-        });
-        if (response.statusCode == 200 && response.data['data'] is List) {
-          for (var item in response.data['data']) {
-            if (item['product'] is List) {
-              allProducts.addAll((item['product'] as List)
-                  .map((productJson) => ProductModel.fromJson(productJson))
-                  .toList());
+        final queryParams = {
+          "company_id": companyid,
+          "sub_catid": subCatId,
+        };
+        log('API Request Parameters: $queryParams');
+
+        final response = await dio.getbycustom(ApiConstants.fetchproduct,
+            queryParameters: queryParams);
+
+        log('API Response Status Code: ${response.statusCode}');
+
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+          log('API Response Data: $responseData');
+
+          // Parse the new response structure
+          final productApiResponse = ProductApiResponse.fromJson(responseData);
+          log('Parsed ProductApiResponse - Total scid groups: ${productApiResponse.data.length}');
+
+          List<ProductModel> productsForSubCategory = [];
+          ScidProductGroup? targetScidGroup;
+
+          // Find products for the specific subcategory
+          for (var scidGroup in productApiResponse.data) {
+            log('Checking scid group: ${scidGroup.scid} (contains ${scidGroup.products.length} products)');
+            if (scidGroup.scid == subCatId) {
+              productsForSubCategory.addAll(scidGroup.products);
+              targetScidGroup = scidGroup;
+              log('Found matching scid group: ${scidGroup.scid}');
+              break; // Found the specific subcategory, no need to continue
             }
           }
-          var productBox = Hive.box('productBox');
-          await productBox.put(
-            'products',
-            allProducts.map((product) => product.toJson()).toList(),
-          );
+
+          log('Fetched Products for subcategory $subCatId: ${productsForSubCategory.length}');
+          log('Cache Key (scid): $subCatId');
+
+          // Cache only the specific subcategory data, not all data
+          if (targetScidGroup != null) {
+            await _cacheSingleScidGroup(targetScidGroup);
+            log('Products cached successfully for scid: $subCatId');
+          } else {
+            log('No matching scid group found for subcategory: $subCatId');
+          }
+
+          log('=== getTempProduct END (Online) ===');
+          return productsForSubCategory;
         } else {
-          errorSnackbar("Failed to fetch Products from the API");
+          log("Failed to load products, status code: ${response.statusCode}");
+          log('=== getTempProduct END (API Error) ===');
+          return [];
         }
-      } on DioException catch (error) {
-        if (error.type == DioExceptionType.connectionTimeout ||
-            error.type == DioExceptionType.receiveTimeout) {
-          log("Fetch Leads Count Timeout: $error");
-          errorSnackbar(
-              'Request timed out. Please check your internet connection and try again.');
-          return Future.error(
-            'Request timed out. Please check your internet connection and try again.',
-          );
-        }
+      } catch (e) {
+        log("Error fetching products: $e");
         handleExceptionMessage(
-            response: error.response, apiName: "products", error: error);
+          apiName: 'Get Temp Product',
+          response: e is DioException ? e.response : null,
+        );
+        log('=== getTempProduct END (Exception) ===');
+        return [];
       }
     } else {
-      log('No internet. Fetching from Hive...');
+      // Load from cached data when offline
+      log('Loading from cache for subcategory: $subCatId');
+      final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+      log('Loaded ${cachedProducts.length} products from cache for subcategory: $subCatId');
+      log('=== getTempProduct END (Offline) ===');
+      return cachedProducts;
     }
+  }
+
+  // Helper method to load cached products for a specific subcategory
+  Future<List<ProductModel>> _loadCachedProductsBySubCategory(
+      String subCatId) async {
+    log('=== _loadCachedProductsBySubCategory START ===');
+    log('Loading cached products for subcategory: $subCatId');
+
     try {
-      var productBox = Hive.box('productBox');
-      allProducts = localStorage.storedProductData(productBox, allProducts);
+      // Try to load from scid-based cache first
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box for subcategory loading');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box for subcategory loading');
+      }
+
+      // Check if the box has any data
+      if (scidGroupBox.isEmpty) {
+        log('Scid-based cache is empty');
+      } else {
+        log('Scid-based cache has ${scidGroupBox.length} entries');
+        log('Available scid keys: ${scidGroupBox.keys.toList()}');
+      }
+
+      log('Looking for scid group with key: $subCatId');
+      final scidGroup = scidGroupBox.get(subCatId);
+      if (scidGroup != null) {
+        log("Found scid group: ${scidGroup.scid} with ${scidGroup.products.length} products");
+        log('=== _loadCachedProductsBySubCategory END (Scid-based) ===');
+        return scidGroup.products;
+      }
+
+      // Fallback to old cache structure - filter by scid
+      log('Scid group not found, trying legacy cache with filter...');
+      var productBox = Hive.box<ProductModel>('products');
+      if (productBox.isNotEmpty) {
+        log('Legacy cache has ${productBox.length} products');
+
+        // Show all available scids in legacy cache for debugging
+        final allScids = productBox.values.map((p) => p.scid).toSet().toList();
+        log('All scids available in legacy cache: $allScids');
+
+        List<ProductModel> offlineProducts = productBox.values
+            .where((product) => product.scid == subCatId)
+            .toList();
+        log("Loaded ${offlineProducts.length} products for subcategory $subCatId from legacy cache");
+
+        if (offlineProducts.isNotEmpty) {
+          log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
+        }
+
+        log('=== _loadCachedProductsBySubCategory END (Legacy) ===');
+        return offlineProducts;
+      } else {
+        log("No products available offline for subcategory $subCatId");
+        log('=== _loadCachedProductsBySubCategory END (Empty) ===');
+        return [];
+      }
     } catch (e) {
-      log('Error fetching from Hive: $e');
+      log('Error loading cached products for subcategory $subCatId: $e');
+      log('=== _loadCachedProductsBySubCategory END (Error) ===');
+      return [];
     }
-    List<ProductModel> filteredProducts = allProducts.where((product) {
-      return product.scid == subCatId;
-    }).toList();
-    return filteredProducts;
+  }
+
+  Future<List<ProductModel>> getAllProducts() async {
+    log('=== getAllProducts START ===');
+    final companyId = SessionHelper.loginSavedData?.company_id;
+    log('Request Parameters: companyId=$companyId');
+
+    final isConnected = await ConnectivityService().isOnline();
+    log('Internet Connection: $isConnected');
+
+    if (isConnected) {
+      try {
+        final queryParams = {"company_id": companyId};
+        log('API Request Parameters: $queryParams');
+
+        final response = await dio.getbycustom(ApiConstants.fetchproduct,
+            queryParameters: queryParams);
+
+        log('API Response Status Code: ${response.statusCode}');
+
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+          log('API Response Data: $responseData');
+
+          // Parse the new response structure
+          final productApiResponse = ProductApiResponse.fromJson(responseData);
+          log('Parsed ProductApiResponse - Total scid groups: ${productApiResponse.data.length}');
+
+          List<ProductModel> allProducts = [];
+
+          // Extract all products from all scid groups
+          for (var scidGroup in productApiResponse.data) {
+            log('Processing scid group: ${scidGroup.scid} (contains ${scidGroup.products.length} products)');
+            allProducts.addAll(scidGroup.products);
+          }
+
+          log('Total Products Fetched: ${allProducts.length}');
+          log('Cache Keys (scids): ${productApiResponse.data.map((group) => group.scid).toList()}');
+
+          // Store products by scid for caching
+          await _cacheProductsByScid(productApiResponse.data);
+          log('All products cached successfully for ${productApiResponse.data.length} scid groups');
+          log('Cached scid groups: ${productApiResponse.data.map((group) => '${group.scid}(${group.products.length} products)').toList()}');
+
+          log('=== getAllProducts END (Online) ===');
+          return allProducts;
+        } else {
+          log("Failed to load products, status code: ${response.statusCode}");
+          log('=== getAllProducts END (API Error) ===');
+          return [];
+        }
+      } catch (e) {
+        log("Error fetching products: $e");
+        handleExceptionMessage(
+          apiName: 'Get All Product',
+          response: e is DioException ? e.response : null,
+        );
+        log('=== getAllProducts END (Exception) ===');
+        return [];
+      }
+    } else {
+      // Load from cached data when offline
+      log('Loading all products from cache');
+      final cachedProducts = await _loadCachedProducts();
+      log('Loaded ${cachedProducts.length} products from cache');
+      log('=== getAllProducts END (Offline) ===');
+      return cachedProducts;
+    }
+  }
+
+  // Helper method to cache a single scid group
+  Future<void> _cacheSingleScidGroup(ScidProductGroup scidGroup) async {
+    log('=== _cacheSingleScidGroup START ===');
+    log('Caching single scid group: ${scidGroup.scid} (${scidGroup.products.length} products)');
+
+    try {
+      // Open or create box for caching
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+        log('Using existing products box');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+        log('Created new products box');
+      }
+
+      // Store the single scid group with its scid as key
+      log('Storing scid group with cache key: ${scidGroup.scid}');
+      await scidGroupBox.put(scidGroup.scid, scidGroup);
+
+      // Remove existing products with the same scid to avoid duplicates
+      final existingProducts =
+          productBox.values.where((p) => p.scid == scidGroup.scid).toList();
+      log('Found ${existingProducts.length} existing products with scid: ${scidGroup.scid}');
+
+      for (var product in existingProducts) {
+        if (product.productId != null) {
+          await productBox.delete(product.productId);
+          log('Removed existing product: ${product.productId}');
+        }
+      }
+
+      // Add new products for this scid (don't deduplicate here - let the API handle it)
+      await productBox.addAll(scidGroup.products);
+      log('Updated legacy cache with ${scidGroup.products.length} products for scid: ${scidGroup.scid}');
+
+      log('Single scid group cache operation completed successfully');
+      log('Cache Key stored: ${scidGroup.scid}');
+      log('Total cached scid groups 2: ${scidGroupBox.length}');
+      log('Total cached products 2: ${productBox.length}');
+      log('=== _cacheSingleScidGroup END ===');
+    } catch (e) {
+      log('Error caching single scid group: $e');
+      log('=== _cacheSingleScidGroup END (Error) ===');
+    }
+  }
+
+  // Helper method to cache products by scid
+  Future<void> _cacheProductsByScid(List<ScidProductGroup> scidGroups) async {
+    log('=== _cacheProductsByScid START ===');
+    log('Caching ${scidGroups.length} scid groups');
+
+    try {
+      // Open or create boxes for caching
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+        log('Using existing products box');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+        log('Created new products box');
+      }
+
+      // Store scid groups with their scid as key (don't clear existing data)
+      log('Storing scid groups with cache keys...');
+      for (var scidGroup in scidGroups) {
+        log('Caching scid group: ${scidGroup.scid} (${scidGroup.products.length} products)');
+        await scidGroupBox.put(scidGroup.scid, scidGroup);
+      }
+
+      // Update legacy cache by adding new products (don't clear existing)
+      List<ProductModel> newProducts = [];
+      for (var scidGroup in scidGroups) {
+        newProducts.addAll(scidGroup.products);
+      }
+
+      // Remove existing products with the same scids to avoid duplicates
+      for (var scidGroup in scidGroups) {
+        final existingProducts =
+            productBox.values.where((p) => p.scid == scidGroup.scid).toList();
+        for (var product in existingProducts) {
+          if (product.productId != null) {
+            await productBox.delete(product.productId);
+            log('Removed existing product: ${product.productId}');
+          }
+        }
+      }
+
+      // Add new products without deduplication (let the API handle it)
+      await productBox.addAll(newProducts);
+      log('Updated legacy cache with ${newProducts.length} new products');
+
+      log('Cache operation completed successfully');
+      log('Cache Keys stored: ${scidGroups.map((group) => group.scid).toList()}');
+      log('Total cached scid groups: ${scidGroupBox.length}');
+      log('Total cached products: ${productBox.length}');
+      log('=== _cacheProductsByScid END ===');
+    } catch (e) {
+      log('Error caching products by scid: $e');
+      log('=== _cacheProductsByScid END (Error) ===');
+    }
+  }
+
+  // Helper method to load cached products
+  Future<List<ProductModel>> _loadCachedProducts() async {
+    log('=== _loadCachedProducts START ===');
+    try {
+      // Try to load from scid-based cache first
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box for loading');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box for loading');
+      }
+
+      if (scidGroupBox.isNotEmpty) {
+        List<ProductModel> allProducts = [];
+        log('Loading from scid-based cache...');
+        for (var scidGroup in scidGroupBox.values) {
+          log('Loading scid group: ${scidGroup.scid} (${scidGroup.products.length} products)');
+          allProducts.addAll(scidGroup.products);
+        }
+        log("Loaded ${allProducts.length} products from scid-based cache");
+        log('=== _loadCachedProducts END (Scid-based) ===');
+        return allProducts;
+      }
+
+      // Fallback to old cache structure
+      log('Scid-based cache is empty, trying legacy cache...');
+      var productBox = Hive.box<ProductModel>('products');
+      if (productBox.isNotEmpty) {
+        List<ProductModel> offlineProducts = productBox.values.toList();
+        log("Loaded ${offlineProducts.length} products from legacy local storage");
+        log('=== _loadCachedProducts END (Legacy) ===');
+        return offlineProducts;
+      } else {
+        log("No products available offline");
+        log('=== _loadCachedProducts END (Empty) ===');
+        return [];
+      }
+    } catch (e) {
+      log('Error loading cached products: $e');
+      log('=== _loadCachedProducts END (Error) ===');
+      return [];
+    }
+  }
+
+  // New method to get products by specific scid
+  Future<List<ProductModel>> getProductsByScid(String scid) async {
+    log('=== getProductsByScid START ===');
+    log('Requesting products for scid: $scid');
+
+    try {
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+        log('Using existing scidProductGroups box');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        log('Created new scidProductGroups box');
+      }
+
+      final scidGroup = scidGroupBox.get(scid);
+      if (scidGroup != null) {
+        log("Found scid group: ${scidGroup.scid} with ${scidGroup.products.length} products");
+        log('=== getProductsByScid END (Success) ===');
+        return scidGroup.products;
+      } else {
+        log("No products found for scid: $scid");
+        log('=== getProductsByScid END (Empty) ===');
+        return [];
+      }
+    } catch (e) {
+      log('Error loading products for scid $scid: $e');
+      log('=== getProductsByScid END (Error) ===');
+      return [];
+    }
+  }
+
+  // Method to check if a subcategory has cached data
+  Future<bool> hasCachedProductsForSubCategory(String subCatId) async {
+    log('=== hasCachedProductsForSubCategory START ===');
+    log('Checking if subcategory $subCatId has cached data');
+
+    try {
+      // Check scid-based cache first
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      final scidGroup = scidGroupBox.get(subCatId);
+      if (scidGroup != null && scidGroup.products.isNotEmpty) {
+        log('Found cached data for subcategory $subCatId: ${scidGroup.products.length} products');
+        log('=== hasCachedProductsForSubCategory END (True - Scid-based) ===');
+        return true;
+      }
+
+      // Check legacy cache
+      var productBox = Hive.box<ProductModel>('products');
+      if (productBox.isNotEmpty) {
+        final hasProducts =
+            productBox.values.any((product) => product.scid == subCatId);
+        log('Legacy cache check for subcategory $subCatId: $hasProducts');
+        log('=== hasCachedProductsForSubCategory END ($hasProducts - Legacy) ===');
+        return hasProducts;
+      }
+
+      log('No cached data found for subcategory $subCatId');
+      log('=== hasCachedProductsForSubCategory END (False) ===');
+      return false;
+    } catch (e) {
+      log('Error checking cached data for subcategory $subCatId: $e');
+      log('=== hasCachedProductsForSubCategory END (Error) ===');
+      return false;
+    }
+  }
+
+  // Method to clear all cached products
+  Future<void> clearProductCache() async {
+    log('=== clearProductCache START ===');
+    try {
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      await scidGroupBox.clear();
+      await productBox.clear();
+      log('Product cache cleared successfully');
+      log('=== clearProductCache END ===');
+    } catch (e) {
+      log('Error clearing product cache: $e');
+      log('=== clearProductCache END (Error) ===');
+    }
+  }
+
+  // Method to clear products for a specific subcategory
+  Future<void> clearProductsForSubCategory(String subCatId) async {
+    log('=== clearProductsForSubCategory START ===');
+    log('Clearing products for subcategory: $subCatId');
+
+    try {
+      late Box<ScidProductGroup> scidGroupBox;
+      late Box<ProductModel> productBox;
+
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (Hive.isBoxOpen('products')) {
+        productBox = Hive.box<ProductModel>('products');
+      } else {
+        productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      // Remove from scid-based cache
+      await scidGroupBox.delete(subCatId);
+
+      // Remove from legacy cache
+      final existingProducts =
+          productBox.values.where((p) => p.scid == subCatId).toList();
+      for (var product in existingProducts) {
+        if (product.productId != null) {
+          await productBox.delete(product.productId);
+        }
+      }
+
+      log('Cleared ${existingProducts.length} products for subcategory: $subCatId');
+      log('=== clearProductsForSubCategory END ===');
+    } catch (e) {
+      log('Error clearing products for subcategory $subCatId: $e');
+      log('=== clearProductsForSubCategory END (Error) ===');
+    }
+  }
+
+  // Method to get all available cached subcategory IDs
+  Future<List<String>> getCachedSubcategoryIds() async {
+    log('=== getCachedSubcategoryIds START ===');
+
+    try {
+      List<String> cachedScids = [];
+
+      // Get from scid-based cache
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (scidGroupBox.isNotEmpty) {
+        cachedScids = scidGroupBox.keys.cast<String>().toList();
+        log('Found ${cachedScids.length} cached subcategory IDs: $cachedScids');
+      } else {
+        log('No scid-based cache found');
+      }
+
+      log('=== getCachedSubcategoryIds END ===');
+      return cachedScids;
+    } catch (e) {
+      log('Error getting cached subcategory IDs: $e');
+      log('=== getCachedSubcategoryIds END (Error) ===');
+      return [];
+    }
+  }
+
+  // Method to get comprehensive cache status
+  Future<Map<String, dynamic>> getCacheStatus() async {
+    log('=== getCacheStatus START ===');
+
+    try {
+      Map<String, dynamic> status = {};
+
+      // Check scid-based cache
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      status['scidBasedCache'] = {
+        'isEmpty': scidGroupBox.isEmpty,
+        'entryCount': scidGroupBox.length,
+        'keys': scidGroupBox.keys.cast<String>().toList(),
+      };
+
+      // Check legacy cache
+      var productBox = Hive.box<ProductModel>('products');
+      status['legacyCache'] = {
+        'isEmpty': productBox.isEmpty,
+        'entryCount': productBox.length,
+        'scids': productBox.values.map((p) => p.scid).toSet().toList(),
+      };
+
+      log('Cache Status: $status');
+      log('=== getCacheStatus END ===');
+      return status;
+    } catch (e) {
+      log('Error getting cache status: $e');
+      log('=== getCacheStatus END (Error) ===');
+      return {};
+    }
+  }
+
+  // Method to check if any cache has data
+  Future<bool> hasAnyCachedData() async {
+    log('=== hasAnyCachedData START ===');
+
+    try {
+      // Check scid-based cache
+      late Box<ScidProductGroup> scidGroupBox;
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
+      } else {
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
+      }
+
+      if (scidGroupBox.isNotEmpty) {
+        log('Scid-based cache has data: ${scidGroupBox.length} entries');
+        log('=== hasAnyCachedData END (True - Scid-based) ===');
+        return true;
+      }
+
+      // Check legacy cache
+      var productBox = Hive.box<ProductModel>('products');
+      if (productBox.isNotEmpty) {
+        log('Legacy cache has data: ${productBox.length} products');
+        log('=== hasAnyCachedData END (True - Legacy) ===');
+        return true;
+      }
+
+      log('No cached data found in any cache');
+      log('=== hasAnyCachedData END (False) ===');
+      return false;
+    } catch (e) {
+      log('Error checking for cached data: $e');
+      log('=== hasAnyCachedData END (Error) ===');
+      return false;
+    }
   }
 
   Future<void> fetchDiscounts(int companyId, String salesmanId) async {
@@ -2045,20 +2626,61 @@ class ApiWorker with ApiConstants {
   }
 
   Future<FetchOnlyCustomer> fetchOnlyCustomerData(
-      String eventDate, List<String> customerIds) async {
+    String eventDate,
+    List<String> customerIds,
+    String startDate,
+    String endDate,
+  ) async {
+    final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final String cacheKey = '${companyId}_${startDate}_${endDate}';
+    log(cacheKey);
+    final box = await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
+    final isConnected = await ConnectivityService().isOnline();
+    if (!isConnected) {
+      final cachedData = box.get(cacheKey);
+      if (cachedData != null) {
+        try {
+          final convertedData = ApiService()
+              .castToStringDynamic(Map<String, dynamic>.from(cachedData));
+          final allData = FetchOnlyCustomer.fromJson(convertedData);
+          // Filter by eventDate (start field)
+          final filteredByDate = allData.data.where((item) {
+            final startStr = item.start.toIso8601String().substring(0, 10);
+            return startStr == eventDate;
+          }).toList();
+          // Filter by customerIds
+          final filteredByCustomer = filteredByDate
+              .where((item) => customerIds.contains(item.customerId))
+              .toList();
+          return FetchOnlyCustomer(
+            statusCode: allData.statusCode,
+            status: allData.status,
+            message: allData.message,
+            data: filteredByCustomer,
+          );
+        } catch (e) {
+          log("Error converting or filtering cached fetchOnlyCustomerDataInWhole: $e");
+          throw Exception(
+              'Corrupt offline data for fetchOnlyCustomerDataInWhole');
+        }
+      } else {
+        throw Exception(
+            'No offline data available for fetchOnlyCustomerDataInWhole');
+      }
+    }
     try {
       var request = {
-        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "companyId": companyId,
         "customer_id": customerIds,
-        // "event_id": eventId,
-        "date": eventDate,
+        "start_date": eventDate,
+        "end_date": eventDate
       };
       log(request.toString());
       final response = await responsePostMethod(
         endPoint: ApiConstants.fetchOnlyCustomerData,
         requestData: request,
       );
-
+      // Do not store anything here
       return FetchOnlyCustomer.fromJson(response.data);
     } catch (error) {
       log("Error occurred while fetching only customer data: $error");
@@ -2069,6 +2691,81 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch only customer data: $error');
     }
   }
+
+  Future<FetchOnlyCustomer> fetchOnlyCustomerDataInWhole(
+    String startDate,
+    String endDate,
+  ) async {
+    final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final String cacheKey = '${companyId}_${startDate}_${endDate}';
+    final box = await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
+    final isConnected = await ConnectivityService().isOnline();
+    if (!isConnected) {
+      final cachedData = box.get(cacheKey);
+      if (cachedData != null) {
+        try {
+          final convertedData = ApiService()
+              .castToStringDynamic(Map<String, dynamic>.from(cachedData));
+          return FetchOnlyCustomer.fromJson(convertedData);
+        } catch (e) {
+          log("Error converting cached fetchOnlyCustomerDataInWhole: $e");
+          throw Exception(
+              'Corrupt offline data for fetchOnlyCustomerDataInWhole');
+        }
+      } else {
+        throw Exception(
+            'No offline data available for fetchOnlyCustomerDataInWhole');
+      }
+    }
+    try {
+      var request = {
+        "companyId": companyId,
+        "start_date": startDate,
+        "end_date": endDate
+      };
+      log(request.toString());
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.fetchOnlyCustomerData,
+        requestData: request,
+      );
+      // Cache the response
+      await box.put(cacheKey, response.data);
+      return FetchOnlyCustomer.fromJson(response.data);
+    } catch (error) {
+      log("Error occurred while fetching only customer data: $error");
+      handleExceptionMessage(
+        apiName: 'Fetch Only Customer Data',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch only customer data: $error');
+    }
+  }
+
+  // Future<FetchOnlyCustomer> fetchOnlyCustomerData(
+  //     String eventDate, List<String> customerIds) async {
+  //   try {
+  //     var request = {
+  //       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //       "customer_id": customerIds,
+  //       // "event_id": eventId,
+  //       "date": eventDate,
+  //     };
+  //     log(request.toString());
+  //     final response = await responsePostMethod(
+  //       endPoint: ApiConstants.fetchOnlyCustomerData,
+  //       requestData: request,
+  //     );
+
+  //     return FetchOnlyCustomer.fromJson(response.data);
+  //   } catch (error) {
+  //     log("Error occurred while fetching only customer data: $error");
+  //     handleExceptionMessage(
+  //       apiName: 'Fetch Only Customer Data',
+  //       response: error is DioException ? error.response : null,
+  //     );
+  //     throw Exception('Failed to fetch only customer data: $error');
+  //   }
+  // }
 
     Future<Response> scheduleVisit({
     List<Map<String, String>>? events,

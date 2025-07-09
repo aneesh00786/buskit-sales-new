@@ -9,9 +9,8 @@ class CategoryItem {
 
   factory CategoryItem.fromJson(Map<String, dynamic> json) {
     return CategoryItem(
-      subCategory:
-          json['sub_category'] ?? '', 
-      id: json['id'] ?? '', 
+      subCategory: json['sub_category'] ?? '',
+      id: json['id'] ?? '',
     );
   }
 
@@ -36,9 +35,8 @@ class CategoryP {
 
   factory CategoryP.fromJson(Map<String, dynamic> json) {
     return CategoryP(
-      categoryName:
-          json['categoryName'] ?? '', 
-      id: json['id'] ?? '', 
+      categoryName: json['categoryName'] ?? '',
+      id: json['id'] ?? '',
       categoryItem: (json['categoryItem'] as List<dynamic>? ?? [])
           .map((item) => CategoryItem.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -69,11 +67,8 @@ class CategoryResponse {
 
   factory CategoryResponse.fromJson(Map<String, dynamic> json) {
     return CategoryResponse(
-      statusCode: json['status_code'] is int
-          ? json['status_code']
-          : 0,
-      status:
-          json['status'] is bool ? json['status'] : false,
+      statusCode: json['status_code'] is int ? json['status_code'] : 0,
+      status: json['status'] is bool ? json['status'] : false,
       message: json['message'] ?? '',
       data: (json['data'] as List<dynamic>? ?? [])
           .map((item) => CategoryP.fromJson(item as Map<String, dynamic>))

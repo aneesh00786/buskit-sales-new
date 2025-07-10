@@ -397,10 +397,10 @@ class CalenderMapController extends GetxController {
       } else {
         errorStatusCode = 500;
       }
-      handleHttpResponseError(
-          statusCode: errorStatusCode,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: "An error occurred while fetching map directions");
+      // handleHttpResponseError(
+      //     statusCode: errorStatusCode,
+      //     showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+      //     message: "An error occurred while fetching map directions");
       log('Error occurred while fetching directions: $e');
     }
   }

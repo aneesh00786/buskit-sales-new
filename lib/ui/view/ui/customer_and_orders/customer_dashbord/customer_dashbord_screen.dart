@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/category_line_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
@@ -36,6 +38,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../../api_handler/api_worker.dart';
+import 'package:hive/hive.dart';
 
 class CustomerDachScreen extends StatefulWidget {
   final dynamic year;
@@ -113,8 +116,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       MaterialPageRoute(
         builder: (context) => OrderTaking(
           productsController: productsController,
-          selectedCustId:
-              widget.cusId,
+          selectedCustId: widget.cusId,
           selectedCustName: widget.cusName,
           selectedCustImageUrl: widget.cusImage,
           //  ?? ProductsController(),
@@ -134,6 +136,30 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     _tabController.dispose();
     checkCustomerOut();
     customerOrderController.isActive.value = false;
+  }
+
+  Future<void> _saveCheckInOutRequestOffline({
+    required String date,
+    required String time,
+    required String direction,
+    required String lat,
+    required String long,
+    required String customerId,
+  }) async {
+    final box = await Hive.openBox('offlineRequests');
+    final payload = {
+      "custid": customerId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "direction": direction,
+      "time": time,
+      "longitude": double.tryParse(long) ?? 0.0,
+      "latitude": double.tryParse(lat) ?? 0.0,
+    };
+    await box.add({
+      'url': ApiConstants.baseUrl + ApiConstants.updateCheckinCustomer,
+      'payload': payload,
+    });
   }
 
   Future<bool> checkCustomerOut() async {
@@ -167,28 +193,57 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   return;
                 }
 
+                final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+                final time = DateFormat('yyyy-MM-dd hh:mm:ss')
+                    .format(DateTime.now())
+                    .toString();
+                final direction = "OUT";
+                final customerId = productsController.selectedCustomerId.value;
                 try {
                   Position position = await Geolocator.getCurrentPosition(
                     desiredAccuracy: LocationAccuracy.high,
                   );
+                  final lat = position.latitude.toString();
+                  final long = position.longitude.toString();
 
-                  final response = await ApiWorker().updateCustomerCheckInOut(
-                    date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                    time: DateFormat('yyyy-MM-dd hh:mm:ss')
-                        .format(DateTime.now())
-                        .toString(),
-                    direction: "OUT",
-                    lat: position.latitude.toString(),
-                    long: position.longitude.toString(),
-                    customerId: productsController.selectedCustomerId.value,
-                  );
+                  final connectivityService = ConnectivityService();
+                  final isOnline = await connectivityService.isOnline();
 
-                  if (response.statusCode != 200) {
-                    showCustomToastDisplay(context,
-                        response.statusMessage.toString(), red, Icons.close);
-                  } else {
-                    await ApiWorker().saveSwitchState(false);
+                  if (!isOnline) {
+                    await _saveCheckInOutRequestOffline(
+                      date: date,
+                      time: time,
+                      direction: direction,
+                      lat: lat,
+                      long: long,
+                      customerId: customerId,
+                    );
+                    if (context.mounted) {
+                      showCustomToastDisplay(
+                        context,
+                        'You are offline. Your check-out will sync when online.',
+                        Colors.orange,
+                        Icons.info,
+                      );
+                    }
                     shouldProceed = true;
+                  } else {
+                    final response = await ApiWorker().updateCustomerCheckInOut(
+                      date: date,
+                      time: time,
+                      direction: direction,
+                      lat: lat,
+                      long: long,
+                      customerId: customerId,
+                    );
+
+                    if (response.statusCode != 200) {
+                      showCustomToastDisplay(context,
+                          response.statusMessage.toString(), red, Icons.close);
+                    } else {
+                      await ApiWorker().saveSwitchState(false);
+                      shouldProceed = true;
+                    }
                   }
                 } catch (e) {
                   log('Error: $e');
@@ -485,14 +540,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 } else {
                   // return Center(child: Text('Error 1: ${snapshot.error}'));
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    showCustomToastDisplay(
-                      context,
-                      snapshot.error.toString(),
-                      Colors.red,
-                      Icons.close,
-                    );
-                  });
+                  // WidgetsBinding.instance.addPostFrameCallback((_) {
+                  //   showCustomToastDisplay(
+                  //     context,
+                  //     snapshot.error.toString(),
+                  //     Colors.red,
+                  //     Icons.close,
+                  //   );
+                  // });
                   final responseModel = snapshot.data;
                   final frequentProductLists =
                       responseModel?.data.frequentProductLists;

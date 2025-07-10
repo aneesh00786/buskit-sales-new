@@ -254,6 +254,7 @@ class _TableeeState extends State<Tableee> {
                         scrollDirection: Axis.horizontal,
                         physics: const ClampingScrollPhysics(),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             if (provider.selectedFilter == FilterDateEnum.range)
                               Row(

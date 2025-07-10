@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -190,106 +191,68 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               ),
                             );
                           } else {
-                            // Show loading dialog first for network images
+                            // Show expanded image dialog directly
+                            final imageUrl =
+                                '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}';
                             showDialog(
                               barrierDismissible: false,
                               context: context,
                               builder: (_) => AlertDialog(
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadiusGeometry.circular(20)),
                                 backgroundColor: Colors.transparent,
-                                content: const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                                insetPadding: const EdgeInsets.all(50.0),
+                                content: SizedBox(
+                                  width: constraints.maxWidth * 0.8,
+                                  height: constraints.maxWidth * 0.8,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.white,
+                                        ),
+                                        clipBehavior: Clip.antiAlias,
+                                        padding: const EdgeInsets.all(10),
+                                        child: Center(
+                                          child: InteractiveViewer(
+                                            minScale: 0.5,
+                                            maxScale: 4.0,
+                                            child: CachedNetworkImage(
+                                              imageUrl: imageUrl,
+                                              fit: BoxFit.contain,
+                                              placeholder: (context, url) =>
+                                                  const Padding(
+                                                padding: EdgeInsets.all(15.0),
+                                                child: CircleAvatar(
+                                                  radius: 10,
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Image.asset(
+                                                'assets/images/Image-not-found.png',
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: dialogCloseButton1(context, red),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             );
-
-                            // Check if image is loaded
-                            final imageUrl =
-                                '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}';
-                            final imageProvider = NetworkImage(imageUrl);
-
-                            imageProvider
-                                .resolve(const ImageConfiguration())
-                                .addListener(
-                                  ImageStreamListener((info, _) {
-                                    Navigator.of(context).pop();
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        clipBehavior: Clip.antiAlias,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadiusGeometry.circular(
-                                                    20)),
-                                        backgroundColor: Colors.transparent,
-                                        insetPadding:
-                                            const EdgeInsets.all(50.0),
-                                        content: SizedBox(
-                                          width: constraints.maxWidth * 0.8,
-                                          height: constraints.maxWidth * 0.8,
-                                          child: Stack(
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  color: Colors.white,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                child: Center(
-                                                  child: InteractiveViewer(
-                                                    minScale: 0.5,
-                                                    maxScale: 4.0,
-                                                    child: Image.network(
-                                                      imageUrl,
-                                                      fit: BoxFit.contain,
-                                                      errorBuilder: (context,
-                                                          error, stackTrace) {
-                                                        return const Center(
-                                                          child: Icon(
-                                                            Icons.error_outline,
-                                                            color: Colors.white,
-                                                            size: 50,
-                                                          ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 10,
-                                                right: 10,
-                                                child: dialogCloseButton1(
-                                                    context, red),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }, onError: (exception, stackTrace) {
-                                    // Image failed to load, close loading dialog and show error
-                                    Navigator.of(context).pop();
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        backgroundColor: Colors.transparent,
-                                        content: const Center(
-                                          child: Icon(
-                                            Icons.error_outline,
-                                            color: Colors.white,
-                                            size: 50,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                );
                           }
                         },
                         child: Stack(
@@ -297,28 +260,23 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             SizedBox(
                               height: screenHeight * 0.12,
                               width: screenHeight * 0.12,
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                            Hero(
-                              tag: 'product_image',
-                              child: Container(
-                                padding: const EdgeInsets.all(15),
-                                height: screenHeight * 0.12,
-                                width: screenHeight * 0.12,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: widget.product.imageUrl == null
-                                        ? const AssetImage(
-                                            'assets/images/otp.png')
-                                        : NetworkImage(
-                                                '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}')
-                                            as ImageProvider,
-                                  ),
-                                ),
-                              ),
+                              child: widget.product.imageUrl != null
+                                  ? CachedNetworkImage(
+                                      imageUrl:
+                                          '${ApiConstants.imageBaseUrl}/${widget.product.imageUrl}',
+                                      placeholder: (context, url) =>
+                                          const Padding(
+                                        padding: EdgeInsets.all(15.0),
+                                        child: CircleAvatar(
+                                            radius: 10,
+                                            child: CircularProgressIndicator()),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                              'assets/images/Image-not-found.png'),
+                                    )
+                                  : Image.asset(
+                                      'assets/images/Image-not-found.png'),
                             ),
                           ],
                         ),
@@ -372,7 +330,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: SizedBox(
-                           width: constraints.maxWidth,
+                          width: constraints.maxWidth,
                           child: DataTable(
                             headingRowHeight: screenHeight * 0.03,
                             // ignore: deprecated_member_use
@@ -539,7 +497,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           decoration: BoxDecoration(
                                             color: detail.stock == 0
                                                 ? Colors.red
-                                                : detail.stock! < detail.lowstock!
+                                                : detail.stock! <
+                                                        detail.lowstock!
                                                     ? Colors.orange
                                                     : Colors.green,
                                             shape: BoxShape.circle,
@@ -549,8 +508,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             child: Icon(
                                               detail.stock == 0
                                                   ? Icons.close
-                                                  : detail.stock! < detail.lowstock!
-                                                      ? Icons.warning_amber_rounded
+                                                  : detail.stock! <
+                                                          detail.lowstock!
+                                                      ? Icons
+                                                          .warning_amber_rounded
                                                       : Icons.check,
                                               color: Colors.white,
                                               size: 14.0,
@@ -563,7 +524,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       Center(
                                         child: DropdownButton<String>(
                                           dropdownColor: white,
-                                          value: detail.saleBy ?? droDownItem[0],
+                                          value:
+                                              detail.saleBy ?? droDownItem[0],
                                           items: droDownItem
                                               .map<DropdownMenuItem<String>>(
                                                   (String value) {
@@ -586,8 +548,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     DataCell(
                                       Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5),
-                                          color: const Color.fromARGB(255, 240, 239, 239),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: const Color.fromARGB(
+                                              255, 240, 239, 239),
                                         ),
                                         child: Row(
                                           mainAxisAlignment:
@@ -599,7 +563,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 color: primaryColor,
                                                 borderRadius: BorderRadius.only(
                                                   topLeft: Radius.circular(5),
-                                                  bottomLeft: Radius.circular(5),
+                                                  bottomLeft:
+                                                      Radius.circular(5),
                                                 ),
                                               ),
                                               child: InkWell(
@@ -623,8 +588,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             ),
                                             const SizedBox(width: 8),
                                             CustomText(
-                                              content:
-                                                  localCounts[i].toStringAsFixed(0),
+                                              content: localCounts[i]
+                                                  .toStringAsFixed(0),
                                               fontSize: fontSize,
                                             ),
                                             const SizedBox(width: 8),
@@ -633,7 +598,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                 color: primaryColor,
                                                 borderRadius: BorderRadius.only(
                                                   topRight: Radius.circular(5),
-                                                  bottomRight: Radius.circular(5),
+                                                  bottomRight:
+                                                      Radius.circular(5),
                                                 ),
                                               ),
                                               child: InkWell(
@@ -643,14 +609,15 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                     if (detail.stock == 0) {
                                                       showDialog(
                                                         context: context,
-                                                        builder:
-                                                            (BuildContext context) {
+                                                        builder: (BuildContext
+                                                            context) {
                                                           return AlertDialog(
                                                             shape:
                                                                 RoundedRectangleBorder(
                                                               borderRadius:
                                                                   BorderRadius
-                                                                      .circular(15),
+                                                                      .circular(
+                                                                          15),
                                                             ),
                                                             backgroundColor:
                                                                 Colors.white,
@@ -659,14 +626,16 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                 Icon(
                                                                     Icons
                                                                         .info_outline,
-                                                                    color:
-                                                                        Colors.red),
+                                                                    color: Colors
+                                                                        .red),
                                                                 SizedBox(
                                                                     width: 8),
                                                                 Text(
                                                                   'Out of Stock',
-                                                                  style: TextStyle(
-                                                                    fontSize: 20,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        20,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
@@ -676,14 +645,18 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                 ),
                                                               ],
                                                             ),
-                                                            content: const Column(
+                                                            content:
+                                                                const Column(
                                                               mainAxisSize:
-                                                                  MainAxisSize.min,
+                                                                  MainAxisSize
+                                                                      .min,
                                                               children: [
                                                                 Text(
                                                                   'This item is out of stock.',
-                                                                  style: TextStyle(
-                                                                    fontSize: 16,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        16,
                                                                     color: Colors
                                                                         .black87,
                                                                   ),
@@ -695,8 +668,10 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                     height: 10),
                                                                 Text(
                                                                   'Do you want to add this as a pre-order?',
-                                                                  style: TextStyle(
-                                                                    fontSize: 16,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        16,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
@@ -716,9 +691,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                           context)
                                                                       .pop();
                                                                 },
-                                                                style:
-                                                                    ElevatedButton
-                                                                        .styleFrom(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
                                                                   backgroundColor:
                                                                       Colors
                                                                           .redAccent,
@@ -726,13 +700,14 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                       RoundedRectangleBorder(
                                                                     borderRadius:
                                                                         BorderRadius
-                                                                            .circular(
-                                                                                8),
+                                                                            .circular(8),
                                                                   ),
                                                                 ),
-                                                                child: const Text(
+                                                                child:
+                                                                    const Text(
                                                                   'No',
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     color: Colors
                                                                         .white,
                                                                     fontWeight:
@@ -751,22 +726,23 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                           context)
                                                                       .pop();
                                                                 },
-                                                                style:
-                                                                    ElevatedButton
-                                                                        .styleFrom(
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
                                                                   backgroundColor:
-                                                                      Colors.green,
+                                                                      Colors
+                                                                          .green,
                                                                   shape:
                                                                       RoundedRectangleBorder(
                                                                     borderRadius:
                                                                         BorderRadius
-                                                                            .circular(
-                                                                                8),
+                                                                            .circular(8),
                                                                   ),
                                                                 ),
-                                                                child: const Text(
+                                                                child:
+                                                                    const Text(
                                                                   'Yes',
-                                                                  style: TextStyle(
+                                                                  style:
+                                                                      TextStyle(
                                                                     color: Colors
                                                                         .white,
                                                                     fontWeight:
@@ -779,7 +755,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                           );
                                                         },
                                                       );
-                                                    } else if (detail.stock == 0) {
+                                                    } else if (detail.stock ==
+                                                        0) {
                                                       localCounts[i]++;
                                                     } else {
                                                       localCounts[i]++;
@@ -847,7 +824,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         widget.product.productName ?? '',
                                     inclTax: widget.product.inclTax ?? '',
                                     isChcked: true,
-                                    catId: widget.product.catId??0,
+                                    catId: widget.product.catId ?? 0,
                                   );
                                   log('Product added to cart or draft with ID: ${detail.variationId}');
                                 } else {

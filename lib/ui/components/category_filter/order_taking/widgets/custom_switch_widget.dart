@@ -2,8 +2,11 @@
 
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -14,6 +17,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 class CustomSwitch extends StatefulWidget {
@@ -24,16 +28,15 @@ class CustomSwitch extends StatefulWidget {
   final String customerId;
 
   const CustomSwitch({
-    super.key,
+    Key? key,
     required this.initialValue,
     required this.onChanged,
     required this.active,
     required this.selectedName,
     required this.customerId,
-  });
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _CustomSwitchState createState() => _CustomSwitchState();
 }
 
@@ -41,14 +44,12 @@ class _CustomSwitchState extends State<CustomSwitch> {
   final subscriptionController = Get.find<SubscriptionController>();
 
   late bool isOn;
-  // late bool _onSwitchSelected;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     isOn = widget.initialValue;
-    // _onSwitchSelected = widget.initialValue;
   }
 
   void _toggleSwitch() {
@@ -68,12 +69,35 @@ class _CustomSwitchState extends State<CustomSwitch> {
     log('Active value : $isOn');
   }
 
+  Future<void> _saveCheckInOutRequestOffline({
+    required String date,
+    required String time,
+    required String direction,
+    required String lat,
+    required String long,
+    required String customerId,
+  }) async {
+    final box = await Hive.openBox('offlineRequests');
+    final payload = {
+      "custid": customerId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "direction": direction,
+      "time": time,
+      "longitude": double.tryParse(long) ?? 0.0,
+      "latitude": double.tryParse(lat) ?? 0.0,
+    };
+    await box.add({
+      'url': ApiConstants.baseUrl + ApiConstants.updateCheckinCustomer,
+      'payload': payload,
+    });
+  }
+
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !isOn;
 
     log("newState: $newState");
     log("isOn: $isOn");
-    // log("onSwitchSelected: $_onSwitchSelected");
 
     // Show confirmation dialog
     bool? confirmAction = await showDialog<bool>(
@@ -112,31 +136,57 @@ class _CustomSwitchState extends State<CustomSwitch> {
           desiredAccuracy: LocationAccuracy.high,
         );
 
-        final response = await ApiWorker().updateCustomerCheckInOut(
-            date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-            time: DateFormat('yyyy-MM-dd hh:mm:ss')
-                .format(DateTime.now())
-                .toString(),
-            direction: newState ? "IN" : "OUT",
-            lat: position.latitude.toString(),
-            long: position.longitude.toString(),
-            customerId: widget.customerId);
+        final connectivityService = ConnectivityService();
+        final isOnline = await connectivityService.isOnline();
+        final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+        final time =
+            DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now()).toString();
+        final direction = newState ? "IN" : "OUT";
+        final lat = position.latitude.toString();
+        final long = position.longitude.toString();
+        final customerId = widget.customerId;
 
-        if (response.statusCode != 200) {
-          showCustomToastDisplay(
-              context, response.statusMessage.toString(), red, Icons.close);
-        }
-
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(newState);
-
+        if (!isOnline) {
+          // Save request offline and change switch state immediately
+          await _saveCheckInOutRequestOffline(
+            date: date,
+            time: time,
+            direction: direction,
+            lat: lat,
+            long: long,
+            customerId: customerId,
+          );
           if (mounted) {
-            // setState(() {
-            //   // _onSwitchSelected = newState;
-            //   // isOn = newState;
-            // });
-
             _toggleSwitch();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.orange,
+                content: Text(
+                    'You are offline. Your check-in/out will sync when online.'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        } else {
+          final response = await ApiWorker().updateCustomerCheckInOut(
+              date: date,
+              time: time,
+              direction: direction,
+              lat: lat,
+              long: long,
+              customerId: customerId);
+
+          if (response.statusCode != 200) {
+            showCustomToastDisplay(
+                context, response.statusMessage.toString(), red, Icons.close);
+          }
+
+          if (response.statusCode == 200) {
+            await ApiWorker().saveSwitchState(newState);
+
+            if (mounted) {
+              _toggleSwitch();
+            }
           }
         }
       } catch (e) {
@@ -159,13 +209,12 @@ class _CustomSwitchState extends State<CustomSwitch> {
               ? () => _handleSwitchToggle(context)
               : () {
                   showDialog(
+                    barrierDismissible: false,
                     context: context,
                     builder: (context) {
                       return AlertDialog(
                         actions: [
-                          const SizedBox(
-                            height: 20,
-                          ),
+                          const SizedBox(height: 20),
                           const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Center(
@@ -177,15 +226,17 @@ class _CustomSwitchState extends State<CustomSwitch> {
                             ),
                           ),
                           Center(
-                              child: CustomText(
-                            content: 'Please select a customer to check-in',
-                            fontSize: 17,
-                          )),
+                            child: CustomText(
+                              content: 'Please select a customer to check-in',
+                              fontSize: 17,
+                            ),
+                          ),
                           TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Ok'))
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Ok'),
+                          )
                         ],
                       );
                     },
@@ -246,7 +297,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                               ? EneftyIcons.tick_circle_outline
                               : EneftyIcons.close_circle_outline,
                           color: isOn ? Colors.green : Colors.red,
-                          size: 30,
+                          size: 25,
                         ),
                       ),
                     ),

@@ -2731,13 +2731,13 @@ class ApiWorker with ApiConstants {
     var request = {
       "custid": customerId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id":  SessionHelper.loginSavedData?.salesmanId ?? '',
       "direction": direction,
       "time": time,
       "longitude": long,
       "latitude": lat,
     };
-    log("customer check-in : $request");
+    log(request.toString());
     try {
       final response = await responsePostMethod(
         endPoint: ApiConstants.updateCheckinCustomer,

@@ -11,6 +11,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:dio/dio.dart' as dio;
 
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
@@ -260,6 +261,51 @@ class ConnectivityService {
     } finally {
       _isSyncing = false;
     }
+  }
+
+  Future<void> retryOfflineRequests() async {
+    dio.Dio dio1 = dio.Dio();
+    var box = await Hive.openBox('offlineRequests');
+    if (box.isEmpty) {
+      log("No offline requests to retry.");
+      return;
+    }
+    log("Retrying ${box.length} offline requests...");
+    for (int i = 0; i < box.length; i++) {
+      final request = box.getAt(i);
+      if (request == null) continue;
+      try {
+        final payload = castToStringDynamic(request['payload']); 
+        final response = await dio1.post(
+          request['url'],
+          data: dio.FormData.fromMap(payload),
+        );
+        if (response.statusCode == 200) {
+          log("✅ Offline request sent successfully: ${request['url']}");
+          await box.deleteAt(i); 
+        } else {
+          log("❌ Failed to retry request: ${response.statusCode}");
+        }
+      } catch (e) {
+        log("❌ Error retrying request: $e");
+      }
+    }
+  }
+
+  Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
+    return input.map((key, value) {
+      final newKey = key is String ? key : key.toString();
+      final newValue = value is Map
+          ? castToStringDynamic(Map<dynamic, dynamic>.from(value))
+          : (value is List
+              ? value
+                  .map((e) => e is Map
+                      ? castToStringDynamic(Map<dynamic, dynamic>.from(e))
+                      : e)
+                  .toList()
+              : value);
+      return MapEntry(newKey, newValue);
+    });
   }
 }
 

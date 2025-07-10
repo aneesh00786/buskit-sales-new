@@ -110,6 +110,7 @@ void main() async {
       try {
         await connectivityService.syncOfflineOrders();
         await connectivityService.syncOfflineDrafts();
+        await connectivityService.retryOfflineRequests();
       } catch (e) {
         log('Error during sync: $e');
       } finally {

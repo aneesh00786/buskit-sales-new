@@ -365,9 +365,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                             ConnectionState.waiting) {
                           return const SizedBox.shrink();
                         } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
+                          // return Center(
+                          //   child: Text('Error: ${snapshot.error}'),
+                          // );
+                          return noOrderDataFoundWidget();
                         } else {
                           final orders = snapshot.data?.data ?? [];
                           final filteredOrders = orders.toList();
@@ -1792,4 +1793,142 @@ class OptionData {
     this.onTap,
     this.color,
   });
+}
+
+Widget noOrderDataFoundWidget() {
+  return LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      double availableWidth = constraints.maxWidth;
+      double fontSize = 14.0;
+      double padding = availableWidth / 100;
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: DataTable(
+                      dataRowHeight: fontSize * 5.5,
+                      headingRowHeight: 45,
+                      headingRowColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) => primaryColor,
+                      ),
+                      columnSpacing: padding * 1.5,
+                      headingTextStyle: const TextStyle(
+                          fontSize: 14,
+                          color: white,
+                          fontWeight: FontWeight.w700),
+                      columns: const [
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Customer List',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Order No.',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Created',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Created By',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Amount',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Invoice',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Payment Status',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              'Status',
+                              maxLines: 2,
+                            ),
+                          ),
+                        )),
+                        DataColumn(
+                            label: Expanded(
+                          child: Center(
+                            child: Text(
+                              '',
+                            ),
+                          ),
+                        )),
+                      ],
+                      rows: const [
+                        DataRow(cells: [
+                          DataCell(Text('Record Not Found')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                          DataCell(Text('')),
+                        ])
+                      ]),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SizedBox(
+                height: 45,
+                width: 45,
+                child: Center(child: dialogCloseButton1(context, red)),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

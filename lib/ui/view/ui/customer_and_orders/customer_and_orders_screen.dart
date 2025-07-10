@@ -112,10 +112,7 @@ class _TableeeState extends State<Tableee> {
         backgroundColor: white,
         surfaceTintColor: white,
         actions: [
-          SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: calender()),
-          const Spacer()
+          Expanded(child: calender()),
         ],
       ),
       body: Stack(
@@ -161,95 +158,93 @@ class _TableeeState extends State<Tableee> {
               builder: (context, provider, child) {
                 return Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: SizedBox(
-                        height: isSmallScreen
-                            ? 29
-                            : MediaQuery.of(context).size.height * 0.03,
-                        width: isSmallScreen ? 84 : 104,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.4),
-                                spreadRadius: 1,
-                                blurRadius: 1,
-                                offset: const Offset(0, 1),
+                    const SizedBox(width: 5),
+                    SizedBox(
+                      height: isSmallScreen ? 35 : 45,
+                      width: isSmallScreen ? 90 : 120,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border:
+                              Border.all(color: Colors.grey.shade300, width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade50,
+                              blurRadius: 8,
+                              offset: const Offset(2, 4),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+                          child: DropdownButton<FilterDateEnum>(
+                            value: provider.selectedFilter,
+                            onChanged: (newValue) {
+                              if (newValue != null) {
+                                provider.onFilterChanged(newValue);
+                              }
+                            },
+                            items: [
+                              DropdownMenuItem(
+                                value: FilterDateEnum.thisMonth,
+                                child: Text(
+                                  'This Month',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: isSmallScreen ? 7.7 : 9.8,
+                                  ),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: FilterDateEnum.today,
+                                child: Text(
+                                  'Today',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: isSmallScreen ? 7.7 : 10.5,
+                                  ),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: FilterDateEnum.thisWeek,
+                                child: Text(
+                                  'This Week',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: isSmallScreen ? 7.7 : 10.5,
+                                  ),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: FilterDateEnum.thisYear,
+                                child: Text(
+                                  'This Year',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: isSmallScreen ? 7.7 : 10.5,
+                                  ),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: FilterDateEnum.range,
+                                child: Text(
+                                  'Range',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: isSmallScreen ? 7.7 : 10.5,
+                                  ),
+                                ),
                               ),
                             ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
-                            child: DropdownButton<FilterDateEnum>(
-                              value: provider.selectedFilter,
-                              onChanged: (newValue) {
-                                if (newValue != null) {
-                                  provider.onFilterChanged(newValue);
-                                }
-                              },
-                              items: [
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisMonth,
-                                  child: Text(
-                                    'This Month',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 9.8,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.today,
-                                  child: Text(
-                                    'Today',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisWeek,
-                                  child: Text(
-                                    'This Week',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisYear,
-                                  child: Text(
-                                    'This Year',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.range,
-                                  child: Text(
-                                    'Range',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              isExpanded: true,
-                              underline: Container(),
-                            ),
+                            isExpanded: true,
+                            underline: Container(),
                           ),
                         ),
                       ),
@@ -402,10 +397,9 @@ class _TableeeState extends State<Tableee> {
                                   ),
                                 ],
                               ),
+                            const SizedBox(width: 15),
                             addCustomer(context),
                             const SizedBox(width: 5),
-                            // addLeads(context),
-                            // const AddLeadsBt(),
                           ],
                         ),
                       ),

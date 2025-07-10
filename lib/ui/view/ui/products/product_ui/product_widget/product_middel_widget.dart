@@ -14,8 +14,11 @@ class ProductMiddelWidget extends StatelessWidget {
     return Obx(() {
       log('isReached state: ${productsController.isReached.value}');
       return productsController.isReached.value
-          ? const CustomerDachScreen(
+          ? CustomerDachScreen(
               isFromCalendar: true,
+              cusId: productsController.selectedCustomerId.value,
+              cusName: productsController.selectedCustomerName.value,
+              cusImage: productsController.selectedCustomerImageUrl.value,
             )
           : OrderTaking(
               productsController: productsController,

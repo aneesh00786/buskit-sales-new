@@ -135,8 +135,12 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                   productsController.selectedCustomerImageUrl.value =
                       customer.imageUrl ?? '';
                   Get.to(
-                    () => const CustomerDachScreen(
+                    () => CustomerDachScreen(
                       isDirectDialogue: true,
+                      cusId: productsController.selectedCustomerId.value,
+                      cusName: productsController.selectedCustomerName.value,
+                      cusImage:
+                          productsController.selectedCustomerImageUrl.value,
                     ),
                     id: 2,
                   );
@@ -524,18 +528,18 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                         color: red,
                                                       ),
                                                       onPressed: () async {
-                                                      final isOnline =
-                                                          await ConnectivityService()
-                                                              .isOnline();
-                                                      if (!isOnline) {
-                                                        showCustomToastDisplay(
-                                                          context,
-                                                          'You are offline. Show Route is disabled.',
-                                                          red,
-                                                          Icons.close,
-                                                        );
-                                                        return;
-                                                      }
+                                                        final isOnline =
+                                                            await ConnectivityService()
+                                                                .isOnline();
+                                                        if (!isOnline) {
+                                                          showCustomToastDisplay(
+                                                            context,
+                                                            'You are offline. Show Route is disabled.',
+                                                            red,
+                                                            Icons.close,
+                                                          );
+                                                          return;
+                                                        }
                                                         if (subscriptionController
                                                                 .visitNavigation
                                                                 .value ==

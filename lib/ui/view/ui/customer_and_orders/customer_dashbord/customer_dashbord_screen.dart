@@ -10,7 +10,6 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -42,9 +41,9 @@ class CustomerDachScreen extends StatefulWidget {
   final dynamic year;
   final dynamic startDate;
   final dynamic endDate;
-  final String? cusName;
-  final String? cusId;
-  final String? cusImage;
+  final String cusName;
+  final String cusId;
+  final String cusImage;
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
@@ -56,9 +55,9 @@ class CustomerDachScreen extends StatefulWidget {
     this.year,
     this.startDate,
     this.endDate,
-    this.cusId,
-    this.cusName,
-    this.cusImage,
+    required this.cusId,
+    required this.cusName,
+    required this.cusImage,
     this.isFromCalendar = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
@@ -115,7 +114,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         builder: (context) => OrderTaking(
           productsController: productsController,
           selectedCustId:
-              widget.cusId ?? productsController.selectedCustomerId.value,
+              widget.cusId,
           selectedCustName: widget.cusName,
           selectedCustImageUrl: widget.cusImage,
           //  ?? ProductsController(),
@@ -148,7 +147,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       context: context,
       builder: (context) {
         log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
-        log("Customer Id checkout: ${widget.cusId ?? productsController.selectedCustomerId.value}");
+        log("Customer Id checkout: ${widget.cusId}");
         return AlertDialog(
           title: const Text('Customer Check-Out'),
           content: const Text('Customer will be checked-out !'),
@@ -209,10 +208,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   Widget build(BuildContext context) {
     final customerName = widget.isFromCalendar
-        ? widget.cusName ?? ''
+        ? widget.cusName
         : productsController.selectedCustomerName.value;
     final customerImage = widget.isFromCalendar
-        ? widget.cusImage ?? ''
+        ? widget.cusImage
         : productsController.selectedCustomerImageUrl.value;
     String? startDate;
     String? endDate;
@@ -232,7 +231,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () async {
-                log("Customer Id backbutton : ${widget.cusId ?? productsController.selectedCustomerId.value}");
+                log("Customer Id backbutton : ${widget.cusId}");
                 log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
                 // log('Is Direct ${widget.isDirectDialogue}');
                 // log('Is Calender ${widget.isFromCalendar}');
@@ -377,10 +376,123 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  log("Snapshot error : ${snapshot.error}");
-                  return const Center(child: NodataWidget());
+                }
+                // comeback
+                else if (snapshot.hasError) {
+                  // return Center(child: Text('Error 1: ${snapshot.error}'));
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showCustomToastDisplay(
+                      context,
+                      snapshot.error.toString(),
+                      Colors.red,
+                      Icons.close,
+                    );
+                  });
+
+                  final responseModel = snapshot.data;
+                  final frequentProductLists =
+                      responseModel?.data.frequentProductLists;
+                  final recentOrders = responseModel?.data.recentOrders;
+
+                  return Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      children: [
+                        OptionWidgetCustomerDash(
+                          customerId: widget.cusId,
+                          customType: "",
+                          customOrderStatusType: OrderStatus.preOrder,
+                          userType: UserType.customer,
+                          userId: "",
+                          startDate: startDate,
+                          endDate: endDate,
+                          onContinueShopping: _navigateToOrderTaking,
+                        ),
+                        const SizedBox(height: 5.7),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: screenWidth < 600
+                                ? Column(
+                                    children: [
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
+                                        child: Category(context),
+                                      ),
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
+                                        child: OrdersPayments(
+                                            context,
+                                            recentOrders ?? [],
+                                            subscriptionController),
+                                      ),
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
+                                        child: TotalSalse(context),
+                                      ),
+                                      const SizedBox(height: 4.7),
+                                      SizedBox(
+                                        height: screenWidth * 0.7,
+                                        child: Frequently(
+                                            context,
+                                            frequentProductLists ?? [],
+                                            subscriptionController),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Category(context),
+                                          ),
+                                          const SizedBox(width: 4.7),
+                                          Expanded(
+                                            child: OrdersPayments(
+                                                context,
+                                                recentOrders ?? [],
+                                                subscriptionController),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4.7),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TotalSalse(context),
+                                          ),
+                                          const SizedBox(width: 4.7),
+                                          Expanded(
+                                            child: Frequently(
+                                                context,
+                                                frequentProductLists ?? [],
+                                                subscriptionController),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (!snapshot.hasData) {
+                  return const Center(child: Text('No data available'));
                 } else {
+                  // return Center(child: Text('Error 1: ${snapshot.error}'));
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showCustomToastDisplay(
+                      context,
+                      snapshot.error.toString(),
+                      Colors.red,
+                      Icons.close,
+                    );
+                  });
                   final responseModel = snapshot.data;
                   final frequentProductLists =
                       responseModel?.data.frequentProductLists;
@@ -390,8 +502,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: Column(
                       children: [
                         OptionWidgetCustomerDash(
-                          customerId: widget.cusId ??
-                              productsController.selectedCustomerId.value,
+                          customerId: widget.cusId,
                           customType: "",
                           customOrderStatusType: OrderStatus.newOrder,
                           userType: UserType.customer,
@@ -530,15 +641,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardData(
-                              widget.cusId ??
-                                  productsController.selectedCustomerId.value,
+                              widget.cusId,
                             );
                             Provider.of<CustomersProvider>(context,
                                     listen: false)
                                 .fetchCustomerDashboardRevenueData(
-                                    widget.cusId ??
-                                        productsController
-                                            .selectedCustomerId.value);
+                                    widget.cusId);
                           });
                         },
                         items: provider.yearList
@@ -562,8 +670,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           showCustomerCategoryChartDialog(
                             context,
                             "Category Sales",
-                            widget.cusId ??
-                                productsController.selectedCustomerId.value,
+                            widget.cusId,
                             selectedYear,
                           );
                         },
@@ -611,9 +718,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,
-                                  customerId: widget.cusId ??
-                                      productsController
-                                          .selectedCustomerId.value,
+                                  customerId: widget.cusId,
                                   year: selectedYear,
                                 ),
                               );
@@ -776,9 +881,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Provider.of<CustomersProvider>(context,
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
-                                        widget.cusId ??
-                                            productsController
-                                                .selectedCustomerId.value,
+                                        widget.cusId,
                                       );
                                     });
                                   },

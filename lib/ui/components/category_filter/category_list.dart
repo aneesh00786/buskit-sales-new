@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CategoryItem {
   final String title;
@@ -67,11 +68,11 @@ class _CategoryListState extends State<CategoryList> {
     return Obx(() {
       if (widget.productsController.categoryData.value.data == null) {
         return const Center(
-              child: SpinKitFadingCube(
-                color: primaryColor,
-                size: 20.0,
-              ),
-            );
+          child: SpinKitFadingCube(
+            color: primaryColor,
+            size: 20.0,
+          ),
+        );
       }
 
       List<CategoryData> categories =
@@ -96,9 +97,9 @@ class _CategoryListState extends State<CategoryList> {
                   },
                 ),
                 const SizedBox(width: 20),
-                const Text(
+                Text(
                   'Categories',
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -118,7 +119,30 @@ class _CategoryListState extends State<CategoryList> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            _expandedIndex = isExpanded ? -1 : index;
+                            // _expandedIndex = isExpanded ? -1 : index;
+                            if (isExpanded) {
+                              _expandedIndex = -1;
+                            } else {
+                              _expandedIndex = index;
+                              // Auto-select the first subcategory when expanding
+                              if (category.subCategoryItem != null &&
+                                  category.subCategoryItem!.isNotEmpty) {
+                                final firstSubCategory =
+                                    category.subCategoryItem!.first;
+                                widget.onOptionSelected(
+                                    firstSubCategory.id ?? '');
+                                widget.productsController
+                                        .selectedSubCategoryName.value =
+                                    firstSubCategory.subCategory.toString();
+                                widget.productsController.selectSubCategory(
+                                  firstSubCategory.id.toString(),
+                                  firstSubCategory.subCategory ?? '',
+                                );
+                                // Optionally, do not close the drawer here. Remove the next line if you want the drawer to stay open.
+                                // widget.onDrawerToggle();
+                                log('Auto-selected subcategory: ${firstSubCategory.subCategory} (ID: ${firstSubCategory.id})');
+                              }
+                            }
                           });
                         },
                         child: Container(
@@ -134,7 +158,7 @@ class _CategoryListState extends State<CategoryList> {
                             children: [
                               Text(
                                 category.categoryName ?? '',
-                                style: const TextStyle(
+                                style: GoogleFonts.poppins(
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -160,22 +184,22 @@ class _CategoryListState extends State<CategoryList> {
                             children: category.subCategoryItem!.map((option) {
                               return GestureDetector(
                                 onTap: () {
-                                      if (option.id == null || option.id!.isEmpty) {
-                                        log('ERROR: Subcategory ${option.subCategory} has no ID');
-                                        return;
-                                      }
-                                      
-                                      log('Selecting subcategory: ${option.subCategory} with ID: ${option.id}');
-                                      widget.onOptionSelected(option.id!);
-                                      widget.productsController
-                                              .selectedSubCategoryName.value =
-                                          option.subCategory.toString();
-                                      widget.productsController
-                                              .selectedSubCategoryId.value =
-                                          option.id!;
-                                      widget.onDrawerToggle();
-                                      log('Selected subcategory: ${option.subCategory} with ID: ${option.id}');
-                                    },
+                                  if (option.id == null || option.id!.isEmpty) {
+                                    log('ERROR: Subcategory ${option.subCategory} has no ID');
+                                    return;
+                                  }
+
+                                  log('Selecting subcategory: ${option.subCategory} with ID: ${option.id}');
+                                  widget.onOptionSelected(option.id!);
+                                  widget
+                                      .productsController
+                                      .selectedSubCategoryName
+                                      .value = option.subCategory.toString();
+                                  widget.productsController
+                                      .selectedSubCategoryId.value = option.id!;
+                                  widget.onDrawerToggle();
+                                  log('Selected subcategory: ${option.subCategory} with ID: ${option.id}');
+                                },
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       bottom: 7.0, left: 10, right: 10),
@@ -187,7 +211,7 @@ class _CategoryListState extends State<CategoryList> {
                                     ),
                                     child: Text(
                                       option.subCategory ?? '',
-                                      style: const TextStyle(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 12.0,
                                         color: Colors.black,
                                       ),

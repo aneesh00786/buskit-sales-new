@@ -163,96 +163,117 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 
   Future<bool> checkCustomerOut() async {
-    if (customerOrderController.isActive.value == false) {
-      return true;
-    }
+    if (!customerOrderController.isActive.value) return true;
 
     bool shouldProceed = false;
+    bool isCheckingOut = false;
 
     await showDialog(
       context: context,
       builder: (context) {
-        log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
-        log("Customer Id checkout: ${widget.cusId}");
-        return AlertDialog(
-          title: const Text('Customer Check-Out'),
-          content: const Text('Customer will be checked-out !'),
-          actions: [
-            TextButton(
-              child: const Text('Stay'),
-              onPressed: () {
-                shouldProceed = false;
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Check-out and leave'),
-              onPressed: () async {
-                if (!await handleLocationPermission(context)) {
-                  Navigator.of(context).pop();
-                  return;
-                }
+        return StatefulBuilder(
+          builder: (context, setState) {
+            log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
+            log("Customer Id checkout: ${widget.cusId}");
 
-                final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-                final time = DateFormat('yyyy-MM-dd hh:mm:ss')
-                    .format(DateTime.now())
-                    .toString();
-                final direction = "OUT";
-                final customerId = productsController.selectedCustomerId.value;
-                try {
-                  Position position = await Geolocator.getCurrentPosition(
-                    desiredAccuracy: LocationAccuracy.high,
-                  );
-                  final lat = position.latitude.toString();
-                  final long = position.longitude.toString();
+            return AlertDialog(
+              title: const Text('Customer Check-Out'),
+              content: const Text('Customer will be checked-out!'),
+              actions: [
+                if (isCheckingOut)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CircularProgressIndicator(),
+                  )
+                else ...[
+                  TextButton(
+                    child: const Text('Stay'),
+                    onPressed: () {
+                      shouldProceed = false;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('Check-out and leave'),
+                    onPressed: () async {
+                      setState(() => isCheckingOut = true);
 
-                  final connectivityService = ConnectivityService();
-                  final isOnline = await connectivityService.isOnline();
+                      if (!await handleLocationPermission(context)) {
+                        if (context.mounted) Navigator.of(context).pop();
+                        return;
+                      }
 
-                  if (!isOnline) {
-                    await _saveCheckInOutRequestOffline(
-                      date: date,
-                      time: time,
-                      direction: direction,
-                      lat: lat,
-                      long: long,
-                      customerId: customerId,
-                    );
-                    if (context.mounted) {
-                      showCustomToastDisplay(
-                        context,
-                        'You are offline. Your check-out will sync when online.',
-                        Colors.orange,
-                        Icons.info,
-                      );
-                    }
-                    shouldProceed = true;
-                  } else {
-                    final response = await ApiWorker().updateCustomerCheckInOut(
-                      date: date,
-                      time: time,
-                      direction: direction,
-                      lat: lat,
-                      long: long,
-                      customerId: customerId,
-                    );
+                      final date =
+                          DateFormat('dd-MM-yyyy').format(DateTime.now());
+                      final time = DateFormat('yyyy-MM-dd HH:mm:ss')
+                          .format(DateTime.now());
+                      final direction = "OUT";
+                      final customerId =
+                          productsController.selectedCustomerId.value;
 
-                    if (response.statusCode != 200) {
-                      showCustomToastDisplay(context,
-                          response.statusMessage.toString(), red, Icons.close);
-                    } else {
-                      await ApiWorker().saveSwitchState(false);
-                      shouldProceed = true;
-                    }
-                  }
-                } catch (e) {
-                  log('Error: $e');
-                }
+                      try {
+                        final position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.high,
+                        );
+                        final lat = position.latitude.toString();
+                        final long = position.longitude.toString();
 
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+                        final isOnline = await ConnectivityService().isOnline();
+
+                        if (!isOnline) {
+                          await _saveCheckInOutRequestOffline(
+                            date: date,
+                            time: time,
+                            direction: direction,
+                            lat: lat,
+                            long: long,
+                            customerId: customerId,
+                          );
+                          if (context.mounted) {
+                            showCustomToastDisplay(
+                              context,
+                              'You are offline. Your check-out will sync when online.',
+                              Colors.orange,
+                              Icons.info,
+                            );
+                          }
+                          shouldProceed = true;
+                        } else {
+                          final response =
+                              await ApiWorker().updateCustomerCheckInOut(
+                            date: date,
+                            time: time,
+                            direction: direction,
+                            lat: lat,
+                            long: long,
+                            customerId: customerId,
+                          );
+
+                          if (response.statusCode != 200) {
+                            if (context.mounted) {
+                              showCustomToastDisplay(
+                                context,
+                                response.statusMessage.toString(),
+                                Colors.red,
+                                Icons.close,
+                              );
+                            }
+                          } else {
+                            await ApiWorker().saveSwitchState(false);
+                            shouldProceed = true;
+                          }
+                        }
+                      } catch (e) {
+                        log('Error during check-out: $e');
+                      }
+
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ],
+            );
+          },
         );
       },
     );

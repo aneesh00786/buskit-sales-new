@@ -29,6 +29,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -118,10 +119,48 @@ void main() async {
       }
     }
   });
+  
+  // Handle cart persistence on app restart
+  await _handleCartPersistenceOnRestart();
+  
   runApp(MyApp(
       initialRout: SessionHelper.loginSavedData != null
           ? AppRoutes.home
           : AppRoutes.login));
+}
+
+/// Handles cart persistence when the app is restarted
+Future<void> _handleCartPersistenceOnRestart() async {
+  try {
+    // Only handle cart persistence if user is logged in
+    if (SessionHelper.loginSavedData != null) {
+      log('Handling cart persistence on app restart...');
+      
+      // Get the ProductsController to access selectedCustomerId
+      if (Get.isRegistered<ProductsController>()) {
+        final productsController = Get.find<ProductsController>();
+        final selectedCustomerId = productsController.selectedCustomerId.value;
+        
+        log('Selected customer ID on restart: $selectedCustomerId');
+        
+        // Call the cart persistence method
+        await CartDatabaseManager().handleCartPersistenceOnRestart(selectedCustomerId);
+      } else {
+        log('ProductsController not available, clearing cart items as safety measure');
+        await CartDatabaseManager().handleCartPersistenceOnRestart(null);
+      }
+    } else {
+      log('User not logged in, skipping cart persistence check');
+    }
+  } catch (e) {
+    log('Error in _handleCartPersistenceOnRestart: $e');
+    // As a fallback, clear cart items if there's an error
+    try {
+      await CartDatabaseManager().handleCartPersistenceOnRestart(null);
+    } catch (fallbackError) {
+      log('Error in fallback cart persistence: $fallbackError');
+    }
+  }
 }
 
 class MyApp extends StatefulWidget {

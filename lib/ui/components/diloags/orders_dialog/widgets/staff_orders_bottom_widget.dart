@@ -36,9 +36,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
               child: DataTable(
                   dataRowHeight: 0,
                   headingRowHeight: 30,
-                  headingRowColor:
-                      const WidgetStatePropertyAll(
-                          primaryColor),
+                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
                   columnSpacing: 10,
                   columns: [
                     DataColumn(
@@ -68,7 +66,8 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                         child: CustomText(
                           content: 'Total',
                           color: white,
-                          fontSize: fontSize,
+                          fontSize: fontSize + 2,
+                          fontFamily: commonFont,
                         ),
                       ),
                     )),
@@ -77,15 +76,13 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                       width: flexWidth * 1,
                       child: Center(
                         child: CustomText(
-                          content: formatAmount(
-                              filteredOrders.fold<double>(
+                          content: formatAmount(filteredOrders.fold<double>(
                             0.0,
-                            (sum, order) =>
-                                sum +
-                                (order.orderTotal ?? 0.0),
+                            (sum, order) => sum + (order.orderTotal ?? 0.0),
                           )),
                           color: white,
-                          fontSize: fontSize,
+                          fontSize: fontSize + 2,
+                          fontFamily: commonFont,
                         ),
                       ),
                     )),
@@ -132,30 +129,25 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                     DataRow(
                       cells: [
                         DataCell(
-                          SizedBox(
-                              width: flexWidth * 1.5),
+                          SizedBox(width: flexWidth * 1.5),
                         ),
                         DataCell(
-                          SizedBox(
-                              width: flexWidth * 0.9),
-                        ),
-                        DataCell(
-                          SizedBox(width: flexWidth * 1),
+                          SizedBox(width: flexWidth * 0.9),
                         ),
                         DataCell(
                           SizedBox(width: flexWidth * 1),
                         ),
                         DataCell(
-                          SizedBox(
-                              width: flexWidth * 0.9),
+                          SizedBox(width: flexWidth * 1),
                         ),
                         DataCell(
-                          SizedBox(
-                              width: flexWidth * 1.1),
+                          SizedBox(width: flexWidth * 0.9),
                         ),
                         DataCell(
-                          SizedBox(
-                              width: flexWidth * 1.1),
+                          SizedBox(width: flexWidth * 1.1),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1.1),
                         ),
                         const DataCell(Text('')),
                       ],

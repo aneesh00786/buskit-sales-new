@@ -31,13 +31,8 @@ class StaffOrdersTableRow extends StatelessWidget {
             Expanded(
               child: DataTable(
                   dataRowHeight: 0,
-                  headingRowHeight:
-                      fullScreenWidth(context) > 740
-                          ? 45
-                          : 75,
-                  headingRowColor:
-                      const WidgetStatePropertyAll(
-                          primaryColor),
+                  headingRowHeight: fullScreenWidth(context) > 740 ? 45 : 75,
+                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
                   columnSpacing: 10,
                   columns: [
                     DataColumn(
@@ -45,15 +40,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 1.5,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Customer List',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -63,15 +56,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 0.9,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Order No.',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -81,15 +72,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 1,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Created',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -99,15 +88,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 1,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Amount',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -117,15 +104,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 0.9,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Invoice',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -135,15 +120,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 1.2,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Payment Status',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),
@@ -153,15 +136,13 @@ class StaffOrdersTableRow extends StatelessWidget {
                       width: flexWidth * 1.2,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top:
-                                fullScreenWidth(context) > 740
-                                    ? 0
-                                    : 30),
+                            top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: Center(
                           child: CustomText(
                             content: 'Status',
                             color: white,
-                            fontSize: fontSize + 1,
+                            fontSize: fontSize + 2,
+                            fontFamily: commonFont,
                           ),
                         ),
                       ),

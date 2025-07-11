@@ -497,7 +497,7 @@ class CartDialogueState extends State<CartDialogue> {
                             height: 100,
                             child: Center(
                               child: CustomText(
-                                content: 'Your cart is empty 2.',
+                                content: 'Your cart is empty.',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: black,
@@ -1369,7 +1369,7 @@ class CartDialogueState extends State<CartDialogue> {
                         CustomCartButton(
                           text: 'Continue Shopping',
                           size: width > 1200 ? 14 : 10,
-                          color: const Color(0xff5bc0de),
+                          color: primaryColor,
                           onTap: () {
                             if (widget.isFromCustomerDach == true ||
                                 widget.isDashboard == true) {
@@ -1385,7 +1385,7 @@ class CartDialogueState extends State<CartDialogue> {
                         CustomCartButton(
                           text: 'Save & Send',
                           size: width > 1200 ? 14 : 10,
-                          color: primaryColor,
+                          color: const Color(0xff5bc0de),
                           onTap: () async {
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
@@ -1819,7 +1819,7 @@ class CartDialogueState extends State<CartDialogue> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Your cart is empty 1'),
+            content: Text('Your cart is empty.'),
             duration: Duration(seconds: 3),
           ),
         );

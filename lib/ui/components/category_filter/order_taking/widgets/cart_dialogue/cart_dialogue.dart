@@ -160,8 +160,7 @@ class CartDialogueState extends State<CartDialogue> {
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
         // widget.customerOrderController?.customerId.value ?? ''
-        widget.customerId ?? ''
-        );
+        widget.customerId ?? '');
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
@@ -188,10 +187,10 @@ class CartDialogueState extends State<CartDialogue> {
     try {
       final customerId = widget.customerId;
 
-          // (widget.customerOrderController!.customerId.value.isNotEmpty
-          //     ? widget.customerOrderController!.customerId.value
-          //     : widget.productsController.selectedCustomerId.value);
-      cartItems = await CartDatabaseManager().getCartItems(customerId??'');
+      // (widget.customerOrderController!.customerId.value.isNotEmpty
+      //     ? widget.customerOrderController!.customerId.value
+      //     : widget.productsController.selectedCustomerId.value);
+      cartItems = await CartDatabaseManager().getCartItems(customerId ?? '');
       log('CartItems Length : ${cartItems.length}');
       orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
       preorderItems =
@@ -1368,6 +1367,22 @@ class CartDialogueState extends State<CartDialogue> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CustomCartButton(
+                          text: 'Continue Shopping',
+                          size: width > 1200 ? 14 : 10,
+                          color: const Color(0xff5bc0de),
+                          onTap: () {
+                            if (widget.isFromCustomerDach == true ||
+                                widget.isDashboard == true) {
+                              widget.onContinueShopping!();
+                              Navigator.pop(context);
+                              Navigator.of(context, rootNavigator: true).pop();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 30),
+                        CustomCartButton(
                             text: 'Save & Send',
                             size: width > 1200 ? 14 : 10,
                             color: primaryColor,
@@ -1407,15 +1422,16 @@ class CartDialogueState extends State<CartDialogue> {
 
                                 final finalAmount = double.parse(sanitizedText);
                                 final customerId = widget.customerId;
-                                    // customeController.customerId.isNotEmpty
-                                    //     ? customeController.customerId.value
-                                    //     : 
-                                    // widget.productsController
-                                    //         .selectedCustomerId.value;
+                                // customeController.customerId.isNotEmpty
+                                //     ? customeController.customerId.value
+                                //     :
+                                // widget.productsController
+                                //         .selectedCustomerId.value;
 
                                 log("new customerId : $customerId");
                                 final cartDetails = await CartDatabaseManager()
-                                    .getDraftAndCartIdsFromApi(customerId ?? '');
+                                    .getDraftAndCartIdsFromApi(
+                                        customerId ?? '');
                                 await Future.delayed(
                                     const Duration(seconds: 1));
                                 final firstOrder = cartDetails.isNotEmpty
@@ -1489,22 +1505,6 @@ class CartDialogueState extends State<CartDialogue> {
                                 );
                               }
                             }),
-                        const SizedBox(width: 30),
-                        CustomCartButton(
-                          text: 'Continue Shopping',
-                          size: width > 1200 ? 14 : 10,
-                          color: const Color(0xff5bc0de),
-                          onTap: () {
-                            if (widget.isFromCustomerDach == true ||
-                                widget.isDashboard == true) {
-                              widget.onContinueShopping!();
-                              Navigator.pop(context);
-                              Navigator.of(context, rootNavigator: true).pop();
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
                       ],
                     ),
                   ),
@@ -1580,8 +1580,7 @@ class CartDialogueState extends State<CartDialogue> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minWidth: MediaQuery.of(context).size.width *
-                        0.85, 
+                    minWidth: MediaQuery.of(context).size.width * 0.85,
                   ),
                   child: DataTable(
                     headingRowHeight: 30,
@@ -1619,16 +1618,16 @@ class CartDialogueState extends State<CartDialogue> {
       ...orderItems.where((item) => item.isChecked == true),
       ...preorderItems.where((item) => item.isChecked == true),
     ];
-    String customerId = widget.customerId??'';
+    String customerId = widget.customerId ?? '';
     // customeController.customerId.isNotEmpty
     //     ? customeController.customerId.value
     //     : widget.productsController.selectedCustomerId.value;
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
-        (widget.customerId!=''
-          // customeController.customerId.value.isNotEmpty ||
-          //   widget.productsController.selectedCustomerId.value.isNotEmpty
-            )) {
+        (widget.customerId != ''
+        // customeController.customerId.value.isNotEmpty ||
+        //   widget.productsController.selectedCustomerId.value.isNotEmpty
+        )) {
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
@@ -1801,10 +1800,9 @@ class CartDialogueState extends State<CartDialogue> {
     } else {
       Navigator.pop(context);
       if (
-        // customeController.customerId.value.isEmpty ||
-        //   widget.productsController.selectedCustomerId.value.isEmpty
-        widget.customerId == ''
-          ) {
+          // customeController.customerId.value.isEmpty ||
+          //   widget.productsController.selectedCustomerId.value.isEmpty
+          widget.customerId == '') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
@@ -1992,10 +1990,10 @@ class CartDialogueState extends State<CartDialogue> {
 
   Future<dynamic> showVariantDeleteDialog(
       BuildContext context, String productName, bool isPreOrder, bool isDraft) {
-    String customerId = widget.customerId??'';
-        // widget.customerOrderController!.customerId.value.isNotEmpty
-        //     ? widget.customerOrderController?.customerId.value ?? ''
-        //     : widget.productsController.selectedCustomerId.value;
+    String customerId = widget.customerId ?? '';
+    // widget.customerOrderController!.customerId.value.isNotEmpty
+    //     ? widget.customerOrderController?.customerId.value ?? ''
+    //     : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
@@ -2062,9 +2060,9 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     final String customerId = widget.customerId ?? '';
-        // widget.customerOrderController!.customerId.value.isNotEmpty
-        //     ? widget.customerOrderController!.customerId.value
-        //     : widget.productsController.selectedCustomerId.value;
+    // widget.customerOrderController!.customerId.value.isNotEmpty
+    //     ? widget.customerOrderController!.customerId.value
+    //     : widget.productsController.selectedCustomerId.value;
     setState(() {
       variantToDelete.detail.count = 0;
       CartDatabaseManager().updateCart(variantToDelete);

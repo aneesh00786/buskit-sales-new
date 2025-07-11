@@ -1383,128 +1383,133 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                         const SizedBox(width: 30),
                         CustomCartButton(
-                            text: 'Save & Send',
-                            size: width > 1200 ? 14 : 10,
-                            color: primaryColor,
-                            onTap: () async {
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                },
-                              );
-                              final hasCheckInOutPermission =
-                                  subscriptionController
-                                          .customerCheckInOut.value ==
-                                      "true";
-                              final isCheckedIn = widget.active == true;
+                          text: 'Save & Send',
+                          size: width > 1200 ? 14 : 10,
+                          color: primaryColor,
+                          onTap: () async {
+                            final cartProvider = Provider.of<CustomersProvider>(
+                                context,
+                                listen: false);
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              },
+                            );
+                            final hasCheckInOutPermission =
+                                subscriptionController
+                                        .customerCheckInOut.value ==
+                                    "true";
+                            final isCheckedIn = widget.active == true;
 
-                              log("isCheckedIn: $isCheckedIn");
-                              log("hasCheckInOutPermission: $hasCheckInOutPermission");
+                            log("isCheckedIn: $isCheckedIn");
+                            log("hasCheckInOutPermission: $hasCheckInOutPermission");
 
-                              if (isCheckedIn ||
-                                  (!isCheckedIn && !hasCheckInOutPermission)) {
-                                final sanitizedText = totalQuickController.text
-                                    .replaceAll(RegExp(r'[^\d.]'), '')
-                                    .trim();
-                                if (sanitizedText.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text('Invalid amount entered'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                  return;
-                                }
+                            if (isCheckedIn ||
+                                (!isCheckedIn && !hasCheckInOutPermission)) {
+                              final sanitizedText = totalQuickController.text
+                                  .replaceAll(RegExp(r'[^\d.]'), '')
+                                  .trim();
+                              if (sanitizedText.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text('Invalid amount entered'),
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                                return;
+                              }
 
-                                final finalAmount = double.parse(sanitizedText);
-                                final customerId = widget.customerId;
-                                // customeController.customerId.isNotEmpty
-                                //     ? customeController.customerId.value
-                                //     :
-                                // widget.productsController
-                                //         .selectedCustomerId.value;
+                              final finalAmount = double.parse(sanitizedText);
+                              final customerId = widget.customerId;
+                              // customeController.customerId.isNotEmpty
+                              //     ? customeController.customerId.value
+                              //     :
+                              // widget.productsController
+                              //         .selectedCustomerId.value;
 
-                                log("new customerId : $customerId");
-                                final cartDetails = await CartDatabaseManager()
-                                    .getDraftAndCartIdsFromApi(
-                                        customerId ?? '');
-                                await Future.delayed(
-                                    const Duration(seconds: 1));
-                                final firstOrder = cartDetails.isNotEmpty
-                                    ? cartDetails.last
-                                    : {'cart_id': '', 'draft_id': ''};
-                                final cartIdPrefs = firstOrder['cart_id'] ?? '';
-                                final draftIdPrefs =
-                                    firstOrder['draft_id'] ?? '';
-                                // log('Existing cart ID $existingCartId');
-                                // log('Existing Draft ID $existingDraftId');
-                                if (_selectedValue == "Quick Sale") {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
-                                    await processSaveAndSend(
-                                      finalAmount: finalAmount,
-                                      paymentType: paymentType,
-                                      context: context,
-                                      cartId: cartIdPrefs,
-                                      draftId: draftIdPrefs,
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Colors.red,
-                                        content: Text(
-                                            'Please fill all required fields'),
-                                        duration: Duration(seconds: 3),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  log('CustomerIdz : $customerId');
+                              log("new customerId : $customerId");
+                              final cartDetails = await CartDatabaseManager()
+                                  .getDraftAndCartIdsFromApi(customerId ?? '');
+                              await Future.delayed(const Duration(seconds: 1));
+                              final firstOrder = cartDetails.isNotEmpty
+                                  ? cartDetails.last
+                                  : {'cart_id': '', 'draft_id': ''};
+                              final cartIdPrefs = firstOrder['cart_id'] ?? '';
+                              final draftIdPrefs = firstOrder['draft_id'] ?? '';
+                              // log('Existing cart ID $existingCartId');
+                              // log('Existing Draft ID $existingDraftId');
+                              if (_selectedValue == "Quick Sale") {
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
                                   await processSaveAndSend(
                                     finalAmount: finalAmount,
+                                    paymentType: paymentType,
                                     context: context,
                                     cartId: cartIdPrefs,
                                     draftId: draftIdPrefs,
                                   );
+                                  cartProvider
+                                      .getCartItemCounts(customerId ?? '');
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.red,
+                                      content: Text(
+                                          'Please fill all required fields'),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
                                 }
                               } else {
-                                showDialog(
+                                log('CustomerIdz : $customerId');
+                                await processSaveAndSend(
+                                  finalAmount: finalAmount,
                                   context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Center(
-                                        child: Icon(
-                                          Icons.warning_amber_rounded,
-                                          color: Colors.red,
-                                          size: 60,
-                                        ),
-                                      ),
-                                      content: CustomText(
-                                        content:
-                                            'Please check-in before processing the order',
-                                        fontSize: 18,
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
-                                          },
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                  cartId: cartIdPrefs,
+                                  draftId: draftIdPrefs,
                                 );
+                                cartProvider
+                                    .getCartItemCounts(customerId ?? '');
                               }
-                            }),
+                            } else {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Center(
+                                      child: Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.red,
+                                        size: 60,
+                                      ),
+                                    ),
+                                    content: CustomText(
+                                      content:
+                                          'Please check-in before processing the order',
+                                      fontSize: 18,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .pop();
+                                        },
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -2191,6 +2196,8 @@ class CartDialogueState extends State<CartDialogue> {
   void _clearCartItem(List<CartItem> cartItem, String customerId) async {
     await CartDatabaseManager().clearCart(customerId: customerId);
     log('Cart Item Cleared : $cartItem');
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    cartProvider.getCartItemCounts(customerId);
   }
 
   void _deleteProduct(String productName, {bool isPreorder = false}) {

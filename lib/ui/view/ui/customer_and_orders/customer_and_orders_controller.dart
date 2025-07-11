@@ -108,7 +108,6 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     selectedYear.value = value;
   }
 
-
   CustomerAndOrderData updateSingleCustomerData(CustomerAndOrderData data) {
     refresh();
     return data;

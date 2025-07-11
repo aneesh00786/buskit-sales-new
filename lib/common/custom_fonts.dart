@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 const String fontFamilyName = 'Poppins_Regular';
 
 const String myFont = 'Poppins_Regular';
+const String commonFont = 'BarlowCondensed';
 
 const TextStyle cardHeadingTextStyle = TextStyle(
   fontFamily: fontFamilyName,
@@ -51,6 +52,7 @@ TextStyle dialogTableHeaderStyle({
     fontFamily: fontFamily,
   );
 }
+
 //=============================================================================
 class DialogHeaderText extends StatelessWidget {
   final String text;
@@ -72,7 +74,7 @@ class DialogHeaderText extends StatelessWidget {
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: fontSize,
-          letterSpacing: 0.5, 
+          letterSpacing: 0.5,
           fontFamily: 'Poppins_Regular',
         ),
       ),
@@ -131,6 +133,7 @@ class DialogTableHeaderTextWhite extends StatelessWidget {
     );
   }
 }
+
 // ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   Color? color;
@@ -142,17 +145,16 @@ class CustomText extends StatelessWidget {
   int? maxLine;
   TextOverflow? overflow;
 
-  CustomText({
-    super.key,
-    this.color,
-    this.fontFamily,
-    this.content,
-    this.fontSize,
-    this.fontWeight,
-    this.textAlign,
-    this.maxLine,
-    this.overflow
-  });
+  CustomText(
+      {super.key,
+      this.color,
+      this.fontFamily,
+      this.content,
+      this.fontSize,
+      this.fontWeight,
+      this.textAlign,
+      this.maxLine,
+      this.overflow});
 
   @override
   Widget build(BuildContext context) {

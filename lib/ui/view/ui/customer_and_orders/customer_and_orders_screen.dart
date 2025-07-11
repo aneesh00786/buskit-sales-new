@@ -1354,9 +1354,14 @@ class BottomTotalWidget extends StatelessWidget {
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Total',
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                      Text(
+                        'Total',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: "BarlowCondensed",
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1381,7 +1386,9 @@ class BottomTotalWidget extends StatelessWidget {
                           formatAmount(
                               provider.orderTotalList[7].previousYearSale),
                           style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
+                              fontFamily: "BarlowCondensed",
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700)),
                     ),
                     120,
                   ),
@@ -1396,7 +1403,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[0].sales),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1408,7 +1417,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[1].delivery),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1420,7 +1431,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[2].payment),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1432,7 +1445,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[4].preOrder),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1444,7 +1459,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[3].estimate),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1456,7 +1473,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[5].draft),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,
@@ -1468,7 +1487,9 @@ class BottomTotalWidget extends StatelessWidget {
                       children: [
                         Text(formatAmount(provider.orderTotalList[6].cancelled),
                             style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w700)),
+                                fontFamily: "BarlowCondensed",
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                     140,

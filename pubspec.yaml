@@ -2,7 +2,7 @@ name: busskit_salesexecutive
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 environment:
-  sdk: '>=3.4.4 <4.0.0'
+  sdk: ">=3.4.4 <4.0.0"
 
 dependencies:
   add_to_cart_animation: ^2.0.4
@@ -97,7 +97,6 @@ dev_dependencies:
   hive_generator: ^2.0.1
 
 flutter:
-
   uses-material-design: true
   assets:
     - assets/
@@ -111,3 +110,9 @@ flutter:
     - family: SIde_Bar_icon
       fonts:
         - asset: assets/font_icons/SIde_Bar_icon.ttf
+    - family: Poppins_Regular
+      fonts:
+        - asset: assets/font_icons/Poppins_Regular.ttf
+    - family: BarlowCondensed
+      fonts:
+        - asset: assets/font_icons/BarlowCondensed-Regular.ttf

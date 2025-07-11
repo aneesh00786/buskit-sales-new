@@ -991,21 +991,27 @@ class TopTotalWidget extends StatelessWidget {
                             ),
                           ),
                           Obx(() {
-                            if (provider.yearsListOfAllList.isNotEmpty) {
-                              customerAndOrderController.selectedYear.value =
-                                  provider.yearsListOfAllList.first.orderYears
-                                          ?.toString() ??
-                                      '';
-                            } else {
-                              customerAndOrderController.selectedYear.value =
-                                  '';
-                            }
-
+                            // Build unique list of years first
                             customerAndOrderController.years.value = provider
                                 .yearsListOfAllList
                                 .map((yearItem) =>
                                     yearItem.orderYears?.toString() ?? '')
+                                .where((year) => year.isNotEmpty)
+                                .toSet()
                                 .toList();
+
+                            // Set selected year only if present in the list, otherwise default to first
+                            if (customerAndOrderController.years.isNotEmpty) {
+                              if (!customerAndOrderController.years.contains(
+                                  customerAndOrderController
+                                      .selectedYear.value)) {
+                                customerAndOrderController.selectedYear.value =
+                                    customerAndOrderController.years.first;
+                              }
+                            } else {
+                              customerAndOrderController.selectedYear.value =
+                                  '';
+                            }
 
                             return Padding(
                               padding:

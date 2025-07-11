@@ -117,9 +117,9 @@ class _OrderTakingState extends State<OrderTaking>
     //     : widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     CartDatabaseManager().getCartItems(customerId ?? '');
-    cartProvider.getCartItemCounts(customerId ??'');
+    cartProvider.getCartItemCounts(customerId ?? '');
     CartDatabaseManager().addListener(() {
-      cartProvider.updateCartCount(customerId ??'');
+      cartProvider.updateCartCount(customerId ?? '');
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -170,8 +170,7 @@ class _OrderTakingState extends State<OrderTaking>
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =
             categories[0].subCategoryItem![0].subCategory ?? '';
-        final firstSubCategoryId =
-            categories[0].subCategoryItem![0].id ?? '';
+        final firstSubCategoryId = categories[0].subCategoryItem![0].id ?? '';
         _selectedOption = firstSubCategory;
         _loadProductsForSubCategory(firstSubCategoryId);
       }
@@ -195,7 +194,7 @@ class _OrderTakingState extends State<OrderTaking>
       _id = categoryId;
       log('Fetching products for category ID: $categoryId');
     });
-    
+
     // Actually fetch the products using the products controller
     if (categoryId.isNotEmpty) {
       await widget.productsController.fetchProducts(categoryId);
@@ -356,14 +355,14 @@ class _OrderTakingState extends State<OrderTaking>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 86),
+                const SizedBox(height: 76),
                 Expanded(
                   child: Stack(
                     children: [
                       Row(
                         children: [
                           const SizedBox(
-                            width: 55,
+                            width: 60,
                           ),
                           Expanded(
                             child: ProductGrid(
@@ -373,6 +372,7 @@ class _OrderTakingState extends State<OrderTaking>
                               playAddToCartAnimation: playAddToCartAnimation,
                             ),
                           ),
+                          const SizedBox(width: 10),
                         ],
                       ),
                     ],
@@ -461,7 +461,9 @@ class _OrderTakingState extends State<OrderTaking>
                                                           .updateCartCount(customer
                                                                   .customerId ??
                                                               '');
-                                                      if (customerAndOrderController.isActive.value == true) {
+                                                      if (customerAndOrderController
+                                                              .isActive.value ==
+                                                          true) {
                                                         _showWarningDialog(
                                                           // ignore: use_build_context_synchronously
                                                           context,
@@ -584,14 +586,16 @@ class _OrderTakingState extends State<OrderTaking>
                           ),
                           IntrinsicWidth(
                             child: CustomSwitch(
-                              initialValue: customerAndOrderController.isActive.value,
+                              initialValue:
+                                  customerAndOrderController.isActive.value,
                               onChanged: (value) {
-                                customerAndOrderController.isActive.value = value;
+                                customerAndOrderController.isActive.value =
+                                    value;
                               },
                               active: customerAndOrderController.isActive.value,
                               selectedName: widget.productsController
                                   .selectedCustomerName.value,
-                                  customerId: widget.selectedCustId ?? '',
+                              customerId: widget.selectedCustId ?? '',
                             ),
                           )
                         ],
@@ -671,12 +675,14 @@ class _OrderTakingState extends State<OrderTaking>
                                           selectedCategory.subCategoryItem!
                                               .first.subCategory
                                               .toString();
-                                      widget.productsController
-                                              .selectedSubCategoryName.value =
-                                          firstSubCategoryName;
-                                      widget.productsController
-                                              .selectedSubCategoryId.value =
-                                          firstSubCategoryId;
+                                      widget
+                                          .productsController
+                                          .selectedSubCategoryName
+                                          .value = firstSubCategoryName;
+                                      widget
+                                          .productsController
+                                          .selectedSubCategoryId
+                                          .value = firstSubCategoryId;
                                       _selectedOption = firstSubCategoryName;
                                       _fetchProductsByCategory(
                                           firstSubCategoryId);
@@ -745,8 +751,6 @@ class _OrderTakingState extends State<OrderTaking>
     });
     log('Selected Category: $_selectedCategory');
   }
-
-
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);

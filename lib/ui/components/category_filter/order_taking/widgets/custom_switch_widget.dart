@@ -266,7 +266,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                         ? const EdgeInsets.only(left: 8)
                         : const EdgeInsets.only(right: 8),
                     child: MyRegularText(
-                      label: isOn ? "Check-in" : "Check-out",
+                      label: isOn ? "Checked-in" : "Check-out",
                       color: white,
                       fontWeight: FontWeight.w700,
                       fontSize: 15,

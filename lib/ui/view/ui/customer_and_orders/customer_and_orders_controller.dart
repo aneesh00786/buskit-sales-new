@@ -98,8 +98,8 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     }
   }
     var searchText = ''.obs;
-  var selectedYear = '2024'.obs;
-  var years = ['2024'].obs;
+  var selectedYear = '2022'.obs;
+  var years = ['2022'].obs;
   int updateVisitType(int type) {
     refresh();
     return type;

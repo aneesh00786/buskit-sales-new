@@ -388,10 +388,12 @@ class CartDatabaseManager {
             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
             : (localCount * priceWithTax);
         log('Incl Tax: $inclTax');
-        detail.count += localCount.toDouble();
-        detail.inclTax = inclTax;
+        // Clone the detail object and set count to localCount
+        final newDetail = Detail.fromJson(detail.toJson());
+        newDetail.count = localCount.toDouble();
+        newDetail.inclTax = inclTax;
         final newCartItem = CartItem(
-          detail: detail,
+          detail: newDetail,
           productName: productName,
           totalPrice: computedTotalAmount.toDouble(),
           isPack: isPack,

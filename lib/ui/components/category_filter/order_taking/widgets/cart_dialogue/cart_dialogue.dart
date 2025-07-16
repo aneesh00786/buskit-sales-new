@@ -1602,10 +1602,23 @@ class CartDialogueState extends State<CartDialogue> {
     required String cartId,
     required String draftId,
   }) async {
-    List<CartItem> itemList = isOrder
-        ? [...orderItems.where((item) => item.isChecked == true)]
-        : [...preorderItems.where((item) => item.isChecked == true)];
+    // Determine which items to process based on the active tab (_selectedValue)
+    List<CartItem> itemList;
     String customerId = widget.customerId ?? '';
+    if (_selectedValue == 'Sale Order' ||
+        _selectedValue == 'Quick Sale' ||
+        _selectedValue == 'Estimate') {
+      itemList = [...orderItems.where((item) => item.isChecked == true)];
+    } else if (_selectedValue == 'Pre Order') {
+      itemList = [...preorderItems.where((item) => item.isChecked == true)];
+    } else {
+      itemList = [];
+    }
+    // Debug logging
+    log('DEBUG: _selectedValue: $_selectedValue');
+    log('DEBUG: orderItems: ${orderItems.map((e) => e.toJson()).toList()}');
+    log('DEBUG: preorderItems: ${preorderItems.map((e) => e.toJson()).toList()}');
+    log('DEBUG: itemList: ${itemList.map((e) => e.toJson()).toList()}');
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||

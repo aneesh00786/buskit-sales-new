@@ -172,15 +172,30 @@ class _OrderTakingState extends State<OrderTaking>
             categories[0].subCategoryItem![0].subCategory ?? '';
         final firstSubCategoryId = categories[0].subCategoryItem![0].id ?? '';
         _selectedOption = firstSubCategory;
+
+        log('_selectFirstCategory: Subcategory name: $firstSubCategory, ID: $firstSubCategoryId');
+
+        // Set the selected subcategory ID in the controller
+        widget.productsController.selectedSubCategoryId.value =
+            firstSubCategoryId;
+        widget.productsController.selectedSubCategoryName.value =
+            firstSubCategory;
+
+        // Update the _id variable so ProductGrid can detect the change
+        setState(() {
+          _id = firstSubCategoryId;
+          _selectedOption =
+              firstSubCategory; // Ensure the option name is updated
+        });
+
         _loadProductsForSubCategory(firstSubCategoryId);
       }
     }
   }
 
-  void _loadProductsForSubCategory(String subCategory) {
-    if (subCategory.isNotEmpty) {
-      widget.productsController.fetchProducts(subCategory);
-    }
+  void _loadProductsForSubCategory(String subCategoryId) {
+    log('_loadProductsForSubCategory: Loading products for subcategory ID: $subCategoryId');
+    widget.productsController.fetchProducts(subCategoryId);
   }
 
   void _toggleDrawer() {
@@ -194,11 +209,6 @@ class _OrderTakingState extends State<OrderTaking>
       _id = categoryId;
       log('Fetching products for category ID: $categoryId');
     });
-
-    // Actually fetch the products using the products controller
-    if (categoryId.isNotEmpty) {
-      await widget.productsController.fetchProducts(categoryId);
-    }
   }
 
   int getCartItemCount() {

@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/category_mo
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -66,6 +67,17 @@ class ProductsController extends GetxController {
     showDialog.value = false;
   }
 
+  List<CartItem> cartItems = [];
+  List<CartItem> orderItems = [];
+  List<CartItem> preorderItems = [];
+
+  void clearCartItemsInController() {
+    log("[clearCartItemsInController]");
+    cartItems.clear();
+    orderItems.clear();
+    preorderItems.clear();
+  }
+
   Future<void> handleBackNavigation({
     required BuildContext context,
     required bool isDirectDialogue,
@@ -106,6 +118,8 @@ class ProductsController extends GetxController {
         offlineMode1(context);
         CartDatabaseManager().cartItems.clear();
         CartDatabaseManager().clearCart(customerId: customerId);
+        CartDatabaseManager().clearAllItemsForCustomer(customerId);
+        clearCartItemsInController();
         Navigator.pop(context);
         return;
       }
@@ -161,6 +175,8 @@ class ProductsController extends GetxController {
             );
             CartDatabaseManager().cartItems.clear();
             CartDatabaseManager().clearCart(customerId: customerId);
+            CartDatabaseManager().clearAllItemsForCustomer(customerId);
+            clearCartItemsInController();
           } else {
             showFaledDialogCtrl(context: context, customerId: customerId);
           }
@@ -168,6 +184,8 @@ class ProductsController extends GetxController {
       }
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearCart(customerId: customerId);
+      CartDatabaseManager().clearAllItemsForCustomer(customerId);
+      clearCartItemsInController();
     } else if (CartDatabaseManager().cartItems.isNotEmpty &&
         customerId.isNotEmpty &&
         toDash) {
@@ -198,6 +216,8 @@ class ProductsController extends GetxController {
         });
         CartDatabaseManager().cartItems.clear();
         CartDatabaseManager().clearCart(customerId: customerId);
+        CartDatabaseManager().clearAllItemsForCustomer(customerId);
+        clearCartItemsInController();
         return;
       }
       final cartDetails =
@@ -265,6 +285,8 @@ class ProductsController extends GetxController {
       });
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearCart(customerId: customerId);
+      CartDatabaseManager().clearAllItemsForCustomer(customerId);
+      clearCartItemsInController();
     } else if (toDash) {
       log('Log 3');
       // Future.delayed(const Duration(milliseconds: 300), () {
@@ -276,11 +298,15 @@ class ProductsController extends GetxController {
       // });
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearCart(customerId: customerId);
+      CartDatabaseManager().clearAllItemsForCustomer(customerId);
+      clearCartItemsInController();
       Navigator.pop(context);
     } else {
       log('Log 4');
       Navigator.pop(context);
       CartDatabaseManager().cartItems.clear();
+      CartDatabaseManager().clearAllItemsForCustomer(customerId);
+      clearCartItemsInController();
     }
   }
 

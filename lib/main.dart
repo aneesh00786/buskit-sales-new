@@ -99,6 +99,7 @@ void main() async {
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
   final subscriptionController = Get.put(SubscriptionController());
+  final orderController = Get.put(OrderController());
 
   Get.put(CalenderMapController());
   Get.put(ProductsController());
@@ -112,7 +113,7 @@ void main() async {
       bool isOnline = await connectivityService.isOnline();
       if (isOnline && !isSyncing) {
         isSyncing = true;
-        final orderController = Get.find<OrderController>();
+
         try {
           await connectivityService.syncOfflineOrders(
             onOrderSynced: orderController.loadOfflineOrders,

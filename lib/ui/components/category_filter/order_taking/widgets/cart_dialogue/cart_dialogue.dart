@@ -1901,26 +1901,72 @@ class CartDialogueState extends State<CartDialogue> {
   Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
     final isQuickSale = _selectedValue == "Quick Sale";
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final businessName = widget.productsController.selectedCustomerName.value;
+    final email = (widget.productsController.selectedCustomerEmail.value);
+    final mobileNo = (widget.productsController.selectedCustomerMobileNo.value);
+    final imageUrl = widget.productsController.selectedCustomerImageUrl.value;
+    final createdAt = DateTime.now().toIso8601String();
+
+    List<CartItem> processedItems = isOrder
+        ? cartItems
+            .where(
+                (item) => item.detail.stock != null && item.detail.stock! > 0)
+            .toList()
+        : cartItems.where((item) => item.detail.stock == 0).toList();
+
+    log("[saveOrderOffline] Cart Order data : ${cartItems.where((item) => item.detail.stock != null && item.detail.stock! > 0).toList()}");
+    log("[saveOrderOffline] Cart PreOrder data : ${cartItems.where((item) => item.detail.stock == 0).toList()}");
+
     final orderData = {
-      'order_id': orderId,
-      'customer_id': widget.customerId ?? '',
-      // customeController.customerId.isNotEmpty
-      //     ? customeController.customerId.value
-      //     : widget.productsController.selectedCustomerId.value,
-      'salesman_id': SessionHelper.loginSavedData!.salesmanId!,
+      'order_id': orderId, // Add unique identifier
+      'customer_id': customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value,
+      'businessName': businessName,
+      'email': email,
+      'mobileNo': mobileNo,
+      'imageUrl': imageUrl,
+      'createdAt': createdAt,
+      'salesman_id': SessionHelper.loginSavedData?.salesmanId ?? '',
       'order_price': finalAmount,
       'paymentType': paymentType,
-      'cart_list': cartItems
+      'cart_list': processedItems
           .map((e) => {
                 'product_id': e.detail.productId,
+                'product_name': e.productName,
                 'variant_id': e.detail.variationId,
+                'variant_name': e.detail.variationName,
                 'pack': e.detail.saleBy == 'Pack'
                     ? (e.detail.count * e.detail.pieces!).toString()
                     : e.detail.count.toString(),
+                'perPack': e.detail.saleBy == 'Pack'
+                    ? (e.detail.pieces).toString()
+                    : e.detail.count.toString(),
                 'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                 'price': e.detail.sellPrice.toString(),
-                'discount': e.detail.discount.toString(),
+                'discount': '0',
                 'quantity': e.detail.count.toInt(),
+                'tax': e.detail.tax?.toInt(),
+                'unitTax': e.detail.unitTax?.toInt(),
+                'inclTax': e.detail.inclTax,
+                'totalTax': e.detail.tax! *
+                    (e.isPack == true || e.detail.packtype == 'Pack'
+                        ? e.detail.pieces! * e.detail.count
+                        : 1),
+                'discountPrice':
+                    (((double.tryParse(e.detail.sellPrice?.toString() ?? '0') ??
+                                0.0) *
+                            ((double.tryParse(
+                                        e.detail.discount?.toString() ?? '0') ??
+                                    0.0) /
+                                100)) *
+                        ((e.isPack == true || e.detail.packtype == 'Pack')
+                            ? (e.detail.pieces?.toDouble() ?? 1) *
+                                e.detail.count.toDouble()
+                            : e.detail.count.toDouble())),
+                'totalPrice': e.detail.totalPrice,
+                'isPack': e.isPack,
               })
           .toList(),
       if (isQuickSale) ...{
@@ -1933,6 +1979,17 @@ class CartDialogueState extends State<CartDialogue> {
     var offlineBox = await Hive.openBox('offlineOrders');
     await offlineBox.put(orderId, orderData);
     log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
+
+    for (final item in processedItems) {
+      CartDatabaseManager().deleteCartItem(item);
+    }
+
+    setState(() {
+      cartItems.removeWhere((item) => processedItems.contains(item));
+      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
+      preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+    });
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {

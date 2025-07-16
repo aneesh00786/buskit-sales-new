@@ -81,7 +81,7 @@ Widget placeholderWidget() {
   }
 
   Widget orderNumberWidget(CustomerCart orderData, OrderData orderDetailsData,int selectedTabIndex){
-    log("generatedDate ${orderDetailsData.generatedDate}");
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

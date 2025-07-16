@@ -3,12 +3,14 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class OrdersTabBar extends StatefulWidget {
   final OrderController orderController;
@@ -28,20 +30,13 @@ class OrdersTabBar extends StatefulWidget {
 
 class _OrdersTabBarState extends State<OrdersTabBar> {
   int _selectedTabIndex = 0;
+  bool _hasOfflineOrders = false;
   final ScrollController _scrollController = ScrollController();
   NotificationController notificationController =
       Get.find<NotificationController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
-  final List<String> _tabs = [
-    'Latest',
-    'Waiting for Approval',
-    'Quick Sale',
-    'Processing',
-    'Packed & Ready for Delivery',
-    'Delivered',
-    'Rejected',
-  ];
+  bool get hasOfflineOrders => _hasOfflineOrders;
 
   @override
   void initState() {
@@ -49,6 +44,39 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     _selectedTabIndex = widget.passIndex;
     widget.orderController.loadOrderCountData();
     widget.orderController.updateTabIndex(_selectedTabIndex);
+    _setHasOfflineOrdersOnInit();
+  }
+
+  void _setHasOfflineOrdersOnInit() async {
+    var offlineOrdersBox = await Hive.openBox('offlineOrders');
+    if (offlineOrdersBox.isNotEmpty) {
+      setState(() {
+        _hasOfflineOrders = true;
+      });
+    }
+  }
+
+  List<String> _computedTabs() {
+    return _hasOfflineOrders
+        ? [
+            'Offline Orders',
+            'Latest',
+            'Waiting for Approval',
+            'Quick Sale',
+            'Processing',
+            'Packed & Ready for Delivery',
+            'Delivered',
+            'Rejected',
+          ]
+        : [
+            'Latest',
+            'Waiting for Approval',
+            'Quick Sale',
+            'Processing',
+            'Packed & Ready for Delivery',
+            'Delivered',
+            'Rejected',
+          ];
   }
 
   @override
@@ -57,34 +85,68 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     super.dispose();
   }
 
-  int _getCountForTab(int index) {
-    switch (index) {
-      case 0:
-        return notificationController
-                .recentOrderCountData.mainNotification?.recentOrders ??
-            0.toInt();
-      case 1:
-        return notificationController
-                .recentOrderCountData.mainNotification?.waitingForApproval ??
-            0.toInt();
-      case 2:
-        return notificationController
-                .recentOrderCountData.mainNotification?.quickSale ??
-            0.toInt();
-      case 3:
-        return notificationController
-                .recentOrderCountData.mainNotification?.processingOrders ??
-            0.toInt();
-      case 4:
-        return notificationController.recentOrderCountData.mainNotification
-                ?.packedAndReadyForDelivery ??
-            0.toInt();
-      case 5:
-        return 0;
-      case 6:
-        return 0;
-      default:
-        return 0;
+  Future<int> _getCountForTab(int index) async {
+    if (_hasOfflineOrders) {
+      switch (index) {
+        case 0:
+          return widget.orderController.offlineOrderCount.value;
+        case 1:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.recentOrders ??
+              0.toInt();
+        case 2:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.waitingForApproval ??
+              0.toInt();
+        case 3:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.quickSale ??
+              0.toInt();
+        case 4:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.processingOrders ??
+              0.toInt();
+        case 5:
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.packedAndReadyForDelivery ??
+              0.toInt();
+        case 6:
+          return 0;
+        case 7:
+          return 0;
+        default:
+          return 0;
+      }
+    }
+    {
+      switch (index) {
+        case 0:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.recentOrders ??
+              0.toInt();
+        case 1:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.waitingForApproval ??
+              0.toInt();
+        case 2:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.quickSale ??
+              0.toInt();
+        case 3:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.processingOrders ??
+              0.toInt();
+        case 4:
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.packedAndReadyForDelivery ??
+              0.toInt();
+        case 5:
+          return 0;
+        case 6:
+          return 0;
+        default:
+          return 0;
+      }
     }
   }
 
@@ -163,6 +225,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       if (widget.orderController.isCountLoading.value) {
         return const Center(child: Text('LOADING'));
       }
+
+      final tabs = _computedTabs();
+
       return Column(
         children: [
           SizedBox(
@@ -187,72 +252,150 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                         controller: _scrollController,
                         physics: const ClampingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
-                        itemCount: _tabs.length,
+                        itemCount: tabs.length,
                         itemBuilder: (context, index) {
-                          bool isSelected = _selectedTabIndex == index;
-                          int count = _getCountForTab(index);
+                          final isSelected = _selectedTabIndex == index;
 
-                          return GestureDetector(
-                            onTap: () {
-                              if (!_shouldShowUpgradeButton(index)) {
-                                showUpgradePlanDialog(context);
-                                return;
-                              }
-                              setState(() {
-                                _selectedTabIndex = index;
-                              });
-                              widget.orderController
-                                  .updateTabIndex(_selectedTabIndex);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.cyan
-                                    : Colors.transparent,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.cyan,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                          if (_hasOfflineOrders && index == 0) {
+                            return GestureDetector(
+                              onTap: () {
+                                if (!_shouldShowUpgradeButton(index)) {
+                                  showUpgradePlanDialog(context);
+                                } else {
+                                  setState(() {
+                                    _selectedTabIndex = index;
+                                  });
+                                  widget.orderController.updateTabIndex(
+                                      _selectedTabIndex,
+                                      hasOfflineOrders: _hasOfflineOrders);
+                                  widget.orderController.currentPage.value = 1;
+                                }
+                              },
+                              child: Obx(() {
+                                int count = widget
+                                    .orderController.offlineOrderCount.value;
+                                return Container(
+                                  padding: const EdgeInsets.only(
+                                      left: 16, right: 16, top: 8, bottom: 0),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.cyan
+                                        : Colors.transparent,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
                                     ),
-                                    child: Text(_tabs[index]),
                                   ),
-                                  if (count != 0) ...[
-                                    const SizedBox(width: 8),
-                                    CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.red,
-                                      child: Text(
-                                        count.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.white,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        tabs[index],
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.blue,
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins_Regular',
                                         ),
                                       ),
+                                      if (count != 0) ...[
+                                        const SizedBox(width: 8),
+                                        CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: red,
+                                          child: Center(
+                                            child: Text(
+                                              count.toString(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: white,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Poppins_Regular',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                    ],
+                                  ),
+                                );
+                              }),
+                            );
+                          }
+
+                          return FutureBuilder<int>(
+                            future: _getCountForTab(index),
+                            builder: (context, snapshot) {
+                              int count = snapshot.data ?? 0;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  if (!_shouldShowUpgradeButton(index)) {
+                                    showUpgradePlanDialog(context);
+                                  } else {
+                                    setState(() {
+                                      _selectedTabIndex = index;
+                                    });
+                                    widget.orderController.updateTabIndex(
+                                        _selectedTabIndex,
+                                        hasOfflineOrders: _hasOfflineOrders);
+                                    widget.orderController.currentPage.value =
+                                        1;
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                      left: 16, right: 16, top: 8, bottom: 0),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Colors.cyan
+                                        : Colors.transparent,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
                                     ),
-                                  ]
-                                ],
-                              ),
-                            ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        tabs[index],
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins_Regular',
+                                        ),
+                                      ),
+                                      if (count != 0) ...[
+                                        const SizedBox(width: 8),
+                                        CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: red,
+                                          child: Center(
+                                            child: Text(
+                                              count.toString(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: white,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Poppins_Regular',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -271,10 +414,14 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           ],
           if (_shouldShowUpgradeButton(_selectedTabIndex))
             Expanded(
-              child: OrderBottomWidget(
-                orderController: widget.orderController,
-                selectedTabIndex: _selectedTabIndex,
-              ),
+              child: _hasOfflineOrders && _selectedTabIndex == 0
+                  ? OfflineOrderBottomWidget(
+                      orderController: widget.orderController)
+                  : OrderBottomWidget(
+                      orderController: widget.orderController,
+                      selectedTabIndex: _selectedTabIndex,
+                      hasOfflineOrders: _hasOfflineOrders,
+                    ),
             ),
         ],
       );

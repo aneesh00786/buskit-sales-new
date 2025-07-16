@@ -9,10 +9,12 @@ class OrdersBottomList extends StatelessWidget {
     super.key,
     required ScrollController scrollController2,
     required this.widget,
+    required this.tabIndex,
   }) : _scrollController2 = scrollController2;
 
   final ScrollController _scrollController2;
   final OrderBottomWidget widget;
+  final int tabIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -21,148 +23,108 @@ class OrdersBottomList extends StatelessWidget {
         scrollDirection: Axis.vertical,
         physics: const ClampingScrollPhysics(),
         controller: _scrollController2,
-        itemCount:
-            widget.orderController.orderDataList.length,
+        itemCount: widget.orderController.orderDataList.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          OrderData orderData =
-              widget.orderController.orderDataList[index];
-          if (orderData.cart == null ||
-              orderData.cart!.isEmpty) {
+          OrderData orderData = widget.orderController.orderDataList[index];
+          if (orderData.cart == null || orderData.cart!.isEmpty) {
             return Container(
-              color: index.isEven
-                  ? Colors.white
-                  : Colors.grey[50],
-              height: (MediaQuery.of(context)
-                          .orientation ==
-                      Orientation.portrait)
-                  ? (fullScreenHeight(context) - 250) / 10
-                  : 70,
+              color: index.isEven ? Colors.white : Colors.grey[50],
+              height:
+                  (MediaQuery.of(context).orientation == Orientation.portrait)
+                      ? (fullScreenHeight(context) - 250) / 10
+                      : 70,
               child: Row(
                 children: [
-                  Expanded(
-                      flex: 4,
-                      child: placeholderWidget()),
-                  Expanded(
-                      flex: 4,
-                      child: placeholderWidget()),
-                  Expanded(
-                      flex: 4,
-                      child: placeholderWidget()),
-                  Expanded(
-                      flex: 5,
-                      child: placeholderWidget()),
-                  Expanded(
-                      flex: 4,
-                      child: placeholderWidget()),
-                  Expanded(
-                      flex: 2,
-                      child: placeholderWidget()),
+                  Expanded(flex: 4, child: placeholderWidget()),
+                  Expanded(flex: 4, child: placeholderWidget()),
+                  Expanded(flex: 4, child: placeholderWidget()),
+                  Expanded(flex: 5, child: placeholderWidget()),
+                  Expanded(flex: 4, child: placeholderWidget()),
+                  Expanded(flex: 2, child: placeholderWidget()),
                 ],
               ),
             );
           }
           return Container(
-            color: index.isEven
-                ? Colors.white
-                : Colors.grey[50],
-            height: (MediaQuery.of(context).orientation ==
-                    Orientation.portrait)
+            color: index.isEven ? Colors.white : Colors.grey[50],
+            height: (MediaQuery.of(context).orientation == Orientation.portrait)
                 ? (fullScreenHeight(context) - 250) / 10
                 : 70,
             child: Row(
               children: [
-                if (widget.selectedTabIndex == 0) ...[
+                if (tabIndex == 0) ...[
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
                     child: orderNumberWidget(
-                        orderData.cart!.first,
-                        orderData,
-                        widget.selectedTabIndex),
+                        orderData.cart!.first, orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
                     child: orderCreatedDateWidget(
-                        orderData.cart!.first,
-                        orderData,
-                        widget.selectedTabIndex),
+                        orderData.cart!.first, orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child:
-                        orderCreatedByWidget(orderData),
+                    child: orderCreatedByWidget(orderData),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 5,
-                    child:
-                        orderPrice(orderData.cart!.first),
+                    child: orderPrice(orderData.cart!.first),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: paymentStatus(
-                        orderData.cart!.first),
+                    child: paymentStatus(orderData.cart!.first),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderStatus(
-                        orderData.cart!.first),
+                    child: orderStatus(orderData.cart!.first),
                   ),
                   Expanded(
                       flex: 2,
                       child: viewOrder(
-                          widget.orderController,
-                          orderData,
-                          context)),
+                          widget.orderController, orderData, context)),
                   const SizedBox(width: 5),
                 ],
-                if (widget.selectedTabIndex != 0) ...[
+                if (tabIndex != 0) ...[
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
                     child: orderNumberWidget(
-                        orderData.cart!.first,
-                        orderData,
-                        widget.selectedTabIndex),
+                        orderData.cart!.first, orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
                     child: orderCreatedDateWidget(
-                        orderData.cart!.first,
-                        orderData,
-                        widget.selectedTabIndex),
+                        orderData.cart!.first, orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child:
-                        orderPrice(orderData.cart!.first),
+                    child: orderPrice(orderData.cart!.first),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: paymentStatus(
-                        orderData.cart!.first),
+                    child: paymentStatus(orderData.cart!.first),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderStatus(
-                        orderData.cart!.first),
+                    child: orderStatus(orderData.cart!.first),
                   ),
                   Expanded(
                       flex: 2,
                       child: viewOrder(
-                          widget.orderController,
-                          orderData,
-                          context)),
+                          widget.orderController, orderData, context)),
                   const SizedBox(width: 5),
                 ]
               ],

@@ -5,14 +5,15 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_wi
 import 'package:flutter/material.dart';
 
 class OrdersBottomTitleRow extends StatelessWidget {
+  final OrderBottomWidget widget;
+  final ScrollController _scrollController2;
+  final int tabIndex;
   const OrdersBottomTitleRow({
     super.key,
     required this.widget,
     required ScrollController scrollController2,
+    required this.tabIndex,
   }) : _scrollController2 = scrollController2;
-
-  final OrderBottomWidget widget;
-  final ScrollController _scrollController2;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class OrdersBottomTitleRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (widget.selectedTabIndex == 0) ...[
+                if (tabIndex == 0) ...[
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
@@ -114,7 +115,7 @@ class OrdersBottomTitleRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                 ],
-                if (widget.selectedTabIndex != 0) ...[
+                if (tabIndex != 0) ...[
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
@@ -198,7 +199,10 @@ class OrdersBottomTitleRow extends StatelessWidget {
         // ignore: unnecessary_null_comparison
         if (widget.orderController.orderDataList != null) ...[
           OrdersBottomList(
-              scrollController2: _scrollController2, widget: widget),
+            scrollController2: _scrollController2,
+            widget: widget,
+            tabIndex: tabIndex,
+          ),
           Container(
             padding: const EdgeInsets.all(3),
             height: 50,

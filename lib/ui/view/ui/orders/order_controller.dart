@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class OrderController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
@@ -21,6 +22,9 @@ class OrderController extends GetxController {
   RxInt selectedTabIndex = 0.obs;
   RxInt selectedStatusCountIndex = 11.obs;
   SearchModel searchData = SearchModel();
+
+  RxInt offlineOrderCount = 0.obs;
+
   RxInt receivedCount = 0.obs;
   RxInt approvalCount = 0.obs;
   RxInt quickSaleCount = 0.obs;
@@ -38,6 +42,7 @@ class OrderController extends GetxController {
     try {
       var notificationData =
           await Get.find<NotificationController>().loadNotificationData('', '');
+      offlineOrderCount.value = offlineOrders.length;
       if (notificationData.mainNotification != null) {
         var mainNotification = notificationData.mainNotification!;
         receivedCount.value = mainNotification.recentOrders ?? 0;
@@ -54,14 +59,16 @@ class OrderController extends GetxController {
       isCountLoading(false);
     }
   }
-  Future<List<OrderData>> loadOrderData({required int selectedIndex}) async {
+
+  Future<List<OrderData>> loadOrderData({required int selectedIndex, bool hasOfflineOrders = false}) async {
+    int tabIndex = hasOfflineOrders ? selectedIndex - 1 : selectedIndex;
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       orderDataList.clear();
     });
     isOrderLoading.value = true;
 
-    switch (selectedIndex) {
+    switch (tabIndex) {
       case 0:
         selectedStatusCountIndex.value = 11;
         break;
@@ -132,11 +139,11 @@ class OrderController extends GetxController {
     print('444++${searchData.endDate}');
   }
 
-  void updateTabIndex(int newIndex) {
+  void updateTabIndex(int newIndex, {bool hasOfflineOrders = false}) {
     currentPage.value = 1;
     selectedTabIndex.value = newIndex;
     loadOrderCountData();
-    loadOrderData(selectedIndex: newIndex);
+    loadOrderData(selectedIndex: newIndex, hasOfflineOrders: hasOfflineOrders);
   }
 
   Widget orderStatusWidget(String status, Color color) {
@@ -184,7 +191,7 @@ class OrderController extends GetxController {
     );
 
     if (data.data != null) {
-      fetchSpecificOrderData = data.data??SpecificOrderData();
+      fetchSpecificOrderData = data.data ?? SpecificOrderData();
     }
 
     isLoading(false);
@@ -408,5 +415,18 @@ class OrderController extends GetxController {
       currentPage.value = page;
       loadOrderData(selectedIndex: selectedTabIndex.value);
     }
+  }
+
+  RxList<dynamic> offlineOrders = [].obs;
+  RxBool isOfflineOrderLoading = false.obs;
+
+  Future<void> loadOfflineOrders() async {
+    isOfflineOrderLoading.value = true;
+    var box = await Hive.openBox('offlineOrders');
+    offlineOrders.value = box.values.toList();
+    offlineOrderCount.value = offlineOrders.length;
+    isOfflineOrderLoading.value = false;
+    offlineOrders.refresh();
+    offlineOrderCount.refresh();
   }
 }

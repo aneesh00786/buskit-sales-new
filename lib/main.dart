@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
@@ -108,8 +109,11 @@ void main() async {
     bool isOnline = await connectivityService.isOnline();
     if (isOnline && !isSyncing) {
       isSyncing = true;
+      final orderController = Get.find<OrderController>();
       try {
-        await connectivityService.syncOfflineOrders();
+        await connectivityService.syncOfflineOrders(
+            onOrderSynced: orderController.loadOfflineOrders,
+          );
         await connectivityService.syncOfflineDrafts();
         await connectivityService.retryOfflineRequests();
       } catch (e) {

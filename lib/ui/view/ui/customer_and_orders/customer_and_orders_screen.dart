@@ -2581,6 +2581,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             .value =
                                                         customer.businessName;
                                                     prodController
+                                                        .selectedCustomerEmail
+                                                        .value = customer.email;
+                                                    prodController
+                                                        .selectedCustomerMobileNo
+                                                        .value = customer.mobileno;
+                                                    prodController
                                                             .selectedCustomerId
                                                             .value =
                                                         customer.customerId;

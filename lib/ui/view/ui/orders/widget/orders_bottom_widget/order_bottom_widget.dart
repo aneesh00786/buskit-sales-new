@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_pagination.dart';
@@ -10,14 +11,17 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_wi
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/widgets/orders_bottom_title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
   final int selectedTabIndex;
+  final bool hasOfflineOrders;
   const OrderBottomWidget({
     super.key,
     required this.orderController,
     required this.selectedTabIndex,
+    this.hasOfflineOrders = false,
   });
 
   @override
@@ -27,6 +31,11 @@ class OrderBottomWidget extends StatefulWidget {
 class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   final ScrollController _scrollController2 = ScrollController();
   final ScrollController _scrollController1 = ScrollController();
+
+  NotificationController notificationController =
+      Get.find<NotificationController>();
+
+  int? _countForTab;
 
   Timer? _debounce;
   @override
@@ -42,9 +51,18 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     }
   }
 
+  Future<void> _loadCountForTab(int tabIndex) async {
+    final count = await _getCountForTab(tabIndex);
+    setState(() {
+      _countForTab = count;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+
+    _loadCountForTab(widget.selectedTabIndex);
 
     _scrollController1.addListener(() {
       if (_scrollController2.hasClients &&
@@ -63,7 +81,10 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   String get option {
-    switch (widget.selectedTabIndex) {
+    int tabIndex = widget.hasOfflineOrders
+        ? widget.selectedTabIndex - 1
+        : widget.selectedTabIndex;
+    switch (tabIndex) {
       case 0:
         return 'Recieved';
       case 1:
@@ -83,15 +104,90 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     }
   }
 
+  Future<int> _getCountForTab(int index) async {
+    if (widget.hasOfflineOrders) {
+      switch (index) {
+        case 0:
+          return widget.orderController.offlineOrderCount.value;
+        case 1:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.recentOrders ??
+              0.toInt();
+        case 2:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.waitingForApproval ??
+              0.toInt();
+        case 3:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.quickSale ??
+              0.toInt();
+        case 4:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.processingOrders ??
+              0.toInt();
+        case 5:
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.packedAndReadyForDelivery ??
+              0.toInt();
+        case 6:
+          return 0;
+        case 7:
+          return 0;
+        default:
+          return 0;
+      }
+    }
+    {
+      switch (index) {
+        case 0:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.recentOrders ??
+              0.toInt();
+        case 1:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.waitingForApproval ??
+              0.toInt();
+        case 2:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.quickSale ??
+              0.toInt();
+        case 3:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.processingOrders ??
+              0.toInt();
+        case 4:
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.packedAndReadyForDelivery ??
+              0.toInt();
+        case 5:
+          return 0;
+        case 6:
+          return 0;
+        default:
+          return 0;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    int tabIndex = widget.hasOfflineOrders
+        ? widget.selectedTabIndex - 1
+        : widget.selectedTabIndex;
     return Obx(
       () {
-        if (widget.orderController.isOrderLoading.value) {
+        if (widget.orderController.orderDataList.isEmpty &&
+            _countForTab == null) {
           return const Center(child: Text('LOADING'));
         }
-        if (widget.orderController.orderDataList.isEmpty) {
+
+        if (widget.orderController.orderDataList.isEmpty && _countForTab == 0) {
           return const Center(child: Text('Record Not Found'));
+        }
+
+        if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
+          return const Center(
+              child: Text('You are offline. Recent orders will not function.'));
         }
 
         return NkWidgetExceptionHandel(
@@ -226,7 +322,10 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: OrdersBottomTitleRow(
-                        widget: widget, scrollController2: _scrollController2),
+                      widget: widget,
+                      scrollController2: _scrollController2,
+                      tabIndex: tabIndex,
+                    ),
                   ),
                 ),
               ),
@@ -237,5 +336,3 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     );
   }
 }
-
-

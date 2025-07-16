@@ -1,0 +1,554 @@
+import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../orders/order_controller.dart';
+
+class OfflineOrderBottomWidget extends StatefulWidget {
+  final OrderController orderController;
+  const OfflineOrderBottomWidget({Key? key, required this.orderController})
+      : super(key: key);
+
+  @override
+  State<OfflineOrderBottomWidget> createState() =>
+      _OfflineOrderBottomWidgetState();
+}
+
+class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
+  final ScrollController _scrollController2 = ScrollController();
+  final ScrollController _scrollController1 = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.orderController.loadOfflineOrders();
+
+    _scrollController1.addListener(() {
+      if (_scrollController2.hasClients &&
+          _scrollController1.position.pixels !=
+              _scrollController2.position.pixels) {
+        _scrollController2.jumpTo(_scrollController1.position.pixels);
+      }
+    });
+    _scrollController2.addListener(() {
+      if (_scrollController1.hasClients &&
+          _scrollController2.position.pixels !=
+              _scrollController1.position.pixels) {
+        _scrollController1.jumpTo(_scrollController2.position.pixels);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () {
+        if (widget.orderController.isOfflineOrderLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (widget.orderController.offlineOrders.isEmpty) {
+          return const Center(child: Text('No Offline Orders'));
+        }
+
+        return Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    color: primaryColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 2,
+                            child: Center(
+                              child: CustomText(
+                                  content: 'SI No.',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            flex: 8,
+                            child: Center(
+                              child: CustomText(
+                                  content: 'Offline Orders',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ...[
+                    Expanded(
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        physics: const ClampingScrollPhysics(),
+                        controller: _scrollController1,
+                        itemCount: widget.orderController.offlineOrders.length,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          final order = Map<String, dynamic>.from(widget
+                              .orderController.offlineOrders[index] as Map);
+
+                          log("Order data from HIVE : $order");
+
+                          return Container(
+                            color:
+                                index.isEven ? Colors.white : Colors.grey[50],
+                            height: (MediaQuery.of(context).orientation ==
+                                    Orientation.portrait)
+                                ? (fullScreenHeight(context) - 250) / 10
+                                : 70,
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    child: CustomText(
+                                      content:
+                                          '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                      maxLine: 1,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  flex: 8,
+                                  child: customerDetailsWidget(order),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      width: 300,
+                      padding: const EdgeInsets.all(3),
+                      height: 50,
+                      color: Colors.grey[200],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 50,
+                        color: primaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Order NO',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Created',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Created By',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 5,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Order Amount',
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 12,
+                                      textAlign: TextAlign.center,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Payment Status',
+                                      fontFamily: 'Poppins_Regular',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: CustomText(
+                                      content: 'Status',
+                                      fontFamily: 'Poppins_Regular',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    ' ',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontStyle: FontStyle.normal,
+                                        fontSize: 12,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ...[
+                        Expanded(
+                          child: ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            physics: const ClampingScrollPhysics(),
+                            controller: _scrollController2,
+                            itemCount:
+                                widget.orderController.offlineOrders.length,
+                            shrinkWrap: true,
+                            itemBuilder: (BuildContext context, int index) {
+                              final order = Map<String, dynamic>.from(widget
+                                  .orderController.offlineOrders[index] as Map);
+                              return Container(
+                                color: index.isEven
+                                    ? Colors.white
+                                    : Colors.grey[50],
+                                height: (MediaQuery.of(context).orientation ==
+                                        Orientation.portrait)
+                                    ? (fullScreenHeight(context) - 250) / 10
+                                    : 70,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 4,
+                                      child: orderNumberWidget(order),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 4,
+                                      child: orderCreatedDateWidget(order),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 4,
+                                      child: orderCreatedByWidget(order),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 5,
+                                      child: orderPrice(order),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 4,
+                                      child: paymentStatus(order),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Expanded(
+                                      flex: 4,
+                                      child: orderStatus(order),
+                                    ),
+                                    Expanded(flex: 2, child: viewOrder(order)),
+                                    const SizedBox(width: 5),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          height: 50,
+                          color: Colors.grey[200],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget placeholderWidget() {
+    return const Center(
+      child: MyRegularText(
+        label: 'N/A',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+      ),
+    );
+  }
+
+  Widget customerDetailsWidget(Map<String, dynamic> order) {
+    final businessName = order['businessName'] ?? 'Unknown';
+    final mobileNo = order['mobileNo'] ?? 'Unknown';
+    final email = order['email'] ?? 'Unknown';
+    final imageUrl = order['imageUrl'] ?? null;
+    return GestureDetector(
+      onTap: () => {},
+      child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        const SizedBox(width: 8),
+        ClipOval(
+          child: Container(
+            height: 34,
+            width: 34,
+            color: Colors.grey[200],
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    '${ApiConstants.imageBaseUrl}$imageUrl',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.grey,
+                          size: 30,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.grey[200],
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.grey,
+                      size: 30,
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomText(
+                  content: businessName,
+                  maxLine: 2,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+                CustomText(
+                  content: mobileNo,
+                  maxLine: 2,
+                  fontSize: 10,
+                ),
+                MyRegularText(
+                  align: TextAlign.start,
+                  label: email,
+                  maxlines: 1,
+                  fontSize: 12,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ]),
+        )
+      ]),
+    );
+  }
+
+  Widget orderNumberWidget(Map<String, dynamic> order) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MyRegularText(
+            label: "",
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget orderCreatedDateWidget(Map<String, dynamic> order) {
+    final createdAt = DateTime.parse(order['createdAt'].toString()).toString();
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        MyRegularText(
+          label: createdAt.isEmpty
+              ? "N/A"
+              : NKDateUtils.commonDayFormat2(
+                  NKDateUtils.formatStringUTCDateTime(createdAt)),
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        MyRegularText(
+          label: createdAt.isEmpty
+              ? "N/A"
+              : NKDateUtils.commonTimeOnlyFormat(
+                  NKDateUtils.formatStringUTCDateTime(createdAt)),
+          fontSize: 12,
+        ),
+      ],
+    ));
+  }
+
+  Widget orderCreatedByWidget(Map<String, dynamic> order) {
+    final firstName = order['first_name'] ?? 'ADMIN';
+    final lastName = order['last_name'] ?? '';
+    return Center(
+      child: MyRegularText(
+        label: '$firstName $lastName',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+        maxlines: 2,
+      ),
+    );
+  }
+
+  Widget orderPrice(Map<String, dynamic> order) {
+    final orderTotal = order['order_price']?.toString() ?? 'N/A';
+    return Center(
+      child: MyRegularText(
+        label: formatAmount(orderTotal) ?? 'N/A',
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+        maxlines: 1,
+      ),
+    );
+  }
+
+  Widget paymentStatus(Map<String, dynamic> order) {
+    final paymentType = order['paymentType']?.toString() ?? '';
+    Color statusColor =
+        paymentType.toLowerCase() == 'paid' ? Colors.green : Colors.red;
+    IconData icon =
+        paymentType.toLowerCase() == 'paid' ? Icons.check : Icons.close;
+    return Center(
+      child: CircleAvatar(
+        backgroundColor: statusColor,
+        radius: 12,
+        child: Icon(
+          icon,
+          size: 20,
+          color: white,
+        ),
+      ),
+    );
+  }
+
+  Widget orderStatus(Map<String, dynamic> order) {
+    final status = order['status']?.toString() ?? 'Offline';
+    Color statusColor = status.toLowerCase() == 'offline'
+        ? const Color.fromARGB(255, 255, 183, 134)
+        : Colors.grey;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(0),
+        child: IntrinsicHeight(
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              color: statusColor,
+              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomText(
+                    content: status,
+                    fontSize: 11.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget viewOrder(Map<String, dynamic> order) {
+    return Center(
+      child: IconButton(
+        onPressed: () async {
+          Get.dialog(
+            OfflineOrderDetailsDialog(
+              orderData: order,
+            ),
+            barrierDismissible: true,
+          );
+        },
+        icon: const Icon(Icons.visibility, size: 16),
+      ),
+    );
+  }
+}

@@ -57,6 +57,8 @@ class ProductsController extends GetxController {
   RxBool isLoading = false.obs;
   RxString selectedCustomerName = "".obs;
   RxString selectedCustomerImageUrl = "".obs;
+  RxString selectedCustomerEmail = "".obs;
+  RxString selectedCustomerMobileNo = "".obs;
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
   var showDialog = false.obs;
@@ -349,13 +351,13 @@ class ProductsController extends GetxController {
   Future<void> clearProductsForSubCategory(String subCatId) async {
     try {
       log('clearProductsForSubCategory: Clearing products for subcategory: $subCatId');
-      
+
       // Clear from memory
       products.clear();
-      
+
       // Clear from cache
       await _apiWorker.clearProductsForSubCategory(subCatId);
-      
+
       log('clearProductsForSubCategory: Products cleared successfully');
     } catch (e) {
       log('clearProductsForSubCategory: Error occurred: $e');
@@ -370,13 +372,14 @@ class ProductsController extends GetxController {
   }
 
   // Method to clear cache and reload products for a specific subcategory
-  Future<List<ProductModel>> reloadProductsForSubCategory(String subCatId) async {
+  Future<List<ProductModel>> reloadProductsForSubCategory(
+      String subCatId) async {
     log('reloadProductsForSubCategory: Reloading products for subcategory: $subCatId');
-    
+
     try {
       // Clear cache for this subcategory
       await _apiWorker.clearProductsForSubCategory(subCatId);
-      
+
       // Fetch fresh products
       return await fetchProducts(subCatId);
     } catch (e) {
@@ -390,9 +393,10 @@ class ProductsController extends GetxController {
     log('debugProductList: Current products count: ${products.length}');
     log('debugProductList: Product IDs: ${products.map((p) => p.productId).toList()}');
     log('debugProductList: Product names: ${products.map((p) => p.productName).toList()}');
-    
+
     // Check for duplicates
-    final productIds = products.map((p) => p.productId).where((id) => id != null).toList();
+    final productIds =
+        products.map((p) => p.productId).where((id) => id != null).toList();
     final uniqueIds = productIds.toSet();
     if (productIds.length != uniqueIds.length) {
       log('debugProductList: WARNING - Found ${productIds.length - uniqueIds.length} duplicate product IDs');
@@ -684,7 +688,8 @@ class ProductsController extends GetxController {
       if (Hive.isBoxOpen('scidProductGroups')) {
         scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
       } else {
-        scidGroupBox = await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        scidGroupBox =
+            await Hive.openBox<ScidProductGroup>('scidProductGroups');
       }
 
       if (Hive.isBoxOpen('products')) {
@@ -699,7 +704,7 @@ class ProductsController extends GetxController {
       log('- Available scid keys: ${scidGroupBox.keys.toList()}');
       log('- Current selectedSubCategoryId: ${selectedSubCategoryId.value}');
       log('- Current selectedSubCategoryName: ${selectedSubCategoryName.value}');
-      
+
       if (scidGroupBox.isNotEmpty) {
         for (var key in scidGroupBox.keys) {
           final group = scidGroupBox.get(key);

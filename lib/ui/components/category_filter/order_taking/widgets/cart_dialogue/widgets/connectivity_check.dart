@@ -7,11 +7,13 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:get/get.dart' as getx;
 
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
@@ -58,7 +60,7 @@ class ConnectivityService {
     _connectivity.onConnectivityChanged.drain();
   }
 
-  Future<void> syncOfflineOrders() async {
+  Future<void> syncOfflineOrders({VoidCallback? onOrderSynced}) async {
     if (_isSyncing) {
       log('[syncOfflineOrders] Sync is already in progress.');
       return;
@@ -136,6 +138,19 @@ class ConnectivityService {
                     "Your order has been successfully placed", "Placed Order");
                 log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
                 await offlineOrdersBox.delete(order['order_id']);
+                // Update offline order count and list in controller after each deletion
+                try {
+                  final orderController =
+                      getx.Get.isRegistered<OrderController>()
+                          ? getx.Get.find<OrderController>()
+                          : null;
+                  if (orderController != null) {
+                    await orderController.loadOfflineOrders();
+                  }
+                } catch (e) {
+                  log('OrderController not found or error updating offline orders: $e');
+                }
+                onOrderSynced?.call();
               } else {
                 log('[syncOfflineOrders] Failed to sync order: $message');
               }
@@ -275,14 +290,14 @@ class ConnectivityService {
       final request = box.getAt(i);
       if (request == null) continue;
       try {
-        final payload = castToStringDynamic(request['payload']); 
+        final payload = castToStringDynamic(request['payload']);
         final response = await dio1.post(
           request['url'],
           data: dio.FormData.fromMap(payload),
         );
         if (response.statusCode == 200) {
           log("✅ Offline request sent successfully: ${request['url']}");
-          await box.deleteAt(i); 
+          await box.deleteAt(i);
         } else {
           log("❌ Failed to retry request: ${response.statusCode}");
         }

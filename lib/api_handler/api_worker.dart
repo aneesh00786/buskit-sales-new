@@ -1744,54 +1744,51 @@ class ApiWorker with ApiConstants {
     int? page,
     required bool isLogin,
   }) async {
-    final start = isLogin
-        ? startDate
-        : searchModel?.startDate?.isNotEmpty == true
-            ? searchModel?.startDate
-            : null;
-    final end = isLogin
-        ? endDate
-        : searchModel?.endDate?.isNotEmpty == true
-            ? searchModel?.endDate
-            : null;
-    final cacheKey =
-        'recent_orders_${orderStatus ?? ''}_${start ?? ''}_${end ?? ''}';
-    final ordersBox = await Hive.openBox('ordersBox');
-    final isConnected = await ConnectivityService().isOnline();
-    if (isConnected) {
+    try {
+      final requestData = {
+        "order_status": orderStatus,
+        "start_date": '',
+        "end_date": '',
+        "limit": 10,
+        "page": page,
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      };
+      log('Sending API request for recent orders. Request Body: $requestData');
+
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.getRecentOrder,
+        requestData: requestData,
+      );
+
+      log('Response received from API: ${response.data}');
+
+      if (response.data['status'] == true &&
+          response.data['status_code'] == 200) {}
+
       try {
-        final requestData = {
-          "order_status": orderStatus,
-          "start_date": start ?? '',
-          "end_date": end ?? '',
-          "limit": 10,
-          "page": page,
-          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-          "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-        };
-        log('Request Data $requestData');
-        final response = await responsePostMethod(
-            requestData: requestData, endPoint: ApiConstants.getRecentOrder);
-        await ordersBox.put(cacheKey, response.data);
         return OrderResponce.fromJson(response.data);
-      } on DioException catch (error) {
-        handleExceptionMessage(
-            response: error.response, apiName: "recent orders", error: error);
-        if (ordersBox.containsKey(cacheKey)) {
-          return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
-        } else {
-          log("No cached data available after API failure.");
-          // errorSnackbar("No cached data available after API failure.");
-          // throw Exception('Failed to fetch data and no cached data available.');
-        }
+      } catch (parseError) {
+        log("Failed to parse response: $parseError");
+        throw Exception('Invalid response format.');
       }
-    }
-    if (ordersBox.containsKey(cacheKey)) {
-      return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
-    } else {
-      log('No cached data available offline for key: $cacheKey');
-      // throw Exception("No internet connection and no cached data available.");
-      return localStorage.storedRecentOrdersData(ordersBox, cacheKey);
+    } on DioException catch (error) {
+      final statusCode = error.response?.statusCode ?? 0;
+      log('DioException occurred. Status Code: $statusCode');
+      log('Response Data: ${error.response?.data}');
+      log('Request Data: ${error.requestOptions.data}');
+
+      if (statusCode != 200 || error.response?.data['status'] != true) {
+        handleExceptionMessage(
+          apiName: 'Recent Orders (DioException)',
+          response: error.response,
+        );
+      }
+
+      throw Exception('Failed to fetch data and no cached data available.');
+    } catch (e) {
+      log('Unexpected error: $e');
+      throw Exception('Unexpected error occurred: $e');
     }
   }
 
@@ -2731,7 +2728,7 @@ class ApiWorker with ApiConstants {
     var request = {
       "custid": customerId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id":  SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "direction": direction,
       "time": time,
       "longitude": long,

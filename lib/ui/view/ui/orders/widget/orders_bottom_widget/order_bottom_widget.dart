@@ -196,7 +196,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           child: Row(
             children: [
               SizedBox(
-                width: 250,
+                width: 300,
                 child: Column(
                   children: [
                     Container(
@@ -301,6 +301,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                         ),
                       ),
                       Container(
+                        width: 300,
                         padding: const EdgeInsets.all(3),
                         height: 50,
                         color: Colors.grey[200],

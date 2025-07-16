@@ -1,13 +1,42 @@
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrderPaginationWidget extends StatelessWidget {
   final OrderController orderController;
-  
+
   const OrderPaginationWidget({super.key, required this.orderController});
 
+  // Advanced pagination logic for numbering and page changing
+  List<dynamic> _buildPagination(int currentPage, int totalPages) {
+    List<dynamic> pages = [];
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        pages.add(i);
+      }
+      return pages;
+    }
+    if (currentPage <= 2) {
+      pages.addAll([1, 2, 3, '...$totalPages']);
+    } else if (currentPage == 3) {
+      pages.addAll([1, 2, 3, 4, '...$totalPages']);
+    } else if (currentPage == totalPages - 2) {
+      pages.add('1...');
+      pages
+          .addAll([totalPages - 3, totalPages - 2, totalPages - 1, totalPages]);
+    } else if (currentPage >= totalPages - 1) {
+      pages.add('1...');
+      pages.addAll([totalPages - 2, totalPages - 1, totalPages]);
+    } else {
+      pages.add('1...');
+      pages.addAll(
+          [currentPage - 1, currentPage, currentPage + 1, '...$totalPages']);
+    }
+    return pages;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +46,7 @@ class OrderPaginationWidget extends StatelessWidget {
       }
 
       return Container(
-        width: 3 * 62.0,
+        width: 280,
         decoration: BoxDecoration(
           color: primaryColor,
           borderRadius: BorderRadius.circular(3.0),
@@ -25,44 +54,51 @@ class OrderPaginationWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 40,
-              width: 40,
-              child: IconButton(
-                icon: const Icon(
+            InkWell(
+              onTap: () async {
+                final isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, 'You are offline!', red, Icons.close,
+                      duration: 3);
+                  return;
+                }
+                if (orderController.currentPage.value > 1) {
+                  orderController.goToPreviousPage();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: const Icon(
                   Icons.keyboard_double_arrow_left,
                   size: 20,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  if (orderController.currentPage.value > 1) {
-                    orderController.goToPreviousPage();
-                  }
-                },
               ),
             ),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(
-                  orderController.totalPages.value.clamp(1, 3),
-                  (index) {
-                    int visiblePage;
-                    if (orderController.totalPages.value == 2) {
-                      // For 2 total pages, show only pages 1 and 2
-                      visiblePage = index + 1;
-                    } else {
-                      // Normal case for totalPages > 2
-                      int firstPage = (orderController.currentPage.value - 1)
-                          .clamp(1, orderController.totalPages.value - 2);
-                      visiblePage = (firstPage + index).clamp(
-                        1,
-                        orderController.totalPages.value,
-                      );
-                    }
-
+                children: _buildPagination(orderController.currentPage.value,
+                        orderController.totalPages.value)
+                    .map<Widget>((item) {
+                  if (item is int) {
+                    final bool isCurrent =
+                        item == orderController.currentPage.value;
                     return GestureDetector(
-                      onTap: () => orderController.goToPage(visiblePage),
+                      onTap: isCurrent
+                          ? null
+                          : () async {
+                              final isOnline =
+                                  await ConnectivityService().isOnline();
+                              if (!isOnline) {
+                                showCustomToastDisplay(context,
+                                    'You are offline!', red, Icons.close,
+                                    duration: 3);
+                                return;
+                              }
+                              orderController.goToPage(item);
+                            },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: Container(
@@ -70,45 +106,119 @@ class OrderPaginationWidget extends StatelessWidget {
                           width: 25,
                           decoration: BoxDecoration(
                             color:
-                                orderController.currentPage.value == visiblePage
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                isCurrent ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Center(
                             child: Text(
-                              '$visiblePage',
+                              '$item',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: orderController.currentPage.value ==
-                                        visiblePage
-                                    ? primaryColor
-                                    : Colors.white,
+                                color: isCurrent ? primaryColor : Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
                       ),
                     );
-                  },
-                ),
+                  } else if (item is String && item.endsWith('...')) {
+                    final int page = int.parse(item.replaceAll('...', ''));
+                    return GestureDetector(
+                      onTap: () async {
+                        final isOnline = await ConnectivityService().isOnline();
+                        if (!isOnline) {
+                          showCustomToastDisplay(
+                              context, 'You are offline!', red, Icons.close,
+                              duration: 3);
+                          return;
+                        }
+                        orderController.goToPage(page);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              item,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (item is String && item.startsWith('...')) {
+                    final int page = int.parse(item.replaceAll('...', ''));
+                    return GestureDetector(
+                      onTap: () async {
+                        final isOnline = await ConnectivityService().isOnline();
+                        if (!isOnline) {
+                          showCustomToastDisplay(
+                              context, 'You are offline!', red, Icons.close,
+                              duration: 3);
+                          return;
+                        }
+                        orderController.goToPage(page);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              item,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Container();
+                  }
+                }).toList(),
               ),
             ),
-            SizedBox(
-              height: 40,
-              width: 40,
-              child: IconButton(
-                icon: const Icon(
+            InkWell(
+              onTap: () async {
+                final isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, 'You are offline!', red, Icons.close,
+                      duration: 3);
+                  return;
+                }
+                if (orderController.currentPage.value <
+                    orderController.totalPages.value) {
+                  orderController.goToNextPage();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: const Icon(
                   Icons.keyboard_double_arrow_right,
                   size: 20,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  if (orderController.currentPage.value <
-                      orderController.totalPages.value) {
-                    orderController.goToNextPage();
-                  }
-                },
               ),
             ),
           ],

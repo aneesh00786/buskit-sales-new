@@ -60,6 +60,117 @@ class ConnectivityService {
     _connectivity.onConnectivityChanged.drain();
   }
 
+  // Future<void> syncOfflineOrders({VoidCallback? onOrderSynced}) async {
+  //   if (_isSyncing) {
+  //     log('[syncOfflineOrders] Sync is already in progress.');
+  //     return;
+  //   }
+  //   _isSyncing = true;
+  //   Set<String> processedCartIds = {};
+  //   try {
+  //     var offlineOrdersBox = await Hive.openBox('offlineOrders');
+  //     if (offlineOrdersBox.isEmpty) {
+  //       log('[syncOfflineOrders] No offline orders to sync.');
+  //       return;
+  //     }
+  //     var orders = offlineOrdersBox.values.toList();
+  //     for (var order in orders) {
+  //       try {
+  //         if (processedCartIds.contains(order['cart_id'])) {
+  //           log('[syncOfflineOrders] Skipping already processed cart ID: ${order['cart_id']}');
+  //           continue;
+  //         }
+  //         log('[syncOfflineOrders] Processing offline order: $order');
+  //         final String customerId = order['customer_id'] ?? '';
+  //         var draftDetails =
+  //             await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+  //         final firstDraft =
+  //             draftDetails.isNotEmpty ? draftDetails.last : {'draft_id': ''};
+  //         final String existingDraftId = firstDraft['draft_id'] ?? '';
+  //         log('Associated Cart ID for Customer $customerId: $existingDraftId');
+
+  //         final AddToCartModel productBYData = AddToCartModel(
+  //           customerId: customerId,
+  //           salesmanId: order['salesman_id'] ?? '',
+  //           cartId: '',
+  //           cartList: (order['cart_list'] as List).map((e) {
+  //             return SendCartData(
+  //               productId: e['product_id'] ?? '',
+  //               variantId: e['variant_id'] ?? '',
+  //               pack: e['pack']?.toString() ?? '0',
+  //               price: e['price']?.toString() ?? '0.0',
+  //               packType: e['packType'] ?? 'Pack',
+  //               discount: num.tryParse(e['discount']?.toString() ?? '0') ?? 0,
+  //               quantity: e['quantity'] ?? 0,
+  //               variantName: e['variant_name'] ?? '',
+  //             );
+  //           }).toList(),
+  //           total: order['order_price']?.toString() ?? '0.0',
+  //         );
+
+  //         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
+  //         final CartOrderModel? cartOrder =
+  //             await ApiWorker().addToCart(productBYData.toJson());
+  //         if (cartOrder != null) {
+  //           processedCartIds.add(cartOrder.cartId);
+  //           log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
+  //           final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //           const int orderStatus = 11;
+  //           final CartOrderModel orderPayload = CartOrderModel(
+  //             customerId: customerId,
+  //             salesmanId: order['salesman_id'] ?? '',
+  //             cartId: cartOrder.cartId,
+  //             draftId: existingDraftId,
+  //             orderStatus: orderStatus,
+  //             orderPrice: order['order_price'] ?? 0.0,
+  //             paymentType: order['paymentType']?.toString() ?? 'Cash',
+  //             companyId: companyId,
+  //             paymentDetail: order['paymentDetail'] ?? '',
+  //             transactionNumber: order['transactionNumber'] ?? '',
+  //             transactionDate: order['transactionDate'] ?? '',
+  //           );
+
+  //           log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
+  //           await ApiWorker().placeOrder(orderPayload,
+  //               (statusCode, message, response) async {
+  //             if (statusCode == 200) {
+  //               showSyncSnackbar(
+  //                   "Your order has been successfully placed", "Placed Order");
+  //               log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
+  //               await offlineOrdersBox.delete(order['order_id']);
+  //               // Update offline order count and list in controller after each deletion
+  //               try {
+  //                 final orderController =
+  //                     getx.Get.isRegistered<OrderController>()
+  //                         ? getx.Get.find<OrderController>()
+  //                         : null;
+  //                 if (orderController != null) {
+  //                   await orderController.loadOfflineOrders();
+  //                 }
+  //               } catch (e) {
+  //                 log('OrderController not found or error updating offline orders: $e');
+  //               }
+  //               onOrderSynced?.call();
+  //             } else {
+  //               log('[syncOfflineOrders] Failed to sync order: $message');
+  //             }
+  //           });
+  //         }
+  //       } catch (e) {
+  //         log('[syncOfflineOrders] Error syncing order: $e');
+  //       }
+  //     }
+
+  //     if (offlineOrdersBox.isEmpty) {
+  //       log('[syncOfflineOrders] All offline orders have been synced and the box is now empty.');
+  //     }
+  //   } catch (e) {
+  //     log('[syncOfflineOrders] General error: $e');
+  //   } finally {
+  //     _isSyncing = false;
+  //   }
+  // }
+
   Future<void> syncOfflineOrders({VoidCallback? onOrderSynced}) async {
     if (_isSyncing) {
       log('[syncOfflineOrders] Sync is already in progress.');

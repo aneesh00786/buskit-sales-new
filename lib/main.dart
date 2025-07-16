@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -104,29 +105,32 @@ void main() async {
 
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
+
   final connectivityService = ConnectivityService();
   connectivityService.startListening((connectivityResult) async {
-    bool isOnline = await connectivityService.isOnline();
-    if (isOnline && !isSyncing) {
-      isSyncing = true;
-      final orderController = Get.find<OrderController>();
-      try {
-        await connectivityService.syncOfflineOrders(
+    if (connectivityResult != ConnectivityResult.none) {
+      bool isOnline = await connectivityService.isOnline();
+      if (isOnline && !isSyncing) {
+        isSyncing = true;
+        final orderController = Get.find<OrderController>();
+        try {
+          await connectivityService.syncOfflineOrders(
             onOrderSynced: orderController.loadOfflineOrders,
           );
-        await connectivityService.syncOfflineDrafts();
-        await connectivityService.retryOfflineRequests();
-      } catch (e) {
-        log('Error during sync: $e');
-      } finally {
-        isSyncing = false;
+          await connectivityService.syncOfflineDrafts();
+          await connectivityService.retryOfflineRequests();
+        } catch (e) {
+          log('Error during sync: $e');
+        } finally {
+          isSyncing = false;
+        }
       }
     }
   });
-  
+
   // Handle cart persistence on app restart
   await _handleCartPersistenceOnRestart();
-  
+
   runApp(MyApp(
       initialRout: SessionHelper.loginSavedData != null
           ? AppRoutes.home
@@ -139,16 +143,17 @@ Future<void> _handleCartPersistenceOnRestart() async {
     // Only handle cart persistence if user is logged in
     if (SessionHelper.loginSavedData != null) {
       log('Handling cart persistence on app restart...');
-      
+
       // Get the ProductsController to access selectedCustomerId
       if (Get.isRegistered<ProductsController>()) {
         final productsController = Get.find<ProductsController>();
         final selectedCustomerId = productsController.selectedCustomerId.value;
-        
+
         log('Selected customer ID on restart: $selectedCustomerId');
-        
+
         // Call the cart persistence method
-        await CartDatabaseManager().handleCartPersistenceOnRestart(selectedCustomerId);
+        await CartDatabaseManager()
+            .handleCartPersistenceOnRestart(selectedCustomerId);
       } else {
         log('ProductsController not available, clearing cart items as safety measure');
         await CartDatabaseManager().handleCartPersistenceOnRestart(null);

@@ -80,8 +80,6 @@ class ProductsController extends GetxController {
 
     log("handle back nav customerID 3 : $customerId");
 
-    await CartDatabaseManager().clearAllItemsForCustomer(customerId);
-
     if (CartDatabaseManager().cartItems.isNotEmpty &&
         customerId.isNotEmpty &&
         !toDash) {

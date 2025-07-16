@@ -3,6 +3,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -30,6 +31,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -2354,5 +2356,38 @@ class CartTextFields extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Future<void> placeOrder(
+  CartOrderModel cartOrder,
+  Function(int statusCode, String message, Map<String, dynamic>? responseData)
+      onResponse,
+) async {
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  cartOrder.companyId = companyId;
+  try {
+    log('Assigned companyId: ${cartOrder.companyId}');
+    log('Place Order Payload: ${cartOrder.toJson()}');
+    final response = await Dio().post(
+      "${ApiConstants.baseUrl1}/place_order",
+      data: cartOrder.toJson(),
+    );
+    log('Response status code: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      log('Order placed successfully: ${response.data}');
+      onResponse(
+          200, 'Your order has been successfully placed.', response.data);
+    } else {
+      log('Failed to place order: ${response.data}');
+      onResponse(
+        response.statusCode ?? 500,
+        'Failed to place your order.',
+        response.data,
+      );
+    }
+  } catch (e) {
+    log('Error placing order: $e');
+    onResponse(500, 'An error occurred while placing the order.', null);
   }
 }

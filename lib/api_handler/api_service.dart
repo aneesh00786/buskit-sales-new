@@ -1090,7 +1090,7 @@ class ApiService {
             return localStorage.customerdashboardResponse(cachedData);
           } else {
             throw Exception(
-                'Invalid cached data format for customerId: $customerId');
+                '1 Invalid cached data format for customerId: $customerId');
           }
         } else {
           throw Exception(
@@ -1132,7 +1132,7 @@ class ApiService {
           return localStorage.customerdashboardResponse(cachedData);
         } else {
           throw Exception(
-              'Invalid cached data format for customerId: $customerId');
+              '2 Invalid cached data format for customerId: $customerId');
         }
       } else {
         throw Exception('No cached data available for customerId: $customerId');
@@ -1160,7 +1160,7 @@ class ApiService {
             return CustomerTotalSaleResponse.fromJson(cachedData);
           } else {
             throw Exception(
-                'Invalid cached data format for customerId: $customerId, year: $year');
+                '3 Invalid cached data format for customerId: $customerId, year: $year');
           }
         } else {
           throw Exception(
@@ -1225,7 +1225,7 @@ class ApiService {
           return CustomerTotalSaleResponse.fromJson(cachedData);
         } else {
           throw Exception(
-              'Invalid cached data format for customerId: $customerId, year: $year');
+              '4 Invalid cached data format for customerId: $customerId, year: $year');
         }
       } else {
         throw Exception(

@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -805,10 +806,27 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 : widget
                                     .productController.selectedCustomerId.value;
 
+                            int totalCount = 0;
+
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                if (localCounts[i] > 0) {
+                                  totalCount += localCounts[i];
+                                } else {}
+                              }
+                              if (totalCount == 0) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Choose at least one variant to add to cart",
+                                    Colors.orange,
+                                    Icons.warning);
+                                return;
+                              }
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {

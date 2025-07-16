@@ -1390,22 +1390,11 @@ class CartDialogueState extends State<CartDialogue> {
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext context) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              },
-                            );
                             final hasCheckInOutPermission =
                                 subscriptionController
                                         .customerCheckInOut.value ==
                                     "true";
                             final isCheckedIn = widget.active == true;
-
-                            log("isCheckedIn: $isCheckedIn");
-                            log("hasCheckInOutPermission: $hasCheckInOutPermission");
 
                             if (isCheckedIn ||
                                 (!isCheckedIn && !hasCheckInOutPermission)) {
@@ -1425,13 +1414,7 @@ class CartDialogueState extends State<CartDialogue> {
 
                               final finalAmount = double.parse(sanitizedText);
                               final customerId = widget.customerId;
-                              // customeController.customerId.isNotEmpty
-                              //     ? customeController.customerId.value
-                              //     :
-                              // widget.productsController
-                              //         .selectedCustomerId.value;
 
-                              log("new customerId : $customerId");
                               final cartDetails = await CartDatabaseManager()
                                   .getDraftAndCartIdsFromApi(customerId ?? '');
                               await Future.delayed(const Duration(seconds: 1));
@@ -1619,28 +1602,31 @@ class CartDialogueState extends State<CartDialogue> {
     required String cartId,
     required String draftId,
   }) async {
-    List<CartItem> itemList = [
-      ...orderItems.where((item) => item.isChecked == true),
-      ...preorderItems.where((item) => item.isChecked == true),
-    ];
+    List<CartItem> itemList = isOrder
+        ? [...orderItems.where((item) => item.isChecked == true)]
+        : [...preorderItems.where((item) => item.isChecked == true)];
     String customerId = widget.customerId ?? '';
-    // customeController.customerId.isNotEmpty
-    //     ? customeController.customerId.value
-    //     : widget.productsController.selectedCustomerId.value;
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
-        (widget.customerId != ''
-        // customeController.customerId.value.isNotEmpty ||
-        //   widget.productsController.selectedCustomerId.value.isNotEmpty
-        )) {
+        (customeController.customerId.value.isNotEmpty ||
+            widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
       try {
         log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
+
         if (!isOnline) {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
           await saveOrderOffline(finalAmount, paymentType);
           Navigator.pop(context);
           showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Offline Mode'),
@@ -1660,14 +1646,18 @@ class CartDialogueState extends State<CartDialogue> {
               ],
             ),
           );
+          if (orderItems.isEmpty && preorderItems.isEmpty) {
+            clearEntireCartForCustomer();
+          }
           return;
         }
         log('[processSaveAndSend] Preparing data for API call...');
+        // Use only itemList for the API payload
         List<Detail> detail = itemList.map((e) => e.detail).toList();
         log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
         final productBYData = AddToCartModel(
           customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           cartId: '',
           cartList: await Future.wait(detail.map((e) async {
             String packValue =
@@ -1688,6 +1678,7 @@ class CartDialogueState extends State<CartDialogue> {
         CartOrderModel? cartOrder =
             await ApiWorker().addToCart(productBYData.toJson());
         log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
+
         if (cartOrder != null) {
           log('[processSaveAndSend] Preparing order placement...');
           final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -1701,7 +1692,7 @@ class CartDialogueState extends State<CartDialogue> {
 
           CartOrderModel order = CartOrderModel(
             customerId: customerId,
-            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+            salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
             cartId: cartOrder.cartId,
             orderStatus: orderStatus,
             orderPrice: finalAmount,
@@ -1718,8 +1709,8 @@ class CartDialogueState extends State<CartDialogue> {
             if (statusCode == 200) {
               _clearCartItem(itemList, customerId);
               showDialog(
-                context: context,
                 barrierDismissible: false,
+                context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Center(
@@ -1767,8 +1758,8 @@ class CartDialogueState extends State<CartDialogue> {
               );
             } else {
               showDialog(
-                context: context,
                 barrierDismissible: false,
+                context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Center(
@@ -1825,6 +1816,21 @@ class CartDialogueState extends State<CartDialogue> {
         );
       }
     }
+  }
+
+  Future<void> clearEntireCartForCustomer() async {
+    log('[clearEntireCartForCustomer]');
+    String customerId = customeController.customerId.isNotEmpty
+        ? customeController.customerId.value
+        : widget.productsController.selectedCustomerId.value;
+    await CartDatabaseManager().clearAllItemsForCustomer(customerId);
+    setState(() {
+      cartItems.clear();
+      orderItems.clear();
+      preorderItems.clear();
+    });
+    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    cartProvider.getCartItemCounts(customerId);
   }
 
   void showSuccessDialog(BuildContext context, String message) {
@@ -2251,7 +2257,15 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   void _clearCartItem(List<CartItem> cartItem, String customerId) async {
-    await CartDatabaseManager().clearCart(customerId: customerId);
+    for (final item in cartItem) {
+      CartDatabaseManager().deleteCartItem(item);
+    }
+    setState(() {
+      cartItems.removeWhere((item) => cartItem.contains(item));
+      orderItems = cartItems.where((item) => item.detail.stock! > 0).toList();
+      preorderItems =
+          cartItems.where((item) => item.detail.stock == 0).toList();
+    });
     log('Cart Item Cleared : $cartItem');
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);

@@ -22,6 +22,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.d
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -2535,21 +2536,29 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 height: 50,
                                                 width: 50,
                                                 color: Colors.grey[200],
-                                                child: Image.network(
-                                                  '${ApiConstants.baseUrl}uploads/${customer.imageUrl}',
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                      color: Colors.grey[200],
-                                                      child: const Icon(
-                                                        Icons.person,
-                                                        color: Colors.grey,
-                                                        size: 30,
-                                                      ),
-                                                    );
-                                                  },
+                                                child:   CachedNetworkImage(
+                                                imageUrl:
+                                                    '${ApiConstants.imageBaseUrl}/${customer.imageUrl}',
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    const Padding(
+                                                  padding: EdgeInsets.all(15.0),
+                                                  child: CircleAvatar(
+                                                      radius: 10,
+                                                      child:
+                                                          CircularProgressIndicator()),
                                                 ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Container(
+                                                  color: Colors.grey[200],
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    color: Colors.grey,
+                                                    size: 30,
+                                                  ),
+                                                ),
+                                              ),
                                               ),
                                             ),
                                             const SizedBox(width: 8),

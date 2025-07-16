@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class CartDatabaseManager {
   static final CartDatabaseManager _instance = CartDatabaseManager._internal();
   factory CartDatabaseManager() => _instance;
@@ -19,12 +20,12 @@ class CartDatabaseManager {
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
   List<CartItem> get cartItems => cartBox.values.toList();
-  
+
   /// Get cart items that don't have a customer ID assigned
   List<CartItem> get orphanedCartItems => cartBox.values
       .where((item) => item.customerId == null || item.customerId!.isEmpty)
       .toList();
-      
+
   List<CartItem> getDraftItemsForCustomer(String customerId) {
     return draftBox.values
         .where((item) => item.customerId == customerId)
@@ -160,6 +161,7 @@ class CartDatabaseManager {
 
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
+      log('Customer Id inside getCartItems: $customerId');
       final customerCartItems = cartBox.values
           .where((item) => item.customerId == customerId)
           .toList();
@@ -180,6 +182,7 @@ class CartDatabaseManager {
       for (var item in combinedItems) {
         log('Combined Item: ${item.toJson()}');
       }
+
       return Future.value(combinedItems);
     } catch (e) {
       log('Error retrieving combined items for customer $customerId: $e');
@@ -552,36 +555,60 @@ class CartDatabaseManager {
     await draftBox.clear();
   }
 
-  /// Handles cart persistence when the app is restarted
-  /// If cart has items and productsController.selectedCustomerId is present, saves as draft
-  /// If no customer ID is present, clears the cart items
-  Future<void> handleCartPersistenceOnRestart(String? selectedCustomerId) async {
+  Future<void> clearAllItemsForCustomer(String customerId) async {
+    try {
+      // Remove all items for the customer from cartBox
+      final keysToRemoveCart = cartBox.keys.where((key) {
+        final item = cartBox.get(key);
+        return item != null && item.customerId == customerId;
+      }).toList();
+      for (var key in keysToRemoveCart) {
+        await cartBox.delete(key);
+      }
+
+      // Remove all items for the customer from draftBox
+      final keysToRemoveDraft = draftBox.keys.where((key) {
+        final item = draftBox.get(key);
+        return item != null && item.customerId == customerId;
+      }).toList();
+      for (var key in keysToRemoveDraft) {
+        await draftBox.delete(key);
+      }
+
+      log('All cart and draft items cleared for customer $customerId');
+    } catch (e) {
+      log('Error clearing all items for customer $customerId: $e');
+    }
+  }
+
+  Future<void> handleCartPersistenceOnRestart(
+      String? selectedCustomerId) async {
     try {
       log('=== Cart Persistence on Restart ===');
       log('Checking cart persistence on app restart...');
-      
+
       // Check if there are any cart items
       final cartItems = this.cartItems;
       final orphanedItems = this.orphanedCartItems;
       log('Total cart items found on restart: ${cartItems.length}');
       log('Orphaned cart items (no customer ID): ${orphanedItems.length}');
-      
+
       if (cartItems.isNotEmpty) {
         log('Cart items details:');
         for (int i = 0; i < cartItems.length; i++) {
           final item = cartItems[i];
           log('  Item $i: ${item.productName} - Customer: ${item.customerId ?? 'null'} - Count: ${item.count}');
         }
-        
+
         if (selectedCustomerId != null && selectedCustomerId.isNotEmpty) {
           log('Customer ID present: $selectedCustomerId. Moving cart items to draft...');
-          
+
           // Move cart items to draft for the selected customer
           await moveCartItemsToDraft(selectedCustomerId);
           log('Cart items successfully moved to draft for customer: $selectedCustomerId');
         } else {
           log('No customer ID present. Clearing cart items...');
-          
+
           // Clear all cart items if no customer ID is present
           await clearCompleteCart();
           log('Cart items cleared due to no customer ID');

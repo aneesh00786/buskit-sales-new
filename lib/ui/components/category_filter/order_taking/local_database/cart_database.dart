@@ -27,8 +27,9 @@ class CartDatabaseManager {
       .toList();
 
   List<CartItem> getDraftItemsForCustomer(String customerId) {
+    final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
     return draftBox.values
-        .where((item) => item.customerId == customerId)
+        .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
         .toList();
   }
 
@@ -64,7 +65,10 @@ class CartDatabaseManager {
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
+            final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {
+              // Only process drafts for the current salesman
+              if (order['salesman_id'] != currentSalesmanId) continue;
               final List<dynamic> carts = order['cart'] ?? [];
               for (var cart in carts) {
                 final double discountPercentage =
@@ -119,7 +123,9 @@ class CartDatabaseManager {
                     cartId: cart['cart_id'] as String? ?? '',
                     draftId: order['order_id'] as String? ?? '',
                     isPack: (cart['packtype'] as String? ?? '') == "Pack",
-                    catId: cart['catId'] as int? ?? 0);
+                    catId: cart['catId'] as int? ?? 0,
+                    salesmanId: order['salesman_id'] as String? ?? '',
+                );
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
                     'cartId', cart['cart_id'] as String? ?? '');
@@ -140,7 +146,9 @@ class CartDatabaseManager {
       } else {
         log('No internet connection. Skipping API fetch.');
       }
-      return fetchedItems;
+      // Only return drafts for the current salesman
+      final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
+      return fetchedItems.where((item) => item.salesmanId == currentSalesmanId).toList();
     } on DioException catch (e) {
       log('Error fetching draft items: $e');
       // handleExceptionMessage(
@@ -162,11 +170,12 @@ class CartDatabaseManager {
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
       log('Customer Id inside getCartItems: $customerId');
+      final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
       final customerCartItems = cartBox.values
-          .where((item) => item.customerId == customerId)
+          .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
           .toList();
       final customerDraftItems = draftBox.values
-          .where((item) => item.customerId == customerId)
+          .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
           .toList();
       log('Customer Cart Items:');
       for (var item in customerCartItems) {

@@ -1,15 +1,18 @@
 import 'dart:developer';
+
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import '../../orders/order_controller.dart';
 
 class OfflineOrderBottomWidget extends StatefulWidget {
@@ -245,6 +248,21 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                                       color: Colors.white),
                                 ),
                               ),
+                              const SizedBox(width: 15),
+                              const Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    ' ',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontStyle: FontStyle.normal,
+                                        fontSize: 12,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              // const SizedBox(width: 5),
                               const Expanded(
                                 flex: 2,
                                 child: Center(
@@ -315,6 +333,9 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                                       flex: 4,
                                       child: orderStatus(order),
                                     ),
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                        flex: 2, child: deleteOrder(order)),
                                     Expanded(flex: 2, child: viewOrder(order)),
                                     const SizedBox(width: 5),
                                   ],
@@ -460,8 +481,8 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
   }
 
   Widget orderCreatedByWidget(Map<String, dynamic> order) {
-    final firstName = SessionHelper.loginSavedData?.fullname ?? '';
-    final lastName = SessionHelper.loginSavedData?.lastname ?? '';
+    final firstName = order['first_name'] ?? 'ADMIN';
+    final lastName = order['last_name'] ?? '';
     return Center(
       child: MyRegularText(
         label: '$firstName $lastName',
@@ -549,6 +570,51 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
           );
         },
         icon: const Icon(Icons.visibility, size: 16),
+      ),
+    );
+  }
+
+  Widget deleteOrder(Map<String, dynamic> order) {
+    return Center(
+      child: IconButton(
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Order'),
+              content: const Text(
+                  'Are you sure you want to delete this offline order?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+          if (confirm == true) {
+            final orderId = order['order_id']?.toString();
+            if (orderId != null && orderId.isNotEmpty) {
+              await widget.orderController.deleteOfflineOrder(orderId);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Offline order deleted.')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Order ID not found.')),
+              );
+            }
+          }
+        },
+        icon: const Icon(
+          EneftyIcons.trash_bold,
+          size: 16,
+          color: red,
+        ),
       ),
     );
   }

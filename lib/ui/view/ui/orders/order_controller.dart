@@ -60,7 +60,8 @@ class OrderController extends GetxController {
     }
   }
 
-  Future<List<OrderData>> loadOrderData({required int selectedIndex, bool hasOfflineOrders = false}) async {
+  Future<List<OrderData>> loadOrderData(
+      {required int selectedIndex, bool hasOfflineOrders = false}) async {
     int tabIndex = hasOfflineOrders ? selectedIndex - 1 : selectedIndex;
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -428,5 +429,12 @@ class OrderController extends GetxController {
     isOfflineOrderLoading.value = false;
     offlineOrders.refresh();
     offlineOrderCount.refresh();
+  }
+
+  /// Deletes an offline order by its order_id, refreshes the list and count
+  Future<void> deleteOfflineOrder(String orderId) async {
+    var box = await Hive.openBox('offlineOrders');
+    await box.delete(orderId);
+    await loadOfflineOrders();
   }
 }

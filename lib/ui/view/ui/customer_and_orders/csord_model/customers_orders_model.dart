@@ -34,14 +34,14 @@ class CustomerResponseModelxx {
         statusCode: json['statusCode'] ?? 0,
         status: json['status'] ?? false,
         message: json['message'] ?? '',
-        pagination: Paginationxx.fromJson(
-            json['pagination'] ?? {}),
+        pagination: Paginationxx.fromJson(json['pagination'] ?? {}),
         data: List<CustomerModelxx>.from(
             (json['data'] ?? []).map((x) => CustomerModelxx.fromJson(x))),
         orderTotal: List<OrderTotalxx>.from(
             (json['orderTotal'] ?? []).map((x) => OrderTotalxx.fromJson(x))),
         yearsListOfAll: List<YearsListOfAll>.from(
-            (json['years_list_of_all'] ?? []).map((x) => YearsListOfAll.fromJson(x))),
+            (json['years_list_of_all'] ?? [])
+                .map((x) => YearsListOfAll.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -565,6 +565,7 @@ class Order {
         // 'receivable_amount': receivableAmount,
       };
 }
+
 class Paginationxx {
   Paginationxx({
     required this.nextPage,
@@ -607,7 +608,6 @@ class OrderTotalxx {
   String? cancelled;
   String? previousYearSale;
 
-
   OrderTotalxx({
     this.sales,
     this.delivery,
@@ -629,7 +629,9 @@ class OrderTotalxx {
       preOrder: json['preOrder'] != null ? json['preOrder'] as String? : '',
       draft: json['draft'] != null ? json['draft'] as String? : '',
       cancelled: json['cancelled'] != null ? json['cancelled'] as String? : '',
-      previousYearSale: json['previous_year_sale_price'] != null ? json['previous_year_sale_price'] as String? : '',
+      previousYearSale: json['previous_year_sale_price'] != null
+          ? json['previous_year_sale_price'] as String?
+          : '',
     );
   }
   Map<String, dynamic> toJson() {
@@ -662,7 +664,6 @@ class YearsListOfAll {
       };
 }
 
-
 class ApiResponseModel {
   final int statusCode;
   final bool status;
@@ -678,10 +679,10 @@ class ApiResponseModel {
 
   factory ApiResponseModel.fromJson(Map<String, dynamic> json) {
     return ApiResponseModel(
-      statusCode: json['status_code'],
-      status: json['status'],
-      message: json['message'],
-      data: Data.fromJson(json['data']),
+      statusCode: json['status_code'] ?? 0,
+      status: json['status'] ?? false,
+      message: json['message'] ?? '',
+      data: Data.fromJson(_ensureStringKeyedMap(json['data'] ?? {})),
     );
   }
 
@@ -712,19 +713,20 @@ class Data {
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      categoryPerformance: (json['category_performance'] as List)
-          .map((i) => CategoryPerformancez.fromJson(i))
+      categoryPerformance: (json['category_performance'] as List? ?? [])
+          .map((i) => CategoryPerformancez.fromJson(_ensureStringKeyedMap(i)))
           .toList(),
-      recentOrders: (json['recent_orders'] as List)
-          .map((i) => RecentOrder.fromJson(i))
+      recentOrders: (json['recent_orders'] as List? ?? [])
+          .map((i) => RecentOrder.fromJson(_ensureStringKeyedMap(i)))
           .toList(),
-      frequentProductLists: (json['frequantliy_product_lists'] as List)
-          .map((i) => FrequantliyProductList.fromJson(i))
+      frequentProductLists: (json['frequantliy_product_lists'] as List? ?? [])
+          .map((i) => FrequantliyProductList.fromJson(_ensureStringKeyedMap(i)))
           .toList(),
-      yearList:
-          (json['year_list'] as List).map((i) => YearList.fromJson(i)).toList(),
-      fullCategory: (json['fullCategotry'] as List)
-          .map((i) => FullCategory.fromJson(i))
+      yearList: (json['year_list'] as List? ?? [])
+          .map((i) => YearList.fromJson(_ensureStringKeyedMap(i)))
+          .toList(),
+      fullCategory: (json['fullCategotry'] as List? ?? [])
+          .map((i) => FullCategory.fromJson(_ensureStringKeyedMap(i)))
           .toList(),
     );
   }
@@ -757,7 +759,7 @@ class CategoryPerformancez {
       CategoryPerformancez(
         cid: json["cid"] ?? 0,
         category: json["category"] ?? '',
-        totalPrice: num.tryParse(json["total_price"].toString())??0,
+        totalPrice: num.tryParse(json["total_price"].toString()) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -862,17 +864,18 @@ class FrequantliyProductList {
       cartId: json['cart_id'] ?? "",
       variationId: json['variation_id'] ?? "",
       variationName: json['variation_name'] ?? "",
-      price: double.parse(json['price'] ?? "0"),
-      quantity: int.parse(json['quantity'] ?? "0"),
-      totalPrice: double.parse(json['total_price'] ?? "0"),
+      price: double.tryParse(json['price']?.toString() ?? "0") ?? 0.0,
+      quantity: int.tryParse(json['quantity']?.toString() ?? "0") ?? 0,
+      totalPrice:
+          double.tryParse(json['total_price']?.toString() ?? "0") ?? 0.0,
       productName: json["product_name"] ?? "",
       inNo: json["in_no"] ?? "",
-      createdAt: DateTime.parse(json["created_at"]),
-      quantityList: (json['quantityList'] as List<dynamic>)
-          .map((e) => QuantityList.fromJson(e))
+      createdAt: DateTime.tryParse(json["created_at"] ?? "") ?? DateTime.now(),
+      quantityList: (json['quantityList'] as List? ?? [])
+          .map((e) => QuantityList.fromJson(_ensureStringKeyedMap(e)))
           .toList(),
-      count: (json['count'] as List<dynamic>)
-          .map((e) => Count.fromJson(e))
+      count: (json['count'] as List? ?? [])
+          .map((e) => Count.fromJson(_ensureStringKeyedMap(e)))
           .toList(),
     );
   }
@@ -1253,7 +1256,7 @@ class CustomerTotalSaleResponse {
       statusCode: json['status_code'] ?? 0,
       status: json['status'] ?? false,
       message: json['message'] ?? '',
-      data: Datas.fromJson(json['data'] ?? {}),
+      data: Datas.fromJson(_ensureStringKeyedMap(json['data'] ?? {})),
     );
   }
 }
@@ -1269,11 +1272,13 @@ class Datas {
 
   factory Datas.fromJson(Map<String, dynamic> json) {
     var discountDataList = json['discount_data'] as List? ?? [];
-    List<DiscountData> discountData =
-        discountDataList.map((i) => DiscountData.fromJson(i)).toList();
+    List<DiscountData> discountData = discountDataList
+        .map((i) => DiscountData.fromJson(_ensureStringKeyedMap(i)))
+        .toList();
 
     return Datas(
-      totalSale: TotalSale.fromJson(json['total_sale'] ?? {}),
+      totalSale:
+          TotalSale.fromJson(_ensureStringKeyedMap(json['total_sale'] ?? {})),
       discountData: discountData,
     );
   }
@@ -1290,10 +1295,10 @@ class TotalSale {
 
   factory TotalSale.fromJson(Map<String, dynamic> json) {
     return TotalSale(
-      paymentCompleted:
-          PaymentCompleted.fromJson(json['payment_completed'] ?? {}),
-      paymentRemaining:
-          PaymentRemaining.fromJson(json['payment_remaning'] ?? {}),
+      paymentCompleted: PaymentCompleted.fromJson(
+          _ensureStringKeyedMap(json['payment_completed'] ?? {})),
+      paymentRemaining: PaymentRemaining.fromJson(
+          _ensureStringKeyedMap(json['payment_remaning'] ?? {})),
     );
   }
 }
@@ -1313,13 +1318,15 @@ class PaymentCompleted {
 
   factory PaymentCompleted.fromJson(Map<String, dynamic> json) {
     var orderDetailsList = json['order_details'] as List? ?? [];
-    List<OrderDetail> orderDetails =
-        orderDetailsList.map((i) => OrderDetail.fromJson(i)).toList();
+    List<OrderDetail> orderDetails = orderDetailsList
+        .map((i) => OrderDetail.fromJson(_ensureStringKeyedMap(i)))
+        .toList();
+
     return PaymentCompleted(
       count: json['count'] ?? 0,
       percentage: json['percentage'] ?? 0,
       orderDetails: orderDetails,
-      totalAmount: num.tryParse(json['total_amount'].toString())??0,
+      totalAmount: num.tryParse(json['total_amount'].toString()) ?? 0,
     );
   }
 }
@@ -1340,8 +1347,9 @@ class PaymentRemaining {
   factory PaymentRemaining.fromJson(Map<String, dynamic> json) {
     var orderUncompleteDetailsList =
         json['orderuncomplete_details'] as List? ?? [];
-    List<OrderDetail> orderUncompleteDetails =
-        orderUncompleteDetailsList.map((i) => OrderDetail.fromJson(i)).toList();
+    List<OrderDetail> orderUncompleteDetails = orderUncompleteDetailsList
+        .map((i) => OrderDetail.fromJson(_ensureStringKeyedMap(i)))
+        .toList();
 
     return PaymentRemaining(
       count: json['count'] ?? 0,
@@ -1472,7 +1480,7 @@ class ApiResponsees {
       statusCode: json['status_code'] ?? 0,
       status: json['status'] ?? false,
       message: json['message'] ?? '',
-      data: OrderDataas.fromJson(json['data'] ?? {}),
+      data: OrderDataas.fromJson(_ensureStringKeyedMap(json['data'] ?? {})),
     );
   }
 
@@ -1695,18 +1703,18 @@ class CustomerDashMo {
   int zipcode;
   String address;
   String businessName;
-  String? businessNo; 
-  String? remark; 
-  String? imageUrl; 
-  String? salesmanId; 
-  int? status; 
-  String? createAt; 
-  String? salesmanName; 
-  String? discount; 
-  int? eventType; 
-  String? eventDays; 
-  int? creditPeriod; 
-  int? companyId; 
+  String? businessNo;
+  String? remark;
+  String? imageUrl;
+  String? salesmanId;
+  int? status;
+  String? createAt;
+  String? salesmanName;
+  String? discount;
+  int? eventType;
+  String? eventDays;
+  int? creditPeriod;
+  int? companyId;
   List<Cart>? cart;
   List<Salesman>? salesman;
 
@@ -2060,7 +2068,7 @@ class CustomerRevenueResponse {
         statusCode: json["status_code"],
         status: json["status"],
         message: json["message"],
-        data: CustomerRevenueData.fromJson(json["data"]),
+        data: CustomerRevenueData.fromJson(_ensureStringKeyedMap(json["data"])),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2078,8 +2086,9 @@ class CustomerRevenueData {
     required this.revenue,
   });
 
-  factory CustomerRevenueData.fromJson(Map<String, dynamic> json) => CustomerRevenueData(
-        revenue: Revenue.fromJson(json["revenue"]),
+  factory CustomerRevenueData.fromJson(Map<String, dynamic> json) =>
+      CustomerRevenueData(
+        revenue: Revenue.fromJson(_ensureStringKeyedMap(json["revenue"])),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2097,12 +2106,11 @@ class Revenue {
   });
 
   factory Revenue.fromJson(Map<String, dynamic> json) => Revenue(
-        bookingRevenueData:
-            List<BookingRevenueDatum>.from(
-            json["booking_revenueData"]
-                .map((x) => BookingRevenueDatum.fromJson(x))),
+        bookingRevenueData: List<BookingRevenueDatum>.from(
+            json["booking_revenueData"].map(
+                (x) => BookingRevenueDatum.fromJson(_ensureStringKeyedMap(x)))),
         orderRevenueData: List<OrderRevenueDatum>.from(json["order_revenueData"]
-            .map((x) => OrderRevenueDatum.fromJson(x))),
+            .map((x) => OrderRevenueDatum.fromJson(_ensureStringKeyedMap(x)))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2114,74 +2122,71 @@ class Revenue {
 }
 
 class BookingRevenueDatum {
-  int? id;
-  int? companyId;
-  String? cartId;
-  String? customerId;
-  String? salesmanId;
-  num? total;
-  String? discount;
-  int? status;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  String? orderId;
-  int? paymentStatus;
-  int? paymentType;
-  String? paymentDetail;
-  int? orderStatus;
-  DateTime? orderCreatAt;
-  num? orderTotal;
-  num? receivedAmount;
-  dynamic receivedAmountDate;
-  DateTime? checkDueDate;
-  dynamic checkNumber;
-  dynamic transactionDate;
-  String? transactionDetails;
-  String? rejectionReason;
+  int id;
+  String cartId;
+  String customerId;
+  String salesmanId;
+  num total;
+  String discount;
+  int status;
+  DateTime createdAt;
+  DateTime updatedAt;
+  String orderId;
+  int paymentStatus;
+  int paymentType;
+  String paymentDetail;
+  int orderStatus;
+  DateTime orderCreatAt;
+  num orderTotal;
+  num receivedAmount;
+  DateTime? receivedAmountDate;
+  DateTime checkDueDate;
+  int? checkNumber;
+  DateTime? transactionDate;
+  String transactionDetails;
+  String rejectionReason;
   dynamic rejectedDate;
   dynamic receivableAmount;
   dynamic deliveryDatetime;
-  int? notificationStatus;
+  int notificationStatus;
   dynamic orderCreatedStored;
-  num? totalBookingRevenue;
+  num totalBookingRevenue;
 
   BookingRevenueDatum({
-    this.id,
-    this.companyId,
-    this.cartId,
-    this.customerId,
-    this.salesmanId,
-    this.total,
-    this.discount,
-    this.status,
-    this.createdAt,
-    this.updatedAt,
-    this.orderId,
-    this.paymentStatus,
-    this.paymentType,
-    this.paymentDetail,
-    this.orderStatus,
-    this.orderCreatAt,
-    this.orderTotal,
-    this.receivedAmount,
+    required this.id,
+    required this.cartId,
+    required this.customerId,
+    required this.salesmanId,
+    required this.total,
+    required this.discount,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.orderId,
+    required this.paymentStatus,
+    required this.paymentType,
+    required this.paymentDetail,
+    required this.orderStatus,
+    required this.orderCreatAt,
+    required this.orderTotal,
+    required this.receivedAmount,
     this.receivedAmountDate,
-    this.checkDueDate,
-    this.checkNumber,
+    required this.checkDueDate,
+    this.checkNumber, // Nullable
     this.transactionDate,
-    this.transactionDetails,
-    this.rejectionReason,
-    this.rejectedDate,
-    this.receivableAmount,
-    this.deliveryDatetime,
-    this.notificationStatus,
-    this.orderCreatedStored,
-    this.totalBookingRevenue,
+    required this.transactionDetails,
+    required this.rejectionReason,
+    required this.rejectedDate,
+    required this.receivableAmount,
+    required this.deliveryDatetime,
+    required this.notificationStatus,
+    required this.orderCreatedStored,
+    required this.totalBookingRevenue,
   });
 
   factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) =>
       BookingRevenueDatum(
         id: json["id"],
-        companyId: json["company_id"],
         cartId: json["cart_id"],
         customerId: json["customer_id"],
         salesmanId: json["salesman_id"],
@@ -2198,10 +2203,14 @@ class BookingRevenueDatum {
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
         orderTotal: json["order_total"],
         receivedAmount: json["received_amount"],
-        receivedAmountDate: json["received_amount_date"],
+        receivedAmountDate: json["received_amount_date"] == null
+            ? null
+            : DateTime.parse(json["received_amount_date"]),
         checkDueDate: DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"],
-        transactionDate: json["transaction_date"],
+        checkNumber: json["check_number"], // Handle null
+        transactionDate: json["transaction_date"] == null
+            ? null
+            : DateTime.parse(json["transaction_date"]),
         transactionDetails: json["transaction_details"],
         rejectionReason: json["rejection_reason"],
         rejectedDate: json["rejected_date"],
@@ -2214,27 +2223,26 @@ class BookingRevenueDatum {
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "company_id": companyId,
         "cart_id": cartId,
         "customer_id": customerId,
         "salesman_id": salesmanId,
         "total": total,
         "discount": discount,
         "status": status,
-        "created_at": createdAt!.toIso8601String(),
-        "updated_at": updatedAt!.toIso8601String(),
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
         "order_id": orderId,
         "payment_status": paymentStatus,
         "payment_type": paymentType,
         "payment_detail": paymentDetail,
         "order_status": orderStatus,
-        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_creat_at": orderCreatAt.toIso8601String(),
         "order_total": orderTotal,
         "received_amount": receivedAmount,
-        "received_amount_date": receivedAmountDate,
-        "check_due_date": checkDueDate!.toIso8601String(),
-        "check_number": checkNumber,
-        "transaction_date": transactionDate,
+        "received_amount_date": receivedAmountDate?.toIso8601String(),
+        "check_due_date": checkDueDate.toIso8601String(),
+        "check_number": checkNumber, // Nullable
+        "transaction_date": transactionDate?.toIso8601String(),
         "transaction_details": transactionDetails,
         "rejection_reason": rejectionReason,
         "rejected_date": rejectedDate,
@@ -2247,34 +2255,43 @@ class BookingRevenueDatum {
 }
 
 class OrderRevenueDatum {
-  num? orderTotal;
-  DateTime? orderCreatAt;
-  String? orderId;
-  int? orderStatus;
-  num? totalOrderRevenue;
+  num orderTotal;
+  DateTime orderCreatAt;
+  String orderId;
+  int orderStatus;
+  num totalOrderRevenue;
 
   OrderRevenueDatum({
-    this.orderTotal,
-    this.orderCreatAt,
-    this.orderId,
-    this.orderStatus,
-    this.totalOrderRevenue,
+    required this.orderTotal,
+    required this.orderCreatAt,
+    required this.orderId,
+    required this.orderStatus,
+    required this.totalOrderRevenue,
   });
 
   factory OrderRevenueDatum.fromJson(Map<String, dynamic> json) =>
       OrderRevenueDatum(
-        orderTotal: json["order_total"],
+        orderTotal: num.tryParse(json["order_total"].toString()) ?? 0,
         orderCreatAt: DateTime.parse(json["order_creat_at"]),
         orderId: json["order_id"],
         orderStatus: json["order_status"],
-        totalOrderRevenue: json["total_order_revenue"],
+        totalOrderRevenue:
+            num.tryParse(json["total_order_revenue"].toString()) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
         "order_total": orderTotal,
-        "order_creat_at": orderCreatAt!.toIso8601String(),
+        "order_creat_at": orderCreatAt.toIso8601String(),
         "order_id": orderId,
         "order_status": orderStatus,
         "total_order_revenue": totalOrderRevenue,
       };
+}
+
+Map<String, dynamic> _ensureStringKeyedMap(dynamic data) {
+  if (data is Map<String, dynamic>) return data;
+  if (data is Map) {
+    return data.map((key, value) => MapEntry(key.toString(), value));
+  }
+  throw Exception('Expected Map but got ${data.runtimeType}');
 }

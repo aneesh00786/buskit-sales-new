@@ -653,7 +653,7 @@ class LoginController extends GetxController {
 
     try {
       log('loadAllInitialData: Starting to load all initial data...');
-      
+
       await Future.wait([
         subscriptionController.loadSubscriptionFeatures(companyId),
         Provider.of<DashboardProvider>(context, listen: false).fetchData(),
@@ -764,11 +764,10 @@ class LoginController extends GetxController {
           'fetchSchedule',
         ),
       ]);
-      
+
       // Check cache status after loading all data
       log('loadAllInitialData: Checking cache status after data loading...');
       await productsController.checkCacheStatus();
-      
     } catch (e, stack) {
       log('Error in Future.wait during login: $e\n$stack');
       // Optionally: Show a user-friendly error message here

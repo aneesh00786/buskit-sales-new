@@ -78,6 +78,200 @@ class ProductsController extends GetxController {
     preorderItems.clear();
   }
 
+  // Future<void> handleBackNavigation({
+  //   required BuildContext context,
+  //   required bool isDirectDialogue,
+  //   required String customerId,
+  //   required HomeController homeController,
+  // }) async {
+  //   final toDash = isDirectDialogue;
+
+  //   log('🚗 handleBackNavigation START');
+  //   log('→ Cart Items Count: ${CartDatabaseManager().cartItems.length}');
+  //   log('→ Customer ID: $customerId');
+  //   log('→ Navigation Target: ${toDash ? 'Dashboard' : 'Pop Back'}');
+
+  //   if (CartDatabaseManager().cartItems.isNotEmpty && customerId.isNotEmpty) {
+  //     log('🛒 Cart detected, initiating processing...');
+  //     Get.dialog(const Center(child: CircularProgressIndicator()));
+
+  //     final wasOnline = await processCartBeforeNavigation(
+  //       context: context,
+  //       customerId: customerId,
+  //     );
+
+  //     // if (Navigator.canPop(context)) Navigator.pop(context);
+
+  //     if (toDash) {
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //       log('✅ Going back to Customer Dashboard after processing');
+
+  //       if (wasOnline) {
+  //         log('✅ Draft saved online');
+  //         showSuccessFullDialog(
+  //           context: context,
+  //           imagePath: 'assets/images/Animation - 1726906882515.json',
+  //           message: 'Your order has been successfully saved as Draft',
+  //         );
+  //       } else {
+  //         log('📴 Offline mode triggered - draft saved offline');
+  //         offlineDialog(context);
+  //       }
+
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //       log('🔙 Popping back to Customer Dashboard');
+  //       Navigator.pop(
+  //           context); // Just go back one screen instead of jumping to dashboard
+  //     } else {
+  //       if (!wasOnline) {
+  //         log('📴 Offline mode - returning without dashboard');
+  //         offlineMode1(context);
+  //       }
+  //       log('🔙 Just popping back (not dashboard)');
+  //       Navigator.pop(context);
+  //     }
+  //   } else if (toDash) {
+  //     log('🧹 No cart items but going back to Customer Dashboard');
+  //     log('→ Clearing cart for customerId: $customerId');
+  //     CartDatabaseManager().cartItems.clear();
+  //     CartDatabaseManager().clearCart(customerId: customerId);
+  //     Navigator.pop(context); // Same here — pop back
+  //   } else {
+  //     log('🔙 No cart items, just popping back');
+  //     CartDatabaseManager().cartItems.clear();
+  //     log('🧹 Cleared in-memory cart');
+  //     Navigator.pop(context);
+  //   }
+
+  //   log('🚗 handleBackNavigation END');
+  // }
+
+  // Future<bool> processCartBeforeNavigation({
+  //   required BuildContext context,
+  //   required String customerId,
+  // }) async {
+  //   log('🛠️ processCartBeforeNavigation START for customerId: $customerId');
+
+  //   final connectivityService = ConnectivityService();
+  //   final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //   log('→ Salesman ID: $currentSalesmanId');
+
+  //   final draftItems = CartDatabaseManager()
+  //       .draftBox
+  //       .values
+  //       .where((e) => e.customerId == customerId)
+  //       .toList();
+  //   final cartItems = CartDatabaseManager()
+  //       .cartItems
+  //       .where((e) =>
+  //           e.customerId == customerId && e.salesmanId == currentSalesmanId)
+  //       .toList();
+
+  //   final allItems = [...cartItems, ...draftItems];
+  //   log('🧾 Total items to process: ${allItems.length}');
+
+  //   final Map<String, Detail> dedupedDetails = {};
+  //   for (final item in allItems) {
+  //     final key = item.detail.variationId ?? '';
+  //     if (dedupedDetails.containsKey(key)) {
+  //       dedupedDetails[key]!.count += item.detail.count;
+  //     } else {
+  //       dedupedDetails[key] = item.detail;
+  //     }
+  //   }
+
+  //   final detail = dedupedDetails.values.toList();
+  //   log('✅ Deduplicated item count: ${detail.length}');
+
+  //   final isOnline = await connectivityService.isOnline();
+  //   log('🌐 Connectivity: ${isOnline ? "Online" : "Offline"}');
+
+  //   if (!isOnline) {
+  //     log('💾 Saving as offline draft...');
+  //     await CartDatabaseManager().saveDraftOffline(
+  //       customerId: customerId,
+  //       salesmanId: currentSalesmanId,
+  //       totalAmount: finalAmount.value,
+  //       details: detail,
+  //     );
+  //     CartDatabaseManager().cartItems.clear();
+  //     CartDatabaseManager().clearCart(customerId: customerId);
+  //     log('🧹 Cleared cart after offline save');
+  //     return false;
+  //   }
+
+  //   log('📡 Fetching existing cart/draft IDs from API...');
+  //   final cartDetails =
+  //       await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+  //   await Future.delayed(const Duration(seconds: 1));
+
+  //   final firstOrder = cartDetails.isNotEmpty
+  //       ? cartDetails.last
+  //       : {'cart_id': '', 'draft_id': ''};
+
+  //   final existingCartId = firstOrder['cart_id'] ?? '';
+  //   final existingDraftId = firstOrder['draft_id'] ?? '';
+
+  //   log('→ Existing cart ID: $existingCartId');
+  //   log('→ Existing draft ID: $existingDraftId');
+
+  //   final productBYData = AddToCartModel(
+  //     customerId: customerId,
+  //     salesmanId: currentSalesmanId,
+  //     cartId: existingCartId,
+  //     cartList: detail
+  //         .map((e) => SendCartData(
+  //               productId: e.productId ?? '',
+  //               variantId: e.variationId ?? '',
+  //               pack: e.saleBy == 'Pack'
+  //                   ? e.pieces.toString()
+  //                   : e.count.toString(),
+  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //               price: e.sellPrice.toString(),
+  //               discount: e.discount ?? 0,
+  //               quantity: e.count.toInt(),
+  //               variantName: e.variationName ?? '',
+  //             ))
+  //         .toList(),
+  //     total: finalAmount.value.toStringAsFixed(0),
+  //   );
+
+  //   log('📤 Sending addToDraft API...');
+  //   final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+
+  //   if (cartOrder != null) {
+  //     log('✅ addToDraft succeeded. Sending placeOrder...');
+  //     final order = CartOrderModel(
+  //       customerId: customerId,
+  //       salesmanId: currentSalesmanId,
+  //       cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //       orderStatus: 4,
+  //       draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+  //       selctedItemCount: 1,
+  //     );
+
+  //     await ApiWorker().placeOrder(order, (statusCode, message, response) {
+  //       log('→ placeOrder statusCode: $statusCode');
+  //       if (statusCode == 200) {
+  //         log('✅ Order placed successfully');
+  //         showSuccessFullDialogCtrl(context: context);
+  //       } else {
+  //         log('❌ Failed to place order: $message');
+  //         showFaledDialogCtrl(context: context, customerId: customerId);
+  //       }
+  //     });
+  //   } else {
+  //     log('❌ addToDraft failed or returned null');
+  //   }
+
+  //   CartDatabaseManager().cartItems.clear();
+  //   CartDatabaseManager().clearCart(customerId: customerId);
+  //   log('🧹 Cleared cart after online draft handling');
+
+  //   log('🛠️ processCartBeforeNavigation END');
+  //   return true;
+  // }
+
   Future<void> handleBackNavigation({
     required BuildContext context,
     required bool isDirectDialogue,
@@ -309,6 +503,8 @@ class ProductsController extends GetxController {
       clearCartItemsInController();
     }
   }
+
+
 
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {

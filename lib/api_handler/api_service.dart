@@ -35,55 +35,55 @@ class ApiService {
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
-  Future<CustomerRevenueResponse> fetchCustomerRevenueData(
-    String customerId,
-    int specifiedYear,
-    String startDate,
-    String endDate,
-  ) async {
-    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final customerRevenueBox = Hive.box('customerRevenueBox');
-    final requestBody = {
-      "companyId": companyId,
-      "customer_id": customerId,
-      "end_date": endDate,
-      "start_date": startDate,
-      "year": specifiedYear,
-    };
-    try {
-      final bool isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        final cachedData = customerRevenueBox.get(customerId);
-        return localStorage.storedCustomerRevenueData(cachedData, customerId);
-      }
-      final response = await responsePostMethod(
-        requestData: requestBody,
-        endPoint: ApiConstants.customerRevenue,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        await customerRevenueBox.put(
-          customerId,
-          Map<String, dynamic>.from(responseData),
-        );
-        log("Data fetched and stored for customerId: $customerId");
-        return CustomerRevenueResponse.fromJson(responseData);
-      } else {
-        throw Exception(
-          'Failed to load customer revenue data - Status: ${response.statusCode}',
-        );
-      }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          apiName: "customer revenue", error: error, response: error.response);
-      log("Error occurred while fetching revenue data: $error");
-      final cachedData = customerRevenueBox.get(customerId);
-      return localStorage.storedCustomerRevenueData(cachedData, customerId);
-    }
-  }
+  // Future<CustomerRevenueResponse> fetchCustomerRevenueData(
+  //   String customerId,
+  //   int specifiedYear,
+  //   String startDate,
+  //   String endDate,
+  // ) async {
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final customerRevenueBox = Hive.box('customerRevenueBox');
+  //   final requestBody = {
+  //     "companyId": companyId,
+  //     "customer_id": customerId,
+  //     "end_date": endDate,
+  //     "start_date": startDate,
+  //     "year": specifiedYear,
+  //   };
+  //   try {
+  //     final bool isOnline = await ConnectivityService().isOnline();
+  //     if (!isOnline) {
+  //       final cachedData = customerRevenueBox.get(customerId);
+  //       return localStorage.storedCustomerRevenueData(cachedData, customerId);
+  //     }
+  //     final response = await responsePostMethod(
+  //       requestData: requestBody,
+  //       endPoint: ApiConstants.customerRevenue,
+  //       options: Options(
+  //         headers: {'Content-Type': 'application/json'},
+  //       ),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       final responseData = response.data;
+  //       await customerRevenueBox.put(
+  //         customerId,
+  //         Map<String, dynamic>.from(responseData),
+  //       );
+  //       log("Data fetched and stored for customerId: $customerId");
+  //       return CustomerRevenueResponse.fromJson(responseData);
+  //     } else {
+  //       throw Exception(
+  //         'Failed to load customer revenue data - Status: ${response.statusCode}',
+  //       );
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         apiName: "customer revenue", error: error, response: error.response);
+  //     log("Error occurred while fetching revenue data: $error");
+  //     final cachedData = customerRevenueBox.get(customerId);
+  //     return localStorage.storedCustomerRevenueData(cachedData, customerId);
+  //   }
+  // }
 
   Future<ResponseModell> fetchDashboardData({
     String? fetchType,
@@ -1063,36 +1063,72 @@ class ApiService {
     }
   }
 
-  Future<ApiResponseModel> fetchCustomerDashboardDataa(
-    String customerId,
-    int specifiedYear,
-    String startDate,
-    String endDate,
-  ) async {
-    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    final int companyId = jsonMap['company_id'];
-    final customerDashboardBox = Hive.box('customerdashboardBox');
+  Future<Box> getHiveBoxSafely(String boxName) async {
+    if (!Hive.isBoxOpen(boxName)) {
+      return await Hive.openBox(boxName);
+    }
+    return Hive.box(boxName);
+  }
+
+  Map<String, dynamic> ensureStringKeyedMap(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      // Recursively process all values
+      return data.map((key, value) => MapEntry(key, _convertValue(value)));
+    }
+    if (data is Map) {
+      final result = <String, dynamic>{};
+      data.forEach((key, value) {
+        final newKey = key is String ? key : key.toString();
+        result[newKey] = _convertValue(value);
+      });
+      return result;
+    }
+    if (data is String) {
+      final decoded = jsonDecode(data);
+      if (decoded is Map) {
+        return ensureStringKeyedMap(decoded);
+      }
+      throw Exception('Decoded string is not a Map: ${data.runtimeType}');
+    }
+    throw Exception('Unsupported cached data format:  [${data.runtimeType}]');
+  }
+
+  // Helper for recursive value conversion
+  // Handles nested maps and lists
+  // (kept private to this file)
+  dynamic _convertValue(dynamic value) {
+    if (value is Map) {
+      return ensureStringKeyedMap(value);
+    } else if (value is List) {
+      return value.map(_convertValue).toList();
+    } else {
+      return value;
+    }
+  }
+
+  Future<ApiResponseModel> fetchCustomerDashboardDataa(String customerId,
+      int specifiedYear, String startDate, String endDate) async {
+    final customerDashboardBox = await getHiveBoxSafely('customerdashboardBox');
     final requestBody = {
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": customerId,
       "end_date": endDate,
       "specifiedYear": specifiedYear,
       "start_date": startDate,
     };
+
+    log("customer dash request : $requestBody");
     try {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         final cachedData = customerDashboardBox.get(customerId);
         if (cachedData != null) {
+          log("Full cachedData for customerId $customerId: ${jsonEncode(ensureStringKeyedMap(cachedData))}");
           log("Returning cached dashboard data for customerId: $customerId");
-          if (cachedData is Map<String, dynamic>) {
-            return localStorage.customerdashboardResponse(cachedData);
-          } else {
-            throw Exception(
-                '1 Invalid cached data format for customerId: $customerId');
-          }
+          final safeMap = ensureStringKeyedMap(cachedData);
+          return ApiResponseModel.fromJson(safeMap);
         } else {
+          log("No cachedData found for customerId $customerId");
           throw Exception(
               'No cached data available for customerId: $customerId');
         }
@@ -1110,7 +1146,7 @@ class ApiService {
           Map<String, dynamic>.from(jsonResponse),
         );
         log("Data fetched and stored for customerId: $customerId");
-        return localStorage.customerdashboardResponse(jsonResponse);
+        return ApiResponseModel.fromJson(ensureStringKeyedMap(jsonResponse));
       } else {
         handleExceptionMessage(
           response: response,
@@ -1127,14 +1163,12 @@ class ApiService {
           error: error);
       final cachedData = customerDashboardBox.get(customerId);
       if (cachedData != null) {
+        log("Full cachedData for customerId $customerId (after error): ${jsonEncode(ensureStringKeyedMap(cachedData))}");
         log("Returning cached dashboard data after error for customerId: $customerId");
-        if (cachedData is Map<String, dynamic>) {
-          return localStorage.customerdashboardResponse(cachedData);
-        } else {
-          throw Exception(
-              '2 Invalid cached data format for customerId: $customerId');
-        }
+        final safeMap = ensureStringKeyedMap(cachedData);
+        return ApiResponseModel.fromJson(safeMap);
       } else {
+        log("No cachedData found for customerId $customerId (after error)");
         throw Exception('No cached data available for customerId: $customerId');
       }
     }
@@ -1142,26 +1176,24 @@ class ApiService {
 
   Future<CustomerTotalSaleResponse> fetchCustomerTotalSale(
       String customerId, int year) async {
-    final customerTotalSaleBox = Hive.box('customerTotalSaleBox');
+    final customerTotalSaleBox = await getHiveBoxSafely('customerTotalSaleBox');
     final requestBody = {
       "customer_id": customerId,
       "year": year,
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    log('Request Body for fetchCustomerTotalSale: $requestBody');
+    log("customer dash request total sale : $requestBody");
     try {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        final cacheKey = '${customerId}_$year';
+        final cacheKey =
+            '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$year';
         final cachedData = customerTotalSaleBox.get(cacheKey);
         if (cachedData != null) {
           log("Returning cached total sale data for customerId: $customerId, year: $year");
-          if (cachedData is Map<String, dynamic>) {
-            return CustomerTotalSaleResponse.fromJson(cachedData);
-          } else {
-            throw Exception(
-                '3 Invalid cached data format for customerId: $customerId, year: $year');
-          }
+          final safeMap = ensureStringKeyedMap(cachedData);
+          log("Using cached total sale data for customerId: $customerId, year: $year");
+          return CustomerTotalSaleResponse.fromJson(safeMap);
         } else {
           throw Exception(
               'No cached data available for customerId: $customerId, year: $year');
@@ -1169,7 +1201,7 @@ class ApiService {
       }
       final response = await responsePostMethod(
         requestData: requestBody,
-        endPoint: ApiConstants.customeTotalSale,
+        endPoint: ApiConstants.customerTotalSale,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
@@ -1188,7 +1220,8 @@ class ApiService {
               .map((json) => DiscountData.fromJson(json))
               .toList();
         }
-        final cacheKey = '${customerId}_$year';
+        final cacheKey =
+            '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$year';
         await customerTotalSaleBox.put(
           cacheKey,
           Map<String, dynamic>.from(jsonResponse),
@@ -1217,19 +1250,77 @@ class ApiService {
           response: error.response,
           apiName: "customer total sale",
           error: error);
-      final cacheKey = '${customerId}_$year';
+      final cacheKey =
+          '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$year';
       final cachedData = customerTotalSaleBox.get(cacheKey);
       if (cachedData != null) {
         log("Returning cached total sale data after error for customerId: $customerId, year: $year");
-        if (cachedData is Map<String, dynamic>) {
-          return CustomerTotalSaleResponse.fromJson(cachedData);
-        } else {
-          throw Exception(
-              '4 Invalid cached data format for customerId: $customerId, year: $year');
-        }
+        final safeMap = ensureStringKeyedMap(cachedData);
+        log("Using cached total sale data after error for customerId: $customerId, year: $year");
+        return CustomerTotalSaleResponse.fromJson(safeMap);
       } else {
         throw Exception(
             'No cached data available for customerId: $customerId, year: $year');
+      }
+    }
+  }
+
+  Future<CustomerRevenueResponse> fetchCustomerRevenueData(String customerId,
+      int specifiedYear, String startDate, String endDate) async {
+    final customerRevenueBox = await getHiveBoxSafely('customerRevenueBox');
+    final requestBody = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "customer_id": customerId,
+      "end_date": endDate,
+      "start_date": startDate,
+      "year": specifiedYear,
+    };
+
+    log("customer dash request revenue : $requestBody");
+    try {
+      final bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        final cachedData = customerRevenueBox.get(customerId);
+        if (cachedData != null) {
+          final safeMap = ensureStringKeyedMap(cachedData);
+          log("Using cached revenue data for customerId: $customerId");
+          return LocalStorage().storedCustomerRevenueData(safeMap, customerId);
+        } else {
+          throw Exception(
+              'No cached data available for customerId: $customerId');
+        }
+      }
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.customerRevenue,
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        await customerRevenueBox.put(
+          customerId,
+          Map<String, dynamic>.from(responseData),
+        );
+        log("Data fetched and stored for customerId: $customerId");
+        return CustomerRevenueResponse.fromJson(responseData);
+      } else {
+        throw Exception(
+          'Failed to load customer revenue data - Status: ${response.statusCode}',
+        );
+      }
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          apiName: "customer revenue", error: error, response: error.response);
+      log("Error occurred while fetching revenue data: $error");
+      final cachedData = customerRevenueBox.get(customerId);
+      if (cachedData != null) {
+        final safeMap = ensureStringKeyedMap(cachedData);
+        log("Using cached revenue data after error for customerId: $customerId");
+        return LocalStorage().storedCustomerRevenueData(safeMap, customerId);
+      } else {
+        throw Exception('No cached data available for customerId: $customerId');
       }
     }
   }
@@ -1239,83 +1330,64 @@ class ApiService {
     String startDate,
     String endDate,
   ) async {
-    final orderCountBox = Hive.box('orderCountBox');
+    final orderCountBox = await getHiveBoxSafely('orderCountBox');
+    final cacheKey =
+        '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$startDate$endDate';
+
     final requestBody = {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId,
       "customer_id": customerId,
       "start_date": startDate,
       "end_date": endDate,
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    log("Count Request Body : $requestBody");
+
+    log("Count Request Body: $requestBody");
+
     try {
       final bool isOnline = await ConnectivityService().isOnline();
+
       if (!isOnline) {
-        final cacheKey = '${customerId}_$startDate$endDate';
         final cachedData = orderCountBox.get(cacheKey);
         if (cachedData != null) {
-          log("Returning cached order count data for customerId: $customerId, startDate: $startDate, endDate: $endDate");
-          if (cachedData is Map<String, dynamic>) {
-            OrderDataas orderData = OrderDataas.fromJson(cachedData['data']);
-            return ApiResponsees(
-              statusCode: cachedData['status_code'] ?? 0,
-              status: cachedData['status'] ?? false,
-              message: cachedData['message'] ?? '',
-              data: orderData,
-            );
-          } else {
-            throw Exception('Invalid cached data format for order count.');
-          }
+          final safeMap = ensureStringKeyedMap(cachedData);
+          log("📦 Using cached order count data (offline)");
+          log("safeMap type: ${safeMap.runtimeType}");
+          log("safeMap['data'] type: ${safeMap['data'].runtimeType}");
+          return ApiResponsees.fromJson(safeMap);
         } else {
           throw Exception('No cached data available for order count.');
         }
       }
+
       final response = await responsePostMethod(
-        requestData: requestBody,
         endPoint: ApiConstants.fetchOrderCount,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+        requestData: requestBody,
       );
-      log('Count Response : ${response.data}');
+
+      log('📨 Order Count Response: ${response.data}');
 
       if (response.statusCode == 200) {
-        var jsonResponse = response.data;
-        OrderDataas orderData = OrderDataas.fromJson(jsonResponse['data']);
-        final cacheKey = '${customerId}_$startDate$endDate';
+        final jsonResponse = response.data;
+
+        // Cache data
         await orderCountBox.put(
-          cacheKey,
-          Map<String, dynamic>.from(jsonResponse),
-        );
-        log("Data stored in Hive for order count with customerId: $customerId, startDate: $startDate, endDate: $endDate");
-        return ApiResponsees(
-          statusCode: jsonResponse['status_code'] ?? 0,
-          status: jsonResponse['status'] ?? false,
-          message: jsonResponse['message'] ?? '',
-          data: orderData,
-        );
+            cacheKey, Map<String, dynamic>.from(jsonResponse));
+        log("✅ Cached order count data for $cacheKey");
+
+        return ApiResponsees.fromJson(ensureStringKeyedMap(jsonResponse));
       } else {
         throw Exception('Failed to fetch order count - ${response.statusCode}');
       }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          apiName: "fetch order count", error: error, response: error.response);
-      log('Exception: $error');
-      final cacheKey = '${customerId}_$startDate$endDate';
+    } catch (e) {
+      log('🔥 Exception: $e');
       final cachedData = orderCountBox.get(cacheKey);
       if (cachedData != null) {
-        log("Returning cached order count data after error for customerId: $customerId, startDate: $startDate, endDate: $endDate");
-        if (cachedData is Map<String, dynamic>) {
-          OrderDataas orderData = OrderDataas.fromJson(cachedData['data']);
-          return ApiResponsees(
-            statusCode: cachedData['status_code'] ?? 0,
-            status: cachedData['status'] ?? false,
-            message: cachedData['message'] ?? '',
-            data: orderData,
-          );
-        } else {
-          throw Exception('Invalid cached data format for order count.');
-        }
+        final safeMap = ensureStringKeyedMap(cachedData);
+        log("📦 Using cached order count data after error");
+        log("safeMap type: ${safeMap.runtimeType}");
+        log("safeMap['data'] type: ${safeMap['data'].runtimeType}");
+        return ApiResponsees.fromJson(safeMap);
       } else {
         throw Exception('No cached data available for order count.');
       }

@@ -91,7 +91,7 @@ class CartDialogueState extends State<CartDialogue> {
   final List<String> _options = [
     'Sale Order',
     "Quick Sale",
-    'Pre Order',
+    'Booking',
     'Estimate'
   ];
   List<String> filteredOptions = [];
@@ -181,7 +181,7 @@ class CartDialogueState extends State<CartDialogue> {
     setState(() {
       filteredOptions = isOrder
           ? ['Sale Order', 'Quick Sale', 'Estimate']
-          : ['Pre Order', 'Estimate'];
+          : ['Booking', 'Estimate'];
     });
   }
 
@@ -450,7 +450,7 @@ class CartDialogueState extends State<CartDialogue> {
                                         },
                                         child: Center(
                                           child: CustomText(
-                                            content: 'PRE-ORDERS',
+                                            content: 'BOOKINGS',
                                             fontWeight: FontWeight.w700,
                                             color:
                                                 isOrder ? primaryColor : white,
@@ -1611,7 +1611,7 @@ class CartDialogueState extends State<CartDialogue> {
         _selectedValue == 'Quick Sale' ||
         _selectedValue == 'Estimate') {
       itemList = [...widget.productsController.orderItems.where((item) => item.isChecked == true)];
-    } else if (_selectedValue == 'Pre Order') {
+    } else if (_selectedValue == 'Booking') {
       itemList = [...widget.productsController.preorderItems.where((item) => item.isChecked == true)];
     } else {
       itemList = [];
@@ -1699,7 +1699,7 @@ class CartDialogueState extends State<CartDialogue> {
           final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
           int orderStatus = _selectedValue == 'Sale Order'
               ? 11
-              : _selectedValue == 'Pre Order'
+              : _selectedValue == 'Booking'
                   ? 0
                   : _selectedValue == 'Estimate'
                       ? 7

@@ -267,6 +267,148 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   }
 }
 
+// Future<void> handleTabSwitchNavigation(
+//   BuildContext context,
+//   bool toDashBoard,
+//   ProductsController productController,
+//   CustomerAndOrderController customerController,
+//   Function updateTabIndex,
+//   int cartItemCount,
+//   String customerId,
+//   bool hasDraft,
+// ) async {
+//   String customerIdFinal = customerController.customerId.isNotEmpty
+//       ? customerController.customerId.value
+//       : productController.selectedCustomerId.value;
+
+//   log('[TabSwitch] Initiated. Customer ID used: $customerIdFinal');
+//   log('[TabSwitch] Has Draft: $hasDraft | Cart Item Count: $cartItemCount');
+
+//   if (!hasDraft) {
+//     log('[TabSwitch] No draft found. Showing loading dialog.');
+
+//     late BuildContext dialogContext;
+
+//     // Show loading dialog with its own captured context
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (_) {
+//         return Builder(
+//           builder: (ctx) {
+//             dialogContext = ctx;
+//             return const Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           },
+//         );
+//       },
+//     );
+
+//     try {
+//       final wasOnline = await productController.processCartBeforeNavigation(
+//         context: context,
+//         customerId: customerIdFinal,
+//       );
+
+//       // Pop the loading dialog using its own context
+//       Navigator.of(dialogContext).pop();
+//       log('[TabSwitch] Loading dialog dismissed.');
+
+//       log('[TabSwitch] processCartBeforeNavigation completed. Was online: $wasOnline');
+
+//       await Future.delayed(const Duration(milliseconds: 300));
+
+//       if (wasOnline) {
+//         await showDialog(
+//           context: context,
+//           barrierDismissible: false,
+//           builder: (_) => AlertDialog(
+//             title: Center(
+//               child: SizedBox(
+//                 height: 100,
+//                 width: 100,
+//                 child: Lottie.asset(
+//                     'assets/images/Animation - 1726906882515.json'),
+//               ),
+//             ),
+//             content: CustomText(
+//               content: 'Your order has been successfully saved as Draft',
+//             ),
+//             actions: [
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.of(dialogContext).pop();
+//                   Navigator.of(context, rootNavigator: true).pop();
+//                 },
+//                 child: const Text('OK'),
+//               ),
+//             ],
+//           ),
+//         );
+//       } else {
+//         await showDialog(
+//           context: context,
+//           barrierDismissible: false,
+//           builder: (_) => AlertDialog(
+//             title: Center(
+//               child: SizedBox(
+//                 height: 200,
+//                 width: 200,
+//                 child: Lottie.asset('assets/images/Warning_animation.json'),
+//               ),
+//             ),
+//             content: const Text(
+//               "Couldn't save the order online. Saved offline instead.",
+//               style: TextStyle(fontSize: 18),
+//             ),
+//             actions: [
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.of(context, rootNavigator: true).pop();
+//                 },
+//                 child: const Text('OK'),
+//               ),
+//             ],
+//           ),
+//         );
+//       }
+
+//       updateTabIndex();
+//     } catch (e) {
+//       // Dismiss loading dialog if error occurs
+//       Navigator.of(dialogContext).pop();
+//       log('[TabSwitch][Error] Exception occurred: $e');
+
+//       await showDialog(
+//         context: context,
+//         barrierDismissible: false,
+//         builder: (_) => AlertDialog(
+//           title: const Text('Error'),
+//           content: const Text('Something went wrong. Please try again.'),
+//           actions: [
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.of(context, rootNavigator: true).pop();
+//               },
+//               child: const Text('OK'),
+//             ),
+//           ],
+//         ),
+//       );
+
+//       updateTabIndex();
+//     } finally {
+//       log('[TabSwitch] Resetting customer IDs.');
+//       customerController.customerId.value = '';
+//       productController.selectedCustomerId.value = '';
+//     }
+//   } else {
+//     log('[TabSwitch] Draft already exists. Directly updating tab index.');
+//     updateTabIndex();
+//   }
+// }
+
 void handleBackNavigation(
   BuildContext context,
   bool toDashBoard,

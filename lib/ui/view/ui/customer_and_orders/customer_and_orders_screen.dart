@@ -934,7 +934,7 @@ class TopTotalWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 260,
+          width: 300,
           child: _buildTableHeader(
             Padding(
               padding: const EdgeInsets.all(10),
@@ -960,7 +960,7 @@ class TopTotalWidget extends StatelessWidget {
                 ),
               ),
             ),
-            260,
+            300,
           ),
         ),
         Expanded(
@@ -1231,6 +1231,33 @@ class BottomTotalWidget extends StatelessWidget {
   final ScrollController _scrollController;
   final CustomersProvider provider;
 
+  List<dynamic> _buildPagination(int currentPage, int totalPages) {
+    List<dynamic> pages = [];
+    if (totalPages <= 5) {
+      for (int i = 1; i <= totalPages; i++) {
+        pages.add(i);
+      }
+      return pages;
+    }
+    if (currentPage <= 2) {
+      pages.addAll([1, 2, 3, '...$totalPages']);
+    } else if (currentPage == 3) {
+      pages.addAll([1, 2, 3, 4, '...$totalPages']);
+    } else if (currentPage == totalPages - 2) {
+      pages.add('1...');
+      pages
+          .addAll([totalPages - 3, totalPages - 2, totalPages - 1, totalPages]);
+    } else if (currentPage >= totalPages - 1) {
+      pages.add('1...');
+      pages.addAll([totalPages - 2, totalPages - 1, totalPages]);
+    } else {
+      pages.add('1...');
+      pages.addAll(
+          [currentPage - 1, currentPage, currentPage + 1, '...$totalPages']);
+    }
+    return pages;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (provider.orderTotalList.isEmpty || provider.orderTotalList.length < 7) {
@@ -1241,142 +1268,182 @@ class BottomTotalWidget extends StatelessWidget {
         _buildTableCell(
           padding: EdgeInsets.zero,
           Container(
-            width: 200,
+            width: 260,
             color: Colors.grey[200],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Container(
-                    width: 3 * 62.0,
-                    decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(3.0),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.keyboard_double_arrow_left,
-                              size: 20,
-                              color: Colors.white,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      // Remove fixed width
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(3.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4.0, horizontal: 6.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: provider.currentPage > 1
+                                  ? () {
+                                      provider.goToPreviousPage();
+                                    }
+                                  : null,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: const Icon(
+                                  Icons.keyboard_double_arrow_left,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                            onPressed: provider.currentPage > 1
-                                ? () {
-                                    provider.goToPreviousPage();
-                                  }
-                                : null,
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: provider.totalPages > 1
-                                ? List.generate(3, (index) {
-                                    int firstPage;
-
-                                    if (provider.totalPages == 2) {
-                                      firstPage = 1;
-                                    } else if (provider.currentPage == 1) {
-                                      firstPage = 1;
-                                    } else if (provider.currentPage ==
-                                        provider.totalPages) {
-                                      firstPage = provider.totalPages - 2;
-                                    } else {
-                                      firstPage = provider.currentPage - 1;
-                                    }
-
-                                    int visiblePage = firstPage + index;
-                                    if (visiblePage < 1 ||
-                                        visiblePage > provider.totalPages) {
-                                      return Container();
-                                    }
-
+                            Expanded(
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceAround,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 4.0,
+                                runSpacing: 4.0,
+                                children: _buildPagination(provider.currentPage,
+                                        provider.totalPages)
+                                    .map<Widget>((item) {
+                                  if (item is String && item.endsWith('...')) {
+                                    final int page =
+                                        int.parse(item.replaceAll('...', ''));
                                     return GestureDetector(
                                       onTap: () {
-                                        provider.currentPage = visiblePage;
+                                        provider.currentPage = page;
                                         provider.refreshCurrentPage();
                                       },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(2.0),
-                                        child: Container(
-                                          height: 40,
-                                          width: 25,
-                                          decoration: BoxDecoration(
-                                            color: provider.currentPage ==
-                                                    visiblePage
-                                                ? Colors.white
-                                                : Colors.transparent,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '$visiblePage',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: provider.currentPage ==
-                                                        visiblePage
-                                                    ? primaryColor
-                                                    : Colors.white,
-                                              ),
-                                            ),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                     );
-                                  })
-                                : [],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.keyboard_double_arrow_right,
-                              size: 20,
-                              color: Colors.white,
+                                  } else if (item is String &&
+                                      item.startsWith('...')) {
+                                    final int page =
+                                        int.parse(item.replaceAll('...', ''));
+                                    return GestureDetector(
+                                      onTap: () {
+                                        provider.currentPage = page;
+                                        provider.refreshCurrentPage();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else if (item is int) {
+                                    final bool isCurrent =
+                                        item == provider.currentPage;
+                                    return GestureDetector(
+                                      onTap: isCurrent
+                                          ? null
+                                          : () {
+                                              provider.currentPage = item;
+                                              provider.refreshCurrentPage();
+                                            },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: isCurrent
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          '$item',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isCurrent
+                                                ? primaryColor
+                                                : Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                }).toList(),
+                              ),
                             ),
-                            onPressed:
-                                provider.currentPage < provider.totalPages
-                                    ? () {
-                                        provider.goToNextPage();
-                                      }
-                                    : null,
-                          ),
+                            InkWell(
+                              onTap: provider.currentPage < provider.totalPages
+                                  ? () {
+                                      provider.goToNextPage();
+                                    }
+                                  : null,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: const Icon(
+                                  Icons.keyboard_double_arrow_right,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-                const Spacer(),
+                // const Spacer(),
+                const SizedBox(width: 10),
                 Container(
                   color: Colors.grey[200],
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Total',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: "BarlowCondensed",
-                        ),
-                      ),
+                      Text('Total',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
-                const SizedBox(width: 5)
+                const SizedBox(width: 5),
               ],
             ),
           ),
-          260,
+          300,
         ),
         Expanded(
           child: SingleChildScrollView(
@@ -2503,7 +2570,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 260,
+              width: 300,
               child: Column(
                 children: [
                   Expanded(
@@ -2536,29 +2603,30 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 height: 50,
                                                 width: 50,
                                                 color: Colors.grey[200],
-                                                child:   CachedNetworkImage(
-                                                imageUrl:
-                                                    '${ApiConstants.imageBaseUrl}/${customer.imageUrl}',
-                                                fit: BoxFit.cover,
-                                                placeholder: (context, url) =>
-                                                    const Padding(
-                                                  padding: EdgeInsets.all(15.0),
-                                                  child: CircleAvatar(
-                                                      radius: 10,
-                                                      child:
-                                                          CircularProgressIndicator()),
-                                                ),
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        Container(
-                                                  color: Colors.grey[200],
-                                                  child: const Icon(
-                                                    Icons.person,
-                                                    color: Colors.grey,
-                                                    size: 30,
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      '${ApiConstants.imageBaseUrl}/${customer.imageUrl}',
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const Padding(
+                                                    padding:
+                                                        EdgeInsets.all(15.0),
+                                                    child: CircleAvatar(
+                                                        radius: 10,
+                                                        child:
+                                                            CircularProgressIndicator()),
+                                                  ),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Container(
+                                                    color: Colors.grey[200],
+                                                    child: const Icon(
+                                                      Icons.person,
+                                                      color: Colors.grey,
+                                                      size: 30,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
                                               ),
                                             ),
                                             const SizedBox(width: 8),

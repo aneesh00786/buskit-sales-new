@@ -65,7 +65,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 270,
+          width: 300,
           child: Column(
             children: [
               Row(
@@ -92,7 +92,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    210,
+                    240,
                   ),
                 ],
               ),

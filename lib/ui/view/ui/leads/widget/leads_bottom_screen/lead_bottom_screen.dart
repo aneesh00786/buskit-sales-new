@@ -63,7 +63,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 270,
+          width: 300,
           child: Column(
             children: [
               Row(
@@ -90,7 +90,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    210,
+                    240,
                   ),
                 ],
               ),

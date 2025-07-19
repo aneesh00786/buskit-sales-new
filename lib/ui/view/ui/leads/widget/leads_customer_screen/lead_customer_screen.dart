@@ -61,7 +61,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 270,
+          width: 300,
           child: Column(
             children: [
               Row(
@@ -88,7 +88,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    210,
+                    240,
                   ),
                 ],
               ),

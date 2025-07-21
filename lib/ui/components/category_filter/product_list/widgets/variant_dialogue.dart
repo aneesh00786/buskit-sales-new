@@ -844,11 +844,12 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     isChcked: true,
                                     catId: widget.product.catId ?? 0,
                                   );
-                                  log('Product added to cart or draft with ID: ${detail.variationId}');
+                                  log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                                 }
                               }
+
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 final cartProvider =
                                     Provider.of<CustomersProvider>(context,
@@ -860,6 +861,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               });
                             } else {
                               showDialog(
+                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(

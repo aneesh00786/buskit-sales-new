@@ -109,20 +109,29 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     final customerId = productsController.selectedCustomerId.value;
     customerOrderController
         .setCustomerId(customerOrderController.customerId.value);
-    cartProvider.updateCartCount(customerOrderController.customerId.value);
+
+    CartDatabaseManager().getCartItems(customerId);
+    cartProvider.getCartItemCounts(customerId);
+    CartDatabaseManager().addListener(() {
+      cartProvider.updateCartCount(customerId);
+    });
+
+    // cartProvider.updateCartCount(customerOrderController.customerId.value);
     log('CustomerId 2 :${customerOrderController.customerId.value}');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OrderTaking(
-          productsController: productsController,
-          selectedCustId: widget.cusId,
-          selectedCustName: widget.cusName,
-          selectedCustImageUrl: widget.cusImage,
-          //  ?? ProductsController(),
-          isFromCalender: widget.isFromCalendar,
-          isDirectDialogue: widget.isDirectDialogue,
-          isFromOrder: widget.isFromOrder,
+        builder: (context) => ChangeNotifierProvider.value(
+          value: Provider.of<CustomersProvider>(context, listen: false),
+          child: OrderTaking(
+            productsController: productsController,
+            selectedCustId: widget.cusId,
+            selectedCustName: widget.cusName,
+            selectedCustImageUrl: widget.cusImage,
+            isFromCalender: widget.isFromCalendar,
+            isDirectDialogue: widget.isDirectDialogue,
+            isFromOrder: widget.isFromOrder,
+          ),
         ),
       ),
     ).then((value) {

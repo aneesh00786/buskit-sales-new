@@ -195,11 +195,13 @@ class CustomersProvider with ChangeNotifier {
 
   Future<int> getCartItemCounts(String customerId) async {
     try {
+      log("Customer Id inside getCartItemCounts: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();
       log('Cart count calculated for customer $customerId: $cartItemCount');
+      updateCartCount(customerId);
       return cartItemCount;
     } catch (e) {
       log('Error calculating cart item counts for customer $customerId: $e');
@@ -209,6 +211,7 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> updateCartCount(String customerId) async {
     try {
+      log("Customer Id inside updateCartCount: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       cartItemCount = cartItems.length;
       log('The cart item Count $cartItemCount');

@@ -29,7 +29,9 @@ class CartDatabaseManager {
   List<CartItem> getDraftItemsForCustomer(String customerId) {
     final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
     return draftBox.values
-        .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
+        .where((item) =>
+            item.customerId == customerId &&
+            item.salesmanId == currentSalesmanId)
         .toList();
   }
 
@@ -106,25 +108,24 @@ class CartDatabaseManager {
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                 );
                 final cartItem = CartItem(
-                    detail: detail,
-                    productName: cart['product_name'] as String? ?? '',
-                    totalPrice: (discountedSellPrice *
-                            (detail.packtype == 'Pack'
-                                ? (detail.pieces ?? 1) *
-                                    (num.tryParse(
-                                            cart['quantity'].toString()) ??
-                                        0)
-                                : (num.tryParse(cart['quantity'].toString()) ??
-                                    0))) +
-                        (cart['incl_tax'] == "" || cart['incl_tax'] == null
-                            ? totalTax
-                            : 0),
-                    customerId: order['customer_id'] as String? ?? '',
-                    cartId: cart['cart_id'] as String? ?? '',
-                    draftId: order['order_id'] as String? ?? '',
-                    isPack: (cart['packtype'] as String? ?? '') == "Pack",
-                    catId: cart['catId'] as int? ?? 0,
-                    salesmanId: order['salesman_id'] as String? ?? '',
+                  detail: detail,
+                  productName: cart['product_name'] as String? ?? '',
+                  totalPrice: (discountedSellPrice *
+                          (detail.packtype == 'Pack'
+                              ? (detail.pieces ?? 1) *
+                                  (num.tryParse(cart['quantity'].toString()) ??
+                                      0)
+                              : (num.tryParse(cart['quantity'].toString()) ??
+                                  0))) +
+                      (cart['incl_tax'] == "" || cart['incl_tax'] == null
+                          ? totalTax
+                          : 0),
+                  customerId: order['customer_id'] as String? ?? '',
+                  cartId: cart['cart_id'] as String? ?? '',
+                  draftId: order['order_id'] as String? ?? '',
+                  isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                  catId: cart['catId'] as int? ?? 0,
+                  salesmanId: order['salesman_id'] as String? ?? '',
                 );
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
@@ -148,7 +149,9 @@ class CartDatabaseManager {
       }
       // Only return drafts for the current salesman
       final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
-      return fetchedItems.where((item) => item.salesmanId == currentSalesmanId).toList();
+      return fetchedItems
+          .where((item) => item.salesmanId == currentSalesmanId)
+          .toList();
     } on DioException catch (e) {
       log('Error fetching draft items: $e');
       // handleExceptionMessage(
@@ -170,12 +173,11 @@ class CartDatabaseManager {
   Future<List<CartItem>> getCartItems(String customerId) async {
     try {
       log('Customer Id inside getCartItems: $customerId');
-      final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
       final customerCartItems = cartBox.values
-          .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
+          .where((item) => item.customerId == customerId)
           .toList();
       final customerDraftItems = draftBox.values
-          .where((item) => item.customerId == customerId && item.salesmanId == currentSalesmanId)
+          .where((item) => item.customerId == customerId)
           .toList();
       log('Customer Cart Items:');
       for (var item in customerCartItems) {

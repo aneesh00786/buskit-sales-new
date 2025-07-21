@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/custome
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -28,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'product_ui/product_responce/product_responce_temp.dart';
+import 'package:provider/provider.dart';
 
 class ProductsController extends GetxController {
   final ApiWorker _apiWorker = Get.put(ApiWorker());
@@ -309,6 +311,9 @@ class ProductsController extends GetxController {
           totalAmount: finalAmount.value,
           details: detail,
         );
+        // Update cart/draft count before navigating back
+        await Provider.of<CustomersProvider>(context, listen: false)
+            .getCartItemCounts(customerId);
         offlineMode1(context);
         CartDatabaseManager().cartItems.clear();
         CartDatabaseManager().clearCart(customerId: customerId);
@@ -362,6 +367,9 @@ class ProductsController extends GetxController {
         await ApiWorker().placeOrder(order,
             (statusCode, message, response) async {
           CartDatabaseManager().moveCartItemsToDraft(customerId);
+          // Update cart/draft count before navigating back
+          await Provider.of<CustomersProvider>(context, listen: false)
+              .getCartItemCounts(customerId);
           Navigator.pop(context);
           if (statusCode == 200) {
             showSuccessFullDialogCtrl(
@@ -380,6 +388,9 @@ class ProductsController extends GetxController {
       CartDatabaseManager().clearCart(customerId: customerId);
       CartDatabaseManager().clearAllItemsForCustomer(customerId);
       clearCartItemsInController();
+      // Update cart/draft count before navigating back
+      await Provider.of<CustomersProvider>(context, listen: false)
+          .getCartItemCounts(customerId);
     } else if (CartDatabaseManager().cartItems.isNotEmpty &&
         customerId.isNotEmpty &&
         toDash) {
@@ -400,6 +411,9 @@ class ProductsController extends GetxController {
           totalAmount: finalAmount.value,
           details: detail,
         );
+        // Update cart/draft count before navigating back
+        await Provider.of<CustomersProvider>(context, listen: false)
+            .getCartItemCounts(customerId);
         offlineDialog(context);
         Future.delayed(const Duration(milliseconds: 300), () {
           homeController.sidebarXController.selectIndex(0);
@@ -456,6 +470,9 @@ class ProductsController extends GetxController {
             draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
             selctedItemCount: 1);
         await ApiWorker().placeOrder(order, (statusCode, message, response) {
+          // Update cart/draft count before navigating back
+          Provider.of<CustomersProvider>(context, listen: false)
+              .getCartItemCounts(customerId);
           if (statusCode == 200) {
             showSuccessFullDialog(
                 context: context,
@@ -481,6 +498,9 @@ class ProductsController extends GetxController {
       CartDatabaseManager().clearCart(customerId: customerId);
       CartDatabaseManager().clearAllItemsForCustomer(customerId);
       clearCartItemsInController();
+      // Update cart/draft count before navigating back
+      await Provider.of<CustomersProvider>(context, listen: false)
+          .getCartItemCounts(customerId);
     } else if (toDash) {
       log('Log 3');
       // Future.delayed(const Duration(milliseconds: 300), () {
@@ -494,6 +514,9 @@ class ProductsController extends GetxController {
       CartDatabaseManager().clearCart(customerId: customerId);
       CartDatabaseManager().clearAllItemsForCustomer(customerId);
       clearCartItemsInController();
+      // Update cart/draft count before navigating back
+      await Provider.of<CustomersProvider>(context, listen: false)
+          .getCartItemCounts(customerId);
       Navigator.pop(context);
     } else {
       log('Log 4');
@@ -501,10 +524,11 @@ class ProductsController extends GetxController {
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearAllItemsForCustomer(customerId);
       clearCartItemsInController();
+      // Update cart/draft count before navigating back
+      await Provider.of<CustomersProvider>(context, listen: false)
+          .getCartItemCounts(customerId);
     }
   }
-
-
 
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {

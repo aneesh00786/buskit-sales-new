@@ -88,16 +88,15 @@ class _OrderTakingState extends State<OrderTaking>
   var searchText = ''.obs;
   var selectedYear = '2023'.obs;
   var years = ['2023'].obs;
+  bool isCartCountLoading = true; // <-- Add this line
+  bool _isCartCountFetched = false;
   @override
   void initState() {
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
     CartDatabaseManager().getDraftItems();
     widget.productsController.fetchCategoryData();
-    if (widget.isDirectDialogue) {
-      // customerAndOrderController.customerId.value = '';
-      // widget.productsController.selectedCustomerId.value = '';
-    }
+    if (widget.isDirectDialogue) {}
     fetchAndSetCustomers();
     animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -112,12 +111,16 @@ class _OrderTakingState extends State<OrderTaking>
       ),
     );
     final customerId = widget.selectedCustId;
-    // customerAndOrderController.customerId.value.isNotEmpty
-    //     ? customerAndOrderController.customerId.value
-    //     : widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     CartDatabaseManager().getCartItems(customerId ?? '');
-    cartProvider.getCartItemCounts(customerId ?? '');
+    isCartCountLoading = true; // <-- Set loading true before async call
+    cartProvider.getCartItemCounts(customerId ?? '').then((_) {
+      if (mounted) {
+        setState(() {
+          isCartCountLoading = false; // <-- Set loading false after async call
+        });
+      }
+    });
     CartDatabaseManager().addListener(() {
       cartProvider.updateCartCount(customerId ?? '');
     });
@@ -148,6 +151,17 @@ class _OrderTakingState extends State<OrderTaking>
   void didChangeDependencies() {
     super.didChangeDependencies();
     cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+    if (!_isCartCountFetched) {
+      isCartCountLoading = true;
+      cartProvider.getCartItemCounts(widget.selectedCustId ?? '').then((_) {
+        if (mounted) {
+          setState(() {
+            isCartCountLoading = false;
+          });
+        }
+      });
+      _isCartCountFetched = true;
+    }
   }
 
   @override
@@ -550,43 +564,61 @@ class _OrderTakingState extends State<OrderTaking>
                                   child: child,
                                 );
                               },
-                              child: IconButton(
-                                onPressed: () {
-                                  _showCartDialog(cartDialogKey);
-                                },
-                                icon: Stack(
-                                  children: [
-                                    const Icon(
-                                      Icons.shopping_cart_outlined,
-                                      size: 30,
-                                    ),
-                                    if (provider.cartItemCount > 0)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
+                              child: Consumer<CustomersProvider>(
+                                builder: (context, provider, child) =>
+                                    IconButton(
+                                  onPressed: () {
+                                    _showCartDialog(cartDialogKey);
+                                  },
+                                  icon: Stack(
+                                    children: [
+                                      const Icon(
+                                        Icons.shopping_cart_outlined,
+                                        size: 30,
+                                      ),
+                                      if (isCartCountLoading)
+                                        const Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.red),
+                                            ),
                                           ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${provider.cartItemCount}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
+                                        )
+                                      else if (provider.cartItemCount > 0)
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            constraints: const BoxConstraints(
+                                              minWidth: 16,
+                                              minHeight: 16,
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '${provider.cartItemCount}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

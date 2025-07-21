@@ -528,6 +528,7 @@ class ProductsController extends GetxController {
       await Provider.of<CustomersProvider>(context, listen: false)
           .getCartItemCounts(customerId);
     }
+    CartDatabaseManager().getDraftItems();
   }
 
   void updateSelectedCustomer(

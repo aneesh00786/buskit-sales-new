@@ -79,6 +79,8 @@ void main() async {
   await Hive.openBox('topBarDataBox');
   await Hive.openBox('timesheetBox');
   await Hive.openBox('scheduleBox');
+  await Hive.openBox('draftAndCartIdsBox');
+  await Hive.openBox('draftItemsBox');
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
   SystemChrome.setPreferredOrientations([

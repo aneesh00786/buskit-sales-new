@@ -41,10 +41,12 @@ class CartDatabaseManager {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final companyId = SessionHelper.loginSavedData?.company_id ?? '';
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? '',
+      "companyId": companyId,
       "customer_id": "",
-      "salesman_id": '',
+      "salesman_id": salesmanId,
       "order_type": 4,
       "payment_type": 1,
       "start_date":
@@ -57,6 +59,9 @@ class CartDatabaseManager {
 
     log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
+    // Caching logic
+    final cacheKey = '${companyId}_${salesmanId}';
+    final draftItemsBox = await Hive.openBox('draftItemsBox');
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
@@ -138,6 +143,8 @@ class CartDatabaseManager {
                 fetchedItems.add(cartItem);
               }
             }
+            // Cache the result
+            await draftItemsBox.put(cacheKey, fetchedItems.map((e) => e.toJson()).toList());
           } else {
             log('API response status is false: ${responseData['message']}');
           }
@@ -156,6 +163,14 @@ class CartDatabaseManager {
       log('Error fetching draft items: $e');
       // handleExceptionMessage(
       //       response: e.response, apiName: "draft");
+      // Try to return cached data if available
+      final cachedData = draftItemsBox.get(cacheKey);
+      if (cachedData != null && cachedData is List) {
+        log('Returning cached draft items for key: $cacheKey');
+        return List<Map<String, dynamic>>.from(cachedData)
+            .map((e) => CartItem.fromJson(e))
+            .toList();
+      }
       return [];
     }
   }
@@ -208,21 +223,26 @@ class CartDatabaseManager {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "companyId": companyId,
       "customer_id": customerId,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": salesmanId,
       "order_type": 4,
       "payment_type": 1,
       "start_date":
-          "${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}",
+          " [${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}]",
       "end_date":
-          "${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}",
+          " [${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}]",
       "limit": 1000,
       "page": 1,
     };
     log('Request Body of FetchAll Order: $requestBody');
 
+    // Caching logic
+    final cacheKey = '${companyId}_${customerId}_$salesmanId';
+    final draftAndCartIdsBox = await Hive.openBox('draftAndCartIdsBox');
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
@@ -242,6 +262,8 @@ class CartDatabaseManager {
               });
             }
             log('Draft and Cart IDs fetched from API: $draftAndCartIds');
+            // Cache the result
+            await draftAndCartIdsBox.put(cacheKey, draftAndCartIds);
             return draftAndCartIds;
           } else {
             log('API response status is false: ${responseData['message']}');
@@ -254,6 +276,12 @@ class CartDatabaseManager {
       }
     } catch (e) {
       log('Error fetching draft and cart IDs: $e');
+    }
+    // Try to return cached data if available
+    final cachedData = draftAndCartIdsBox.get(cacheKey);
+    if (cachedData != null && cachedData is List) {
+      log('Returning cached draft and cart IDs for key: $cacheKey');
+      return List<Map<String, String?>>.from(cachedData);
     }
     return [];
   }

@@ -729,7 +729,20 @@ class ApiService {
       "page": 1,
     };
     log("Request Body Of fetchCustomerDashOrders $requestBody");
+    // Caching logic
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final cacheKey =
+        '${companyId}_${cusId}_${salesmanId}_${startDate}_${endDate}_${orderType}';
+    final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
     try {
+      final isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        final cachedData = customerDashOrdersBox.get(cacheKey);
+        if (cachedData != null) {
+          log('Returning cached customer dash orders for key: $cacheKey');
+          return OrderResponse.fromJson(Map<String, dynamic>.from(cachedData));
+        }
+      }
       final response = await responsePostMethod(
         requestData: requestBody,
         endPoint: ApiConstants.fetchAllOrders,
@@ -743,13 +756,16 @@ class ApiService {
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
-        log('Fetch All Orders Customer Pagination: ${pagination.totalRecord}');
+        log('Fetch All Orders Customer Pagination:  [${pagination.totalRecord}]');
         List<OrdersDash> orders = [];
         if (orderData != null) {
           orders = orderData
               .map((json) => OrdersDash.fromJson(json as Map<String, dynamic>))
               .toList();
         }
+        // Cache the result
+        await customerDashOrdersBox.put(
+            cacheKey, Map<String, dynamic>.from(jsonResponse));
         return OrderResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
           status: jsonResponse['status'] ?? false,
@@ -759,11 +775,17 @@ class ApiService {
         );
       } else {
         handleExceptionMessage(response: response, apiName: "fetch all orders");
-        throw Exception('Failed to fetch orders - ${response.statusCode}');
+        throw Exception('Failed to fetch orders -  [${response.statusCode}]');
       }
     } on DioException catch (error) {
       handleExceptionMessage(
           response: error.response, apiName: "fetch all orders", error: error);
+      // Try to return cached data if available
+      final cachedData = customerDashOrdersBox.get(cacheKey);
+      if (cachedData != null) {
+        log('Returning cached customer dash orders for key: $cacheKey after error');
+        return OrderResponse.fromJson(Map<String, dynamic>.from(cachedData));
+      }
       throw Exception('Failed to fetch orders: $error');
     }
   }

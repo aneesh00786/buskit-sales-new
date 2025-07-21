@@ -10,12 +10,19 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
 
   List<dynamic> _buildPagination(int currentPage, int totalPages) {
     List<dynamic> pages = [];
+
     if (totalPages <= 5) {
+      if (currentPage == 1 && totalPages == 5) {
+        pages.addAll([1, 2, 3, '...5']);
+        return pages;
+      }
+
       for (int i = 1; i <= totalPages; i++) {
         pages.add(i);
       }
       return pages;
     }
+
     if (currentPage <= 2) {
       pages.addAll([1, 2, 3, '...$totalPages']);
     } else if (currentPage == 3) {
@@ -32,6 +39,7 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
       pages.addAll(
           [currentPage - 1, currentPage, currentPage + 1, '...$totalPages']);
     }
+
     return pages;
   }
 

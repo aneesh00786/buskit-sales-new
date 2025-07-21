@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -809,6 +810,13 @@ class _TableeeState extends State<Tableee> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
+                                          bool isOnline = await ConnectivityService().isOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(
+                context, "You are Offline!", red, Icons.close);
+            return;
+          }
+
                                           final updatedAdmin = CustomerDashMo(
                                             fullname: nameController.text,
                                             mobileno: phoneController.text,

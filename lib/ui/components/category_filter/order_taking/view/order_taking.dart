@@ -5,9 +5,13 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search%20_warning_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -27,6 +31,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:provider/provider.dart';
 import '../../category_list.dart';
 import '../../product_list/view/product_list.dart';
+import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
 class OrderTaking extends StatefulWidget {
@@ -112,6 +117,11 @@ class _OrderTakingState extends State<OrderTaking>
     );
     final customerId = widget.selectedCustId;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+
+    // --- ADDED: Load offline drafts if offline ---
+    _loadOfflineDraftsIfNeeded(customerId);
+    // --- END ADDED ---
+
     CartDatabaseManager().getCartItems(customerId ?? '');
     isCartCountLoading = true; // <-- Set loading true before async call
     cartProvider.getCartItemCounts(customerId ?? '').then((_) {
@@ -279,6 +289,7 @@ class _OrderTakingState extends State<OrderTaking>
                 customerId: widget.productsController.selectedCustomerId.value,
                 homeController: homeController,
               );
+              CartDatabaseManager().getDraftItems();
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
@@ -847,6 +858,62 @@ class _OrderTakingState extends State<OrderTaking>
           );
         },
       );
+    }
+  }
+
+  // --- ADDED: Helper to load offline drafts if offline ---
+  Future<void> _loadOfflineDraftsIfNeeded(String? customerId) async {
+    if (customerId == null || customerId.isEmpty) return;
+    try {
+      final connectivityService = ConnectivityService();
+      final isOnline = await connectivityService.isOnline();
+      if (!isOnline) {
+        var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+        List<dynamic> drafts =
+            offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+        final draft = drafts.firstWhere(
+          (d) => d['customer_id'] == customerId,
+          orElse: () => null,
+        );
+        if (draft != null && draft['details'] != null) {
+          // Convert details to CartItem and add to draftBox
+          final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+          final List details = draft['details'];
+          final draftBox = Hive.box<CartItem>('draftBox');
+          // Remove existing for this customer
+          final keysToRemove = draftBox.keys.where((key) {
+            final item = draftBox.get(key);
+            return item != null && item.customerId == customerId;
+          }).toList();
+          for (var key in keysToRemove) {
+            await draftBox.delete(key);
+          }
+          for (var detail in details) {
+            final cartItem = CartItem(
+              detail: Detail(
+                productId: detail['product_id'],
+                variationId: detail['variant_id'],
+                sellPrice: detail['price'],
+                discount: detail['discount'],
+                count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+                pieces: int.tryParse(detail['pack'] ?? '0'),
+                variationName: detail['variant_name'],
+                saleBy: detail['packType'],
+              ),
+              productName: detail['variant_name'] ?? '',
+              totalPrice:
+                  double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+              isPack: detail['packType'] == 'Pack',
+              customerId: customerId,
+              salesmanId: salesmanId,
+              catId: 0,
+            );
+            await draftBox.add(cartItem);
+          }
+        }
+      }
+    } catch (e) {
+      log('[OrderTaking] Error loading offline drafts: $e');
     }
   }
 }

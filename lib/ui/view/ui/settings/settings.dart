@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_form_field.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/widget/password_textfield.dart';
@@ -442,20 +443,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             backgroundColor:
                                                 WidgetStatePropertyAll(
                                                     Colors.blue)),
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!",
+                                                red,
+                                                Icons.close);
+                                            return;
+                                          }
                                           if (_formKey.currentState!
                                               .validate()) {
-                                            staffController
-                                                .changePassword(
-                                                    currentPassword:
-                                                        _oldPasswordController
-                                                            .text,
-                                                    newPassword:
-                                                        _newPasswordController
-                                                            .text,
-                                                    confirmPassword:
-                                                        _confirmPasswordController
-                                                            .text);
+                                            staffController.changePassword(
+                                                currentPassword:
+                                                    _oldPasswordController.text,
+                                                newPassword:
+                                                    _newPasswordController.text,
+                                                confirmPassword:
+                                                    _confirmPasswordController
+                                                        .text);
                                             _newPasswordController.clear();
                                             _oldPasswordController.clear();
                                             _confirmPasswordController.clear();
@@ -542,5 +551,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
-

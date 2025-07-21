@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -458,6 +459,13 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
+                                          bool isOnline = await ConnectivityService().isOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(
+                context, "You are Offline!", red, Icons.close);
+            return;
+          }
+
                                           final fields = {
                                             'Business Name': widget
                                                 .leadsController

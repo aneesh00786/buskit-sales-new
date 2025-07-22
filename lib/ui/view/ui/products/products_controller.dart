@@ -283,6 +283,26 @@ class ProductsController extends GetxController {
   //   return true;
   // }
 
+  List<Detail> _mergeCartAndDraftDetails(
+      List<Detail> cartDetails, List<Detail> draftDetails) {
+    final Map<String, Detail> merged = {};
+    // Add draft items first
+    for (final item in draftDetails) {
+      final key = '${item.productId}_${item.variationId}';
+      merged[key] = Detail.fromJson(item.toJson());
+    }
+    // Merge cart items
+    for (final item in cartDetails) {
+      final key = '${item.productId}_${item.variationId}';
+      if (merged.containsKey(key)) {
+        merged[key]!.count += item.count;
+      } else {
+        merged[key] = Detail.fromJson(item.toJson());
+      }
+    }
+    return merged.values.toList();
+  }
+
   Future<void> handleBackNavigation({
     required BuildContext context,
     required bool isDirectDialogue,
@@ -305,35 +325,20 @@ class ProductsController extends GetxController {
       ));
       log('Log 1');
       log('To Dash $toDash');
-      List<Detail> detail = [
-        ...CartDatabaseManager().cartItems.map((e) => e.detail),
-        ...CartDatabaseManager()
-            .getDraftItemsForCustomer(customerId)
-            .map((e) => e.detail),
-      ];
-      bool isOnline = await connectivityService.isOnline();
-      if (!isOnline) {
-        log('[saveDraftOffline] Device is offline. Saving draft locally...');
-        await CartDatabaseManager().saveDraftOffline(
-          customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          totalAmount: finalAmount.value,
-          details: detail,
-        );
-        // Update cart/draft count before navigating back
-        await Provider.of<CustomersProvider>(context, listen: false)
-            .getCartItemCounts(customerId);
-        offlineMode1(context);
-        clearCartItemsInControllerAndHive(customerId);
-        Navigator.pop(context);
-        return;
-      }
+      List<Detail> cartDetails =
+          CartDatabaseManager().cartItems.map((e) => e.detail).toList();
+      List<Detail> draftDetails = CartDatabaseManager()
+          .getDraftItemsForCustomer(customerId)
+          .map((e) => e.detail)
+          .toList();
+      List<Detail> detail =
+          _mergeCartAndDraftDetails(cartDetails, draftDetails);
 
-      final cartDetails =
+      final cartAndDraftIds =
           await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
       await Future.delayed(const Duration(seconds: 1));
-      final firstOrder = cartDetails.isNotEmpty
-          ? cartDetails.last
+      final firstOrder = cartAndDraftIds.isNotEmpty
+          ? cartAndDraftIds.last
           : {'cart_id': '', 'draft_id': ''};
       final existingCartId = firstOrder['cart_id'] ?? '';
       final existingDraftId = firstOrder['draft_id'] ?? '';

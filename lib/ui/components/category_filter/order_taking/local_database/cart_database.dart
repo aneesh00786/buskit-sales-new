@@ -144,7 +144,8 @@ class CartDatabaseManager {
               }
             }
             // Cache the result
-            await draftItemsBox.put(cacheKey, fetchedItems.map((e) => e.toJson()).toList());
+            await draftItemsBox.put(
+                cacheKey, fetchedItems.map((e) => e.toJson()).toList());
           } else {
             log('API response status is false: ${responseData['message']}');
           }
@@ -185,33 +186,46 @@ class CartDatabaseManager {
     };
   }
 
-  Future<List<CartItem>> getCartItems(String customerId) async {
+  Future<List<CartItem>> getCartItems(String customerId,
+      {bool draftsOnly = false}) async {
+    // LOG: getCartItems called
+    print(
+        '[CartDB] getCartItems called for customerId=$customerId, draftsOnly=$draftsOnly');
     try {
-      log('Customer Id inside getCartItems: $customerId');
-      final customerCartItems = cartBox.values
-          .where((item) => item.customerId == customerId)
-          .toList();
-      final customerDraftItems = draftBox.values
-          .where((item) => item.customerId == customerId)
-          .toList();
-      log('Customer Cart Items:');
-      for (var item in customerCartItems) {
-        log('Cart Item: ${item.toJson()}');
+      if (draftsOnly) {
+        final customerDraftItems = draftBox.values
+            .where((item) => item.customerId == customerId)
+            .toList();
+        final Map<String, CartItem> deduped = {};
+        for (var item in customerDraftItems) {
+          final key = item.detail.variationId ?? '';
+          if (deduped.containsKey(key)) {
+            deduped[key]!.detail.count += item.detail.count;
+          } else {
+            // Clone the CartItem and its Detail to avoid mutating Hive objects
+            final clonedItem = CartItem.fromJson(item.toJson());
+            deduped[key] = clonedItem;
+          }
+        }
+        final result = deduped.values.toList();
+        // LOG: number of draft items returned
+        print('[CartDB] getCartItems returning ${result.length} draft items');
+        return Future.value(result);
+      } else {
+        final customerCartItems = cartBox.values
+            .where((item) => item.customerId == customerId)
+            .toList();
+        final customerDraftItems = draftBox.values
+            .where((item) => item.customerId == customerId)
+            .toList();
+        final combinedItems = [...customerCartItems, ...customerDraftItems];
+        // LOG: number of combined items returned
+        print(
+            '[CartDB] getCartItems returning ${combinedItems.length} combined items');
+        return Future.value(combinedItems);
       }
-      log('Customer Draft Items:');
-      for (var item in customerDraftItems) {
-        log('Draft Item: ${item.toJson()}');
-      }
-      final combinedItems = [...customerCartItems, ...customerDraftItems];
-      log('Combined Cart and Draft Items:');
-      log('combinedItems length:${combinedItems.length}');
-      for (var item in combinedItems) {
-        log('Combined Item: ${item.toJson()}');
-      }
-
-      return Future.value(combinedItems);
     } catch (e) {
-      log('Error retrieving combined items for customer $customerId: $e');
+      print('[CartDB] ERROR in getCartItems for $customerId: $e');
       return Future.value([]);
     }
   }
@@ -557,37 +571,39 @@ class CartDatabaseManager {
   }
 
   Future<void> clearCart({required String customerId}) async {
+    // LOG: clearCart called
+    print('[CartDB] clearCart called for customerId=$customerId');
     try {
       List<CartItem> remainingCartItems = cartBox.values
-          .where(
-              (item) => item.customerId == customerId && item.isChecked != true)
+          .where((item) => item.customerId != customerId)
           .toList();
-
       List<CartItem> remainingDraftItems = draftBox.values
-          .where(
-              (item) => item.customerId == customerId && item.isChecked != true)
+          .where((item) => item.customerId != customerId)
           .toList();
-      log('Remaining Cart Items for Customer $customerId: ${remainingCartItems.map((e) => e.toJson()).toList()}');
-      log('Remaining Draft Items for Customer $customerId: ${remainingDraftItems.map((e) => e.toJson()).toList()}');
       await cartBox.clear();
       await draftBox.clear();
-      await cartBox.putAll(
-        {
-          for (var e in remainingCartItems)
-            '${e.customerId}-${e.detail.variationId}': e
-        },
-      );
-      await draftBox.putAll(
-        {
-          for (var e in remainingDraftItems)
-            '${e.customerId}-${e.detail.variationId}': e
-        },
-      );
-
-      log('Cart and Draft cleared for customer $customerId while retaining unchecked items.');
+      await cartBox.addAll(remainingCartItems);
+      await draftBox.addAll(remainingDraftItems);
       getCartItems(customerId);
     } catch (e) {
-      log('Error in clearCart for customer $customerId: $e');
+      print('[CartDB] ERROR in clearCart for $customerId: $e');
+    }
+  }
+
+  Future<void> clearCartOnlyForCustomer(String customerId) async {
+    // LOG: clearCartOnlyForCustomer called
+    print(
+        '[CartDB] clearCartOnlyForCustomer called for customerId=$customerId');
+    try {
+      final keysToRemoveCart = cartBox.keys.where((key) {
+        final item = cartBox.get(key);
+        return item != null && item.customerId == customerId;
+      }).toList();
+      for (var key in keysToRemoveCart) {
+        await cartBox.delete(key);
+      }
+    } catch (e) {
+      print('[CartDB] ERROR in clearCartOnlyForCustomer for $customerId: $e');
     }
   }
 
@@ -597,8 +613,10 @@ class CartDatabaseManager {
   }
 
   Future<void> clearAllItemsForCustomer(String customerId) async {
+    // LOG: clearAllItemsForCustomer called
+    print(
+        '[CartDB] clearAllItemsForCustomer called for customerId=$customerId');
     try {
-      // Remove all items for the customer from cartBox
       final keysToRemoveCart = cartBox.keys.where((key) {
         final item = cartBox.get(key);
         return item != null && item.customerId == customerId;
@@ -606,8 +624,6 @@ class CartDatabaseManager {
       for (var key in keysToRemoveCart) {
         await cartBox.delete(key);
       }
-
-      // Remove all items for the customer from draftBox
       final keysToRemoveDraft = draftBox.keys.where((key) {
         final item = draftBox.get(key);
         return item != null && item.customerId == customerId;
@@ -615,10 +631,8 @@ class CartDatabaseManager {
       for (var key in keysToRemoveDraft) {
         await draftBox.delete(key);
       }
-
-      log('All cart and draft items cleared for customer $customerId');
     } catch (e) {
-      log('Error clearing all items for customer $customerId: $e');
+      print('[CartDB] ERROR in clearAllItemsForCustomer for $customerId: $e');
     }
   }
 

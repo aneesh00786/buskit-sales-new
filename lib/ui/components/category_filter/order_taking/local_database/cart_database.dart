@@ -1,5 +1,7 @@
 //Cart Database
 
+// ignore_for_file: avoid_print
+
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -297,6 +299,20 @@ class CartDatabaseManager {
       log('Returning cached draft and cart IDs for key: $cacheKey');
       return List<Map<String, String?>>.from(cachedData);
     }
+    // Fallback: try to get from local draftBox
+    final localDrafts =
+        draftBox.values.where((item) => item.customerId == customerId).toList();
+    if (localDrafts.isNotEmpty) {
+      final ids = localDrafts
+          .map((item) => {
+                'cart_id': item.cartId,
+                'draft_id': item.draftId,
+              })
+          .toList();
+      log('[Fallback] Returning draft/cart IDs from local draftBox for customer $customerId: $ids');
+      return ids;
+    }
+    log('[Fallback] No draft/cart IDs found for customer $customerId (API, cache, or local)');
     return [];
   }
 

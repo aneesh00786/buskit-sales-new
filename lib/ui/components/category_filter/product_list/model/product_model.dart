@@ -74,7 +74,7 @@ class ScidProductGroup {
   }
 }
 
-@HiveType(typeId: 2)  
+@HiveType(typeId: 2)
 class ProductModel {
   @HiveField(0)
   int? id;
@@ -111,13 +111,13 @@ class ProductModel {
 
   @HiveField(11)
   int? companyId;
-  
+
   @HiveField(12)
   String? stock;
 
   @HiveField(13)
   List<Detail>? detail;
-  
+
   @HiveField(14)
   String? productCode;
 
@@ -280,6 +280,8 @@ class Detail {
   @HiveField(32)
   num? totaltax;
 
+  @HiveField(33)
+  String? productName;
 
   Detail({
     this.id,
@@ -313,6 +315,7 @@ class Detail {
     this.pack,
     this.discount,
     this.totaltax,
+    this.productName,
   });
   Detail copyWith({
     int? id,
@@ -346,40 +349,41 @@ class Detail {
     String? pack,
     num? discount,
     num? totalTax,
+    String? productName,
   }) {
     return Detail(
-      id: id ?? this.id,
-      companyId: companyId ?? this.companyId,
-      productId: productId ?? this.productId,
-      variationId: variationId ?? this.variationId,
-      inNo: inNo ?? this.inNo,
-      barcode: barcode ?? this.barcode,
-      variationName: variationName ?? this.variationName,
-      unitType: unitType ?? this.unitType,
-      price: price ?? this.price,
-      sellPrice: sellPrice ?? this.sellPrice,
-      tax: tax ?? this.tax,
-      packtype: packtype ?? this.packtype,
-      pieces: pieces ?? this.pieces,
-      stock: stock ?? this.stock,
-      lowstock: lowstock ?? this.lowstock,
-      fullstock: fullstock ?? this.fullstock,
-      imageUrl: imageUrl ?? this.imageUrl,
-      status: status ?? this.status,
-      vStatus: vStatus ?? this.vStatus,
-      count: count ?? this.count,
-      saleBy: saleBy ?? this.saleBy,
-      totalPrice: totalPrice ?? this.totalPrice,
-      sellingPrice: sellingPrice ?? this.sellingPrice,
-      packPrice: packPrice ?? this.packPrice,
-      sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
-      inclTax: inclTax ?? this.inclTax,
-      initialQuantity: initialQuantity ?? this.initialQuantity,
-      unitTax: unitTax ?? this.unitTax,
-      pack: pack ?? this.pack,
-      discount: discount ?? this.discount,
-      totaltax: totaltax ?? totaltax,
-    );
+        id: id ?? this.id,
+        companyId: companyId ?? this.companyId,
+        productId: productId ?? this.productId,
+        variationId: variationId ?? this.variationId,
+        inNo: inNo ?? this.inNo,
+        barcode: barcode ?? this.barcode,
+        variationName: variationName ?? this.variationName,
+        unitType: unitType ?? this.unitType,
+        price: price ?? this.price,
+        sellPrice: sellPrice ?? this.sellPrice,
+        tax: tax ?? this.tax,
+        packtype: packtype ?? this.packtype,
+        pieces: pieces ?? this.pieces,
+        stock: stock ?? this.stock,
+        lowstock: lowstock ?? this.lowstock,
+        fullstock: fullstock ?? this.fullstock,
+        imageUrl: imageUrl ?? this.imageUrl,
+        status: status ?? this.status,
+        vStatus: vStatus ?? this.vStatus,
+        count: count ?? this.count,
+        saleBy: saleBy ?? this.saleBy,
+        totalPrice: totalPrice ?? this.totalPrice,
+        sellingPrice: sellingPrice ?? this.sellingPrice,
+        packPrice: packPrice ?? this.packPrice,
+        sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
+        inclTax: inclTax ?? this.inclTax,
+        initialQuantity: initialQuantity ?? this.initialQuantity,
+        unitTax: unitTax ?? this.unitTax,
+        pack: pack ?? this.pack,
+        discount: discount ?? this.discount,
+        totaltax: totaltax ?? totaltax,
+        productName: productName ?? this.productName);
   }
 
   Detail.fromJson(Map<String, dynamic> json)
@@ -413,7 +417,8 @@ class Detail {
         unitTax = json['unit_tax'],
         pack = json['packtype'],
         discount = json['discount'],
-        totaltax = json['total_tax'];
+        totaltax = json['total_tax'],
+        productName = json['product_name'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -448,6 +453,7 @@ class Detail {
     data['packType'] = pack;
     data['discount'] = discount;
     data['total_tax'] = totaltax;
+    data['product_name'] = productName;
     return data;
   }
 }

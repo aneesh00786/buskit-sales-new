@@ -1497,11 +1497,11 @@ class ApiResponsees {
 
 // The model class for the 'data' field
 class OrderDataas {
-  final int totalOrder;
-  final int estimateOrder;
-  final int preorderOrder;
-  final int draftOrder;
-  final int cancelOrder;
+  int totalOrder;
+  int estimateOrder;
+  int preorderOrder;
+  int draftOrder;
+  int cancelOrder;
 
   OrderDataas({
     required this.totalOrder,

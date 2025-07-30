@@ -24,6 +24,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -810,12 +811,17 @@ class _TableeeState extends State<Tableee> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          bool isOnline = await ConnectivityService().isOnline();
-          if (!isOnline) {
-            showCustomToastDisplay(
-                context, "You are Offline!", red, Icons.close);
-            return;
-          }
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!",
+                                                red,
+                                                Icons.close);
+                                            return;
+                                          }
 
                                           final updatedAdmin = CustomerDashMo(
                                             fullname: nameController.text,
@@ -2730,6 +2736,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         ),
                                                       ),
                                                     );
+                                                    showCustomToastDisplay(
+                                                        context,
+                                                        "NEW TEST 20",
+                                                        Colors.orange,
+                                                        Icons.warning);
                                                   } else {
                                                     showUpgradePlanDialog(
                                                         context);

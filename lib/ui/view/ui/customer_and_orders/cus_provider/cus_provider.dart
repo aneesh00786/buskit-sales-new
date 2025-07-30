@@ -197,6 +197,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       log("Customer Id inside getCartItemCounts: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
+      log("Cart items inside count : ${cartItems.map((e) => e.toJson()).toList()}");
       final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();

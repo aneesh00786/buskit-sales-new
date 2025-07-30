@@ -1,5 +1,6 @@
 // ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
 
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -8,6 +9,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -18,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -68,6 +71,9 @@ class ProductsController extends GetxController {
   void closeDialog() {
     showDialog.value = false;
   }
+
+  RxBool isCartModified = false.obs;
+  RxDouble allItemsTotalSave = 0.0.obs;
 
   List<CartItem> cartItems = [];
   List<CartItem> orderItems = [];
@@ -311,213 +317,64 @@ class ProductsController extends GetxController {
     required String customerId,
     required HomeController homeController,
   }) async {
-    final connectivityService = ConnectivityService();
     final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
-    log('Cart Items Count: ${CartDatabaseManager().cartItems.length}');
 
-    log("handle back nav customerID 3 : $customerId");
+    log('🚗 handleBackNavigation START');
+    log('→ Cart Items Count: ${CartDatabaseManager().cartItems.length}');
+    log('→ Customer ID: $customerId');
+    log('→ Navigation Target: ${toDash ? 'Dashboard' : 'Pop Back'}');
 
-    if (CartDatabaseManager().cartItems.isNotEmpty &&
+    log(' Is Cart Modified Flag : ${isCartModified.value}');
+
+    if ((CartDatabaseManager().cartItems.isNotEmpty ||
+            CartDatabaseManager().draftBox.isNotEmpty) &&
         customerId.isNotEmpty &&
-        !toDash) {
-      Get.dialog(Center(
-        child: CircularProgressIndicator(),
-      ));
-      log('Log 1');
-      log('To Dash $toDash');
-      List<Detail> cartDetails =
-          CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-      List<Detail> draftDetails = CartDatabaseManager()
-          .getDraftItemsForCustomer(customerId)
-          .map((e) => e.detail)
-          .toList();
-      List<Detail> detail =
-          _mergeCartAndDraftDetails(cartDetails, draftDetails);
+        isCartModified.value) {
+      log('🛒 Cart detected, initiating processing...');
+      Get.dialog(const Center(child: CircularProgressIndicator()));
 
-      final cartAndDraftIds =
-          await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-      await Future.delayed(const Duration(seconds: 1));
-      final firstOrder = cartAndDraftIds.isNotEmpty
-          ? cartAndDraftIds.last
-          : {'cart_id': '', 'draft_id': ''};
-      final existingCartId = firstOrder['cart_id'] ?? '';
-      final existingDraftId = firstOrder['draft_id'] ?? '';
-      log('Existing cart ID $existingCartId');
-      log('Existing Draft ID $existingDraftId');
-      final productBYData = AddToCartModel(
+      final wasOnline = await processCartBeforeNavigation(
+        context: context,
         customerId: customerId,
-        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: existingCartId.isNotEmpty ? existingCartId : '',
-        cartList: detail
-            .map((e) => SendCartData(
-                productId: e.productId ?? selectedCustomerId.value,
-                variantId: e.variationId ?? '',
-                pack: e.saleBy == 'Pack'
-                    ? e.pieces.toString()
-                    : e.count.toString(),
-                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                price: e.sellPrice.toString(),
-                discount: e.discount ?? 0,
-                quantity: e.count.toInt(),
-                variantName: e.variationName ?? ''))
-            .toList(),
-        total: finalAmount.value.toStringAsFixed(0),
       );
-      CartOrderModel? cartOrder =
-          await ApiWorker().addToDraft(productBYData.toJson());
-      log('Add to Draft Datas : ${productBYData.toJson()}');
-      if (cartOrder != null) {
-        int orderStatus = 4;
-        CartOrderModel order = CartOrderModel(
-          customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-          orderStatus: orderStatus,
-          draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-        );
-        await ApiWorker().placeOrder(order,
-            (statusCode, message, response) async {
-          CartDatabaseManager().moveCartItemsToDraft(customerId);
-          // Update cart/draft count before navigating back
-          await Provider.of<CustomersProvider>(context, listen: false)
-              .getCartItemCounts(customerId);
-          Navigator.pop(context);
-          if (statusCode == 200) {
-            showSuccessFullDialogCtrl(
-              context: context,
-            );
-            CartDatabaseManager().cartItems.clear();
-            CartDatabaseManager().clearCart(customerId: customerId);
-            clearCartItemsInController();
-          } else {
-            showFaledDialogCtrl(context: context, customerId: customerId);
-          }
-        });
-      }
-      CartDatabaseManager().cartItems.clear();
-      CartDatabaseManager().clearCart(customerId: customerId);
-      clearCartItemsInControllerAndHive(customerId);
-      // Update cart/draft count before navigating back
-      await Provider.of<CustomersProvider>(context, listen: false)
-          .getCartItemCounts(customerId);
-    } else if (CartDatabaseManager().cartItems.isNotEmpty &&
-        customerId.isNotEmpty &&
-        toDash) {
-      log('Log 2');
-      log('Log NO : 4 : Simply popping back');
-      List<Detail> detail = [
-        ...CartDatabaseManager().cartItems.map((e) => e.detail),
-        ...CartDatabaseManager()
-            .getDraftItemsForCustomer(customerId)
-            .map((e) => e.detail),
-      ];
-      bool isOnline = await connectivityService.isOnline();
-      if (!isOnline) {
-        log('[saveDraftOffline] Device is offline. Saving draft locally...');
-        await CartDatabaseManager().saveDraftOffline(
-          customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          totalAmount: finalAmount.value,
-          details: detail,
-        );
-        // Update cart/draft count before navigating back
-        await Provider.of<CustomersProvider>(context, listen: false)
-            .getCartItemCounts(customerId);
-        offlineDialog(context);
-        Future.delayed(const Duration(milliseconds: 300), () {
-          homeController.sidebarXController.selectIndex(0);
-          homeController.selectedIndex.value = 0;
-          Get.toNamed(AppRoutes.dashboard, id: 2);
-        });
-        clearCartItemsInControllerAndHive(customerId);
-        return;
-      }
-      final cartDetails =
-          await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-      await Future.delayed(const Duration(seconds: 1));
-      final firstOrder = cartDetails.isNotEmpty
-          ? cartDetails.first
-          : {'cart_id': '', 'draft_id': ''};
-      final existingCartId = firstOrder['cart_id'] ?? '';
-      final existingDraftId = firstOrder['draft_id'] ?? '';
-      log('Existing cart ID $existingCartId');
-      log('Existing Draft ID $existingDraftId');
-      final productBYData = AddToCartModel(
-        customerId: customerId,
-        salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-        cartId: existingCartId.isNotEmpty ? existingCartId : '',
-        cartList: detail
-            .map((e) => SendCartData(
-                productId: e.productId ?? selectedCustomerId.value,
-                variantId: e.variationId ?? '',
-                pack: e.saleBy == 'Pack'
-                    ? e.pieces.toString()
-                    : e.count.toString(),
-                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                price: e.sellPrice.toString(),
-                discount: e.discount ?? 0,
-                quantity: e.count.toInt(),
-                variantName: e.variationName ?? ''))
-            .toList(),
-        total: finalAmount.value.toStringAsFixed(0),
-      );
-      CartOrderModel? cartOrder =
-          await ApiWorker().addToDraft(productBYData.toJson());
-      if (cartOrder != null) {
-        int orderStatus = 4;
-        CartOrderModel order = CartOrderModel(
-            customerId: customerId,
-            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId:
-                existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-            orderStatus: orderStatus,
-            draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-            selctedItemCount: 1);
-        await ApiWorker().placeOrder(order, (statusCode, message, response) {
-          // Update cart/draft count before navigating back
-          Provider.of<CustomersProvider>(context, listen: false)
-              .getCartItemCounts(customerId);
-          if (statusCode == 200) {
-            showSuccessFullDialog(
-                context: context,
-                imagePath: 'assets/images/Animation - 1726906882515.json',
-                message: 'Your order has been successfully saved as Draft');
-          } else {
-            showSuccessFullDialog(
-                context: context,
-                imagePath: 'assets/images/Warning_animation.json',
-                message: "Couldn't save the order as draft please try again.");
-          }
-        });
-      }
+      if (toDash) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        log('✅ Going back to Customer Dashboard after processing');
 
-      Future.delayed(const Duration(milliseconds: 300), () {
-        homeController.sidebarXController.selectIndex(0);
-        homeController.selectedIndex.value = 0;
-        Get.toNamed(AppRoutes.dashboard, id: 2);
-      });
-      CartDatabaseManager().cartItems.clear();
-      CartDatabaseManager().clearCart(customerId: customerId);
-      CartDatabaseManager().clearAllItemsForCustomer(customerId);
-      clearCartItemsInController();
-      await Provider.of<CustomersProvider>(context, listen: false)
-          .getCartItemCounts(customerId);
+        if (wasOnline) {
+          log('✅ Draft saved online');
+          showSuccessFullDialog(
+            context: context,
+            imagePath: 'assets/images/Animation - 1726906882515.json',
+            message: 'Your order has been successfully saved as Draft',
+          );
+        } else {
+          log('📴 Offline mode triggered - draft saved offline');
+          offlineDialog(context);
+        }
+
+        await Future.delayed(const Duration(milliseconds: 300));
+        log('🔙 Popping back to Customer Dashboard');
+        Navigator.pop(context);
+      } else {
+        if (!wasOnline) {
+          log('📴 Offline mode - returning without dashboard');
+          offlineMode1(context);
+        }
+        log('🔙 Just popping back (not dashboard)');
+        Navigator.pop(context);
+      }
     } else if (toDash) {
-      log('Log 3');
-
+      log('🧹 No cart items but going back to Customer Dashboard');
+      log('→ Clearing cart for customerId: $customerId');
       CartDatabaseManager().cartItems.clear();
       CartDatabaseManager().clearCart(customerId: customerId);
-      CartDatabaseManager().clearAllItemsForCustomer(customerId);
-      clearCartItemsInController();
-      await Provider.of<CustomersProvider>(context, listen: false)
-          .getCartItemCounts(customerId);
       Navigator.pop(context);
     } else {
-      log('Log 4');
+      log('🔙 No cart items, just popping back');
+      CartDatabaseManager().cartItems.clear();
+      log('🧹 Cleared in-memory cart');
       Navigator.pop(context);
-      clearCartItemsInControllerAndHive(customerId);
-      await Provider.of<CustomersProvider>(context, listen: false)
-          .getCartItemCounts(customerId);
     }
     await Provider.of<CustomersProvider>(context, listen: false)
         .fetchOrdersForCustomDash(
@@ -525,7 +382,225 @@ class ProductsController extends GetxController {
       customerId,
     );
     CartDatabaseManager().getDraftItems();
+    isCartModified.value = false;
   }
+
+  Future<bool> processCartBeforeNavigation({
+    required BuildContext context,
+    required String customerId,
+  }) async {
+    log('🛠️ processCartBeforeNavigation START for customerId: $customerId');
+
+    final connectivityService = ConnectivityService();
+    final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+    log('→ Salesman ID: $currentSalesmanId');
+
+    final Map<String, CartItem> itemMap = {};
+
+    final draftItems = CartDatabaseManager()
+        .draftBox
+        .values
+        .where((e) => e.customerId == customerId)
+        .toList();
+    final cartItems = CartDatabaseManager()
+        .cartItems
+        .where((e) => e.customerId == customerId)
+        .toList();
+
+    for (var item in draftItems) {
+      final key = item.detail.variationId ?? '';
+      itemMap[key] = item;
+    }
+
+    for (var item in cartItems) {
+      final key = item.detail.variationId ?? '';
+      if (!itemMap.containsKey(key)) {
+        itemMap[key] = item;
+      }
+    }
+
+    final allItems = itemMap.values.toList();
+
+    log('🧾 Draft box to process: ${CartDatabaseManager().draftBox.values}');
+    log('🧾 Cart box to process: ${CartDatabaseManager().cartBox.values}');
+    log('🧾 Total items to process: ${allItems.length}');
+    log('🧾 Items to process: ${allItems.map((e) => e.toJson()).toList()}');
+
+    allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
+
+    final Map<String, Detail> dedupedDetails = {};
+
+    for (final item in allItems) {
+      final key = item.detail.variationId ?? '';
+      if (dedupedDetails.containsKey(key)) {
+        dedupedDetails[key]!.count += item.detail.count;
+      } else {
+        dedupedDetails[key] = item.detail;
+      }
+    }
+
+    final detail = dedupedDetails.values.toList();
+    log('✅ Deduplicated item count: ${detail.length}');
+    log("details 22 : ${detail.map((e) => e.toJson()).toList()}");
+
+    final isOnline = await connectivityService.isOnline();
+    log('🌐 Connectivity: ${isOnline ? "Online" : "Offline"}');
+
+    if (!isOnline) {
+      log('💾 Saving as offline draft...');
+      await CartDatabaseManager().saveDraftOffline(
+        customerId: customerId,
+        salesmanId: currentSalesmanId,
+        totalAmount: finalAmount.value,
+        details: detail,
+        customerName: selectedCustomerName.value,
+        customerMobile: selectedCustomerMobileNo.value,
+        customerEmail: selectedCustomerEmail.value,
+        customerImageUrl: selectedCustomerImageUrl.value,
+        allItemsTotal: allItemsTotalSave.value,
+      );
+
+      // CartDatabaseManager().cartItems.clear();
+      //come back
+      // CartDatabaseManager().clearDraftBoxForCustomer(customerId: customerId);
+      // CartDatabaseManager().clearCart(customerId: customerId);
+      return false;
+    } else {
+      final cartDetails =
+          await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+      await Future.delayed(const Duration(seconds: 1));
+
+      final firstOrder = cartDetails.isNotEmpty
+          ? cartDetails.last
+          : {'cart_id': '', 'draft_id': ''};
+
+      final existingCartId = firstOrder['cart_id'] ?? '';
+      final existingDraftId = firstOrder['draft_id'] ?? '';
+
+      final productBYData = AddToCartModel(
+        customerId: customerId,
+        salesmanId: currentSalesmanId,
+        cartId: existingCartId,
+        cartList: detail
+            .map((e) => SendCartData(
+                  productId: e.productId ?? '',
+                  variantId: e.variationId ?? '',
+                  pack: e.saleBy == 'Pack'
+                      ? e.pieces.toString()
+                      : e.count.toString(),
+                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                  price: e.sellPrice.toString(),
+                  discount: e.discount ?? 0,
+                  quantity: e.count.toInt(),
+                  variantName: e.variationName ?? '',
+                ))
+            .toList(),
+        total: finalAmount.value.toStringAsFixed(0),
+      );
+
+      List<String> varientIdsPass = [];
+      for (var item in detail) {
+        varientIdsPass.add(item.variationId ?? '');
+      }
+
+      log("VARIENT IDS : $varientIdsPass");
+
+      final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+
+      if (cartOrder != null) {
+        final order = CartOrderModel(
+          customerId: customerId,
+          salesmanId: currentSalesmanId,
+          cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+          orderStatus: 4,
+          draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+          selctedItemCount: 1,
+          varientIds: varientIdsPass,
+        );
+
+        await ApiWorker().placeOrder(order, (statusCode, message, response) {
+          if (statusCode == 200) {
+            showSuccessFullDialogCtrl(context: context);
+          } else {
+            showFaledDialogCtrl(context: context, customerId: customerId);
+          }
+        });
+      } else {
+        log('❌ addToDraft failed or returned null');
+      }
+
+      CartDatabaseManager().cartItems.clear();
+      CartDatabaseManager().clearCart(customerId: customerId);
+      return true;
+    }
+  }
+
+  // Future<void> saveDraftOffline({
+  //   required String customerId,
+  //   required String salesmanId,
+  //   required double totalAmount,
+  //   required List<Detail> details,
+  // }) async {
+  //   try {
+  //     var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+  //     List<dynamic> drafts =
+  //         offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+  //     int existingDraftIndex =
+  //         drafts.indexWhere((draft) => draft['customer_id'] == customerId);
+  //     if (existingDraftIndex != -1) {
+  //       var existingDraft = drafts[existingDraftIndex];
+  //       List<dynamic> existingDetails = existingDraft['details'];
+  //       for (var detail in details) {
+  //         int existingVariantIndex = existingDetails.indexWhere(
+  //           (d) => d['variant_id'] == detail.variationId,
+  //         );
+  //         if (existingVariantIndex != -1) {
+  //           existingDetails[existingVariantIndex]['quantity'] +=
+  //               detail.count.toInt();
+  //         } else {
+  //           existingDetails.add({
+  //             'product_id': detail.productId ?? '',
+  //             'variant_id': detail.variationId ?? '',
+  //             'pack': detail.saleBy == 'Pack'
+  //                 ? detail.pieces.toString()
+  //                 : detail.count.toString(),
+  //             'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //             'price': detail.sellPrice.toString(),
+  //             'discount': detail.discount,
+  //             'quantity': detail.count.toInt(),
+  //             'variant_name': detail.variationName ?? '',
+  //           });
+  //         }
+  //       }
+  //     } else {
+  //       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+  //       final newDraft = {
+  //         'order_id': orderId,
+  //         'customer_id': customerId,
+  //         'salesman_id': salesmanId,
+  //         'total_amount': totalAmount,
+  //         'details': details.map((e) {
+  //           return {
+  //             'product_id': e.productId ?? '',
+  //             'variant_id': e.variationId ?? '',
+  //             'pack':
+  //                 e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
+  //             'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //             'price': e.sellPrice.toString(),
+  //             'discount': e.discount,
+  //             'quantity': e.count.toInt(),
+  //             'variant_name': e.variationName ?? '',
+  //           };
+  //         }).toList(),
+  //       };
+  //       drafts.add(newDraft);
+  //     }
+  //     await offlineDraftsBox.put('drafts', drafts);
+  //     log('[saveDraftOffline] All drafts after saving: $drafts');
+  //   } catch (e) {
+  //     log('[saveDraftOffline] Error saving draft locally: $e');
+  //   }
+  // }
 
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {

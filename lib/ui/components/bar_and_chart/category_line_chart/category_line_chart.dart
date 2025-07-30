@@ -192,7 +192,7 @@ class _CustomBarChartCustomerDashState
                 .map((rod) => rod.toY)
                 .reduce((a, b) => a > b ? a : b))
             .reduce((a, b) => a > b ? a : b);
-        dev.log("MAX BAR VALUE : $maxBarValue");
+        // dev.log("MAX BAR VALUE : $maxBarValue");
 
         int calculateNiceInterval(int maxY, int maxDivisions) {
           if (maxY <= 0) return 1;
@@ -214,14 +214,14 @@ class _CustomBarChartCustomerDashState
           return niceInterval.toInt();
         }
 
-        dev.log("MAX BAR VALUE : $maxBarValue");
+        // dev.log("MAX BAR VALUE : $maxBarValue");
         final int magnitude =
             pow(10, maxBarValue.toInt().toString().length - 1).toInt();
         final int dynamicMaxY = ((maxBarValue / magnitude).ceil()) * magnitude;
         int maxDivisions = 6;
         int dynamicInterval = calculateNiceInterval(dynamicMaxY, maxDivisions);
 
-        dev.log("Dynamic intervals VALUE : $dynamicInterval");
+        // dev.log("Dynamic intervals VALUE : $dynamicInterval");
         final dummyBarGroups = List.generate(
           barGroups.length,
           (index) => BarChartGroupData(

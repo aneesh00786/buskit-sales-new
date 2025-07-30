@@ -23,7 +23,7 @@ extension OrderStatusExtension on OrderStatus {
   String get name {
     switch (this) {
       case OrderStatus.preOrder:
-        return "Pre-Order";
+        return "Booking";
       case OrderStatus.outOfDelivery:
         return "Out for Delivery";
       case OrderStatus.delivered:
@@ -140,4 +140,3 @@ class OrderHandlingClass {
     }
   }
 }
-

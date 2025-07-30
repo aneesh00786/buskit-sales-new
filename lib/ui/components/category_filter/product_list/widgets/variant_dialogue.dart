@@ -498,7 +498,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                           decoration: BoxDecoration(
                                             color: detail.stock == 0
                                                 ? Colors.red
-                                                : detail.stock! <
+                                                : (detail.stock ?? 0) <
                                                         detail.lowstock!
                                                     ? Colors.orange
                                                     : Colors.green,
@@ -509,8 +509,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                             child: Icon(
                                               detail.stock == 0
                                                   ? Icons.close
-                                                  : detail.stock! <
-                                                          detail.lowstock!
+                                                  : (detail.stock ?? 0) <
+                                                          (detail.lowstock ?? 0)
                                                       ? Icons
                                                           .warning_amber_rounded
                                                       : Icons.check,
@@ -668,7 +668,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                 SizedBox(
                                                                     height: 10),
                                                                 Text(
-                                                                  'Do you want to add this as a pre-order?',
+                                                                  'Do you want to add this as a booking?',
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -812,6 +812,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
+                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
@@ -844,6 +845,8 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     isChcked: true,
                                     catId: widget.product.catId ?? 0,
                                   );
+                                  widget.productController.isCartModified
+                                      .value = true;
                                   log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
                                 } else {
                                   log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
@@ -857,6 +860,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 cartProvider.updateCartCount(customerId);
                                 cartProvider.getCartItemCounts(customerId);
                                 widget.onDone();
+
                                 Navigator.pop(context);
                               });
                             } else {

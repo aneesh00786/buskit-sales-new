@@ -405,7 +405,6 @@ class ResponseModell {
   final String? message;
   final List<Category>? allCategory;
   final List<CategoryPerformancee>? categoryPerformance;
-
   final List<MonthlyPerformancee>? monthlyPerformance;
   final Revenuee? revenue;
   final Collection? collection;

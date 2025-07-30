@@ -1,11 +1,12 @@
 import 'dart:developer';
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
@@ -481,7 +482,8 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
   }
 
   Widget orderCreatedByWidget(Map<String, dynamic> order) {
-    final firstName = order['first_name'] ?? 'ADMIN';
+    final firstName = order['first_name'] ??
+        "${SessionHelper.loginSavedData?.fullname?.nkStringCapitalizeFirstCaracter} ${SessionHelper.loginSavedData?.lastname?.nkStringCapitalizeFirstCaracter}";
     final lastName = order['last_name'] ?? '';
     return Center(
       child: MyRegularText(
@@ -525,37 +527,146 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
   }
 
   Widget orderStatus(Map<String, dynamic> order) {
-    final status = order['status']?.toString() ?? 'Offline';
-    Color statusColor = status.toLowerCase() == 'offline'
-        ? const Color.fromARGB(255, 255, 183, 134)
-        : Colors.grey;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(0),
-        child: IntrinsicHeight(
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomText(
-                    content: status,
-                    fontSize: 11.0,
-                    fontWeight: FontWeight.w600,
+    log("STATUS : ${order['order_status']}");
+    final status = order['order_status'] ?? -1;
+    Color statusColor;
+
+    switch (status) {
+      case -1:
+        statusColor = const Color.fromARGB(255, 255, 183, 134);
+        break;
+      case 0:
+        statusColor = const Color.fromARGB(255, 255, 183, 134);
+        break;
+      case 11:
+        statusColor = const Color.fromARGB(255, 225, 250, 191);
+        break;
+      case 12:
+        statusColor = const Color.fromARGB(255, 255, 222, 168);
+        break;
+      case 14:
+        statusColor = const Color.fromARGB(255, 190, 253, 247);
+        break;
+      case 5:
+        statusColor = const Color.fromARGB(255, 190, 253, 247);
+        break;
+      case 7:
+        statusColor = const Color.fromARGB(255, 222, 199, 246);
+        break;
+      case 1:
+        statusColor = const Color.fromARGB(255, 245, 195, 254);
+        break;
+      case 2:
+        statusColor = const Color.fromARGB(255, 222, 199, 246);
+        break;
+      case 13:
+        statusColor = const Color.fromARGB(255, 246, 199, 199);
+        break;
+      default:
+        statusColor = Colors.grey;
+    }
+
+    // return Center(
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(0),
+    //     child: IntrinsicHeight(
+    //       child: Container(
+    //         clipBehavior: Clip.antiAlias,
+    //         padding: const EdgeInsets.symmetric(vertical: 5),
+    //         decoration: BoxDecoration(
+    //           color: statusColor,
+    //           borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+    //         ),
+    //         child: Center(
+    //           child: Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               CustomText(
+    //                 content: status,
+    //                 fontSize: 11.0,
+    //                 fontWeight: FontWeight.w600,
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
+    return status == 14
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: IntrinsicHeight(
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  padding: const EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                   ),
-                ],
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomText(
+                          content: status != null
+                              ? OrderHandlingClass.fromType(status).name
+                              : 'Unknown',
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        if (status == 14) ...[
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    color: Colors.blue,
+                                    child: const Center(
+                                      child: Text(
+                                        'Quick Sale',
+                                        style: TextStyle(
+                                            color: white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10),
+                                      ),
+                                    )),
+                              ),
+                            ],
+                          )
+                        ]
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
+          )
+        : Center(
+            child: Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: IntrinsicHeight(
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: status != null ? statusColor : Colors.grey,
+                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+                  ),
+                  child: Center(
+                    child: CustomText(
+                      content: status != null
+                          ? OrderHandlingClass.fromType(status).name
+                          : 'Unknown',
+                      fontSize: 11,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
   }
 
   Widget viewOrder(Map<String, dynamic> order) {

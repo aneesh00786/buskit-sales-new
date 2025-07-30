@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class DataTableColumns {
   static List<DataColumn> getColumns(double fontSize) {
     return [
-      DataColumn(
-        label: SizedBox(width : 30),
+      const DataColumn(
+        label: SizedBox(width: 30),
       ),
       DataColumn(
         label: DialogTableHeaderText(
@@ -35,7 +35,7 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
-       DataColumn(
+      DataColumn(
         label: DialogTableHeaderText(
           text: 'Disc',
           fontSize: fontSize,
@@ -73,5 +73,3 @@ class DataTableColumns {
     ];
   }
 }
-
-

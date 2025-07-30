@@ -648,6 +648,8 @@ class LoginController extends GetxController {
     final startDate = formatter.format(firstDayOfMonth);
     final endDate = formatter.format(lastDayOfMonth);
 
+    final connectivityService = ConnectivityService();
+
     final String currentMonth = DateFormat.MMMM().format(DateTime.now());
     log("📆 Month passed : $currentMonth");
 
@@ -674,6 +676,8 @@ class LoginController extends GetxController {
               .toIso8601String(),
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
+
+        connectivityService.syncOfflineDrafts(),
 
         ApiService().fetchAllOrders(
             isLogin: true,

@@ -4,18 +4,13 @@
 
 import 'dart:developer';
 
-import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -132,7 +127,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
             .cartItems
             .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
         if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
-          handleBackNavigation(
+          handleTabSwitchNavigation(
               context, false, productController, customerOrderController, () {
             subscriptionController.loadSubscriptionFeatures(
                 SessionHelper.loginSavedData?.company_id ?? 0);
@@ -142,15 +137,19 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               widget.onTap?.call(widget.sidebarXController.selectedIndex);
             });
             log('Tab updated after clearing cart.');
-            productController.selectedCustomerId.value = "";
-            productController.selectedCustomerName.value = "";
-            productController.selectedCustomerImageUrl.value = "";
+            if (customerOrderController.isActive.value == false) {
+              productController.selectedCustomerId.value = "";
+              productController.selectedCustomerName.value = "";
+              productController.selectedCustomerImageUrl.value = "";
+            }
           }, cartItemCount, customerId, hasDraftId);
           log('Condition1');
         } else if (isDirectProduct) {
-          productController.selectedCustomerId.value = "";
-          productController.selectedCustomerName.value = "";
-          productController.selectedCustomerImageUrl.value = "";
+          if (customerOrderController.isActive.value == false) {
+            productController.selectedCustomerId.value = "";
+            productController.selectedCustomerName.value = "";
+            productController.selectedCustomerImageUrl.value = "";
+          }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
           setState(() {
@@ -267,149 +266,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   }
 }
 
-// Future<void> handleTabSwitchNavigation(
-//   BuildContext context,
-//   bool toDashBoard,
-//   ProductsController productController,
-//   CustomerAndOrderController customerController,
-//   Function updateTabIndex,
-//   int cartItemCount,
-//   String customerId,
-//   bool hasDraft,
-// ) async {
-//   String customerIdFinal = customerController.customerId.isNotEmpty
-//       ? customerController.customerId.value
-//       : productController.selectedCustomerId.value;
-
-//   log('[TabSwitch] Initiated. Customer ID used: $customerIdFinal');
-//   log('[TabSwitch] Has Draft: $hasDraft | Cart Item Count: $cartItemCount');
-
-//   if (!hasDraft) {
-//     log('[TabSwitch] No draft found. Showing loading dialog.');
-
-//     late BuildContext dialogContext;
-
-//     // Show loading dialog with its own captured context
-//     showDialog(
-//       context: context,
-//       barrierDismissible: false,
-//       builder: (_) {
-//         return Builder(
-//           builder: (ctx) {
-//             dialogContext = ctx;
-//             return const Center(
-//               child: CircularProgressIndicator(),
-//             );
-//           },
-//         );
-//       },
-//     );
-
-//     try {
-//       final wasOnline = await productController.processCartBeforeNavigation(
-//         context: context,
-//         customerId: customerIdFinal,
-//       );
-
-//       // Pop the loading dialog using its own context
-//       Navigator.of(dialogContext).pop();
-//       log('[TabSwitch] Loading dialog dismissed.');
-
-//       log('[TabSwitch] processCartBeforeNavigation completed. Was online: $wasOnline');
-
-//       await Future.delayed(const Duration(milliseconds: 300));
-
-//       if (wasOnline) {
-//         await showDialog(
-//           context: context,
-//           barrierDismissible: false,
-//           builder: (_) => AlertDialog(
-//             title: Center(
-//               child: SizedBox(
-//                 height: 100,
-//                 width: 100,
-//                 child: Lottie.asset(
-//                     'assets/images/Animation - 1726906882515.json'),
-//               ),
-//             ),
-//             content: CustomText(
-//               content: 'Your order has been successfully saved as Draft',
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () {
-//                   Navigator.of(dialogContext).pop();
-//                   Navigator.of(context, rootNavigator: true).pop();
-//                 },
-//                 child: const Text('OK'),
-//               ),
-//             ],
-//           ),
-//         );
-//       } else {
-//         await showDialog(
-//           context: context,
-//           barrierDismissible: false,
-//           builder: (_) => AlertDialog(
-//             title: Center(
-//               child: SizedBox(
-//                 height: 200,
-//                 width: 200,
-//                 child: Lottie.asset('assets/images/Warning_animation.json'),
-//               ),
-//             ),
-//             content: const Text(
-//               "Couldn't save the order online. Saved offline instead.",
-//               style: TextStyle(fontSize: 18),
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () {
-//                   Navigator.of(context, rootNavigator: true).pop();
-//                 },
-//                 child: const Text('OK'),
-//               ),
-//             ],
-//           ),
-//         );
-//       }
-
-//       updateTabIndex();
-//     } catch (e) {
-//       // Dismiss loading dialog if error occurs
-//       Navigator.of(dialogContext).pop();
-//       log('[TabSwitch][Error] Exception occurred: $e');
-
-//       await showDialog(
-//         context: context,
-//         barrierDismissible: false,
-//         builder: (_) => AlertDialog(
-//           title: const Text('Error'),
-//           content: const Text('Something went wrong. Please try again.'),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.of(context, rootNavigator: true).pop();
-//               },
-//               child: const Text('OK'),
-//             ),
-//           ],
-//         ),
-//       );
-
-//       updateTabIndex();
-//     } finally {
-//       log('[TabSwitch] Resetting customer IDs.');
-//       customerController.customerId.value = '';
-//       productController.selectedCustomerId.value = '';
-//     }
-//   } else {
-//     log('[TabSwitch] Draft already exists. Directly updating tab index.');
-//     updateTabIndex();
-//   }
-// }
-
-void handleBackNavigation(
+Future<void> handleTabSwitchNavigation(
   BuildContext context,
   bool toDashBoard,
   ProductsController productController,
@@ -418,152 +275,305 @@ void handleBackNavigation(
   int cartItemCount,
   String customerId,
   bool hasDraft,
-) {
-  if (!hasDraft) {
+) async {
+  String customerIdFinal = customerController.customerId.isNotEmpty
+      ? customerController.customerId.value
+      : productController.selectedCustomerId.value;
+
+  log('[TabSwitch] Initiated. Customer ID used: $customerIdFinal');
+  log('[TabSwitch] Has Draft: $hasDraft | Cart Item Count: $cartItemCount');
+
+  if (!hasDraft && productController.isCartModified.value) {
+    log('[TabSwitch] No draft found. Showing loading dialog.');
+
+    late BuildContext dialogContext;
+
+    // Show loading dialog with its own captured context
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
+      builder: (_) {
+        return Builder(
+          builder: (ctx) {
+            dialogContext = ctx;
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
         );
       },
     );
-    Future.delayed(const Duration(seconds: 2), () async {
-      try {
-        List<Detail> detail =
-            CartDatabaseManager().cartItems.map((e) => e.detail).toList();
-        String customerId = customerController.customerId.isNotEmpty
-            ? customerController.customerId.value
-            : productController.selectedCustomerId.value;
-        final cartDetails =
-            await CartDatabaseManager().getCartAndDraftIds(customerId);
 
-        final existingCartId = cartDetails?['cart_id'] ?? '';
-        final existingDraftId = cartDetails?['id'] ?? '';
-        final productBYData = AddToCartModel(
-          customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-          cartId: existingCartId.isNotEmpty ? existingCartId : '',
-          cartList: detail
-              .map((e) => SendCartData(
-                  productId:
-                      e.productId ?? productController.selectedCustomerId.value,
-                  variantId: e.variationId ?? '',
-                  pack: e.saleBy == 'Pack'
-                      ? e.pieces.toString()
-                      : e.count.toString(),
-                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                  price: e.sellPrice.toString(),
-                  discount: e.discount ?? 0,
-                  quantity: e.count.toInt(),
-                  variantName: e.variationName ?? ''))
-              .toList(),
-          total: productController.finalAmount.value.toStringAsFixed(0),
+    try {
+      final wasOnline = await productController.processCartBeforeNavigation(
+        context: context,
+        customerId: customerIdFinal,
+      );
+
+      // Pop the loading dialog using its own context
+      Navigator.of(dialogContext).pop();
+      log('[TabSwitch] Loading dialog dismissed.');
+
+      log('[TabSwitch] processCartBeforeNavigation completed. Was online: $wasOnline');
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (wasOnline) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: Center(
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: Lottie.asset(
+                    'assets/images/Animation - 1726906882515.json'),
+              ),
+            ),
+            content: CustomText(
+              content: 'Your order has been successfully saved as Draft',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
-
-        CartOrderModel? cartOrder =
-            await ApiWorker().addToCart(productBYData.toJson());
-
-        if (cartOrder != null) {
-          int orderStatus = 4;
-          CartOrderModel order = CartOrderModel(
-            customerId: customerId,
-            salesmanId: SessionHelper.loginSavedData!.salesmanId!,
-            cartId:
-                existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-            orderStatus: orderStatus,
-            draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-          );
-
-          await ApiWorker().placeOrder(order, (statusCode, message, response) {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
-
-            if (statusCode == 200) {
-              CartDatabaseManager().moveCartItemsToDraft(customerId);
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Lottie.asset(
-                            'assets/images/Animation - 1726906882515.json'),
-                      ),
-                    ),
-                    content: CustomText(
-                      content:
-                          'Your order has been successfully saved as Draft',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                          CartDatabaseManager()
-                              .clearCart(customerId: customerId);
-                          updateTabIndex();
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            } else {
-              // Show failure dialog
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 200,
-                        width: 200,
-                        child: Lottie.asset(
-                            'assets/images/Warning_animation.json'),
-                      ),
-                    ),
-                    content: const Text(
-                      "Couldn't save the order as draft. Please try again.",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                          updateTabIndex();
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          });
-        }
-      } catch (e) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
-        log('Error: $e');
-      } finally {
-        customerController.customerId.value = '';
-        productController.selectedCustomerId.value = '';
+      } else {
+        // await showDialog(
+        //   context: context,
+        //   barrierDismissible: false,
+        //   builder: (_) => AlertDialog(
+        //     title: Center(
+        //       child: SizedBox(
+        //         height: 200,
+        //         width: 200,
+        //         child: FittedBox(
+        //             fit: BoxFit.fitHeight,
+        //             child:
+        //                 Lottie.asset('assets/images/Warning_animation.json')),
+        //       ),
+        //     ),
+        //     content: const Text(
+        //       "Couldn't save the draft online. Saved offline instead.",
+        //       style: TextStyle(fontSize: 18),
+        //     ),
+        //     actions: [
+        //       TextButton(
+        //         onPressed: () {
+        //           Navigator.of(context, rootNavigator: true).pop();
+        //         },
+        //         child: const Text('OK'),
+        //       ),
+        //     ],
+        //   ),
+        // );
+        showCustomToastDisplay(
+          context,
+          "Draft successfully saved Offline",
+          Colors.green,
+          Icons.check,
+          duration: 5,
+        );
       }
-    });
+
+      updateTabIndex();
+    } catch (e) {
+      // Dismiss loading dialog if error occurs
+      Navigator.of(dialogContext).pop();
+      log('[TabSwitch][Error] Exception occurred: $e');
+
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Something went wrong. Please try again.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+
+      updateTabIndex();
+    } finally {
+      log('[TabSwitch] Resetting customer IDs.');
+      customerController.customerId.value = '';
+      productController.selectedCustomerId.value = '';
+    }
   } else {
-    log('No cart items or customer selected; directly update tab.');
+    log('[TabSwitch] Draft already exists. Directly updating tab index.');
     updateTabIndex();
   }
+  productController.isCartModified.value = false;
 }
+
+// void handleBackNavigation(
+//   BuildContext context,
+//   bool toDashBoard,
+//   ProductsController productController,
+//   CustomerAndOrderController customerController,
+//   Function updateTabIndex,
+//   int cartItemCount,
+//   String customerId,
+//   bool hasDraft,
+// ) {
+//   if (!hasDraft) {
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return const Center(
+//           child: CircularProgressIndicator(),
+//         );
+//       },
+//     );
+//     Future.delayed(const Duration(seconds: 2), () async {
+//       try {
+//         List<Detail> detail =
+//             CartDatabaseManager().cartItems.map((e) => e.detail).toList();
+//         String customerId = customerController.customerId.isNotEmpty
+//             ? customerController.customerId.value
+//             : productController.selectedCustomerId.value;
+//         final cartDetails =
+//             await CartDatabaseManager().getCartAndDraftIds(customerId);
+
+//         final existingCartId = cartDetails?['cart_id'] ?? '';
+//         final existingDraftId = cartDetails?['id'] ?? '';
+//         final productBYData = AddToCartModel(
+//           customerId: customerId,
+//           salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+//           cartId: existingCartId.isNotEmpty ? existingCartId : '',
+//           cartList: detail
+//               .map((e) => SendCartData(
+//                   productId:
+//                       e.productId ?? productController.selectedCustomerId.value,
+//                   variantId: e.variationId ?? '',
+//                   pack: e.saleBy == 'Pack'
+//                       ? e.pieces.toString()
+//                       : e.count.toString(),
+//                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                   price: e.sellPrice.toString(),
+//                   discount: e.discount ?? 0,
+//                   quantity: e.count.toInt(),
+//                   variantName: e.variationName ?? ''))
+//               .toList(),
+//           total: productController.finalAmount.value.toStringAsFixed(0),
+//         );
+
+//         CartOrderModel? cartOrder =
+//             await ApiWorker().addToCart(productBYData.toJson());
+
+//         if (cartOrder != null) {
+//           int orderStatus = 4;
+//           CartOrderModel order = CartOrderModel(
+//             customerId: customerId,
+//             salesmanId: SessionHelper.loginSavedData!.salesmanId!,
+//             cartId:
+//                 existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+//             orderStatus: orderStatus,
+//             draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+//           );
+
+//           await ApiWorker().placeOrder(order, (statusCode, message, response) {
+//             if (Navigator.canPop(context)) {
+//               Navigator.pop(context);
+//             }
+
+//             if (statusCode == 200) {
+//               CartDatabaseManager().moveCartItemsToDraft(customerId);
+//               showDialog(
+//                 context: context,
+//                 barrierDismissible: false,
+//                 builder: (BuildContext context) {
+//                   return AlertDialog(
+//                     title: Center(
+//                       child: SizedBox(
+//                         height: 100,
+//                         width: 100,
+//                         child: Lottie.asset(
+//                             'assets/images/Animation - 1726906882515.json'),
+//                       ),
+//                     ),
+//                     content: CustomText(
+//                       content:
+//                           'Your order has been successfully saved as Draft',
+//                     ),
+//                     actions: [
+//                       TextButton(
+//                         onPressed: () {
+//                           if (Navigator.canPop(context)) {
+//                             Navigator.pop(context);
+//                           }
+//                           CartDatabaseManager()
+//                               .clearCart(customerId: customerId);
+//                           updateTabIndex();
+//                         },
+//                         child: const Text('OK'),
+//                       ),
+//                     ],
+//                   );
+//                 },
+//               );
+//             } else {
+//               // Show failure dialog
+//               showDialog(
+//                 context: context,
+//                 barrierDismissible: false,
+//                 builder: (BuildContext context) {
+//                   return AlertDialog(
+//                     title: Center(
+//                       child: SizedBox(
+//                         height: 200,
+//                         width: 200,
+//                         child: Lottie.asset(
+//                             'assets/images/Warning_animation.json'),
+//                       ),
+//                     ),
+//                     content: const Text(
+//                       "Couldn't save the order as draft. Please try again.",
+//                       style: TextStyle(fontSize: 18),
+//                     ),
+//                     actions: [
+//                       TextButton(
+//                         onPressed: () {
+//                           if (Navigator.canPop(context)) {
+//                             Navigator.pop(context);
+//                           }
+//                           updateTabIndex();
+//                         },
+//                         child: const Text('OK'),
+//                       ),
+//                     ],
+//                   );
+//                 },
+//               );
+//             }
+//           });
+//         }
+//       } catch (e) {
+//         if (Navigator.canPop(context)) {
+//           Navigator.pop(context);
+//         }
+//         log('Error: $e');
+//       } finally {
+//         customerController.customerId.value = '';
+//         productController.selectedCustomerId.value = '';
+//       }
+//     });
+//   } else {
+//     log('No cart items or customer selected; directly update tab.');
+//     updateTabIndex();
+//   }
+// }

@@ -1,8 +1,11 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -31,6 +34,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:hive/hive.dart';
 
 class OptionWidgetCustomerDash extends StatefulWidget {
   final String customerId;
@@ -74,6 +78,29 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   final ScrollController _scrollController2 = ScrollController();
   final ScrollController _scrollController3 = ScrollController();
 
+  int _offlineDraftCount = 0;
+  int _onlineDraftCount = 0;
+  int get _totalDraftCount =>
+      (_onlineDraftCount == 0 ? _offlineDraftCount : 0) + _onlineDraftCount;
+
+  // Add: Function to get offline draft count for a customer
+  Future<int> getOfflineDraftCount(String customerId) async {
+    var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+    List<dynamic> drafts =
+        offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+    return drafts.where((draft) => draft['customer_id'] == customerId).length;
+  }
+
+  void _fetchDraftCounts(OrderDataas? orderCountList) async {
+    int offlineCount = await getOfflineDraftCount(widget.customerId);
+    int onlineCount =
+        orderCountList != null ? (orderCountList.draftOrder ?? 0) : 0;
+    setState(() {
+      _offlineDraftCount = offlineCount;
+      _onlineDraftCount = onlineCount;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +143,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // When entering the dashboard, fetch the draft counts
+    // The orderCountList is only available in build, so we trigger fetch in build
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<CustomersProvider>(
       builder: (context, provider, child) {
@@ -138,8 +172,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                 ),
               );
             } else if (snapshot.hasData) {
-              final chatData = snapshot.data!.data;
-              return options(chatData, context, provider);
+              final countData = snapshot.data!.data;
+              // Fetch draft counts only when data is available
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _fetchDraftCounts(countData);
+              });
+              return options(countData, context, provider);
             } else {
               return const NodataWidget();
             }
@@ -222,12 +260,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
         ),
         OptionData(
           title: 'Drafts',
-          count: orderCountList.draftOrder.toString(),
+          count: _totalDraftCount.toString(), // Use stable count
           svg: Assets.iconsIcDashboardDraft,
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
           color: const Color.fromARGB(255, 100, 43, 109),
-          onTap: () {
-            if (orderCountList.draftOrder.toString() == "0") {
+          onTap: () async {
+            int offlineCount = await getOfflineDraftCount(widget.customerId);
+            int onlineCount =
+                int.tryParse(orderCountList.draftOrder.toString()) ?? 0;
+            var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+            List<dynamic> drafts = offlineDraftsBox
+                .get('drafts', defaultValue: []) as List<dynamic>;
+            List<dynamic> offlineDraftDetails = drafts
+                .where((draft) => draft['customer_id'] == widget.customerId)
+                .toList();
+            if ((onlineCount + (onlineCount == 0 ? offlineCount : 0)) == 0) {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
@@ -237,7 +284,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               );
               _showOrderTypeDialog(
                   context, provider, OrderStatus.draft, 'Draft',
-                  onContinueShopping: widget.onContinueShopping);
+                  onContinueShopping: widget.onContinueShopping,
+                  offlineDraftDetails: offlineDraftDetails);
               CartDatabaseManager().getDraftItems();
             }
           },
@@ -272,6 +320,76 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
       fit: BoxFit.contain,
     );
 
+    if (optionData.title == 'Drafts') {
+      return Flexible(
+        child: MyCommnonContainer(
+          color: white,
+          onTap: optionData.onTap,
+          margin: nkSymmetricPadding(
+            vertical: 0,
+            horizontal: AppDimensions.instance.width * 0.001,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+              blurRadius: 2,
+              offset: const Offset(4, 4),
+            ),
+          ],
+          borderRadius: 20,
+          padding: nkLargePadding(),
+          isCommonBorder: true,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: optionData.svgBgColor,
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: svgComponent,
+                  ),
+                ),
+                Flexible(
+                  child: Wrap(
+                    direction: Axis.vertical,
+                    children: [
+                      CustomText(
+                        content: optionData.title,
+                        fontSize: (MediaQuery.of(context).orientation ==
+                                Orientation.portrait)
+                            ? (ResponsiveInfo.isMobileDimension(context)
+                                ? 4.9
+                                : 13)
+                            : (ResponsiveInfo.isMobileDimension(context)
+                                ? 7
+                                : 13),
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                      CustomText(
+                        content: optionData.count,
+                        fontSize: ResponsiveInfo.isMobileDimension(context)
+                            ? 7.7
+                            : 15.3,
+                        fontWeight: FontWeight.w600,
+                        color: optionData.color,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Default for other options
     return Flexible(
       child: MyCommnonContainer(
         color: white,
@@ -321,7 +439,6 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               : 13),
                       fontWeight: FontWeight.w600,
                       color: secondaryTextColor,
-                      //maxLines: optionData.title.length,
                     ),
                     CustomText(
                       content:
@@ -1159,9 +1276,22 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
     );
   }
 
-  void _showOrderTypeDialog(BuildContext context, CustomersProvider provider,
-      OrderStatus selectedOrderStatus, String orderType,
-      {VoidCallback? onContinueShopping}) {
+  // Update _showOrderTypeDialog to accept offlineDraftDetails
+  void _showOrderTypeDialog(
+    BuildContext context,
+    CustomersProvider provider,
+    OrderStatus selectedOrderStatus,
+    String orderType, {
+    VoidCallback? onContinueShopping,
+    List<dynamic>? offlineDraftDetails, // <-- new argument
+  }) {
+    var offlineDraftTotal = (offlineDraftDetails == null
+        ? 0
+        : (offlineDraftDetails.fold<double>(
+            0.0,
+            (sum, order) =>
+                sum + (order['displayData']['displayTotal'] ?? 0.0))));
+    log("offlineDraftDetails : $offlineDraftDetails");
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1183,11 +1313,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const SizedBox.shrink();
-                          } else if (snapshot.hasError) {
+                          } else if (snapshot.hasError &&
+                              (offlineDraftDetails == null)) {
                             return noDataFoundWidget(orderType);
                           } else {
                             final orders = snapshot.data?.data ?? [];
-
+                            // offlineDraftDetails is available here for future use
                             final filteredOrders = orders.where((order) {
                               return order.orderStatus ==
                                   selectedOrderStatus.type;
@@ -1303,29 +1434,43 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                           ),
                                                         )),
                                                       ],
-                                                      rows:
-                                                          filteredOrders.isEmpty
-                                                              ? [
-                                                                  const DataRow(
-                                                                      cells: [
-                                                                        DataCell(
-                                                                            Text('Record Not Found')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                        DataCell(
-                                                                            Text('')),
-                                                                      ])
-                                                                ]
-                                                              : filteredOrders
-                                                                  .map((order) {
+                                                      rows: [
+                                                        ...(filteredOrders
+                                                                    .isEmpty &&
+                                                                (offlineDraftDetails ==
+                                                                        null ||
+                                                                    offlineDraftDetails
+                                                                        .isEmpty)
+                                                            ? [
+                                                                const DataRow(
+                                                                  cells: [
+                                                                    DataCell(Text(
+                                                                        'Record Not Found')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                    DataCell(
+                                                                        Text(
+                                                                            '')),
+                                                                  ],
+                                                                )
+                                                              ]
+                                                            : [
+                                                                ...filteredOrders
+                                                                    .map(
+                                                                        (order) {
                                                                   final customer = order
                                                                           .customer
                                                                           .isNotEmpty
@@ -1412,9 +1557,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                             child:
                                                                                 Text(
                                                                               order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
-                                                                              style: TextStyle(
-                                                                                fontSize: fontSize,
-                                                                              ),
+                                                                              style: TextStyle(fontSize: fontSize),
                                                                               maxLines: 1,
                                                                               overflow: TextOverflow.ellipsis,
                                                                             ),
@@ -1430,9 +1573,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                             child:
                                                                                 Text(
                                                                               '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                                              style: TextStyle(
-                                                                                fontSize: fontSize,
-                                                                              ),
+                                                                              style: TextStyle(fontSize: fontSize),
                                                                               maxLines: 2,
                                                                             ),
                                                                           ),
@@ -1446,11 +1587,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               Center(
                                                                             child:
                                                                                 Text(
-                                                                              ext.formatAmount(order.orderTotal),
+                                                                              // '',
+                                                                              formatAmount((filteredOrders.isNotEmpty && offlineDraftDetails != null && offlineDraftDetails.isNotEmpty) ? offlineDraftTotal : ((filteredOrders.fold<double>(0.0, (sum, order) => sum + (order.orderTotal ?? 0.0))) + offlineDraftTotal)),
+                                                                              // ext.formatAmount((offlineDraftDetails != null && offlineDraftDetails.isNotEmpty) ? (filteredOrders.fold<double>(0.0, (sum, order) => sum + (order.orderTotal ?? 0.0))) + (offlineDraftDetails.fold<double>(0.0, (sum, order) => sum + (order['displayData']['displayTotal'] ?? 0.0))) : order.orderTotal),
                                                                               maxLines: 1,
-                                                                              style: TextStyle(
-                                                                                fontSize: fontSize,
-                                                                              ),
+                                                                              style: TextStyle(fontSize: fontSize),
                                                                             ),
                                                                           ),
                                                                         ),
@@ -1479,7 +1620,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                     ),
                                                                                     if (order.orderStatus == 2 && order.deliveryDate != null) ...[
                                                                                       Text(
-                                                                                        NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                        NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate?.toIso8601String() ?? '')),
                                                                                         textAlign: TextAlign.center,
                                                                                         maxLines: 2,
                                                                                         style: const TextStyle(
@@ -1496,11 +1637,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         ),
                                                                       ),
                                                                       DataCell(
-                                                                          SizedBox(
-                                                                        width: flexWidth *
-                                                                            0.5,
-                                                                        child: IconButton(
-                                                                            onPressed: () {
+                                                                        SizedBox(
+                                                                          width:
+                                                                              flexWidth * 0.5,
+                                                                          child:
+                                                                              IconButton(
+                                                                            onPressed:
+                                                                                () {
                                                                               if (orderType == 'Draft') {
                                                                                 final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                                 showDialog(
@@ -1519,19 +1662,244 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                   },
                                                                                 );
                                                                               }
-                                                                              if (orderType != 'Draft') {
-                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, true, isButtonNeeded: true);
+                                                                              if (orderType != 'Draft' && orderType != 'Booking' && orderType != 'Estimate') {
+                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true);
+                                                                              }
+                                                                              if (orderType != 'Draft' && orderType == 'Booking') {
+                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'BOOKING');
+                                                                              }
+                                                                              if (orderType != 'Draft' && orderType == 'Estimate') {
+                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'ESTIMATE');
                                                                               }
                                                                             },
-                                                                            icon: const Icon(
+                                                                            icon:
+                                                                                const Icon(
                                                                               Icons.visibility,
                                                                               size: 15,
                                                                               color: primaryColor,
-                                                                            )),
-                                                                      )),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
                                                                     ],
                                                                   );
-                                                                }).toList(),
+                                                                }),
+                                                                // --- OFFLINE DRAFTS ---
+                                                                if (filteredOrders.isEmpty &&
+                                                                    offlineDraftDetails !=
+                                                                        null &&
+                                                                    offlineDraftDetails
+                                                                        .isNotEmpty)
+                                                                  ...offlineDraftDetails
+                                                                      .map(
+                                                                          (draft) {
+                                                                    // final orderId =
+                                                                    //     '';
+                                                                    final orderId = draft['order_id']
+                                                                            .toString()
+                                                                            .startsWith(
+                                                                                'DRAFT')
+                                                                        ? draft[
+                                                                            'order_id']
+                                                                        : '';
+                                                                    // final orderId =
+                                                                    //     draft['order_id'] ??
+                                                                    //         'dummy_order_id';
+
+                                                                    final customerName =
+                                                                        draft['displayData']['customerName'] ??
+                                                                            'dummy_customerName';
+                                                                    final customerMobile =
+                                                                        draft['displayData']['mobileNo'] ??
+                                                                            'dummy_mobile';
+                                                                    final customerEmail =
+                                                                        draft['displayData']['email'] ??
+                                                                            'dummy_email';
+                                                                    final createdDate =
+                                                                        draft['displayData']['createdDate'] ??
+                                                                            'dummy_createdDate';
+                                                                    final displayTotal =
+                                                                        draft['displayData']['displayTotal'] ??
+                                                                            'dummy_total';
+                                                                    return DataRow(
+                                                                      cells: [
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1.5,
+                                                                            child:
+                                                                                Row(
+                                                                              children: [
+                                                                                CircleAvatar(
+                                                                                  radius: (fixedIconSize / 2) + 2,
+                                                                                  backgroundColor: const Color(0xffe6ecff),
+                                                                                  child: Icon(Icons.person, size: fixedIconSize, color: Colors.blue),
+                                                                                ),
+                                                                                SizedBox(width: padding),
+                                                                                Flexible(
+                                                                                  child: Column(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        customerName,
+                                                                                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                      Text(
+                                                                                        customerMobile,
+                                                                                        style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.bold),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                      Text(
+                                                                                        customerEmail,
+                                                                                        style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                      // Text(
+                                                                                      //   'N/A',
+                                                                                      //   style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                      //   maxLines: 1,
+                                                                                      //   overflow: TextOverflow.ellipsis,
+                                                                                      // ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ), // Customer List (dummy)
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 0.9,
+                                                                            child:
+                                                                                InkWell(
+                                                                              onTap: () {
+                                                                                showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                                              },
+                                                                              child: Center(
+                                                                                child: Text(
+                                                                                  orderId,
+                                                                                  style: TextStyle(color: primaryColor, fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Text(
+                                                                                createdDate != null ? getFormattedOrderCreatAt(createdDate.toString()) : 'N/A',
+                                                                                style: TextStyle(fontSize: fontSize),
+                                                                                maxLines: 1,
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Text(
+                                                                                '${SessionHelper.loginSavedData?.fullname} ${SessionHelper.loginSavedData?.lastname}',
+                                                                                style: TextStyle(fontSize: fontSize),
+                                                                                maxLines: 2,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Text(
+                                                                                formatAmount(displayTotal),
+                                                                                maxLines: 1,
+                                                                                style: TextStyle(fontSize: fontSize),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1.1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Container(
+                                                                                decoration: const BoxDecoration(
+                                                                                  color: Color.fromARGB(255, 255, 183, 134),
+                                                                                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                                                                                ),
+                                                                                child: Padding(
+                                                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                                                  child: Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        "Offline",
+                                                                                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                        textAlign: TextAlign.center,
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 0.5,
+                                                                            child:
+                                                                                IconButton(
+                                                                              onPressed: () {
+                                                                                if (orderType == 'Draft') {
+                                                                                  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                  showDialog(
+                                                                                    context: context,
+                                                                                    builder: (BuildContext context) {
+                                                                                      return CartDialogue(
+                                                                                        active: true,
+                                                                                        cartItemCount: cartProvider.cartItemCount,
+                                                                                        productsController: widget.productsController ?? ProductsController(),
+                                                                                        customerOrderController: customerOrderController,
+                                                                                        onContinueShopping: onContinueShopping,
+                                                                                        isFromCustomerDach: true,
+                                                                                        isDashboard: false,
+                                                                                        customerId: widget.customerId,
+                                                                                      );
+                                                                                    },
+                                                                                  );
+                                                                                }
+                                                                              },
+                                                                              icon: const Icon(
+                                                                                Icons.visibility,
+                                                                                size: 15,
+                                                                                color: primaryColor,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  }),
+                                                              ]),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),
@@ -1707,14 +2075,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                        formatAmount(
-                                                            filteredOrders.fold<
-                                                                    double>(
-                                                                0.0,
-                                                                (sum, order) =>
-                                                                    sum +
-                                                                    (order.orderTotal ??
-                                                                        0.0))),
+                                                        formatAmount((filteredOrders
+                                                                    .isNotEmpty &&
+                                                                offlineDraftDetails !=
+                                                                    null &&
+                                                                offlineDraftDetails
+                                                                    .isNotEmpty)
+                                                            ? offlineDraftTotal
+                                                            : ((filteredOrders.fold<
+                                                                        double>(
+                                                                    0.0,
+                                                                    (sum, order) =>
+                                                                        sum +
+                                                                        (order.orderTotal ??
+                                                                            0.0))) +
+                                                                offlineDraftTotal)),
                                                         maxLines: 2,
                                                       ),
                                                     ),

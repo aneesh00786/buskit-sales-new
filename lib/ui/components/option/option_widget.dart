@@ -22,6 +22,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../../../generated/assets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -76,9 +77,38 @@ class _OptionWidgetState extends State<OptionWidget> {
   final ScrollController _scrollController2 = ScrollController();
   final ScrollController _scrollController3 = ScrollController();
 
+  int _offlineDraftCount = 0;
+  int _onlineDraftCount = 0;
+  int get _totalDraftCount => _offlineDraftCount + _onlineDraftCount;
+
+  // Add: Function to get offline draft count for a customer
+  Future<int> getOfflineDraftCount() async {
+    try {
+      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+      List<dynamic> drafts =
+          offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+      return drafts.length;
+    } catch (e) {
+      print('Error getting offline draft count: $e');
+      return 0;
+    }
+  }
+
+  Future<void> _fetchDraftCounts(OrderCountListt? orderCountList) async {
+    int offlineCount = await getOfflineDraftCount();
+    int onlineCount =
+        orderCountList != null ? (orderCountList.draftOrder ?? 0) : 0;
+    setState(() {
+      _offlineDraftCount = offlineCount;
+      _onlineDraftCount = onlineCount;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _initializeDraftCounts();
+
     _scrollController1.addListener(() {
       final position = _scrollController1.position.pixels;
       if (_scrollController2.hasClients &&
@@ -114,6 +144,10 @@ class _OptionWidgetState extends State<OptionWidget> {
     });
   }
 
+  Future<void> _initializeDraftCounts() async {
+    await _fetchDraftCounts(null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
@@ -131,8 +165,11 @@ class _OptionWidgetState extends State<OptionWidget> {
             } else if (snapshot.hasError || !snapshot.hasData) {
               return const NodataWidget();
             } else if (snapshot.hasData) {
-              final chatData = snapshot.data!.orderCountList;
-              return options(chatData, context, provider);
+              final countData = snapshot.data!.orderCountList;
+
+              _fetchDraftCounts(countData);
+
+              return options(countData, context, provider);
             } else {
               return const NodataWidget();
             }
@@ -203,18 +240,20 @@ class _OptionWidgetState extends State<OptionWidget> {
             onTap: () {
               if (subscriptionController.bookingView.value == 'true') {
                 if (orderCountList?.preorderOrder.toString() == "0") {
-              showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
-            } else {provider.fetchOrdersData(OrderStatus.preOrder);
-                showEstimatesDialog(
-                    context,
-                    provider,
-                    OrderStatus.preOrder,
-                    'Booking',
-                    false,
-                    productsController,
-                    customerOrderController,
-                    widget.homeController);}
+                  showCustomToastDisplay(
+                      context, "No Record Found", red, Icons.close);
+                } else {
+                  provider.fetchOrdersData(OrderStatus.preOrder);
+                  showEstimatesDialog(
+                      context,
+                      provider,
+                      OrderStatus.preOrder,
+                      'Booking',
+                      false,
+                      productsController,
+                      customerOrderController,
+                      widget.homeController);
+                }
               } else {
                 showUpgradePlanDialog(context);
               }
@@ -222,15 +261,23 @@ class _OptionWidgetState extends State<OptionWidget> {
         OptionData(
             title: 'Drafts',
             count: widget.draftCount?.toString() ?? "0",
+            // count: _totalDraftCount.toString(),
             svg: Assets.iconsIcDashboardDraft,
             svgBgColor: const Color.fromARGB(255, 255, 227, 255),
             color: const Color.fromARGB(255, 100, 43, 109),
-            onTap: () {
-              if (orderCountList?.draftOrder.toString() == "0") {
-              showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
-            } else {provider.fetchOrdersData(OrderStatus.draft);
-              showEstimatesDialog(
+            onTap: () async {
+              int offlineCount = await getOfflineDraftCount();
+              int onlineCount = int.parse(widget.draftCount?.toString() ?? '0');
+              var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+              List<dynamic> drafts = offlineDraftsBox
+                  .get('drafts', defaultValue: []) as List<dynamic>;
+              List<dynamic> offlineDraftDetails = drafts.toList();
+              if (_totalDraftCount == 0) {
+                showCustomToastDisplay(
+                    context, "No Record Found", red, Icons.close);
+              } else {
+                provider.fetchOrdersData(OrderStatus.draft);
+                showEstimatesDialog(
                   context,
                   provider,
                   OrderStatus.draft,
@@ -238,8 +285,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                   true,
                   productsController,
                   customerOrderController,
-                  widget.homeController);
-              CartDatabaseManager().getDraftItems();}
+                  widget.homeController,
+                  offlineDraftDetails: offlineDraftDetails,
+                );
+                CartDatabaseManager().getDraftItems();
+              }
             }),
         OptionData(
             title: 'Cancelled',
@@ -249,18 +299,20 @@ class _OptionWidgetState extends State<OptionWidget> {
             color: const Color.fromARGB(255, 139, 27, 27),
             onTap: () {
               if (orderCountList?.cancelOrder.toString() == "0") {
-              showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
-            } else {provider.fetchOrdersData(OrderStatus.cancelled);
-              showEstimatesDialog(
-                  context,
-                  provider,
-                  OrderStatus.cancelled,
-                  'Cancelled',
-                  false,
-                  productsController,
-                  customerOrderController,
-                  widget.homeController);}
+                showCustomToastDisplay(
+                    context, "No Record Found", red, Icons.close);
+              } else {
+                provider.fetchOrdersData(OrderStatus.cancelled);
+                showEstimatesDialog(
+                    context,
+                    provider,
+                    OrderStatus.cancelled,
+                    'Cancelled',
+                    false,
+                    productsController,
+                    customerOrderController,
+                    widget.homeController);
+              }
             }),
       ];
 
@@ -271,6 +323,75 @@ class _OptionWidgetState extends State<OptionWidget> {
       height: AppDimensions.instance.height * 0.03,
       fit: BoxFit.contain,
     );
+
+    // if (optionData.title == 'Drafts') {
+    //   return Flexible(
+    //     child: MyCommnonContainer(
+    //       color: white,
+    //       onTap: optionData.onTap,
+    //       margin: nkSymmetricPadding(
+    //         vertical: 0,
+    //         horizontal: AppDimensions.instance.width * 0.001,
+    //       ),
+    //       boxShadow: [
+    //         BoxShadow(
+    //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+    //           blurRadius: 2,
+    //           offset: const Offset(4, 4),
+    //         ),
+    //       ],
+    //       borderRadius: 20,
+    //       padding: nkLargePadding(),
+    //       isCommonBorder: true,
+    //       child: Padding(
+    //         padding: const EdgeInsets.only(top: 8, bottom: 8),
+    //         child: Row(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Container(
+    //               decoration: BoxDecoration(
+    //                   color: optionData.svgBgColor,
+    //                   borderRadius: BorderRadius.circular(15)),
+    //               child: Padding(
+    //                 padding: const EdgeInsets.all(8.0),
+    //                 child: svgComponent,
+    //               ),
+    //             ),
+    //             Flexible(
+    //               child: Wrap(
+    //                 direction: Axis.vertical,
+    //                 children: [
+    //                   CustomText(
+    //                     content: optionData.title,
+    //                     fontSize: (MediaQuery.of(context).orientation ==
+    //                             Orientation.portrait)
+    //                         ? (ResponsiveInfo.isMobileDimension(context)
+    //                             ? 4.9
+    //                             : 13)
+    //                         : (ResponsiveInfo.isMobileDimension(context)
+    //                             ? 7
+    //                             : 13),
+    //                     fontWeight: FontWeight.w600,
+    //                     color: secondaryTextColor,
+    //                   ),
+    //                   CustomText(
+    //                     content: optionData.count,
+    //                     fontSize: ResponsiveInfo.isMobileDimension(context)
+    //                         ? 7.7
+    //                         : 15.3,
+    //                     fontWeight: FontWeight.w600,
+    //                     color: optionData.color,
+    //                   ),
+    //                 ],
+    //               ),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // }
 
     return Flexible(
       child: Padding(
@@ -352,7 +473,8 @@ class _OptionWidgetState extends State<OptionWidget> {
       case 'bookings':
         return orderCountList?.preorderOrder.toString() ?? "0";
       case 'drafts':
-        return orderCountList?.draftOrder.toString() ?? "0";
+        // return orderCountList?.draftOrder.toString() ?? "0";
+        return _totalDraftCount.toString();
       case 'cancelled':
         return orderCountList?.cancelOrder.toString() ?? "0";
       default:

@@ -17,6 +17,8 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_m
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
@@ -100,14 +102,19 @@ void main() async {
   Get.lazyPut<HomeController>(() => HomeController());
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
+  Get.put(DashBoardController());
   final subscriptionController = Get.put(SubscriptionController());
   final orderController = Get.put(OrderController());
 
   Get.put(CalenderMapController());
-  Get.put(ProductsController());
+  final customersAndOrdersController = Get.put(CustomerAndOrderController());
+  final productsController = Get.put(ProductsController());
 
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
+
+  final cusProvider =
+      Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
 
   final connectivityService = ConnectivityService();
   connectivityService.startListening((connectivityResult) async {
@@ -120,7 +127,10 @@ void main() async {
           await connectivityService.syncOfflineOrders(
             onOrderSynced: orderController.loadOfflineOrders,
           );
-          await connectivityService.syncOfflineDrafts();
+          await connectivityService.syncOfflineDrafts(onDraftsSynced: () async {
+            await cusProvider.fetchCustomerDashboardCountData(
+                customersAndOrdersController.customerId.value);
+          });
           await connectivityService.retryOfflineRequests();
         } catch (e) {
           log('Error during sync: $e');

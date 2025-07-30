@@ -41,9 +41,9 @@ class GroupedItemDataRows {
                   ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
                       groupedItem.detail.count.toDouble()
                   : groupedItem.detail.count.toDouble()));
-      final tax = groupedItem.detail.tax! *
+      final tax = (groupedItem.detail.tax ?? 0) *
           (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
-              ? groupedItem.detail.pieces! * groupedItem.detail.count
+              ? (groupedItem.detail.pieces ?? 0) * groupedItem.detail.count
               : 1);
       log('Tax Discount Row Item : $discountPrice');
       log('Tax Discount Row Item : $taxDiscountAmount');
@@ -126,7 +126,7 @@ class GroupedItemDataRows {
                   groupedItem,
                   (groupedItem.detail.inclTax == 'incl_tax'
                       ? groupedItem.totalPrice.toString()
-                      : (groupedItem.totalPrice + groupedItem.detail.tax!)
+                      : (groupedItem.totalPrice + (groupedItem.detail.tax ?? 0))
                           .toString()),
                   fontSize,
                   availableWidth,

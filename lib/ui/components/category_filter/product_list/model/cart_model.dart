@@ -45,8 +45,6 @@ class CartItem extends HiveObject {
   @HiveField(12)
   int? catId;
 
-
-
   CartItem({
     required this.detail,
     required this.productName,
@@ -63,24 +61,23 @@ class CartItem extends HiveObject {
     this.catId,
   });
 
-factory CartItem.fromJson(Map<String, dynamic> json) {
-  return CartItem(
-    detail: Detail.fromJson(json['detail'] ?? {}),
-    productName: json['productName'] ?? '',
-    totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
-    isPack: json['isPack'] as bool?,
-    count: json['count'] as int?,
-    customerId: json['customer_id'] as String?,
-    cartId: json['cart_id'] as String?,
-    draftId: json['id'] as String?,
-    isChecked: json['isChecked'] as bool? ?? true,
-    draftTotal: json['order_total'] as num? ?? 0,
-    salesmanId: json['salesman_id'] as String?,
-    boxType: json['boxType'],
-    catId: json['categories_id'],
-  );
-}
-
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      detail: Detail.fromJson(json['detail'] ?? {}),
+      productName: json['productName'] ?? '',
+      totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
+      isPack: json['isPack'] as bool?,
+      count: json['count'] as int?,
+      customerId: json['customer_id'] as String?,
+      cartId: json['cart_id'] as String?,
+      draftId: json['id'] as String?,
+      isChecked: json['isChecked'] as bool? ?? true,
+      draftTotal: json['order_total'] as num? ?? 0,
+      salesmanId: json['salesman_id'] as String?,
+      boxType: json['boxType'],
+      catId: json['categories_id'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -94,9 +91,9 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
       'id': draftId,
       'isChecked': isChecked,
       'order_total': draftTotal,
-      'salesman_id':salesmanId,
-      'boxType':boxType,
-      'categories_id':catId
+      'salesman_id': salesmanId,
+      'boxType': boxType,
+      'categories_id': catId
     };
   }
 
@@ -110,26 +107,25 @@ factory CartItem.fromJson(Map<String, dynamic> json) {
     String? cartId,
     String? draftId,
     bool? isChcked,
-    num?draftTotal,
-    String?salesmanId,
-    bool?boxType,
+    num? draftTotal,
+    String? salesmanId,
+    bool? boxType,
     int? catId,
   }) {
     return CartItem(
-        detail: detail ?? this.detail,
-        productName: productName ?? this.productName,
-        totalPrice: totalPrice ?? this.totalPrice,
-        isPack: isPack ?? this.isPack,
-        count: count ?? this.count,
-        customerId: customerId ?? this.customerId,
-        cartId: cartId ?? this.cartId,
-        draftId: draftId ?? this.draftId,
-        isChecked: isChcked ?? isChecked,
-        draftTotal: draftTotal ?? this.draftTotal,
-        salesmanId: salesmanId ?? this.salesmanId,
-        boxType: boxType ?? this.boxType,
-        catId: catId ?? this.catId,
-        
-        );
+      detail: detail ?? this.detail,
+      productName: productName ?? this.productName,
+      totalPrice: totalPrice ?? this.totalPrice,
+      isPack: isPack ?? this.isPack,
+      count: count ?? this.count,
+      customerId: customerId ?? this.customerId,
+      cartId: cartId ?? this.cartId,
+      draftId: draftId ?? this.draftId,
+      isChecked: isChcked ?? isChecked,
+      draftTotal: draftTotal ?? this.draftTotal,
+      salesmanId: salesmanId ?? this.salesmanId,
+      boxType: boxType ?? this.boxType,
+      catId: catId ?? this.catId,
+    );
   }
 }

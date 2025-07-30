@@ -88,21 +88,24 @@ class DialogTableHeaderText extends StatelessWidget {
   final TextAlign align;
 
   const DialogTableHeaderText(
-      {super.key,
+      {Key? key,
       required this.text,
       this.fontSize = 12.0,
-      this.align = TextAlign.center});
+      this.align = TextAlign.center})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: align,
-      style: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.w600,
-        fontSize: fontSize,
-        fontFamily: 'Poppins_Regular',
+    return Expanded(
+      child: Text(
+        text,
+        textAlign: align,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          fontFamily: 'Poppins_Regular',
+        ),
       ),
     );
   }

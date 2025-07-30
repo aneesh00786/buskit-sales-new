@@ -44,8 +44,12 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     if (oldWidget.selectedTabIndex != widget.selectedTabIndex) {
       _debounce?.cancel();
       _debounce = Timer(const Duration(milliseconds: 300), () {
-        widget.orderController
-            .loadOrderData(selectedIndex: widget.selectedTabIndex);
+        widget.orderController.loadOrderData(
+          selectedIndex: widget.hasOfflineOrders
+              ? widget.selectedTabIndex - 1
+              : widget.selectedTabIndex,
+          // widget.selectedTabIndex
+        );
         widget.orderController.loadOrderCountData();
       });
     }

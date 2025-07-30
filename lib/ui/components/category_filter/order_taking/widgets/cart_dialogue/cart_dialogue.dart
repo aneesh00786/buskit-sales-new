@@ -2,8 +2,10 @@
 
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
+import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -80,9 +82,9 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
   double orderTax = 0.0;
+  double totalDiscount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
-  double totalDiscount = 0.0;
   double totalDiscountPreorder = 0.0;
   bool isOrder = true;
   String? _selectedValue;
@@ -96,7 +98,7 @@ class CartDialogueState extends State<CartDialogue> {
   ];
   List<String> filteredOptions = [];
   CustomerAndOrderController customeController =
-      Get.put(CustomerAndOrderController());
+      Get.find<CustomerAndOrderController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
   final TextEditingController totalQuickController = TextEditingController();
@@ -159,11 +161,12 @@ class CartDialogueState extends State<CartDialogue> {
 
     localCounts =
         List<int>.filled(widget.productsController.cartItems.length, 0);
-    log('Customer ID in INitstate : ${widget.customerId ?? ''}');
+    log('Customer ID in INitstate : ${widget.customerId ?? widget.productsController.selectedCustomerId.value}');
+
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
-        // widget.customerOrderController?.customerId.value ?? ''
-        widget.customerId ?? '');
+        widget.customerId ??
+            widget.productsController.selectedCustomerId.value);
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
@@ -188,30 +191,141 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _loadCartItems() async {
     try {
-      final customerId = widget.customerId;
+      final isOnline = await ConnectivityService().isOnline();
 
-      // (widget.customerOrderController!.customerId.value.isNotEmpty
-      //     ? widget.customerOrderController!.customerId.value
-      //     : widget.productsController.selectedCustomerId.value);
-      // Only load deduplicated draft items if from dashboard draft view
-      final bool isDraftView = widget.isFromCustomerDach == true;
+      final customerId = widget.customerId ??
+          widget.productsController.selectedCustomerId.value;
+      final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
+      log('[CartDialogue] isDraftView: $isDraftView, customerId: $customerId');
+
+      if (isDraftView) {
+        if (!isOnline) {
+          var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+          List<dynamic> drafts =
+              offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+          final draft = drafts.firstWhere(
+            (d) => d['customer_id'] == customerId,
+            orElse: () => null,
+          );
+          log('[CartDialogue] Found offline draft for customer: ${draft != null}');
+
+          if (draft != null && draft['details'] != null) {
+            final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+            final List details = draft['details'];
+            final draftBox = Hive.box<CartItem>('draftBox');
+
+            final keysToRemove = draftBox.keys.where((key) {
+              final item = draftBox.get(key);
+              return item != null && item.customerId == customerId;
+            }).toList();
+
+            log('[CartDialogue] Found ${keysToRemove.length} draft items to delete for customer $customerId');
+
+            for (var key in keysToRemove) {
+              final deletedItem = draftBox.get(key);
+              await draftBox.delete(key);
+              log('[CartDialogue] Deleted draftBox item with key $key: ${deletedItem?.toJson()}');
+            }
+
+            for (var detail in details) {
+              final cartItem = CartItem(
+                detail: Detail(
+                  productId: detail['product_id'],
+                  variationId: detail['variant_id'],
+                  sellPrice: detail['price'],
+                  discount: detail['discount'],
+                  count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+                  pieces: int.tryParse(detail['pack'] ?? '0'),
+                  variationName: detail['variant_name'],
+                  saleBy: detail['packType'],
+                  stock: detail['stock'] ?? 0,
+                  unitType: detail['unitType'],
+                ),
+                productName: detail['variant_name'] ?? '',
+                totalPrice:
+                    double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+                isPack: detail['packType'] == 'Pack',
+                customerId: customerId,
+                salesmanId: salesmanId,
+                catId: 0,
+              );
+              await draftBox.add(cartItem);
+              log('[CartDialogue] Added CartItem to draftBox: ${cartItem.toJson()}');
+            }
+
+            final allDrafts = draftBox.values
+                .where((item) => item.customerId == customerId)
+                .toList();
+            log('[CartDialogue] Total items in draftBox for customer $customerId after insertion: ${allDrafts.length}');
+            for (var item in allDrafts) {
+              log('[CartDialogue] draftBox item: ${item.toJson()}');
+            }
+          } else {
+            log('[CartDialogue] No offline draft details found for customer $customerId');
+          }
+        }
+      }
+
+      // --- End offline draft loading ---
+
       widget.productsController.cartItems = await CartDatabaseManager()
-          .getCartItems(customerId ?? '', draftsOnly: isDraftView);
+          .getCartItems(customerId, draftsOnly: isDraftView);
+      log('[CartDialogue] Loaded cartItems count: ${widget.productsController.cartItems.map((e) => e.toJson()).toList()}');
+
+      await setCartToOrderAndPreorder();
+
+      for (var item in widget.productsController.cartItems) {
+        item.isChecked = true;
+        final count = item.detail.count;
+        final pieces = item.detail.pieces ?? 1;
+        final sellPrice =
+            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+        final tax = item.detail.tax?.toDouble() ?? 0.0;
+        final inclTax = item.detail.inclTax;
+        if (item.isPack == true || item.detail.packtype == 'Pack') {
+          item.totalPrice = (count * pieces * sellPrice);
+        } else {
+          item.totalPrice = (count * sellPrice);
+        }
+        if (inclTax != 'incl_tax') {
+          if (item.isPack == true || item.detail.packtype == 'Pack') {
+            item.totalPrice += (count * pieces * tax);
+          } else {
+            item.totalPrice += (count * tax);
+          }
+        }
+      }
+      for (var item in widget.productsController.preorderItems) {
+        item.isChecked = true;
+        final count = item.detail.count;
+        final pieces = item.detail.pieces ?? 1;
+        final sellPrice =
+            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+        final tax = item.detail.tax?.toDouble() ?? 0.0;
+        final inclTax = item.detail.inclTax;
+        if (item.isPack == true || item.detail.packtype == 'Pack') {
+          item.totalPrice = (count * pieces * sellPrice);
+        } else {
+          item.totalPrice = (count * sellPrice);
+        }
+        if (inclTax != 'incl_tax') {
+          if (item.isPack == true || item.detail.packtype == 'Pack') {
+            item.totalPrice += (count * pieces * tax);
+          } else {
+            item.totalPrice += (count * tax);
+          }
+        }
+      }
       log('CartItems Length :  ${widget.productsController.cartItems.length}');
-      widget.productsController.orderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock! > 0)
-          .toList();
-      widget.productsController.preorderItems = widget
-          .productsController.cartItems
-          .where((item) => item.detail.stock == 0)
-          .toList();
+      log('Order Length :  ${widget.productsController.orderItems.length}');
+      log('PreOrder Length :  ${widget.productsController.preorderItems.length}');
       orderSubtotal =
           widget.productsController.orderItems.fold(0.0, (sum, item) {
         return item.isChecked! ? sum + (item.totalPrice) : sum;
       });
       preorderSubtotal =
           widget.productsController.preorderItems.fold(0.0, (sum, item) {
-        return sum + (item.totalPrice);
+        return item.isChecked! ? sum + (item.totalPrice) : sum;
       });
       orderTax = widget.productsController.orderItems.fold(
         0.0,
@@ -219,7 +333,6 @@ class CartDialogueState extends State<CartDialogue> {
           if (item.isChecked == true) {
             final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
             if (item.isPack == true || item.detail.packtype == "Pack") {
-              log('Item Tax ${itemTax * (item.detail.pieces ?? 1)}');
               return sum +
                   (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
             } else {
@@ -302,10 +415,14 @@ class CartDialogueState extends State<CartDialogue> {
             widget.productsController.orderItems;
         widget.productsController.preorderItems =
             widget.productsController.preorderItems;
-        orderSubtotal = orderSubtotal;
-        orderTax = orderTax;
-        preorderSubtotal = preorderSubtotal;
-        preorderTax = preorderTax;
+        orderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.orderItems);
+        orderTax =
+            Utils().calculateTotalTax(widget.productsController.orderItems);
+        preorderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.preorderItems);
+        preorderTax =
+            Utils().calculateTotalTax(widget.productsController.preorderItems);
       });
       if (widget.productsController.orderItems.isNotEmpty) {
         isOrder = true;
@@ -317,7 +434,31 @@ class CartDialogueState extends State<CartDialogue> {
       setOptions();
     } catch (e) {
       log('Error loading cart items: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<void> setCartToOrderAndPreorder() async {
+    List<CartItem> orderItems = [];
+    List<CartItem> preorderItems = [];
+
+    for (var item in widget.productsController.cartItems) {
+      if ((item.detail.stock ?? 0) > 0) {
+        orderItems.add(item);
+      } else {
+        preorderItems.add(item);
+      }
+    }
+
+    setState(() {
+      widget.productsController.orderItems = orderItems;
+      widget.productsController.preorderItems = preorderItems;
+    });
+
+    // log("[setCartToOrderAndPreorder] controller preorderItems : ${preorderItems.map((e) => e.toJson()).toList()}");
+    log("[setCartToOrderAndPreorder] controller preorderItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
   }
 
   @override
@@ -531,12 +672,14 @@ class CartDialogueState extends State<CartDialogue> {
                                 children: [
                                   Expanded(
                                     child: SingleChildScrollView(
+                                      physics: ClampingScrollPhysics(),
                                       scrollDirection: Axis.vertical,
                                       controller: _scrollController4,
                                       child: SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         controller: _scrollController1,
                                         child: SizedBox(
+                                          height: double.maxFinite,
                                           width:
                                               fullScreenWidth(context) * 1.15,
                                           child: Row(
@@ -547,24 +690,24 @@ class CartDialogueState extends State<CartDialogue> {
                                                       .productsController
                                                       .orderItems
                                                       .where((item) =>
-                                                          item.detail.stock! >
+                                                          (item.detail.stock ??
+                                                              0) >
                                                           0)
                                                       .map((item) =>
                                                           item.productName)
                                                       .toSet()
                                                       .toList()
                                                       .map((productName) {
-                                                    List<CartItem>
-                                                        groupedItems = widget
-                                                            .productsController
-                                                            .orderItems
-                                                            .where((item) =>
-                                                                item.productName ==
-                                                                    productName &&
-                                                                item.detail
-                                                                        .stock! >
-                                                                    0)
-                                                            .toList();
+                                                    List<CartItem> groupedItems = widget
+                                                        .productsController
+                                                        .orderItems
+                                                        .where((item) =>
+                                                            item.productName ==
+                                                                productName &&
+                                                            (item.detail.stock ??
+                                                                    0) >
+                                                                0)
+                                                        .toList();
 
                                                     return Padding(
                                                       padding:
@@ -640,7 +783,9 @@ class CartDialogueState extends State<CartDialogue> {
                                                     .productsController
                                                     .orderItems
                                                     .where((item) =>
-                                                        item.detail.stock! > 0)
+                                                        (item.detail.stock ??
+                                                            0) >
+                                                        0)
                                                     .map((item) =>
                                                         item.productName)
                                                     .toSet()
@@ -652,8 +797,8 @@ class CartDialogueState extends State<CartDialogue> {
                                                           .where((item) =>
                                                               item.productName ==
                                                                   productName &&
-                                                              item.detail
-                                                                      .stock! >
+                                                              (item.detail.stock ??
+                                                                      0) >
                                                                   0)
                                                           .toList();
 
@@ -830,12 +975,15 @@ class CartDialogueState extends State<CartDialogue> {
                                 children: [
                                   Expanded(
                                     child: SingleChildScrollView(
+                                      physics: ClampingScrollPhysics(),
                                       scrollDirection: Axis.vertical,
                                       controller: _scrollController4,
                                       child: SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         controller: _scrollController1,
-                                        child: SizedBox(
+                                        child: Container(
+                                          // color: red,
+                                          height: double.maxFinite,
                                           width:
                                               fullScreenWidth(context) * 1.15,
                                           child: Row(
@@ -847,47 +995,46 @@ class CartDialogueState extends State<CartDialogue> {
                                                       .preorderItems
                                                       .where((item) =>
                                                           item.detail.stock ==
-                                                          0)
+                                                              0 ||
+                                                          item.detail.stock ==
+                                                              null)
                                                       .map((item) =>
                                                           item.productName)
                                                       .toSet()
                                                       .toList()
                                                       .map((productName) {
+                                                    log("preorderItems inside _buildGroupItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
                                                     List<CartItem>
                                                         groupedItems = widget
                                                             .productsController
                                                             .preorderItems
                                                             .where((item) =>
                                                                 item.productName ==
-                                                                    productName &&
-                                                                item.detail
-                                                                        .stock ==
-                                                                    0)
+                                                                productName)
                                                             .toList();
                                                     return Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                bottom: 20),
-                                                        child:
-                                                            _buildGroupedItems(
-                                                          productName:
-                                                              productName,
-                                                          groupedItems:
-                                                              groupedItems,
-                                                          availableWidth:
-                                                              availableWidth,
-                                                          fontSize: fontSize,
-                                                          rowHeight: rowHeight,
-                                                          context: context,
-                                                          productQuantityManager:
-                                                              productQuantityManager,
-                                                          deleteConfirmationDialogue:
-                                                              deleteConfirmationDialogue,
-                                                          isPreOrder: true,
-                                                          calCulateAmount:
-                                                              calculateAmounts,
-                                                        ));
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              bottom: 20),
+                                                      child: _buildGroupedItems(
+                                                        productName:
+                                                            productName,
+                                                        groupedItems:
+                                                            groupedItems,
+                                                        availableWidth:
+                                                            availableWidth,
+                                                        fontSize: fontSize,
+                                                        rowHeight: rowHeight,
+                                                        context: context,
+                                                        productQuantityManager:
+                                                            productQuantityManager,
+                                                        deleteConfirmationDialogue:
+                                                            deleteConfirmationDialogue,
+                                                        isPreOrder: true,
+                                                        calCulateAmount:
+                                                            calculateAmounts,
+                                                      ),
+                                                    );
                                                   }).toList(),
                                                 ),
                                               ),
@@ -897,12 +1044,130 @@ class CartDialogueState extends State<CartDialogue> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(
+                                    width: 0,
+                                    child: ScrollbarTheme(
+                                        data: ScrollbarThemeData(
+                                          thumbColor: WidgetStateProperty
+                                              .resolveWith<Color>((states) {
+                                            if (states.contains(
+                                                WidgetState.dragged)) {
+                                              return primaryColor
+                                                  .withOpacity(0.5);
+                                            }
+                                            return primaryColor
+                                                .withOpacity(0.5);
+                                          }),
+                                          trackColor: WidgetStateProperty.all(
+                                              primaryColor.withOpacity(0.2)),
+                                          trackBorderColor:
+                                              WidgetStateProperty.all(
+                                                  primaryColor
+                                                      .withOpacity(0.2)),
+                                          thickness:
+                                              WidgetStateProperty.all(10),
+                                          radius: const Radius.circular(10),
+                                          minThumbLength: 50,
+                                          thumbVisibility:
+                                              WidgetStateProperty.all(true),
+                                          trackVisibility:
+                                              WidgetStateProperty.all(true),
+                                        ),
+                                        child: Scrollbar(
+                                            thickness: 6,
+                                            thumbVisibility: true,
+                                            trackVisibility: true,
+                                            controller: _scrollController3,
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.vertical,
+                                              controller: _scrollController3,
+                                              child: Column(
+                                                children: widget
+                                                    .productsController
+                                                    .preorderItems
+                                                    .where((item) =>
+                                                        item.detail.stock ==
+                                                            0 ||
+                                                        item.detail.stock ==
+                                                            null)
+                                                    .map((item) =>
+                                                        item.productName)
+                                                    .toSet()
+                                                    .toList()
+                                                    .map((productName) {
+                                                  List<CartItem> groupedItems =
+                                                      widget.productsController
+                                                          .preorderItems
+                                                          .where((item) =>
+                                                              item.productName ==
+                                                              productName)
+                                                          .toList();
+
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 20),
+                                                    child: _buildGroupedItems(
+                                                      productName: productName,
+                                                      groupedItems:
+                                                          groupedItems,
+                                                      availableWidth:
+                                                          availableWidth,
+                                                      fontSize: fontSize,
+                                                      rowHeight: rowHeight,
+                                                      context: context,
+                                                      productQuantityManager:
+                                                          productQuantityManager,
+                                                      deleteConfirmationDialogue:
+                                                          deleteConfirmationDialogue,
+                                                      isPreOrder: false,
+                                                      calCulateAmount:
+                                                          calculateAmounts,
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ))),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
                     const SizedBox(
                       height: 10,
+                    ),
+                    ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbColor:
+                            WidgetStateProperty.resolveWith<Color>((states) {
+                          if (states.contains(WidgetState.dragged)) {
+                            return primaryColor.withOpacity(0.5);
+                          }
+                          return primaryColor.withOpacity(0.5);
+                        }),
+                        trackColor: WidgetStateProperty.all(
+                            primaryColor.withOpacity(0.2)),
+                        trackBorderColor: WidgetStateProperty.all(
+                            primaryColor.withOpacity(0.2)),
+                        thickness: WidgetStateProperty.all(6),
+                        radius: const Radius.circular(10),
+                        minThumbLength: 50,
+                        thumbVisibility: WidgetStateProperty.all(true),
+                        trackVisibility: WidgetStateProperty.all(true),
+                      ),
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        thickness: 6,
+                        controller: _scrollController2,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _scrollController2,
+                          child: Container(
+                            width: fullScreenWidth(context) * 1.15,
+                          ),
+                        ),
+                      ),
                     ),
                     Container(
                       height: 40,
@@ -1594,25 +1859,20 @@ class CartDialogueState extends State<CartDialogue> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: MediaQuery.of(context).size.width * 0.85,
-                  ),
-                  child: DataTable(
-                    headingRowHeight: 30,
-                    dataRowHeight: rowHeight,
-                    horizontalMargin: 5,
-                    columnSpacing: 15,
-                    columns: DataTableColumns.getColumns(fontSize),
-                    rows: GroupedItemDataRows.getRows(
-                      groupedItems: groupedItems,
-                      fontSize: availableWidth / 55,
-                      availableWidth: availableWidth,
-                      context: context,
-                      productQuantityManager: productQuantityManager,
-                      deleteConfirmationDialogue: deleteConfirmationDialogue,
-                      calculateAmount: calCulateAmount,
-                    ),
+                child: DataTable(
+                  headingRowHeight: 30,
+                  dataRowHeight: rowHeight,
+                  horizontalMargin: 5,
+                  columnSpacing: 15,
+                  columns: DataTableColumns.getColumns(fontSize),
+                  rows: GroupedItemDataRows.getRows(
+                    groupedItems: groupedItems,
+                    fontSize: availableWidth / 55,
+                    availableWidth: availableWidth,
+                    context: context,
+                    productQuantityManager: productQuantityManager,
+                    deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    calculateAmount: calCulateAmount,
                   ),
                 ),
               ),
@@ -1670,7 +1930,14 @@ class CartDialogueState extends State<CartDialogue> {
 
         if (!isOnline) {
           log('[processSaveAndSend] Device is offline. Saving order offline...');
-          await saveOrderOffline(finalAmount, paymentType);
+          int status = _selectedValue == 'Sale Order'
+              ? 11
+              : _selectedValue == 'Booking'
+                  ? 0
+                  : _selectedValue == 'Estimate'
+                      ? 7
+                      : 14;
+          await saveOrderOffline(finalAmount, paymentType, status);
           Navigator.pop(context);
           showDialog(
             barrierDismissible: false,
@@ -1698,143 +1965,209 @@ class CartDialogueState extends State<CartDialogue> {
             clearEntireCartForCustomer();
           }
           return;
-        }
-        log('[processSaveAndSend] Preparing data for API call...');
-        // Use only itemList for the API payload
-        List<Detail> detail = itemList.map((e) => e.detail).toList();
-        log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
-        final productBYData = AddToCartModel(
-          customerId: customerId,
-          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          cartId: '',
-          cartList: await Future.wait(detail.map((e) async {
-            String packValue =
-                e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
-            return SendCartData(
-                productId: e.productId ?? '',
-                variantId: e.variationId ?? '',
-                pack: packValue,
-                price: e.sellPrice.toString(),
-                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                discount: e.discount ?? 0,
-                quantity: e.count.toInt(),
-                variantName: e.variationName ?? '');
-          }).toList()),
-          total: finalAmount.toStringAsFixed(0),
-        );
-        log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
-        CartOrderModel? cartOrder =
-            await ApiWorker().addToCart(productBYData.toJson());
-        log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
-
-        if (cartOrder != null) {
-          log('[processSaveAndSend] Preparing order placement...');
-          final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-          int orderStatus = _selectedValue == 'Sale Order'
-              ? 11
-              : _selectedValue == 'Booking'
-                  ? 0
-                  : _selectedValue == 'Estimate'
-                      ? 7
-                      : 14;
-
-          CartOrderModel order = CartOrderModel(
+        } else {
+          log('[processSaveAndSend] Preparing data for API call...');
+          // Use only itemList for the API payload
+          List<Detail> detail = itemList.map((e) => e.detail).toList();
+          log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
+          final productBYData = AddToCartModel(
             customerId: customerId,
             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-            cartId: cartOrder.cartId,
-            orderStatus: orderStatus,
-            orderPrice: finalAmount,
-            paymentType: paymentType.toString(),
-            companyId: companyId,
-            paymentDetail: remarkController.text.trim(),
-            transactionNumber: chequeOrTransactionNumberController.text.trim(),
-            transactionDate: dateController.text.trim(),
-            draftId: draftId.isNotEmpty ? draftId : '',
+            cartId: '',
+            cartList: await Future.wait(detail.map((e) async {
+              String packValue =
+                  e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+              return SendCartData(
+                  productId: e.productId ?? '',
+                  variantId: e.variationId ?? '',
+                  pack: packValue,
+                  price: e.sellPrice.toString(),
+                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                  discount: e.discount ?? 0,
+                  quantity: e.count.toInt(),
+                  variantName: e.variationName ?? '');
+            }).toList()),
+            total: finalAmount.toStringAsFixed(0),
           );
 
-          await ApiWorker().placeOrder(order, (statusCode, message, response) {
-            Navigator.pop(context);
-            if (statusCode == 200) {
-              _clearCartItem(itemList, customerId);
-              showDialog(
-                barrierDismissible: false,
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Lottie.asset(
-                            'assets/images/Animation - 1726906882515.json'),
+          List<String> varientIdsPass = [];
+          for (var item in detail) {
+            varientIdsPass.add(item.variationId ?? '');
+          }
+
+          log("VARIENT IDS : $varientIdsPass");
+          log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
+          CartOrderModel? cartOrder =
+              await ApiWorker().addToCart(productBYData.toJson());
+          log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
+
+          if (cartOrder != null) {
+            log('[processSaveAndSend] Preparing order placement...');
+            final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+            int orderStatus = _selectedValue == 'Sale Order'
+                ? 11
+                : _selectedValue == 'Booking'
+                    ? 0
+                    : _selectedValue == 'Estimate'
+                        ? 7
+                        : 14;
+
+            CartOrderModel order = CartOrderModel(
+              customerId: customerId,
+              salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+              cartId: cartOrder.cartId,
+              orderStatus: orderStatus,
+              orderPrice: finalAmount,
+              paymentType: paymentType.toString(),
+              companyId: companyId,
+              paymentDetail: remarkController.text.trim(),
+              transactionNumber:
+                  chequeOrTransactionNumberController.text.trim(),
+              transactionDate: dateController.text.trim(),
+              draftId: draftId.isNotEmpty ? draftId : '',
+              varientIds: varientIdsPass,
+            );
+
+            await ApiWorker().placeOrder(order,
+                (statusCode, message, response) async {
+              Navigator.pop(context);
+              if (statusCode == 200) {
+                _clearCartItem(itemList, customerId);
+
+                // Update cached drafts after successful order placement
+                try {
+                  final apiService = ApiService();
+                  final salesmanId =
+                      SessionHelper.loginSavedData?.salesmanId ?? '';
+
+                  final now = DateTime.now();
+                  final startDate = DateTime(now.year, 1, 1);
+                  final endDate = DateTime(now.year, 12 + 1, 0);
+
+                  final formattedStartDate =
+                      DateFormat('yyyy-MM-dd').format(startDate);
+                  final formattedEndDate =
+                      DateFormat('yyyy-MM-dd').format(endDate);
+
+                  // Determine order type based on _selectedValue
+                  String orderType;
+                  switch (_selectedValue) {
+                    case 'Sale Order':
+                      orderType = 'sale_order';
+                      break;
+                    case 'Quick Sale':
+                      orderType = 'quick_sale';
+                      break;
+                    case 'Booking':
+                      orderType = 'booking';
+                      break;
+                    case 'Estimate':
+                      orderType = 'estimate';
+                      break;
+                    default:
+                      orderType = 'draft';
+                  }
+
+                  await apiService.updateCachedDraftsAfterSaveAndSend(
+                    context,
+                    customerId: customerId,
+                    draftId: draftId.isNotEmpty ? draftId : '',
+                    salesmanId: salesmanId,
+                    startDate: formattedStartDate,
+                    endDate: formattedEndDate,
+                    orderType: orderType,
+                    sentCartIds: [
+                      cartOrder.cartId
+                    ], // The cart ID that was just sent
+                    sentAmount: finalAmount,
+                  );
+
+                  log('[processSaveAndSend] Successfully updated cached drafts after order placement');
+                } catch (e) {
+                  log('[processSaveAndSend] Error updating cached drafts: $e');
+                  // Don't show error to user as this is a background operation
+                }
+
+                showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Center(
+                        child: SizedBox(
+                          height: 100,
+                          width: 100,
+                          child: Lottie.asset(
+                              'assets/images/Animation - 1726906882515.json'),
+                        ),
                       ),
-                    ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          Navigator.of(context, rootNavigator: true).pop();
-                          final cartProvider = Provider.of<CustomersProvider>(
-                              context,
-                              listen: false);
-                          cartProvider.getCartItemCounts(customerId);
-                          CartDatabaseManager().addListener(() {
-                            cartProvider.updateCartCount(customerId);
-                          });
-                          if (Navigator.canPop(context)) {
+                      content: CustomText(
+                        content: message,
+                        fontSize: 18,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () async {
                             Navigator.pop(context);
-                          }
-                          if (widget.isDashboard == true) {
-                            Provider.of<DashboardProvider>(context,
-                                    listen: false)
-                                .fetchData();
-                          } else {
-                            Provider.of<CustomersProvider>(context,
-                                    listen: false)
-                                .fetchCustomerDashboardCountData(customerId);
-                          }
-                        },
-                        child: const Text('OK'),
+                            Navigator.of(context, rootNavigator: true).pop();
+                            final cartProvider = Provider.of<CustomersProvider>(
+                                context,
+                                listen: false);
+                            cartProvider.getCartItemCounts(customerId);
+                            CartDatabaseManager().addListener(() {
+                              cartProvider.updateCartCount(customerId);
+                            });
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
+                            if (widget.isDashboard == true) {
+                              Provider.of<DashboardProvider>(context,
+                                      listen: false)
+                                  .fetchData();
+                            } else {
+                              Provider.of<CustomersProvider>(context,
+                                      listen: false)
+                                  .fetchCustomerDashboardCountData(customerId);
+                            }
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Center(
+                        child: SizedBox(
+                          height: 200,
+                          width: 200,
+                          child: Lottie.asset(
+                              'assets/images/Warning_animation.json'),
+                        ),
                       ),
-                    ],
-                  );
-                },
-              );
-            } else {
-              showDialog(
-                barrierDismissible: false,
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: SizedBox(
-                        height: 200,
-                        width: 200,
-                        child: Lottie.asset(
-                            'assets/images/Warning_animation.json'),
+                      content: CustomText(
+                        content: message,
+                        fontSize: 18,
                       ),
-                    ),
-                    content: CustomText(
-                      content: message,
-                      fontSize: 18,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          });
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            });
+          }
         }
       } catch (e) {
         Navigator.pop(context);
@@ -1952,7 +2285,8 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  Future<void> saveOrderOffline(double finalAmount, int? paymentType) async {
+  Future<void> saveOrderOffline(
+      double finalAmount, int? paymentType, int? status) async {
     final isQuickSale = _selectedValue == "Quick Sale";
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -1962,31 +2296,39 @@ class CartDialogueState extends State<CartDialogue> {
     final imageUrl = widget.productsController.selectedCustomerImageUrl.value;
     final createdAt = DateTime.now().toIso8601String();
 
-    List<CartItem> processedItems = isOrder
-        ? widget.productsController.cartItems
-            .where(
-                (item) => item.detail.stock != null && item.detail.stock! > 0)
-            .toList()
-        : widget.productsController.cartItems
-            .where((item) => item.detail.stock == 0)
-            .toList();
+    // Determine which items to process based on the active tab
+    List<CartItem> processedItems;
+    if (_selectedValue == 'Sale Order' ||
+        _selectedValue == 'Quick Sale' ||
+        _selectedValue == 'Estimate') {
+      // For order tab - process order items (items with stock > 0)
+      processedItems = widget.productsController.orderItems
+          .where((item) => item.isChecked == true)
+          .toList();
+    } else {
+      // For booking tab - process booking items (items with stock == 0)
+      processedItems = widget.productsController.preorderItems
+          .where((item) => item.isChecked == true)
+          .toList();
+    }
 
-    log("[saveOrderOffline] Cart Order data : ${widget.productsController.cartItems.where((item) => item.detail.stock != null && item.detail.stock! > 0).toList()}");
-    log("[saveOrderOffline] Cart PreOrder data : ${widget.productsController.cartItems.where((item) => item.detail.stock == 0).toList()}");
+    log('[saveOrderOffline] Cart Order data : ${widget.productsController.orderItems}');
+    log('[saveOrderOffline] Cart PreOrder data : ${widget.productsController.preorderItems}');
 
-    final orderData = {
-      'order_id': orderId, // Add unique identifier
-      'customer_id': customeController.customerId.isNotEmpty
-          ? customeController.customerId.value
-          : widget.productsController.selectedCustomerId.value,
+    // Save the order to offline orders box
+    Map<String, dynamic> orderData = {
+      'order_id': orderId,
+      'customer_id': widget.productsController.selectedCustomerId.value,
       'businessName': businessName,
       'email': email,
       'mobileNo': mobileNo,
       'imageUrl': imageUrl,
       'createdAt': createdAt,
       'salesman_id': SessionHelper.loginSavedData?.salesmanId ?? '',
-      'order_price': finalAmount,
+      'order_price': Utils().calculateSubtotal(processedItems),
+      // finalAmount,
       'paymentType': paymentType,
+      'order_status': status,
       'cart_list': processedItems
           .map((e) => {
                 'product_id': e.detail.productId,
@@ -1994,7 +2336,7 @@ class CartDialogueState extends State<CartDialogue> {
                 'variant_id': e.detail.variationId,
                 'variant_name': e.detail.variationName,
                 'pack': e.detail.saleBy == 'Pack'
-                    ? (e.detail.count * e.detail.pieces!).toString()
+                    ? (e.detail.count * (e.detail.pieces ?? 1)).toString()
                     : e.detail.count.toString(),
                 'perPack': e.detail.saleBy == 'Pack'
                     ? (e.detail.pieces).toString()
@@ -2006,9 +2348,9 @@ class CartDialogueState extends State<CartDialogue> {
                 'tax': e.detail.tax?.toInt(),
                 'unitTax': e.detail.unitTax?.toInt(),
                 'inclTax': e.detail.inclTax,
-                'totalTax': e.detail.tax! *
+                'totalTax': (e.detail.tax ?? 0) *
                     (e.isPack == true || e.detail.packtype == 'Pack'
-                        ? e.detail.pieces! * e.detail.count
+                        ? (e.detail.pieces ?? 0) * e.detail.count
                         : 1),
                 'discountPrice':
                     (((double.tryParse(e.detail.sellPrice?.toString() ?? '0') ??
@@ -2040,33 +2382,212 @@ class CartDialogueState extends State<CartDialogue> {
       CartDatabaseManager().deleteCartItem(item);
     }
 
+    // // Also remove processed items from draft box
+    // var draftBox = Hive.box<CartItem>('draftBox');
+    // final customerId = widget.productsController.selectedCustomerId.value;
+
+    // // Find and remove processed items from draft box
+    // final keysToRemove = draftBox.keys.where((key) {
+    //   final item = draftBox.get(key);
+    //   if (item != null && item.customerId == customerId) {
+    //     // Check if this item matches any of the processed items
+    //     return processedItems.any((processedItem) =>
+    //         processedItem.detail.productId == item.detail.productId &&
+    //         processedItem.detail.variationId == item.detail.variationId);
+    //   }
+    //   return false;
+    // }).toList();
+
+    // for (var key in keysToRemove) {
+    //   final deletedItem = draftBox.get(key);
+    //   await draftBox.delete(key);
+    //   log('Item found with key: $key, proceeding to delete from draftBox');
+    // }
+
+    // // Also remove processed items from draftItemsBox (cached draft items)
+    // var draftItemsBox = await Hive.openBox('draftItemsBox');
+    // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
+    // final cacheKey =
+    //     '${SessionHelper.loginSavedData?.company_id ?? ''}_$currentSalesmanId';
+
+    // final cachedDraftItems = draftItemsBox.get(cacheKey);
+    // if (cachedDraftItems != null && cachedDraftItems is List) {
+    //   List<Map<String, dynamic>> updatedCachedItems = [];
+
+    //   for (var cachedItem in cachedDraftItems) {
+    //     bool shouldKeep = true;
+    //     for (var processedItem in processedItems) {
+    //       if (cachedItem['detail']['product_id'] ==
+    //               processedItem.detail.productId &&
+    //           cachedItem['detail']['variation_id'] ==
+    //               processedItem.detail.variationId) {
+    //         shouldKeep = false;
+    //         break;
+    //       }
+    //     }
+    //     if (shouldKeep) {
+    //       updatedCachedItems.add(cachedItem);
+    //     }
+    //   }
+
+    //   await draftItemsBox.put(cacheKey, updatedCachedItems);
+    //   log('Removed processed items from draftItemsBox cache for key: $cacheKey');
+    // }
+
+    // // Also remove processed items from cartPreorderBox if it exists
+    // if (Hive.isBoxOpen('cartPreorderBox')) {
+    //   var cartPreorderBox = Hive.box<CartItem>('cartPreorderBox');
+    //   final keysToRemovePreorder = cartPreorderBox.keys.where((key) {
+    //     final item = cartPreorderBox.get(key);
+    //     if (item != null && item.customerId == customerId) {
+    //       return processedItems.any((processedItem) =>
+    //           processedItem.detail.productId == item.detail.productId &&
+    //           processedItem.detail.variationId == item.detail.variationId);
+    //     }
+    //     return false;
+    //   }).toList();
+
+    //   for (var key in keysToRemovePreorder) {
+    //     await cartPreorderBox.delete(key);
+    //     log('Item found with key: $key, proceeding to delete from cartPreorderBox');
+    //   }
+    // }
+
     setState(() {
       widget.productsController.cartItems
           .removeWhere((item) => processedItems.contains(item));
       widget.productsController.orderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock! > 0)
+          .where((item) => (item.detail.stock ?? 0) > 0)
           .toList();
       widget.productsController.preorderItems = widget
           .productsController.cartItems
           .where((item) => item.detail.stock == 0)
           .toList();
     });
-  }
 
-  Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
-    return input.map((key, value) {
-      final newKey = key is String ? key : key.toString();
-      final newValue = value is Map
-          ? castToStringDynamic(Map<dynamic, dynamic>.from(value))
-          : (value is List
-              ? value
-                  .map((e) => e is Map
-                      ? castToStringDynamic(Map<dynamic, dynamic>.from(e))
-                      : e)
-                  .toList()
-              : value);
-      return MapEntry<String, dynamic>(newKey, newValue);
-    });
+    log("CART ITEMS: ${widget.productsController.cartItems}");
+    log("ORDER ITEMS: ${widget.productsController.orderItems}");
+    log("PREORDER ITEMS: ${widget.productsController.preorderItems}");
+
+    // Update cached drafts after offline save
+    try {
+      final apiService = ApiService();
+      final customerId = widget.productsController.selectedCustomerId.value;
+      final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
+      final now = DateTime.now();
+      final startDate = DateTime(now.year, 1, 1);
+      final endDate = DateTime(now.year, 12 + 1, 0);
+
+      final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+      final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
+
+      // Determine order type based on _selectedValue
+      String orderType;
+      switch (_selectedValue) {
+        case 'Sale Order':
+          orderType = 'sale_order';
+          break;
+        case 'Quick Sale':
+          orderType = 'quick_sale';
+          break;
+        case 'Booking':
+          orderType = 'booking';
+          break;
+        case 'Estimate':
+          orderType = 'estimate';
+          break;
+        default:
+          orderType = 'draft';
+      }
+
+      // For offline orders, we don't have a cart ID yet, so we'll use the order ID
+      // The actual cart ID will be assigned when the order is synced online
+      await apiService.updateCachedDraftsAfterSaveAndSend(
+        context,
+        customerId: customerId,
+        draftId: orderId,
+        salesmanId: salesmanId,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        orderType: orderType,
+        sentCartIds: [orderId], // Use the offline order ID temporarily
+        sentAmount: finalAmount,
+      );
+
+      log('[saveOrderOffline] Successfully updated cached drafts after offline order save');
+    } catch (e) {
+      log('[saveOrderOffline] Error updating cached drafts: $e');
+      // Don't show error to user as this is a background operation
+    }
+
+    // OFFLINE DRAFT BOX (only items that were NOT processed)
+    {
+      String checkCustomerId = customeController.customerId.isNotEmpty
+          ? customeController.customerId.value
+          : widget.productsController.selectedCustomerId.value;
+
+      // Get remaining items that were not processed (not in the current order)
+      List<CartItem> remainingItems = widget.productsController.cartItems
+          .where((item) => !processedItems.contains(item))
+          .toList();
+
+      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+      List<dynamic> drafts =
+          offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+      int existingDraftIndex =
+          drafts.indexWhere((draft) => draft['customer_id'] == checkCustomerId);
+
+      if (existingDraftIndex != -1) {
+        var existingDraftForCustomer = drafts[existingDraftIndex];
+
+        List<dynamic> detailsAfterProcessing = [];
+
+        log('existingDraftForCustomer : $existingDraftForCustomer');
+
+        var newCartItems = remainingItems;
+
+        if (newCartItems.isEmpty || newCartItems == []) {
+          drafts.removeAt(existingDraftIndex);
+        } else {
+          drafts[existingDraftIndex]['displayData'] = {
+            'customerId': checkCustomerId,
+            'customerName': businessName,
+            'mobileNo': mobileNo,
+            'email': email,
+            'imageUrl': imageUrl,
+            'displayTotal': Utils().calculateSubtotal(newCartItems),
+            'createdDate': DateTime.now().toIso8601String(),
+          };
+
+          for (var detail in newCartItems) {
+            log("NEW CART ITEM DETAILS: ${detail.toJson()}");
+            detailsAfterProcessing.add({
+              'product_id': detail.detail.productId ?? '',
+              'variant_id': detail.detail.variationId ?? '',
+              'pack': detail.detail.saleBy == 'Pack'
+                  ? detail.detail.pieces.toString()
+                  : detail.detail.count.toString(),
+              'packType': detail.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'price': detail.detail.sellPrice.toString(),
+              'discount': detail.detail.discount,
+              'quantity': detail.detail.count.toInt(),
+              'variant_name': detail.detail.variationName ?? '',
+              'stock': detail.detail.stock ?? 0,
+              'unitType': detail.detail.unitType,
+            });
+          }
+
+          drafts[existingDraftIndex]['details'] = detailsAfterProcessing;
+        }
+
+        await offlineDraftsBox.put('drafts', drafts);
+
+        var offlineDraftsBoxDisplay = await Hive.openBox('offlineDrafts');
+
+        log("OFFLINE DRAFT BOX AFTER REMOVING ITEM : ${offlineDraftsBoxDisplay.values}");
+      }
+    }
   }
 
   Future<dynamic> deleteConfirmationDialogue(
@@ -2100,6 +2621,7 @@ class CartDialogueState extends State<CartDialogue> {
                           listen: false);
                       _deleteVariant(groupedItem, provider);
                       _loadCartItems();
+                      widget.productsController.isCartModified.value = true;
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'))
@@ -2162,6 +2684,7 @@ class CartDialogueState extends State<CartDialogue> {
                 _loadCartItems();
                 log('Draft Delete Clicked : $customerId');
                 Navigator.pop(context);
+                widget.productsController.isCartModified.value = true;
                 showCustomToastDisplay(
                   context,
                   'Item deleted successfully',
@@ -2183,9 +2706,6 @@ class CartDialogueState extends State<CartDialogue> {
 
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
     final String customerId = widget.customerId ?? '';
-    // widget.customerOrderController!.customerId.value.isNotEmpty
-    //     ? widget.customerOrderController!.customerId.value
-    //     : widget.productsController.selectedCustomerId.value;
     setState(() {
       variantToDelete.detail.count = 0;
       CartDatabaseManager().updateCart(variantToDelete);
@@ -2194,7 +2714,7 @@ class CartDialogueState extends State<CartDialogue> {
           item.detail.variationName == variantToDelete.detail.variationName);
       CartDatabaseManager().deleteCartItem(variantToDelete);
       List<CartItem> orderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock! > 0)
+          .where((item) => (item.detail.stock ?? 0) > 0)
           .toList();
       List<CartItem> preorderItems = widget.productsController.cartItems
           .where((item) => item.detail.stock == 0)
@@ -2241,6 +2761,7 @@ class CartDialogueState extends State<CartDialogue> {
                       CartDatabaseManager().updateCart(cartItem);
                       CartDatabaseManager()
                           .getCartItems(cartItem.customerId ?? '');
+                      widget.productsController.isCartModified.value = true;
                     }
                   });
                 },
@@ -2279,6 +2800,7 @@ class CartDialogueState extends State<CartDialogue> {
                     log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
                     log('Draft ID On Cart ${cartItem.draftId}');
                     CartDatabaseManager().updateCart(cartItem);
+                    widget.productsController.isCartModified.value = true;
                   });
                 },
                 child: Padding(
@@ -2327,7 +2849,7 @@ class CartDialogueState extends State<CartDialogue> {
       widget.productsController.cartItems
           .removeWhere((item) => cartItem.contains(item));
       widget.productsController.orderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock! > 0)
+          .where((item) => (item.detail.stock ?? 0) > 0)
           .toList();
       widget.productsController.preorderItems = widget
           .productsController.cartItems
@@ -2354,7 +2876,7 @@ class CartDialogueState extends State<CartDialogue> {
           widget.productsController.cartItems.where((item) {
         final isMatchingProduct = item.productName == productName;
         final isPreorderItem = item.detail.stock == 0;
-        final isOrderItem = item.detail.stock! > 0;
+        final isOrderItem = (item.detail.stock ?? 0) > 0;
         return isMatchingProduct &&
             ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
       }).toList();
@@ -2372,9 +2894,9 @@ class CartDialogueState extends State<CartDialogue> {
       widget.productsController.cartItems.removeWhere((item) =>
           item.productName == productName &&
           ((isPreorder && item.detail.stock == 0) ||
-              (!isPreorder && item.detail.stock! > 0)));
+              (!isPreorder && (item.detail.stock ?? 0) > 0)));
       final orderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock! > 0)
+          .where((item) => (item.detail.stock ?? 0) > 0)
           .toList();
       final preorderItems = widget.productsController.cartItems
           .where((item) => item.detail.stock == 0)
@@ -2387,6 +2909,22 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
+  }
+
+  Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
+    return input.map((key, value) {
+      final newKey = key is String ? key : key.toString();
+      final newValue = value is Map
+          ? castToStringDynamic(Map<dynamic, dynamic>.from(value))
+          : (value is List
+              ? value
+                  .map((e) => e is Map
+                      ? castToStringDynamic(Map<dynamic, dynamic>.from(e))
+                      : e)
+                  .toList()
+              : value);
+      return MapEntry<String, dynamic>(newKey, newValue);
+    });
   }
 }
 
@@ -2421,38 +2959,5 @@ class CartTextFields extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Future<void> placeOrder(
-  CartOrderModel cartOrder,
-  Function(int statusCode, String message, Map<String, dynamic>? responseData)
-      onResponse,
-) async {
-  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  cartOrder.companyId = companyId;
-  try {
-    log('Assigned companyId: ${cartOrder.companyId}');
-    log('Place Order Payload: ${cartOrder.toJson()}');
-    final response = await Dio().post(
-      "${ApiConstants.baseUrl1}/place_order",
-      data: cartOrder.toJson(),
-    );
-    log('Response status code: ${response.statusCode}');
-    if (response.statusCode == 200) {
-      log('Order placed successfully: ${response.data}');
-      onResponse(
-          200, 'Your order has been successfully placed.', response.data);
-    } else {
-      log('Failed to place order: ${response.data}');
-      onResponse(
-        response.statusCode ?? 500,
-        'Failed to place your order.',
-        response.data,
-      );
-    }
-  } catch (e) {
-    log('Error placing order: $e');
-    onResponse(500, 'An error occurred while placing the order.', null);
   }
 }

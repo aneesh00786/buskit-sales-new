@@ -2,6 +2,7 @@
 
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -21,6 +22,7 @@ class CartDatabaseManager {
   final Box<CartItem> cartBox = Hive.box<CartItem>('cartBox');
   final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
   final List<VoidCallback> _listeners = [];
+  // List<CartItem> cartItems = cartBox.values.toList();
   List<CartItem> get cartItems => cartBox.values.toList();
 
   /// Get cart items that don't have a customer ID assigned
@@ -113,6 +115,7 @@ class CartDatabaseManager {
                   unitTax:
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
+                  productName: cart['product_name'] as String? ?? '',
                 );
                 final cartItem = CartItem(
                   detail: detail,
@@ -190,7 +193,6 @@ class CartDatabaseManager {
 
   Future<List<CartItem>> getCartItems(String customerId,
       {bool draftsOnly = false}) async {
-    // LOG: getCartItems called
     print(
         '[CartDB] getCartItems called for customerId=$customerId, draftsOnly=$draftsOnly');
     try {
@@ -204,26 +206,41 @@ class CartDatabaseManager {
           if (deduped.containsKey(key)) {
             deduped[key]!.detail.count += item.detail.count;
           } else {
-            // Clone the CartItem and its Detail to avoid mutating Hive objects
             final clonedItem = CartItem.fromJson(item.toJson());
             deduped[key] = clonedItem;
           }
         }
         final result = deduped.values.toList();
-        // LOG: number of draft items returned
         print('[CartDB] getCartItems returning ${result.length} draft items');
         return Future.value(result);
       } else {
         final customerCartItems = cartBox.values
             .where((item) => item.customerId == customerId)
             .toList();
+
         final customerDraftItems = draftBox.values
             .where((item) => item.customerId == customerId)
             .toList();
-        final combinedItems = [...customerCartItems, ...customerDraftItems];
-        // LOG: number of combined items returned
-        print(
-            '[CartDB] getCartItems returning ${combinedItems.length} combined items');
+
+        final Map<String, CartItem> itemMap = {};
+
+        for (var item in customerCartItems) {
+          final key = item.detail.variationId ?? '';
+          itemMap[key] = item;
+        }
+
+        for (var item in customerDraftItems) {
+          final key = item.detail.variationId ?? '';
+          if (!itemMap.containsKey(key)) {
+            itemMap[key] = item;
+          }
+        }
+
+        final combinedItems = itemMap.values.toList();
+
+        log('[CartDB] getCartItems returning customerCartItems : ${customerCartItems.map((e) => e.toJson()).toList()}');
+        log('[CartDB] getCartItems returning customerDraftItems : ${customerDraftItems.map((e) => e.toJson()).toList()}');
+        log('[CartDB] getCartItems returning ${combinedItems.length} combined items');
         return Future.value(combinedItems);
       }
     } catch (e) {
@@ -232,33 +249,112 @@ class CartDatabaseManager {
     }
   }
 
+  // Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(
+  //     String customerId) async {
+  //   final dio = Dio();
+  //   const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
+  //   final now = DateTime.now();
+  //   final startOfMonth = DateTime(now.year, now.month, 1);
+  //   final endOfMonth = DateTime(now.year, now.month + 1, 0);
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //   final requestBody = {
+  //     "companyId": companyId,
+  //     "customer_id": customerId,
+  //     "salesman_id": salesmanId,
+  //     "order_type": 4,
+  //     "payment_type": 1,
+  //     "start_date":
+  //         " [${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}]",
+  //     "end_date":
+  //         " [${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}]",
+  //     "limit": 1000,
+  //     "page": 1,
+  //   };
+  //   log('Request Body of FetchAll Order: $requestBody');
+
+  //   // Caching logic
+  //   final cacheKey = '${companyId}_${customerId}_$salesmanId';
+  //   final draftAndCartIdsBox = await Hive.openBox('draftAndCartIdsBox');
+  //   try {
+  //     final connectivityService = ConnectivityService();
+  //     final isOnline = await connectivityService.isOnline();
+
+  //     if (isOnline) {
+  //       log('Fetching draft and cart IDs from API for customer ID: $customerId');
+  //       final response = await dio.post(apiUrl, data: requestBody);
+  //       if (response.statusCode == 200) {
+  //         final responseData = response.data;
+  //         if (responseData['status'] == true) {
+  //           final List<dynamic> orders = responseData['data'] ?? [];
+  //           List<Map<String, String?>> draftAndCartIds = [];
+  //           for (var order in orders) {
+  //             draftAndCartIds.add({
+  //               'cart_id': order['cart_id'] as String?,
+  //               'draft_id': order['order_id'] as String?,
+  //             });
+  //           }
+  //           log('Draft and Cart IDs fetched from API: $draftAndCartIds');
+  //           // Cache the result
+  //           await draftAndCartIdsBox.put(cacheKey, draftAndCartIds);
+  //           return draftAndCartIds;
+  //         } else {
+  //           log('API response status is false: ${responseData['message']}');
+  //         }
+  //       } else {
+  //         log('Error fetching draft and cart IDs from API: ${response.statusCode} ${response.data}');
+  //       }
+  //     } else {
+  //       log('No internet connection.');
+  //     }
+  //   } catch (e) {
+  //     log('Error fetching draft and cart IDs: $e');
+  //   }
+  //   // Try to return cached data if available
+  //   final cachedData = draftAndCartIdsBox.get(cacheKey);
+  //   if (cachedData != null && cachedData is List) {
+  //     log('Returning cached draft and cart IDs for key: $cacheKey');
+  //     return List<Map<String, String?>>.from(cachedData);
+  //   }
+  //   // Fallback: try to get from local draftBox
+  //   final localDrafts =
+  //       draftBox.values.where((item) => item.customerId == customerId).toList();
+  //   if (localDrafts.isNotEmpty) {
+  //     final ids = localDrafts
+  //         .map((item) => {
+  //               'cart_id': item.cartId,
+  //               'draft_id': item.draftId,
+  //             })
+  //         .toList();
+  //     log('[Fallback] Returning draft/cart IDs from local draftBox for customer $customerId: $ids');
+  //     return ids;
+  //   }
+  //   log('[Fallback] No draft/cart IDs found for customer $customerId (API, cache, or local)');
+  //   return [];
+  // }
+
   Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(
       String customerId) async {
     final dio = Dio();
-    const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
+    const apiUrl = '${ApiConstants.baseUrl1}/fetch_all_order';
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     final requestBody = {
-      "companyId": companyId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": customerId,
-      "salesman_id": salesmanId,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "order_type": 4,
       "payment_type": 1,
       "start_date":
-          " [${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}]",
+          "${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}",
       "end_date":
-          " [${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}]",
+          "${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}",
       "limit": 1000,
       "page": 1,
     };
     log('Request Body of FetchAll Order: $requestBody');
 
-    // Caching logic
-    final cacheKey = '${companyId}_${customerId}_$salesmanId';
-    final draftAndCartIdsBox = await Hive.openBox('draftAndCartIdsBox');
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
@@ -278,8 +374,6 @@ class CartDatabaseManager {
               });
             }
             log('Draft and Cart IDs fetched from API: $draftAndCartIds');
-            // Cache the result
-            await draftAndCartIdsBox.put(cacheKey, draftAndCartIds);
             return draftAndCartIds;
           } else {
             log('API response status is false: ${responseData['message']}');
@@ -293,26 +387,6 @@ class CartDatabaseManager {
     } catch (e) {
       log('Error fetching draft and cart IDs: $e');
     }
-    // Try to return cached data if available
-    final cachedData = draftAndCartIdsBox.get(cacheKey);
-    if (cachedData != null && cachedData is List) {
-      log('Returning cached draft and cart IDs for key: $cacheKey');
-      return List<Map<String, String?>>.from(cachedData);
-    }
-    // Fallback: try to get from local draftBox
-    final localDrafts =
-        draftBox.values.where((item) => item.customerId == customerId).toList();
-    if (localDrafts.isNotEmpty) {
-      final ids = localDrafts
-          .map((item) => {
-                'cart_id': item.cartId,
-                'draft_id': item.draftId,
-              })
-          .toList();
-      log('[Fallback] Returning draft/cart IDs from local draftBox for customer $customerId: $ids');
-      return ids;
-    }
-    log('[Fallback] No draft/cart IDs found for customer $customerId (API, cache, or local)');
     return [];
   }
 
@@ -417,7 +491,9 @@ class CartDatabaseManager {
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
     if (existingDraftItemIndex != -1) {
+      log("existingDraftItemIndex != -1");
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
+      log("existingDraftItemIndex : ${existingDraftItem.toJson().toString()}");
       existingDraftItem.detail.count += localCount.toDouble();
       existingDraftItem.totalPrice = existingDraftItem.isPack!
           ? (existingDraftItem.detail.count *
@@ -434,7 +510,9 @@ class CartDatabaseManager {
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
       if (existingCartItemIndex != -1) {
+        log("existingCartItemIndex != -1");
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
+        log("existingCartItemIndex : ${existingCartItem.toJson().toString()}");
         final double priceWithTax =
             existingCartItem.detail.inclTax != "incl_tax"
                 ? effectiveSellingPrice + discountedTax
@@ -450,6 +528,7 @@ class CartDatabaseManager {
         log('Updated product in cart: ${existingCartItem.detail.variationName}, '
             'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
       } else {
+        log("NEW ADDED VARIANT");
         final double priceWithTax = inclTax != "incl_tax"
             ? effectiveSellingPrice + discountedTax
             : effectiveSellingPrice;
@@ -606,6 +685,37 @@ class CartDatabaseManager {
     }
   }
 
+  Future<void> clearCartBoxForCustomer({required String customerId}) async {
+    // LOG: clearCart called
+    print('[CartDB] clearCartBoxForCustomer called for customerId=$customerId');
+    try {
+      List<CartItem> remainingCartItems = cartBox.values
+          .where((item) => item.customerId != customerId)
+          .toList();
+      await cartBox.clear();
+      await cartBox.addAll(remainingCartItems);
+      // getCartItems(customerId);
+    } catch (e) {
+      print('[CartDB] ERROR in clearCart for $customerId: $e');
+    }
+  }
+
+  Future<void> clearDraftBoxForCustomer({required String customerId}) async {
+    // LOG: clearCart called
+    print(
+        '[CartDB] clearDraftBoxForCustomer called for customerId=$customerId');
+    try {
+      List<CartItem> remainingCartItems = draftBox.values
+          .where((item) => item.customerId != customerId)
+          .toList();
+      await draftBox.clear();
+      await draftBox.addAll(remainingCartItems);
+      // getCartItems(customerId);
+    } catch (e) {
+      print('[CartDB] ERROR in clearCart for $customerId: $e');
+    }
+  }
+
   Future<void> clearCartOnlyForCustomer(String customerId) async {
     // LOG: clearCartOnlyForCustomer called
     print(
@@ -699,37 +809,52 @@ class CartDatabaseManager {
     required String salesmanId,
     required double totalAmount,
     required List<Detail> details,
+    required String customerName,
+    required String customerMobile,
+    required String customerEmail,
+    required String customerImageUrl,
+    required double allItemsTotal,
   }) async {
+    log("DETAILS : ${details.map((e) => e.toJson()).toList()}");
     try {
       var offlineDraftsBox = await Hive.openBox('offlineDrafts');
       List<dynamic> drafts =
           offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
       int existingDraftIndex =
           drafts.indexWhere((draft) => draft['customer_id'] == customerId);
+
       if (existingDraftIndex != -1) {
         var existingDraft = drafts[existingDraftIndex];
+        drafts[existingDraftIndex]['displayData'] = {
+          'customerId': customerId,
+          'customerName': customerName,
+          'mobileNo': customerMobile,
+          'email': customerEmail,
+          'imageUrl': customerImageUrl,
+          'displayTotal': allItemsTotal,
+          'createdDate': DateTime.now().toIso8601String(),
+        };
         List<dynamic> existingDetails = existingDraft['details'];
         for (var detail in details) {
-          int existingVariantIndex = existingDetails.indexWhere(
-            (d) => d['variant_id'] == detail.variationId,
-          );
-          if (existingVariantIndex != -1) {
-            existingDetails[existingVariantIndex]['quantity'] +=
-                detail.count.toInt();
-          } else {
-            existingDetails.add({
-              'product_id': detail.productId ?? '',
-              'variant_id': detail.variationId ?? '',
-              'pack': detail.saleBy == 'Pack'
-                  ? detail.pieces.toString()
-                  : detail.count.toString(),
-              'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-              'price': detail.sellPrice.toString(),
-              'discount': detail.discount,
-              'quantity': detail.count.toInt(),
-              'variant_name': detail.variationName ?? '',
-            });
-          }
+          log("existing added stock ${detail.stock}");
+          existingDetails.add({
+            'product_id': detail.productId ?? '',
+            'variant_id': detail.variationId ?? '',
+            'pack': detail.saleBy == 'Pack'
+                ? detail.pieces.toString()
+                : detail.count.toString(),
+            'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+            'price': detail.sellPrice.toString(),
+            'discount': detail.discount,
+            'quantity': detail.count.toInt(),
+            'variant_name': detail.variationName ?? '',
+            'stock': detail.stock ?? 0,
+            'unitType': detail.unitType,
+            'product_name': detail.productName ?? '',
+            'tax': detail.tax ?? 0.0,
+            'pieces': detail.pieces ?? 0.0,
+            'incl_tax': detail.inclTax ?? '',
+          });
         }
       } else {
         final orderId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -749,15 +874,139 @@ class CartDatabaseManager {
               'discount': e.discount,
               'quantity': e.count.toInt(),
               'variant_name': e.variationName ?? '',
+              'unitType': e.unitType,
+              'stock': e.stock,
+              'product_name': e.productName ?? '',
+              'tax': e.tax ?? 0.0,
+              'pieces': e.pieces ?? 0.0,
+              'incl_tax': e.inclTax ?? '',
             };
           }).toList(),
+          'displayData': {
+            'customerId': customerId,
+            'customerName': customerName,
+            'mobileNo': customerMobile,
+            'email': customerEmail,
+            'imageUrl': customerImageUrl,
+            'displayTotal': allItemsTotal,
+            'createdDate': DateTime.now().toIso8601String(),
+          },
         };
         drafts.add(newDraft);
       }
+
       await offlineDraftsBox.put('drafts', drafts);
-      log('[saveDraftOffline] All drafts after saving: $drafts');
     } catch (e) {
       log('[saveDraftOffline] Error saving draft locally: $e');
     }
   }
+
+  // Future<void> saveDraftOffline({
+  //   required String customerId,
+  //   required String salesmanId,
+  //   required double totalAmount,
+  //   required List<Detail> details,
+  //   required String customerName,
+  //   required String customerMobile,
+  //   required String customerEmail,
+  //   required String customerImageUrl,
+  //   required double allItemsTotal,
+  // }) async {
+  //   try {
+  //     var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+  //     List<dynamic> drafts =
+  //         offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+  //     int existingDraftIndex =
+  //         drafts.indexWhere((draft) => draft['customer_id'] == customerId);
+  //     log("details 1: ${details.map((e) => e.toJson()).toList()}");
+  //     if (existingDraftIndex != -1) {
+  //       log("details existingDraftIndex != -1");
+  //       var existingDraft = drafts[existingDraftIndex];
+  //       List<dynamic> existingDetails = existingDraft['details'];
+  //       for (var detail in details) {
+  //         int existingVariantIndex = existingDetails.indexWhere(
+  //           (d) => d['variant_id'] == detail.variationId,
+  //         );
+  //         if (existingVariantIndex != -1) {
+  //           existingDetails[existingVariantIndex]['quantity'] +=
+  //               detail.count.toInt();
+  //         } else {
+  //           log("existing added stock ${detail.stock}");
+  //           existingDetails.add({
+  //             'product_id': detail.productId ?? '',
+  //             'variant_id': detail.variationId ?? '',
+  //             'pack': detail.saleBy == 'Pack'
+  //                 ? detail.pieces.toString()
+  //                 : detail.count.toString(),
+  //             'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //             'price': detail.sellPrice.toString(),
+  //             'discount': detail.discount,
+  //             'quantity': detail.count.toInt(),
+  //             'variant_name': detail.variationName ?? '',
+  //             'stock': detail.stock ?? 0,
+  //             'unitType': detail.unitType,
+  //           });
+  //         }
+  //       }
+  //     } else {
+  //       log("details ELSE PART");
+  //       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+  //       final newDraft = {
+  //         'order_id': orderId,
+  //         'customer_id': customerId,
+  //         'salesman_id': salesmanId,
+  //         'total_amount': totalAmount,
+  //         'details': details.map((e) {
+  //           return {
+  //             'product_id': e.productId ?? '',
+  //             'variant_id': e.variationId ?? '',
+  //             'pack':
+  //                 e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
+  //             'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //             'price': e.sellPrice.toString(),
+  //             'discount': e.discount,
+  //             'quantity': e.count.toInt(),
+  //             'variant_name': e.variationName ?? '',
+  //             'unitType': e.unitType,
+  //             'stock': e.stock,
+  //           };
+  //         }).toList(),
+  //         'displayData': {
+  //           'customerName': customerName,
+  //           'mobileNo': customerMobile,
+  //           'email': customerEmail,
+  //           'imageUrl': customerImageUrl,
+  //           'displayTotal': allItemsTotal,
+  //           'createdDate': DateTime.now().toIso8601String(),
+  //         },
+  //       };
+  //       drafts.add(newDraft);
+  //       log("details NEW DRAFT : ${newDraft.toString()}");
+  //       // log("details DRAFTS : ${jsonDecode(drafts.toString())}");
+  //       //   // --- ADD TO draftBox FOR CART VISIBILITY ---
+  //       //   // final Box<CartItem> draftBox = Hive.box<CartItem>('draftBox');
+  //       //   // for (final detail in details) {
+  //       //   //   final cartItem = CartItem(
+  //       //   //     detail: detail,
+  //       //   //     productName: detail.variationName ?? '',
+  //       //   //     totalPrice:
+  //       //   //         (double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0) *
+  //       //   //             (detail.count ?? 0),
+  //       //   //     isPack: detail.saleBy == 'Pack',
+  //       //   //     customerId: customerId,
+  //       //   //     salesmanId: salesmanId,
+  //       //   //   );
+  //       //   //   await draftBox.add(cartItem);
+  //       //   // }
+  //       //   // --- END ADD TO draftBox ---
+  //     }
+  //     await offlineDraftsBox.put('drafts', drafts);
+  //     log('[saveDraftOffline] All drafts after saving: $drafts');
+
+  //     // final draftCollectedBox = await Hive.openBox('offlineDrafts');
+  //     // log("[draftBox] Contents:\n${draftCollectedBox.values.map((e) => jsonEncode(e)).join('\n')}");
+  //   } catch (e) {
+  //     log('[saveDraftOffline] Error saving draft locally: $e');
+  //   }
+  // }
 }

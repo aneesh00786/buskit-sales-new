@@ -54,9 +54,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   Future<void> checkUserVerification() async {
     try {
       final response = await ApiWorker().userVerification(
-        SessionHelper.loginSavedData?.company_id ?? 0,
-        SessionHelper.loginSavedData?.salesmanId ?? ''
-      );
+          SessionHelper.loginSavedData?.company_id ?? 0,
+          SessionHelper.loginSavedData?.salesmanId ?? '');
 
       if (response.statusCode == 200) {
         log('success', name: 'userVerification');
@@ -126,9 +125,10 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             customType: "",
             customOrderStatusType: OrderStatus.preOrder,
             draftCount: data.orderCountList?.draftOrder ?? 0,
-            orderCount: data.orderCountList?.totalOrder ?? 40,
-            preOrderCount: data.orderCountList?.preorderOrder ?? 60,
-            eastimatesCount: data.orderCountList?.estimateOrder ?? 80,
+            orderCount: data.orderCountList?.totalOrder ?? 0,
+            preOrderCount: data.orderCountList?.preorderOrder ?? 0,
+            eastimatesCount: data.orderCountList?.estimateOrder ?? 0,
+            cancelledCount: data.orderCountList?.cancelOrder ?? 0,
             userType: UserType.customer,
             userId: "",
             startDate: widget.dashBoardController.selectedStartDate.value,

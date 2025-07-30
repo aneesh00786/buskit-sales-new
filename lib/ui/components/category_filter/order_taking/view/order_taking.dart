@@ -77,7 +77,7 @@ class _OrderTakingState extends State<OrderTaking>
   TextEditingController customerSearchController = TextEditingController();
   TextEditingController searchController = TextEditingController();
   CustomerAndOrderController customerAndOrderController =
-      Get.put(CustomerAndOrderController());
+      Get.find<CustomerAndOrderController>();
   HomeController homeController = Get.find<HomeController>();
   ApiWorker apiWorker = Get.put(ApiWorker());
   late CustomersProvider cartProvider;
@@ -97,6 +97,24 @@ class _OrderTakingState extends State<OrderTaking>
   bool _isCartCountFetched = false;
   @override
   void initState() {
+    log("[CUSTOMER ID] [widget.selectedCustId] : ${widget.selectedCustId}");
+    log("[CUSTOMER ID] [productsController] : ${widget.productsController.selectedCustomerId.value}");
+    log("[CUSTOMER ID] [customersAndOrderController] : ${customerAndOrderController.customerId.value}");
+
+    {
+      final cartProvider =
+          Provider.of<CustomersProvider>(context, listen: false);
+      final customerId = widget.productsController.selectedCustomerId.value;
+      customerAndOrderController
+          .setCustomerId(widget.productsController.selectedCustomerId.value);
+
+      CartDatabaseManager().getCartItems(customerId);
+      cartProvider.getCartItemCounts(customerId);
+      CartDatabaseManager().addListener(() {
+        cartProvider.updateCartCount(customerId);
+      });
+    }
+
     log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
     CartDatabaseManager().getDraftItems();
@@ -115,19 +133,17 @@ class _OrderTakingState extends State<OrderTaking>
         curve: Curves.elasticOut,
       ),
     );
-    final customerId = widget.selectedCustId;
+    final customerId = widget.productsController.selectedCustomerId.value;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
 
-    // --- ADDED: Load offline drafts if offline ---
     _loadOfflineDraftsIfNeeded(customerId);
-    // --- END ADDED ---
 
     CartDatabaseManager().getCartItems(customerId ?? '');
-    isCartCountLoading = true; // <-- Set loading true before async call
+    isCartCountLoading = true;
     cartProvider.getCartItemCounts(customerId ?? '').then((_) {
       if (mounted) {
         setState(() {
-          isCartCountLoading = false; // <-- Set loading false after async call
+          isCartCountLoading = false;
         });
       }
     });
@@ -163,7 +179,10 @@ class _OrderTakingState extends State<OrderTaking>
     cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     if (!_isCartCountFetched) {
       isCartCountLoading = true;
-      cartProvider.getCartItemCounts(widget.selectedCustId ?? '').then((_) {
+      cartProvider
+          .getCartItemCounts(
+              widget.productsController.selectedCustomerId.value ?? '')
+          .then((_) {
         if (mounted) {
           setState(() {
             isCartCountLoading = false;
@@ -179,7 +198,8 @@ class _OrderTakingState extends State<OrderTaking>
     _drawerTimer?.cancel();
     animationController.dispose();
     CartDatabaseManager().removeListener(() {
-      cartProvider.updateCartCount(widget.selectedCustId ?? '');
+      cartProvider.updateCartCount(
+          widget.productsController.selectedCustomerId.value ?? '');
     });
     super.dispose();
   }
@@ -267,7 +287,7 @@ class _OrderTakingState extends State<OrderTaking>
 
   @override
   Widget build(BuildContext context) {
-    log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
+    // log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -278,22 +298,25 @@ class _OrderTakingState extends State<OrderTaking>
           'Products',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        leading: SingleChildScrollView(
-          child: IconButton(
-            onPressed: () async {
-              widget.productsController.handleBackNavigation(
-                context: context,
-                isDirectDialogue: widget.isDirectDialogue,
-                isFromOrder: widget.isFromOrder,
-                isFromCalender: widget.isFromCalender,
-                customerId: widget.productsController.selectedCustomerId.value,
-                homeController: homeController,
-              );
-              CartDatabaseManager().getDraftItems();
-            },
-            icon: const Icon(Icons.arrow_back_ios),
-          ),
-        ),
+        leading: homeController.selectedIndex.value == 2
+            ? SizedBox.shrink()
+            : SingleChildScrollView(
+                child: IconButton(
+                  onPressed: () async {
+                    widget.productsController.handleBackNavigation(
+                      context: context,
+                      isDirectDialogue: widget.isDirectDialogue,
+                      isFromOrder: widget.isFromOrder,
+                      isFromCalender: widget.isFromCalender,
+                      customerId:
+                          widget.productsController.selectedCustomerId.value,
+                      homeController: homeController,
+                    );
+                    CartDatabaseManager().getDraftItems();
+                  },
+                  icon: const Icon(Icons.arrow_back_ios),
+                ),
+              ),
         actions: [
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.85,
@@ -536,6 +559,30 @@ class _OrderTakingState extends State<OrderTaking>
                                                             .value = customer
                                                                 .customerId ??
                                                             '';
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerName
+                                                            .value = customer
+                                                                .businessName ??
+                                                            '';
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerImageUrl
+                                                            .value = customer
+                                                                .imageUrl ??
+                                                            '';
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerMobileNo
+                                                            .value = customer
+                                                                .mobileno ??
+                                                            '';
+                                                        widget
+                                                            .productsController
+                                                            .selectedCustomerEmail
+                                                            .value = customer
+                                                                .email ??
+                                                            '';
                                                         customerSearchController
                                                             .clear();
                                                       }
@@ -637,20 +684,30 @@ class _OrderTakingState extends State<OrderTaking>
                           const SizedBox(
                             width: 20,
                           ),
-                          IntrinsicWidth(
-                            child: CustomSwitch(
-                              initialValue:
-                                  customerAndOrderController.isActive.value,
-                              onChanged: (value) {
-                                customerAndOrderController.isActive.value =
-                                    value;
-                              },
-                              active: customerAndOrderController.isActive.value,
-                              selectedName: widget.productsController
-                                  .selectedCustomerName.value,
-                              customerId: widget.selectedCustId ?? '',
-                            ),
-                          )
+                          widget.productsController.selectedCustomerName.isEmpty
+                              ? IntrinsicWidth(
+                                  child: SizedBox(
+                                    width: 140.0,
+                                    height: 50.0,
+                                  ),
+                                )
+                              : IntrinsicWidth(
+                                  child: CustomSwitch(
+                                    initialValue: customerAndOrderController
+                                        .isActive.value,
+                                    onChanged: (value) {
+                                      customerAndOrderController
+                                          .isActive.value = value;
+                                    },
+                                    active: customerAndOrderController
+                                        .isActive.value,
+                                    selectedName: widget.productsController
+                                        .selectedCustomerName.value,
+                                    customerId: widget.productsController
+                                            .selectedCustomerId.value ??
+                                        '',
+                                  ),
+                                )
                         ],
                       ))
                     ],
@@ -797,12 +854,31 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
+  // void _selectCategory(String categoryName) {
+  //   setState(() {
+  //     _selectedCategory = categoryName;
+  //     _isDrawerOpen = true;
+  //   });
+  //   log('Selected Category: $_selectedCategory');
+  // }
+
   void _selectCategory(String categoryName) {
     setState(() {
       _selectedCategory = categoryName;
       _isDrawerOpen = true;
     });
+
     log('Selected Category: $_selectedCategory');
+
+    // Wait 3 seconds, then close the drawer
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _isDrawerOpen = false;
+        });
+        log('Drawer closed after 3 seconds');
+      }
+    });
   }
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {
@@ -817,7 +893,7 @@ class _OrderTakingState extends State<OrderTaking>
           productsController: widget.productsController,
           customerOrderController: customerAndOrderController,
           isDashboard: false,
-          customerId: widget.selectedCustId,
+          customerId: widget.productsController.selectedCustomerId.value,
         );
       },
     );
@@ -875,6 +951,7 @@ class _OrderTakingState extends State<OrderTaking>
           (d) => d['customer_id'] == customerId,
           orElse: () => null,
         );
+        log("DRAFT OF CUSTOMER : $draft");
         if (draft != null && draft['details'] != null) {
           // Convert details to CartItem and add to draftBox
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -899,8 +976,15 @@ class _OrderTakingState extends State<OrderTaking>
                 pieces: int.tryParse(detail['pack'] ?? '0'),
                 variationName: detail['variant_name'],
                 saleBy: detail['packType'],
+                stock: detail['stock'] ?? 0,
+                unitType: detail['unitType'],
+                packtype: detail['packType'],
+                productName: detail['product_name'],
+                tax: detail['tax'],
+                inclTax: detail['incl_tax'],
               ),
-              productName: detail['variant_name'] ?? '',
+              productName: detail['product_name'],
+              // detail['variant_name'] ?? '',
               totalPrice:
                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
               isPack: detail['packType'] == 'Pack',

@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:flutter/material.dart';
+
 void showProductListDialog<T>({
   required BuildContext context,
   required List<T> productList,
@@ -153,15 +154,14 @@ void showProductListDialog<T>({
                           maxHeight: contentHeight - headerHeight,
                         ),
                         child: ScrollbarTheme(
-                                        data: const ScrollbarThemeData(
-                                          minThumbLength: 150,
-                                          thickness: WidgetStatePropertyAll(5),
-                                          thumbColor: WidgetStatePropertyAll(
-                                              Colors.blue),
-                                        ),
-                                        child: Scrollbar(
-                                          thumbVisibility: true,
-                                          trackVisibility: true,
+                          data: const ScrollbarThemeData(
+                            minThumbLength: 150,
+                            thickness: WidgetStatePropertyAll(5),
+                            thumbColor: WidgetStatePropertyAll(Colors.blue),
+                          ),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemCount: productList.length,
@@ -213,6 +213,7 @@ void showProductListDialog<T>({
                                             child: MyRegularText(
                                               label: getInNo(product),
                                               fontSize: 12,
+                                              maxlines: 1,
                                             ),
                                           ),
                                         ),
@@ -223,6 +224,7 @@ void showProductListDialog<T>({
                                               label: getFormattedDate(product),
                                               color: secondaryTextColor,
                                               fontSize: 12,
+                                              maxlines: 1,
                                             ),
                                           ),
                                         ),
@@ -230,8 +232,8 @@ void showProductListDialog<T>({
                                           width: colWidth3,
                                           child: Center(
                                             child: InkWell(
-                                              onTap: () =>
-                                                  onQuantityTap(context, product),
+                                              onTap: () => onQuantityTap(
+                                                  context, product),
                                               child: Container(
                                                 height: 20,
                                                 width: 20,
@@ -272,6 +274,7 @@ void showProductListDialog<T>({
                                                   .toString(),
                                               color: secondaryTextColor,
                                               fontSize: 12,
+                                              maxlines: 1,
                                             ),
                                           ),
                                         ),

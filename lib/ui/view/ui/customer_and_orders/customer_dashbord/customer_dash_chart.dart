@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -205,16 +206,23 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svg: Assets.iconsIcDashboardShoppingCart,
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           color: const Color.fromARGB(255, 55, 74, 134),
-          onTap: () {
+          onTap: () async {
             if (orderCountList.totalOrder.toString() == "0") {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
-              provider.fetchOrdersForCustomDash(
-                OrderStatus.delivered,
-                widget.customerId,
-              );
-              _showOrderStatusDialog(context, provider, OrderStatus.delivered);
+              bool isOnline = await ConnectivityService().isOnline();
+              if (isOnline) {
+                provider.fetchOrdersForCustomDash(
+                  OrderStatus.delivered,
+                  widget.customerId,
+                );
+                _showOrderStatusDialog(
+                    context, provider, OrderStatus.delivered);
+              } else {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+              }
             }
           },
         ),
@@ -224,17 +232,23 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svg: Assets.iconsIcDashboardEstimates,
           svgBgColor: const Color.fromARGB(255, 226, 249, 243),
           color: const Color.fromARGB(255, 36, 108, 44),
-          onTap: () {
+          onTap: () async {
             if (orderCountList.estimateOrder.toString() == "0") {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
-              provider.fetchOrdersForCustomDash(
-                OrderStatus.estimates,
-                widget.customerId,
-              );
-              _showOrderTypeDialog(
-                  context, provider, OrderStatus.estimates, 'Estimate');
+              bool isOnline = await ConnectivityService().isOnline();
+              if (isOnline) {
+                provider.fetchOrdersForCustomDash(
+                  OrderStatus.estimates,
+                  widget.customerId,
+                );
+                _showOrderTypeDialog(
+                    context, provider, OrderStatus.estimates, 'Estimate');
+              } else {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+              }
             }
           },
         ),
@@ -244,17 +258,23 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svg: Assets.iconsIcDashboardPreOrder,
           svgBgColor: const Color.fromARGB(255, 230, 247, 251),
           color: const Color.fromARGB(255, 45, 104, 116),
-          onTap: () {
+          onTap: () async {
             if (orderCountList.preorderOrder.toString() == "0") {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
-              provider.fetchOrdersForCustomDash(
-                OrderStatus.preOrder,
-                widget.customerId,
-              );
-              _showOrderTypeDialog(
-                  context, provider, OrderStatus.preOrder, 'Booking');
+              bool isOnline = await ConnectivityService().isOnline();
+              if (isOnline) {
+                provider.fetchOrdersForCustomDash(
+                  OrderStatus.preOrder,
+                  widget.customerId,
+                );
+                _showOrderTypeDialog(
+                    context, provider, OrderStatus.preOrder, 'Booking');
+              } else {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+              }
             }
           },
         ),
@@ -296,17 +316,23 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svg: Assets.iconsIcDashboardCancel,
           svgBgColor: const Color.fromARGB(255, 255, 228, 228),
           color: const Color.fromARGB(255, 139, 27, 27),
-          onTap: () {
+          onTap: () async {
             if (orderCountList.cancelOrder.toString() == "0") {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
-              provider.fetchOrdersForCustomDash(
-                OrderStatus.cancelled,
-                widget.customerId,
-              );
-              _showOrderTypeDialog(
-                  context, provider, OrderStatus.cancelled, 'Cancelled');
+              bool isOnline = await ConnectivityService().isOnline();
+              if (isOnline) {
+                provider.fetchOrdersForCustomDash(
+                  OrderStatus.cancelled,
+                  widget.customerId,
+                );
+                _showOrderTypeDialog(
+                    context, provider, OrderStatus.cancelled, 'Cancelled');
+              } else {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+              }
             }
           },
         ),

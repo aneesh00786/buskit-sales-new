@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -1517,42 +1518,13 @@ class ApiService {
   }
 
   Future<void> addCustomer(
-      {required CustomerDashMo model,
+      {required Map<String, dynamic> model,
       required File adminProfilePicture,
       required String salesmanId}) async {
-    final url = Uri.parse('$_baseUrl${ApiConstants.addCustomer}');
-    try {
-      var request = http.MultipartRequest('POST', url);
-      request.fields['fullname'] = model.fullname;
-      request.fields['email'] = model.email;
-      request.fields['mobileno'] = model.mobileno;
-      request.fields['town'] = model.town;
-      request.fields['address'] = model.address;
-      request.fields['zipcode'] = model.zipcode.toString();
-      request.fields['state'] = model.state;
-      request.fields['businessname'] = model.businessName;
-      request.fields['businesscontact'] = model.businessNo.toString();
-      request.fields['remark'] = model.remark.toString();
-      request.fields['oldimage_url'] = 'a';
-      request.fields['salesman_id'] = salesmanId;
-      request.fields['status_type'] = '1';
-      var fileStream = http.ByteStream(adminProfilePicture.openRead());
-      var length = await adminProfilePicture.length();
-      var multipartFile = http.MultipartFile(
-        'cutomerpicture',
-        fileStream,
-        length,
-        filename: adminProfilePicture.path.split('/').last,
-      );
-      request.files.add(multipartFile);
-      var response = await http.Response.fromStream(await request.send());
-      if (response.statusCode == 200) {
-      } else {
-        throw Exception('Failed to update admin details');
-      }
-    } catch (e) {
-      throw Exception('Failed to update admin details: $e');
-    }
+    ApiWorker().addCustomer2(
+        model: model,
+        adminProfilePicture: adminProfilePicture,
+        salesmanId: salesmanId);
   }
 
   Future<void> addLead({

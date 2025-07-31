@@ -1346,19 +1346,23 @@ class ApiWorker with ApiConstants {
       sendData['cutomerpicture'] = customerPicture;
 
       final formData = FormData.fromMap(sendData);
-
       log("data: $sendData");
 
-      final response = await dio
-          .postbycustom(ApiConstants.addCustomer, data: formData)
-          .onError((DioException error, stackTrace) {
-        log(error.toString());
-        return Future.error(throw DioExceptionHandler.fromDioError(error));
-      });
+      final response = await dio.postbycustom(
+        ApiConstants.addCustomer,
+        data: formData,
+      );
+
       return response;
     } on DioException catch (error) {
       log("DioException: ${error.message}");
-      return Future.error(DioExceptionHandler.fromDioError(error));
+
+      handleExceptionMessage(
+        apiName: 'Add Customer',
+        response: error.response,
+      );
+
+      throw DioExceptionHandler.fromDioError(error);
     } catch (error) {
       log("Unexpected error: $error");
       return Future.error(error);
@@ -1381,23 +1385,20 @@ class ApiWorker with ApiConstants {
       final formData = FormData.fromMap(sendData);
       log("data: $sendData");
 
-      final response = await dio1.patch(
-        "${ApiConstants.baseUrl}${ApiConstants.updateCustomer}",
+      final response = await dio.patchbycustom(
+        ApiConstants.updateCustomer,
         data: formData,
       );
 
       return response;
     } on DioException catch (error) {
       log("DioException: ${error.message}");
-      log("Error type: ${error.type}");
-      log("Error response: ${error.response}");
 
-      if (error.response != null) {
-        handleExceptionMessage(
-          apiName: 'Update Customer',
-          response: error.response,
-        );
-      }
+      handleExceptionMessage(
+        apiName: 'Update Customer',
+        response: error.response,
+      );
+
       throw DioExceptionHandler.fromDioError(error);
     } catch (error) {
       log("Unexpected error: $error");
@@ -2964,6 +2965,78 @@ class ApiWorker with ApiConstants {
     } catch (e) {
       log("Error in Show Routes: $e");
       rethrow;
+    }
+  }
+
+  Future<Response> addCustomer2({
+    required Map<String, dynamic> model,
+    required File adminProfilePicture,
+    required String salesmanId,
+  }) async {
+    try {
+      final customerPicture = await MultipartFile.fromFile(
+        adminProfilePicture.path,
+        filename: adminProfilePicture.path.split('/').last,
+      );
+      model['cutomerpicture'] = customerPicture;
+
+      final formData = FormData.fromMap(model);
+      log("Sending add customer data: $model");
+
+      final response = await dio.postbycustom(
+        ApiConstants.addCustomer,
+        data: formData,
+      );
+
+      return response;
+    } on DioException catch (error) {
+      log("DioException: ${error.message}");
+
+      handleExceptionMessage(
+        apiName: 'Add Customer',
+        response: error.response,
+      );
+
+      throw DioExceptionHandler.fromDioError(error);
+    } catch (error) {
+      log("Unexpected error in addCustomer: $error");
+      return Future.error(error);
+    }
+  }
+
+  Future<LeadsForUpdatingData> fetchLeadsForUpdate(
+    String? customerId,
+  ) async {
+    try {
+      final response = await dio.postbycustom(
+        ApiConstants.getLeadForUpdating,
+        data: {
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "customer_id": customerId
+        },
+      );
+
+      log("Response data runtimeType: ${response.data.runtimeType}");
+      log("Response data: ${response.data}");
+
+      final parsedJson =
+          response.data is String ? jsonDecode(response.data) : response.data;
+
+      log("Parsed JSON: $parsedJson");
+
+      return LeadsForUpdating.fromJson(parsedJson).data.first;
+    } on DioException catch (error) {
+      log("DioException: ${error.message}");
+
+      handleExceptionMessage(
+        apiName: 'Get Leads for Update',
+        response: error.response,
+      );
+
+      throw DioExceptionHandler.fromDioError(error);
+    } catch (error) {
+      log("Unexpected error: $error");
+      return Future.error(error);
     }
   }
 }

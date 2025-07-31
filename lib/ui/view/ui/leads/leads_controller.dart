@@ -24,6 +24,8 @@ class LeadsController extends GetxController {
   RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
 
+  late LeadsForUpdatingData leadForUpdateData;
+
   RxInt totalPages = 1.obs;
   RxInt currentPage = 1.obs;
 
@@ -75,26 +77,36 @@ class LeadsController extends GetxController {
   void deleteLead(int id) {
     leadsCustomerDataList.removeWhere((lead) => lead.id == id);
   }
-Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
-  try {
-    final data = await ApiWorker().updateCustomer(leadData, leadImage);
+
+  Future getLeadsForUpdate(String customerId) async {
+    var data = await ApiWorker().fetchLeadsForUpdate(customerId);
+    leadForUpdateData = data;
+  }
+
+  RxBool isUpdating = false.obs;
+
+  Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
+    isUpdating.value = true;
+    var data = await ApiWorker()
+        .updateCustomer(leadData, leadImage)
+        .onError((error, stackTrace) {
+      btnController.error();
+      btnController.reset();
+      return Future.error(error.toString());
+    });
+    isUpdating.value = true;
 
     if (data.statusCode == 200) {
       btnController.success();
       Get.back();
-      loadLeadsCustomerData; 
+      loadLeadsCustomerData;
     }
-  } catch (error) {
-    btnController.error();
-    btnController.reset();
-    log("updateLeads error: $error");
   }
-}
-
 
   Future<Map<String, dynamic>> addLeadsMapData() async {
     Map<String, dynamic> data = {
-      "userid": "SALES1",
+      "userid": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "businessname": businessNameController.text.trim(),
       "address": addressController.text.trim(),
       "town": townController.text.trim(),
@@ -127,8 +139,9 @@ Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
   }) async {
     try {
       var mapData = await addLeadsMapData();
-      log('Add Leads Map data : $mapData');
+
       await ApiWorker().addCustomer(mapData, leadsImage);
+
       btnController.success();
       Get.back();
       clearAllFileds;
@@ -140,8 +153,10 @@ Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
         Colors.red,
         Icons.close,
       );
+
       btnController.error();
       btnController.reset();
+
       return Future.error(error.toString());
     }
   }
@@ -163,9 +178,7 @@ Future updateLeads(Map<String, dynamic> leadData, File? leadImage) async {
   Future<List<LeadCustomerData>> get loadLeadsCustomerData async {
     isLeadsCustomerDataLoading.value = true;
     try {
-      var data = await ApiWorker().getLeadsData(
-        currentPage.value
-      );
+      var data = await ApiWorker().getLeadsData(currentPage.value);
       totalPages.value = data.pagination?.totalPages ?? 0;
       leadsCustomerDataList.assignAll(data.leadCustomerData!);
       return data.leadCustomerData!;

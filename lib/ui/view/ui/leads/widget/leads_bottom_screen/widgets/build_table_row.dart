@@ -102,10 +102,29 @@ Widget buildTableRow(
                   SizedBox(
                     width: 20,
                     child: IconButton(
-                      onPressed: () {
-                        EditLeadsDialog.showEditLeadsDialog(
-                            context, leadCustomerData, leadsController);
-                      },
+                     onPressed: () async {
+                          bool isOnline =
+                              await ConnectivityService().isOnline();
+                          if (!isOnline) {
+                            showCustomToastDisplay(
+                                context, "You are Offline!", red, Icons.close);
+                            return;
+                          }
+
+                          await leadsController.getLeadsForUpdate(
+                              leadCustomerData.customerId ?? '');
+
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              return EditLeadsDialog(
+                                  customerId:
+                                      leadCustomerData.customerId.toString(),
+                                  leadsController: leadsController);
+                            },
+                          );
+                        },
                       padding: const EdgeInsets.all(2),
                       constraints: const BoxConstraints(),
                       icon: const Icon(EneftyIcons.edit_outline, size: 20),

@@ -46,9 +46,9 @@ class CustomersProvider with ChangeNotifier {
   FilterDateEnum _selectedFilter = FilterDateEnum.thisMonth;
   String _selectedStartDate = '';
   String _selectedEndDate = '';
-  File _imageFile = File('');
+  File? _imageFile;
   final ImagePicker _picker = ImagePicker();
-  File get imageFile => _imageFile;
+  File? get imageFile => _imageFile;
   int _currentPage = 1;
   int _totalPages = 1;
   String get errorMessage => _errorMessage;
@@ -313,8 +313,8 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> pickImage(gallery) async {
+    final pickedFile = await _picker.pickImage(source: gallery);
     if (pickedFile != null) {
       _imageFile = File(pickedFile.path);
       notifyListeners();
@@ -329,9 +329,10 @@ class CustomersProvider with ChangeNotifier {
       await _apiService
           .addLead(
               model: admin,
-              adminProfilePicture: imageFile,
+              adminProfilePicture: imageFile!,
               salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
+
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to update admin: $e');
@@ -339,18 +340,22 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> addCustomer({
-    required CustomerDashMo admin,
+    required Map<String, dynamic> admin,
     required String salsmanId,
-    required File image,
   }) async {
     try {
       await _apiService
           .addCustomer(
-              model: admin, adminProfilePicture: image, salesmanId: salsmanId)
+              model: admin,
+              adminProfilePicture: imageFile!,
+              salesmanId: salsmanId)
           .then((value) => fetchCustomerData());
+
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to update admin: $e');
+    } finally {
+      _imageFile = null;
     }
   }
 

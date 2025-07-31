@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/database/session/null_check_oprations.dart';
 
@@ -7,14 +6,14 @@ class LeadResponce {
   bool? status;
   String? message;
   List<LeadCustomerData>? leadCustomerData;
-    LeadsPagination? pagination;
+  LeadsPagination? pagination;
 
   LeadResponce({
     this.statusCode,
     this.status,
     this.message,
     this.leadCustomerData,
-        this.pagination,
+    this.pagination,
   });
 
   LeadResponce.fromJson(Map<String, dynamic> json) {
@@ -25,7 +24,7 @@ class LeadResponce {
         ?.map(
             (dynamic e) => LeadCustomerData.fromJson(e as Map<String, dynamic>))
         .toList();
-        pagination = LeadsPagination.fromJson(json["pagination"]);
+    pagination = LeadsPagination.fromJson(json["pagination"]);
   }
 
   Map<String, dynamic> toJson() {
@@ -168,5 +167,178 @@ class LeadsPagination {
         "total_record": totalRecord,
         "total_pages": totalPages,
         "per_page": perPage,
+      };
+}
+
+class LeadsForUpdating {
+  int statusCode;
+  bool status;
+  List<LeadsForUpdatingData> data;
+  String message;
+
+  LeadsForUpdating({
+    required this.statusCode,
+    required this.status,
+    required this.data,
+    required this.message,
+  });
+
+  factory LeadsForUpdating.fromJson(Map<String, dynamic> json) =>
+      LeadsForUpdating(
+        statusCode: json["status_code"],
+        status: json["status"],
+        data: List<LeadsForUpdatingData>.from(
+            json["data"].map((x) => LeadsForUpdatingData.fromJson(x))),
+        message: json["message"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status_code": statusCode,
+        "status": status,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+        "message": message,
+      };
+}
+
+class LeadsForUpdatingData {
+  int? id;
+  String? customerId;
+  String? cartId;
+  String? fullname;
+  String? mobileno;
+  String? email;
+  String? town;
+  String? state;
+  int? zipcode;
+  String? address;
+  String? latitude;
+  String? longitude;
+  String? businessName;
+  String? businessNo;
+  String? tfn;
+  String? addressCheckbox;
+  String? deliveryAddress;
+  String? deliveryTown;
+  String? deliveryState;
+  int? deliveryZipcode;
+  String? remark;
+  String? imageUrl;
+  String? salesmanId;
+  int? status;
+  DateTime? createAt;
+  String? createdBy;
+  String? salesmanName;
+  String? discount;
+  int? eventType;
+  dynamic eventDays;
+  int? creditPeriod;
+  int? companyId;
+
+  LeadsForUpdatingData({
+    required this.id,
+    required this.customerId,
+    required this.cartId,
+    required this.fullname,
+    required this.mobileno,
+    required this.email,
+    required this.town,
+    required this.state,
+    required this.zipcode,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+    required this.businessName,
+    required this.businessNo,
+    required this.tfn,
+    required this.addressCheckbox,
+    required this.deliveryAddress,
+    required this.deliveryTown,
+    required this.deliveryState,
+    required this.deliveryZipcode,
+    required this.remark,
+    required this.imageUrl,
+    required this.salesmanId,
+    required this.status,
+    required this.createAt,
+    required this.createdBy,
+    required this.salesmanName,
+    required this.discount,
+    required this.eventType,
+    required this.eventDays,
+    required this.creditPeriod,
+    required this.companyId,
+  });
+
+  factory LeadsForUpdatingData.fromJson(Map<String, dynamic> json) =>
+      LeadsForUpdatingData(
+        id: json["id"] ?? 0,
+        customerId: json["customer_id"] ?? '',
+        cartId: json["cart_id"] ?? '',
+        fullname: json["fullname"] ?? '',
+        mobileno: json["mobileno"] ?? '',
+        email: json["email"] ?? '',
+        town: json["town"] ?? '',
+        state: json["state"] ?? '',
+        zipcode: json["zipcode"] ?? 0,
+        address: json["address"] ?? '',
+        latitude: json["latitude"] ?? '',
+        longitude: json["longitude"] ?? '',
+        businessName: json["business_name"] ?? '',
+        businessNo: json["business_no"] ?? '',
+        tfn: json["tfn"] ?? '',
+        addressCheckbox: json["addressCheckbox"] ?? '',
+        deliveryAddress: json["delivery_address"] ?? '',
+        deliveryTown: json["delivery_town"] ?? '',
+        deliveryState: json["delivery_state"] ?? '',
+        deliveryZipcode: json["delivery_zipcode"] ?? 0,
+        remark: json["remark"] ?? '',
+        imageUrl: json["image_url"] ?? '',
+        salesmanId: json["salesman_id"] ?? '',
+        status: json["status"] ?? 0,
+        createAt: json["create_at"] != null
+            ? DateTime.parse(json["create_at"])
+            : DateTime.now(),
+        createdBy: json["created_by"] ?? '',
+        salesmanName: json["salesman_name"] ?? '',
+        discount: json["discount"] ?? '',
+        eventType: json["event_type"] ?? 0,
+        eventDays: json["event_days"],
+        creditPeriod: json["credit_period"] ?? 0,
+        companyId: json["company_id"] ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "customer_id": customerId,
+        "cart_id": cartId,
+        "fullname": fullname,
+        "mobileno": mobileno,
+        "email": email,
+        "town": town,
+        "state": state,
+        "zipcode": zipcode,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "business_name": businessName,
+        "business_no": businessNo,
+        "tfn": tfn,
+        "addressCheckbox": addressCheckbox,
+        "delivery_address": deliveryAddress,
+        "delivery_town": deliveryTown,
+        "delivery_state": deliveryState,
+        "delivery_zipcode": deliveryZipcode,
+        "remark": remark,
+        "image_url": imageUrl,
+        "salesman_id": salesmanId,
+        "status": status,
+        "create_at": createAt!.toIso8601String(),
+        "created_by": createdBy,
+        "salesman_name": salesmanName,
+        "discount": discount,
+        "event_type": eventType,
+        "event_days": eventDays,
+        "credit_period": creditPeriod,
+        "company_id": companyId,
       };
 }

@@ -4,12 +4,16 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -27,12 +31,14 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../components/color/colors.dart';
@@ -464,6 +470,7 @@ class _TableeeState extends State<Tableee> {
           TextEditingController remarkController = TextEditingController();
 
           bool sameAsAbove = false;
+          bool isAddingCustomer = false;
 
           return SizedBox(
             height: isSmallScreen ? 29 : 38,
@@ -471,283 +478,229 @@ class _TableeeState extends State<Tableee> {
             child: CustomButton(
               onPressed: () {
                 showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (BuildContext context) {
                     return StatefulBuilder(
                       builder: (context, setState) {
-                        return Dialog(
-                          insetPadding: EdgeInsets.zero,
-                          backgroundColor:
-                              const Color.fromARGB(255, 237, 238, 243),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                            side: BorderSide.none,
-                          ),
-                          elevation: 24.0,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4.8),
-                                  decoration: const BoxDecoration(
-                                    color: primaryColor,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10),
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Dialog(
+                            insetPadding: EdgeInsets.zero,
+                            backgroundColor: white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                              side: BorderSide.none,
+                            ),
+                            elevation: 24.0,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10),
+                                      ),
+                                      color: Color(0xFF7578EA),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Add Customer',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        dialogCloseButton1(context, red),
+                                      ],
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Add Customer',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 17.5,
-                                        ),
-                                      ),
-                                      dialogCloseButton1(context, Colors.red),
-                                    ],
-                                  ),
-                                ),
-                                // const SizedBox(height: 16.0),
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    children: [
-                                      buildInputField(bsNameController,
-                                          'Business Name', Assets.icBusiness),
-                                      buildInputField(addressController,
-                                          'Address', Assets.icLocation),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: buildInputField(
-                                                townController,
-                                                'City or Suburb',
-                                                Assets.icCity),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                stateController,
-                                                'State',
-                                                Assets.icState),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                zipcodeController,
-                                                'Zip/Post/Pin Code',
-                                                Assets.icZipcode),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: buildInputField(
-                                                phoneController,
-                                                'Mobile Number',
-                                                Assets.icMobile),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                emailController,
-                                                'Email',
-                                                Assets.icEmail),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                telephoneController,
-                                                'Business Reg.No',
-                                                Assets.icBusinessReg),
-                                          ),
-                                        ],
-                                      ),
-                                      const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 6.0),
-                                        child: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            'Contact Details',
-                                            style: TextStyle(fontSize: 18),
-                                          ),
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: buildInputField(
-                                                contactPersonNameController,
-                                                'Contact Person',
-                                                Assets.icUser),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                contactNumController,
-                                                'Contact Number',
-                                                Assets.icPhone),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 6.0),
-                                        child: Row(
+                                  // const SizedBox(height: 16.0),
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        buildInputField(bsNameController,
+                                            'Business Name', Assets.icBusiness),
+                                        buildInputField(addressController,
+                                            'Address', Assets.icLocation),
+                                        Row(
                                           children: [
-                                            const Text(
-                                              'Delivery Address    ',
+                                            Expanded(
+                                              child: buildInputField(
+                                                  townController,
+                                                  'City or Suburb',
+                                                  Assets.icCity),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  stateController,
+                                                  'State',
+                                                  Assets.icState),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  zipcodeController,
+                                                  'Zip/Post/Pin Code',
+                                                  Assets.icZipcode),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: buildInputField(
+                                                  phoneController,
+                                                  'Mobile Number',
+                                                  Assets.icMobile),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  emailController,
+                                                  'Email',
+                                                  Assets.icEmail),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  telephoneController,
+                                                  'Business Reg.No',
+                                                  Assets.icBusinessReg),
+                                            ),
+                                          ],
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 6.0),
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              'Contact Details',
                                               style: TextStyle(fontSize: 18),
                                             ),
-                                            Checkbox(
-                                              value: sameAsAbove,
-                                              onChanged: (bool? value) {
-                                                setState(() {
-                                                  sameAsAbove = value ?? false;
-                                                  if (sameAsAbove) {
-                                                    deliveryAddressController
-                                                            .text =
-                                                        addressController.text;
-                                                    deliveryTownController
-                                                            .text =
-                                                        townController.text;
-                                                    deliveryStateController
-                                                            .text =
-                                                        stateController.text;
-                                                    deliveryZipcodeController
-                                                            .text =
-                                                        zipcodeController.text;
-                                                  } else {
-                                                    deliveryAddressController
-                                                        .clear();
-                                                    deliveryTownController
-                                                        .clear();
-                                                    deliveryStateController
-                                                        .clear();
-                                                    deliveryZipcodeController
-                                                        .clear();
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                            const SizedBox(width: 5),
-                                            const Text('Same as Above'),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                      buildInputField(
-                                          deliveryAddressController,
-                                          'Delivery Address',
-                                          Assets.icLocation),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: buildInputField(
-                                                deliveryTownController,
-                                                'City or Suburb',
-                                                Assets.icCity),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                deliveryStateController,
-                                                'State',
-                                                Assets.icState),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          Expanded(
-                                            child: buildInputField(
-                                                deliveryZipcodeController,
-                                                'Zip/Post/Pin Code',
-                                                Assets.icZipcode),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 30,
-                                        child: Row(
+                                        Row(
                                           children: [
-                                            Spacer(),
-                                            SizedBox(width: 16.0),
                                             Expanded(
-                                                child: Text("Company logo"))
+                                              child: buildInputField(
+                                                  contactPersonNameController,
+                                                  'Contact Person',
+                                                  Assets.icUser),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  contactNumController,
+                                                  'Contact Number',
+                                                  Assets.icPhone),
+                                            ),
                                           ],
                                         ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          // Remark Input Field
-                                          Expanded(
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey
-                                                    .shade100, // Subtle background color
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .shade300, // Light shadow
-                                                    blurRadius: 6.0,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 6.0),
+                                          child: Row(
+                                            children: [
+                                              const Text(
+                                                'Delivery Address    ',
+                                                style: TextStyle(fontSize: 18),
                                               ),
-                                              child: TextField(
-                                                controller: remarkController,
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 16.0,
-                                                          vertical: 18.0),
-                                                  labelText: 'Remark',
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600),
-                                                  prefixIcon: filledIcon(
-                                                      Assets.icRemark),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: Colors.blue,
-                                                            width: 1.5),
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                    borderSide: BorderSide(
-                                                        color: Colors
-                                                            .grey.shade400,
-                                                        width: 1.0),
-                                                  ),
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                ),
+                                              Checkbox(
+                                                value: sameAsAbove,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    sameAsAbove =
+                                                        value ?? false;
+                                                    if (sameAsAbove) {
+                                                      deliveryAddressController
+                                                              .text =
+                                                          addressController
+                                                              .text;
+                                                      deliveryTownController
+                                                              .text =
+                                                          townController.text;
+                                                      deliveryStateController
+                                                              .text =
+                                                          stateController.text;
+                                                      deliveryZipcodeController
+                                                              .text =
+                                                          zipcodeController
+                                                              .text;
+                                                    } else {
+                                                      deliveryAddressController
+                                                          .clear();
+                                                      deliveryTownController
+                                                          .clear();
+                                                      deliveryStateController
+                                                          .clear();
+                                                      deliveryZipcodeController
+                                                          .clear();
+                                                    }
+                                                  });
+                                                },
                                               ),
-                                            ),
+                                              const SizedBox(width: 5),
+                                              const Text('Same as Above'),
+                                            ],
                                           ),
-                                          const SizedBox(width: 8.0),
-
-                                          // Image Picker
-                                          Expanded(
-                                            child: GestureDetector(
-                                              onTap: provider.pickImage,
+                                        ),
+                                        buildInputField(
+                                            deliveryAddressController,
+                                            'Address',
+                                            Assets.icLocation),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryTownController,
+                                                  'City or Suburb',
+                                                  Assets.icCity),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryStateController,
+                                                  'State',
+                                                  Assets.icState),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryZipcodeController,
+                                                  'Zip/Post/Pin Code',
+                                                  Assets.icZipcode),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 30,
+                                          child: Row(
+                                            children: [
+                                              Spacer(),
+                                              SizedBox(width: 8.0),
+                                              Expanded(
+                                                  child: Text("Company logo"))
+                                            ],
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            // Remark Input Field
+                                            Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   color: Colors.grey
@@ -757,117 +710,475 @@ class _TableeeState extends State<Tableee> {
                                                           8.0),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color:
-                                                          Colors.grey.shade300,
+                                                      color: Colors.grey
+                                                          .shade300, // Light shadow
                                                       blurRadius: 6.0,
                                                       offset:
                                                           const Offset(0, 2),
                                                     ),
                                                   ],
                                                 ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 16.0,
-                                                    vertical: 18.0,
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.image,
+                                                child: TextField(
+                                                  controller: remarkController,
+                                                  decoration: InputDecoration(
+                                                    contentPadding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 16.0,
+                                                            vertical: 18.0),
+                                                    labelText: 'Remark',
+                                                    labelStyle: TextStyle(
                                                         color: Colors
-                                                            .grey.shade600,
-                                                        size: 28.0,
-                                                      ),
-                                                      const SizedBox(
-                                                          width: 12.0),
-                                                      Expanded(
-                                                        child: Text(
-                                                          provider.imageFile ==
-                                                                  null
-                                                              ? 'Pick an image from gallery'
-                                                              : 'Image selected',
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .grey.shade700,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                            .grey.shade600),
+                                                    prefixIcon: filledIcon(
+                                                        Assets.icRemark),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.blue,
+                                                              width: 1.5),
+                                                    ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      borderSide: BorderSide(
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          width: 1.0),
+                                                    ),
+                                                    filled: true,
+                                                    fillColor: Colors.white,
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          bool isOnline =
-                                              await ConnectivityService()
-                                                  .isOnline();
-                                          if (!isOnline) {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "You are Offline!",
-                                                red,
-                                                Icons.close);
-                                            return;
-                                          }
+                                            const SizedBox(width: 8.0),
 
-                                          final updatedAdmin = CustomerDashMo(
-                                            fullname: nameController.text,
-                                            mobileno: phoneController.text,
-                                            email: emailController.text,
-                                            town: townController.text,
-                                            state: stateController.text,
-                                            zipcode: int.parse(
-                                                zipcodeController.text),
-                                            address: addressController.text,
-                                            businessName: bsNameController.text,
-                                            businessNo: bsNumController.text,
-                                          );
-
-                                          try {
-                                            await provider.addCustomer(
-                                                admin: updatedAdmin,
-                                                salsmanId: customer!.salesmanId
-                                                    .toString(),
-                                                image: provider.imageFile);
-                                            Navigator.of(context).pop();
-                                          } catch (error) {
-                                            log(error.toString());
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: primaryColor,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Add Customer',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      )
-                                    ],
+                                            // Image Picker
+                                            Expanded(
+                                              child: GestureDetector(
+                                                // onTap: provider.pickImage,
+                                                onTap: () {
+                                                  showDialog(
+                                                    barrierDismissible: false,
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        title: const Text(
+                                                            'Select Method'),
+                                                        actions: [
+                                                          IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              await provider
+                                                                  .pickImage(
+                                                                      ImageSource
+                                                                          .camera);
+                                                              setState(() {});
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            icon: const Icon(
+                                                                EneftyIcons
+                                                                    .camera_outline),
+                                                          ),
+                                                          IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              await provider
+                                                                  .pickImage(
+                                                                      ImageSource
+                                                                          .gallery);
+                                                              setState(() {});
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            icon: const Icon(
+                                                                EneftyIcons
+                                                                    .gallery_bold),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey.shade100,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors
+                                                            .grey.shade300,
+                                                        blurRadius: 6.0,
+                                                        offset:
+                                                            const Offset(0, 2),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 16.0,
+                                                      vertical: 18.0,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.image,
+                                                          color: Colors
+                                                              .grey.shade600,
+                                                          size: 28.0,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 12.0),
+                                                        Expanded(
+                                                          child: Text(
+                                                            provider.imageFile ==
+                                                                    null
+                                                                ? 'Pick an image from gallery'
+                                                                : 'Image selected',
+                                                            style: TextStyle(
+                                                              color: Colors.grey
+                                                                  .shade700,
+                                                              fontSize: 16.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                        if (provider
+                                                                .imageFile !=
+                                                            null)
+                                                          SizedBox(
+                                                            height: 100,
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                      NkGeneralSize
+                                                                          .nkCommonBorderRadius()),
+                                                              child: provider
+                                                                          .imageFile !=
+                                                                      null
+                                                                  ? Image.file(
+                                                                      provider
+                                                                          .imageFile!,
+                                                                      height: AppDimensions
+                                                                              .instance
+                                                                              .height *
+                                                                          0.2,
+                                                                    )
+                                                                  : nkSmallSizeBox(),
+                                                            ),
+                                                          )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: isAddingCustomer
+                                              ? null
+                                              : () async {
+                                                  setState(() {
+                                                    isAddingCustomer = true;
+                                                  });
+
+                                                  bool isOnline =
+                                                      await ConnectivityService()
+                                                          .isOnline();
+                                                  if (!isOnline) {
+                                                    setState(() {
+                                                      isAddingCustomer = false;
+                                                    });
+                                                    showCustomToastDisplay(
+                                                        context,
+                                                        "You are Offline!",
+                                                        red,
+                                                        Icons.close);
+                                                    return;
+                                                  }
+
+                                                  // Required fields
+                                                  final fields = {
+                                                    'Business Name':
+                                                        bsNameController,
+                                                    'Address':
+                                                        addressController,
+                                                    'Town': townController,
+                                                    'State': stateController,
+                                                    'Zip Code':
+                                                        zipcodeController,
+                                                    'Mobile Number':
+                                                        phoneController,
+                                                    'Email': emailController,
+                                                    'Telephone':
+                                                        telephoneController,
+                                                    'Contact Person':
+                                                        contactPersonNameController,
+                                                    'Contact Number':
+                                                        contactNumController,
+                                                    'Delivery Address':
+                                                        deliveryAddressController,
+                                                    'Delivery Town':
+                                                        deliveryTownController,
+                                                    'Delivery State':
+                                                        deliveryStateController,
+                                                    'Delivery Zip Code':
+                                                        deliveryZipcodeController,
+                                                    'Remark': remarkController,
+                                                  };
+
+                                                  // 1. Check for missing fields
+                                                  for (var entry
+                                                      in fields.entries) {
+                                                    if (entry.value.text
+                                                        .trim()
+                                                        .isEmpty) {
+                                                      setState(() {
+                                                        isAddingCustomer =
+                                                            false;
+                                                      });
+                                                      showCustomToastDisplay(
+                                                        context,
+                                                        '${entry.key} is required',
+                                                        Colors.red,
+                                                        Icons.close,
+                                                      );
+                                                      return;
+                                                    }
+                                                  }
+
+                                                  // 2. Validate phone numbers
+                                                  final phoneFields = {
+                                                    'Mobile Number':
+                                                        phoneController,
+                                                    'Contact Number':
+                                                        contactNumController,
+                                                  };
+
+                                                  for (var entry
+                                                      in phoneFields.entries) {
+                                                    final phone =
+                                                        entry.value.text.trim();
+                                                    if (!RegExp(r'^\d{10}$')
+                                                        .hasMatch(phone)) {
+                                                      setState(() {
+                                                        isAddingCustomer =
+                                                            false;
+                                                      });
+                                                      showCustomToastDisplay(
+                                                        context,
+                                                        '${entry.key} must be 10 digits',
+                                                        Colors.red,
+                                                        Icons.close,
+                                                      );
+                                                      return;
+                                                    }
+                                                  }
+
+                                                  // 3. Validate email
+                                                  final email = emailController
+                                                      .text
+                                                      .trim();
+                                                  final emailRegex = RegExp(
+                                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                                  if (!emailRegex
+                                                      .hasMatch(email)) {
+                                                    setState(() {
+                                                      isAddingCustomer = false;
+                                                    });
+                                                    showCustomToastDisplay(
+                                                      context,
+                                                      'Invalid Email format',
+                                                      Colors.red,
+                                                      Icons.close,
+                                                    );
+                                                    return;
+                                                  }
+
+                                                  // 4. Check if image was picked
+                                                  if (provider.imageFile ==
+                                                      null) {
+                                                    setState(() {
+                                                      isAddingCustomer = false;
+                                                    });
+                                                    showCustomToastDisplay(
+                                                      context,
+                                                      'Image is required',
+                                                      Colors.red,
+                                                      Icons.close,
+                                                    );
+                                                    return;
+                                                  }
+                                                  if (provider.imageFile !=
+                                                      null) {
+                                                    bool isValid =
+                                                        await isFileSizeWithinLimit(
+                                                            provider
+                                                                .imageFile!);
+                                                    if (!isValid) {
+                                                      setState(() {
+                                                        isAddingCustomer =
+                                                            false;
+                                                      });
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          'File exceeds 1MB.',
+                                                          red,
+                                                          Icons.close);
+                                                      return;
+                                                    }
+                                                  }
+
+                                                  Map<String, dynamic> data = {
+                                                    "userid": "ADMIN",
+                                                    "salesman_id": SessionHelper
+                                                            .loginSavedData
+                                                            ?.salesmanId ??
+                                                        '',
+                                                    "businessname":
+                                                        bsNameController.text
+                                                            .trim(),
+                                                    "address": addressController
+                                                        .text
+                                                        .trim(),
+                                                    "town": townController.text
+                                                        .trim(),
+                                                    "state": stateController
+                                                        .text
+                                                        .trim(),
+                                                    "zipcode": int.tryParse(
+                                                            zipcodeController
+                                                                .text
+                                                                .trim()) ??
+                                                        0,
+                                                    "mobileno": int.tryParse(
+                                                            phoneController.text
+                                                                .trim()) ??
+                                                        0,
+                                                    "email": emailController
+                                                            .text
+                                                            .trim()
+                                                            .isNotEmpty
+                                                        ? emailController.text
+                                                            .trim()
+                                                        : "N/A",
+                                                    "tfn": int.tryParse(
+                                                            telephoneController
+                                                                .text
+                                                                .trim()) ??
+                                                        0,
+                                                    "fullname":
+                                                        contactPersonNameController
+                                                            .text
+                                                            .trim(),
+                                                    "businesscontact": int.tryParse(
+                                                            contactNumController
+                                                                .text
+                                                                .trim()) ??
+                                                        0,
+                                                    "delivery_address":
+                                                        deliveryAddressController
+                                                            .text
+                                                            .trim(),
+                                                    "delivery_town":
+                                                        deliveryTownController
+                                                            .text
+                                                            .trim(),
+                                                    "delivery_state":
+                                                        deliveryStateController
+                                                            .text
+                                                            .trim(),
+                                                    "delivery_zipcode":
+                                                        int.tryParse(
+                                                                deliveryZipcodeController
+                                                                    .text
+                                                                    .trim()) ??
+                                                            0,
+                                                    "remark": remarkController
+                                                        .text
+                                                        .trim(),
+                                                    "status_type": 3,
+                                                    "company_id": SessionHelper
+                                                            .loginSavedData
+                                                            ?.company_id ??
+                                                        0,
+                                                  };
+
+                                                  try {
+                                                    await provider.addCustomer(
+                                                      admin: data,
+                                                      salsmanId: '',
+                                                    );
+                                                    Navigator.of(context).pop();
+                                                  } catch (error) {
+                                                    setState(() {
+                                                      isAddingCustomer = false;
+                                                    });
+                                                    log(error.toString());
+                                                  }
+                                                },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: primaryColor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                            ),
+                                          ),
+                                          child: isAddingCustomer
+                                              ? const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                                Color>(
+                                                            Colors.white),
+                                                  ),
+                                                )
+                                              : const Text(
+                                                  'Add Customer',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -1621,520 +1932,6 @@ class BottomTotalWidget extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class AddLeadsBt extends StatelessWidget {
-  const AddLeadsBt({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<CustomersProvider>(
-      builder: (context, provider, child) {
-        bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-        return FutureBuilder<CustomerResponse>(
-          future: provider.customerResponse,
-          builder: (context, snapshot) {
-            final customer = snapshot.data?.data.first;
-
-            TextEditingController nameController = TextEditingController();
-            TextEditingController phoneController = TextEditingController();
-            TextEditingController emailController = TextEditingController();
-            TextEditingController townController = TextEditingController();
-            TextEditingController stateController = TextEditingController();
-            TextEditingController zipcodeController = TextEditingController();
-            TextEditingController addressController = TextEditingController();
-
-            TextEditingController bsNameController = TextEditingController();
-            TextEditingController bsNumController = TextEditingController();
-
-            TextEditingController remarkController = TextEditingController();
-
-            return SizedBox(
-              height: isSmallScreen ? 29 : 38,
-              width: isSmallScreen ? 87 : 100,
-              child: CustomButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        backgroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Add Lead',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  CircleAvatar(
-                                    backgroundColor: Colors.transparent,
-                                    child: SizedBox(
-                                      width: 25.8,
-                                      height: 25.8,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.5),
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.close,
-                                              color: Colors.red,
-                                              size: 16,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Colors.grey),
-                                      ),
-                                      child: TextField(
-                                        controller: nameController,
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 16.0,
-                                          ),
-                                          labelText: 'Full Name',
-                                          prefixIcon: Icon(Icons.person),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: phoneController,
-                                              decoration: const InputDecoration(
-                                                fillColor: Colors.white,
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Mobile Number',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: emailController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Email',
-                                                prefixIcon: Icon(Icons.email),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: IntrinsicHeight(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                border: Border.all(
-                                                    color: Colors.grey),
-                                              ),
-                                              child: TextField(
-                                                controller: townController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                    horizontal: 12.0,
-                                                    vertical: 16.0,
-                                                  ),
-                                                  labelText: 'City or Suburb',
-                                                  prefixIcon:
-                                                      Icon(Icons.location_city),
-                                                  border: InputBorder.none,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: stateController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'State',
-                                                prefixIcon:
-                                                    Icon(Icons.location_city),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: zipcodeController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Zip Code',
-                                                prefixIcon: Icon(Icons.map),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        border: Border.all(color: Colors.grey),
-                                      ),
-                                      child: TextField(
-                                        controller: addressController,
-                                        decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.0,
-                                            vertical: 16.0,
-                                          ),
-                                          labelText: 'Address',
-                                          prefixIcon: Icon(Icons.home),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: bsNameController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Busniness Name',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: bsNumController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Business Contact',
-                                                prefixIcon:
-                                                    Icon(Icons.phone_callback),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          // Removed unnecessary Expanded here
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            child: TextField(
-                                              controller: remarkController,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                labelText: 'Remark',
-                                                prefixIcon: Icon(Icons.phone),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: GestureDetector(
-                                            onTap: provider.pickImage,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                border: Border.all(
-                                                    color: Colors.grey),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 16.0,
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Column(
-                                                      children: [
-                                                        const Icon(Icons.image,
-                                                            color: Colors.grey),
-                                                        const SizedBox(
-                                                            height: 12.0),
-                                                        Text(
-                                                          provider.imageFile ==
-                                                                  null
-                                                              ? 'Pick an image from gallery'
-                                                              : 'Image selected',
-                                                          style: TextStyle(
-                                                            color: Colors
-                                                                .grey[700],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    if (provider.imageFile !=
-                                                        null) ...[
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: kIsWeb
-                                                            ? Image.network(
-                                                                provider
-                                                                    .imageFile
-                                                                    .path,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              )
-                                                            : Image.file(
-                                                                File(provider
-                                                                    .imageFile
-                                                                    .path),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
-                                                      ),
-                                                    ],
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            final updatedAdmin = CustomerDashMo(
-                                              fullname: nameController.text,
-                                              mobileno: phoneController.text,
-                                              email: emailController.text,
-                                              town: townController.text,
-                                              state: stateController.text,
-                                              zipcode: int.parse(
-                                                  zipcodeController.text),
-                                              address: addressController.text,
-                                              businessName:
-                                                  bsNameController.text,
-                                              businessNo: bsNumController.text,
-                                            );
-
-                                            try {
-                                              await provider.addLead(
-                                                  admin: updatedAdmin,
-                                                  salsmanId: customer!
-                                                      .salesmanId
-                                                      .toString());
-                                              Navigator.of(context).pop();
-                                            } catch (error) {}
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: primaryColor,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Add Lead',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                text: "Lead",
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

@@ -73,18 +73,18 @@ void showDetailedOrderInvoiceDialog(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          NKDateUtils.commonDayFormat2(
-                            NKDateUtils.formatStringUTCDateTime(
-                              orderInvoiceData.orderCreatAt?.toString() ?? '',
-                            ),
-                          ),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        // Text(
+                        //   NKDateUtils.commonDayFormat2(
+                        //     NKDateUtils.formatStringUTCDateTime(
+                        //       orderInvoiceData.orderCreatAt?.toString() ?? '',
+                        //     ),
+                        //   ),
+                        //   style: const TextStyle(
+                        //     color: Colors.black,
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.w600,
+                        //   ),
+                        // ),
                       ],
                     ),
                     Divider(color: Colors.grey.shade300),
@@ -411,9 +411,9 @@ void showDetailedOrderInvoiceDialog(
                       );
               }),
               const SizedBox(height: 12),
-              if (isButtonNeeded == true) ...[
-                CustomButton(text: 'Convert to Order', onPressed: () {}),
-              ],
+              // if (isButtonNeeded == true) ...[
+              //   CustomButton(text: 'Convert to Order', onPressed: () {}),
+              // ],
             ],
           ),
         ),

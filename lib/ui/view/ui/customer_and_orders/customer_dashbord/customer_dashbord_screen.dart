@@ -144,7 +144,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     super.dispose();
     _tabController.dispose();
     checkCustomerOut();
-    customerOrderController.isActive.value = false;
+    // check_back
+    // customerOrderController.isActive.value = false;
   }
 
   Future<void> _saveCheckInOutRequestOffline({
@@ -246,6 +247,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               Icons.info,
                             );
                           }
+                          await ApiWorker().saveSwitchState(false);
+                          customerOrderController.isActive.value = false;
                           shouldProceed = true;
                         } else {
                           final response =
@@ -269,6 +272,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             }
                           } else {
                             await ApiWorker().saveSwitchState(false);
+                            customerOrderController.isActive.value = false;
                             shouldProceed = true;
                           }
                         }

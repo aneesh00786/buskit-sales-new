@@ -523,7 +523,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                               .isActive.value ==
                                                           true) {
                                                         _showWarningDialog(
-                                                          // ignore: use_build_context_synchronously
                                                           context,
                                                           'Please check out from the current customer',
                                                           const Center(
@@ -854,14 +853,6 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
-  // void _selectCategory(String categoryName) {
-  //   setState(() {
-  //     _selectedCategory = categoryName;
-  //     _isDrawerOpen = true;
-  //   });
-  //   log('Selected Category: $_selectedCategory');
-  // }
-
   void _selectCategory(String categoryName) {
     setState(() {
       _selectedCategory = categoryName;
@@ -870,7 +861,6 @@ class _OrderTakingState extends State<OrderTaking>
 
     log('Selected Category: $_selectedCategory');
 
-    // Wait 3 seconds, then close the drawer
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
@@ -925,7 +915,6 @@ class _OrderTakingState extends State<OrderTaking>
                   Navigator.pop(context);
                   setState(() {
                     customerSearchController.clear();
-                    //cartItemCount = 0;
                   });
                 },
                 child: const Text('Ok'),
@@ -937,7 +926,6 @@ class _OrderTakingState extends State<OrderTaking>
     }
   }
 
-  // --- ADDED: Helper to load offline drafts if offline ---
   Future<void> _loadOfflineDraftsIfNeeded(String? customerId) async {
     if (customerId == null || customerId.isEmpty) return;
     try {
@@ -953,11 +941,9 @@ class _OrderTakingState extends State<OrderTaking>
         );
         log("DRAFT OF CUSTOMER : $draft");
         if (draft != null && draft['details'] != null) {
-          // Convert details to CartItem and add to draftBox
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
           final List details = draft['details'];
           final draftBox = Hive.box<CartItem>('draftBox');
-          // Remove existing for this customer
           final keysToRemove = draftBox.keys.where((key) {
             final item = draftBox.get(key);
             return item != null && item.customerId == customerId;
@@ -984,7 +970,6 @@ class _OrderTakingState extends State<OrderTaking>
                 inclTax: detail['incl_tax'],
               ),
               productName: detail['product_name'],
-              // detail['variant_name'] ?? '',
               totalPrice:
                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
               isPack: detail['packType'] == 'Pack',

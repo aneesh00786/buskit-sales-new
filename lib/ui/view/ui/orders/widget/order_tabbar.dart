@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
@@ -30,17 +31,16 @@ class OrdersTabBar extends StatefulWidget {
 
 class _OrdersTabBarState extends State<OrdersTabBar> {
   int _selectedTabIndex = 0;
-  bool _hasOfflineOrders = false;
+
   final ScrollController _scrollController = ScrollController();
   NotificationController notificationController =
       Get.find<NotificationController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
-  bool get hasOfflineOrders => _hasOfflineOrders;
-
   @override
   void initState() {
     super.initState();
+    widget.orderController.hasOfflineOrders.value = false;
     _selectedTabIndex = widget.passIndex;
     widget.orderController.loadOrderCountData();
     widget.orderController.updateTabIndex(_selectedTabIndex);
@@ -51,13 +51,13 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     var offlineOrdersBox = await Hive.openBox('offlineOrders');
     if (offlineOrdersBox.isNotEmpty) {
       setState(() {
-        _hasOfflineOrders = true;
+        widget.orderController.hasOfflineOrders.value = true;
       });
     }
   }
 
   List<String> _computedTabs() {
-    return _hasOfflineOrders
+    return widget.orderController.hasOfflineOrders.value
         ? [
             'Offline Orders',
             'Latest',
@@ -86,7 +86,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   }
 
   Future<int> _getCountForTab(int index) async {
-    if (_hasOfflineOrders) {
+    if (widget.orderController.hasOfflineOrders.value) {
       switch (index) {
         case 0:
           return widget.orderController.offlineOrderCount.value;
@@ -256,7 +256,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                         itemBuilder: (context, index) {
                           final isSelected = _selectedTabIndex == index;
 
-                          if (_hasOfflineOrders && index == 0) {
+                          if (widget.orderController.hasOfflineOrders.value &&
+                              index == 0) {
                             return GestureDetector(
                               onTap: () {
                                 if (!_shouldShowUpgradeButton(index)) {
@@ -267,7 +268,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                   });
                                   widget.orderController.updateTabIndex(
                                       _selectedTabIndex,
-                                      hasOfflineOrders: _hasOfflineOrders);
+                                      hasOfflineOrders: widget.orderController
+                                          .hasOfflineOrders.value);
                                   widget.orderController.currentPage.value = 1;
                                 }
                               },
@@ -341,7 +343,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                     });
                                     widget.orderController.updateTabIndex(
                                         _selectedTabIndex,
-                                        hasOfflineOrders: _hasOfflineOrders);
+                                        hasOfflineOrders: widget.orderController
+                                            .hasOfflineOrders.value);
                                     widget.orderController.currentPage.value =
                                         1;
                                   }
@@ -414,13 +417,15 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           ],
           if (_shouldShowUpgradeButton(_selectedTabIndex))
             Expanded(
-              child: _hasOfflineOrders && _selectedTabIndex == 0
+              child: widget.orderController.hasOfflineOrders.value &&
+                      _selectedTabIndex == 0
                   ? OfflineOrderBottomWidget(
                       orderController: widget.orderController)
                   : OrderBottomWidget(
                       orderController: widget.orderController,
                       selectedTabIndex: _selectedTabIndex,
-                      hasOfflineOrders: _hasOfflineOrders,
+                      hasOfflineOrders:
+                          widget.orderController.hasOfflineOrders.value,
                     ),
             ),
         ],

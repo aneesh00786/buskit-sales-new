@@ -37,6 +37,8 @@ class OrderController extends GetxController {
   var totalPages = 0.obs;
   RxBool isOrderLoading = false.obs;
 
+  RxBool hasOfflineOrders = false.obs;
+
   Future<void> loadOrderCountData() async {
     isCountLoading(true);
     try {
@@ -62,37 +64,67 @@ class OrderController extends GetxController {
 
   Future<List<OrderData>> loadOrderData(
       {required int selectedIndex, bool hasOfflineOrders = false}) async {
-    int tabIndex = hasOfflineOrders ? selectedIndex - 1 : selectedIndex;
+    log("hasOfflineOrders : $hasOfflineOrders");
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       orderDataList.clear();
     });
     isOrderLoading.value = true;
 
-    switch (tabIndex) {
-      case 0:
-        selectedStatusCountIndex.value = 11;
-        break;
-      case 1:
-        selectedStatusCountIndex.value = 12;
-        break;
-      case 2:
-        selectedStatusCountIndex.value = 14;
-        break;
-      case 3:
-        selectedStatusCountIndex.value = 5;
-        break;
-      case 4:
-        selectedStatusCountIndex.value = 1;
-        break;
-      case 5:
-        selectedStatusCountIndex.value = 2;
-        break;
-      case 6:
-        selectedStatusCountIndex.value = 13;
-        break;
-      default:
-        selectedStatusCountIndex.value = 11;
+    if (hasOfflineOrders) {
+      switch (selectedIndex) {
+        case 0:
+          break;
+        case 1:
+          selectedStatusCountIndex.value = 11;
+          break;
+        case 2:
+          selectedStatusCountIndex.value = 12;
+          break;
+        case 3:
+          selectedStatusCountIndex.value = 14;
+          break;
+        case 4:
+          selectedStatusCountIndex.value = 5;
+          break;
+        case 5:
+          selectedStatusCountIndex.value = 1;
+          break;
+        case 6:
+          selectedStatusCountIndex.value = 2;
+          break;
+        case 7:
+          selectedStatusCountIndex.value = 13;
+          break;
+        default:
+          selectedStatusCountIndex.value = 11;
+      }
+    } else {
+      switch (selectedIndex) {
+        case 0:
+          selectedStatusCountIndex.value = 11;
+          break;
+        case 1:
+          selectedStatusCountIndex.value = 12;
+          break;
+        case 2:
+          selectedStatusCountIndex.value = 14;
+          break;
+        case 3:
+          selectedStatusCountIndex.value = 5;
+          break;
+        case 4:
+          selectedStatusCountIndex.value = 1;
+          break;
+        case 5:
+          selectedStatusCountIndex.value = 2;
+          break;
+        case 6:
+          selectedStatusCountIndex.value = 13;
+          break;
+        default:
+          selectedStatusCountIndex.value = 11;
+      }
     }
 
     try {
@@ -224,21 +256,30 @@ class OrderController extends GetxController {
   void goToPreviousPage() {
     if (currentPage.value > 1) {
       currentPage.value--;
-      loadOrderData(selectedIndex: selectedTabIndex.value);
+      loadOrderData(
+          selectedIndex: hasOfflineOrders.value
+              ? selectedTabIndex.value - 1
+              : selectedTabIndex.value);
     }
   }
 
   void goToNextPage() {
     if (currentPage.value < totalPages.value) {
       currentPage.value++;
-      loadOrderData(selectedIndex: selectedTabIndex.value);
+      loadOrderData(
+          selectedIndex: hasOfflineOrders.value
+              ? selectedTabIndex.value - 1
+              : selectedTabIndex.value);
     }
   }
 
   void goToPage(int page) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
-      loadOrderData(selectedIndex: selectedTabIndex.value);
+      loadOrderData(
+          selectedIndex: hasOfflineOrders.value
+              ? selectedTabIndex.value - 1
+              : selectedTabIndex.value);
     }
   }
 

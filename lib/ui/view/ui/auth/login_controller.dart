@@ -657,6 +657,11 @@ class LoginController extends GetxController {
       log('loadAllInitialData: Starting to load all initial data...');
 
       await Future.wait([
+        connectivityService.syncOfflineOrders(
+          onOrderSynced: orderController.loadOfflineOrders,
+        ),
+        connectivityService.syncOfflineDrafts(),
+        connectivityService.retryOfflineRequests(),
         subscriptionController.loadSubscriptionFeatures(companyId),
         Provider.of<DashboardProvider>(context, listen: false).fetchData(),
         customerAndOrderController.loadCustomer(),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
@@ -190,8 +191,13 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
-          return const Center(
-              child: Text('You are offline. Recent orders will not function.'));
+          if (widget.orderController.offlineOrderCount.value != 0) {
+            return const Center(
+                child:
+                    Text('You are offline. Recent orders will not function.'));
+          } else {
+            return const Center(child: Text('LOADING'));
+          }
         }
 
         return NkWidgetExceptionHandel(

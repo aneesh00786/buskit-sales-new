@@ -960,7 +960,7 @@ class CartDialogueState extends State<CartDialogue> {
                             height: 100,
                             child: Center(
                               child: CustomText(
-                                content: 'No pre-order items available.',
+                                content: 'No bookings items available.',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: black,

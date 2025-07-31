@@ -3,14 +3,17 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
+import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -27,7 +30,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../components/color/colors.dart';
@@ -2661,84 +2666,123 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           .customerDashboardView
                                                           .value ==
                                                       'true') {
-                                                    provider
-                                                        .setCurrentMonthDates();
-                                                    provider
-                                                        .fetchCustomerDashboardData(
-                                                      customer.customerId,
-                                                    );
-                                                    provider
-                                                        .fetchCustomerDashboardRevenueData(
-                                                      customer.customerId,
-                                                    );
-                                                    provider
-                                                        .fetchCustomerDashboardCountData(
+                                                    bool shouldNavigate = true;
+                                                    // CHECKOUT CONDITIONS
+                                                    if (customerAndOrderController
+                                                            .isActive.value &&
+                                                        (customerAndOrderController
+                                                                    .customerId
+                                                                    .value !=
+                                                                '' ||
+                                                            customerAndOrderController
+                                                                    .customerId
+                                                                    .value !=
+                                                                null) &&
+                                                        (customerAndOrderController
+                                                                .customerId
+                                                                .value !=
                                                             customer
-                                                                .customerId);
-                                                    prodController
-                                                            .selectedCustomerName
-                                                            .value =
-                                                        customer.businessName;
-                                                    prodController
-                                                        .selectedCustomerEmail
-                                                        .value = customer.email;
-                                                    prodController
-                                                        .selectedCustomerMobileNo
-                                                        .value = customer.mobileno;
-                                                    prodController
-                                                            .selectedCustomerId
-                                                            .value =
-                                                        customer.customerId;
-                                                    prodController
-                                                        .selectedCustomerImageUrl
-                                                        .value = customer.imageUrl;
-                                                    customerAndOrderController
-                                                        .setCustomerId(customer
-                                                            .customerId);
-                                                    log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
-                                                    await Future.delayed(
-                                                        const Duration(
-                                                            milliseconds: 100));
+                                                                .customerId)) {
+                                                      shouldNavigate =
+                                                          await checkCustomerOut(
+                                                              customerAndOrderController
+                                                                  .selectedCustomerName
+                                                                  .value);
+                                                    } else {
+                                                      shouldNavigate = true;
+                                                    }
 
-                                                    final now = DateTime.now();
-                                                    final dateFormat =
-                                                        DateFormat(
-                                                            'yyyy-MM-dd');
+                                                    log("shouldNavigate : $shouldNavigate");
 
-                                                    final firstDayOfYear =
-                                                        DateTime(
-                                                            now.year, 1, 1);
-                                                    final lastDayOfYear =
-                                                        DateTime(
-                                                            now.year, 12, 31);
+                                                    if (shouldNavigate) {
+                                                      provider
+                                                          .setCurrentMonthDates();
+                                                      provider
+                                                          .fetchCustomerDashboardData(
+                                                        customer.customerId,
+                                                      );
+                                                      provider
+                                                          .fetchCustomerDashboardRevenueData(
+                                                        customer.customerId,
+                                                      );
+                                                      provider
+                                                          .fetchCustomerDashboardCountData(
+                                                              customer
+                                                                  .customerId);
+                                                      prodController
+                                                              .selectedCustomerName
+                                                              .value =
+                                                          customer.businessName;
+                                                      prodController
+                                                          .selectedCustomerEmail
+                                                          .value = customer.email;
+                                                      prodController
+                                                              .selectedCustomerMobileNo
+                                                              .value =
+                                                          customer.mobileno;
+                                                      prodController
+                                                              .selectedCustomerId
+                                                              .value =
+                                                          customer.customerId;
+                                                      prodController
+                                                              .selectedCustomerImageUrl
+                                                              .value =
+                                                          customer.imageUrl;
+                                                      customerAndOrderController
+                                                          .setCustomerId(
+                                                              customer
+                                                                  .customerId);
+                                                      customerAndOrderController
+                                                              .selectedCustomerName
+                                                              .value =
+                                                          customer.businessName;
+                                                      log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
+                                                      await Future.delayed(
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  100));
 
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            CustomerDachScreen(
-                                                          year: 2024,
-                                                          startDate:
-                                                              dateFormat.format(
-                                                                  firstDayOfYear),
-                                                          endDate:
-                                                              dateFormat.format(
-                                                                  lastDayOfYear),
-                                                          isFromOrder: true,
-                                                          cusId: customer
-                                                              .customerId,
-                                                          cusName: customer
-                                                              .businessName,
-                                                          cusImage:
-                                                              customer.imageUrl,
-                                                          productsController:
-                                                              prodController,
+                                                      final now =
+                                                          DateTime.now();
+                                                      final dateFormat =
+                                                          DateFormat(
+                                                              'yyyy-MM-dd');
+
+                                                      final firstDayOfYear =
+                                                          DateTime(
+                                                              now.year, 1, 1);
+                                                      final lastDayOfYear =
+                                                          DateTime(
+                                                              now.year, 12, 31);
+
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              CustomerDachScreen(
+                                                            year: 2024,
+                                                            startDate: dateFormat
+                                                                .format(
+                                                                    firstDayOfYear),
+                                                            endDate: dateFormat
+                                                                .format(
+                                                                    lastDayOfYear),
+                                                            isFromOrder: true,
+                                                            cusId: customer
+                                                                .customerId,
+                                                            cusName: customer
+                                                                .businessName,
+                                                            cusImage: customer
+                                                                .imageUrl,
+                                                            productsController:
+                                                                prodController,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    );
+                                                      );
+                                                    }
                                                     // showCustomToastDisplay(
                                                     //     context,
-                                                    //     "NEW TEST 21",
+                                                    //     "NEW TEST 22",
                                                     //     Colors.black,
                                                     //     Icons.warning);
                                                   } else {
@@ -3167,6 +3211,152 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         );
       }
     });
+  }
+
+  Future<void> _saveCheckInOutRequestOffline({
+    required String date,
+    required String time,
+    required String direction,
+    required String lat,
+    required String long,
+    required String customerId,
+  }) async {
+    final box = await Hive.openBox('offlineRequests');
+    final payload = {
+      "custid": customerId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      "direction": direction,
+      "time": time,
+      "longitude": double.tryParse(long) ?? 0.0,
+      "latitude": double.tryParse(lat) ?? 0.0,
+    };
+    await box.add({
+      'url': ApiConstants.baseUrl + ApiConstants.updateCheckinCustomer,
+      'payload': payload,
+    });
+  }
+
+  Future<bool> checkCustomerOut(String customerName) async {
+    if (!customerAndOrderController.isActive.value) return true;
+
+    bool shouldProceed = false;
+    bool isCheckingOut = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            log("Customer Id checkout: ${customerAndOrderController.customerId.value}");
+
+            return AlertDialog(
+              title: const Text('Customer Check-Out'),
+              content: Text(
+                  '$customerName is already checked In. Customer will be checked-out!'),
+              actions: [
+                if (isCheckingOut)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CircularProgressIndicator(),
+                  )
+                else ...[
+                  TextButton(
+                    child: const Text('Stay'),
+                    onPressed: () {
+                      shouldProceed = false;
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('Check-out and Proceed'),
+                    onPressed: () async {
+                      setState(() => isCheckingOut = true);
+
+                      if (!await handleLocationPermission(context)) {
+                        if (context.mounted) Navigator.of(context).pop();
+                        return;
+                      }
+
+                      final date =
+                          DateFormat('dd-MM-yyyy').format(DateTime.now());
+                      final time = DateFormat('yyyy-MM-dd HH:mm:ss')
+                          .format(DateTime.now());
+                      final direction = "OUT";
+                      final customerId =
+                          prodController.selectedCustomerId.value;
+
+                      try {
+                        final position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.high,
+                        );
+                        final lat = position.latitude.toString();
+                        final long = position.longitude.toString();
+
+                        final isOnline = await ConnectivityService().isOnline();
+
+                        if (!isOnline) {
+                          await _saveCheckInOutRequestOffline(
+                            date: date,
+                            time: time,
+                            direction: direction,
+                            lat: lat,
+                            long: long,
+                            customerId: customerId,
+                          );
+                          if (context.mounted) {
+                            showCustomToastDisplay(
+                              context,
+                              'You are offline. Your check-out will sync when online.',
+                              Colors.orange,
+                              Icons.info,
+                            );
+                          }
+                          await ApiWorker().saveSwitchState(false);
+                          customerAndOrderController.isActive.value = false;
+                          shouldProceed = true;
+                        } else {
+                          final response =
+                              await ApiWorker().updateCustomerCheckInOut(
+                            date: date,
+                            time: time,
+                            direction: direction,
+                            lat: lat,
+                            long: long,
+                            customerId: customerId,
+                          );
+
+                          if (response.statusCode != 200) {
+                            if (context.mounted) {
+                              showCustomToastDisplay(
+                                context,
+                                response.statusMessage.toString(),
+                                Colors.red,
+                                Icons.close,
+                              );
+                            }
+                          } else {
+                            await ApiWorker().saveSwitchState(false);
+                            customerAndOrderController.isActive.value = false;
+                            shouldProceed = true;
+                          }
+                        }
+                      } catch (e) {
+                        log('Error during check-out: $e');
+                      }
+
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    return shouldProceed;
   }
 
   void _showOrderDataDialog(BuildContext context, CustomerModelxx customer,

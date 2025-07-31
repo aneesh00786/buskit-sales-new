@@ -91,7 +91,6 @@ class ConnectivityService {
   //             draftDetails.isNotEmpty ? draftDetails.last : {'draft_id': ''};
   //         final String existingDraftId = firstDraft['draft_id'] ?? '';
   //         log('Associated Cart ID for Customer $customerId: $existingDraftId');
-
   //         final AddToCartModel productBYData = AddToCartModel(
   //           customerId: customerId,
   //           salesmanId: order['salesman_id'] ?? '',
@@ -110,7 +109,6 @@ class ConnectivityService {
   //           }).toList(),
   //           total: order['order_price']?.toString() ?? '0.0',
   //         );
-
   //         log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
   //         final CartOrderModel? cartOrder =
   //             await ApiWorker().addToCart(productBYData.toJson());
@@ -132,7 +130,6 @@ class ConnectivityService {
   //             transactionNumber: order['transactionNumber'] ?? '',
   //             transactionDate: order['transactionDate'] ?? '',
   //           );
-
   //           log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
   //           await ApiWorker().placeOrder(orderPayload,
   //               (statusCode, message, response) async {
@@ -163,7 +160,6 @@ class ConnectivityService {
   //         log('[syncOfflineOrders] Error syncing order: $e');
   //       }
   //     }
-
   //     if (offlineOrdersBox.isEmpty) {
   //       log('[syncOfflineOrders] All offline orders have been synced and the box is now empty.');
   //     }

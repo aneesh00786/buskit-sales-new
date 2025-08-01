@@ -85,6 +85,7 @@ class CustomersProvider with ChangeNotifier {
   final List<RecentOrder> _selectedOrders = [];
   List<RecentOrder> get selectedOrders => _selectedOrders;
   // ignore: unused_field
+  List<CustomerModelxx> get customers => _customers;
   List<CustomerModelxx> _customers = [];
   List<CustomerModelxx> _filteredCustomers = [];
   List<OrderTotalxx> _orderTotalList = [];
@@ -94,6 +95,9 @@ class CustomersProvider with ChangeNotifier {
   List<YearsListOfAll> get yearsListOfAllList => _yearsListOfAllList;
 
   List<CustomerModelxx> get filteredCustomers => _filteredCustomers;
+
+  /// Gets the current page of customers for display
+  List<CustomerModelxx> get currentPageCustomers => getCurrentPageCustomers();
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
   Future<ProductResponse>? _productResponse;
@@ -262,16 +266,168 @@ class CustomersProvider with ChangeNotifier {
     try {
       if (query.isEmpty) {
         _filteredCustomers.clear();
-        await fetchCustomerData();
+        // When clearing search, reload cached data if offline
+        bool isOnline = await ConnectivityService().isOnline();
+        if (!isOnline) {
+          await loadCachedDataForCurrentPage();
+        } else {
+          await fetchCustomerData();
+        }
       } else {
         _filteredCustomers.clear();
         notifyListeners();
 
-        await fetchCustomerData();
+        // Check if offline and perform local search
+        bool isOnline = await ConnectivityService().isOnline();
+        if (!isOnline) {
+          await performOfflineSearch(query);
+        } else {
+          await fetchCustomerData();
+        }
       }
     } catch (e) {
       log("Error fetching customer data: $e");
     } finally {
+      notifyListeners();
+    }
+  }
+
+  /// Performs offline search by searching through all cached customer data
+  Future<void> performOfflineSearch(String searchQuery) async {
+    log('[performOfflineSearch] Starting offline search for: $searchQuery');
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      final customerBox = Hive.box('customerBox');
+      final List<CustomerModelxx> allCachedCustomers = [];
+
+      // Search through all cached pages
+      int page = 1;
+      bool hasMoreData = true;
+
+      while (hasMoreData) {
+        final cacheKey = '${companyId}_customer_list_$page';
+        final cachedData = customerBox.get(cacheKey);
+
+        if (cachedData != null) {
+          try {
+            final safeMap =
+                jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+            final response = CustomerResponseModelxx.fromJson(safeMap);
+            allCachedCustomers.addAll(response.data);
+            log('[performOfflineSearch] Loaded ${response.data.length} customers from page $page');
+
+            // Check if there are more pages
+            if (page >= response.pagination.totalPages) {
+              hasMoreData = false;
+            } else {
+              page++;
+            }
+          } catch (e) {
+            log('[performOfflineSearch] Error parsing cached data for page $page: $e');
+            hasMoreData = false;
+          }
+        } else {
+          log('[performOfflineSearch] No cached data for page $page, stopping search');
+          hasMoreData = false;
+        }
+      }
+
+      // Perform local search on all cached customers
+      final List<CustomerModelxx> searchResults =
+          allCachedCustomers.where((customer) {
+        final query = searchQuery.toLowerCase();
+        return customer.businessName.toLowerCase().startsWith(query);
+      }).toList();
+
+      log('[performOfflineSearch] Found ${searchResults.length} matching customers out of ${allCachedCustomers.length} total cached customers');
+
+      if (searchResults.isNotEmpty) {
+        // Store all search results and calculate pagination
+        _customers = searchResults;
+        _filteredCustomers = searchResults;
+
+        // Calculate total pages based on search results (assuming 10 items per page)
+        const int itemsPerPage = 10;
+        _totalPages = (searchResults.length / itemsPerPage).ceil();
+        _currentPage = 1; // Reset to first page for search results
+
+        // Set order totals and year list from the first cached page if available
+        if (allCachedCustomers.isNotEmpty) {
+          final firstCacheKey = '${companyId}_customer_list_1';
+          final firstCachedData = customerBox.get(firstCacheKey);
+          if (firstCachedData != null) {
+            try {
+              final safeMap = jsonDecode(jsonEncode(firstCachedData))
+                  as Map<String, dynamic>;
+              final response = CustomerResponseModelxx.fromJson(safeMap);
+              setOrderTotal(response.orderTotal);
+              setYearList(response.yearsListOfAll);
+            } catch (e) {
+              log('[performOfflineSearch] Error loading order totals and year list: $e');
+            }
+          }
+        }
+
+        _errorMessage = '';
+      } else {
+        _filteredCustomers = [];
+        _errorMessage =
+            'No customers found matching "$searchQuery" in offline data.';
+      }
+    } catch (e) {
+      log('[performOfflineSearch] Error during offline search: $e');
+      _errorMessage = 'Error performing offline search: $e';
+      _filteredCustomers = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Loads cached data for the current page when offline
+  Future<void> loadCachedDataForCurrentPage() async {
+    log('[loadCachedDataForCurrentPage] Loading cached data for page $_currentPage');
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      final customerBox = Hive.box('customerBox');
+      final cacheKey = '${companyId}_customer_list_$_currentPage';
+
+      final cachedData = customerBox.get(cacheKey);
+      if (cachedData != null) {
+        try {
+          final safeMap =
+              jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+          final response = CustomerResponseModelxx.fromJson(safeMap);
+
+          log('[loadCachedDataForCurrentPage] Loaded ${response.data.length} customers from page $_currentPage');
+          setCustomers(response.data, response.pagination.totalPages);
+          setOrderTotal(response.orderTotal);
+          setYearList(response.yearsListOfAll);
+          _errorMessage = '';
+        } catch (e) {
+          log('[loadCachedDataForCurrentPage] Error parsing cached data: $e');
+          _filteredCustomers = [];
+          _errorMessage = 'Corrupted offline data for this page.';
+        }
+      } else {
+        log('[loadCachedDataForCurrentPage] No cached data for page $_currentPage');
+        _filteredCustomers = [];
+        _errorMessage = 'No offline data for this page.';
+      }
+    } catch (e) {
+      log('[loadCachedDataForCurrentPage] Error loading cached data: $e');
+      _errorMessage = 'Error loading offline data: $e';
+      _filteredCustomers = [];
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -281,6 +437,32 @@ class CustomersProvider with ChangeNotifier {
     _filteredCustomers = customers;
     _totalPages = totalPages;
     notifyListeners();
+  }
+
+  /// Gets the current page of customers for display (handles pagination for search results)
+  List<CustomerModelxx> getCurrentPageCustomers() {
+    if (_searchCustomerName.isNotEmpty) {
+      // For search results, implement pagination
+      const int itemsPerPage = 10;
+      final startIndex = (_currentPage - 1) * itemsPerPage;
+      final endIndex = startIndex + itemsPerPage;
+
+      log('[getCurrentPageCustomers] Search mode: $_searchCustomerName, Page: $_currentPage, Total customers: ${_customers.length}, Start: $startIndex, End: $endIndex');
+
+      if (startIndex < _customers.length) {
+        final result = _customers.sublist(startIndex,
+            endIndex > _customers.length ? _customers.length : endIndex);
+        log('[getCurrentPageCustomers] Returning ${result.length} customers for current page');
+        return result;
+      } else {
+        log('[getCurrentPageCustomers] No customers for current page');
+        return [];
+      }
+    } else {
+      // For normal browsing, return all filtered customers
+      log('[getCurrentPageCustomers] Normal mode: returning ${_filteredCustomers.length} customers');
+      return _filteredCustomers;
+    }
   }
 
   void setOrderTotal(List<OrderTotalxx> orderTotals) {
@@ -506,6 +688,14 @@ class CustomersProvider with ChangeNotifier {
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
       log('[fetchCustomerData] Offline mode. Looking for cacheKey: $cacheKey');
+
+      // If there's an active search query, perform offline search
+      if (_searchCustomerName.isNotEmpty) {
+        log('[fetchCustomerData] Offline search mode with query: $_searchCustomerName');
+        await performOfflineSearch(_searchCustomerName);
+        return;
+      }
+
       final cachedData = customerBox.get(cacheKey);
       if (cachedData != null) {
         try {
@@ -676,28 +866,114 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  void goToNextPage() {
+  void goToNextPage() async {
     if (_currentPage < _totalPages) {
       _currentPage++;
-      fetchCustomerData(page: _currentPage);
+
+      // Check if we're offline and have an active search
+      bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline && _searchCustomerName.isNotEmpty) {
+        // For offline search, all results are already loaded, just update the UI
+        notifyListeners();
+      } else {
+        fetchCustomerData(page: _currentPage);
+      }
     }
   }
 
-  void goToPreviousPage() {
+  void goToPreviousPage() async {
     if (_currentPage > 1) {
       _currentPage--;
+
+      // Check if we're offline and have an active search
+      bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline && _searchCustomerName.isNotEmpty) {
+        // For offline search, all results are already loaded, just update the UI
+        notifyListeners();
+      } else {
+        fetchCustomerData(page: _currentPage);
+      }
+    }
+  }
+
+  void refreshCurrentPage() async {
+    _errorMessage = ''; // Clear error message on refresh
+
+    // Check if we're offline and have an active search
+    bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline && _searchCustomerName.isNotEmpty) {
+      // For offline search, just update the UI since all results are already loaded
+      log('[refreshCurrentPage] Offline search mode - just updating UI');
+      notifyListeners();
+    } else {
       fetchCustomerData(page: _currentPage);
     }
   }
 
-  void refreshCurrentPage() {
-    _errorMessage = ''; // Clear error message on refresh
-    fetchCustomerData(page: _currentPage);
+  /// Handles pagination for offline search results
+  void goToNextPageOffline() {
+    if (_currentPage < _totalPages) {
+      _currentPage++;
+      // For offline search, we don't need to fetch new data since all results are already loaded
+      notifyListeners();
+    }
+  }
+
+  void goToPreviousPageOffline() {
+    if (_currentPage > 1) {
+      _currentPage--;
+      // For offline search, we don't need to fetch new data since all results are already loaded
+      notifyListeners();
+    }
   }
 
   void clearErrorMessage() {
     _errorMessage = '';
     notifyListeners();
+  }
+
+  /// Clears the search query and resets to normal browsing mode
+  void clearSearch() async {
+    _searchCustomerName = '';
+    _currentPage = 1;
+    _errorMessage = '';
+
+    // Clear search controller if it exists
+    if (searchController.text.isNotEmpty) {
+      searchController.clear();
+    }
+
+    // Reload data based on connectivity
+    bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      await loadCachedDataForCurrentPage();
+    } else {
+      await fetchCustomerData();
+    }
+  }
+
+  /// Handles pagination clicks for both online and offline modes
+  void handlePaginationClick(int page) async {
+    log('[handlePaginationClick] Page: $page, Current page: $_currentPage, Search: $_searchCustomerName');
+
+    if (page == _currentPage) return; // No change needed
+
+    _currentPage = page;
+    log('[handlePaginationClick] Updated current page to: $_currentPage');
+
+    // Check if we're offline and have an active search
+    bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline && _searchCustomerName.isNotEmpty) {
+      // For offline search, just update the UI since all results are already loaded
+      log('[handlePaginationClick] Offline search mode - just updating UI');
+      log('[handlePaginationClick] Total customers: ${_customers.length}, Total pages: $_totalPages');
+      logCurrentState();
+      notifyListeners();
+    } else {
+      // For normal browsing or online search, fetch data for the new page
+      log('[handlePaginationClick] Online mode - fetching data for page: $page');
+      fetchCustomerData(page: page);
+    }
   }
 
   // Future<void> addEvent(
@@ -724,6 +1000,15 @@ class CustomersProvider with ChangeNotifier {
 
   final ScrollController _scrollController = ScrollController();
   ScrollController get scrollController => _scrollController;
+
+  /// Debug method to log current state
+  void logCurrentState() {
+    log('[logCurrentState] Current page: $_currentPage, Total pages: $_totalPages');
+    log('[logCurrentState] Search query: "$_searchCustomerName"');
+    log('[logCurrentState] Total customers: ${_customers.length}, Filtered customers: ${_filteredCustomers.length}');
+    log('[logCurrentState] Current page customers: ${getCurrentPageCustomers().length}');
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();

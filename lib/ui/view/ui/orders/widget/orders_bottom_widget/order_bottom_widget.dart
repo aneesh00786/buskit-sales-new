@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -37,8 +38,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
       Get.find<NotificationController>();
 
   int? _countForTab;
+  bool _isOnline = true; // Default to true, will be updated
 
   Timer? _debounce;
+  Timer? _connectivityTimer;
+
   @override
   void didUpdateWidget(covariant OrderBottomWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -68,6 +72,12 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     super.initState();
 
     _loadCountForTab(widget.selectedTabIndex);
+    _checkConnectivity();
+
+    // Set up periodic connectivity check
+    _connectivityTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _checkConnectivity();
+    });
 
     _scrollController1.addListener(() {
       if (_scrollController2.hasClients &&
@@ -83,6 +93,22 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         _scrollController1.jumpTo(_scrollController2.position.pixels);
       }
     });
+  }
+
+  Future<void> _checkConnectivity() async {
+    bool isOnline = await ConnectivityService().isOnline();
+    setState(() {
+      _isOnline = isOnline;
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _connectivityTimer?.cancel();
+    _scrollController1.dispose();
+    _scrollController2.dispose();
+    super.dispose();
   }
 
   String get option {
@@ -183,7 +209,10 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
       () {
         if (widget.orderController.orderDataList.isEmpty &&
             _countForTab == null) {
-          return const Center(child: Text('LOADING'));
+          return const Center(
+              child: Text(
+            'LOADING',
+          ));
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab == 0) {
@@ -191,12 +220,17 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
-          if (widget.orderController.offlineOrderCount.value != 0) {
+          log("countForTab 2 : $_countForTab");
+          if (widget.orderController.offlineOrderCount.value != 0 ||
+              !_isOnline) {
             return const Center(
                 child:
                     Text('You are offline. Recent orders will not function.'));
           } else {
-            return const Center(child: Text('LOADING'));
+            return const Center(
+                child: Text(
+              'LOADING',
+            ));
           }
         }
 

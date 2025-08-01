@@ -483,6 +483,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           startDate: startDate,
                           endDate: endDate,
                           onContinueShopping: _navigateToOrderTaking,
+                          productsController: productsController,
                         ),
                         const SizedBox(height: 5.7),
                         Expanded(

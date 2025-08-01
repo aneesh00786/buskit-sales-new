@@ -1913,6 +1913,8 @@ class CartDialogueState extends State<CartDialogue> {
     log('DEBUG: orderItems: ${widget.productsController.orderItems.map((e) => e.toJson()).toList()}');
     log('DEBUG: preorderItems: ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}');
     log('DEBUG: itemList: ${itemList.map((e) => e.toJson()).toList()}');
+    log('DEBUG 2: customers and order controller customer Id : ${customeController.customerId.value}');
+    log('DEBUG 2: products controller customer Id : ${widget.productsController.selectedCustomerId.value}');
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||

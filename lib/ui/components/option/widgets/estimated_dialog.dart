@@ -401,6 +401,10 @@ void showEstimatesDialog(
                                                                         child: IconButton(
                                                                             onPressed: () {
                                                                               final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                              productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                              productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                              productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                                              productsController.selectedCustomerEmail.value = customer?.email ?? '';
                                                                               customerOrderController.customerId.value = customer?.customerId ?? '';
                                                                               if (isDraft) {
                                                                                 showDialog(
@@ -650,6 +654,10 @@ void showEstimatesDialog(
                                                                               onPressed: () {
                                                                                 if (orderType == 'Draft') {
                                                                                   final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                  productsController.selectedCustomerId.value = customerId;
+                                                                                  productsController.selectedCustomerName.value = customerName;
+                                                                                  productsController.selectedCustomerMobileNo.value = customerMobile;
+                                                                                  productsController.selectedCustomerEmail.value = customerEmail;
                                                                                   showDialog(
                                                                                     context: context,
                                                                                     builder: (BuildContext context) {

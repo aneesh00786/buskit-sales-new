@@ -48,7 +48,7 @@ class OptionWidgetCustomerDash extends StatefulWidget {
   final OrderStatus? customOrderStatusType;
   final String? startDate;
   final String? endDate;
-  final ProductsController? productsController;
+  final ProductsController productsController;
   final VoidCallback onContinueShopping;
 
   const OptionWidgetCustomerDash({
@@ -61,7 +61,7 @@ class OptionWidgetCustomerDash extends StatefulWidget {
     this.customOrderStatusType,
     this.startDate,
     this.endDate,
-    this.productsController,
+    required this.productsController,
     required this.onContinueShopping,
     this.isVisible = false,
   });
@@ -1672,13 +1672,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                 () {
                                                                               if (orderType == 'Draft') {
                                                                                 final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                widget.productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                                widget.productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                                widget.productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                                                widget.productsController.selectedCustomerEmail.value = customer?.email ?? '';
                                                                                 showDialog(
                                                                                   context: context,
                                                                                   builder: (BuildContext context) {
                                                                                     return CartDialogue(
                                                                                       active: true,
                                                                                       cartItemCount: cartProvider.cartItemCount,
-                                                                                      productsController: widget.productsController ?? ProductsController(),
+                                                                                      productsController: widget.productsController,
                                                                                       customerOrderController: customerOrderController,
                                                                                       onContinueShopping: onContinueShopping,
                                                                                       isFromCustomerDach: true,
@@ -1734,6 +1738,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
 
                                                                     final customerName =
                                                                         draft['displayData']['customerName'] ??
+                                                                            'dummy_customerName';
+                                                                    final customerId =
+                                                                        draft['displayData']['customerId'] ??
                                                                             'dummy_customerName';
                                                                     final customerMobile =
                                                                         draft['displayData']['mobileNo'] ??
@@ -1895,6 +1902,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                 IconButton(
                                                                               onPressed: () {
                                                                                 if (orderType == 'Draft') {
+                                                                                  widget.productsController.selectedCustomerId.value = customerId;
+                                                                                  widget.productsController.selectedCustomerName.value = customerName;
+                                                                                  widget.productsController.selectedCustomerMobileNo.value = customerMobile;
+                                                                                  widget.productsController.selectedCustomerEmail.value = customerEmail;
                                                                                   final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                                   showDialog(
                                                                                     context: context,
@@ -1902,7 +1913,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                       return CartDialogue(
                                                                                         active: true,
                                                                                         cartItemCount: cartProvider.cartItemCount,
-                                                                                        productsController: widget.productsController ?? ProductsController(),
+                                                                                        productsController: widget.productsController,
                                                                                         customerOrderController: customerOrderController,
                                                                                         onContinueShopping: onContinueShopping,
                                                                                         isFromCustomerDach: true,

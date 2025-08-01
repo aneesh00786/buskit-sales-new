@@ -62,6 +62,7 @@ Future<void> handleLogout(BuildContext context) async {
     'chatBox',
     'pendingPaymentBox',
     'performanceBox',
+    'leadsCountBox',
     'leadsBox',
     'leadsRejectBox',
     'ordersBox',

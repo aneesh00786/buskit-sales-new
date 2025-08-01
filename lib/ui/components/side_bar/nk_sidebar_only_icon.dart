@@ -243,21 +243,24 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         : const SizedBox.shrink(),
               ),
             if (isLeads)
+              // if (notificationController.leadsCount.value.toString() != "0")
               Positioned(
                 top: -12,
                 left: 12,
-                child: CircleAvatar(
-                  radius: 10,
-                  backgroundColor: Colors.red,
-                  child: Text(
-                    notificationController.leadsCount.value.toString(),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                child: notificationController.isLeadsCountLoading.value
+                    ? const SizedBox.shrink()
+                    : CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.red,
+                        child: Text(
+                          notificationController.leadsCount.value.toString(),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
               )
           ],
         ),

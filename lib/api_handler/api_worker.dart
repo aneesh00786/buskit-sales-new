@@ -234,16 +234,56 @@ class ApiWorker with ApiConstants {
       'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
       'salesman_id': SessionHelper.loginSavedData?.salesmanId ?? '',
     };
-    try {
-      final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint: ApiConstants.fetchLeadsCount,
-      );
-      return LeadsCountData.fromJson(response.data);
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "leads count", error: error);
-      return Future.error('No data available leads count');
+
+    final cacheKey =
+        'leads_count_${SessionHelper.loginSavedData?.salesmanId ?? ''}';
+    final leadsCountBox = Hive.box('leadsCountBox');
+    bool isOnline = await ConnectivityService().isOnline();
+
+    if (isOnline) {
+      try {
+        final response = await responsePostMethod(
+          requestData: requestData,
+          endPoint: ApiConstants.fetchLeadsCount,
+        );
+
+        if (response.statusCode == 200) {
+          // Cache the response
+          await leadsCountBox.put(cacheKey, response.data);
+          return LeadsCountData.fromJson(response.data);
+        } else {
+          handleExceptionMessage(response: response, apiName: "leads count");
+          // Try to get cached data on API error
+          final cachedData = leadsCountBox.get(cacheKey);
+          if (cachedData != null) {
+            return LeadsCountData.fromJson(
+                LocalStorage().castToStringDynamic(cachedData));
+          } else {
+            return Future.error('No data available leads count');
+          }
+        }
+      } on DioException catch (error) {
+        handleExceptionMessage(
+            response: error.response, apiName: "leads count", error: error);
+        // Try to get cached data on network error
+        final cachedData = leadsCountBox.get(cacheKey);
+        if (cachedData != null) {
+          return LeadsCountData.fromJson(
+              LocalStorage().castToStringDynamic(cachedData));
+        } else {
+          return Future.error('No data available leads count');
+        }
+      }
+    } else {
+      log('No internet. Fetching leads count from Hive...');
+      // Try to get cached data when offline
+      final cachedData = leadsCountBox.get(cacheKey);
+      if (cachedData != null) {
+        return LeadsCountData.fromJson(
+            LocalStorage().castToStringDynamic(cachedData));
+      } else {
+        return Future.error('No cached data available for leads count');
+      }
     }
   }
 

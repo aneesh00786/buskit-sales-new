@@ -67,6 +67,7 @@ void main() async {
   await Hive.openBox('chatBox');
   await Hive.openBox('pendingPaymentBox');
   await Hive.openBox('performanceBox');
+  await Hive.openBox('leadsCountBox');
   await Hive.openBox('leadsBox');
   await Hive.openBox('leadsRejectBox');
   await Hive.openBox('ordersBox');

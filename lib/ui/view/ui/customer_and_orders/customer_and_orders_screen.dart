@@ -10,6 +10,8 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -2533,6 +2535,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               .selectedCustomerName
                                                               .value =
                                                           customer.businessName;
+                                                      customerAndOrderController
+                                                              .selectedCustomerImage
+                                                              .value =
+                                                          customer.imageUrl;
                                                       log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                       await Future.delayed(
                                                           const Duration(
@@ -3063,6 +3069,43 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     onPressed: () {
                       shouldProceed = false;
                       Navigator.of(context).pop();
+                      {
+                        final cartProvider = Provider.of<CustomersProvider>(
+                            context,
+                            listen: false);
+                        final customerId =
+                            customerAndOrderController.customerId.value;
+                        customerAndOrderController.setCustomerId(
+                            customerAndOrderController.customerId.value);
+
+                        CartDatabaseManager().getCartItems(customerId);
+                        cartProvider.getCartItemCounts(customerId);
+                        CartDatabaseManager().addListener(() {
+                          cartProvider.updateCartCount(customerId);
+                        });
+
+                        log('CustomerId 2 :${customerAndOrderController.customerId.value}');
+                        Get.to(
+                                ChangeNotifierProvider.value(
+                                  value: Provider.of<CustomersProvider>(context,
+                                      listen: false),
+                                  child: OrderTaking(
+                                    productsController: prodController,
+                                    selectedCustId: customerAndOrderController
+                                        .customerId.value,
+                                    selectedCustName: customerAndOrderController
+                                        .selectedCustomerName.value,
+                                    selectedCustImageUrl:
+                                        customerAndOrderController
+                                            .selectedCustomerImage.value,
+                                  ),
+                                ),
+                                id: 2)
+                            ?.then((value) {
+                          cartProvider
+                              .fetchCustomerDashboardCountData(customerId);
+                        });
+                      }
                     },
                   ),
                   ElevatedButton(

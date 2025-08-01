@@ -322,26 +322,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               onTap: () async {
                 log("Customer Id backbutton : ${widget.cusId}");
                 log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
-                // log('Is Direct ${widget.isDirectDialogue}');
-                // log('Is Calender ${widget.isFromCalendar}');
+
                 if (widget.isFromGoogle) {
                   bool shouldProceed = await checkCustomerOut();
                   if (shouldProceed) {
                     homeController.sidebarXController.selectIndex(5);
                     homeController.selectedIndex.value = 5;
-                    // Navigator.of(context).push(
-                    //   PageRouteBuilder(
-                    //     pageBuilder: (context, animation, secondaryAnimation) =>
-                    //         CustomerMapScreen(
-                    //       istoGoogleMap: widget.isFromGoogle,
-                    //     ),
-                    //     transitionsBuilder:
-                    //         (context, animation, secondaryAnimation, child) {
-                    //       return FadeTransition(
-                    //           opacity: animation, child: child);
-                    //     },
-                    //   ),
-                    // );
                   }
                 } else if (widget.isDirectDialogue) {
                   bool shouldProceed = await checkCustomerOut();

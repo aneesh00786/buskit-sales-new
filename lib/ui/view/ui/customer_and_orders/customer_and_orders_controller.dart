@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 class CustomerAndOrderController extends GetxController {
    RxString customerId = ''.obs;
    RxString selectedCustomerName = ''.obs;
+   RxString selectedCustomerImage = ''.obs;
 
   RxList<CustomerAndOrderData> customerAndOrderList =
       <CustomerAndOrderData>[].obs;

@@ -537,6 +537,16 @@ class _OrderTakingState extends State<OrderTaking>
                                                         );
                                                       } else {
                                                         customerAndOrderController
+                                                            .selectedCustomerName
+                                                            .value = customer
+                                                                .businessName ??
+                                                            '';
+                                                        customerAndOrderController
+                                                            .selectedCustomerImage
+                                                            .value = customer
+                                                                .imageUrl ??
+                                                            '';
+                                                        customerAndOrderController
                                                             .setCustomerId(customer
                                                                     .customerId ??
                                                                 '');

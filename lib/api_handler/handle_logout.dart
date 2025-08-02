@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,6 +22,7 @@ Future<void> handleLogout(BuildContext context) async {
   await SessionManager.clearData();
   await SessionHelper().clearSettingsData();
   Provider.of<DashboardProvider>(context, listen: false).resetProvider();
+  Provider.of<CustomersProvider>(context, listen: false).resetProvider();
 
   CalenderMapController calenderController = Get.put(CalenderMapController());
   calenderController.eventControllerv1

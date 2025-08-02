@@ -108,6 +108,16 @@ class CustomersProvider with ChangeNotifier {
   Future<OrderResponse>? get orderResponse => _orderResponse;
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
+
+  void resetProvider() {
+    _selectedFilter = FilterDateEnum.thisMonth;
+    _selectedStartDate = '';
+    _selectedEndDate = '';
+    _searchCustomerName = '';
+    _customers = [];
+    searchController.clear();
+  }
+
   void setCurrentMonthDates() {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);

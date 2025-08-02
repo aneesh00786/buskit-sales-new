@@ -3207,7 +3207,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             return AlertDialog(
               title: const Text('Customer Check-Out'),
               content: Text(
-                  '$customerName is already checked In. Customer will be checked-out!'),
+                  '$customerName is already checked In. Do you want to Check-out?'),
               actions: [
                 if (isCheckingOut)
                   const Padding(

@@ -188,7 +188,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
             return AlertDialog(
               title: const Text('Customer Check-Out'),
-              content: const Text('Customer will be checked-out!'),
+              content: const Text('Do you want to Check-out?'),
               actions: [
                 if (isCheckingOut)
                   const Padding(

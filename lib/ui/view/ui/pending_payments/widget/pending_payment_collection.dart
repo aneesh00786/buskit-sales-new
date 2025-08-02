@@ -4,8 +4,8 @@
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
@@ -21,8 +21,7 @@ void pendingPaymentCollectionDialog(
     RxInt selectedPaymentMethodInt = 0.obs;
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
-      NkCommonFunction.showErrorSnakBar(
-          'No Internet Connection. Please check your network');
+      showCustomToastDisplay(context, "You are Offline", red, Icons.warning);
     }
     controller.loadIndividualPendingPayments(customerId);
     RxList<bool> selectedItems = List<bool>.generate(

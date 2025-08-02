@@ -1,11 +1,12 @@
-
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
 
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_chart.dart';
@@ -23,15 +24,16 @@ class PendingTabBar extends StatefulWidget {
 
 class _PendingTabBarState extends State<PendingTabBar> {
   Timer? _delayTimer;
-    @override
+  @override
   void initState() {
     super.initState();
     _startDelay();
   }
+
   int _selectedTabIndex = 0;
   final List<String> _tabs = ['All', 'Nearly Due', 'Due', 'Over Due'];
   final List<bool> _visibleTabs = [true, false, false, false];
-   bool _snackbarShown = false;
+  bool _snackbarShown = false;
   void _onBarTapped(int index) async {
     bool isConnected = await ConnectivityService().isOnline();
     if (!mounted) return;
@@ -45,26 +47,29 @@ class _PendingTabBarState extends State<PendingTabBar> {
     } else {
       if (!_snackbarShown) {
         _snackbarShown = true;
-        errorSnackbar("No internet connection . please check your network");
+        showCustomToastDisplay(context, "You are Offline", red, Icons.warning);
         Future.delayed(const Duration(seconds: 3), () {
           _snackbarShown = false;
         });
       }
     }
   }
+
   void _startDelay() {
-  _delayTimer = Timer(const Duration(seconds: 2), () {
-    if (!mounted) return;
-    setState(() {
-      widget.orderController.isLoadingPayment.value = false;
+    _delayTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      setState(() {
+        widget.orderController.isLoadingPayment.value = false;
+      });
     });
-  });
-}
-@override
-void dispose() {
-  _delayTimer?.cancel();
-  super.dispose();
-}
+  }
+
+  @override
+  void dispose() {
+    _delayTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
@@ -142,7 +147,6 @@ void dispose() {
               ),
             ),
           ),
-
         ];
       },
       body: IntrinsicHeight(

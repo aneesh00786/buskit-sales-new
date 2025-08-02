@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
@@ -74,13 +75,12 @@ void pendingPaymentCollectionDialog(
     double total = 0;
     for (int i = 0; i < selectedItems.length; i++) {
       if (selectedItems[i]) {
-        final receivable = filteredPendingAmount[i].receivableAmount;
-        if (receivable == null) {
-          total += ((filteredPendingAmount[i].orderTotal ?? 0) -
-                  (filteredPendingAmount[i].receivedAmount ?? 0))
-              .toDouble();
+        final pendingAmount = filteredPendingAmount[i].pendingAmount;
+        // final receivable = filteredPendingAmount[i].receivableAmount;
+        if (pendingAmount == null) {
+          total += filteredPendingAmount[i].orderTotal ?? 0.toDouble();
         } else {
-          total += receivable;
+          total += pendingAmount;
         }
       }
     }
@@ -98,15 +98,43 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<PendingAmount> selectedItems, double enteredAmount) {
+    print("Processing payments with amount: $enteredAmount");
+
     for (var item in selectedItems) {
+      print("Amount before ${item.orderId}: $enteredAmount");
+
       double itemAmount = (item.receivableAmount ??
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
           .toDouble();
+
+      print("Processing item: ${item.orderId} with amount: $itemAmount");
+
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
-      } else {}
+        print("Applied amount to ${item.orderId}: $appliedAmount");
+        ApiWorker().customerPayment(
+          context: context,
+          checkDueDate: "",
+          checkNumber: "",
+          detail: remarksController.text,
+          orderId: item.orderId.toString(),
+          paymentType: selectedPaymentMethod == 'Cash'
+              ? "0"
+              : selectedPaymentMethod == 'Cheque'
+                  ? "1"
+                  : "2",
+          receivedAmount: appliedAmount,
+          transactionDate: "",
+          transactionId: "",
+        );
+      } else {
+        print("No remaining balance to process ${item.orderId}");
+      }
+
+      print("Amount after ${item.orderId}: $enteredAmount");
+      print("-----------------------------------------------------------");
     }
   }
 
@@ -286,7 +314,7 @@ void pendingPaymentCollectionDialog(
                       index: index,
                       orderId: payment.orderId.toString(),
                       orderTotal: payment.orderTotal?.toInt() ?? 0,
-                      receivable: payment.pendingAmount,
+                      // receivable: payment.pendingAmount,
                       onValueChanged: (newValue, index) {},
                       amountEdited: payment.amountEdited,
                     ),
@@ -625,7 +653,9 @@ void pendingPaymentCollectionDialog(
                                           selectedItemsList, enteredAmount);
 
                                       updateSelectedItems();
-                                    } else {}
+                                    } else {
+                                      print("Please enter a valid amount.");
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.transparent,

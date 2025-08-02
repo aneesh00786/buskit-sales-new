@@ -1,8 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +16,7 @@ class EditablePendingPaymentCell extends StatefulWidget {
   final int index;
   final String orderId;
   final num orderTotal;
-  final num? receivable;
+  // final num? receivable;
   final int? amountEdited;
 
   const EditablePendingPaymentCell({
@@ -23,7 +26,7 @@ class EditablePendingPaymentCell extends StatefulWidget {
     required this.index,
     required this.orderId,
     required this.orderTotal,
-    this.receivable,
+    // this.receivable,
     this.amountEdited,
   });
 
@@ -41,9 +44,11 @@ class _EditablePendingPaymentCellState
   void initState() {
     super.initState();
     _controller = TextEditingController(
-      text: widget.receivable != null
-          ? widget.receivable.toString() // Use receivable if not null
-          : widget.initialValue, // Otherwise, use initialValue
+      text:
+          // widget.receivable != null
+          //     ? widget.receivable.toString() // Use receivable if not null
+          // :
+          widget.initialValue, // Otherwise, use initialValue
     );
   }
 
@@ -55,28 +60,106 @@ class _EditablePendingPaymentCellState
 
   void _updateValue() async {
     setState(() {
-      isChanged = false; // Reset change state after saving
+      isChanged = false;
     });
 
-    try {
-      final dio = Dio(); // Initialize Dio
+    log("update receivable ");
 
-      // Prepare data for API call
+    try {
+      final dio = Dio();
+
       final data = {
-        "order_id": widget.orderId, // Use the orderId passed to the widget
+        "order_id": widget.orderId,
         "amount": double.tryParse(_controller.text) ?? 0,
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
+
+      log("post receivable request : $data");
 
       final response = await dio.post(
         '${ApiConstants.baseUrl}post_receivable_amount',
         data: data,
       );
 
+      log("post receivable response : $response");
+
       if (response.statusCode == 200) {
-      } else {}
-    // ignore: empty_catches
-    } catch (e) {}
+        // Success case
+        final responseData = response.data;
+        final status = responseData['status'] ?? 'success';
+        final message =
+            responseData['message'] ?? 'Receivable amount updated successfully';
+
+        showCustomToastDisplay(
+          context,
+          message,
+          Colors.green,
+          Icons.check_circle,
+        );
+
+        log("API Success - Status: $status, Message: $message");
+      } else {
+        // Error case with non-200 status
+        final responseData = response.data;
+        final status = responseData['status'] ?? 'error';
+        final message =
+            responseData['message'] ?? 'Failed to update receivable amount';
+
+        // Revert to original amount on error
+        setState(() {
+          _controller.text =
+              // widget.receivable != null
+              //     ? widget.receivable.toString()
+              //     :
+              widget.initialValue;
+          isChanged = false;
+        });
+
+        showCustomToastDisplay(
+          context,
+          message,
+          Colors.red,
+          Icons.error,
+        );
+
+        log("API Error - Status: $status, Message: $message");
+      }
+    } catch (e) {
+      // Exception case
+      String errorMessage = 'Network error occurred';
+      if (e is DioException) {
+        if (e.response != null) {
+          final responseData = e.response!.data;
+          errorMessage =
+              responseData['message'] ?? 'Failed to update receivable amount';
+        } else if (e.type == DioExceptionType.connectionTimeout) {
+          errorMessage = 'Connection timeout. Please try again.';
+        } else if (e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Request timeout. Please try again.';
+        } else {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+
+      // Revert to original amount on exception
+      setState(() {
+        _controller.text =
+            // widget.receivable != null
+            //     ? widget.receivable.toString()
+            //     :
+            widget.initialValue;
+        isChanged = false;
+      });
+
+      showCustomToastDisplay(
+        context,
+        errorMessage,
+        Colors.red,
+        Icons.error,
+      );
+
+      log("Exception occurred: ${e.toString()}");
+    }
 
     widget.onValueChanged(_controller.text, widget.index);
   }
@@ -105,9 +188,11 @@ class _EditablePendingPaymentCellState
                 borderSide: BorderSide(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              hintText: widget.receivable != null
-                  ? widget.receivable.toString()
-                  : widget.initialValue,
+              hintText:
+                  // widget.receivable != null
+                  //     ? widget.receivable.toString()
+                  //     :
+                  widget.initialValue,
               hintStyle: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade600,

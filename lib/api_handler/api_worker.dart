@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
@@ -26,6 +27,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -3077,6 +3080,73 @@ class ApiWorker with ApiConstants {
     } catch (error) {
       log("Unexpected error: $error");
       return Future.error(error);
+    }
+  }
+
+  Future<void> customerPayment({
+    required BuildContext context,
+    required String detail,
+    required String orderId,
+    required String paymentType,
+    required double receivedAmount,
+    String? checkDueDate = "",
+    String? checkNumber = "",
+    String? transactionDate = "",
+    String? transactionId = "",
+  }) async {
+    final requestPayload = {
+      "check_due_date": checkDueDate,
+      "check_number": checkNumber,
+      "detail": detail,
+      "order_id": orderId,
+      "payment_type": paymentType,
+      "recieved_amount": receivedAmount,
+      "transation_date": transactionDate,
+      "transation_id": transactionId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    };
+
+    log('Request Payload customerPayment: $requestPayload');
+
+    try {
+      bool isOnline = await ConnectivityService().isOnline();
+
+      if (!isOnline) {
+        var box = await Hive.openBox('offlineRequests');
+        await box.add({
+          "url": '${ApiConstants.baseUrl}${ApiConstants.customerPayment}',
+          "payload": requestPayload,
+          "timestamp": DateTime.now().toIso8601String(),
+        });
+        log("📥 Request saved locally in Hive due to no internet.");
+        return;
+      }
+
+      final response = await dio1.post(
+        '${ApiConstants.baseUrl}${ApiConstants.customerPayment}',
+        data: requestPayload,
+      );
+
+      if (response.statusCode == 200) {
+        print("Payment successful");
+        showCustomToastDisplay(
+            context, "Payment successful", Colors.green, Icons.check);
+      } else {
+        print("Payment failed with status: ${response.statusCode}");
+        showCustomToastDisplay(
+            context, "Payment failed", Colors.red, Icons.close);
+      }
+    } catch (error) {
+      log("Error in customerPayment: $error");
+      showCustomToastDisplay(
+          context, "Error in Payment : $error", Colors.red, Icons.close);
+      if (error is DioException) {
+        handleExceptionMessage(
+            apiName: 'Customer Payment', response: error.response);
+        throw DioExceptionHandler.fromDioError(error);
+      } else {
+        throw Exception('Unexpected error in customerPayment: $error');
+      }
     }
   }
 }

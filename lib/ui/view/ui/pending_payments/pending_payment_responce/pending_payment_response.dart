@@ -7,6 +7,7 @@ PendingPaymentResponse pendingPaymentResponseFromJson(String str) =>
 
 String pendingPaymentResponseToJson(PendingPaymentResponse data) =>
     json.encode(data.toJson());
+
 class PendingPaymentResponse {
   int statusCode;
   bool status;
@@ -237,6 +238,7 @@ class IndividualPendingData {
   String invoiceId;
   int? receivableAmount;
   final int? amountEdited;
+  int? pendingAmount;
 
   IndividualPendingData({
     required this.paymentType,
@@ -252,6 +254,7 @@ class IndividualPendingData {
     required this.receivableAmount,
     required this.amountEdited,
     required this.invoiceId,
+    required this.pendingAmount,
   });
 
   factory IndividualPendingData.fromJson(Map<String, dynamic> json) =>
@@ -270,6 +273,7 @@ class IndividualPendingData {
         customerId: json["customer_id"] ?? '',
         receivableAmount: json["receivable_amount"] ?? 0,
         amountEdited: json['amount_edited'] ?? 0,
+        pendingAmount: json['pending_amount'] ?? 0,
         invoiceId: json['invoice_id'] ?? '',
       );
 
@@ -286,6 +290,7 @@ class IndividualPendingData {
         "customer_id": customerId,
         "receivable_amount": receivableAmount,
         "amount_edited": amountEdited,
+        "pending_amount": pendingAmount,
         "invoice_id": invoiceId,
       };
 }

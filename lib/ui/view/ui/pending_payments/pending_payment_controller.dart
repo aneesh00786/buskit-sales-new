@@ -123,6 +123,7 @@ class PendingPaymentController extends GetxController {
 
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
+    print("Selected Items: $selectedItemsList");
     num remainingAmount = enteredAmount;
 
     for (int i = 0; i < selectedItemsList.length; i++) {
@@ -134,18 +135,27 @@ class PendingPaymentController extends GetxController {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
 
+      print(
+          "Processing orderId: ${selectedItemsList[i].orderId}, Amount to be paid: $amountToBePaid, Remaining amount: $remainingAmount");
+
       if (remainingAmount <= 0) {
         break;
       }
 
       if (remainingAmount >= amountToBePaid) {
+        print(
+            "Paying $amountToBePaid for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount -= amountToBePaid;
       } else {
+        print(
+            "Paying $remainingAmount for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount = 0;
       }
     }
 
-    if (remainingAmount > 0) {}
+    if (remainingAmount > 0) {
+      print("Remaining balance after payment: $remainingAmount");
+    }
   }
 
   Widget orderStatusWidget(String status, Color color) {

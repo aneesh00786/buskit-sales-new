@@ -163,17 +163,21 @@ class OrderInvoice {
 class OptionData {
   String title;
   String count;
+  String unfilteredCount;
   String svg;
   Color svgBgColor;
   Color? color;
   VoidCallback? onTap;
+  VoidCallback? onUnFilterTap;
 
   OptionData({
     required this.title,
     required this.count,
+    required this.unfilteredCount,
     required this.svg,
     required this.svgBgColor,
     this.onTap,
+    this.onUnFilterTap,
     this.color,
   });
 }

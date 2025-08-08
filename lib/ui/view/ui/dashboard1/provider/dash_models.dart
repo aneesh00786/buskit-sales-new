@@ -474,15 +474,21 @@ class ResponseModell {
 class OrderCountListt {
   int? totalOrder;
   int? estimateOrder;
+  int? estimateFilterOrder;
   int? preorderOrder;
+  int? preorderFilterOrder;
   int? draftOrder;
+  int? draftFilteredCount;
   int? cancelOrder;
 
   OrderCountListt({
     this.totalOrder,
     this.estimateOrder,
+    this.estimateFilterOrder,
     this.preorderOrder,
+    this.preorderFilterOrder,
     this.draftOrder,
+    this.draftFilteredCount,
     this.cancelOrder,
   });
 
@@ -490,10 +496,29 @@ class OrderCountListt {
     return OrderCountListt(
       totalOrder: int.tryParse(json['total_order'].toString()) ?? 0,
       estimateOrder: int.tryParse(json['estimate_order'].toString()) ?? 0,
+      estimateFilterOrder:
+          int.tryParse(json['estimate_Filterorder'].toString()) ?? 0,
       preorderOrder: int.tryParse(json['preorder_order'].toString()) ?? 0,
+      preorderFilterOrder:
+          int.tryParse(json['preorder_Filterorder'].toString()) ?? 0,
       draftOrder: int.tryParse(json['draft_order'].toString()) ?? 0,
+      draftFilteredCount:
+          int.tryParse(json['draft_FilteredCount'].toString()) ?? 0,
       cancelOrder: int.tryParse(json['cancel_order'].toString()) ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_order': totalOrder,
+      'estimate_order': estimateOrder,
+      'estimate_Filterorder': estimateFilterOrder,
+      'preorder_order': preorderOrder,
+      'preorder_Filterorder': preorderFilterOrder,
+      'draft_order': draftOrder,
+      'draft_FilteredCount': draftFilteredCount,
+      'cancel_order': cancelOrder,
+    };
   }
 }
 
@@ -2449,7 +2474,9 @@ class SalesmanData {
       address: json['address'] ?? '',
       idImagePath: json['idimage_path'],
       imagePath: json['image_path'],
-      createAt: json['create_at'] != null ? DateTime.tryParse(json['create_at']) : null,
+      createAt: json['create_at'] != null
+          ? DateTime.tryParse(json['create_at'])
+          : null,
       token: json['token'] ?? '',
       projectionPrice: json['projection_price'],
       projectionTarget: json['projection_target'],
@@ -2490,7 +2517,6 @@ class SalesmanData {
   }
 }
 
-
 class SalesmanResponse {
   int statusCode;
   bool status;
@@ -2506,7 +2532,8 @@ class SalesmanResponse {
 
   factory SalesmanResponse.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List;
-    List<SalesmanData> adminList = list.map((i) => SalesmanData.fromJson(i)).toList();
+    List<SalesmanData> adminList =
+        list.map((i) => SalesmanData.fromJson(i)).toList();
 
     return SalesmanResponse(
       statusCode: json['status_code'],

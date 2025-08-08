@@ -255,7 +255,7 @@ class DashboardProvider with ChangeNotifier {
   SalesmanChat? selectedChat;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
 
-  Future<void> fetchOrdersData(OrderStatus s) async {
+  Future<void> fetchOrdersData(OrderStatus s, {bool isLogin = false, bool checkDate = false}) async {
     try {
       Object orderType;
 
@@ -292,6 +292,8 @@ class DashboardProvider with ChangeNotifier {
               ? _selectedFilterWeeks
               : [],
           year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+          isLogin: isLogin,
+          checkDate: checkDate,
         );
       });
 

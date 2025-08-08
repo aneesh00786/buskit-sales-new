@@ -328,6 +328,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               options: [
                 OptionData(
                     title: 'Timesheet',
+                    unfilteredCount: "0",
                     count: targetContent?.timesheet?.toString() ?? '0',
                     svg: "assets/icons/event.png",
                     svgBgColor: const Color.fromARGB(255, 206, 252, 224),
@@ -341,6 +342,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     ),
                 OptionData(
                   title: 'Check-in/out',
+                  unfilteredCount: "0",
                   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
@@ -352,6 +354,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 ),
                 OptionData(
                     title: 'Visits',
+                    unfilteredCount: "0",
                     count: targetContent?.visit?.toString() ?? '0',
                     svg: "assets/icons/location.png",
                     svgBgColor: const Color.fromARGB(255, 249, 219, 193),
@@ -367,6 +370,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     ),
                 OptionData(
                   title: 'Customers',
+                  unfilteredCount: "0",
                   count: targetContent?.customer?.toString() ?? '0',
                   svg: "assets/icons/customer.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),

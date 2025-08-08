@@ -36,7 +36,7 @@ class Data {
   final OrderCountList? orderCountList;
 
   Data({
-  //  this.categoryPerformance,
+    //  this.categoryPerformance,
     this.revenu,
     this.collection,
     this.delivery,
@@ -45,8 +45,7 @@ class Data {
   });
 
   Data.fromJson(Map<String, dynamic> json)
-      : 
-        revenu = (json['revenu'] as Map<String, dynamic>?) != null
+      : revenu = (json['revenu'] as Map<String, dynamic>?) != null
             ? Revenu.fromJson(json['revenu'] as Map<String, dynamic>)
             : null,
         collection = (json['collection'] as Map<String, dynamic>?) != null
@@ -66,7 +65,6 @@ class Data {
                 : null;
 
   Map<String, dynamic> toJson() => {
-    
         'revenu': revenu?.toJson(),
         'collection': collection?.toJson(),
         'delivery': delivery?.toJson(),
@@ -484,26 +482,42 @@ class QuantityList {
 class OrderCountList {
   final int? totalOrder;
   final int? estimateOrder;
+  final int? estimateFilterOrder;
   final int? preorderOrder;
+  final int? preorderFilterOrder;
   final int? draftOrder;
+  final int? draftFilteredCount;
+  final int? cancelOrder;
 
   OrderCountList({
     this.totalOrder,
     this.estimateOrder,
+    this.estimateFilterOrder,
     this.preorderOrder,
+    this.preorderFilterOrder,
     this.draftOrder,
+    this.draftFilteredCount,
+    this.cancelOrder,
   });
 
   OrderCountList.fromJson(Map<String, dynamic> json)
       : totalOrder = json['total_order'] as int?,
         estimateOrder = json['estimate_order'] as int?,
+        estimateFilterOrder = json['estimate_Filterorder'] as int?,
         preorderOrder = json['preorder_order'] as int?,
-        draftOrder = json['draft_order'] as int?;
+        preorderFilterOrder = json['preorder_Filterorder'] as int?,
+        draftOrder = json['draft_order'] as int?,
+        draftFilteredCount = json['draft_FilteredCount'] as int?,
+        cancelOrder = json['cancel_order'] as int?;
 
   Map<String, dynamic> toJson() => {
         'total_order': totalOrder,
         'estimate_order': estimateOrder,
+        'estimate_Filterorder': estimateFilterOrder,
         'preorder_order': preorderOrder,
-        'draft_order': draftOrder
+        'preorder_Filterorder': preorderFilterOrder,
+        'draft_order': draftOrder,
+        'draft_FilteredCount': draftFilteredCount,
+        'cancel_order': cancelOrder
       };
 }

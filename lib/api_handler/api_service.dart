@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
     as orderResponseModel;
@@ -615,6 +616,7 @@ class ApiService {
     OrderStatus? orderStatus,
     required dynamic orderType,
     bool isLogin = false,
+    bool checkDate = false,
   }) async {
     Object? sendData;
     switch (fetchType) {
@@ -640,6 +642,7 @@ class ApiService {
     final requestBody = isLogin
         ? {
             "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+            "check_date": checkDate,
             "order_type": orderType,
             "categories_id": "",
             "customer_id": "",
@@ -653,6 +656,7 @@ class ApiService {
           }
         : {
             "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+            "check_date": checkDate,
             "order_type": orderType,
             "categories_id": "",
             "customer_id": "",
@@ -665,9 +669,10 @@ class ApiService {
             "page": 1,
           };
 
-    log("Request Body: $requestBody");
+    log("Request Body [fetchAllOrders]: ${jsonEncode(requestBody)}");
+
     final cacheKey =
-        '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType';
+        '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
     final orderBox = Hive.box('fetchAllOrdersBox');
     try {
       final isOnline = await ConnectivityService().isOnline();
@@ -719,9 +724,11 @@ class ApiService {
     required String endDate,
     required dynamic orderType,
     OrderStatus? orderStatus,
+    bool checkDate = false,
   }) async {
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "check_date": checkDate,
       "customer_id": cusId,
       "salesman_id": '',
       "order_type": orderType,
@@ -735,7 +742,8 @@ class ApiService {
     log("Request Body Of fetchCustomerDashOrders: $requestBody");
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final cacheKey = '${companyId}_${cusId}_$orderType';
+    final cacheKey =
+        '${companyId}_${cusId}_$orderType${checkDate ? '_true' : ''}';
     // '${companyId}_${cusId}_${salesmanId}_${startDate}_${endDate}_${orderType}';
     final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
 
@@ -1585,6 +1593,225 @@ class ApiService {
 
   /// Updates the cached drafts in customerDashOrdersBox and fetchAllOrdersBox after items are saved and sent
   /// This method removes the sent items from the cached drafts and updates the totals
+  // Future<void> updateCachedDraftsAfterSaveAndSend(
+  //   BuildContext? context, {
+  //   required String customerId,
+  //   required String draftId,
+  //   required String salesmanId,
+  //   required String startDate,
+  //   required String endDate,
+  //   required dynamic orderType,
+  //   required List<String> sentCartIds,
+  //   required double sentAmount,
+  // }) async {
+  //   try {
+  //     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //     final cacheKey = '${companyId}_${customerId}_4';
+  //     final cacheKeyDash = '${companyId}_orders_4';
+  //     final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
+  //     final orderBox = await Hive.openBox('fetchAllOrdersBox');
+
+  //     final cachedData = customerDashOrdersBox.get(cacheKey);
+  //     if (cachedData == null) {
+  //       log('[Z] [updateCachedDraftsAfterSaveAndSend] No cached data found for key: $cacheKey');
+  //       // return;
+  //     }
+  //     final cachedDataDash = orderBox.get(cacheKeyDash);
+  //     if (cachedDataDash == null) {
+  //       log('[Z] [updateCachedDraftsDashboardAfterSaveAndSend] No cached data found for key: $cacheKeyDash');
+  //       // return;
+  //     }
+
+  //     final Map<String, dynamic> cachedMap =
+  //         Map<String, dynamic>.from(cachedData);
+  //     final List<dynamic>? orderData = cachedMap['data'] as List<dynamic>?;
+
+  //     final Map<String, dynamic> cachedMapDash =
+  //         Map<String, dynamic>.from(cachedDataDash);
+  //     final List<dynamic>? orderDataDash =
+  //         cachedMapDash['data'] as List<dynamic>?;
+
+  //     if (orderData == null) {
+  //       return;
+  //     }
+
+  //     if (orderData.isNotEmpty) {
+  //       final targetOrder = Map<String, dynamic>.from(orderData[0]);
+  //       final targetIndex = 0;
+
+  //       if (targetIndex >= 0) {
+  //         final currentTotal = (targetOrder['order_total'] ?? 0.0).toDouble();
+  //         final newTotal = currentTotal - sentAmount;
+
+  //         final finalTotal =
+  //             newTotal > 0 ? double.parse(newTotal.toStringAsFixed(2)) : 0.0;
+
+  //         if (finalTotal == 0.0) {
+  //           await customerDashOrdersBox.delete(cacheKey);
+
+  //           // Update fetchAllOrdersBox - remove draft for this customer
+  //           if (orderDataDash != null && orderDataDash.isNotEmpty) {
+  //             // Find and remove drafts for this specific customer
+  //             final updatedOrderDataDash = <dynamic>[];
+  //             for (var order in orderDataDash) {
+  //               final orderMap = Map<String, dynamic>.from(order);
+  //               final orderCustomerId = orderMap['customer_id']?.toString();
+
+  //               // Keep orders that don't match this customer
+  //               if (orderCustomerId != customerId) {
+  //                 updatedOrderDataDash.add(order);
+  //               } else {
+  //                 // For this customer, check if order total becomes 0 after subtracting sentAmount
+  //                 final currentOrderTotal =
+  //                     (orderMap['order_total'] ?? 0.0).toDouble();
+  //                 final newOrderTotal = currentOrderTotal - sentAmount;
+  //                 final finalOrderTotal = newOrderTotal > 0
+  //                     ? double.parse(newOrderTotal.toStringAsFixed(2))
+  //                     : 0.0;
+
+  //                 // Only keep the order if the final total is greater than 0
+  //                 if (finalOrderTotal > 0) {
+  //                   orderMap['order_total'] = finalOrderTotal;
+  //                   updatedOrderDataDash.add(orderMap);
+  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
+  //                 } else {
+  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Removed draft for customer $customerId from fetchAllOrdersBox (total became 0)');
+  //                 }
+  //               }
+  //             }
+
+  //             final updatedCachedDataDash = {
+  //               ...cachedMapDash,
+  //               'data': updatedOrderDataDash,
+  //             };
+  //             await orderBox.put(cacheKeyDash, updatedCachedDataDash);
+  //             log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated fetchAllOrdersBox for customer $customerId');
+  //           }
+
+  //           {
+  //             ApiResponsees dataToBeModified;
+  //             final orderCountBox = await getHiveBoxSafely('orderCountBox');
+  //             final cacheKey =
+  //                 '${SessionHelper.loginSavedData?.company_id ?? -1}_$customerId';
+
+  //             final cachedData = orderCountBox.get(cacheKey);
+  //             if (cachedData != null) {
+  //               final safeMap = ensureStringKeyedMap(cachedData);
+  //               dataToBeModified = ApiResponsees.fromJson(safeMap);
+  //               dataToBeModified.data.draftOrder = 0;
+  //               await orderCountBox.put(cacheKey, dataToBeModified.toJson());
+  //             } else {
+  //               log("[Z] [COUNT_REMOVE] ❌ No cached data found for key: $cacheKey");
+  //             }
+  //           }
+
+  //           // Update dashboard data - decrement draftOrder count
+  //           {
+  //             final dashboardBox = Hive.box('dashboardBox');
+  //             final cachedDashboardData = dashboardBox.get('dashboardData');
+  //             if (cachedDashboardData != null) {
+  //               try {
+  //                 final dashboardJson = jsonDecode(cachedDashboardData);
+  //                 final Map<String, dynamic> dashboardMap =
+  //                     Map<String, dynamic>.from(dashboardJson);
+
+  //                 // Navigate to the orderCountList and update draftOrder
+  //                 if (dashboardMap['data'] != null &&
+  //                     dashboardMap['data']['order_count_list'] != null) {
+  //                   final orderCountList = dashboardMap['data']
+  //                       ['order_count_list'] as Map<String, dynamic>;
+
+  //                   // Handle the draft_order value which might be a string or int
+  //                   final currentDraftCountRaw =
+  //                       orderCountList['draft_order'] ?? 0;
+  //                   final currentDraftCount = currentDraftCountRaw is String
+  //                       ? int.tryParse(currentDraftCountRaw) ?? 0
+  //                       : (currentDraftCountRaw as int? ?? 0);
+
+  //                   final newDraftCount = currentDraftCount - 1;
+
+  //                   // Ensure the count doesn't go below 0
+  //                   orderCountList['draft_order'] =
+  //                       newDraftCount >= 0 ? newDraftCount.toString() : "0";
+
+  //                   // Update the dashboard data
+  //                   await dashboardBox.put(
+  //                       'dashboardData', jsonEncode(dashboardMap));
+  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated dashboard draftOrder count: $newDraftCount');
+  //                 } else {
+  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Could not find orderCountList in dashboard data');
+  //                 }
+  //               } catch (e) {
+  //                 log('[Z] [updateCachedDraftsAfterSaveAndSend] Error updating dashboard data: $e');
+  //               }
+  //             } else {
+  //               log('[Z] [updateCachedDraftsAfterSaveAndSend] No cached dashboard data found');
+  //             }
+  //           }
+
+  //           final cusProvider =
+  //               Provider.of<CustomersProvider>(context!, listen: false);
+  //           cusProvider.fetchCustomerDashboardCountData(customerId);
+
+  //           return;
+  //         }
+
+  //         targetOrder['order_total'] = finalTotal;
+
+  //         if (targetOrder['cart'] != null && targetOrder['cart'] is List) {
+  //           List<dynamic> cartItems = List.from(targetOrder['cart']);
+  //           log("[Z] [updateCachedDraftsAfterSaveAndSend] Cart items before update: ${cartItems.length}");
+  //           targetOrder['cart'] = cartItems;
+  //         }
+
+  //         orderData[targetIndex] = targetOrder;
+
+  //         final updatedCachedData = {
+  //           ...cachedMap,
+  //           'data': orderData,
+  //         };
+
+  //         await customerDashOrdersBox.put(cacheKey, updatedCachedData);
+
+  //         // Update fetchAllOrdersBox - modify order total for this customer
+  //         if (orderDataDash != null && orderDataDash.isNotEmpty) {
+  //           final updatedOrderDataDash = <dynamic>[];
+  //           for (var order in orderDataDash) {
+  //             final orderMap = Map<String, dynamic>.from(order);
+  //             final orderCustomerId = orderMap['customer_id']?.toString();
+
+  //             if (orderCustomerId == customerId) {
+  //               // Update the order total for this customer
+  //               final currentOrderTotal =
+  //                   (orderMap['order_total'] ?? 0.0).toDouble();
+  //               final newOrderTotal = currentOrderTotal - sentAmount;
+  //               final finalOrderTotal = newOrderTotal > 0
+  //                   ? double.parse(newOrderTotal.toStringAsFixed(2))
+  //                   : 0.0;
+
+  //               orderMap['order_total'] = finalOrderTotal;
+  //               log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
+  //             }
+  //             updatedOrderDataDash.add(orderMap);
+  //           }
+
+  //           final updatedCachedDataDash = {
+  //             ...cachedMapDash,
+  //             'data': updatedOrderDataDash,
+  //           };
+  //           await orderBox.put(cacheKeyDash, updatedCachedDataDash);
+  //         }
+  //       } else {
+  //         log('[Z] [updateCachedDraftsAfterSaveAndSend] No matching draft found for draftId: $draftId or cartIds: $sentCartIds');
+  //       }
+  //     } else {
+  //       log('[Z] [updateCachedDraftsAfterSaveAndSend] No orders found in cached data');
+  //     }
+  //   } catch (e) {
+  //     log('[Z] [updateCachedDraftsAfterSaveAndSend] Error updating cached drafts: $e');
+  //   }
+  // }
+
   Future<void> updateCachedDraftsAfterSaveAndSend(
     BuildContext? context, {
     required String customerId,
@@ -1596,213 +1823,161 @@ class ApiService {
     required List<String> sentCartIds,
     required double sentAmount,
   }) async {
-    try {
-      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-      final cacheKey = '${companyId}_${customerId}_4';
-      final cacheKeyDash = '${companyId}_orders_4';
-      // '${companyId}_${customerId}_${salesmanId}_${startDate}_${endDate}_$orderType';
-      final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
-      final orderBox = await Hive.openBox('fetchAllOrdersBox');
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final cacheKey = '${companyId}_${customerId}_4';
+    final cacheKeyDash = '${companyId}_orders_4';
 
-      // Get the current cached data
+    bool deletedFromCustomerDashOrders = false;
+    bool deletedFromFetchAllOrders = false;
+
+    // 1️⃣ CUSTOMER DASH ORDERS BOX
+    try {
+      log('[Z2] ----------------------- [CUSTOMER DASH ORDERS BOX] -----------------------');
+      final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
       final cachedData = customerDashOrdersBox.get(cacheKey);
       if (cachedData == null) {
-        log('[updateCachedDraftsAfterSaveAndSend] No cached data found for key: $cacheKey');
-        return;
-      }
-      final cachedDataDash = orderBox.get(cacheKeyDash);
-      if (cachedDataDash == null) {
-        log('[updateCachedDraftsDashboardAfterSaveAndSend] No cached data found for key: $cacheKeyDash');
-        return;
-      }
-
-      final Map<String, dynamic> cachedMap =
-          Map<String, dynamic>.from(cachedData);
-      final List<dynamic>? orderData = cachedMap['data'] as List<dynamic>?;
-
-      final Map<String, dynamic> cachedMapDash =
-          Map<String, dynamic>.from(cachedDataDash);
-      final List<dynamic>? orderDataDash =
-          cachedMapDash['data'] as List<dynamic>?;
-
-      if (orderData == null) {
-        return;
-      }
-
-      if (orderData.isNotEmpty) {
-        final targetOrder = Map<String, dynamic>.from(orderData[0]);
-        final targetIndex = 0;
-
-        if (targetIndex >= 0) {
+        log('[Z2] No cached data for $cacheKey');
+      } else {
+        final cachedMap = safeMapFrom(cachedData);
+        final orderData = cachedMap?['data'] as List<dynamic>?;
+        if (orderData != null && orderData.isNotEmpty) {
+          final targetOrder = Map<String, dynamic>.from(orderData[0]);
           final currentTotal = (targetOrder['order_total'] ?? 0.0).toDouble();
           final newTotal = currentTotal - sentAmount;
 
-          final finalTotal =
-              newTotal > 0 ? double.parse(newTotal.toStringAsFixed(2)) : 0.0;
-
-          if (finalTotal == 0.0) {
+          if (newTotal <= 0) {
+            // Delete record if final total becomes 0
             await customerDashOrdersBox.delete(cacheKey);
-
-            // Update fetchAllOrdersBox - remove draft for this customer
-            if (orderDataDash != null && orderDataDash.isNotEmpty) {
-              // Find and remove drafts for this specific customer
-              final updatedOrderDataDash = <dynamic>[];
-              for (var order in orderDataDash) {
-                final orderMap = Map<String, dynamic>.from(order);
-                final orderCustomerId = orderMap['customer_id']?.toString();
-
-                // Keep orders that don't match this customer
-                if (orderCustomerId != customerId) {
-                  updatedOrderDataDash.add(order);
-                } else {
-                  // For this customer, check if order total becomes 0 after subtracting sentAmount
-                  final currentOrderTotal =
-                      (orderMap['order_total'] ?? 0.0).toDouble();
-                  final newOrderTotal = currentOrderTotal - sentAmount;
-                  final finalOrderTotal = newOrderTotal > 0
-                      ? double.parse(newOrderTotal.toStringAsFixed(2))
-                      : 0.0;
-
-                  // Only keep the order if the final total is greater than 0
-                  if (finalOrderTotal > 0) {
-                    orderMap['order_total'] = finalOrderTotal;
-                    updatedOrderDataDash.add(orderMap);
-                    log('[updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
-                  } else {
-                    log('[updateCachedDraftsAfterSaveAndSend] Removed draft for customer $customerId from fetchAllOrdersBox (total became 0)');
-                  }
-                }
-              }
-
-              final updatedCachedDataDash = {
-                ...cachedMapDash,
-                'data': updatedOrderDataDash,
-              };
-              await orderBox.put(cacheKeyDash, updatedCachedDataDash);
-              log('[updateCachedDraftsAfterSaveAndSend] Updated fetchAllOrdersBox for customer $customerId');
-            }
-
-            {
-              ApiResponsees dataToBeModified;
-              final orderCountBox = await getHiveBoxSafely('orderCountBox');
-              final cacheKey =
-                  '${SessionHelper.loginSavedData?.company_id ?? -1}_$customerId';
-
-              final cachedData = orderCountBox.get(cacheKey);
-              if (cachedData != null) {
-                final safeMap = ensureStringKeyedMap(cachedData);
-                dataToBeModified = ApiResponsees.fromJson(safeMap);
-                dataToBeModified.data.draftOrder = 0;
-                await orderCountBox.put(cacheKey, dataToBeModified.toJson());
-              } else {
-                log("[COUNT_REMOVE] ❌ No cached data found for key: $cacheKey");
-              }
-            }
-
-            // Update dashboard data - decrement draftOrder count
-            {
-              final dashboardBox = Hive.box('dashboardBox');
-              final cachedDashboardData = dashboardBox.get('dashboardData');
-              if (cachedDashboardData != null) {
-                try {
-                  final dashboardJson = jsonDecode(cachedDashboardData);
-                  final Map<String, dynamic> dashboardMap =
-                      Map<String, dynamic>.from(dashboardJson);
-
-                  // Navigate to the orderCountList and update draftOrder
-                  if (dashboardMap['data'] != null &&
-                      dashboardMap['data']['order_count_list'] != null) {
-                    final orderCountList = dashboardMap['data']
-                        ['order_count_list'] as Map<String, dynamic>;
-
-                    // Handle the draft_order value which might be a string or int
-                    final currentDraftCountRaw =
-                        orderCountList['draft_order'] ?? 0;
-                    final currentDraftCount = currentDraftCountRaw is String
-                        ? int.tryParse(currentDraftCountRaw) ?? 0
-                        : (currentDraftCountRaw as int? ?? 0);
-
-                    final newDraftCount = currentDraftCount - 1;
-
-                    // Ensure the count doesn't go below 0
-                    orderCountList['draft_order'] =
-                        newDraftCount >= 0 ? newDraftCount.toString() : "0";
-
-                    // Update the dashboard data
-                    await dashboardBox.put(
-                        'dashboardData', jsonEncode(dashboardMap));
-                    log('[updateCachedDraftsAfterSaveAndSend] Updated dashboard draftOrder count: $newDraftCount');
-                  } else {
-                    log('[updateCachedDraftsAfterSaveAndSend] Could not find orderCountList in dashboard data');
-                  }
-                } catch (e) {
-                  log('[updateCachedDraftsAfterSaveAndSend] Error updating dashboard data: $e');
-                }
-              } else {
-                log('[updateCachedDraftsAfterSaveAndSend] No cached dashboard data found');
-              }
-            }
-
-            final cusProvider =
-                Provider.of<CustomersProvider>(context!, listen: false);
-            cusProvider.fetchCustomerDashboardCountData(customerId);
-
-            return;
+            log('[Z2] Deleted record from customerDashOrdersBox for $cacheKey');
+            deletedFromCustomerDashOrders = true;
+          } else {
+            targetOrder['order_total'] =
+                double.parse(newTotal.toStringAsFixed(2));
+            orderData[0] = targetOrder;
+            await customerDashOrdersBox
+                .put(cacheKey, {...cachedMap!, 'data': orderData});
+            log('[Z2] Updated customerDashOrdersBox for $cacheKey → ${targetOrder['order_total']}');
           }
-
-          targetOrder['order_total'] = finalTotal;
-
-          if (targetOrder['cart'] != null && targetOrder['cart'] is List) {
-            List<dynamic> cartItems = List.from(targetOrder['cart']);
-            log("[updateCachedDraftsAfterSaveAndSend] Cart items before update: ${cartItems.length}");
-            targetOrder['cart'] = cartItems;
-          }
-
-          orderData[targetIndex] = targetOrder;
-
-          final updatedCachedData = {
-            ...cachedMap,
-            'data': orderData,
-          };
-
-          await customerDashOrdersBox.put(cacheKey, updatedCachedData);
-
-          // Update fetchAllOrdersBox - modify order total for this customer
-          if (orderDataDash != null && orderDataDash.isNotEmpty) {
-            final updatedOrderDataDash = <dynamic>[];
-            for (var order in orderDataDash) {
-              final orderMap = Map<String, dynamic>.from(order);
-              final orderCustomerId = orderMap['customer_id']?.toString();
-
-              if (orderCustomerId == customerId) {
-                // Update the order total for this customer
-                final currentOrderTotal =
-                    (orderMap['order_total'] ?? 0.0).toDouble();
-                final newOrderTotal = currentOrderTotal - sentAmount;
-                final finalOrderTotal = newOrderTotal > 0
-                    ? double.parse(newOrderTotal.toStringAsFixed(2))
-                    : 0.0;
-
-                orderMap['order_total'] = finalOrderTotal;
-                log('[updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
-              }
-              updatedOrderDataDash.add(orderMap);
-            }
-
-            final updatedCachedDataDash = {
-              ...cachedMapDash,
-              'data': updatedOrderDataDash,
-            };
-            await orderBox.put(cacheKeyDash, updatedCachedDataDash);
-          }
-        } else {
-          log('[updateCachedDraftsAfterSaveAndSend] No matching draft found for draftId: $draftId or cartIds: $sentCartIds');
         }
-      } else {
-        log('[updateCachedDraftsAfterSaveAndSend] No orders found in cached data');
       }
     } catch (e) {
-      log('[updateCachedDraftsAfterSaveAndSend] Error updating cached drafts: $e');
+      log('[Z2] Error updating customerDashOrdersBox: $e');
     }
+
+    // 2️⃣ FETCH ALL ORDERS BOX
+    try {
+      log('[Z2] ----------------------- [FETCH ALL ORDERS BOX] -----------------------');
+      final orderBox = await Hive.openBox('fetchAllOrdersBox');
+      final cachedDataDash = orderBox.get(cacheKeyDash);
+      if (cachedDataDash == null) {
+        log('[Z2] No cached data for $cacheKeyDash');
+      } else {
+        final cachedMapDash = safeMapFrom(cachedDataDash);
+        final orderDataDash = cachedMapDash?['data'] as List<dynamic>?;
+        if (orderDataDash != null && orderDataDash.isNotEmpty) {
+          final updated = <Map<String, dynamic>>[];
+          bool deleted = false;
+
+          for (var order in orderDataDash) {
+            final map = Map<String, dynamic>.from(order);
+            if (map['customer_id']?.toString() == customerId) {
+              final currentTotal = (map['order_total'] ?? 0.0).toDouble();
+              final newTotal = currentTotal - sentAmount;
+
+              if (newTotal <= 0) {
+                // Remove the order from the list
+                deleted = true;
+                deletedFromFetchAllOrders = true;
+                log('[Z2] Deleted order from fetchAllOrdersBox for $cacheKeyDash');
+                continue;
+              } else {
+                map['order_total'] = double.parse(newTotal.toStringAsFixed(2));
+                log('[Z2] Updated fetchAllOrdersBox for $cacheKeyDash → ${map['order_total']}');
+              }
+            }
+            updated.add(map);
+          }
+
+          if (deleted && updated.isEmpty) {
+            await orderBox.delete(cacheKeyDash);
+          } else {
+            await orderBox
+                .put(cacheKeyDash, {...cachedMapDash!, 'data': updated});
+          }
+        }
+      }
+    } catch (e) {
+      log('[Z2] Error updating fetchAllOrdersBox: $e');
+    }
+
+    // 3️⃣ ORDER COUNT BOX → only if deleted from customerDashOrdersBox
+    if (deletedFromCustomerDashOrders) {
+      try {
+        log('[Z2] ----------------------- [ORDER COUNT BOX] -----------------------');
+        final orderCountBox = await getHiveBoxSafely('orderCountBox');
+        final countKey = '${companyId}_$customerId';
+        final cachedCount = orderCountBox.get(countKey);
+        if (cachedCount != null) {
+          final safeMap = ensureStringKeyedMap(cachedCount);
+          final dataToBeModified = ApiResponsees.fromJson(safeMap);
+          dataToBeModified.data.draftOrder = 0;
+          await orderCountBox.put(countKey, dataToBeModified.toJson());
+          log('[Z2] Updated orderCountBox for $countKey → draftOrder set to 0');
+        }
+      } catch (e) {
+        log('[Z2] Error updating orderCountBox: $e');
+      }
+    }
+
+    // 4️⃣ DASHBOARD BOX → only if deleted from fetchAllOrdersBox
+    if (deletedFromFetchAllOrders) {
+      try {
+        log('[Z2] ----------------------- [DASHBOARD BOX] -----------------------');
+        final dashboardBox = Hive.box('dashboardBox');
+        final cachedDashboardData = dashboardBox.get('dashboardData');
+        if (cachedDashboardData != null) {
+          final dashboardMap =
+              Map<String, dynamic>.from(jsonDecode(cachedDashboardData));
+          final orderCountList = dashboardMap['data']?['order_count_list']
+              as Map<String, dynamic>?;
+          if (orderCountList != null) {
+            final currentDraftCount =
+                int.tryParse(orderCountList['draft_order'].toString()) ?? 0;
+            final newDraftCount =
+                (currentDraftCount - 1).clamp(0, double.infinity).toInt();
+            orderCountList['draft_order'] = newDraftCount.toString();
+            await dashboardBox.put('dashboardData', jsonEncode(dashboardMap));
+            log('[Z2] Updated dashboardBox draft_order → $newDraftCount');
+          }
+        }
+      } catch (e) {
+        log('[Z2] Error updating dashboardBox: $e');
+      }
+    }
+
+    // ✅ Trigger provider updates if context is available
+    if (context != null) {
+      try {
+        // Update CustomersProvider
+        Provider.of<CustomersProvider>(context, listen: false)
+            .fetchCustomerDashboardCountData(customerId);
+
+        // Update DashboardProvider to refresh the UI
+        final dashboardProvider =
+            Provider.of<DashboardProvider>(context, listen: false);
+        await dashboardProvider.fetchData();
+        log('[Z2] Triggered DashboardProvider refresh after cache update');
+      } catch (e) {
+        log('[Z2] Error triggering provider updates: $e');
+      }
+    }
+  }
+
+  /// Null-safe helper
+  Map<String, dynamic>? safeMapFrom(dynamic source) {
+    if (source is Map) {
+      return Map<String, dynamic>.from(source);
+    }
+    return null;
   }
 }

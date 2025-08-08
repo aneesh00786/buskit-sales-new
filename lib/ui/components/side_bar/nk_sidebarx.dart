@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/category_mo
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -67,7 +68,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   ProductsController productsController = Get.find<ProductsController>();
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
-    SearchModel searchData = SearchModel();
+  SearchModel searchData = SearchModel();
   final ApiWorker _apiWorker = ApiWorker();
   TabController? _tabController;
   TabController? get tabController => _tabController;
@@ -163,37 +164,62 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                               SessionHelper.loginSavedData?.company_id ?? 0;
                           final salesmanId =
                               SessionHelper.loginSavedData?.salesmanId ?? '';
-                      
+
                           dashboardProvider.resetProvider();
                           dashboardProvider.fetchData();
                           dashboardProvider.fetchChatData(salesmanId);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.delivered,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.estimates,
+                              checkDate: true,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.preOrder,
+                              checkDate: true,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.draft,
+                              checkDate: true,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.cancelled,
+                              isLogin: true);
                           await Future.delayed(const Duration(seconds: 2));
                           final settings =
                               await _apiWorker.fetchAllSettings(companyId);
-                          await Future.delayed(const Duration(microseconds: 500));
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
                           await Provider.of<CustomersProvider>(context,
                                   listen: false)
                               .fetchCustomerData();
                           await customerAndOrderController.loadCustomer();
-                          await Future.delayed(const Duration(microseconds: 500));
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
                           await productsController.fetchCategoryData();
-                          await Future.delayed(const Duration(microseconds: 500));
-                          await ApiWorker()
-                              .fetchRecentOrderCount(startDate: '', endDate: '');
-                          await Future.delayed(const Duration(microseconds: 500));
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
+                          await ApiWorker().fetchRecentOrderCount(
+                              startDate: '', endDate: '');
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
                           await pendingPaymentController.loadOrderData(
                               chartIndex: 0, compId: companyId, isLogin: true);
-                          await Future.delayed(const Duration(microseconds: 500));
-                          await staffController.loadSalesmanTargetForSelectedTab(
-                              currentYear: currentYear.toString(),
-                              selectedTabIndex: _tabController?.index ?? 0 + 1,
-                              staffId: salesmanId);
-                      
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
+                          await staffController
+                              .loadSalesmanTargetForSelectedTab(
+                                  currentYear: currentYear.toString(),
+                                  selectedTabIndex:
+                                      _tabController?.index ?? 0 + 1,
+                                  staffId: salesmanId);
+
                           if (settings != null) {
                             await SessionHelper().setSettingsData(settings);
                           }
-                          SubCategoryItem? subCategoryItem =
-                              productsController.getInitialSubCategoryIdAndName();
+                          SubCategoryItem? subCategoryItem = productsController
+                              .getInitialSubCategoryIdAndName();
                           if (subCategoryItem != null &&
                               (subCategoryItem.id ?? '').isNotEmpty) {
                             await productsController
@@ -201,11 +227,13 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                           } else {
                             log("No subcategory found. Products not fetched.");
                           }
-                          await Future.delayed(const Duration(microseconds: 500));
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
                           await leadsController.loadLeadsCustomerData;
                           await leadsCustomerController.loadLeadsCustomerData;
                           await leadsRejectedController.loadRejectedLeadsData;
-                          await Future.delayed(const Duration(microseconds: 500));
+                          await Future.delayed(
+                              const Duration(microseconds: 500));
                           ApiWorker().getRecentOrdersData(
                             searchModel: searchData,
                             orderStatus: 11,
@@ -213,8 +241,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                             startDate: firstDayString,
                             endDate: lastDayString,
                           );
-                          await calenderMapController
-                              .fetchCalenderEvents(initialDay ?? DateTime.now());
+                          await calenderMapController.fetchCalenderEvents(
+                              initialDay ?? DateTime.now());
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Syncing offline orders...'),
@@ -450,42 +478,42 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 }
 
 Future<bool> handleLocationPermission(BuildContext context) async {
-    PermissionStatus status = await Permission.locationWhenInUse.status;
+  PermissionStatus status = await Permission.locationWhenInUse.status;
 
-    if (status.isDenied) {
-      status = await Permission.locationWhenInUse.request();
-      if (status.isGranted) {
-        return true;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permission denied')),
-        );
-        return false;
-      }
-    } else if (status.isPermanentlyDenied) {
-      bool? openSettings = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Permission Required'),
-          content: const Text(
-              'Location permission is permanently denied. Open settings to enable it.'),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            ElevatedButton(
-              child: const Text('Open Settings'),
-              onPressed: () {
-                openAppSettings();
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        ),
+  if (status.isDenied) {
+    status = await Permission.locationWhenInUse.request();
+    if (status.isGranted) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location permission denied')),
       );
-      return openSettings ?? false;
+      return false;
     }
-
-    return true; 
+  } else if (status.isPermanentlyDenied) {
+    bool? openSettings = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Permission Required'),
+        content: const Text(
+            'Location permission is permanently denied. Open settings to enable it.'),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            child: const Text('Open Settings'),
+            onPressed: () {
+              openAppSettings();
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      ),
+    );
+    return openSettings ?? false;
   }
+
+  return true;
+}

@@ -691,16 +691,19 @@ class LoginController extends GetxController {
             fetchType: "Month"),
         ApiService().fetchAllOrders(
             isLogin: true,
+            checkDate: true,
             orderType: 7,
             orderStatus: OrderStatus.estimates,
             fetchType: "Month"),
         ApiService().fetchAllOrders(
             isLogin: true,
+            checkDate: true,
             orderType: 0,
             orderStatus: OrderStatus.preOrder,
             fetchType: "Month"),
         ApiService().fetchAllOrders(
             isLogin: true,
+            // checkDate: true,
             orderType: 4,
             orderStatus: OrderStatus.draft,
             fetchType: "Month"),

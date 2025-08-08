@@ -40,6 +40,7 @@ class CartDatabaseManager {
   }
 
   Future<List<CartItem>> getDraftItems() async {
+    log("GET DRAFT ITEMS CALLED");
     final dio = Dio();
     const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
     final now = DateTime.now();
@@ -76,10 +77,10 @@ class CartDatabaseManager {
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
-            final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
+            // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {
               // Only process drafts for the current salesman
-              if (order['salesman_id'] != currentSalesmanId) continue;
+              // if (order['salesman_id'] != currentSalesmanId) continue;
               final List<dynamic> carts = order['cart'] ?? [];
               for (var cart in carts) {
                 final double discountPercentage =
@@ -142,8 +143,8 @@ class CartDatabaseManager {
                     'cartId', cart['cart_id'] as String? ?? '');
                 await prefs.setString(
                     'draftId', order['order_id'] as String? ?? '');
-                log('Draft ID : ${cartItem.draftId}');
-                log('Cart Items JSON ${cartItem.toJson()}');
+                // log('Draft ID : ${cartItem.draftId}');
+                // log('Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
                 fetchedItems.add(cartItem);
               }
@@ -214,6 +215,50 @@ class CartDatabaseManager {
         print('[CartDB] getCartItems returning ${result.length} draft items');
         return Future.value(result);
       } else {
+        List<CartItem> customerOfflineDraftItems = [];
+        var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+        List<dynamic> drafts =
+            offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+        final draft = drafts.firstWhere(
+          (d) => d['customer_id'] == customerId,
+          orElse: () => null,
+        );
+        log("DRAFT OF CUSTOMER 2: $draft");
+        if (draft != null) {
+          final List details = draft['details'];
+          final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+          for (var detail in details) {
+            final cartItem = CartItem(
+              detail: Detail(
+                productId: detail['product_id'],
+                variationId: detail['variant_id'],
+                sellPrice: detail['price'],
+                discount: detail['discount'],
+                count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+                pieces: int.tryParse(detail['pack'] ?? '0'),
+                variationName: detail['variant_name'],
+                saleBy: detail['packType'],
+                stock: detail['stock'] ?? 0,
+                unitType: detail['unitType'],
+                packtype: detail['packType'],
+                productName: detail['product_name'],
+                tax: detail['tax'],
+                inclTax: detail['incl_tax'],
+              ),
+              productName: detail['product_name'],
+              totalPrice:
+                  double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+              isPack: detail['packType'] == 'Pack',
+              customerId: customerId,
+              salesmanId: salesmanId,
+              catId: 0,
+            );
+            customerOfflineDraftItems.add(cartItem);
+          }
+        }
+
+        log("customerOfflineDraftItems : ${customerOfflineDraftItems.map((e) => e.toJson()).toList()}");
+
         final customerCartItems = cartBox.values
             .where((item) => item.customerId == customerId)
             .toList();
@@ -230,6 +275,13 @@ class CartDatabaseManager {
         }
 
         for (var item in customerDraftItems) {
+          final key = item.detail.variationId ?? '';
+          if (!itemMap.containsKey(key)) {
+            itemMap[key] = item;
+          }
+        }
+
+        for (var item in customerOfflineDraftItems) {
           final key = item.detail.variationId ?? '';
           if (!itemMap.containsKey(key)) {
             itemMap[key] = item;

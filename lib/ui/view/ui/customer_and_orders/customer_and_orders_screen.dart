@@ -2734,11 +2734,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         ),
                                                       );
                                                     }
-                                                    // showCustomToastDisplay(
-                                                    //     context,
-                                                    //     "NEW TEST 22",
-                                                    //     Colors.black,
-                                                    //     Icons.warning);
+                                                    showCustomToastDisplay(
+                                                        context,
+                                                        "NEW TEST 4",
+                                                        Colors.orange,
+                                                        Icons.warning);
                                                   } else {
                                                     showUpgradePlanDialog(
                                                         context);
@@ -3228,6 +3228,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             customerAndOrderController.customerId.value;
                         customerAndOrderController.setCustomerId(
                             customerAndOrderController.customerId.value);
+
+                        prodController.selectedCustomerName.value =
+                            customerAndOrderController
+                                .selectedCustomerName.value;
+                        prodController.selectedCustomerImageUrl.value =
+                            customerAndOrderController
+                                .selectedCustomerImage.value;
 
                         CartDatabaseManager().getCartItems(customerId);
                         cartProvider.getCartItemCounts(customerId);

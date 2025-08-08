@@ -463,7 +463,7 @@ class ProductsController extends GetxController {
       // CartDatabaseManager().cartItems.clear();
       //come back
       // CartDatabaseManager().clearDraftBoxForCustomer(customerId: customerId);
-      // CartDatabaseManager().clearCart(customerId: customerId);
+      CartDatabaseManager().clearCart(customerId: customerId);
       return false;
     } else {
       final cartDetails =

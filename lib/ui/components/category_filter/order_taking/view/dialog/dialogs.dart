@@ -36,8 +36,7 @@ Future<dynamic> showSuccessFullDialog(
   );
 }
 
-Future<dynamic> showSuccessFullDialogCtrl(
-    {required BuildContext context}) {
+Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
   return showDialog(
     context: context,
     barrierDismissible: false,
@@ -69,8 +68,7 @@ Future<dynamic> showSuccessFullDialogCtrl(
 }
 
 Future<dynamic> showFaledDialogCtrl(
-    {required BuildContext context,
-    required String customerId}) {
+    {required BuildContext context, required String customerId}) {
   return showDialog(
     context: context,
     barrierDismissible: false,

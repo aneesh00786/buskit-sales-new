@@ -1499,15 +1499,21 @@ class ApiResponsees {
 class OrderDataas {
   int totalOrder;
   int estimateOrder;
+  int estimateFilteredOrder;
   int preorderOrder;
+  int preorderFilteredOrder;
   int draftOrder;
+  int draftFilteredOrder;
   int cancelOrder;
 
   OrderDataas({
     required this.totalOrder,
     required this.estimateOrder,
+    required this.estimateFilteredOrder,
     required this.preorderOrder,
+    required this.preorderFilteredOrder,
     required this.draftOrder,
+    required this.draftFilteredOrder,
     required this.cancelOrder,
   });
 
@@ -1516,8 +1522,11 @@ class OrderDataas {
     return OrderDataas(
       totalOrder: json['total_order'] ?? 0,
       estimateOrder: json['estimate_order'] ?? 0,
+      estimateFilteredOrder: json['estimate_Filtered_order'] ?? 0,
       preorderOrder: json['preorder_order'] ?? 0,
+      preorderFilteredOrder: json['preorder_Filtered_order'] ?? 0,
       draftOrder: json['draft_order'] ?? 0,
+      draftFilteredOrder: json['draft_Filtered_order'] ?? 0,
       cancelOrder: json['cancel_order'] ?? 0,
     );
   }
@@ -1527,8 +1536,11 @@ class OrderDataas {
     return {
       'total_order': totalOrder,
       'estimate_order': estimateOrder,
+      'estimate_Filtered_order': estimateFilteredOrder,
       'preorder_order': preorderOrder,
+      'preorder_Filtered_order': preorderFilteredOrder,
       'draft_order': draftOrder,
+      'draft_Filtered_order': draftFilteredOrder,
       'cancel_order': cancelOrder,
     };
   }

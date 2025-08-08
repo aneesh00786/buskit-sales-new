@@ -56,27 +56,27 @@ class CartDialogue extends StatefulWidget {
   final bool? isFromCustomerDach;
   final VoidCallback? onContinueShopping;
   String? customerId;
-  CartDialogue(
-      {super.key,
-      this.active,
-      required this.cartItemCount,
-      required this.productsController,
-      required this.isDashboard,
-      this.isFromCalender = false,
-      this.isDirectDialogue = false,
-      this.isFromOrder = false,
-      this.customerOrderController,
-      this.onContinueShopping,
-      this.isFromCustomerDach = false,
-      this.customerId});
+  final VoidCallback? onDraftUpdated; // Add callback for draft updates
+  CartDialogue({
+    super.key,
+    this.active,
+    required this.cartItemCount,
+    required this.productsController,
+    required this.isDashboard,
+    this.isFromCalender = false,
+    this.isDirectDialogue = false,
+    this.isFromOrder = false,
+    this.customerOrderController,
+    this.onContinueShopping,
+    this.isFromCustomerDach = false,
+    this.customerId,
+    this.onDraftUpdated, // Add callback parameter
+  });
   @override
   State<CartDialogue> createState() => CartDialogueState();
 }
 
 class CartDialogueState extends State<CartDialogue> {
-  // List<CartItem> cartItems = [];
-  // List<CartItem> orderItems = [];
-  // List<CartItem> preorderItems = [];
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
@@ -1706,7 +1706,9 @@ class CartDialogueState extends State<CartDialogue> {
                               }
 
                               final finalAmount = double.parse(sanitizedText);
-                              final customerId = widget.customerId;
+                              final customerId = widget.customerId ??
+                                  widget.productsController.selectedCustomerId
+                                      .value;
 
                               final cartDetails = await CartDatabaseManager()
                                   .getDraftAndCartIdsFromApi(customerId ?? '');
@@ -1748,8 +1750,7 @@ class CartDialogueState extends State<CartDialogue> {
                                   cartId: cartIdPrefs,
                                   draftId: draftIdPrefs,
                                 );
-                                cartProvider
-                                    .getCartItemCounts(customerId ?? '');
+                                cartProvider.getCartItemCounts(customerId);
                               }
                             } else {
                               showDialog(
@@ -1892,7 +1893,10 @@ class CartDialogueState extends State<CartDialogue> {
   }) async {
     // Determine which items to process based on the active tab (_selectedValue)
     List<CartItem> itemList;
-    String customerId = widget.customerId ?? '';
+    String customerId = (widget.customerId != null && widget.customerId != '')
+        ? widget.customerId ??
+            widget.productsController.selectedCustomerId.value
+        : widget.productsController.selectedCustomerId.value;
     if (_selectedValue == 'Sale Order' ||
         _selectedValue == 'Quick Sale' ||
         _selectedValue == 'Estimate') {
@@ -1956,6 +1960,10 @@ class CartDialogueState extends State<CartDialogue> {
                       Navigator.of(context, rootNavigator: true).pop();
                       _clearCartItem(itemList, customerId);
                     });
+                    // Call the callback to refresh the draft list
+                    if (widget.onDraftUpdated != null) {
+                      widget.onDraftUpdated!();
+                    }
                   },
                   child: const Text('OK'),
                 ),
@@ -2111,17 +2119,16 @@ class CartDialogueState extends State<CartDialogue> {
                         TextButton(
                           onPressed: () async {
                             Navigator.pop(context);
-                            Navigator.of(context, rootNavigator: true).pop();
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
-                            cartProvider.getCartItemCounts(customerId);
+                            final cartItemCount = await cartProvider
+                                .getCartItemCounts(customerId);
+
+                            // Always call these functions regardless of cart count
                             CartDatabaseManager().addListener(() {
                               cartProvider.updateCartCount(customerId);
                             });
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
                             if (widget.isDashboard == true) {
                               Provider.of<DashboardProvider>(context,
                                       listen: false)
@@ -2131,6 +2138,26 @@ class CartDialogueState extends State<CartDialogue> {
                                       listen: false)
                                   .fetchCustomerDashboardCountData(customerId);
                             }
+
+                            if (cartItemCount != 0) {
+                              setState(() {
+                                isOrder = !isOrder;
+                              });
+                            }
+
+                            if (cartItemCount == 0) {
+                              // If cart is empty, pop all dialogs and navigate
+                              Navigator.of(context, rootNavigator: true).pop();
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                              // Call the callback to refresh the draft list
+                              // if (widget.onDraftUpdated != null) {
+                              //   widget.onDraftUpdated!();
+                              // }
+                            }
+                            // If cartItemCount > 0, only the current alert dialog is popped
+                            // and the user stays on the cart dialog
                           },
                           child: const Text('OK'),
                         ),
@@ -2380,7 +2407,9 @@ class CartDialogueState extends State<CartDialogue> {
     await offlineBox.put(orderId, orderData);
     log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
 
+    log("PROCESSED ITEMS : ${processedItems.map((e) => e.toJson()).toList()}");
     for (final item in processedItems) {
+      log("DELETE CART ITEMS");
       CartDatabaseManager().deleteCartItem(item);
     }
 
@@ -2506,6 +2535,10 @@ class CartDialogueState extends State<CartDialogue> {
               'variant_name': detail.detail.variationName ?? '',
               'stock': detail.detail.stock ?? 0,
               'unitType': detail.detail.unitType,
+              'product_name': detail.detail.productName,
+              'tax': detail.detail.tax,
+              'incl_tax': detail.detail.inclTax,
+              'pieces': detail.detail.pieces,
             });
           }
 

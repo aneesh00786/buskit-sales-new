@@ -38,7 +38,7 @@ class CustomersProvider with ChangeNotifier {
     required Logger logger,
   })  : _apiService = apiService,
         _logger = logger {
-    fetchCustomerData();
+    // fetchCustomerData();
   }
   String _errorMessage = '';
   bool _isLoading = false;
@@ -562,8 +562,8 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId) async {
-    log("[fetchOrdersForCustomDash]");
+  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
+      {bool checkDate = false}) async {
     try {
       final now = DateTime.now();
       final startDate = DateTime(now.year, 1, 1);
@@ -591,12 +591,14 @@ class CustomersProvider with ChangeNotifier {
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
         final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         return _apiService.fetchCustomerDashOrders(
-            cusId: custId,
-            salesmanId: salesmanId,
-            orderType: orderType,
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-            orderStatus: s);
+          cusId: custId,
+          salesmanId: salesmanId,
+          orderType: orderType,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          orderStatus: s,
+          checkDate: checkDate,
+        );
       });
       notifyListeners();
     } catch (e, stackTrace) {

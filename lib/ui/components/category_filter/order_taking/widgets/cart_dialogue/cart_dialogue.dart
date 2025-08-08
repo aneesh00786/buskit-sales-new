@@ -2384,77 +2384,6 @@ class CartDialogueState extends State<CartDialogue> {
       CartDatabaseManager().deleteCartItem(item);
     }
 
-    // // Also remove processed items from draft box
-    // var draftBox = Hive.box<CartItem>('draftBox');
-    // final customerId = widget.productsController.selectedCustomerId.value;
-
-    // // Find and remove processed items from draft box
-    // final keysToRemove = draftBox.keys.where((key) {
-    //   final item = draftBox.get(key);
-    //   if (item != null && item.customerId == customerId) {
-    //     // Check if this item matches any of the processed items
-    //     return processedItems.any((processedItem) =>
-    //         processedItem.detail.productId == item.detail.productId &&
-    //         processedItem.detail.variationId == item.detail.variationId);
-    //   }
-    //   return false;
-    // }).toList();
-
-    // for (var key in keysToRemove) {
-    //   final deletedItem = draftBox.get(key);
-    //   await draftBox.delete(key);
-    //   log('Item found with key: $key, proceeding to delete from draftBox');
-    // }
-
-    // // Also remove processed items from draftItemsBox (cached draft items)
-    // var draftItemsBox = await Hive.openBox('draftItemsBox');
-    // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
-    // final cacheKey =
-    //     '${SessionHelper.loginSavedData?.company_id ?? ''}_$currentSalesmanId';
-
-    // final cachedDraftItems = draftItemsBox.get(cacheKey);
-    // if (cachedDraftItems != null && cachedDraftItems is List) {
-    //   List<Map<String, dynamic>> updatedCachedItems = [];
-
-    //   for (var cachedItem in cachedDraftItems) {
-    //     bool shouldKeep = true;
-    //     for (var processedItem in processedItems) {
-    //       if (cachedItem['detail']['product_id'] ==
-    //               processedItem.detail.productId &&
-    //           cachedItem['detail']['variation_id'] ==
-    //               processedItem.detail.variationId) {
-    //         shouldKeep = false;
-    //         break;
-    //       }
-    //     }
-    //     if (shouldKeep) {
-    //       updatedCachedItems.add(cachedItem);
-    //     }
-    //   }
-
-    //   await draftItemsBox.put(cacheKey, updatedCachedItems);
-    //   log('Removed processed items from draftItemsBox cache for key: $cacheKey');
-    // }
-
-    // // Also remove processed items from cartPreorderBox if it exists
-    // if (Hive.isBoxOpen('cartPreorderBox')) {
-    //   var cartPreorderBox = Hive.box<CartItem>('cartPreorderBox');
-    //   final keysToRemovePreorder = cartPreorderBox.keys.where((key) {
-    //     final item = cartPreorderBox.get(key);
-    //     if (item != null && item.customerId == customerId) {
-    //       return processedItems.any((processedItem) =>
-    //           processedItem.detail.productId == item.detail.productId &&
-    //           processedItem.detail.variationId == item.detail.variationId);
-    //     }
-    //     return false;
-    //   }).toList();
-
-    //   for (var key in keysToRemovePreorder) {
-    //     await cartPreorderBox.delete(key);
-    //     log('Item found with key: $key, proceeding to delete from cartPreorderBox');
-    //   }
-    // }
-
     setState(() {
       widget.productsController.cartItems
           .removeWhere((item) => processedItems.contains(item));
@@ -2861,15 +2790,6 @@ class CartDialogueState extends State<CartDialogue> {
     log('Cart Item Cleared : $cartItem');
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
-  }
-
-  void _clearCartAndDraftState() async {
-    final customerId = widget.customerId;
-    await CartDatabaseManager().clearAllItemsForCustomer(customerId ?? '');
-    widget.productsController.cartItems.clear();
-    widget.productsController.orderItems.clear();
-    widget.productsController.preorderItems.clear();
-    log('Cleared in-memory and Hive cart/draft state for customer $customerId');
   }
 
   void _deleteProduct(String productName, {bool isPreorder = false}) {

@@ -449,13 +449,6 @@ void showEstimatesDialog(
                                                                               if (orderType != 'Draft' && orderType == 'Estimate') {
                                                                                 showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'ESTIMATE');
                                                                               }
-                                                                              // else {
-                                                                              //   showDetailedOrderInvoiceDialog(
-                                                                              //     context,
-                                                                              //     order.orderId,
-                                                                              //     false,
-                                                                              //   );
-                                                                              // }
                                                                             },
                                                                             icon: const Icon(
                                                                               Icons.visibility,

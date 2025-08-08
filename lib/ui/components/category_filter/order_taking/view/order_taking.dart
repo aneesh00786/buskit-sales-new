@@ -95,6 +95,7 @@ class _OrderTakingState extends State<OrderTaking>
   var years = ['2023'].obs;
   bool isCartCountLoading = true; // <-- Add this line
   bool _isCartCountFetched = false;
+
   @override
   void initState() {
     log("[CUSTOMER ID] [widget.selectedCustId] : ${widget.selectedCustId}");
@@ -821,7 +822,13 @@ class _OrderTakingState extends State<OrderTaking>
             if (_isDrawerOpen)
               Positioned.fill(
                 child: GestureDetector(
-                  onTap: _toggleDrawer,
+                  onTap: () {
+                    setState(() {
+                      _isDrawerOpen = false;
+                    });
+                    _drawerTimer
+                        ?.cancel(); // Cancel the timer if user closes manually
+                  },
                   child: Container(
                     color: Colors.transparent,
                   ),
@@ -869,9 +876,12 @@ class _OrderTakingState extends State<OrderTaking>
       _isDrawerOpen = true;
     });
 
+    // Cancel any existing drawer timer before starting a new one
+    _drawerTimer?.cancel();
+
     log('Selected Category: $_selectedCategory');
 
-    Future.delayed(const Duration(seconds: 3), () {
+    _drawerTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
           _isDrawerOpen = false;

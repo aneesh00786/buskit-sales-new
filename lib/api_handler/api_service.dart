@@ -236,8 +236,7 @@ class ApiService {
     try {
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No internet Connection. Please check your network.');
+        log('No internet Connection. Please check your network.');
       }
       final response = await responsePostMethod(
           requestData: requestBody,

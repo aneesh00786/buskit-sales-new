@@ -292,6 +292,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       ],
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Padding(
@@ -302,6 +303,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: TextField(
+                                maxLength: 10,
                                 controller: mobilenoController,
                                 decoration: InputDecoration(
                                   fillColor: Colors.white,
@@ -366,6 +368,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       ],
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Padding(
@@ -399,6 +402,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: TextField(
+                                maxLength: 10,
                                 controller: businesscontactController,
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.symmetric(

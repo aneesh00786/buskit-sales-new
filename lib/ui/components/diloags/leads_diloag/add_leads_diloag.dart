@@ -152,13 +152,17 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     ],
                                   ),
                                   Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: buildInputField(
-                                            widget.leadsController
-                                                .mobileNoController,
-                                            'Mobile Number',
-                                            Assets.icMobile),
+                                          widget.leadsController
+                                              .mobileNoController,
+                                          'Mobile Number',
+                                          Assets.icMobile,
+                                          length: 10,
+                                        ),
                                       ),
                                       const SizedBox(width: 8.0),
                                       Expanded(
@@ -190,6 +194,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     ),
                                   ),
                                   Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: buildInputField(
@@ -201,10 +207,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       const SizedBox(width: 8.0),
                                       Expanded(
                                         child: buildInputField(
-                                            widget.leadsController
-                                                .businessContactController,
-                                            'Contact Number',
-                                            Assets.icPhone),
+                                          widget.leadsController
+                                              .businessContactController,
+                                          'Contact Number',
+                                          Assets.icPhone,
+                                          length: 10,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -723,7 +731,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
 }
 
 Widget buildInputField(
-    TextEditingController controller, String labelText, String icon) {
+    TextEditingController controller, String labelText, String icon,
+    {int? length}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Container(
@@ -739,6 +748,7 @@ Widget buildInputField(
         ],
       ),
       child: TextField(
+        maxLength: length,
         controller: controller,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(

@@ -484,7 +484,7 @@ class ApiWorker with ApiConstants {
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
+        log(
             'No internet connection. Please check your network and try again.');
         return Future.error('No internet connection');
       } else {

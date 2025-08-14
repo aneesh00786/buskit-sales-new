@@ -561,12 +561,16 @@ class _TableeeState extends State<Tableee> {
                                           ],
                                         ),
                                         Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Expanded(
                                               child: buildInputField(
-                                                  phoneController,
-                                                  'Mobile Number',
-                                                  Assets.icMobile),
+                                                phoneController,
+                                                'Mobile Number',
+                                                Assets.icMobile,
+                                                length: 10,
+                                              ),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
@@ -596,6 +600,8 @@ class _TableeeState extends State<Tableee> {
                                           ),
                                         ),
                                         Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Expanded(
                                               child: buildInputField(
@@ -606,9 +612,11 @@ class _TableeeState extends State<Tableee> {
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
-                                                  contactNumController,
-                                                  'Contact Number',
-                                                  Assets.icPhone),
+                                                contactNumController,
+                                                'Contact Number',
+                                                Assets.icPhone,
+                                                length: 10,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1198,7 +1206,8 @@ class _TableeeState extends State<Tableee> {
   }
 
   Widget buildInputField(
-      TextEditingController controller, String labelText, String icon) {
+      TextEditingController controller, String labelText, String icon,
+      {int? length}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
@@ -1214,6 +1223,7 @@ class _TableeeState extends State<Tableee> {
           ],
         ),
         child: TextField(
+          maxLength: length,
           controller: controller,
           decoration: InputDecoration(
             contentPadding:
@@ -2736,8 +2746,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     }
                                                     showCustomToastDisplay(
                                                         context,
-                                                        "NEW TEST 5",
-                                                        Colors.orange,
+                                                        "NEW TEST 1",
+                                                        Colors.deepOrange,
                                                         Icons.warning);
                                                   } else {
                                                     showUpgradePlanDialog(

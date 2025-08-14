@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -281,6 +282,6 @@ abstract class NkCommonFunction {
         path = 'uploads/salesman/' + path;
       }
     }
-    return 'https://test.thrivewoo.com/' + path;
+        return '${ApiConstants.baseUrl}' + path;
   }
 }

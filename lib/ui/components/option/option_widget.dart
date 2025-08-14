@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -843,12 +844,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 0.9,
                                                                             child:
                                                                                 InkWell(
-                                                                              onTap: () {
-                                                                                showDetailedOrderInvoiceDialog(
-                                                                                  context,
-                                                                                  order.orderId,
-                                                                                  false,
-                                                                                );
+                                                                              onTap: () async {
+                                                                                bool isOnline = await ConnectivityService().isOnline();
+                                                                                if (isOnline) {
+                                                                                  showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                } else {
+                                                                                  showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                }
                                                                               },
                                                                               child: Center(
                                                                                 child: Text(
@@ -953,14 +955,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                           width:
                                                                               flexWidth * 0.5,
                                                                           child: IconButton(
-                                                                              onPressed: () {
-                                                                                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                                productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                                                productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                                                productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
-                                                                                productsController.selectedCustomerEmail.value = customer?.email ?? '';
-                                                                                customerOrderController.customerId.value = customer?.customerId ?? '';
+                                                                              onPressed: () async {
                                                                                 if (isDraft) {
+                                                                                  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                  productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                                  productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                                  productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                                                  productsController.selectedCustomerEmail.value = customer?.email ?? '';
+                                                                                  customerOrderController.customerId.value = customer?.customerId ?? '';
                                                                                   showDialog(
                                                                                     context: context,
                                                                                     builder: (BuildContext context) {
@@ -994,15 +996,21 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                       );
                                                                                     },
                                                                                   );
-                                                                                }
-                                                                                if (orderType != 'Draft' && orderType != 'Booking' && orderType != 'Estimate') {
-                                                                                  showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true);
-                                                                                }
-                                                                                if (orderType != 'Draft' && orderType == 'Booking') {
-                                                                                  showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'BOOKING');
-                                                                                }
-                                                                                if (orderType != 'Draft' && orderType == 'Estimate') {
-                                                                                  showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'ESTIMATE');
+                                                                                } else {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    if (orderType != 'Booking' && orderType != 'Estimate') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                    }
+                                                                                    if (orderType == 'Booking') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'BOOKING');
+                                                                                    }
+                                                                                    if (orderType == 'Estimate') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'ESTIMATE');
+                                                                                    }
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
                                                                                 }
                                                                               },
                                                                               icon: const Icon(
@@ -1104,8 +1112,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             SizedBox(
                                                                               width: flexWidth * 0.9,
                                                                               child: InkWell(
-                                                                                onTap: () {
-                                                                                  showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                                                onTap: () async {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    showDetailedOrderInvoiceDialog(context, orderId, false, changedTitle: orderType);
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
                                                                                 },
                                                                                 child: Center(
                                                                                   child: Text(

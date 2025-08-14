@@ -1,5 +1,7 @@
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,11 +11,23 @@ class DatePickerWidget extends StatefulWidget {
   const DatePickerWidget({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _DatePickerWidgetState createState() => _DatePickerWidgetState();
 }
 
 class _DatePickerWidgetState extends State<DatePickerWidget> {
+  bool isOnline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkOnline();
+  }
+
+  Future<void> checkOnline() async {
+    isOnline = await ConnectivityService().isOnline();
+    setState(() {}); // Refresh UI when online status changes
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? pickedDate = await showDatePicker(
@@ -25,7 +39,6 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
     if (pickedDate != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-      // ignore: use_build_context_synchronously
       Provider.of<DashboardProvider>(context, listen: false)
           .updateSelectedDate(formattedDate);
     }
@@ -55,7 +68,15 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                   ],
                 ),
                 child: InkWell(
-                  onTap: () => _selectDate(context),
+                  onTap: () async {
+                    await checkOnline();
+                    if (!isOnline) {
+                      showCustomToastDisplay(
+                          context, "You are Offline!", red, Icons.close);
+                      return;
+                    }
+                    _selectDate(context);
+                  },
                   child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -85,9 +106,21 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             CustomButton(
               text: 'Go',
               onPressed: () async {
+                await checkOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, "You are Offline!", red, Icons.close);
+                  return;
+                }
+
+                print("Selected Date: ${provider.selectedDate}");
                 final dashboardProvider =
                     Provider.of<DashboardProvider>(context, listen: false);
                 await dashboardProvider.setTempToFilter();
+
+                // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+                await dashboardProvider.fetchAllOrdersAtOnce();
+
                 dashboardProvider.fetchData();
               },
               color: primaryColor,

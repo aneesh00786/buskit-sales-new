@@ -1,7 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,10 @@ class WeekDropdown extends StatefulWidget {
 }
 
 class _WeekDropdownState extends State<WeekDropdown> {
+  bool isOnline = false;
+
+  final GlobalKey _dropdownKey = GlobalKey();
+
   late final List<String> weeks;
   final Map<String, StateSetter> _weekStateSetters = {};
   StateSetter? _selectAllStateSetter;
@@ -22,11 +28,14 @@ class _WeekDropdownState extends State<WeekDropdown> {
   void initState() {
     super.initState();
 
+    checkOnline();
+
     int totalWeeks = DateTimeRange(
           start: DateTime(DateTime.now().year, 1, 1),
           end: DateTime(DateTime.now().year, 12, 31),
         ).duration.inDays ~/
         7;
+
     weeks = List.generate(totalWeeks, (index) => "week${index + 1}");
 
     final currentWeek =
@@ -38,6 +47,11 @@ class _WeekDropdownState extends State<WeekDropdown> {
         provider.updateSelectedWeeks([currentWeek]);
       }
     });
+  }
+
+  Future<void> checkOnline() async {
+    isOnline = await ConnectivityService().isOnline();
+    setState(() {}); // Refresh UI when online status changes
   }
 
   void _toggleWeekSelection(BuildContext context, String week) {
@@ -53,7 +67,6 @@ class _WeekDropdownState extends State<WeekDropdown> {
     }
 
     provider.updateSelectedWeeks(List.from(selectedWeeks));
-
     _weekStateSetters[week]?.call(() {});
     _selectAllStateSetter?.call(() {});
     setState(() {});
@@ -69,7 +82,6 @@ class _WeekDropdownState extends State<WeekDropdown> {
       provider.updateSelectedWeeks([]);
     }
 
-    // Manually update the UI for each checkbox
     _selectAllStateSetter?.call(() {});
     for (var week in weeks) {
       _weekStateSetters[week]?.call(() {});
@@ -116,6 +128,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
             height: 45,
             width: 180,
             child: Container(
+              key: _dropdownKey,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -128,49 +141,70 @@ class _WeekDropdownState extends State<WeekDropdown> {
                   ),
                 ],
               ),
-              child: PopupMenuButton<void>(
-                tooltip: "Select Weeks",
-                onSelected: (_) {},
-                itemBuilder: (context) => [
-                  PopupMenuItem<void>(
-                    child: StatefulBuilder(
-                      builder: (context, setStatePopup) {
-                        _selectAllStateSetter = setStatePopup;
-                        return CheckboxListTile(
-                          value: provider.selectedFilterWeeks.length ==
-                              weeks.length,
-                          onChanged: (value) {
-                            _toggleSelectAll(context, value);
-                          },
-                          title: const Text(
-                            "Select All",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          controlAffinity: ListTileControlAffinity.leading,
-                        );
-                      },
+              child: GestureDetector(
+                onTap: () async {
+                  await checkOnline();
+                  if (!isOnline) {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.close);
+                    return;
+                  }
+
+                  final RenderBox renderBox = _dropdownKey.currentContext!
+                      .findRenderObject() as RenderBox;
+                  final Offset position = renderBox.localToGlobal(Offset.zero);
+                  final Size size = renderBox.size;
+
+                  await showMenu<void>(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx - 50,
+                      53,
+                      position.dx + size.width,
+                      position.dy,
                     ),
-                  ),
-                  const PopupMenuDivider(),
-                  ...weeks.map((week) {
-                    return PopupMenuItem<void>(
-                      child: StatefulBuilder(
-                        builder: (context, setStatePopup) {
-                          _weekStateSetters[week] = setStatePopup;
-                          return CheckboxListTile(
-                            value: provider.selectedFilterWeeks.contains(
-                                week.toLowerCase().replaceAll(' ', '')),
-                            onChanged: (value) {
-                              _toggleWeekSelection(context, week);
-                            },
-                            title: Text(week.replaceAll("week", "Week ")),
-                            controlAffinity: ListTileControlAffinity.leading,
-                          );
-                        },
+                    items: <PopupMenuEntry<void>>[
+                      PopupMenuItem<void>(
+                        child: StatefulBuilder(
+                          builder: (context, setStatePopup) {
+                            _selectAllStateSetter = setStatePopup;
+                            return CheckboxListTile(
+                              value: provider.selectedFilterWeeks.length ==
+                                  weeks.length,
+                              onChanged: (value) {
+                                _toggleSelectAll(context, value);
+                              },
+                              title: const Text("Select All",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            );
+                          },
+                        ),
                       ),
-                    );
-                  }),
-                ],
+                      const PopupMenuDivider(),
+                      ...weeks.map((week) {
+                        return PopupMenuItem<void>(
+                          child: StatefulBuilder(
+                            builder: (context, setStatePopup) {
+                              _weekStateSetters[week] = setStatePopup;
+                              return CheckboxListTile(
+                                value: provider.selectedFilterWeeks.contains(
+                                    week.toLowerCase().replaceAll(' ', '')),
+                                onChanged: (value) {
+                                  _toggleWeekSelection(context, week);
+                                },
+                                title: Text(week.replaceAll("week", "Week ")),
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                              );
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -205,10 +239,17 @@ class _WeekDropdownState extends State<WeekDropdown> {
           CustomButton(
             text: 'Go',
             onPressed: () async {
+              if (!isOnline) {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+                return;
+              }
+
               final dashboardProvider =
                   Provider.of<DashboardProvider>(context, listen: false);
 
               await dashboardProvider.setTempToFilter();
+              await dashboardProvider.fetchAllOrdersAtOnce();
               dashboardProvider.fetchData();
             },
             color: primaryColor,

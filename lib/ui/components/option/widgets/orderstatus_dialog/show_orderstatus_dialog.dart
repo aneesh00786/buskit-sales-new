@@ -1,12 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/widgets/orderstatus_heading_row.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/widgets/orderstatus_total_row.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -243,13 +245,14 @@ void showOrderStatusDialog(
                                                                               0.9,
                                                                       child:
                                                                           InkWell(
-                                                                        onTap: () {
-                                                                          showDetailedOrderInvoiceDialog(
-                                                                              context,
-                                                                              order
-                                                                                  .orderId,
-                                                                              false);
-                                                                        },
+                                                                        onTap: () async {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
+                                                                                },
                                                                         child:
                                                                             Center(
                                                                           child:

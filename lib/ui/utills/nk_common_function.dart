@@ -266,4 +266,20 @@ abstract class NkCommonFunction {
       throw 'Could not launch $googleUrl';
     } else {}
   }
+
+    static String getFullSalesmanImageUrl(String? imgPath) {
+    if (imgPath == null || imgPath.isEmpty) return '';
+    String path = imgPath;
+    // Remove any leading slashes
+    if (path.startsWith('/')) path = path.substring(1);
+    // Ensure it starts with 'uploads/salesman/'
+    if (!path.startsWith('uploads/salesman/')) {
+      if (path.startsWith('salesman/')) {
+        path = 'uploads/' + path;
+      } else if (!path.startsWith('uploads/')) {
+        path = 'uploads/salesman/' + path;
+      }
+    }
+    return 'https://test.thrivewoo.com/' + path;
+  }
 }

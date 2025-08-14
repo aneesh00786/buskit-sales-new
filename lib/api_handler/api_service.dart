@@ -39,56 +39,6 @@ class ApiService {
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
-  // Future<CustomerRevenueResponse> fetchCustomerRevenueData(
-  //   String customerId,
-  //   int specifiedYear,
-  //   String startDate,
-  //   String endDate,
-  // ) async {
-  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  //   final customerRevenueBox = Hive.box('customerRevenueBox');
-  //   final requestBody = {
-  //     "companyId": companyId,
-  //     "customer_id": customerId,
-  //     "end_date": endDate,
-  //     "start_date": startDate,
-  //     "year": specifiedYear,
-  //   };
-  //   try {
-  //     final bool isOnline = await ConnectivityService().isOnline();
-  //     if (!isOnline) {
-  //       final cachedData = customerRevenueBox.get(customerId);
-  //       return localStorage.storedCustomerRevenueData(cachedData, customerId);
-  //     }
-  //     final response = await responsePostMethod(
-  //       requestData: requestBody,
-  //       endPoint: ApiConstants.customerRevenue,
-  //       options: Options(
-  //         headers: {'Content-Type': 'application/json'},
-  //       ),
-  //     );
-  //     if (response.statusCode == 200) {
-  //       final responseData = response.data;
-  //       await customerRevenueBox.put(
-  //         customerId,
-  //         Map<String, dynamic>.from(responseData),
-  //       );
-  //       log("Data fetched and stored for customerId: $customerId");
-  //       return CustomerRevenueResponse.fromJson(responseData);
-  //     } else {
-  //       throw Exception(
-  //         'Failed to load customer revenue data - Status: ${response.statusCode}',
-  //       );
-  //     }
-  //   } on DioException catch (error) {
-  //     handleExceptionMessage(
-  //         apiName: "customer revenue", error: error, response: error.response);
-  //     log("Error occurred while fetching revenue data: $error");
-  //     final cachedData = customerRevenueBox.get(customerId);
-  //     return localStorage.storedCustomerRevenueData(cachedData, customerId);
-  //   }
-  // }
-
   Future<ResponseModell> fetchDashboardData({
     String? fetchType,
     String? startDate,

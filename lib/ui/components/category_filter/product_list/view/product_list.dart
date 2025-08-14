@@ -64,23 +64,18 @@ class _ProductGridState extends State<ProductGrid> {
   Future<void> _loadProductsFromHive() async {
     final selectedSubCatId =
         widget.productsController.selectedSubCategoryId.value;
-    log('Loading products from Hive for subcategory: $selectedSubCatId');
 
     try {
-      // Try to load from scid-based cache first
       Box<ScidProductGroup> scidGroupBox;
       if (Hive.isBoxOpen('scidProductGroups')) {
         scidGroupBox = Hive.box<ScidProductGroup>('scidProductGroups');
-        log('Using existing scidProductGroups box');
       } else {
         scidGroupBox =
             await Hive.openBox<ScidProductGroup>('scidProductGroups');
-        log('Created new scidProductGroups box');
       }
 
       // Check if the box has any data
       if (scidGroupBox.isEmpty) {
-        log('ScidProductGroups cache is empty');
         setState(() {
           products = [];
           isLoading = false;
@@ -88,24 +83,16 @@ class _ProductGridState extends State<ProductGrid> {
         return;
       }
 
-      log('ScidProductGroups cache has ${scidGroupBox.length} entries');
-      log('Available scid keys: ${scidGroupBox.keys.toList()}');
-
       final scidGroup = scidGroupBox.get(selectedSubCatId);
       if (scidGroup != null) {
-        log('Found scid group: ${scidGroup.scid} with ${scidGroup.products.length} products');
         setState(() {
           products = scidGroup.products;
           isLoading = false;
         });
       } else {
-        log('No scid group found for subcategory: $selectedSubCatId');
-        // Fallback to legacy cache - filter by scid
         var productBox = Hive.box<ProductModel>('products');
         if (productBox.isNotEmpty) {
-          log('Legacy cache has ${productBox.length} products');
 
-          // Show all available scids in legacy cache for debugging
           final allScids =
               productBox.values.map((p) => p.scid).toSet().toList();
           log('All scids available in legacy cache: $allScids');

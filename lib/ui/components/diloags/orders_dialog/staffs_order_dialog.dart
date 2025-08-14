@@ -1,11 +1,13 @@
 // ignore_for_file: deprecated_member_use
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/widgets/staff_orders_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/widgets/staff_orders_tablerow.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -279,11 +281,22 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                 SizedBox(
                                                   width: flexWidth * 0.9,
                                                   child: InkWell(
-                                                    onTap: () {
-                                                      showDetailedOrderInvoiceDialog(
-                                                          context,
-                                                          order.orderId ?? '',
-                                                          false);
+                                                    onTap: () async {
+                                                      bool isOnline =
+                                                          await ConnectivityService()
+                                                              .isOnline();
+                                                      if (isOnline) {
+                                                        showDetailedOrderInvoiceDialog(
+                                                            context,
+                                                            order.orderId ?? '',
+                                                            false);
+                                                      } else {
+                                                        showCustomToastDisplay(
+                                                            context,
+                                                            "You are Offline!",
+                                                            red,
+                                                            Icons.warning);
+                                                      }
                                                     },
                                                     child: Center(
                                                       child: Text(

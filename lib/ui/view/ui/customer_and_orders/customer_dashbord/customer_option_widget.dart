@@ -859,12 +859,24 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           0.9,
                                                                   child:
                                                                       InkWell(
-                                                                    onTap: () {
-                                                                      showDetailedOrderInvoiceDialog(
-                                                                          context,
-                                                                          order
-                                                                              .orderId,
-                                                                          false);
+                                                                    onTap:
+                                                                        () async {
+                                                                      bool
+                                                                          isOnline =
+                                                                          await ConnectivityService()
+                                                                              .isOnline();
+                                                                      if (isOnline) {
+                                                                        showDetailedOrderInvoiceDialog(
+                                                                            context,
+                                                                            order.orderId,
+                                                                            false);
+                                                                      } else {
+                                                                        showCustomToastDisplay(
+                                                                            context,
+                                                                            "You are Offline!",
+                                                                            red,
+                                                                            Icons.warning);
+                                                                      }
                                                                     },
                                                                     child:
                                                                         Center(
@@ -1755,8 +1767,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           child:
                                                                               InkWell(
                                                                             onTap:
-                                                                                () {
-                                                                              showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                () async {
+                                                                              bool isOnline = await ConnectivityService().isOnline();
+                                                                              if (isOnline) {
+                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: orderType);
+                                                                              } else {
+                                                                                showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                              }
                                                                             },
                                                                             child:
                                                                                 Center(
@@ -1863,7 +1880,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           child:
                                                                               IconButton(
                                                                             onPressed:
-                                                                                () {
+                                                                                () async {
                                                                               if (orderType == 'Draft') {
                                                                                 final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
                                                                                 widget.productsController.selectedCustomerId.value = customer?.customerId ?? '';
@@ -1886,15 +1903,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                     );
                                                                                   },
                                                                                 );
-                                                                              }
-                                                                              if (orderType != 'Draft' && orderType != 'Booking' && orderType != 'Estimate') {
-                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true);
-                                                                              }
-                                                                              if (orderType != 'Draft' && orderType == 'Booking') {
-                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'BOOKING');
-                                                                              }
-                                                                              if (orderType != 'Draft' && orderType == 'Estimate') {
-                                                                                showDetailedOrderInvoiceDialog(context, order.orderId, false, isButtonNeeded: true, changedTitle: 'ESTIMATE');
+                                                                              } else {
+                                                                                bool isOnline = await ConnectivityService().isOnline();
+                                                                                if (isOnline) {
+                                                                                  if (orderType != 'Draft' && orderType != 'Booking' && orderType != 'Estimate') {
+                                                                                    showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                  }
+                                                                                  if (orderType != 'Draft' && orderType == 'Booking') {
+                                                                                    showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'BOOKING');
+                                                                                  }
+                                                                                  if (orderType != 'Draft' && orderType == 'Estimate') {
+                                                                                    showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'ESTIMATE');
+                                                                                  }
+                                                                                } else {
+                                                                                  showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                }
                                                                               }
                                                                             },
                                                                             icon:
@@ -2000,8 +2023,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                             SizedBox(
                                                                               width: flexWidth * 0.9,
                                                                               child: InkWell(
-                                                                                onTap: () {
-                                                                                  showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                                                onTap: () async {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
                                                                                 },
                                                                                 child: Center(
                                                                                   child: Text(

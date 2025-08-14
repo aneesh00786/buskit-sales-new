@@ -14,8 +14,7 @@ import 'package:get/get.dart';
 
 void showDetailedOrderInvoiceDialog(
     BuildContext context, String orderId, final bool invoice,
-    {bool isButtonNeeded = false,
-    String changedTitle = 'CUSTOMER & ORDER'}) async {
+    {String changedTitle = 'CUSTOMER & ORDER'}) async {
   DashBoardController dashBoardController = Get.put(DashBoardController());
 
   var orderInvoiceData = await dashBoardController.loadSpecificOrderInvoiceData(
@@ -410,10 +409,6 @@ void showDetailedOrderInvoiceDialog(
                         ],
                       );
               }),
-              const SizedBox(height: 12),
-              // if (isButtonNeeded == true) ...[
-              //   CustomButton(text: 'Convert to Order', onPressed: () {}),
-              // ],
             ],
           ),
         ),

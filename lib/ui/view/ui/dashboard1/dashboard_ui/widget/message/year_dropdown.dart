@@ -1,7 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,14 +16,18 @@ class YearDropdown extends StatefulWidget {
 }
 
 class _YearDropdownState extends State<YearDropdown> {
+  bool isOnline = false;
+
   final int startYear = 2024;
   final int endYear = DateTime.now().year;
-
   late List<int> years;
+
+  final GlobalKey _dropdownKey = GlobalKey(); // For accurate menu position
 
   @override
   void initState() {
     super.initState();
+    checkOnline();
     years = startYear <= endYear
         ? List.generate(endYear - startYear + 1, (index) => (startYear + index))
         : [];
@@ -35,9 +41,15 @@ class _YearDropdownState extends State<YearDropdown> {
     });
   }
 
+  Future<void> checkOnline() async {
+    isOnline = await ConnectivityService().isOnline();
+    setState(() {}); // Refresh UI when online status changes
+  }
+
   void _selectYear(BuildContext context, int year) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     provider.updateSelectedYear(year);
+    setState(() {}); // To refresh dropdown text
   }
 
   @override
@@ -51,6 +63,7 @@ class _YearDropdownState extends State<YearDropdown> {
               height: 45,
               width: 160,
               child: Container(
+                key: _dropdownKey,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -63,29 +76,59 @@ class _YearDropdownState extends State<YearDropdown> {
                     ),
                   ],
                 ),
-                child: PopupMenuButton<int>(
-                  tooltip: "Select Year",
-                  onSelected: (year) => _selectYear(context, year),
-                  itemBuilder: (context) => years.map((year) {
-                    return PopupMenuItem<int>(
-                      value: year,
-                      child: ListTile(
-                        title: Text(year.toString()),
-                        trailing: provider.selectedYear == year
-                            ? const Icon(Icons.check, color: Colors.blue)
-                            : null,
+                child: GestureDetector(
+                  onTap: () async {
+                    await checkOnline();
+                    if (!isOnline) {
+                      showCustomToastDisplay(
+                          context, "You are Offline!", red, Icons.close);
+                      return;
+                    }
+
+                    final RenderBox renderBox = _dropdownKey.currentContext!
+                        .findRenderObject() as RenderBox;
+                    final Offset position =
+                        renderBox.localToGlobal(Offset.zero);
+                    final Size size = renderBox.size;
+
+                    await showMenu<int>(
+                      context: context,
+                      position: RelativeRect.fromLTRB(
+                        position.dx - 30,
+                        position.dy + size.height,
+                        position.dx + size.width,
+                        position.dy,
                       ),
+                      items: years.map((year) {
+                        return PopupMenuItem<int>(
+                          value: year,
+                          child: ListTile(
+                            title: Text(year.toString()),
+                            trailing: provider.selectedYear == year
+                                ? const Icon(Icons.check, color: Colors.blue)
+                                : null,
+                            onTap: () {
+                              Navigator.pop(context); // Close menu
+                              _selectYear(context, year);
+                            },
+                          ),
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
+                  },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
-                            provider.selectedYear.toString(),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                            provider.selectedYear != 0
+                                ? provider.selectedYear.toString()
+                                : 'Select Year',
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w500),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -100,10 +143,17 @@ class _YearDropdownState extends State<YearDropdown> {
             CustomButton(
               text: 'Go',
               onPressed: () async {
+                await checkOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, "You are Offline!", red, Icons.close);
+                  return;
+                }
                 final dashboardProvider =
-        Provider.of<DashboardProvider>(context, listen: false);
-        await dashboardProvider.setTempToFilter();
-    dashboardProvider.fetchData();
+                    Provider.of<DashboardProvider>(context, listen: false);
+                await dashboardProvider.setTempToFilter();
+                await dashboardProvider.fetchAllOrdersAtOnce();
+                dashboardProvider.fetchData();
               },
               color: primaryColor,
             ),

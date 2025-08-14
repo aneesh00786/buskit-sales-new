@@ -2736,7 +2736,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     }
                                                     showCustomToastDisplay(
                                                         context,
-                                                        "NEW TEST 4",
+                                                        "NEW TEST 5",
                                                         Colors.orange,
                                                         Icons.warning);
                                                   } else {
@@ -3544,11 +3544,22 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   SizedBox(
                                                     width: flexWidth * 0.9,
                                                     child: InkWell(
-                                                      onTap: () {
-                                                        showDetailedOrderInvoiceDialog(
-                                                            context,
-                                                            order.orderId,
-                                                            false);
+                                                      onTap: () async {
+                                                        bool isOnline =
+                                                            await ConnectivityService()
+                                                                .isOnline();
+                                                        if (isOnline) {
+                                                          showDetailedOrderInvoiceDialog(
+                                                              context,
+                                                              order.orderId,
+                                                              false);
+                                                        } else {
+                                                          showCustomToastDisplay(
+                                                              context,
+                                                              "You are Offline!",
+                                                              red,
+                                                              Icons.warning);
+                                                        }
                                                       },
                                                       child: Center(
                                                         child: Text(

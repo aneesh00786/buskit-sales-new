@@ -1,9 +1,11 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
@@ -116,18 +118,18 @@ Future<dynamic> showDashTimesDialogue<T>(
                       child: SizedBox(
                         height: contentHeight,
                         child: ScrollbarTheme(
-                                        data: const ScrollbarThemeData(
-                                          minThumbLength: 150,
-                                          thickness: WidgetStatePropertyAll(5),
-                                          thumbColor: WidgetStatePropertyAll(
-                                              Colors.blue),
-                                        ),
-                                        child: Scrollbar(
-                                          thumbVisibility: true,
-                                          trackVisibility: true,
+                          data: const ScrollbarThemeData(
+                            minThumbLength: 150,
+                            thickness: WidgetStatePropertyAll(5),
+                            thumbColor: WidgetStatePropertyAll(Colors.blue),
+                          ),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            trackVisibility: true,
                             child: ListView.builder(
-                              itemCount:
-                                  timesDataList.isEmpty ? 1 : timesDataList.length,
+                              itemCount: timesDataList.isEmpty
+                                  ? 1
+                                  : timesDataList.length,
                               physics: const ClampingScrollPhysics(),
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
@@ -150,19 +152,30 @@ Future<dynamic> showDashTimesDialogue<T>(
                                         if (isDash) ...[
                                           SizedBox(
                                               width: 50,
-                                              child:
-                                                  buildRowData("  ${index + 1}.")),
+                                              child: buildRowData(
+                                                  "  ${index + 1}.")),
                                           Expanded(
                                               flex: 2,
                                               child: buildRowData(
                                                   getCustomer(timesData))),
                                           Expanded(
                                               child: InkWell(
-                                            onTap: () {
-                                              showDetailedOrderInvoiceDialog(
-                                                  context,
-                                                  getOrderId(timesData),
-                                                  false);
+                                            onTap: () async {
+                                              bool isOnline =
+                                                  await ConnectivityService()
+                                                      .isOnline();
+                                              if (isOnline) {
+                                                showDetailedOrderInvoiceDialog(
+                                                    context,
+                                                    getOrderId(timesData),
+                                                    false);
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "You are Offline!",
+                                                    red,
+                                                    Icons.warning);
+                                              }
                                             },
                                             child: buildRowData(
                                                 getOrderId(timesData),
@@ -178,8 +191,8 @@ Future<dynamic> showDashTimesDialogue<T>(
                                               child: buildRowData(
                                                   getQuantity(timesData))),
                                           Expanded(
-                                              child:
-                                                  buildRowData(getTax(timesData))),
+                                              child: buildRowData(
+                                                  getTax(timesData))),
                                           Expanded(
                                               child: buildRowData(
                                                   getTotalPrice(timesData))),
@@ -187,15 +200,26 @@ Future<dynamic> showDashTimesDialogue<T>(
                                         if (!isDash) ...[
                                           SizedBox(
                                               width: 50,
-                                              child:
-                                                  buildRowData("  ${index + 1}.")),
+                                              child: buildRowData(
+                                                  "  ${index + 1}.")),
                                           Expanded(
                                               child: InkWell(
-                                            onTap: () {
-                                              showDetailedOrderInvoiceDialog(
-                                                  context,
-                                                  getOrderId(timesData),
-                                                  false);
+                                            onTap: () async {
+                                              bool isOnline =
+                                                  await ConnectivityService()
+                                                      .isOnline();
+                                              if (isOnline) {
+                                                showDetailedOrderInvoiceDialog(
+                                                    context,
+                                                    getOrderId(timesData),
+                                                    false);
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "You are Offline!",
+                                                    red,
+                                                    Icons.warning);
+                                              }
                                             },
                                             child: buildRowData(
                                                 getOrderId(timesData),
@@ -211,8 +235,8 @@ Future<dynamic> showDashTimesDialogue<T>(
                                               child: buildRowData(
                                                   getQuantity(timesData))),
                                           Expanded(
-                                              child:
-                                                  buildRowData(getTax(timesData))),
+                                              child: buildRowData(
+                                                  getTax(timesData))),
                                           Expanded(
                                               child: buildRowData(
                                                   getTotalPrice(timesData))),
@@ -250,25 +274,6 @@ Future<dynamic> showDashTimesDialogue<T>(
                               maxLine: 1,
                             ),
                           ),
-                          // Expanded(
-                          //   child: CustomText(
-                          //     fontWeight: FontWeight.w600,
-                          //     textAlign: TextAlign.center,
-                          //     content: () {
-                          //       double total =
-                          //           timesDataList.fold(0.0, (sum, item) {
-                          //         String priceStr = getPrice(item)
-                          //             .replaceAll(RegExp(r'[^0-9.]'), '');
-                          //         double price =
-                          //             double.tryParse(priceStr) ?? 0.0;
-                          //         return sum + price;
-                          //       });
-                          //       return formatAmount(total);
-                          //     }(),
-                          //     fontSize: 11,
-                          //     maxLine: 1,
-                          //   ),
-                          // ),
                           Expanded(
                             child: CustomText(
                               fontWeight: FontWeight.w600,
@@ -313,8 +318,7 @@ Future<dynamic> showDashTimesDialogue<T>(
                                 double total =
                                     timesDataList.fold(0.0, (sum, item) {
                                   String priceStr = getTotalPrice(item)
-                                      .replaceAll(RegExp(r'[^0-9.]'),
-                                          '');
+                                      .replaceAll(RegExp(r'[^0-9.]'), '');
                                   double price =
                                       double.tryParse(priceStr) ?? 0.0;
                                   return sum + price;

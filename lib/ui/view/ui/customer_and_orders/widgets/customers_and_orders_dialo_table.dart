@@ -1,9 +1,11 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -97,9 +99,15 @@ Widget customerOrderDialogueMainDash({
               ),
               TableViewCell(
                 child: InkWell(
-                  onTap: () {
-                    showDetailedOrderInvoiceDialog(
-                        context, order.orderId, false);
+                  onTap: () async {
+                    bool isOnline = await ConnectivityService().isOnline();
+                    if (isOnline) {
+                      showDetailedOrderInvoiceDialog(
+                          context, order.orderId, false);
+                    } else {
+                      showCustomToastDisplay(
+                          context, "You are Offline!", red, Icons.warning);
+                    }
                   },
                   child: Text(
                     order.orderId,

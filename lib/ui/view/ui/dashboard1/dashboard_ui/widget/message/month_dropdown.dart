@@ -1,8 +1,7 @@
-import 'package:busskit_salesexecutive/api_handler/api_service.dart';
-import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +10,14 @@ class MonthDropdown extends StatefulWidget {
   const MonthDropdown({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MonthDropdownState createState() => _MonthDropdownState();
 }
 
 class _MonthDropdownState extends State<MonthDropdown> {
+  bool isInitOnline = false;
+
+  final GlobalKey _dropdownKey = GlobalKey(); // For positioning the dropdown
+
   final List<String> months = [
     "January",
     "February",
@@ -37,6 +39,7 @@ class _MonthDropdownState extends State<MonthDropdown> {
   @override
   void initState() {
     super.initState();
+    checkOnline();
 
     final currentMonthIndex = DateTime.now().month;
     final currentMonth = months[currentMonthIndex - 1];
@@ -47,6 +50,11 @@ class _MonthDropdownState extends State<MonthDropdown> {
         provider.updateSelectedMonths([currentMonth]);
       }
     });
+  }
+
+  Future<void> checkOnline() async {
+    isInitOnline = await ConnectivityService().isOnline();
+    setState(() {});
   }
 
   void _toggleMonthSelection(BuildContext context, String month) {
@@ -118,8 +126,9 @@ class _MonthDropdownState extends State<MonthDropdown> {
         children: [
           SizedBox(
             height: 45,
-            width: 180, // Increased width to fit the close button
+            width: 180,
             child: Container(
+              key: _dropdownKey,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -132,49 +141,70 @@ class _MonthDropdownState extends State<MonthDropdown> {
                   ),
                 ],
               ),
-              child: PopupMenuButton<void>(
-                tooltip: "Select Months",
-                onSelected: (_) {},
-                itemBuilder: (context) => [
-                  PopupMenuItem<void>(
-                    child: StatefulBuilder(
-                      builder: (context, setStatePopup) {
-                        _selectAllStateSetter = setStatePopup;
-                        return CheckboxListTile(
-                          value: provider.selectedFilterMonths.length ==
-                              months.length,
-                          onChanged: (value) {
-                            _toggleSelectAll(context, value);
-                          },
-                          title: const Text(
-                            "Select All",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          controlAffinity: ListTileControlAffinity.leading,
-                        );
-                      },
+              child: GestureDetector(
+                onTap: () async {
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (!isOnline) {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.close);
+                    return;
+                  }
+
+                  final RenderBox renderBox = _dropdownKey.currentContext!
+                      .findRenderObject() as RenderBox;
+                  final Offset position = renderBox.localToGlobal(Offset.zero);
+                  final Size size = renderBox.size;
+
+                  await showMenu<void>(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx - 50,
+                      53,
+                      position.dx + size.width,
+                      position.dy,
                     ),
-                  ),
-                  const PopupMenuDivider(),
-                  ...months.map((month) {
-                    return PopupMenuItem<void>(
-                      child: StatefulBuilder(
-                        builder: (context, setStatePopup) {
-                          _monthStateSetters[month] = setStatePopup;
-                          return CheckboxListTile(
-                            value:
-                                provider.selectedFilterMonths.contains(month),
-                            onChanged: (value) {
-                              _toggleMonthSelection(context, month);
-                            },
-                            title: Text(month),
-                            controlAffinity: ListTileControlAffinity.leading,
-                          );
-                        },
+                    items: <PopupMenuEntry<void>>[
+                      PopupMenuItem<void>(
+                        child: StatefulBuilder(
+                          builder: (context, setStatePopup) {
+                            _selectAllStateSetter = setStatePopup;
+                            return CheckboxListTile(
+                              value: provider.selectedFilterMonths.length ==
+                                  months.length,
+                              onChanged: (value) {
+                                _toggleSelectAll(context, value);
+                              },
+                              title: const Text("Select All",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            );
+                          },
+                        ),
                       ),
-                    );
-                  }),
-                ],
+                      const PopupMenuDivider(),
+                      ...months.map((month) {
+                        return PopupMenuItem<void>(
+                          child: StatefulBuilder(
+                            builder: (context, setStatePopup) {
+                              _monthStateSetters[month] = setStatePopup;
+                              return CheckboxListTile(
+                                value: provider.selectedFilterMonths
+                                    .contains(month),
+                                onChanged: (value) {
+                                  _toggleMonthSelection(context, month);
+                                },
+                                title: Text(month),
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                              );
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -211,14 +241,17 @@ class _MonthDropdownState extends State<MonthDropdown> {
             onPressed: () async {
               bool isOnline = await ConnectivityService().isOnline();
               if (!isOnline) {
-                errorSnackbar(
-                    'No internet connection. Please check your network');
-              } else {
-                final dashboardProvider =
-                    Provider.of<DashboardProvider>(context, listen: false);
-                await dashboardProvider.setTempToFilter();
-                dashboardProvider.fetchData();
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+                return;
               }
+
+              final dashboardProvider =
+                  Provider.of<DashboardProvider>(context, listen: false);
+
+              await dashboardProvider.setTempToFilter();
+              await dashboardProvider.fetchAllOrdersAtOnce();
+              dashboardProvider.fetchData();
             },
             color: primaryColor,
           ),

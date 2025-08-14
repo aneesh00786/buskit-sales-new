@@ -5,15 +5,34 @@ import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class RangePickerWidget extends StatelessWidget {
+class RangePickerWidget extends StatefulWidget {
   final bool isSmallScreen;
 
   const RangePickerWidget({super.key, this.isSmallScreen = false});
+
+  @override
+  State<RangePickerWidget> createState() => _RangePickerWidgetState();
+}
+
+class _RangePickerWidgetState extends State<RangePickerWidget> {
+  bool isOnline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkOnline();
+  }
+
+  Future<void> checkOnline() async {
+    isOnline = await ConnectivityService().isOnline();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +41,11 @@ class RangePickerWidget extends StatelessWidget {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _datePickerButton(context, provider, isSmallScreen, true),
+            _datePickerButton(context, provider, widget.isSmallScreen, true),
             const SizedBox(width: 6),
-            _datePickerButton(context, provider, isSmallScreen, false),
+            _datePickerButton(context, provider, widget.isSmallScreen, false),
             const SizedBox(width: 6),
-            _goButton(context, provider, isSmallScreen),
+            _goButton(context, provider, widget.isSmallScreen),
           ],
         );
       },
@@ -36,7 +55,15 @@ class RangePickerWidget extends StatelessWidget {
   Widget _datePickerButton(BuildContext context, DashboardProvider provider,
       bool isSmallScreen, bool isStartDate) {
     return GestureDetector(
-      onTap: () => provider.selectDate(context, isStartDate),
+      onTap: () async {
+        await checkOnline();
+        if (!isOnline) {
+          showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+          return;
+        }
+
+        provider.selectDate(context, isStartDate);
+      },
       child: Container(
         height: isSmallScreen ? 34 : 42,
         width: isSmallScreen ? 80 : 110,
@@ -75,7 +102,7 @@ class RangePickerWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Icon(
+            const Icon(
               Icons.calendar_today,
               size: 18,
               color: Colors.blue,
@@ -91,12 +118,31 @@ class RangePickerWidget extends StatelessWidget {
     return CustomButton(
       text: 'Go',
       onPressed: () async {
-        bool isOnline = await ConnectivityService().isOnline();
+        await checkOnline();
         if (!isOnline) {
-          errorSnackbar('No internet connection. Please check your network');
-        } else {
-          await provider.setTempToFilter();
-          provider.fetchData();
+          showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+          return;
+        }
+
+        if (provider.selectedStartDate.isEmpty) {
+          showCustomToastDisplay(
+              context, "Select start date", Colors.orange, Icons.warning);
+        }
+        if (provider.selectedEndDate.isEmpty) {
+          showCustomToastDisplay(
+              context, "Select end date", Colors.orange, Icons.warning);
+        }
+        if (provider.selectedStartDate.isNotEmpty &&
+            provider.selectedEndDate.isNotEmpty) {
+          final dashboardProvider =
+              Provider.of<DashboardProvider>(context, listen: false);
+
+          await dashboardProvider.setTempToFilter();
+
+          // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+          await dashboardProvider.fetchAllOrdersAtOnce();
+
+          dashboardProvider.fetchData();
         }
       },
       color: primaryColor,

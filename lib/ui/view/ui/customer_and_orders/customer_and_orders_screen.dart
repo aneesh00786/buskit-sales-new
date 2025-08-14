@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -1150,6 +1151,11 @@ class _TableeeState extends State<Tableee> {
                                                       admin: data,
                                                       salsmanId: '',
                                                     );
+                                                    provider
+                                                        .handlePaginationClick(
+                                                            1);
+                                                    fetchAllCustomerPages(
+                                                        context);
                                                     Navigator.of(context).pop();
                                                   } catch (error) {
                                                     setState(() {
@@ -1250,6 +1256,86 @@ class _TableeeState extends State<Tableee> {
         ),
       ),
     );
+  }
+
+  Future<void> fetchAllCustomerPages(BuildContext context) async {
+    final provider = Provider.of<CustomersProvider>(context, listen: false);
+    final apiService = ApiService();
+    List<CustomerModelxx> allCustomers = [];
+    List<OrderTotalxx> allOrderTotals = [];
+    List<YearsListOfAll> allYearsList = [];
+    int totalPages = 1;
+    int page = 1;
+    try {
+      // Fetch first page to get totalPages
+      log('[fetchAllCustomerPages] Fetching customer page 1');
+      final firstResponse = await apiService.fetchCustomer(
+        salesmanId: '',
+        customerName: provider.searchCustomerName,
+        startDate: '',
+        endDate: '',
+        limit: 10,
+        page: 1,
+        valueFromDw: provider.selectedFilter == FilterDateEnum.range
+            ? [
+                provider.selectedFilter.name,
+                provider.selectedStartDate,
+                provider.selectedEndDate
+              ]
+            : provider.selectedFilter.name,
+      );
+      allCustomers.addAll(firstResponse.data);
+      allOrderTotals.addAll(firstResponse.orderTotal);
+      allYearsList.addAll(firstResponse.yearsListOfAll);
+      totalPages = firstResponse.pagination.totalPages;
+      log('[fetchAllCustomerPages] First page fetched, totalPages reported: $totalPages');
+      // Save first page to Hive with cacheKey
+      final customerBox = Hive.box('customerBox');
+      final cacheKeyFirst =
+          '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
+      await customerBox.put(cacheKeyFirst, firstResponse.toJson());
+      log('[fetchAllCustomerPages] Caching page 1 with ${firstResponse.data.length} customers');
+      // Fetch remaining pages if any
+      for (page = 2; page <= totalPages; page++) {
+        log('[fetchAllCustomerPages] Fetching customer page $page');
+        final response = await apiService.fetchCustomer(
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          customerName: provider.searchCustomerName,
+          startDate: '',
+          endDate: '',
+          limit: 10,
+          page: page,
+          valueFromDw: provider.selectedFilter == FilterDateEnum.range
+              ? [
+                  provider.selectedFilter.name,
+                  provider.selectedStartDate,
+                  provider.selectedEndDate
+                ]
+              : provider.selectedFilter.name,
+        );
+        allCustomers.addAll(response.data);
+        allOrderTotals.addAll(response.orderTotal);
+        allYearsList.addAll(response.yearsListOfAll);
+        final cacheKey =
+            '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
+        await customerBox.put(cacheKey, response.toJson());
+        log('[fetchAllCustomerPages] Caching page $page with ${response.data.length} customers');
+      }
+      provider.setCustomers(allCustomers, totalPages);
+      provider.setOrderTotal(allOrderTotals);
+      provider.setYearList(allYearsList);
+      log('[fetchAllCustomerPages] Finished fetching all pages. Total pages: $totalPages, Total customers: ${allCustomers.length}');
+      // Build unique customerId list from all pages
+      // final allCustomerIds = allCustomers
+      //     .map((c) => c.customerId)
+      //     .where((id) => id.isNotEmpty)
+      //     .toSet()
+      //     .toList();
+      // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
+    } catch (e) {
+      log('Error fetching all customer pages : $e');
+      rethrow;
+    }
   }
 }
 

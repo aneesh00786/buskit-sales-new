@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
-class PendingPaymentChart extends StatelessWidget {
+
+class PendingPaymentChart extends StatefulWidget {
   final PendingPaymentController chartController;
   final Function(int) onBarTapped;
 
@@ -20,10 +21,15 @@ class PendingPaymentChart extends StatelessWidget {
     required this.onBarTapped,
   });
 
-    SubscriptionController subscriptionController =
+  @override
+  State<PendingPaymentChart> createState() => _PendingPaymentChartState();
+}
+
+class _PendingPaymentChartState extends State<PendingPaymentChart> {
+  SubscriptionController subscriptionController =
       Get.find<SubscriptionController>();
 
-      int calculateNiceInterval(int maxY, int maxDivisions) {
+  int calculateNiceInterval(int maxY, int maxDivisions) {
     if (maxY <= 0) return 1;
 
     double roughInterval = maxY / maxDivisions;
@@ -44,7 +50,7 @@ class PendingPaymentChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final barData = chartController;
+      final barData = widget.chartController;
 
       final maxBarValue = max(
         max(barData.totalAmount.value, barData.nearlyDueAmount.value),
@@ -57,18 +63,18 @@ class PendingPaymentChart extends StatelessWidget {
       int maxDivisions = 10;
       int dynamicInterval = calculateNiceInterval(dynamicMaxY, maxDivisions);
 
-       if (subscriptionController.appPendingPaymentList.value != "true") {
+      if (subscriptionController.appPendingPaymentList.value != "true") {
         return Center(
           child: UpgradePlanButton(),
         );
       }
 
-      if (chartController.isLoadingPayment.value) {
+      if (widget.chartController.isLoadingPayment.value) {
         return const Center(
           child: CircularProgressIndicator(),
         );
       }
-      if (chartController.orderDataList.isEmpty) {
+      if (widget.chartController.orderDataList.isEmpty) {
         return const Center(child: NodataWidget());
       }
 
@@ -95,13 +101,41 @@ class PendingPaymentChart extends StatelessWidget {
                     );
                     switch (value.toInt()) {
                       case 0:
-                        return Text('All', style: style);
+                        return InkWell(
+                            splashColor: Colors.transparent,
+                            onTap: () {
+                              if (barData.totalAmount.value > 0) {
+                                widget.onBarTapped(0);
+                              }
+                            },
+                            child: Text('All', style: style));
                       case 1:
-                        return Text('Nearly Due', style: style);
+                        return InkWell(
+                            splashColor: Colors.transparent,
+                            onTap: () {
+                              if (barData.nearlyDueAmount.value > 0) {
+                                widget.onBarTapped(1);
+                              }
+                            },
+                            child: Text('Nearly Due', style: style));
                       case 2:
-                        return Text('Due', style: style);
+                        return InkWell(
+                            splashColor: Colors.transparent,
+                            onTap: () {
+                              if (barData.dueAmount.value > 0) {
+                                widget.onBarTapped(2);
+                              }
+                            },
+                            child: Text('Due', style: style));
                       case 3:
-                        return Text('Overdue', style: style);
+                        return InkWell(
+                            splashColor: Colors.transparent,
+                            onTap: () {
+                              if (barData.overdueAmount.value > 0) {
+                                widget.onBarTapped(3);
+                              }
+                            },
+                            child: Text('Overdue', style: style));
                       default:
                         return const Text('');
                     }
@@ -125,8 +159,7 @@ class PendingPaymentChart extends StatelessWidget {
                   },
                 ),
               ),
-              topTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles:
                   AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
@@ -174,7 +207,7 @@ class PendingPaymentChart extends StatelessWidget {
                               : barData.overdueAmount.value;
 
                   if (tappedValue > 0) {
-                    onBarTapped(touchedIndex);
+                    widget.onBarTapped(touchedIndex);
                   }
                 }
               },

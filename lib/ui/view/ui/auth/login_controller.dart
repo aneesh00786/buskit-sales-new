@@ -611,6 +611,19 @@ class LoginController extends GetxController {
         log('Error prefetching revenue $e');
       }
       try {
+        log('[prefetchDash] Draft for $customerId');
+        await apiService.fetchCustomerDashOrders(
+          cusId: customerId,
+          salesmanId: '',
+          startDate: startDate,
+          endDate: endDate,
+          orderType: 4,
+          checkDate: false,
+        );
+      } catch (e) {
+        log('Error prefetching Draft $e');
+      }
+      try {
         log('[prefetchDash] OrderCount for $customerId');
         await apiService.fetchOrderCount(customerId, startDate, endDate);
       } catch (e) {
@@ -668,6 +681,12 @@ class LoginController extends GetxController {
         productsController.loadCategoriesAndDefaultProducts(),
         pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId, isLogin: true),
+        pendingPaymentController.loadOrderData(
+            chartIndex: 1, compId: companyId, isLogin: true),
+        pendingPaymentController.loadOrderData(
+            chartIndex: 2, compId: companyId, isLogin: true),
+        pendingPaymentController.loadOrderData(
+            chartIndex: 3, compId: companyId, isLogin: true),
         ApiWorker().fetchDiscounts(companyId, ""),
         leadsController.loadLeadsCustomerData,
         leadsCustomerController.loadLeadsCustomerData,

@@ -456,14 +456,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 else if (snapshot.hasError) {
                   // return Center(child: Text('Error 1: ${snapshot.error}'));
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    showCustomToastDisplay(
-                      context,
-                      snapshot.error.toString(),
-                      Colors.red,
-                      Icons.close,
-                    );
-                  });
+                  // WidgetsBinding.instance.addPostFrameCallback((_) {
+                  //   showCustomToastDisplay(
+                  //     context,
+                  //     snapshot.error.toString(),
+                  //     Colors.red,
+                  //     Icons.close,
+                  //   );
+                  // });
 
                   final responseModel = snapshot.data;
                   final frequentProductLists =

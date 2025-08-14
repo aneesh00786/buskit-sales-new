@@ -1,7 +1,8 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -22,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -100,6 +102,10 @@ class _OptionWidgetState extends State<OptionWidget> {
   int _onlineDraftCount = 0;
   int get _totalDraftCount => _offlineDraftCount + _onlineDraftCount;
 
+  int _onlineUnfilteredDraftCount = 0;
+  int get _totalUnfilteredDraftCount =>
+      _offlineDraftCount + _onlineUnfilteredDraftCount;
+
   // Add: Function to get offline draft count for a customer
   Future<int> getOfflineDraftCount() async {
     try {
@@ -116,10 +122,13 @@ class _OptionWidgetState extends State<OptionWidget> {
   Future<void> _fetchDraftCounts(OrderCountListt? orderCountList) async {
     int offlineCount = await getOfflineDraftCount();
     int onlineCount =
+        orderCountList != null ? (orderCountList.draftFilteredCount ?? 0) : 0;
+    int onlineUnfilteredCount =
         orderCountList != null ? (orderCountList.draftOrder ?? 0) : 0;
     setState(() {
       _offlineDraftCount = offlineCount;
       _onlineDraftCount = onlineCount;
+      _onlineUnfilteredDraftCount = onlineUnfilteredCount;
     });
   }
 
@@ -223,8 +232,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                   context, "No Record Found", red, Icons.close);
             } else {
               provider.fetchOrdersData(OrderStatus.delivered);
-              showOrderStatusDialog(context, provider, OrderStatus.delivered,
-                  _scrollController1, _scrollController2, _scrollController3);
+              showOrderStatusDialog(
+                context,
+                provider,
+                OrderStatus.delivered,
+                _scrollController1,
+                _scrollController2,
+                _scrollController3,
+              );
             }
           },
         ),
@@ -242,14 +257,15 @@ class _OptionWidgetState extends State<OptionWidget> {
             } else {
               provider.fetchOrdersData(OrderStatus.estimates, checkDate: true);
               _showOrderTypeDialog(
-                  context,
-                  provider,
-                  OrderStatus.estimates,
-                  'Estimate',
-                  false,
-                  productsController,
-                  customerOrderController,
-                  widget.homeController);
+                context,
+                provider,
+                OrderStatus.estimates,
+                'Estimate',
+                false,
+                productsController,
+                customerOrderController,
+                widget.homeController,
+              );
             }
           },
           onUnFilterTap: () {
@@ -259,14 +275,15 @@ class _OptionWidgetState extends State<OptionWidget> {
             } else {
               provider.fetchOrdersData(OrderStatus.estimates, checkDate: false);
               _showOrderTypeDialog(
-                  context,
-                  provider,
-                  OrderStatus.estimates,
-                  'Estimate',
-                  false,
-                  productsController,
-                  customerOrderController,
-                  widget.homeController);
+                context,
+                provider,
+                OrderStatus.estimates,
+                'Estimate',
+                false,
+                productsController,
+                customerOrderController,
+                widget.homeController,
+              );
             }
           },
         ),
@@ -285,14 +302,15 @@ class _OptionWidgetState extends State<OptionWidget> {
               } else {
                 provider.fetchOrdersData(OrderStatus.preOrder, checkDate: true);
                 _showOrderTypeDialog(
-                    context,
-                    provider,
-                    OrderStatus.preOrder,
-                    'Booking',
-                    false,
-                    productsController,
-                    customerOrderController,
-                    widget.homeController);
+                  context,
+                  provider,
+                  OrderStatus.preOrder,
+                  'Booking',
+                  false,
+                  productsController,
+                  customerOrderController,
+                  widget.homeController,
+                );
               }
             } else {
               showUpgradePlanDialog(context);
@@ -307,14 +325,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                 provider.fetchOrdersData(OrderStatus.preOrder,
                     checkDate: false);
                 _showOrderTypeDialog(
-                    context,
-                    provider,
-                    OrderStatus.preOrder,
-                    'Booking',
-                    false,
-                    productsController,
-                    customerOrderController,
-                    widget.homeController);
+                  context,
+                  provider,
+                  OrderStatus.preOrder,
+                  'Booking',
+                  false,
+                  productsController,
+                  customerOrderController,
+                  widget.homeController,
+                );
               }
             } else {
               showUpgradePlanDialog(context);
@@ -323,10 +342,10 @@ class _OptionWidgetState extends State<OptionWidget> {
         ),
         OptionData(
           title: 'Drafts',
-          unfilteredCount: 0.toString(),
-          // unfilteredCount: widget.draftCount.toString(),
-          count: widget.draftCount.toString(),
-          // count: widget.draftFilterCount.toString(),
+          // unfilteredCount: 0.toString(),
+          unfilteredCount: widget.draftCount.toString(),
+          // count: widget.draftCount.toString(),
+          count: widget.draftFilterCount.toString(),
           svg: Assets.iconsIcDashboardDraft,
           svgBgColor: const Color.fromARGB(255, 255, 227, 255),
           color: const Color.fromARGB(255, 100, 43, 109),
@@ -339,11 +358,12 @@ class _OptionWidgetState extends State<OptionWidget> {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
+              // Draft filtering handled within the app, not using checkDate
               provider.fetchOrdersData(
                 OrderStatus.draft,
-                // checkDate: true,
+                checkDate: false,
               );
-              _showOrderTypeDialog(
+              _showDraftDialog(
                 context,
                 provider,
                 OrderStatus.draft,
@@ -353,17 +373,25 @@ class _OptionWidgetState extends State<OptionWidget> {
                 customerOrderController,
                 widget.homeController,
                 offlineDraftDetails: offlineDraftDetails,
+                filterNeeded: true,
               );
               CartDatabaseManager().getDraftItems();
             }
           },
           onUnFilterTap: () async {
-            if (orderCountList?.draftOrder.toString() == "0") {
+            var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+            List<dynamic> drafts = offlineDraftsBox
+                .get('drafts', defaultValue: []) as List<dynamic>;
+            List<dynamic> offlineDraftDetails = drafts.toList();
+            if (_totalUnfilteredDraftCount == 0) {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
             } else {
-              provider.fetchOrdersData(OrderStatus.draft, checkDate: false);
-              _showOrderTypeDialog(
+              provider.fetchOrdersData(
+                OrderStatus.draft,
+                checkDate: false,
+              );
+              _showDraftDialog(
                 context,
                 provider,
                 OrderStatus.draft,
@@ -372,6 +400,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                 productsController,
                 customerOrderController,
                 widget.homeController,
+                offlineDraftDetails: offlineDraftDetails,
+                filterNeeded: false,
               );
               CartDatabaseManager().getDraftItems();
             }
@@ -391,14 +421,15 @@ class _OptionWidgetState extends State<OptionWidget> {
             } else {
               provider.fetchOrdersData(OrderStatus.cancelled);
               _showOrderTypeDialog(
-                  context,
-                  provider,
-                  OrderStatus.cancelled,
-                  'Cancelled',
-                  false,
-                  productsController,
-                  customerOrderController,
-                  widget.homeController);
+                context,
+                provider,
+                OrderStatus.cancelled,
+                'Cancelled',
+                false,
+                productsController,
+                customerOrderController,
+                widget.homeController,
+              );
             }
           },
         ),
@@ -542,13 +573,1127 @@ class _OptionWidgetState extends State<OptionWidget> {
       case 'bookings':
         return orderCountList?.preorderOrder.toString() ?? "0";
       case 'drafts':
-        // return orderCountList?.draftOrder.toString() ?? "0";
-        return "0";
+        return _totalUnfilteredDraftCount.toString();
       case 'cancelled':
         return "0";
       default:
         return "0";
     }
+  }
+
+  void _showDraftDialog(
+      BuildContext context,
+      DashboardProvider provider,
+      OrderStatus selectedOrderStatus,
+      String orderType,
+      bool isDraft,
+      ProductsController productsController,
+      CustomerAndOrderController customerOrderController,
+      HomeController? homeController,
+      {List<dynamic>? offlineDraftDetails,
+      bool filterNeeded = false}) {
+    final HomeController homeController2 = Get.put(HomeController());
+    var offlineDraftTotal = (offlineDraftDetails == null
+        ? 0
+        : (offlineDraftDetails.fold<double>(
+            0.0,
+            (sum, order) =>
+                sum + (order['displayData']['displayTotal'] ?? 0.0))));
+
+    log("[OFFLINE DRAFT LIST] : $offlineDraftDetails");
+
+    VoidCallback? onDraftUpdated;
+    if (isDraft) {
+      onDraftUpdated = () async {
+        List<dynamic> freshOfflineDraftDetails = [];
+        try {
+          var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+          List<dynamic> drafts =
+              offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+          freshOfflineDraftDetails = drafts.toList();
+        } catch (e) {
+          print('Error getting fresh offline draft data: $e');
+        }
+
+        if (mounted) {
+          await provider.fetchOrdersData(OrderStatus.draft, checkDate: false);
+          Navigator.of(context, rootNavigator: true).pop();
+          _showDraftDialog(
+            context,
+            provider,
+            selectedOrderStatus,
+            orderType,
+            isDraft,
+            productsController,
+            customerOrderController,
+            homeController,
+            offlineDraftDetails: freshOfflineDraftDetails,
+          );
+        }
+      };
+    }
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: white,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: FutureBuilder<OrderResponse>(
+                        future: provider.orderResponse,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const SizedBox.shrink();
+                          } else if (snapshot.hasError) {
+                            return noDataFoundWidget(orderType);
+                          } else {
+                            final orders = snapshot.data?.data ?? [];
+
+                            final filteredOrdersOg = orders.where((order) {
+                              return order.orderStatus ==
+                                  selectedOrderStatus.type;
+                            }).toList();
+
+                            final filteredOrders = filterNeeded
+                                ? _applyDateFiltering(
+                                    filteredOrdersOg, provider)
+                                : filteredOrdersOg;
+
+                            return LayoutBuilder(
+                              builder: (BuildContext context,
+                                  BoxConstraints constraints) {
+                                double availableWidth = constraints.maxWidth;
+                                double fontSize = availableWidth * 0.017;
+                                double padding = availableWidth / 100;
+                                double fixedIconSize = fontSize;
+                                double flexWidth = availableWidth / 9;
+
+                                return Stack(
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width,
+                                      height: filteredOrders.length < 11
+                                          ? null
+                                          : fullScreenHeight(context) * 0.7,
+                                      child: ScrollbarTheme(
+                                        data: const ScrollbarThemeData(
+                                          minThumbLength: 150,
+                                          thickness: WidgetStatePropertyAll(5),
+                                          thumbColor: WidgetStatePropertyAll(
+                                              Colors.blue),
+                                        ),
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          trackVisibility: true,
+                                          child: SingleChildScrollView(
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 30.0),
+                                                    child: DataTable(
+                                                        dataRowHeight: fontSize *
+                                                            5.5,
+                                                        // horizontalMargin: 5,
+                                                        headingRowHeight: 45,
+                                                        columnSpacing: 10,
+                                                        headingTextStyle:
+                                                            TextStyle(
+                                                                fontSize:
+                                                                    fontSize +
+                                                                        1,
+                                                                color: white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700),
+                                                        columns: [
+                                                          const DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                'Customer List',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                '$orderType No.',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          const DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                'Created',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          const DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                'Created By',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                '$orderType Amount',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          const DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                'Status',
+                                                                maxLines: 2,
+                                                              ),
+                                                            ),
+                                                          )),
+                                                          const DataColumn(
+                                                              label: Expanded(
+                                                            child: Center(
+                                                              child: Text(
+                                                                '',
+                                                              ),
+                                                            ),
+                                                          )),
+                                                        ],
+                                                        rows: [
+                                                          ...(filteredOrders
+                                                                      .isEmpty &&
+                                                                  (offlineDraftDetails ==
+                                                                          null ||
+                                                                      offlineDraftDetails
+                                                                          .isEmpty))
+                                                              ? [
+                                                                  const DataRow(
+                                                                      cells: [
+                                                                        DataCell(
+                                                                            Text('Record Not Found')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                        DataCell(
+                                                                            Text('')),
+                                                                      ])
+                                                                ]
+                                                              : [
+                                                                  ...filteredOrders
+                                                                      .map(
+                                                                          (order) {
+                                                                    final customer = order
+                                                                            .customer
+                                                                            .isNotEmpty
+                                                                        ? order
+                                                                            .customer[0]
+                                                                        : null;
+                                                                    return DataRow(
+                                                                      cells: [
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1.5,
+                                                                            child:
+                                                                                Row(
+                                                                              children: [
+                                                                                ClipOval(
+                                                                                  child: Container(
+                                                                                    height: fixedIconSize * 2,
+                                                                                    width: fixedIconSize * 2,
+                                                                                    color: Colors.grey[200],
+                                                                                    child: Image.network(
+                                                                                      '${ApiConstants.baseUrl1}/uploads/${customer?.imageUrl}',
+                                                                                      fit: BoxFit.cover,
+                                                                                      errorBuilder: (context, error, stackTrace) {
+                                                                                        return Container(
+                                                                                          color: const Color(0xffe6ecff),
+                                                                                          child: Icon(
+                                                                                            Icons.person,
+                                                                                            color: Colors.blue,
+                                                                                            size: fixedIconSize * 2,
+                                                                                          ),
+                                                                                        );
+                                                                                      },
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(width: padding),
+                                                                                Flexible(
+                                                                                  child: Column(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        customer != null ? customer.businessName : 'N/A',
+                                                                                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                      Text(
+                                                                                        customer != null ? customer.mobileNo : 'N/A',
+                                                                                        style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                      Text(
+                                                                                        customer != null ? customer.email : 'N/A',
+                                                                                        style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                InkWell(
+                                                                              onTap: () async {
+                                                                                bool isOnline = await ConnectivityService().isOnline();
+                                                                                if (isOnline) {
+                                                                                  showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: orderType);
+                                                                                } else {
+                                                                                  showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                }
+                                                                              },
+                                                                              child: Center(
+                                                                                child: Text(
+                                                                                  order.orderId,
+                                                                                  style: TextStyle(color: primaryColor, fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Column(
+                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                                    style: TextStyle(
+                                                                                      fontSize: fontSize,
+                                                                                    ),
+                                                                                    maxLines: 1,
+                                                                                    overflow: TextOverflow.ellipsis,
+                                                                                  ),
+                                                                                  Text(
+                                                                                    order.orderCreatedAt != null ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt) : 'N/A',
+                                                                                    style: TextStyle(
+                                                                                      fontSize: fontSize,
+                                                                                    ),
+                                                                                    maxLines: 1,
+                                                                                    overflow: TextOverflow.ellipsis,
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Text(
+                                                                                '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                                                                style: TextStyle(
+                                                                                  fontSize: fontSize,
+                                                                                ),
+                                                                                maxLines: 2,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Text(
+                                                                                formatAmount(order.orderTotal),
+                                                                                maxLines: 1,
+                                                                                style: TextStyle(
+                                                                                  fontSize: fontSize,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                          SizedBox(
+                                                                            width:
+                                                                                flexWidth * 1.1,
+                                                                            child:
+                                                                                Center(
+                                                                              child: Container(
+                                                                                decoration: const BoxDecoration(
+                                                                                  color: Color(0xffffdbb8),
+                                                                                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                                                                                ),
+                                                                                child: Padding(
+                                                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                                                  child: Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: [
+                                                                                      Text(
+                                                                                        getStatusName(order.orderStatus),
+                                                                                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                        textAlign: TextAlign.center,
+                                                                                      ),
+                                                                                      if (order.orderStatus == 2 && order.deliveryDate != null) ...[
+                                                                                        Text(
+                                                                                          NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                          textAlign: TextAlign.center,
+                                                                                          maxLines: 2,
+                                                                                          style: const TextStyle(
+                                                                                            fontSize: 10.0,
+                                                                                            fontWeight: FontWeight.w400,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                      if (order.orderStatus == 14) ...[
+                                                                                        const SizedBox(height: 5),
+                                                                                        Row(
+                                                                                          children: [
+                                                                                            Expanded(
+                                                                                              child: Container(
+                                                                                                  color: Colors.blue,
+                                                                                                  child: const Center(
+                                                                                                    child: Text(
+                                                                                                      'Quick Sale',
+                                                                                                      style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
+                                                                                                    ),
+                                                                                                  )),
+                                                                                            ),
+                                                                                          ],
+                                                                                        )
+                                                                                      ]
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        DataCell(
+                                                                            SizedBox(
+                                                                          width:
+                                                                              flexWidth * 0.5,
+                                                                          child: IconButton(
+                                                                              onPressed: () async {
+                                                                                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                                productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                                productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                                                productsController.selectedCustomerEmail.value = customer?.email ?? '';
+                                                                                customerOrderController.customerId.value = customer?.customerId ?? '';
+                                                                                customerOrderController.customerId.value = customer?.customerId ?? '';
+                                                                                if (orderType == 'Draft') {
+                                                                                  showDialog(
+                                                                                    barrierDismissible: false,
+                                                                                    context: context,
+                                                                                    builder: (BuildContext context) {
+                                                                                      return CartDialogue(
+                                                                                        active: true,
+                                                                                        cartItemCount: cartProvider.cartItemCount,
+                                                                                        productsController: productsController,
+                                                                                        customerOrderController: customerOrderController,
+                                                                                        isDashboard: true,
+                                                                                        customerId: customer?.customerId ?? '',
+                                                                                        onContinueShopping: () {
+                                                                                          Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                            _initializeCustomerData(customer?.customerId ?? '', customer?.businessName ?? '', customer?.imageUrl ?? '', productsController, customerOrderController);
+                                                                                            widget.homeController?.sidebarXController.selectIndex(2);
+                                                                                            widget.homeController?.selectedIndex.value = 2;
+                                                                                            Get.to(
+                                                                                                () => OrderTaking(
+                                                                                                      productsController: productsController,
+                                                                                                    ),
+                                                                                                id: 2);
+                                                                                          });
+                                                                                        },
+                                                                                        onDraftUpdated: onDraftUpdated,
+                                                                                      );
+                                                                                    },
+                                                                                  );
+                                                                                } else {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    if (orderType != 'Booking' && orderType != 'Estimate') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                                                    }
+                                                                                    if (orderType == 'Booking') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'BOOKING');
+                                                                                    }
+                                                                                    if (orderType == 'Estimate') {
+                                                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: 'ESTIMATE');
+                                                                                    }
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              icon: const Icon(
+                                                                                Icons.visibility,
+                                                                                size: 15,
+                                                                                color: primaryColor,
+                                                                              )),
+                                                                        )),
+                                                                      ],
+                                                                    );
+                                                                  }),
+                                                                  // --- OFFLINE DRAFTS ---
+                                                                  if (offlineDraftDetails !=
+                                                                          null &&
+                                                                      offlineDraftDetails
+                                                                          .isNotEmpty)
+                                                                    ...offlineDraftDetails
+                                                                        .map(
+                                                                            (draft) {
+                                                                      // final orderId =
+                                                                      //     '';
+                                                                      final orderId = draft['order_id']
+                                                                              .toString()
+                                                                              .startsWith('DRAFT')
+                                                                          ? draft['order_id']
+                                                                          : '';
+                                                                      // final orderId =
+                                                                      //     draft['order_id'] ??
+                                                                      //         'dummy_order_id';
+
+                                                                      final customerId =
+                                                                          draft['displayData']['customerId'] ??
+                                                                              'dummy_customerName';
+                                                                      final customerName =
+                                                                          draft['displayData']['customerName'] ??
+                                                                              'dummy_customerName';
+                                                                      final customerMobile =
+                                                                          draft['displayData']['mobileNo'] ??
+                                                                              'dummy_mobile';
+                                                                      final customerEmail =
+                                                                          draft['displayData']['email'] ??
+                                                                              'dummy_email';
+                                                                      final createdDate =
+                                                                          draft['displayData']['createdDate'] ??
+                                                                              'dummy_createdDate';
+                                                                      final displayTotal =
+                                                                          draft['displayData']['displayTotal'] ??
+                                                                              'dummy_total';
+                                                                      return DataRow(
+                                                                        cells: [
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 1.5,
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  ClipOval(
+                                                                                    child: Container(
+                                                                                      height: fixedIconSize * 2,
+                                                                                      width: fixedIconSize * 2,
+                                                                                      color: Colors.grey[200],
+                                                                                      child: Image.network(
+                                                                                        // '${ApiConstants.baseUrl1}/uploads/${customer?.imageUrl}',
+                                                                                        '',
+                                                                                        fit: BoxFit.cover,
+                                                                                        errorBuilder: (context, error, stackTrace) {
+                                                                                          return Container(
+                                                                                            color: const Color(0xffe6ecff),
+                                                                                            child: Icon(
+                                                                                              Icons.person,
+                                                                                              color: Colors.blue,
+                                                                                              size: fixedIconSize * 2,
+                                                                                            ),
+                                                                                          );
+                                                                                        },
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  SizedBox(width: padding),
+                                                                                  Flexible(
+                                                                                    child: Column(
+                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          customerName,
+                                                                                          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                                                                                          maxLines: 1,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          customerMobile,
+                                                                                          style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.bold),
+                                                                                          maxLines: 1,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          customerEmail,
+                                                                                          style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                          maxLines: 1,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                        // Text(
+                                                                                        //   'N/A',
+                                                                                        //   style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
+                                                                                        //   maxLines: 1,
+                                                                                        //   overflow: TextOverflow.ellipsis,
+                                                                                        // ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          ), // Customer List (dummy)
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 0.9,
+                                                                              child: InkWell(
+                                                                                onTap: () async {
+                                                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                                                  if (isOnline) {
+                                                                                    showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                                                  } else {
+                                                                                    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                                                  }
+                                                                                },
+                                                                                child: Center(
+                                                                                  child: Text(
+                                                                                    orderId,
+                                                                                    style: TextStyle(color: primaryColor, fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 1,
+                                                                              child: Center(
+                                                                                child: Text(
+                                                                                  createdDate != null ? getFormattedOrderCreatAt(createdDate.toString()) : 'N/A',
+                                                                                  style: TextStyle(fontSize: fontSize),
+                                                                                  maxLines: 1,
+                                                                                  overflow: TextOverflow.ellipsis,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 1,
+                                                                              child: Center(
+                                                                                child: Text(
+                                                                                  'ADMIN',
+                                                                                  style: TextStyle(fontSize: fontSize),
+                                                                                  maxLines: 2,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 1,
+                                                                              child: Center(
+                                                                                child: Text(
+                                                                                  formatAmount(displayTotal),
+                                                                                  maxLines: 1,
+                                                                                  style: TextStyle(fontSize: fontSize),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 1.1,
+                                                                              child: Center(
+                                                                                child: Container(
+                                                                                  decoration: const BoxDecoration(
+                                                                                    color: Color.fromARGB(255, 255, 183, 134),
+                                                                                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                                                                                  ),
+                                                                                  child: Padding(
+                                                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                                                    child: Column(
+                                                                                      mainAxisSize: MainAxisSize.min,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          "Offline",
+                                                                                          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                          textAlign: TextAlign.center,
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          DataCell(
+                                                                            SizedBox(
+                                                                              width: flexWidth * 0.5,
+                                                                              child: IconButton(
+                                                                                onPressed: () {
+                                                                                  if (orderType == 'Draft') {
+                                                                                    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                    productsController.selectedCustomerId.value = customerId;
+                                                                                    productsController.selectedCustomerName.value = customerName;
+                                                                                    productsController.selectedCustomerMobileNo.value = customerMobile;
+                                                                                    productsController.selectedCustomerEmail.value = customerEmail;
+                                                                                    showDialog(
+                                                                                      context: context,
+                                                                                      builder: (BuildContext context) {
+                                                                                        return CartDialogue(
+                                                                                          active: true,
+                                                                                          cartItemCount: cartProvider.cartItemCount,
+                                                                                          productsController: productsController,
+                                                                                          customerOrderController: customerOrderController,
+                                                                                          isDashboard: true,
+                                                                                          customerId: customerId,
+                                                                                          onContinueShopping: () {
+                                                                                            Future.delayed(const Duration(milliseconds: 300), () {
+                                                                                              _initializeCustomerData(customerId, customerName, customerEmail, productsController, customerOrderController);
+                                                                                              homeController2.sidebarXController.selectIndex(2);
+                                                                                              homeController2.selectedIndex.value = 2;
+                                                                                              Get.to(
+                                                                                                  () => OrderTaking(
+                                                                                                        productsController: productsController,
+                                                                                                        selectedCustId: customerId ?? '',
+                                                                                                      ),
+                                                                                                  id: 2);
+                                                                                            });
+                                                                                          },
+                                                                                          onDraftUpdated: onDraftUpdated, // Pass the callback
+                                                                                        );
+                                                                                      },
+                                                                                    );
+                                                                                  }
+                                                                                },
+                                                                                icon: const Icon(
+                                                                                  Icons.visibility,
+                                                                                  size: 15,
+                                                                                  color: primaryColor,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    }),
+                                                                ]
+                                                        ]),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: DataTable(
+                                              dataRowHeight: 0,
+                                              headingRowHeight: 45,
+                                              headingRowColor:
+                                                  const WidgetStatePropertyAll(
+                                                      primaryColor),
+                                              columnSpacing: 10,
+                                              headingTextStyle: TextStyle(
+                                                  fontSize: fontSize + 1,
+                                                  color: white,
+                                                  fontWeight: FontWeight.w700),
+                                              columns: [
+                                                const DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Customer List',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      '$orderType No.',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                const DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Created',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                const DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Created By',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      '$orderType Amount',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                const DataColumn(
+                                                    label: Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Status',
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                )),
+                                                DataColumn(
+                                                    label: Expanded(
+                                                  child: SizedBox(
+                                                      width: flexWidth * 0.5),
+                                                )),
+                                              ],
+                                              rows: [
+                                                DataRow(
+                                                  cells: [
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width:
+                                                              flexWidth * 1.5),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width:
+                                                              flexWidth * 0.9),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width: flexWidth * 1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width:
+                                                              flexWidth * 1.1),
+                                                    ),
+                                                    DataCell(
+                                                      SizedBox(
+                                                          width:
+                                                              flexWidth * 0.5),
+                                                    ),
+                                                  ],
+                                                )
+                                              ]),
+                                        ),
+                                      ],
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: DataTable(
+                                                dataRowHeight: 0,
+                                                headingRowHeight: 30,
+                                                headingRowColor:
+                                                    const WidgetStatePropertyAll(
+                                                        primaryColor),
+                                                columnSpacing: 10,
+                                                headingTextStyle: TextStyle(
+                                                    fontSize: fontSize + 2,
+                                                    color: white,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                                columns: [
+                                                  const DataColumn(
+                                                      label: Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: Text(
+                                                        'Total',
+                                                        maxLines: 2,
+                                                      ),
+                                                    ),
+                                                  )),
+                                                  const DataColumn(
+                                                      label: Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: Text(
+                                                        '',
+                                                        maxLines: 2,
+                                                      ),
+                                                    ),
+                                                  )),
+                                                  DataColumn(
+                                                      label: Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        formatAmount(filteredOrders.fold<
+                                                                    double>(
+                                                                0.0,
+                                                                (sum, order) =>
+                                                                    sum +
+                                                                    (order.orderTotal ??
+                                                                        0.0)) +
+                                                            offlineDraftTotal),
+                                                        maxLines: 2,
+                                                      ),
+                                                    ),
+                                                  )),
+                                                ],
+                                                rows: [
+                                                  DataRow(
+                                                    cells: [
+                                                      DataCell(
+                                                        SizedBox(
+                                                            width: flexWidth *
+                                                                4.8),
+                                                      ),
+                                                      DataCell(
+                                                        SizedBox(
+                                                            width: flexWidth *
+                                                                0.4),
+                                                      ),
+                                                      DataCell(
+                                                        SizedBox(
+                                                            width:
+                                                                flexWidth * 4),
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: SizedBox(
+                                        height: 45,
+                                        width: 45,
+                                        child: Center(
+                                            child: dialogCloseButton1(
+                                                context, red)),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Helper method to apply date filtering based on provider's filter settings
+  List<OrdersDash> _applyDateFiltering(
+      List<OrdersDash> orders, DashboardProvider provider) {
+    if (orders.isEmpty) {
+      debugPrint("[Filter] Orders list is empty before filtering.");
+      return orders;
+    }
+
+    debugPrint("==================================================");
+    debugPrint("[Filter] Orders BEFORE filtering: count = ${orders.length}");
+    debugPrint(
+        "[Filter] Orders BEFORE filtering (sample): ${orders.take(5).map((o) => o.orderCreatedAt).toList()}");
+
+    debugPrint("[Filter] Selected Filter: ${provider.selectedFilter}");
+
+    List<OrdersDash> filteredOrders = [];
+
+    switch (provider.selectedFilter) {
+      case FilterDateEnum.today:
+        debugPrint("[Filter] Selected Date: ${provider.selectedDate}");
+        if (provider.selectedDate.isNotEmpty) {
+          final selectedDate = DateTime.parse(provider.selectedDate);
+          final today =
+              DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+          filteredOrders = orders.where((order) {
+            if (order.orderCreatedAt == null) return false;
+            final orderDate = DateTime.parse(order.orderCreatedAt.toString());
+            final orderDay =
+                DateTime(orderDate.year, orderDate.month, orderDate.day);
+            return orderDay.isAtSameMomentAs(today);
+          }).toList();
+        } else {
+          filteredOrders = orders;
+        }
+        break;
+
+      case FilterDateEnum.thisWeek:
+        debugPrint("[Filter] Selected Weeks: ${provider.selectedFilterWeeks}");
+        if (provider.selectedFilterWeeks.isNotEmpty) {
+          filteredOrders = orders.where((order) {
+            if (order.orderCreatedAt == null) return false;
+            final orderDate = DateTime.parse(order.orderCreatedAt.toString());
+
+            final weekNumber = ((orderDate
+                        .difference(DateTime(orderDate.year, 1, 1))
+                        .inDays) ~/
+                    7) +
+                1;
+
+            final weekName = "week$weekNumber";
+            return provider.selectedFilterWeeks.contains(weekName);
+          }).toList();
+        } else {
+          filteredOrders = orders;
+        }
+        break;
+
+      case FilterDateEnum.thisMonth:
+        debugPrint(
+            "[Filter] Selected Months: ${provider.selectedFilterMonths}");
+        if (provider.selectedFilterMonths.isNotEmpty) {
+          filteredOrders = orders.where((order) {
+            if (order.orderCreatedAt == null) return false;
+            final orderDate = DateTime.parse(order.orderCreatedAt.toString());
+            final monthNames = [
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December'
+            ];
+            final orderMonthName = monthNames[orderDate.month - 1];
+            return provider.selectedFilterMonths.contains(orderMonthName);
+          }).toList();
+        } else {
+          filteredOrders = orders;
+        }
+        break;
+
+      case FilterDateEnum.thisYear:
+        debugPrint("[Filter] Selected Year: ${provider.selectedYear}");
+        final selectedYear = provider.selectedYear;
+        filteredOrders = orders.where((order) {
+          if (order.orderCreatedAt == null) return false;
+          final orderDate = DateTime.parse(order.orderCreatedAt.toString());
+          return orderDate.year == selectedYear;
+        }).toList();
+        break;
+
+      case FilterDateEnum.range:
+        debugPrint(
+            "[Filter] Selected Range: ${provider.selectedStartDate} → ${provider.selectedEndDate}");
+        if (provider.selectedStartDate.isNotEmpty &&
+            provider.selectedEndDate.isNotEmpty) {
+          final startDate = DateTime.parse(provider.selectedStartDate);
+          final endDate = DateTime.parse(provider.selectedEndDate);
+          filteredOrders = orders.where((order) {
+            if (order.orderCreatedAt == null) return false;
+            final orderDate = DateTime.parse(order.orderCreatedAt.toString());
+            return orderDate
+                    .isAfter(startDate.subtract(const Duration(days: 1))) &&
+                orderDate.isBefore(endDate.add(const Duration(days: 1)));
+          }).toList();
+        } else {
+          filteredOrders = orders;
+        }
+        break;
+    }
+
+    debugPrint(
+        "[Filter] Orders AFTER filtering: count = ${filteredOrders.length}");
+    debugPrint(
+        "[Filter] Orders AFTER filtering (sample): ${filteredOrders.take(5).map((o) => o.orderCreatedAt).toList()}");
+    debugPrint("==================================================");
+
+    return filteredOrders;
   }
 
   void _showOrderTypeDialog(

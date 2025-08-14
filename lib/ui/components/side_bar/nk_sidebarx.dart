@@ -181,7 +181,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                               isLogin: true);
                           await dashboardProvider.fetchOrdersData(
                               OrderStatus.draft,
-                              checkDate: true,
                               isLogin: true);
                           await dashboardProvider.fetchOrdersData(
                               OrderStatus.cancelled,

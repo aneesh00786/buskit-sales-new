@@ -19,8 +19,6 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'dash_models.dart';
 
-
-
 class DashboardProvider with ChangeNotifier {
   Future<ResponseModell>? _futureResponseModel;
   Future<SalesmenResponse>? _salesmenResponse;
@@ -255,7 +253,8 @@ class DashboardProvider with ChangeNotifier {
   SalesmanChat? selectedChat;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
 
-  Future<void> fetchOrdersData(OrderStatus s, {bool isLogin = false, bool checkDate = false}) async {
+  Future<void> fetchOrdersData(OrderStatus s,
+      {bool isLogin = false, bool checkDate = false}) async {
     try {
       Object orderType;
 
@@ -353,7 +352,7 @@ class DashboardProvider with ChangeNotifier {
     notifyListeners();
   }
 
-    Future<void> fetchAllOrdersAtOnce() async {
+  Future<void> fetchAllOrdersAtOnce() async {
     log("fetchAllOrdersAtOnce");
     await fetchOrdersData(OrderStatus.estimates, checkDate: true);
     await fetchOrdersData(OrderStatus.delivered, checkDate: true);

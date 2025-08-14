@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:intl/intl.dart';
 
 class Category {
@@ -1995,7 +1996,6 @@ class OrdersDash {
     required this.cart,
     required this.customer,
     required this.invoice,
-    // this.receivableAmount,
   });
   OrdersDash copyWith({
     int? id,
@@ -2021,7 +2021,6 @@ class OrdersDash {
     List<Cart>? cart,
     List<CustomerDash>? customer,
     List<InvoiceDash>? invoice,
-    // int? receivableAmount,
   }) {
     return OrdersDash(
       id: id ?? this.id,
@@ -2047,7 +2046,6 @@ class OrdersDash {
       cart: cart ?? this.cart,
       customer: customer ?? this.customer,
       invoice: invoice ?? this.invoice,
-      // receivableAmount: receivableAmount ?? this.receivableAmount,
     );
   }
 
@@ -2074,15 +2072,14 @@ class OrdersDash {
       fullname: json['fullname'] ?? '',
       lastname: json['lastname'] ?? '',
       cart: (json['cart'] as List? ?? [])
-          .map((item) => Cart.fromJson(item))
+          .map((item) => Cart.fromJson(ensureStringKeyedMap(item)))
           .toList(),
       customer: (json['customer'] as List? ?? [])
-          .map((item) => CustomerDash.fromJson(item))
+          .map((item) => CustomerDash.fromJson(ensureStringKeyedMap(item)))
           .toList(),
       invoice: (json['invoice'] as List? ?? [])
-          .map((item) => InvoiceDash.fromJson(item))
+          .map((item) => InvoiceDash.fromJson(ensureStringKeyedMap(item)))
           .toList(),
-      // receivableAmount: json['receivable_amount'] ?? 0,
     );
   }
   static DateTime _parseDateTime(String? dateString) {
@@ -2090,9 +2087,10 @@ class OrdersDash {
       if (dateString != null && dateString.isNotEmpty) {
         return DateTime.parse(dateString);
       }
-      // ignore: empty_catches
-    } catch (e) {}
-    return DateTime(1970, 1, 1); // Default fallback date
+    } catch (e) {
+      print('Failed to parse date: $dateString, error: $e');
+    }
+    return DateTime(1970, 1, 1);
   }
 
   static DateTime? _parseNullableDateTime(String? dateString) {
@@ -2100,9 +2098,10 @@ class OrdersDash {
       if (dateString != null && dateString.isNotEmpty) {
         return DateTime.parse(dateString);
       }
-      // ignore: empty_catches
-    } catch (e) {}
-    return null; // Default fallback for nullable dates
+    } catch (e) {
+      print('Failed to parse nullable date: $dateString, error: $e');
+    }
+    return null;
   }
 }
 

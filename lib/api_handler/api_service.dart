@@ -1886,8 +1886,18 @@ class ApiService {
         final dashboardBox = Hive.box('dashboardBox');
         final cachedDashboardData = dashboardBox.get('dashboardData');
         if (cachedDashboardData != null) {
-          final dashboardMap =
-              Map<String, dynamic>.from(jsonDecode(cachedDashboardData));
+          // Handle both string and Map formats safely
+          Map<String, dynamic> dashboardMap;
+          if (cachedDashboardData is String) {
+            dashboardMap =
+                Map<String, dynamic>.from(jsonDecode(cachedDashboardData));
+          } else if (cachedDashboardData is Map) {
+            dashboardMap = ensureStringKeyedMap(cachedDashboardData);
+          } else {
+            log('[Z2] Unexpected dashboard data type: ${cachedDashboardData.runtimeType}');
+            return;
+          }
+
           final orderCountList = dashboardMap['data']?['order_count_list']
               as Map<String, dynamic>?;
           if (orderCountList != null) {
@@ -1896,7 +1906,13 @@ class ApiService {
             final newDraftCount =
                 (currentDraftCount - 1).clamp(0, double.infinity).toInt();
             orderCountList['draft_order'] = newDraftCount.toString();
-            await dashboardBox.put('dashboardData', jsonEncode(dashboardMap));
+
+            // Store back in the same format as retrieved
+            if (cachedDashboardData is String) {
+              await dashboardBox.put('dashboardData', jsonEncode(dashboardMap));
+            } else {
+              await dashboardBox.put('dashboardData', dashboardMap);
+            }
             log('[Z2] Updated dashboardBox draft_order → $newDraftCount');
           }
         }
@@ -1930,4 +1946,32 @@ class ApiService {
     }
     return null;
   }
+}
+
+// Utility function to ensure cached data is a Map<String, dynamic>
+Map<String, dynamic> ensureStringKeyedMap(dynamic data) {
+  if (data is Map<String, dynamic>) return data;
+  if (data is Map) {
+    final result = <String, dynamic>{};
+    data.forEach((key, value) {
+      final newKey = key is String ? key : key.toString();
+      if (value is Map) {
+        result[newKey] = ensureStringKeyedMap(value);
+      } else if (value is List) {
+        result[newKey] =
+            value.map((e) => e is Map ? ensureStringKeyedMap(e) : e).toList();
+      } else {
+        result[newKey] = value;
+      }
+    });
+    return result;
+  }
+  if (data is String) {
+    final decoded = jsonDecode(data);
+    if (decoded is Map) {
+      return ensureStringKeyedMap(decoded);
+    }
+    return Map<String, dynamic>.from(decoded);
+  }
+  throw Exception('Unsupported cached data format: ${data.runtimeType}');
 }

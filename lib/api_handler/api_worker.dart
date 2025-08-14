@@ -391,45 +391,77 @@ class ApiWorker with ApiConstants {
         'topBarData_${companyId}_${salesmanId}_${year}_${monthName}_$tabStatus';
     final box = Hive.box('topBarDataBox');
 
-    // Check cache first
-    final cachedData = box.get(cacheKey);
-    if (cachedData != null) {
-      try {
-        return Map<String, dynamic>.from(cachedData);
-      } catch (e) {
-        log('Cache parse error for $cacheKey: $e');
-      }
-    }
+    bool isOnline = await ConnectivityService().isOnline();
 
-    try {
-      final requestPayload = {
-        "companyId": companyId,
-        "salesman_id": salesmanId,
-        "year": year,
-        "month": monthName,
-        "status_of_tile": tabStatus,
-      };
-      Response response = await responsePostMethod(
-          requestData: requestPayload,
-          endPoint: ApiConstants.salesmanDashNavContent);
-      if (response.statusCode == 200) {
-        // Cache the response
-        await box.put(cacheKey, response.data);
-        return response.data as Map<String, dynamic>;
-      } else {
+    if (isOnline) {
+      try {
+        final requestPayload = {
+          "companyId": companyId,
+          "salesman_id": salesmanId,
+          "year": year,
+          "month": monthName,
+          "status_of_tile": tabStatus,
+        };
+        log("fetchSalesmanTopBarData request $requestPayload");
+        Response response = await responsePostMethod(
+            requestData: requestPayload,
+            endPoint: ApiConstants.salesmanDashNavContent);
+
+        if (response.statusCode == 200) {
+          final data = Map<String, dynamic>.from(response.data as Map);
+          await box.put(cacheKey, data); // store clean map
+          return data;
+        } else {
+          handleExceptionMessage(
+              response: response, apiName: "salesman dash nav content");
+          // Try to get cached data on API error
+          final cachedData = box.get(cacheKey);
+          if (cachedData != null) {
+            try {
+              return Map<String, dynamic>.from(
+                LocalStorage().castToStringDynamic(cachedData),
+              );
+            } catch (e) {
+              log('Cache parse error for $cacheKey: $e');
+            }
+          }
+          return null;
+        }
+      } on DioException catch (error) {
         handleExceptionMessage(
-            response: response, apiName: "salesman dash nav content");
+            response: error.response,
+            apiName: "salesman dash nav content",
+            error: error);
+        // Try to get cached data on network error
+        final cachedData = box.get(cacheKey);
+        if (cachedData != null) {
+          try {
+            return Map<String, dynamic>.from(
+              LocalStorage().castToStringDynamic(cachedData),
+            );
+          } catch (e) {
+            log('Cache parse error for $cacheKey: $e');
+          }
+        }
         return null;
       }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response,
-          apiName: "salesman dash nav content",
-          error: error);
-      return null;
-    } catch (e) {
-      log("Unexpected Error: $e");
-      return null;
+    } else {
+      // Offline - fetch from cache
+      log('No internet. Fetching top bar data from Hive...');
+      final cachedData = box.get(cacheKey);
+      if (cachedData != null) {
+        try {
+          return Map<String, dynamic>.from(
+            LocalStorage().castToStringDynamic(cachedData),
+          );
+        } catch (e) {
+          log('Cache parse error for $cacheKey: $e');
+          return null;
+        }
+      } else {
+        log('No cached data available for top bar data');
+        return null;
+      }
     }
   }
 
@@ -484,8 +516,7 @@ class ApiWorker with ApiConstants {
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
       if (!isOnline) {
-        log(
-            'No internet connection. Please check your network and try again.');
+        log('No internet connection. Please check your network and try again.');
         return Future.error('No internet connection');
       } else {
         final response = await responsePostMethod(

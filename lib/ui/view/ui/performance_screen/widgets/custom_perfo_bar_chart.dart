@@ -105,9 +105,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                 : widget.categoryPerformance.isEmpty)
             ? const SizedBox(
                 height: 200,
-                child: Center(
-                  child: NodataWidget()
-                ),
+                child: Center(child: NodataWidget()),
               )
             : Column(
                 children: [

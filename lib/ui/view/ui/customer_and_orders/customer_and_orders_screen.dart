@@ -2824,8 +2824,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .businessName,
                                                             cusImage: customer
                                                                 .imageUrl,
-                                                            cusEmail: customer
-                                                                .email,
+                                                            cusEmail:
+                                                                customer.email,
                                                             cusMobile: customer
                                                                 .mobileno,
                                                             productsController:
@@ -2836,7 +2836,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     }
                                                     showCustomToastDisplay(
                                                         context,
-                                                        "NEW TEST 1",
+                                                        "NEW TEST 2",
                                                         Colors.deepOrange,
                                                         Icons.warning);
                                                   } else {

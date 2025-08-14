@@ -131,7 +131,7 @@ class StaffController extends GetxController {
         log("No data returned from the API.");
       }
     } catch (e) {
-      log("Error: $e");
+      log("Error 2: $e");
     } finally {
       isTopDataLoading.value = false;
     }
@@ -190,6 +190,7 @@ class StaffController extends GetxController {
 
     return data;
   }
+
   Future<Iterable<CustomerAndOrderData>> loadCustomer(String? id) async {
     log("SALESMAN ${selectedStaff.value.salesmanId}");
     log("StartDate ${searchModel.startDate}");
@@ -198,6 +199,7 @@ class StaffController extends GetxController {
     refresh();
     return data.custAndOrderdata!;
   }
+
   Future<List<OrderData>> loadOrderData(String? id) async {
     var data = await _apiWorker.getOrdersData(
         salesmanId: id,
@@ -363,7 +365,8 @@ class StaffController extends GetxController {
       rethrow;
     }
   }
-    Future<void> changePassword({
+
+  Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
     required String confirmPassword,
@@ -377,9 +380,10 @@ class StaffController extends GetxController {
         confirmPassword: confirmPassword,
       );
       Get.snackbar(
-        colorText: white,
-        backgroundColor: Colors.green,
-        "Success", "Password changed successfully");
+          colorText: white,
+          backgroundColor: Colors.green,
+          "Success",
+          "Password changed successfully");
     } catch (e) {
       log("Error from controller: $e");
       Get.snackbar("Error", "Something went wrong");

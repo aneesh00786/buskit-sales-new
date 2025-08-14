@@ -85,7 +85,8 @@ class ApiService {
     try {
       bool isOnline = await _connectivityService.isOnline();
       if (!isOnline) {
-        errorSnackbar('No Internet Connection. Please check your network');
+        NkCommonFunction.showErrorSnakBar(
+            'No Internet Connection. Please check your network');
         final cachedDataString = dashboardBox.get('dashboardData');
         log('Dashboard Cached data : $cachedDataString');
         if (cachedDataString == null) {

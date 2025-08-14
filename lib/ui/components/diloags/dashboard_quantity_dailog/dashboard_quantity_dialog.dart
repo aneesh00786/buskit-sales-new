@@ -2,13 +2,14 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +89,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
                                 highlightColor: Colors.transparent,
                                 splashFactory: NoSplash.splashFactory,
                                 onTap: () {
-                                  navigateTo(25.022702, 45.052659);
+                                  navigateTo(25.022702, 45.052659, context);
                                 },
                                 child: Row(
                                   mainAxisAlignment:
@@ -116,7 +117,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
     });
   }
 
-  static void navigateTo(double lat, double lng) async {
+  static void navigateTo(double lat, double lng, BuildContext context) async {
     bool isOnline = await ConnectivityService().isOnline();
     if (isOnline) {
       const String homeLat = "37.3230";
@@ -127,8 +128,7 @@ class _DashBoardQuantityDialogState extends State<DashBoardQuantityDialog> {
       var uri = Uri.parse(encodedURl);
       await launchUrl(uri);
     } else {
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Please check your network');
+      showCustomToastDisplay(context, "You are Offline!",red, Icons.warning);
     }
   }
 

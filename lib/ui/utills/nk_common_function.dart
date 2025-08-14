@@ -38,6 +38,7 @@ abstract class NkCommonFunction {
         child: MyRegularText(
           color: buttonTextColor,
           label: message,
+          fontWeight: FontWeight.bold,
         ),
       ),
       message: message,

@@ -1,6 +1,8 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/dashboard_middle_widget.dart';
@@ -26,6 +28,15 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   void initState() {
     super.initState();
     calenderMapController.requestLocationPermission();
+    showOfflineMsg();
+  }
+
+  void showOfflineMsg() async {
+    bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      NkCommonFunction.showErrorSnakBar(
+          'No Internet Connection. Please check your network');
+    }
   }
 
   @override

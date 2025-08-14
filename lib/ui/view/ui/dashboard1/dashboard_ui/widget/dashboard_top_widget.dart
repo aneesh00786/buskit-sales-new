@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -16,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/components/option/option_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_theme_button.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -179,7 +181,15 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                                 left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
                             child: DropdownButton<FilterDateEnum>(
                               value: provider.selectedFilterTemp,
-                              onChanged: (newValue) {
+                              onChanged: (newValue) async {
+                                bool isOnline =
+                                    await ConnectivityService().isOnline();
+                                if (!isOnline) {
+                                  showCustomToastDisplay(context,
+                                      "You are Offline!", red, Icons.close);
+                                  return;
+                                }
+
                                 if (newValue != null) {
                                   provider.onFilterChanged(newValue);
                                 }

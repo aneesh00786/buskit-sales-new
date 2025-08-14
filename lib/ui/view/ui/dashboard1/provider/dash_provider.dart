@@ -305,25 +305,24 @@ class DashboardProvider with ChangeNotifier {
   }
 
   void onFilterChanged(FilterDateEnum? selectedFilterTemp) async {
-    bool isOnline = await ConnectivityService().isOnline();
     switch (selectedFilterTemp) {
       case FilterDateEnum.today:
-        selectedFilters(isOnline, "Day");
+        _selectedFilterNameTemp = "Day";
         break;
       case FilterDateEnum.thisWeek:
-        selectedFilters(isOnline, "Week");
+        _selectedFilterNameTemp = "Week";
         break;
       case FilterDateEnum.thisYear:
-        selectedFilters(isOnline, "Year");
+        _selectedFilterNameTemp = "Year";
         break;
       case FilterDateEnum.thisMonth:
-        selectedFilters(isOnline, "Month");
+        _selectedFilterNameTemp = "Month";
         break;
       case FilterDateEnum.range:
-        selectedFilters(isOnline, "Range");
+        _selectedFilterNameTemp = "Range";
         break;
       default:
-        selectedFilters(isOnline, "Month");
+        _selectedFilterNameTemp = "Month";
         break;
     }
 
@@ -331,15 +330,6 @@ class DashboardProvider with ChangeNotifier {
     if (selectedFilterTemp != null) {
       _selectedFilterTemp = selectedFilterTemp;
       notifyListeners();
-    }
-  }
-
-  selectedFilters(bool isOnline, String filterName) {
-    if (isOnline) {
-      _selectedFilterNameTemp = filterName;
-    } else {
-      NkCommonFunction.showErrorSnakBar(
-          'No internet connection. Please check your network');
     }
   }
 

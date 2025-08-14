@@ -1475,14 +1475,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
     );
   }
 
-  // Update _showOrderTypeDialog to accept offlineDraftDetails
   void _showOrderTypeDialog(
     BuildContext context,
     CustomersProvider provider,
     OrderStatus selectedOrderStatus,
     String orderType, {
     VoidCallback? onContinueShopping,
-    List<dynamic>? offlineDraftDetails, // <-- new argument
+    List<dynamic>? offlineDraftDetails,
   }) {
     var offlineDraftTotal = (offlineDraftDetails == null
         ? 0
@@ -1491,14 +1490,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
             (sum, order) =>
                 sum + (order['displayData']['displayTotal'] ?? 0.0))));
 
-    // Add callback to refresh the entire dialog when cart dialog closes
     VoidCallback? onDraftUpdated;
     if (orderType == 'Draft') {
       onDraftUpdated = () async {
-        // Refresh draft counts
-        // await _fetchDraftCounts(provider.countFuture.);
-
-        // Fetch fresh offline draft data
         List<dynamic> freshOfflineDraftDetails = [];
         try {
           var offlineDraftsBox = await Hive.openBox('offlineDrafts');
@@ -1509,14 +1503,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           print('Error getting fresh offline draft data: $e');
         }
 
-        // Close the current dialog and reopen it with fresh data
         if (mounted) {
           await provider.fetchOrdersForCustomDash(
             OrderStatus.draft,
             widget.customerId,
           );
           Navigator.of(context, rootNavigator: true).pop();
-          // Reopen the dialog with fresh data including updated offline drafts
           _showOrderTypeDialog(context, provider, OrderStatus.draft, 'Draft',
               onContinueShopping: widget.onContinueShopping,
               offlineDraftDetails: freshOfflineDraftDetails);
@@ -1941,16 +1933,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   ...offlineDraftDetails
                                                                       .map(
                                                                     (draft) {
-                                                                      // final orderId =
-                                                                      //     '';
                                                                       final orderId = draft['order_id']
                                                                               .toString()
                                                                               .startsWith('DRAFT')
                                                                           ? draft['order_id']
                                                                           : '';
-                                                                      // final orderId =
-                                                                      //     draft['order_id'] ??
-                                                                      //         'dummy_order_id';
 
                                                                       final customerName =
                                                                           draft['displayData']['customerName'] ??
@@ -2006,19 +1993,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                           maxLines: 1,
                                                                                           overflow: TextOverflow.ellipsis,
                                                                                         ),
-                                                                                        // Text(
-                                                                                        //   'N/A',
-                                                                                        //   style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
-                                                                                        //   maxLines: 1,
-                                                                                        //   overflow: TextOverflow.ellipsis,
-                                                                                        // ),
                                                                                       ],
                                                                                     ),
                                                                                   ),
                                                                                 ],
                                                                               ),
                                                                             ),
-                                                                          ), // Customer List (dummy)
+                                                                          ),
                                                                           DataCell(
                                                                             SizedBox(
                                                                               width: flexWidth * 0.9,

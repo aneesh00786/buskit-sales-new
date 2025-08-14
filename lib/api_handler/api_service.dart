@@ -85,8 +85,8 @@ class ApiService {
     try {
       bool isOnline = await _connectivityService.isOnline();
       if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No Internet Connection. Please check your network');
+        // NkCommonFunction.showErrorSnakBar(
+        //     'No Internet Connection. Please check your network');
         final cachedDataString = dashboardBox.get('dashboardData');
         log('Dashboard Cached data : $cachedDataString');
         if (cachedDataString == null) {
@@ -1835,7 +1835,6 @@ class ApiService {
               final newTotal = currentTotal - sentAmount;
 
               if (newTotal <= 0) {
-                // Remove the order from the list
                 deleted = true;
                 deletedFromFetchAllOrders = true;
                 log('[Z2] Deleted order from fetchAllOrdersBox for $cacheKeyDash');

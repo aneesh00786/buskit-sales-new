@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -319,6 +320,10 @@ class _OrderTakingState extends State<OrderTaking>
                       OrderStatus.draft,
                       widget.productsController.selectedCustomerId.value,
                     );
+                    await Provider.of<DashboardProvider>(context, listen: false)
+                        .fetchData();
+                    await Provider.of<DashboardProvider>(context, listen: false)
+                        .fetchOrdersData(OrderStatus.draft);
                     await CartDatabaseManager().getDraftItems();
                     Provider.of<CustomersProvider>(context, listen: false)
                         .fetchCustomerDashboardCountData(

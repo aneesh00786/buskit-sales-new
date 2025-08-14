@@ -670,6 +670,42 @@ class _OptionWidgetState extends State<OptionWidget> {
                                     filteredOrdersOg, provider)
                                 : filteredOrdersOg;
 
+                            // Handle offline and online order duplication
+                            // If online order for a customer exists and same customer has an offline draft,
+                            // don't display the offline draft, but add its total to the online order total
+                            Map<String, double> customerOfflineTotals = {};
+                            List<dynamic> filteredOfflineDrafts = [];
+
+                            if (offlineDraftDetails != null &&
+                                offlineDraftDetails.isNotEmpty) {
+                              for (var draft in offlineDraftDetails) {
+                                final customerId =
+                                    draft['displayData']['customerId'];
+                                final displayTotal =
+                                    draft['displayData']['displayTotal'] ?? 0.0;
+
+                                // Check if this customer has an online draft
+                                bool hasOnlineDraft =
+                                    filteredOrders.any((order) {
+                                  final customer = order.customer.isNotEmpty
+                                      ? order.customer[0]
+                                      : null;
+                                  return customer?.customerId == customerId;
+                                });
+
+                                if (hasOnlineDraft) {
+                                  // Add offline total to customer's offline totals map
+                                  customerOfflineTotals[customerId] =
+                                      (customerOfflineTotals[customerId] ??
+                                              0.0) +
+                                          displayTotal;
+                                } else {
+                                  // No online draft for this customer, keep offline draft visible
+                                  filteredOfflineDrafts.add(draft);
+                                }
+                              }
+                            }
+
                             return LayoutBuilder(
                               builder: (BuildContext context,
                                   BoxConstraints constraints) {
@@ -784,12 +820,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           )),
                                                         ],
                                                         rows: [
+                                                          // Check for no records - FIRST OCCURRENCE
                                                           ...(filteredOrders
                                                                       .isEmpty &&
-                                                                  (offlineDraftDetails ==
-                                                                          null ||
-                                                                      offlineDraftDetails
-                                                                          .isEmpty))
+                                                                  filteredOfflineDrafts
+                                                                      .isEmpty)
                                                               ? [
                                                                   const DataRow(
                                                                       cells: [
@@ -819,6 +854,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         ? order
                                                                             .customer[0]
                                                                         : null;
+
+                                                                    // Get offline total for this customer if exists
+                                                                    final offlineTotal = customer?.customerId !=
+                                                                            null
+                                                                        ? customerOfflineTotals[customer?.customerId] ??
+                                                                            0.0
+                                                                        : 0.0;
+
                                                                     return DataRow(
                                                                       cells: [
                                                                         DataCell(
@@ -956,7 +999,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             child:
                                                                                 Center(
                                                                               child: Text(
-                                                                                formatAmount(order.orderTotal),
+                                                                                // formatAmount(order.orderTotal),
+                                                                                formatAmount(offlineTotal != 0 ? offlineTotal : (order.orderTotal ?? 0.0)),
                                                                                 maxLines: 1,
                                                                                 style: TextStyle(
                                                                                   fontSize: fontSize,
@@ -1088,24 +1132,17 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ],
                                                                     );
                                                                   }),
-                                                                  // --- OFFLINE DRAFTS ---
-                                                                  if (offlineDraftDetails !=
-                                                                          null &&
-                                                                      offlineDraftDetails
-                                                                          .isNotEmpty)
-                                                                    ...offlineDraftDetails
+                                                                  // --- OFFLINE DRAFTS --- - FIRST OCCURRENCE
+                                                                  if (filteredOfflineDrafts
+                                                                      .isNotEmpty)
+                                                                    ...filteredOfflineDrafts
                                                                         .map(
                                                                             (draft) {
-                                                                      // final orderId =
-                                                                      //     '';
                                                                       final orderId = draft['order_id']
                                                                               .toString()
                                                                               .startsWith('DRAFT')
                                                                           ? draft['order_id']
                                                                           : '';
-                                                                      // final orderId =
-                                                                      //     draft['order_id'] ??
-                                                                      //         'dummy_order_id';
 
                                                                       final customerId =
                                                                           draft['displayData']['customerId'] ??
@@ -1178,12 +1215,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                           maxLines: 1,
                                                                                           overflow: TextOverflow.ellipsis,
                                                                                         ),
-                                                                                        // Text(
-                                                                                        //   'N/A',
-                                                                                        //   style: TextStyle(fontSize: fontSize - 2, fontWeight: FontWeight.w400),
-                                                                                        //   maxLines: 1,
-                                                                                        //   overflow: TextOverflow.ellipsis,
-                                                                                        // ),
                                                                                       ],
                                                                                     ),
                                                                                   ),
@@ -1230,7 +1261,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                               width: flexWidth * 1,
                                                                               child: Center(
                                                                                 child: Text(
-                                                                                  'ADMIN',
+                                                                                  "${SessionHelper.loginSavedData?.fullname?.nkStringCapitalizeFirstCaracter} ${SessionHelper.loginSavedData?.lastname}",
                                                                                   style: TextStyle(fontSize: fontSize),
                                                                                   maxLines: 2,
                                                                                 ),
@@ -1502,14 +1533,70 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                        formatAmount(filteredOrders.fold<
-                                                                    double>(
-                                                                0.0,
-                                                                (sum, order) =>
-                                                                    sum +
-                                                                    (order.orderTotal ??
-                                                                        0.0)) +
-                                                            offlineDraftTotal),
+                                                        formatAmount(filteredOrders
+                                                                .fold<double>(
+                                                                    0.0, (sum,
+                                                                        order) {
+                                                              final customer = order
+                                                                      .customer
+                                                                      .isNotEmpty
+                                                                  ? order
+                                                                      .customer[0]
+                                                                  : null;
+                                                              final customerId =
+                                                                  customer
+                                                                      ?.customerId;
+                                                              final customerName =
+                                                                  customer?.businessName ??
+                                                                      'Unknown';
+
+                                                              if (customerId !=
+                                                                      null &&
+                                                                  customerOfflineTotals
+                                                                      .containsKey(
+                                                                          customerId)) {
+                                                                // If offline draft exists for this customer, use ONLY offline total
+                                                                final offlineAmount =
+                                                                    customerOfflineTotals[
+                                                                        customerId]!;
+                                                                log("[TOTAL] Using OFFLINE total for customer: $customerName (ID: $customerId) → $offlineAmount");
+                                                                return sum +
+                                                                    offlineAmount;
+                                                              } else {
+                                                                // Otherwise use online total
+                                                                final onlineAmount =
+                                                                    order.orderTotal ??
+                                                                        0.0;
+                                                                log("[TOTAL] Using ONLINE total for customer: $customerName (ID: $customerId) → $onlineAmount");
+                                                                return sum +
+                                                                    onlineAmount;
+                                                              }
+                                                            })
+                                                            // Add totals from offline drafts that are displayed separately
+                                                            +
+                                                            filteredOfflineDrafts
+                                                                .fold<double>(
+                                                                    0.0, (sum,
+                                                                        draft) {
+                                                              final custName =
+                                                                  draft['displayData']
+                                                                          [
+                                                                          'customerName'] ??
+                                                                      'Unknown';
+                                                              final custId =
+                                                                  draft['displayData']
+                                                                          [
+                                                                          'customerId'] ??
+                                                                      'N/A';
+                                                              final offlineAmount =
+                                                                  draft['displayData']
+                                                                          [
+                                                                          'displayTotal'] ??
+                                                                      0.0;
+                                                              log("[TOTAL] Adding VISIBLE OFFLINE draft for customer: $custName (ID: $custId) → $offlineAmount");
+                                                              return sum +
+                                                                  offlineAmount;
+                                                            })),
                                                         maxLines: 2,
                                                       ),
                                                     ),

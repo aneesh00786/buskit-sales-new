@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
@@ -313,7 +314,15 @@ class _OrderTakingState extends State<OrderTaking>
                           widget.productsController.selectedCustomerId.value,
                       homeController: homeController,
                     );
-                    CartDatabaseManager().getDraftItems();
+                    await Provider.of<CustomersProvider>(context, listen: false)
+                        .fetchOrdersForCustomDash(
+                      OrderStatus.draft,
+                      widget.productsController.selectedCustomerId.value,
+                    );
+                    await CartDatabaseManager().getDraftItems();
+                    Provider.of<CustomersProvider>(context, listen: false)
+                        .fetchCustomerDashboardCountData(
+                            widget.productsController.selectedCustomerId.value);
                   },
                   icon: const Icon(Icons.arrow_back_ios),
                 ),

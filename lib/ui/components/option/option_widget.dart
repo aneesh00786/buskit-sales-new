@@ -1027,14 +1027,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                               flexWidth * 0.5,
                                                                           child: IconButton(
                                                                               onPressed: () async {
-                                                                                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                                                productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                                                productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                                                productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
-                                                                                productsController.selectedCustomerEmail.value = customer?.email ?? '';
-                                                                                customerOrderController.customerId.value = customer?.customerId ?? '';
-                                                                                customerOrderController.customerId.value = customer?.customerId ?? '';
                                                                                 if (orderType == 'Draft') {
+                                                                                  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                                                  productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                                                  productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                                                  productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                                                  productsController.selectedCustomerEmail.value = customer?.email ?? '';
+                                                                                  customerOrderController.customerId.value = customer?.customerId ?? '';
+                                                                                  customerOrderController.customerId.value = customer?.customerId ?? '';
                                                                                   showDialog(
                                                                                     barrierDismissible: false,
                                                                                     context: context,

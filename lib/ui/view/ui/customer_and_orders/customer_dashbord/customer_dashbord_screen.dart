@@ -47,6 +47,8 @@ class CustomerDachScreen extends StatefulWidget {
   final String cusName;
   final String cusId;
   final String cusImage;
+  final String cusEmail;
+  final String cusMobile;
   final bool isFromCalendar;
   final bool isDirectDialogue;
   final bool isFromOrder;
@@ -61,6 +63,8 @@ class CustomerDachScreen extends StatefulWidget {
     required this.cusId,
     required this.cusName,
     required this.cusImage,
+    required this.cusEmail,
+    required this.cusMobile,
     this.isFromCalendar = false,
     this.isDirectDialogue = false,
     this.isFromOrder = false,
@@ -116,6 +120,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       cartProvider.updateCartCount(customerId);
     });
 
+    _initializeCustomerData(
+      customerId,
+      productsController.selectedCustomerName.value,
+      productsController.selectedCustomerImageUrl.value,
+      productsController,
+      customerOrderController,
+    );
+
     // cartProvider.updateCartCount(customerOrderController.customerId.value);
     log('CustomerId 2 :${customerOrderController.customerId.value}');
     Navigator.push(
@@ -137,6 +149,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     ).then((value) {
       cartProvider.fetchCustomerDashboardCountData(customerId);
     });
+  }
+
+  Future<void> _initializeCustomerData(
+      String customerId,
+      String businessName,
+      String customerImage,
+      ProductsController productsController,
+      CustomerAndOrderController customerAndOrderController) async {
+    if (customerId.isEmpty) {
+      log('Error: Customer ID is empty in CustomerDachScreen.');
+      return;
+    }
+    customerAndOrderController.setCustomerId(customerId);
+    productsController.selectedCustomerId.value = customerId;
+    productsController.updateSelectedCustomer(
+      name: businessName,
+      imageUrl: customerImage,
+      id: customerId,
+    );
+    log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $businessName, Image: $customerImage');
   }
 
   @override
@@ -302,6 +334,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     final customerImage = widget.isFromCalendar
         ? widget.cusImage
         : productsController.selectedCustomerImageUrl.value;
+    final customerId = widget.isFromCalendar
+        ? widget.cusId
+        : productsController.selectedCustomerId.value;
+    final customerEmail = widget.isFromCalendar
+        ? widget.cusEmail
+        : productsController.selectedCustomerEmail.value;
+    final customerMobile = widget.isFromCalendar
+        ? widget.cusMobile
+        : productsController.selectedCustomerMobileNo.value;
     String? startDate;
     String? endDate;
     double screenWidth = fullScreenWidth(context);

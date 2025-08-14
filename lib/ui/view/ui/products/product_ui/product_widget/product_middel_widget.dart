@@ -19,6 +19,8 @@ class ProductMiddelWidget extends StatelessWidget {
               cusId: productsController.selectedCustomerId.value,
               cusName: productsController.selectedCustomerName.value,
               cusImage: productsController.selectedCustomerImageUrl.value,
+              cusEmail: productsController.selectedCustomerEmail.value,
+              cusMobile: productsController.selectedCustomerMobileNo.value,
             )
           : OrderTaking(
               productsController: productsController,

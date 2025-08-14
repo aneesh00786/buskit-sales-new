@@ -2824,6 +2824,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 .businessName,
                                                             cusImage: customer
                                                                 .imageUrl,
+                                                            cusEmail: customer
+                                                                .email,
+                                                            cusMobile: customer
+                                                                .mobileno,
                                                             productsController:
                                                                 prodController,
                                                           ),

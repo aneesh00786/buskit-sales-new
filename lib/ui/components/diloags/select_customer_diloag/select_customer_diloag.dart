@@ -141,6 +141,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       cusName: productsController.selectedCustomerName.value,
                       cusImage:
                           productsController.selectedCustomerImageUrl.value,
+                          cusEmail: productsController.selectedCustomerEmail.value,
+              cusMobile: productsController.selectedCustomerMobileNo.value,
                     ),
                     id: 2,
                   );
@@ -429,6 +431,14 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                                 cusImage: event
                                                                         .event!
                                                                         .imageUrl ??
+                                                                    '',
+                                                                cusEmail: event
+                                                                        .event!
+                                                                        .email ??
+                                                                    '',
+                                                                cusMobile: event
+                                                                        .event!
+                                                                        .mobileNo ??
                                                                     '',
                                                                 productsController:
                                                                     productsController,

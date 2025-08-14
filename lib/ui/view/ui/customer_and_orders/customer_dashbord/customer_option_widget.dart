@@ -369,7 +369,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                 onContinueShopping: widget.onContinueShopping,
                 offlineDraftDetails: offlineDraftDetails,
               );
-              CartDatabaseManager().getDraftItems();
+              await CartDatabaseManager().getDraftItems();
             }
           },
         ),

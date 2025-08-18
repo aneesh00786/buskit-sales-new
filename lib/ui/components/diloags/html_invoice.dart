@@ -1,9 +1,9 @@
-
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -46,7 +46,7 @@ class _InvoicePreviewState extends State<InvoicePreview> {
       );
 
       log("Status code: ${response.statusCode}");
-      log("Response body [preview-invoice]: ${response.body}");
+      // log("Response body [preview-invoice]: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -68,6 +68,7 @@ class _InvoicePreviewState extends State<InvoicePreview> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: isLoading
@@ -120,8 +121,20 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                   ),
                 ),
                 Expanded(
-                  child: InAppWebView(
-                    initialData: InAppWebViewInitialData(data: htmlContent),
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: InAppWebView(
+                      initialData: InAppWebViewInitialData(data: htmlContent),
+                      initialSettings: InAppWebViewSettings(
+                          scrollBarFadeDuration: 0,
+                          scrollbarFadingEnabled: false,
+                          verticalScrollbarThumbColor: Colors.blue,
+                          horizontalScrollbarThumbColor: Colors.blue,
+                          verticalScrollbarTrackColor: Colors.grey.shade300,
+                          horizontalScrollbarTrackColor: Colors.grey.shade300,
+                          scrollBarStyle:
+                              ScrollBarStyle.SCROLLBARS_INSIDE_OVERLAY),
+                    ),
                   ),
                 ),
               ],

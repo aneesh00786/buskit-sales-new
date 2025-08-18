@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -128,13 +129,13 @@ class _PolicyAgreementWidgetState extends State<PolicyAgreementWidget> {
           value: _agreePrivacy,
           onChanged: (val) => _updateAgreement(val, true),
           policyText: 'Privacy Policy',
-          url: 'https://thrivewoo.com/Privacy_policy',
+          url: '${ApiConstants.baseUrl}/Privacy_policy',
         ),
         _buildPolicyRow(
           value: _agreeRefund,
           onChanged: (val) => _updateAgreement(val, false),
           policyText: 'Refund Policy',
-          url: 'https://thrivewoo.com/Cancellation_policy',
+          url: '${ApiConstants.baseUrl}Cancellation_policy',
         ),
       ],
     );

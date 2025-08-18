@@ -236,6 +236,8 @@
     const planId = urlParams.get("planId") || 1;
     const currency = urlParams.get("currency") || "USD";
 
+    const baseUrl = "https://test.thrivewoo.com/";
+
     document.getElementById("end-date").innerText = endDate;
     document.getElementById("amount").innerText = amount;
     document.getElementById("licenses").innerText = licenses;
@@ -252,7 +254,7 @@
       try {
         const cardName = document.getElementById("cardName").value;
 
-        const setupIntentRes = await fetch('https://thrivewoo.com/create-setup-intent', {
+        const setupIntentRes = await fetch(baseUrl + 'create-setup-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ adminId: adminId })
@@ -292,7 +294,7 @@
             currency
           };
 
-          await fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
+          await fetch(baseUrl + "insert_transaction_and_subscription_details", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -321,7 +323,7 @@
       createOrder: () => {
         document.getElementById("paypal-spinner").style.display = "block";
 
-        return fetch("https://thrivewoo.com/create-paypal-auth", {
+        return fetch(baseUrl + "create-paypal-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount, adminId, currency })
@@ -356,7 +358,7 @@
           currency
         };
 
-        fetch("https://thrivewoo.com/insert_transaction_and_subscription_details", {
+        fetch(baseUrl + "insert_transaction_and_subscription_details", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -405,7 +407,7 @@
       const amountText = planAmountEl.textContent.replace(/[^\d.]/g, '');
       const amount = Math.round(parseFloat(amountText) * 100);
 
-      const response = await fetch("https://thrivewoo.com/create_payment_intent", {
+      const response = await fetch(baseUrl + "create_payment_intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ adminId: getUserId() })

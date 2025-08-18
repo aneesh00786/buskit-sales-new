@@ -2,6 +2,7 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -38,14 +39,14 @@ class _InvoicePreviewState extends State<InvoicePreview> {
     };
     log("request $request");
     try {
-      final url = Uri.parse('https://thrivewoo.com/preview-invoice');
+      final url = Uri.parse('${ApiConstants.baseUrl}preview-invoice');
       final response = await http.post(
         url,
         body: request,
       );
 
       log("Status code: ${response.statusCode}");
-      log("Response body: ${response.body}");
+      log("Response body [preview-invoice]: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {

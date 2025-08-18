@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/register_textfield.dart';
@@ -74,7 +75,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
 
   Future<void> fetchAddressSuggestions(String query) async {
     final url =
-        Uri.parse("https://test.thrivewoo.com/search-address?query=$query");
+        Uri.parse("${ApiConstants.baseUrl}search-address?query=$query");
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -207,7 +208,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
 
   Future<void> fetchPlaceDetails(String placeId) async {
     final url =
-        Uri.parse("https://thrivewoo.com/get-place-details?place_id=$placeId");
+        Uri.parse("${ApiConstants.baseUrl}get-place-details?place_id=$placeId");
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

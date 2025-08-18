@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -13,13 +15,11 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_de
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import '../../orders/order_controller.dart';
 
 class OfflineOrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
-  const OfflineOrderBottomWidget({Key? key, required this.orderController})
-      : super(key: key);
+  const OfflineOrderBottomWidget({super.key, required this.orderController});
 
   @override
   State<OfflineOrderBottomWidget> createState() =>
@@ -376,7 +376,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
     final businessName = order['businessName'] ?? 'Unknown';
     final mobileNo = order['mobileNo'] ?? 'Unknown';
     final email = order['email'] ?? 'Unknown';
-    final imageUrl = order['imageUrl'] ?? null;
+    final imageUrl = order['imageUrl'];
     return GestureDetector(
       onTap: () => {},
       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -499,7 +499,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
     final orderTotal = order['order_price']?.toString() ?? 'N/A';
     return Center(
       child: MyRegularText(
-        label: formatAmount(orderTotal) ?? 'N/A',
+        label: formatAmount(orderTotal),
         fontWeight: FontWeight.w600,
         fontSize: 11,
         maxlines: 1,

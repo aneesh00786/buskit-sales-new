@@ -333,7 +333,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
     child: IconButton(
       onPressed: () async {
         log('Order ID :${orderData.orderId ?? ''}');
-        log('Selected Tab Index :${selectedTabIndex}');
+        log('Selected Tab Index :$selectedTabIndex');
         if (selectedTabIndex == 0) {
           try {
             await orderController.loadOrderProcessInvoiceData(

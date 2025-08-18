@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, must_be_immutable, deprecated_member_use
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -12,7 +12,7 @@ import 'package:get/get.dart';
 class OfflineOrderDetailsDialog extends StatefulWidget {
   Map<String, dynamic> orderData;
 
-  OfflineOrderDetailsDialog({required this.orderData});
+  OfflineOrderDetailsDialog({super.key, required this.orderData});
 
   @override
   State<OfflineOrderDetailsDialog> createState() =>
@@ -41,8 +41,6 @@ class _OfflineOrderDetailsDialogState extends State<OfflineOrderDetailsDialog> {
   Widget build(BuildContext context) {
     double totalWidth = MediaQuery.of(context).size.width;
 
-    double subtotal = 0;
-    double grandTotal = 0;
     double passedTotal = widget.orderData['order_price'];
 
     return Dialog(
@@ -243,8 +241,6 @@ class _OfflineOrderDetailsDialogState extends State<OfflineOrderDetailsDialog> {
                                     discountPrice +
                                     (inclTax ? 0 : netTax);
 
-                                subtotal += rowSubtotal;
-                                grandTotal += rowTotal;
 
                                 final packLabel =
                                     isPack ? 'Pack ($perPack pcs)' : 'Pcs';

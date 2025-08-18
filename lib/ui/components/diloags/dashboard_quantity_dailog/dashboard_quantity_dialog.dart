@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/app_bar/diloag_app_bar.dart';

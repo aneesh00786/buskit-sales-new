@@ -1,5 +1,7 @@
 // ignore_for_file: empty_catches
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -123,7 +125,7 @@ class PendingPaymentController extends GetxController {
 
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
-    print("Selected Items: $selectedItemsList");
+    log("Selected Items: $selectedItemsList");
     num remainingAmount = enteredAmount;
 
     for (int i = 0; i < selectedItemsList.length; i++) {
@@ -135,7 +137,7 @@ class PendingPaymentController extends GetxController {
         amountToBePaid = selectedItemsList[i].orderTotal;
       }
 
-      print(
+      log(
           "Processing orderId: ${selectedItemsList[i].orderId}, Amount to be paid: $amountToBePaid, Remaining amount: $remainingAmount");
 
       if (remainingAmount <= 0) {
@@ -143,18 +145,18 @@ class PendingPaymentController extends GetxController {
       }
 
       if (remainingAmount >= amountToBePaid) {
-        print(
+        log(
             "Paying $amountToBePaid for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount -= amountToBePaid;
       } else {
-        print(
+        log(
             "Paying $remainingAmount for orderId: ${selectedItemsList[i].orderId}");
         remainingAmount = 0;
       }
     }
 
     if (remainingAmount > 0) {
-      print("Remaining balance after payment: $remainingAmount");
+      log("Remaining balance after payment: $remainingAmount");
     }
   }
 

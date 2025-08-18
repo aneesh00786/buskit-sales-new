@@ -5,7 +5,6 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
@@ -13,7 +12,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/product_details_diloag/model/staff_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
-import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -389,18 +387,11 @@ class CalenderMapController extends GetxController {
         log('Failed to load directions: ${response.statusCode}');
       }
     } catch (e) {
-      int errorStatusCode = 0;
       if (e is http.ClientException) {
-        errorStatusCode = 400;
       } else if (e is http.Response) {
-        errorStatusCode = e.statusCode;
       } else {
-        errorStatusCode = 500;
+        log(e.toString());
       }
-      // handleHttpResponseError(
-      //     statusCode: errorStatusCode,
-      //     showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-      //     message: "An error occurred while fetching map directions");
       log('Error occurred while fetching directions: $e');
     }
   }

@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -84,23 +86,23 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<IndividualPendingData> selectedItems, double enteredAmount) {
-    print("Processing payments with amount: $enteredAmount");
+    log("Processing payments with amount: $enteredAmount");
 
     for (var item in selectedItems) {
-      print("Amount before ${item.orderId}: $enteredAmount");
+      log("Amount before ${item.orderId}: $enteredAmount");
 
       double itemAmount =
           (item.receivableAmount ?? ((item.orderTotal) - (item.receivedAmount)))
               .toDouble();
 
-      print("Processing item: ${item.orderId} with amount: $itemAmount");
+      log("Processing item: ${item.orderId} with amount: $itemAmount");
 
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
 
-        print("Applied amount to ${item.orderId}: $appliedAmount");
+        log("Applied amount to ${item.orderId}: $appliedAmount");
 
         ApiWorker().customerPayment(
           context: context,
@@ -118,11 +120,11 @@ void pendingPaymentCollectionDialog(
           transactionId: "",
         );
       } else {
-        print("No remaining balance to process ${item.orderId}");
+        log("No remaining balance to process ${item.orderId}");
       }
 
-      print("Amount after ${item.orderId}: $enteredAmount");
-      print("-----------------------------------------------------------");
+      log("Amount after ${item.orderId}: $enteredAmount");
+      log("-----------------------------------------------------------");
     }
   }
 
@@ -539,7 +541,7 @@ void pendingPaymentCollectionDialog(
                                         updateSelectedItems();
                                         Navigator.pop(context);
                                       } else {
-                                        print("Please enter a valid amount.");
+                                        log("Please enter a valid amount.");
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(

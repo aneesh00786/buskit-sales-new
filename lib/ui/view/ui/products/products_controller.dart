@@ -1,12 +1,10 @@
 // ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
 
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
@@ -20,7 +18,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -87,226 +84,12 @@ class ProductsController extends GetxController {
   }
 
   void clearCartItemsInControllerAndHive(String customerId) async {
-    print(
+    log(
         '[ProductsController] clearCartItemsInControllerAndHive called for customerId=$customerId');
     await CartDatabaseManager().clearCartOnlyForCustomer(customerId);
     cartItems.clear();
     orderItems.clear();
     preorderItems.clear();
-  }
-
-  // Future<void> handleBackNavigation({
-  //   required BuildContext context,
-  //   required bool isDirectDialogue,
-  //   required String customerId,
-  //   required HomeController homeController,
-  // }) async {
-  //   final toDash = isDirectDialogue;
-
-  //   log('🚗 handleBackNavigation START');
-  //   log('→ Cart Items Count: ${CartDatabaseManager().cartItems.length}');
-  //   log('→ Customer ID: $customerId');
-  //   log('→ Navigation Target: ${toDash ? 'Dashboard' : 'Pop Back'}');
-
-  //   if (CartDatabaseManager().cartItems.isNotEmpty && customerId.isNotEmpty) {
-  //     log('🛒 Cart detected, initiating processing...');
-  //     Get.dialog(const Center(child: CircularProgressIndicator()));
-
-  //     final wasOnline = await processCartBeforeNavigation(
-  //       context: context,
-  //       customerId: customerId,
-  //     );
-
-  //     // if (Navigator.canPop(context)) Navigator.pop(context);
-
-  //     if (toDash) {
-  //       await Future.delayed(const Duration(milliseconds: 300));
-  //       log('✅ Going back to Customer Dashboard after processing');
-
-  //       if (wasOnline) {
-  //         log('✅ Draft saved online');
-  //         showSuccessFullDialog(
-  //           context: context,
-  //           imagePath: 'assets/images/Animation - 1726906882515.json',
-  //           message: 'Your order has been successfully saved as Draft',
-  //         );
-  //       } else {
-  //         log('📴 Offline mode triggered - draft saved offline');
-  //         offlineDialog(context);
-  //       }
-
-  //       await Future.delayed(const Duration(milliseconds: 300));
-  //       log('🔙 Popping back to Customer Dashboard');
-  //       Navigator.pop(
-  //           context); // Just go back one screen instead of jumping to dashboard
-  //     } else {
-  //       if (!wasOnline) {
-  //         log('📴 Offline mode - returning without dashboard');
-  //         offlineMode1(context);
-  //       }
-  //       log('🔙 Just popping back (not dashboard)');
-  //       Navigator.pop(context);
-  //     }
-  //   } else if (toDash) {
-  //     log('🧹 No cart items but going back to Customer Dashboard');
-  //     log('→ Clearing cart for customerId: $customerId');
-  //     CartDatabaseManager().cartItems.clear();
-  //     CartDatabaseManager().clearCart(customerId: customerId);
-  //     Navigator.pop(context); // Same here — pop back
-  //   } else {
-  //     log('🔙 No cart items, just popping back');
-  //     CartDatabaseManager().cartItems.clear();
-  //     log('🧹 Cleared in-memory cart');
-  //     Navigator.pop(context);
-  //   }
-
-  //   log('🚗 handleBackNavigation END');
-  // }
-
-  // Future<bool> processCartBeforeNavigation({
-  //   required BuildContext context,
-  //   required String customerId,
-  // }) async {
-  //   log('🛠️ processCartBeforeNavigation START for customerId: $customerId');
-
-  //   final connectivityService = ConnectivityService();
-  //   final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  //   log('→ Salesman ID: $currentSalesmanId');
-
-  //   final draftItems = CartDatabaseManager()
-  //       .draftBox
-  //       .values
-  //       .where((e) => e.customerId == customerId)
-  //       .toList();
-  //   final cartItems = CartDatabaseManager()
-  //       .cartItems
-  //       .where((e) =>
-  //           e.customerId == customerId && e.salesmanId == currentSalesmanId)
-  //       .toList();
-
-  //   final allItems = [...cartItems, ...draftItems];
-  //   log('🧾 Total items to process: ${allItems.length}');
-
-  //   final Map<String, Detail> dedupedDetails = {};
-  //   for (final item in allItems) {
-  //     final key = item.detail.variationId ?? '';
-  //     if (dedupedDetails.containsKey(key)) {
-  //       dedupedDetails[key]!.count += item.detail.count;
-  //     } else {
-  //       dedupedDetails[key] = item.detail;
-  //     }
-  //   }
-
-  //   final detail = dedupedDetails.values.toList();
-  //   log('✅ Deduplicated item count: ${detail.length}');
-
-  //   final isOnline = await connectivityService.isOnline();
-  //   log('🌐 Connectivity: ${isOnline ? "Online" : "Offline"}');
-
-  //   if (!isOnline) {
-  //     log('💾 Saving as offline draft...');
-  //     await CartDatabaseManager().saveDraftOffline(
-  //       customerId: customerId,
-  //       salesmanId: currentSalesmanId,
-  //       totalAmount: finalAmount.value,
-  //       details: detail,
-  //     );
-  //     CartDatabaseManager().cartItems.clear();
-  //     CartDatabaseManager().clearCart(customerId: customerId);
-  //     log('🧹 Cleared cart after offline save');
-  //     return false;
-  //   }
-
-  //   log('📡 Fetching existing cart/draft IDs from API...');
-  //   final cartDetails =
-  //       await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-  //   await Future.delayed(const Duration(seconds: 1));
-
-  //   final firstOrder = cartDetails.isNotEmpty
-  //       ? cartDetails.last
-  //       : {'cart_id': '', 'draft_id': ''};
-
-  //   final existingCartId = firstOrder['cart_id'] ?? '';
-  //   final existingDraftId = firstOrder['draft_id'] ?? '';
-
-  //   log('→ Existing cart ID: $existingCartId');
-  //   log('→ Existing draft ID: $existingDraftId');
-
-  //   final productBYData = AddToCartModel(
-  //     customerId: customerId,
-  //     salesmanId: currentSalesmanId,
-  //     cartId: existingCartId,
-  //     cartList: detail
-  //         .map((e) => SendCartData(
-  //               productId: e.productId ?? '',
-  //               variantId: e.variationId ?? '',
-  //               pack: e.saleBy == 'Pack'
-  //                   ? e.pieces.toString()
-  //                   : e.count.toString(),
-  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-  //               price: e.sellPrice.toString(),
-  //               discount: e.discount ?? 0,
-  //               quantity: e.count.toInt(),
-  //               variantName: e.variationName ?? '',
-  //             ))
-  //         .toList(),
-  //     total: finalAmount.value.toStringAsFixed(0),
-  //   );
-
-  //   log('📤 Sending addToDraft API...');
-  //   final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
-
-  //   if (cartOrder != null) {
-  //     log('✅ addToDraft succeeded. Sending placeOrder...');
-  //     final order = CartOrderModel(
-  //       customerId: customerId,
-  //       salesmanId: currentSalesmanId,
-  //       cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-  //       orderStatus: 4,
-  //       draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-  //       selctedItemCount: 1,
-  //     );
-
-  //     await ApiWorker().placeOrder(order, (statusCode, message, response) {
-  //       log('→ placeOrder statusCode: $statusCode');
-  //       if (statusCode == 200) {
-  //         log('✅ Order placed successfully');
-  //         showSuccessFullDialogCtrl(context: context);
-  //       } else {
-  //         log('❌ Failed to place order: $message');
-  //         showFaledDialogCtrl(context: context, customerId: customerId);
-  //       }
-  //     });
-  //   } else {
-  //     log('❌ addToDraft failed or returned null');
-  //   }
-
-  //   CartDatabaseManager().cartItems.clear();
-  //   CartDatabaseManager().clearCart(customerId: customerId);
-  //   log('🧹 Cleared cart after online draft handling');
-
-  //   log('🛠️ processCartBeforeNavigation END');
-  //   return true;
-  // }
-
-  List<Detail> _mergeCartAndDraftDetails(
-      List<Detail> cartDetails, List<Detail> draftDetails) {
-    final Map<String, Detail> merged = {};
-    // Add draft items first
-    for (final item in draftDetails) {
-      final key = '${item.productId}_${item.variationId}';
-      merged[key] = Detail.fromJson(item.toJson());
-    }
-    // Merge cart items
-    for (final item in cartDetails) {
-      final key = '${item.productId}_${item.variationId}';
-      if (merged.containsKey(key)) {
-        merged[key]!.count += item.count;
-      } else {
-        merged[key] = Detail.fromJson(item.toJson());
-      }
-    }
-    return merged.values.toList();
   }
 
   Future<void> handleBackNavigation({
@@ -772,10 +555,10 @@ class ProductsController extends GetxController {
             firstCategory.subCategoryItem!.isNotEmpty) {
           var firstSubcategory = firstCategory.subCategoryItem!.first;
 
-          log("Fetching initial subcategory ID: ${firstSubcategory?.id}");
-          log("Fetching initial subcategory name: ${firstSubcategory?.subCategory}");
+          log("Fetching initial subcategory ID: ${firstSubcategory.id}");
+          log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
 
-          selectedSubCategoryId.value = "${firstSubcategory?.id}";
+          selectedSubCategoryId.value = "${firstSubcategory.id}";
           log("getInitialSubCategoryIdAndName : selectedSubCategoryId.value : ${selectedSubCategoryId.value}");
 
           return firstSubcategory;

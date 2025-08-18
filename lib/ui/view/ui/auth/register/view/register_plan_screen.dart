@@ -314,9 +314,10 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                             ),
                           );
                         } catch (e) {
-                          if (mounted)
+                          if (mounted) {
                             Navigator.of(context)
                                 .pop(); // remove loader if error
+                          }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Error: ${e.toString()}")),
                           );

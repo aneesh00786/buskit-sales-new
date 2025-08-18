@@ -98,22 +98,18 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<PendingAmount> selectedItems, double enteredAmount) {
-    print("Processing payments with amount: $enteredAmount");
 
     for (var item in selectedItems) {
-      print("Amount before ${item.orderId}: $enteredAmount");
 
       double itemAmount = (item.receivableAmount ??
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
           .toDouble();
 
-      print("Processing item: ${item.orderId} with amount: $itemAmount");
 
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
-        print("Applied amount to ${item.orderId}: $appliedAmount");
         ApiWorker().customerPayment(
           context: context,
           checkDueDate: "",
@@ -130,11 +126,8 @@ void pendingPaymentCollectionDialog(
           transactionId: "",
         );
       } else {
-        print("No remaining balance to process ${item.orderId}");
       }
 
-      print("Amount after ${item.orderId}: $enteredAmount");
-      print("-----------------------------------------------------------");
     }
   }
 
@@ -654,7 +647,6 @@ void pendingPaymentCollectionDialog(
 
                                       updateSelectedItems();
                                     } else {
-                                      print("Please enter a valid amount.");
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(

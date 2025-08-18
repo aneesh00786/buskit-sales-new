@@ -393,11 +393,11 @@ class ConnectivityService {
                 variantId: detail.variationId ?? '',
                 pack: detail.saleBy == 'Pack'
                     ? detail.pieces?.toString() ?? '0'
-                    : detail.count?.toString() ?? '0',
+                    : detail.count.toString(),
                 price: detail.sellPrice?.toString() ?? '0.0',
                 packType: detail.saleBy ?? 'Pack',
                 discount: detail.discount ?? 0,
-                quantity: detail.count?.toInt() ?? 0,
+                quantity: detail.count.toInt(),
                 variantName: detail.variationName ?? '',
               );
             }).toList();
@@ -434,12 +434,12 @@ class ConnectivityService {
               itemMap[key] = item;
             }
 
-            preCartList.forEach((item) {
+            for (var item in preCartList) {
               final key = item.variantId;
               if (!itemMap.containsKey(key)) {
                 itemMap[key] = item;
               }
-            });
+            }
 
             final combinedCartList = itemMap.values.toList();
 

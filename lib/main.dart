@@ -109,7 +109,7 @@ void main() async {
 
   Get.put(CalenderMapController());
   final customersAndOrdersController = Get.put(CustomerAndOrderController());
-  final productsController = Get.put(ProductsController());
+  Get.put(ProductsController());
 
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);

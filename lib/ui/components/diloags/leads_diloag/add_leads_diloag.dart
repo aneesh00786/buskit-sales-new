@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'dart:io';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
@@ -9,8 +9,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/custom_button_leads.dart';
-import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/widgets/input_field_widget.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -22,8 +20,7 @@ import 'package:image_picker/image_picker.dart';
 class AddLeadsScreen extends StatefulWidget {
   final LeadsController leadsController;
 
-  const AddLeadsScreen({Key? key, required this.leadsController})
-      : super(key: key);
+  const AddLeadsScreen({super.key, required this.leadsController});
 
   @override
   _AddLeadsScreenState createState() => _AddLeadsScreenState();
@@ -474,7 +471,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                               ? Image.file(
                                                                   leadsImage!,
                                                                   height: AppDimensions
-                                                                          .instance!
+                                                                          .instance
                                                                           .height *
                                                                       0.2,
                                                                 )
@@ -786,10 +783,10 @@ class CustomButtonLeads extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomButtonLeads({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

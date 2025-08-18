@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -27,7 +29,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -2887,7 +2888,7 @@ class ApiWorker with ApiConstants {
     String endDate,
   ) async {
     final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final String cacheKey = '${companyId}_${startDate}_${endDate}';
+    final String cacheKey = '${companyId}_${startDate}_$endDate';
     log(cacheKey);
     final box = await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
     final isConnected = await ConnectivityService().isOnline();
@@ -2952,7 +2953,7 @@ class ApiWorker with ApiConstants {
     String endDate,
   ) async {
     final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final String cacheKey = '${companyId}_${startDate}_${endDate}';
+    final String cacheKey = '${companyId}_${startDate}_$endDate';
     final box = await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
     final isConnected = await ConnectivityService().isOnline();
     if (!isConnected) {
@@ -3212,11 +3213,11 @@ class ApiWorker with ApiConstants {
       );
 
       if (response.statusCode == 200) {
-        print("Payment successful");
+        log("Payment successful");
         showCustomToastDisplay(
             context, "Payment successful", Colors.green, Icons.check);
       } else {
-        print("Payment failed with status: ${response.statusCode}");
+        log("Payment failed with status: ${response.statusCode}");
         showCustomToastDisplay(
             context, "Payment failed", Colors.red, Icons.close);
       }

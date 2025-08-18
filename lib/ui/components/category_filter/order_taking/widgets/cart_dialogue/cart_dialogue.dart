@@ -2,9 +2,7 @@
 
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:convert';
 import 'dart:developer';
-import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -33,7 +31,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
-import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -981,7 +978,7 @@ class CartDialogueState extends State<CartDialogue> {
                                       child: SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         controller: _scrollController1,
-                                        child: Container(
+                                        child: SizedBox(
                                           // color: red,
                                           height: double.maxFinite,
                                           width:
@@ -1711,7 +1708,7 @@ class CartDialogueState extends State<CartDialogue> {
                                       .value;
 
                               final cartDetails = await CartDatabaseManager()
-                                  .getDraftAndCartIdsFromApi(customerId ?? '');
+                                  .getDraftAndCartIdsFromApi(customerId);
                               await Future.delayed(const Duration(seconds: 1));
                               final firstOrder = cartDetails.isNotEmpty
                                   ? cartDetails.last
@@ -1731,7 +1728,7 @@ class CartDialogueState extends State<CartDialogue> {
                                     draftId: draftIdPrefs,
                                   );
                                   cartProvider
-                                      .getCartItemCounts(customerId ?? '');
+                                      .getCartItemCounts(customerId);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

@@ -15,7 +15,7 @@ class PendingPaymentChart extends StatefulWidget {
   final PendingPaymentController chartController;
   final Function(int) onBarTapped;
 
-  PendingPaymentChart({
+  const PendingPaymentChart({
     super.key,
     required this.chartController,
     required this.onBarTapped,

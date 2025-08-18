@@ -145,6 +145,7 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     const InputBorder lightGreyBorder = OutlineInputBorder(
@@ -498,30 +499,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showErrorDialog(
-    BuildContext context,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Lottie.asset('assets/images/Warning_animation.json'),
-            Text("Error"),
-          ],
-        ),
-        content: Text('The trial has been Failed'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("OK"),
-          ),
-        ],
       ),
     );
   }

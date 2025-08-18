@@ -1,3 +1,5 @@
+  // ignore_for_file: deprecated_member_use
+
   import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -9,7 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Widget TotalSalseCustomers(BuildContext context) {
+Widget totalSalseCustomers(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(1.0),
       child: Consumer<CustomersProvider>(

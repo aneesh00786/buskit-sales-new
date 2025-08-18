@@ -1,4 +1,5 @@
-// ignore_for_file: unnecessary_null_comparison, deprecated_member_use
+// ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
+
 
 import 'dart:developer';
 
@@ -28,7 +29,6 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/helpers/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +95,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   void _fetchDraftCounts(OrderDataas? orderCountList) async {
     int offlineCount = await getOfflineDraftCount(widget.customerId);
     int onlineCount =
-        orderCountList != null ? (orderCountList.draftOrder ?? 0) : 0;
+        orderCountList != null ? (orderCountList.draftOrder) : 0;
     setState(() {
       _offlineDraftCount = offlineCount;
       _onlineDraftCount = onlineCount;
@@ -1500,7 +1500,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-          print('Error getting fresh offline draft data: $e');
+          log('Error getting fresh offline draft data: $e');
         }
 
         if (mounted) {

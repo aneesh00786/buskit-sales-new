@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:developer';
@@ -141,9 +141,9 @@ class _OrderTakingState extends State<OrderTaking>
 
     _loadOfflineDraftsIfNeeded(customerId);
 
-    CartDatabaseManager().getCartItems(customerId ?? '');
+    CartDatabaseManager().getCartItems(customerId);
     isCartCountLoading = true;
-    cartProvider.getCartItemCounts(customerId ?? '').then((_) {
+    cartProvider.getCartItemCounts(customerId).then((_) {
       if (mounted) {
         setState(() {
           isCartCountLoading = false;
@@ -151,7 +151,7 @@ class _OrderTakingState extends State<OrderTaking>
       }
     });
     CartDatabaseManager().addListener(() {
-      cartProvider.updateCartCount(customerId ?? '');
+      cartProvider.updateCartCount(customerId);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -184,7 +184,7 @@ class _OrderTakingState extends State<OrderTaking>
       isCartCountLoading = true;
       cartProvider
           .getCartItemCounts(
-              widget.productsController.selectedCustomerId.value ?? '')
+              widget.productsController.selectedCustomerId.value)
           .then((_) {
         if (mounted) {
           setState(() {
@@ -202,7 +202,7 @@ class _OrderTakingState extends State<OrderTaking>
     animationController.dispose();
     CartDatabaseManager().removeListener(() {
       cartProvider.updateCartCount(
-          widget.productsController.selectedCustomerId.value ?? '');
+          widget.productsController.selectedCustomerId.value);
     });
     super.dispose();
   }
@@ -728,8 +728,7 @@ class _OrderTakingState extends State<OrderTaking>
                                     selectedName: widget.productsController
                                         .selectedCustomerName.value,
                                     customerId: widget.productsController
-                                            .selectedCustomerId.value ??
-                                        '',
+                                            .selectedCustomerId.value,
                                   ),
                                 )
                         ],

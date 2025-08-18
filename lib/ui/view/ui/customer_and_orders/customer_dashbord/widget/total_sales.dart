@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/default_donet_customer_dash.dart';
@@ -14,7 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Widget TotalSalse(BuildContext context) {
+Widget totalSalse(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Consumer<CustomersProvider>(

@@ -334,15 +334,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     final customerImage = widget.isFromCalendar
         ? widget.cusImage
         : productsController.selectedCustomerImageUrl.value;
-    final customerId = widget.isFromCalendar
-        ? widget.cusId
-        : productsController.selectedCustomerId.value;
-    final customerEmail = widget.isFromCalendar
-        ? widget.cusEmail
-        : productsController.selectedCustomerEmail.value;
-    final customerMobile = widget.isFromCalendar
-        ? widget.cusMobile
-        : productsController.selectedCustomerMobileNo.value;
     String? startDate;
     String? endDate;
     double screenWidth = fullScreenWidth(context);
@@ -547,7 +538,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 4.7),
                                       SizedBox(
                                         height: screenWidth * 0.7,
-                                        child: TotalSalse(context),
+                                        child: totalSalse(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -579,7 +570,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: TotalSalse(context),
+                                            child: totalSalse(context),
                                           ),
                                           const SizedBox(width: 4.7),
                                           Expanded(
@@ -650,7 +641,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 4.7),
                                       SizedBox(
                                         height: screenWidth * 0.7,
-                                        child: TotalSalse(context),
+                                        child: totalSalse(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -1022,8 +1013,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       ),
                       Expanded(
                         child: _tabIndex == 0
-                            ? TotalSalse(context)
-                            : TotalSalseCustomers(context),
+                            ? totalSalse(context)
+                            : totalSalseCustomers(context),
                       ),
                     ],
                   ),

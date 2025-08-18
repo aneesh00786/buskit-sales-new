@@ -1,7 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously, empty_catches
 
 import 'dart:developer';
-import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -35,8 +34,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -443,9 +440,7 @@ class _TableeeState extends State<Tableee> {
       return FutureBuilder<CustomerResponse>(
         future: provider.customerResponse,
         builder: (context, snapshot) {
-          final customer = snapshot.data?.data.first;
 
-          TextEditingController nameController = TextEditingController();
           TextEditingController phoneController = TextEditingController();
           TextEditingController emailController = TextEditingController();
           TextEditingController telephoneController = TextEditingController();
@@ -455,7 +450,6 @@ class _TableeeState extends State<Tableee> {
           TextEditingController addressController = TextEditingController();
 
           TextEditingController bsNameController = TextEditingController();
-          TextEditingController bsNumController = TextEditingController();
 
           TextEditingController contactPersonNameController =
               TextEditingController();
@@ -1651,7 +1645,7 @@ class TopTotalWidget extends StatelessWidget {
 
 // ignore: must_be_immutable
 class BottomTotalWidget extends StatefulWidget {
-  BottomTotalWidget({
+  const BottomTotalWidget({
     super.key,
     required ScrollController scrollController,
     required this.provider,

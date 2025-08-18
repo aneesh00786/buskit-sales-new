@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'dart:developer';
 
@@ -17,7 +17,6 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
-import 'package:busskit_salesexecutive/ui/components/option/widgets/estimated_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/nodata_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/show_orderstatus_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -114,7 +113,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
       return drafts.length;
     } catch (e) {
-      print('Error getting offline draft count: $e');
+      log('Error getting offline draft count: $e');
       return 0;
     }
   }
@@ -593,12 +592,6 @@ class _OptionWidgetState extends State<OptionWidget> {
       {List<dynamic>? offlineDraftDetails,
       bool filterNeeded = false}) {
     final HomeController homeController2 = Get.put(HomeController());
-    var offlineDraftTotal = (offlineDraftDetails == null
-        ? 0
-        : (offlineDraftDetails.fold<double>(
-            0.0,
-            (sum, order) =>
-                sum + (order['displayData']['displayTotal'] ?? 0.0))));
 
     log("[OFFLINE DRAFT LIST] : $offlineDraftDetails");
 
@@ -612,7 +605,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-          print('Error getting fresh offline draft data: $e');
+          log('Error getting fresh offline draft data: $e');
         }
 
         if (mounted) {
@@ -1817,7 +1810,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-          print('Error getting fresh offline draft data: $e');
+          log('Error getting fresh offline draft data: $e');
         }
 
         // Close the current dialog and reopen it with fresh data
@@ -2100,7 +2093,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             child:
                                                                                 Center(
                                                                               child: Text(
-                                                                                // ignore: unnecessary_null_comparison
                                                                                 order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
                                                                                 style: TextStyle(
                                                                                   fontSize: fontSize,

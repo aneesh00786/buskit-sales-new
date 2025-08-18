@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
@@ -22,6 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class CustomerMapScreen extends StatefulWidget {
   List<String> customerIds;
   List<String> eventIds;
@@ -81,7 +84,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
   Future<void> fetchDistanceAndDuration(Result result) async {
     if (_distanceDurationCache.containsKey(result.customerId) ||
-        _isLoadingDistance[result.customerId] == true) return;
+        _isLoadingDistance[result.customerId] == true) {
+      return;
+    }
     if (_mapController.currentLatLng.value == null) return;
     _isLoadingDistance[result.customerId] = true;
     final origin =

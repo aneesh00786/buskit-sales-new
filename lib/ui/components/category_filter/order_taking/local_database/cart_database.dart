@@ -2,7 +2,6 @@
 
 // ignore_for_file: avoid_print
 
-import 'dart:convert';
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -65,7 +64,7 @@ class CartDatabaseManager {
     log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
-    final cacheKey = '${companyId}_${salesmanId}';
+    final cacheKey = '${companyId}_$salesmanId';
     final draftItemsBox = await Hive.openBox('draftItemsBox');
     try {
       final connectivityService = ConnectivityService();
@@ -822,7 +821,7 @@ class CartDatabaseManager {
 
       // Check if there are any cart items
       final cartItems = this.cartItems;
-      final orphanedItems = this.orphanedCartItems;
+      final orphanedItems = orphanedCartItems;
       log('Total cart items found on restart: ${cartItems.length}');
       log('Orphaned cart items (no customer ID): ${orphanedItems.length}');
 

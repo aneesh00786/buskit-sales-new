@@ -8,8 +8,7 @@ class SplashScreenLogging extends StatelessWidget {
   final VoidCallback? onSyncInBackground;
 
   const SplashScreenLogging(
-      {Key? key, this.message = "...", this.onSyncInBackground})
-      : super(key: key);
+      {super.key, this.message = "...", this.onSyncInBackground});
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
-import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -684,15 +683,13 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-    log("Filter type : " +
-        (_selectedFilter == FilterDateEnum.range
+    log("Filter type : ${_selectedFilter == FilterDateEnum.range
             ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
                 .toString()
-            : _selectedFilter.name));
+            : _selectedFilter.name}");
 
     _errorMessage = '';
-    NotificationController notificationController =
-        Get.find<NotificationController>();
+    Get.find<NotificationController>();
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final customerBox = Hive.box('customerBox');

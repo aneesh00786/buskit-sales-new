@@ -277,11 +277,11 @@ abstract class NkCommonFunction {
     // Ensure it starts with 'uploads/salesman/'
     if (!path.startsWith('uploads/salesman/')) {
       if (path.startsWith('salesman/')) {
-        path = 'uploads/' + path;
+        path = 'uploads/$path';
       } else if (!path.startsWith('uploads/')) {
-        path = 'uploads/salesman/' + path;
+        path = 'uploads/salesman/$path';
       }
     }
-        return '${ApiConstants.baseUrl}' + path;
+        return '${ApiConstants.baseUrl}$path';
   }
 }

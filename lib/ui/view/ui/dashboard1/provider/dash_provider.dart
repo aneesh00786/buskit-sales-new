@@ -354,9 +354,11 @@ class DashboardProvider with ChangeNotifier {
 
   Future<void> fetchAllOrdersAtOnce() async {
     log("fetchAllOrdersAtOnce");
-    await fetchOrdersData(OrderStatus.estimates, checkDate: true);
     await fetchOrdersData(OrderStatus.delivered, checkDate: true);
+    await fetchOrdersData(OrderStatus.estimates, checkDate: true);
+    await fetchOrdersData(OrderStatus.estimates, checkDate: false);
     await fetchOrdersData(OrderStatus.preOrder, checkDate: true);
+    await fetchOrdersData(OrderStatus.preOrder, checkDate: false);
     await fetchOrdersData(OrderStatus.draft);
     await fetchOrdersData(OrderStatus.cancelled, checkDate: true);
   }

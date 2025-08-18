@@ -176,8 +176,16 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                               checkDate: true,
                               isLogin: true);
                           await dashboardProvider.fetchOrdersData(
+                              OrderStatus.estimates,
+                              checkDate: false,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
                               OrderStatus.preOrder,
                               checkDate: true,
+                              isLogin: true);
+                          await dashboardProvider.fetchOrdersData(
+                              OrderStatus.preOrder,
+                              checkDate: false,
                               isLogin: true);
                           await dashboardProvider.fetchOrdersData(
                               OrderStatus.draft,

@@ -1,4 +1,6 @@
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -62,7 +64,13 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
             InkWell(
               onTap: () async {
                 if (leadsController.currentPage.value > 1) {
-                  leadsController.goToPreviousPage();
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (isOnline) {
+                    leadsController.goToPreviousPage();
+                  } else {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.warning);
+                  }
                 }
               },
               child: Padding(
@@ -77,8 +85,7 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: _buildPagination(
-                        leadsController.currentPage.value,
+                children: _buildPagination(leadsController.currentPage.value,
                         leadsController.totalPages.value)
                     .map<Widget>((item) {
                   if (item is int) {
@@ -88,7 +95,14 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
                       onTap: isCurrent
                           ? null
                           : () async {
-                              leadsController.goToPage(item);
+                              bool isOnline =
+                                  await ConnectivityService().isOnline();
+                              if (isOnline) {
+                                leadsController.goToPage(item);
+                              } else {
+                                showCustomToastDisplay(context,
+                                    "You are Offline!", red, Icons.warning);
+                              }
                             },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -117,7 +131,13 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
                     final int page = int.parse(item.replaceAll('...', ''));
                     return GestureDetector(
                       onTap: () async {
-                        leadsController.goToPage(page);
+                        bool isOnline = await ConnectivityService().isOnline();
+                        if (isOnline) {
+                          leadsController.goToPage(page);
+                        } else {
+                          showCustomToastDisplay(
+                              context, "You are Offline!", red, Icons.warning);
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -145,7 +165,13 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
                     final int page = int.parse(item.replaceAll('...', ''));
                     return GestureDetector(
                       onTap: () async {
-                        leadsController.goToPage(page);
+                        bool isOnline = await ConnectivityService().isOnline();
+                        if (isOnline) {
+                          leadsController.goToPage(page);
+                        } else {
+                          showCustomToastDisplay(
+                              context, "You are Offline!", red, Icons.warning);
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -179,7 +205,13 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
               onTap: () async {
                 if (leadsController.currentPage.value <
                     leadsController.totalPages.value) {
-                  leadsController.goToNextPage();
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (isOnline) {
+                    leadsController.goToNextPage();
+                  } else {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.warning);
+                  }
                 }
               },
               child: Padding(

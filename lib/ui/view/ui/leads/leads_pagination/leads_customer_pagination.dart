@@ -1,4 +1,6 @@
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -63,7 +65,13 @@ class LeadsCustomerPaginationWidget extends StatelessWidget {
             InkWell(
               onTap: () async {
                 if (leadsCustomerController.currentPage.value > 1) {
-                  leadsCustomerController.goToPreviousPage();
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (isOnline) {
+                    leadsCustomerController.goToPreviousPage();
+                  } else {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.warning);
+                  }
                 }
               },
               child: Padding(
@@ -89,7 +97,14 @@ class LeadsCustomerPaginationWidget extends StatelessWidget {
                       onTap: isCurrent
                           ? null
                           : () async {
-                              leadsCustomerController.goToPage(item);
+                              bool isOnline =
+                                  await ConnectivityService().isOnline();
+                              if (isOnline) {
+                                leadsCustomerController.goToPage(item);
+                              } else {
+                                showCustomToastDisplay(context,
+                                    "You are Offline!", red, Icons.warning);
+                              }
                             },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -118,7 +133,13 @@ class LeadsCustomerPaginationWidget extends StatelessWidget {
                     final int page = int.parse(item.replaceAll('...', ''));
                     return GestureDetector(
                       onTap: () async {
-                        leadsCustomerController.goToPage(page);
+                        bool isOnline = await ConnectivityService().isOnline();
+                        if (isOnline) {
+                          leadsCustomerController.goToPage(page);
+                        } else {
+                          showCustomToastDisplay(
+                              context, "You are Offline!", red, Icons.warning);
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -146,7 +167,13 @@ class LeadsCustomerPaginationWidget extends StatelessWidget {
                     final int page = int.parse(item.replaceAll('...', ''));
                     return GestureDetector(
                       onTap: () async {
-                        leadsCustomerController.goToPage(page);
+                        bool isOnline = await ConnectivityService().isOnline();
+                        if (isOnline) {
+                          leadsCustomerController.goToPage(page);
+                        } else {
+                          showCustomToastDisplay(
+                              context, "You are Offline!", red, Icons.warning);
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
@@ -180,7 +207,13 @@ class LeadsCustomerPaginationWidget extends StatelessWidget {
               onTap: () async {
                 if (leadsCustomerController.currentPage.value <
                     leadsCustomerController.totalPages.value) {
-                  leadsCustomerController.goToNextPage();
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (isOnline) {
+                    leadsCustomerController.goToNextPage();
+                  } else {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", red, Icons.warning);
+                  }
                 }
               },
               child: Padding(

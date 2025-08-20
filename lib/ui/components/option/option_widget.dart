@@ -648,8 +648,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const SizedBox.shrink();
-                          } else if (snapshot.hasError) {
-                            return noDataFoundWidget(orderType);
                           } else {
                             final orders = snapshot.data?.data ?? [];
 
@@ -813,7 +811,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           )),
                                                         ],
                                                         rows: [
-                                                          // Check for no records - FIRST OCCURRENCE
                                                           ...(filteredOrders
                                                                       .isEmpty &&
                                                                   filteredOfflineDrafts

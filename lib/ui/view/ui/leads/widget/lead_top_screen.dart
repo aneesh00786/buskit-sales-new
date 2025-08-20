@@ -66,7 +66,7 @@ Widget profiloe() {
         } else if (snapshot.hasData) {
           final admin = snapshot.data!.data.first;
           return SizedBox(
-            width: 110,
+            width: 130,
             child: SizedBox(
               height: 44,
               width: double.infinity,
@@ -74,7 +74,7 @@ Widget profiloe() {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    const Spacer(),
+                    SizedBox(width: 5),
                     CircleAvatar(
                       backgroundColor: const Color(0xffe6ecff),
                       radius: 15,
@@ -101,19 +101,28 @@ Widget profiloe() {
                     const SizedBox(
                       width: 4.5,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyRegularText(
-                            label: "${homeController.userDetails?.fullname ?? ''} ${homeController.userDetails?.lastname ?? ''}",
-                            fontSize: 10.5),
-                        const MyRegularText(
-                          label: "Salesman",
-                          fontSize: 8.5,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyRegularText(
+                              label:
+                                  "${homeController.userDetails?.fullname ?? ''} ${homeController.userDetails?.lastname ?? ''}",
+                              fontSize: 10.5,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Expanded(
+                            child: const MyRegularText(
+                              label: "Salesman",
+                              fontSize: 8.5,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     )
                   ],
                 ),

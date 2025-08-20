@@ -622,15 +622,15 @@ class OrderTotalxx {
   // Factory constructor to create an instance from a JSON map
   factory OrderTotalxx.fromJson(Map<String, dynamic> json) {
     return OrderTotalxx(
-      sales: json['sales'] != null ? json['sales'] as String? : '',
-      delivery: json['delivery'] != null ? json['delivery'] as String? : '',
-      payment: json['payment'] != null ? json['payment'] as String? : '',
-      estimate: json['estimate'] != null ? json['estimate'] as String? : '',
-      preOrder: json['preOrder'] != null ? json['preOrder'] as String? : '',
-      draft: json['draft'] != null ? json['draft'] as String? : '',
-      cancelled: json['cancelled'] != null ? json['cancelled'] as String? : '',
+      sales: json['sales'] != null ? json['sales'].toString() : '',
+      delivery: json['delivery'] != null ? json['delivery'].toString() : '',
+      payment: json['payment'] != null ? json['payment'].toString() : '',
+      estimate: json['estimate'] != null ? json['estimate'].toString() : '',
+      preOrder: json['preOrder'] != null ? json['preOrder'].toString() : '',
+      draft: json['draft'] != null ? json['draft'].toString() : '',
+      cancelled: json['cancelled'] != null ? json['cancelled'].toString() : '',
       previousYearSale: json['previous_year_sale_price'] != null
-          ? json['previous_year_sale_price'] as String?
+          ? json['previous_year_sale_price'].toString()
           : '',
     );
   }

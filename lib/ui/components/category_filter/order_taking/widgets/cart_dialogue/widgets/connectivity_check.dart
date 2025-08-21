@@ -299,9 +299,7 @@ class ConnectivityService {
                     startDate: formattedStartDate,
                     endDate: formattedEndDate,
                     orderType: orderType,
-                    sentCartIds: [
-                      orderPayload.cartId
-                    ],
+                    sentCartIds: [orderPayload.cartId],
                     sentAmount: orderPayload.orderPrice ?? 0.0,
                   );
 
@@ -345,7 +343,8 @@ class ConnectivityService {
     }
   }
 
-  Future<void> syncOfflineDrafts({VoidCallback? onDraftsSynced}) async {
+  Future<void> syncOfflineDrafts(
+      {Future<void> Function()? onDraftsSynced}) async {
     int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     if (companyId != 0) {
       if (_isSyncing) {
@@ -580,6 +579,7 @@ class ConnectivityService {
       } finally {
         _isSyncing = false;
       }
+      await onDraftsSynced?.call();
     }
   }
 

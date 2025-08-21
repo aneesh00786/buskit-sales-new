@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/api_handler/sync_manager.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -15,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -114,33 +116,51 @@ void main() async {
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
 
-  final cusProvider =
-      Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
+  // final cusProvider =
+  //     // Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
+  //     Get.find<CustomersProvider>();
+  // final dashProvider =
+  //     // Get.put(DashboardProvider(apiService: ApiService(), logger: Logger()));
+  //     Get.find<DashboardProvider>();
 
-  final connectivityService = ConnectivityService();
-  connectivityService.startListening((connectivityResult) async {
-    if (connectivityResult != ConnectivityResult.none) {
-      bool isOnline = await connectivityService.isOnline();
-      if (isOnline && !isSyncing) {
-        isSyncing = true;
+  // final connectivityService = ConnectivityService();
+  // connectivityService.startListening((connectivityResult) async {
+  //   if (connectivityResult != ConnectivityResult.none) {
+  //     bool isOnline = await connectivityService.isOnline();
+  //     if (isOnline && !isSyncing) {
+  //       isSyncing = true;
 
-        try {
-          await connectivityService.syncOfflineOrders(
-            onOrderSynced: orderController.loadOfflineOrders,
-          );
-          await connectivityService.syncOfflineDrafts(onDraftsSynced: () async {
-            await cusProvider.fetchCustomerDashboardCountData(
-                customersAndOrdersController.customerId.value);
-          });
-          await connectivityService.retryOfflineRequests();
-        } catch (e) {
-          log('Error during sync: $e');
-        } finally {
-          isSyncing = false;
-        }
-      }
-    }
-  });
+  //       try {
+  //         await connectivityService.syncOfflineOrders(
+  //           onOrderSynced: orderController.loadOfflineOrders,
+  //         );
+  //         await connectivityService.syncOfflineDrafts(onDraftsSynced: () async {
+  //           final cusProvider =
+  //               // Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
+  //               Get.find<CustomersProvider>();
+  //           final dashProvider =
+  //               // Get.put(DashboardProvider(apiService: ApiService(), logger: Logger()));
+  //               Get.find<DashboardProvider>();
+
+  //           await dashProvider.fetchData();
+  //           await dashProvider.fetchOrdersData(OrderStatus.draft);
+  //           await CartDatabaseManager().getDraftItems();
+  //           await cusProvider.fetchCustomerDashboardCountData(
+  //               customersAndOrdersController.customerId.value);
+  //           await cusProvider.fetchOrdersForCustomDash(
+  //             OrderStatus.draft,
+  //             customersAndOrdersController.customerId.value,
+  //           );
+  //         });
+  //         await connectivityService.retryOfflineRequests();
+  //       } catch (e) {
+  //         log('Error during sync: $e');
+  //       } finally {
+  //         isSyncing = false;
+  //       }
+  //     }
+  //   }
+  // });
 
   // Handle cart persistence on app restart
   await _handleCartPersistenceOnRestart();
@@ -251,18 +271,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   DashboardProvider(apiService: ApiService(), logger: Logger()),
             ),
           ],
-          child: GetMaterialApp(
-            navigatorKey: Get.key,
-            theme: NkGetXTheme.lightTheme,
-            darkTheme: NkGetXTheme.lightTheme,
-            highContrastTheme: NkGetXTheme.lightTheme,
-            highContrastDarkTheme: NkGetXTheme.lightTheme,
-            showPerformanceOverlay: false,
-            initialBinding: CommonBinding(),
-            getPages: AppRoutes.genratedRoutes,
-            initialRoute: widget.initialRout,
-            themeMode: ThemeMode.system,
-            debugShowCheckedModeBanner: false,
+          child: SyncManager(
+            child: GetMaterialApp(
+              navigatorKey: Get.key,
+              theme: NkGetXTheme.lightTheme,
+              darkTheme: NkGetXTheme.lightTheme,
+              highContrastTheme: NkGetXTheme.lightTheme,
+              highContrastDarkTheme: NkGetXTheme.lightTheme,
+              showPerformanceOverlay: false,
+              initialBinding: CommonBinding(),
+              getPages: AppRoutes.genratedRoutes,
+              initialRoute: widget.initialRout,
+              themeMode: ThemeMode.system,
+              debugShowCheckedModeBanner: false,
+            ),
           ),
         );
       },

@@ -2114,7 +2114,7 @@ class CartDialogueState extends State<CartDialogue> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
@@ -2134,31 +2134,48 @@ class CartDialogueState extends State<CartDialogue> {
                                   .fetchCustomerDashboardCountData(customerId);
                             }
 
-                            if (cartItemCount != 0) {
-                              final cartItems = await CartDatabaseManager()
-                                  .getCartItems(customerId);
+                            // if (cartItemCount != 0) {
+                            //   // final cartItems = await CartDatabaseManager()
+                            //   //     .getCartItems(customerId);
 
-                              bool hasRelevantItems;
-                              if (isOrder) {
-                                hasRelevantItems = cartItems.any(
-                                    (item) => (item.detail.stock ?? 0) > 0);
-                              } else {
-                                hasRelevantItems = cartItems.any(
-                                    (item) => (item.detail.stock ?? 0) == 0);
-                              }
+                            //   // bool hasRelevantItems;
+                            //   // if (isOrder) {
+                            //   //   hasRelevantItems = cartItems.any(
+                            //   //       (item) => (item.detail.stock ?? 0) > 0);
+                            //   // } else {
+                            //   //   hasRelevantItems = cartItems.any(
+                            //   //       (item) => (item.detail.stock ?? 0) == 0);
+                            //   // }
 
-                              if (!hasRelevantItems) {
-                                setState(() {
-                                  isOrder = !isOrder;
-                                });
-                              }
-                            }
+                            //   // if (!hasRelevantItems) {
+                            //   //   setState(() {
+                            //   //     isOrder = !isOrder;
+                            //   //   });
+                            //   // }
+                            //   bool isOnline =
+                            //       await ConnectivityService().isOnline();
+                            //   if (isOnline) {
+                            //     Navigator.of(context, rootNavigator: true)
+                            //         .pop();
+                            //     if (Navigator.canPop(context)) {
+                            //       Navigator.pop(context);
+                            //     }
+                            //     widget.onDraftUpdated;
+                            //   }
+                            // }
 
-                            if (cartItemCount == 0) {
+                            // if (cartItemCount == 0) {
+                            //   Navigator.of(context, rootNavigator: true).pop();
+                            //   if (Navigator.canPop(context)) {
+                            //     Navigator.pop(context);
+                            //   }
+                            // }
+                            setState(() {
+                              Navigator.pop(context);
                               Navigator.of(context, rootNavigator: true).pop();
-                              if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
-                              }
+                            });
+                            if (widget.onDraftUpdated != null) {
+                              widget.onDraftUpdated!();
                             }
                           },
                           child: const Text('OK'),

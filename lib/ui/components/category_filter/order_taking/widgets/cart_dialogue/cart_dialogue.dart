@@ -1727,8 +1727,7 @@ class CartDialogueState extends State<CartDialogue> {
                                     cartId: cartIdPrefs,
                                     draftId: draftIdPrefs,
                                   );
-                                  cartProvider
-                                      .getCartItemCounts(customerId);
+                                  cartProvider.getCartItemCounts(customerId);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -2468,17 +2467,15 @@ class CartDialogueState extends State<CartDialogue> {
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         orderType: orderType,
-        sentCartIds: [orderId], // Use the offline order ID temporarily
+        sentCartIds: [orderId],
         sentAmount: finalAmount,
       );
 
       log('[saveOrderOffline] Successfully updated cached drafts after offline order save');
     } catch (e) {
       log('[saveOrderOffline] Error updating cached drafts: $e');
-      // Don't show error to user as this is a background operation
     }
 
-    // OFFLINE DRAFT BOX (only items that were NOT processed)
     {
       String checkCustomerId = customeController.customerId.isNotEmpty
           ? customeController.customerId.value
@@ -2503,6 +2500,13 @@ class CartDialogueState extends State<CartDialogue> {
         log('existingDraftForCustomer : $existingDraftForCustomer');
 
         var newCartItems = remainingItems;
+
+        for (var item in newCartItems) {
+          item.isChecked = true;
+        }
+
+        log('[newCartItems] : ${newCartItems.map((e) => e.toJson()).toList()}');
+        log('[newCartItems] display total : ${Utils().calculateSubtotal(newCartItems)}');
 
         if (newCartItems.isEmpty || newCartItems == []) {
           drafts.removeAt(existingDraftIndex);

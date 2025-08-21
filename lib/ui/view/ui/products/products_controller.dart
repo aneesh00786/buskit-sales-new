@@ -84,8 +84,7 @@ class ProductsController extends GetxController {
   }
 
   void clearCartItemsInControllerAndHive(String customerId) async {
-    log(
-        '[ProductsController] clearCartItemsInControllerAndHive called for customerId=$customerId');
+    log('[ProductsController] clearCartItemsInControllerAndHive called for customerId=$customerId');
     await CartDatabaseManager().clearCartOnlyForCustomer(customerId);
     cartItems.clear();
     orderItems.clear();
@@ -228,6 +227,8 @@ class ProductsController extends GetxController {
 
     final isOnline = await connectivityService.isOnline();
     log('🌐 Connectivity: ${isOnline ? "Online" : "Offline"}');
+
+    log("ALLITEMSTOTAL 1 : ${allItemsTotalSave.value}");
 
     if (!isOnline) {
       log('💾 Saving as offline draft...');

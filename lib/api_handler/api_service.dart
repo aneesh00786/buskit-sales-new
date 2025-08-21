@@ -1902,17 +1902,26 @@ class ApiService {
           if (orderCountList != null) {
             final currentDraftCount =
                 int.tryParse(orderCountList['draft_order'].toString()) ?? 0;
+            final currentFilteredDraftCount = int.tryParse(
+                    orderCountList['draft_FilteredCount'].toString()) ??
+                0;
             final newDraftCount =
                 (currentDraftCount - 1).clamp(0, double.infinity).toInt();
-            orderCountList['draft_order'] = newDraftCount.toString();
+            final newFilteredDraftCount = (currentFilteredDraftCount - 1)
+                .clamp(0, double.infinity)
+                .toInt();
 
-            // Store back in the same format as retrieved
+            orderCountList['draft_order'] = newDraftCount.toString();
+            orderCountList['draft_FilteredCount'] =
+                newFilteredDraftCount.toString();
+
             if (cachedDashboardData is String) {
               await dashboardBox.put('dashboardData', jsonEncode(dashboardMap));
             } else {
               await dashboardBox.put('dashboardData', dashboardMap);
             }
             log('[Z2] Updated dashboardBox draft_order → $newDraftCount');
+            log('[Z2] Updated dashboardBox draft_FilteredCount → $newFilteredDraftCount');
           }
         }
       } catch (e) {

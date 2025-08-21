@@ -2121,7 +2121,6 @@ class CartDialogueState extends State<CartDialogue> {
                             final cartItemCount = await cartProvider
                                 .getCartItemCounts(customerId);
 
-                            // Always call these functions regardless of cart count
                             CartDatabaseManager().addListener(() {
                               cartProvider.updateCartCount(customerId);
                             });
@@ -2136,24 +2135,31 @@ class CartDialogueState extends State<CartDialogue> {
                             }
 
                             if (cartItemCount != 0) {
-                              setState(() {
-                                isOrder = !isOrder;
-                              });
+                              final cartItems = await CartDatabaseManager()
+                                  .getCartItems(customerId);
+
+                              bool hasRelevantItems;
+                              if (isOrder) {
+                                hasRelevantItems = cartItems.any(
+                                    (item) => (item.detail.stock ?? 0) > 0);
+                              } else {
+                                hasRelevantItems = cartItems.any(
+                                    (item) => (item.detail.stock ?? 0) == 0);
+                              }
+
+                              if (!hasRelevantItems) {
+                                setState(() {
+                                  isOrder = !isOrder;
+                                });
+                              }
                             }
 
                             if (cartItemCount == 0) {
-                              // If cart is empty, pop all dialogs and navigate
                               Navigator.of(context, rootNavigator: true).pop();
                               if (Navigator.canPop(context)) {
                                 Navigator.pop(context);
                               }
-                              // Call the callback to refresh the draft list
-                              // if (widget.onDraftUpdated != null) {
-                              //   widget.onDraftUpdated!();
-                              // }
                             }
-                            // If cartItemCount > 0, only the current alert dialog is popped
-                            // and the user stays on the cart dialog
                           },
                           child: const Text('OK'),
                         ),

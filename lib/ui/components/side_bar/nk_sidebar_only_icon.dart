@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class NkSideBarOnlyIcon extends StatefulWidget {
@@ -419,6 +421,11 @@ Future<void> handleTabSwitchNavigation(
     log('[TabSwitch] Draft already exists. Directly updating tab index.');
     updateTabIndex();
   }
+  final dashboardProvider =
+      Provider.of<DashboardProvider>(context, listen: false);
+  await dashboardProvider.fetchData();
+  await dashboardProvider.fetchAllOrdersAtOnce();
+  await CartDatabaseManager().getDraftItems();
   productController.isCartModified.value = false;
 }
 

@@ -150,71 +150,142 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   }
 
   bool _shouldShowUpgradeButton(int index) {
-    switch (index) {
-      case 0:
-        {
-          if (subscriptionController.receivedOrder.value == "true") {
-            return true;
-          } else {
-            return false;
+    if (widget.orderController.hasOfflineOrders.value) {
+      switch (index) {
+        case 0:
+          return true;
+        case 1:
+          {
+            if (subscriptionController.receivedOrder.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 1:
-        {
-          if (subscriptionController.customerApprovalOption.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 2:
+          {
+            if (subscriptionController.customerApprovalOption.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 2:
-        {
-          if (subscriptionController.quickSale.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 3:
+          {
+            if (subscriptionController.quickSale.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 3:
-        {
-          if (subscriptionController.processing.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 4:
+          {
+            if (subscriptionController.processing.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 4:
-        {
-          if (subscriptionController.packedReady.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 5:
+          {
+            if (subscriptionController.packedReady.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 5:
-        {
-          if (subscriptionController.delivered.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 6:
+          {
+            if (subscriptionController.delivered.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      case 6:
-        {
-          if (subscriptionController.rejected.value == "true") {
-            return true;
-          } else {
-            return false;
+        case 7:
+          {
+            if (subscriptionController.rejected.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
-      default:
-        {
-          if (subscriptionController.receivedOrder.value == "true") {
-            return true;
-          } else {
-            return false;
+        default:
+          {
+            if (subscriptionController.receivedOrder.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
           }
-        }
+      }
+    } else {
+      switch (index) {
+        case 0:
+          {
+            if (subscriptionController.receivedOrder.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 1:
+          {
+            if (subscriptionController.customerApprovalOption.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 2:
+          {
+            if (subscriptionController.quickSale.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 3:
+          {
+            if (subscriptionController.processing.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 4:
+          {
+            if (subscriptionController.packedReady.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 5:
+          {
+            if (subscriptionController.delivered.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        case 6:
+          {
+            if (subscriptionController.rejected.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        default:
+          {
+            if (subscriptionController.receivedOrder.value == "true") {
+              return true;
+            } else {
+              return false;
+            }
+          }
+      }
     }
   }
 

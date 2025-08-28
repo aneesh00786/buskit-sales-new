@@ -140,4 +140,5 @@ mixin class ApiConstants {
 
   static const String getLeadForUpdating = "get_lead_for_updating";
   static const String customerPayment = "customer_payment";
+  static const String getProductFrequency = "get_product_frequency";
 }

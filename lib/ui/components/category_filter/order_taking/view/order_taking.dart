@@ -183,8 +183,7 @@ class _OrderTakingState extends State<OrderTaking>
     if (!_isCartCountFetched) {
       isCartCountLoading = true;
       cartProvider
-          .getCartItemCounts(
-              widget.productsController.selectedCustomerId.value)
+          .getCartItemCounts(widget.productsController.selectedCustomerId.value)
           .then((_) {
         if (mounted) {
           setState(() {
@@ -201,8 +200,8 @@ class _OrderTakingState extends State<OrderTaking>
     _drawerTimer?.cancel();
     animationController.dispose();
     CartDatabaseManager().removeListener(() {
-      cartProvider.updateCartCount(
-          widget.productsController.selectedCustomerId.value);
+      cartProvider
+          .updateCartCount(widget.productsController.selectedCustomerId.value);
     });
     super.dispose();
   }
@@ -415,6 +414,7 @@ class _OrderTakingState extends State<OrderTaking>
       ),
       body: Obx(() {
         if (widget.productsController.categoryData.value.data == null) {
+          widget.productsController.loadCategoriesAndDefaultProducts();
           return const Center(
             child: SpinKitFadingCube(
               color: primaryColor,
@@ -728,7 +728,7 @@ class _OrderTakingState extends State<OrderTaking>
                                     selectedName: widget.productsController
                                         .selectedCustomerName.value,
                                     customerId: widget.productsController
-                                            .selectedCustomerId.value,
+                                        .selectedCustomerId.value,
                                   ),
                                 )
                         ],

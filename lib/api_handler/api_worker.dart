@@ -27,6 +27,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -3232,6 +3233,46 @@ class ApiWorker with ApiConstants {
       } else {
         throw Exception('Unexpected error in customerPayment: $error');
       }
+    }
+  }
+  
+  Future<ProductFrequencyResponse> getProductFrequency() async {
+    try {
+      final isConnected = await ConnectivityService().isOnline();
+      final cacheKey =
+          "${SessionHelper.loginSavedData?.company_id ?? 0}_product_frequency";
+
+      final box = await Hive.openBox('productFrequencyBox');
+
+      if (!isConnected) {
+        final savedProductFrequency = box.get(cacheKey) as Map?;
+        if (savedProductFrequency != null) {
+          return ProductFrequencyResponse.fromJson(
+            ApiService().castToStringDynamic(savedProductFrequency),
+          );
+        } else {
+          throw Exception('No data available offline');
+        }
+      } else {
+        final response = await responsePostMethod(
+          requestData: {
+            "companyId": SessionHelper.loginSavedData?.company_id ?? 0
+          },
+          endPoint: ApiConstants.getProductFrequency,
+        );
+
+        final productFrequency = ProductFrequencyResponse.fromJson(response.data);
+        await box.put(cacheKey, productFrequency.toJson());
+
+        return productFrequency;
+      }
+    } catch (error) {
+      log('Error occurred while fetching product frequency: $error');
+      handleExceptionMessage(
+        apiName: 'Product Frequency',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch product frequency: $error');
     }
   }
 }

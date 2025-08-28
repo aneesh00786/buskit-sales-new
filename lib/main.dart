@@ -15,17 +15,25 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/sync_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +94,7 @@ void main() async {
   await Hive.openBox('scheduleBox');
   await Hive.openBox('draftAndCartIdsBox');
   await Hive.openBox('draftItemsBox');
+  await Hive.openBox('productFrequencyBox');
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
   SystemChrome.setPreferredOrientations([
@@ -94,7 +103,6 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  bool isSyncing = false;
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: backgroundColor,
     statusBarIconBrightness: Brightness.dark,
@@ -105,64 +113,24 @@ void main() async {
   Get.lazyPut<HomeController>(() => HomeController());
   SessionHelper.loginSavedData = await SessionHelper().getLoginData();
   SessionHelper.settingsData = await SessionHelper().getSettingsData();
-  Get.put(DashBoardController());
-  final subscriptionController = Get.put(SubscriptionController());
-  final orderController = Get.put(OrderController());
-
+  Get.put(NotificationController());
+  Get.put(LoginController());
   Get.put(CalenderMapController());
-  final customersAndOrdersController = Get.put(CustomerAndOrderController());
+  Get.put(CustomerAndOrderController());
+  Get.put(DashBoardController());
+  Get.put(LeadsController());
+  Get.put(CustomersController());
+  Get.put(RejectedLeadsController());
+  Get.put(OrderController());
+  Get.put(PendingPaymentController());
   Get.put(ProductsController());
+  Get.put(StaffController());
+  Get.put(SyncController());
+  final subscriptionController = Get.put(SubscriptionController());
 
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
 
-  // final cusProvider =
-  //     // Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
-  //     Get.find<CustomersProvider>();
-  // final dashProvider =
-  //     // Get.put(DashboardProvider(apiService: ApiService(), logger: Logger()));
-  //     Get.find<DashboardProvider>();
-
-  // final connectivityService = ConnectivityService();
-  // connectivityService.startListening((connectivityResult) async {
-  //   if (connectivityResult != ConnectivityResult.none) {
-  //     bool isOnline = await connectivityService.isOnline();
-  //     if (isOnline && !isSyncing) {
-  //       isSyncing = true;
-
-  //       try {
-  //         await connectivityService.syncOfflineOrders(
-  //           onOrderSynced: orderController.loadOfflineOrders,
-  //         );
-  //         await connectivityService.syncOfflineDrafts(onDraftsSynced: () async {
-  //           final cusProvider =
-  //               // Get.put(CustomersProvider(apiService: ApiService(), logger: Logger()));
-  //               Get.find<CustomersProvider>();
-  //           final dashProvider =
-  //               // Get.put(DashboardProvider(apiService: ApiService(), logger: Logger()));
-  //               Get.find<DashboardProvider>();
-
-  //           await dashProvider.fetchData();
-  //           await dashProvider.fetchOrdersData(OrderStatus.draft);
-  //           await CartDatabaseManager().getDraftItems();
-  //           await cusProvider.fetchCustomerDashboardCountData(
-  //               customersAndOrdersController.customerId.value);
-  //           await cusProvider.fetchOrdersForCustomDash(
-  //             OrderStatus.draft,
-  //             customersAndOrdersController.customerId.value,
-  //           );
-  //         });
-  //         await connectivityService.retryOfflineRequests();
-  //       } catch (e) {
-  //         log('Error during sync: $e');
-  //       } finally {
-  //         isSyncing = false;
-  //       }
-  //     }
-  //   }
-  // });
-
-  // Handle cart persistence on app restart
   await _handleCartPersistenceOnRestart();
 
   runApp(MyApp(

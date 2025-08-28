@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 // ignore: implementation_imports
 import 'package:flutter/material.dart';
@@ -876,5 +877,26 @@ class ProductsController extends GetxController {
       //     );
     }
     refresh();
+  }
+
+    RxList<ProductFrequencyData> productFrequencyList =
+      <ProductFrequencyData>[].obs;
+
+  Future<List<ProductFrequencyData>> loadProductFrequency() async {
+    try {
+      log("Loading Product Frequency...");
+      var response = await ApiWorker().getProductFrequency();
+      if (response.data != null) {
+        productFrequencyList.assignAll(response.data!);
+
+        log("[Product Frequency] : ${productFrequencyList.toJson()}");
+      } else {
+        productFrequencyList.clear();
+      }
+      refresh();
+    } catch (error) {
+      log("Error loading Product Frequency: $error");
+    }
+    return productFrequencyList;
   }
 }

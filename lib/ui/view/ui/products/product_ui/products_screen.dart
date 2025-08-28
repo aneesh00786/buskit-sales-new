@@ -20,6 +20,8 @@ class _ProductScreenState extends State<ProductScreen> {
   void initState() {
     super.initState();
     // productsController.loadDataOfCategory.whenComplete(() {});
+
+    productsController.loadProductFrequency();
   }
 
   @override
@@ -35,7 +37,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 productsController: productsController,
               );
             } else {
-              return  ProductMiddelWidget(
+              return ProductMiddelWidget(
                 productsController: productsController,
               );
             }

@@ -677,6 +677,7 @@ class LoginController extends GetxController {
         Provider.of<DashboardProvider>(context, listen: false).fetchData(),
         customerAndOrderController.loadCustomer(),
         productsController.loadCategoriesAndDefaultProducts(),
+        productsController.loadProductFrequency(),
         pendingPaymentController.loadOrderData(
             chartIndex: 0, compId: companyId, isLogin: true),
         pendingPaymentController.loadOrderData(
@@ -741,66 +742,47 @@ class LoginController extends GetxController {
             fetchType: "Month"),
 
         // --- Performance/Staff module API calls ---
-        withTimeoutAndLog(ApiWorker().getWeeklyType(), 'getWeeklyType'),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanPerformanceData(
-            monthName: DateFormat.MMMM().format(DateTime.now()),
-            year: DateTime.now().year,
-            compId: companyId,
-            salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
-            isfromLogin: true,
-          ),
-          'fetchSalesmanPerformanceData',
+        ApiWorker().getWeeklyType(),
+        ApiWorker().fetchSalesmanPerformanceData(
+          monthName: DateFormat.MMMM().format(DateTime.now()),
+          year: DateTime.now().year,
+          compId: companyId,
+          salesId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          isfromLogin: true,
         ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanTopBarData(
-              DateFormat.MMMM().format(DateTime.now()), 1),
-          'fetchSalesmanTopBarData-1',
+
+        ApiWorker().fetchSalesmanTopBarData(
+            DateFormat.MMMM().format(DateTime.now()), 1),
+
+        ApiWorker().fetchSalesmanTopBarData(
+            DateFormat.MMMM().format(DateTime.now()), 2),
+
+        ApiWorker().fetchSalesmanTopBarData(
+            DateFormat.MMMM().format(DateTime.now()), 3),
+
+        ApiWorker().fetchSalesmanTopBarData(
+            DateFormat.MMMM().format(DateTime.now()), 4),
+
+        ApiWorker().fetchSalesmanValueTarget(
+          SessionHelper.loginSavedData?.salesmanId ?? '',
+          DateTime.now().year.toString(), null,
+          // currentMonth,
         ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanTopBarData(
-              DateFormat.MMMM().format(DateTime.now()), 2),
-          'fetchSalesmanTopBarData-2',
+
+        ApiWorker().fetchSalesmanTarget(
+          SessionHelper.loginSavedData?.salesmanId ?? '',
+          currentMonth,
+          DateTime.now().year.toString(),
         ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanTopBarData(
-              DateFormat.MMMM().format(DateTime.now()), 3),
-          'fetchSalesmanTopBarData-3',
+
+        ApiWorker().getTimeSheetData(
+          startDate: startDate,
+          endDate: endDate,
         ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanTopBarData(
-              DateFormat.MMMM().format(DateTime.now()), 4),
-          'fetchSalesmanTopBarData-4',
-        ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanValueTarget(
-            SessionHelper.loginSavedData?.salesmanId ?? '',
-            DateTime.now().year.toString(), null,
-            // currentMonth,
-          ),
-          'fetchSalesmanValueTarget',
-        ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSalesmanTarget(
-            SessionHelper.loginSavedData?.salesmanId ?? '',
-            currentMonth,
-            DateTime.now().year.toString(),
-          ),
-          'fetchSalesmanTarget',
-        ),
-        withTimeoutAndLog(
-          ApiWorker().getTimeSheetData(
-            startDate: startDate,
-            endDate: endDate,
-          ),
-          'getTimeSheetData',
-        ),
-        withTimeoutAndLog(
-          ApiWorker().fetchSchedule(
-            endDate,
-            startDate,
-          ),
-          'fetchSchedule',
+
+        ApiWorker().fetchSchedule(
+          endDate,
+          startDate,
         ),
       ]);
 

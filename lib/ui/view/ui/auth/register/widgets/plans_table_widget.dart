@@ -44,7 +44,8 @@ class PlansTableWidgets extends StatelessWidget {
                   ),
                   child: Center(
                     child: CustomText(
-                      content: feature?.name ?? featureName,
+                      content:
+                          normalizeFeatureName(feature?.name ?? featureName),
                       fontFamily: commonFont,
                       fontSize: 16,
                     ),
@@ -87,6 +88,20 @@ class PlansTableWidgets extends StatelessWidget {
         );
       }).toList(),
     );
+  }
+
+  String normalizeFeatureName(String? featureName) {
+    if (featureName == null) return '';
+
+    switch (featureName.trim()) {
+      case "Orders, drafts etc counters with MM/YY separation":
+        return "Order/Estimate/Pre-order/Draft counters with MM/YY";
+      case "Packed &amp; Ready for Delivery":
+      case "Packed &amp; Ready for Delivery ":
+        return "Packed & Ready for Delivery";
+      default:
+        return featureName;
+    }
   }
 }
 

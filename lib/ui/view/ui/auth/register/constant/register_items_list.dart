@@ -24,8 +24,8 @@ class RegisterItemsList {
   ];
   static const List<String> leadsPlan = [
     "Lead acceptance/rejection",
-    "Assign leads to staff",
-    "Lead conversion"
+    "Assign leads to staff ",
+    "Lead conversion "
   ];
   static const List<String> calenderPlan = [
     "Visit list",
@@ -38,21 +38,28 @@ class RegisterItemsList {
     "Routes",
     "Category Target Setting",
     "Staff Projection",
-    "Visit Report"
+    "Visit Report "
   ];
   static const List<String> ordersPlan = [
     "Received Order",
     "Received Order - Editing",
     "Customer approval option",
     "Processing",
-    "Packed & Ready for Delivery",
+    "Packed &amp; Ready for Delivery ",
     "Delivered",
     "Quick Sale",
     "Rejected"
   ];
+  static const List<String> reportPlan = [
+    "Order Filter",
+    "Payment Filter",
+    "Staff Filter",
+    "Customer Filter"
+  ];
   static const List<String> settingsPlan = [
     "Working days settings",
-    "Order/Estimate/Pre-order/Draft counters with MM/YY",
+    // "Order/Estimate/Pre-order/Draft counters with MM/YY",
+    "Orders, drafts etc counters with MM/YY separation",
     "Working Hours"
   ];
   static const List<String> customerDashboardPlan = [
@@ -61,11 +68,11 @@ class RegisterItemsList {
   ];
   static const List<String> salesappFeaturePlan = [
     "Staff check-in/out",
-    "Reports",
+    // "Reports",
     "Admin App"
   ];
   static const List<String> customerOrderPlan = [
-    "View customer dashboard",
+    "View customer dashboard ",
     "Order Taking from dashboard",
     "Payment collection"
   ];

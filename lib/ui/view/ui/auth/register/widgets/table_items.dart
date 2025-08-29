@@ -20,72 +20,58 @@ class TableItems extends StatelessWidget {
           title: "Dashboard",
         ),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss:
-                RegisterItemsList.dashboardPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.dashboardPlan),
         TableTitle(title: "Customers and Orders"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.customersAndOrdersPlan),
+            featureNamesListss: RegisterItemsList.customersAndOrdersPlan),
         TableTitle(title: "Products"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.productsPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.productsPlan),
         TableTitle(title: "Pending Payments"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.pendingPaymentsPlan),
+            featureNamesListss: RegisterItemsList.pendingPaymentsPlan),
         TableTitle(title: "Leads"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.leadsPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.leadsPlan),
         TableTitle(title: "Calendar"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.calenderPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.calenderPlan),
         TableTitle(title: "Staff"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.staffsPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.staffsPlan),
         TableTitle(title: "Orders"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.ordersPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.ordersPlan),
+        TableTitle(title: "Report"),
+        PlansTableWidgets(
+            plans: plans, featureNamesListss: RegisterItemsList.reportPlan),
         TableTitle(title: "Settings"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.settingsPlan),
+            plans: plans, featureNamesListss: RegisterItemsList.settingsPlan),
         TableTitle(title: "Customer Dashboard"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.customerDashboardPlan),
+            featureNamesListss: RegisterItemsList.customerDashboardPlan),
         TableTitle(title: "Sales - app Feature"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.salesappFeaturePlan),
+            featureNamesListss: RegisterItemsList.salesappFeaturePlan),
         TableTitle(title: "Customers & Orders"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.customerOrderPlan),
+            featureNamesListss: RegisterItemsList.customerOrderPlan),
         TableTitle(title: "Products"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss: RegisterItemsList.productPlans),
+            plans: plans, featureNamesListss: RegisterItemsList.productPlans),
         TableTitle(title: "Pending Payments"),
         PlansTableWidgets(
             plans: plans,
-            featureNamesListss:
-                RegisterItemsList.pendingPaymentPlans),
+            featureNamesListss: RegisterItemsList.pendingPaymentPlans),
         TableTitle(title: "Calendar"),
         PlansTableWidgets(
-            plans: plans,
-            featureNamesListss:
-                RegisterItemsList.calenderPlans),
+            plans: plans, featureNamesListss: RegisterItemsList.calenderPlans),
       ],
     );
   }

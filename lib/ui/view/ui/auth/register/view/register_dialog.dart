@@ -98,8 +98,8 @@ Future<dynamic> registerDialog(
                                   hinttext: "Business Name",
                                   focusNode:
                                       loginController.businessEmailFocusNode,
-                                  icon:
-                                      const Icon(EneftyIcons.buildings_outline),
+                                  // icon:
+                                  //     const Icon(EneftyIcons.buildings_outline),
                                   textEditingController:
                                       loginController.businessNameController,
                                   validator: (value) {
@@ -114,8 +114,8 @@ Future<dynamic> registerDialog(
                               Expanded(
                                 child: RegisterTextField(
                                   hinttext: "Company Reg No :",
-                                  icon:
-                                      const Icon(EneftyIcons.buildings_outline),
+                                  // icon:
+                                  //     const Icon(EneftyIcons.buildings_outline),
                                   textEditingController:
                                       loginController.companyRegController,
                                   validator: (value) {

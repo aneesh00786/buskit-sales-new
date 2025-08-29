@@ -54,61 +54,40 @@ class _RegisterPhoneNumberFieldState extends State<RegisterPhoneNumberField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(
-          () {
-            return TextFormField(
-              controller: widget.textEditingController,
-              focusNode: widget.focusNode,
-              keyboardType: TextInputType.number,
-              maxLength: 10,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              decoration: InputDecoration(
-                hintText: 'Phone Number',
-                counterText: '',
-                errorText: _validationMessage,
-                border: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.grey.withOpacity(0.5)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.grey.withOpacity(0.5)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.grey.withOpacity(0.5)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                prefixIcon: Container(
-                  width: 30,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      right:
-                          BorderSide(color: Colors.grey.withOpacity(0.5)),
-                    ),
-                  ),
-                  child: Text(
-                    widget.loginController.phoneCode,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your phone number';
-                } else if (value.length < 10) {
-                  return 'Please enter your 10-digit phone number';
-                }
-                return null;
-              },
-            );
+        TextFormField(
+          controller: widget.textEditingController,
+          focusNode: widget.focusNode,
+          keyboardType: TextInputType.number,
+          maxLength: 10,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          decoration: InputDecoration(
+            hintText: 'Phone Number',
+            counterText: '',
+            errorText: _validationMessage,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your phone number';
+            } else if (value.length < 10) {
+              return 'Please enter your 10-digit phone number';
+            }
+            return null;
           },
-        )
+        ),
       ],
     );
   }

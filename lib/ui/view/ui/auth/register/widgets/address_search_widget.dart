@@ -74,8 +74,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   }
 
   Future<void> fetchAddressSuggestions(String query) async {
-    final url =
-        Uri.parse("${ApiConstants.baseUrl}search-address?query=$query");
+    final url = Uri.parse("${ApiConstants.baseUrl}search-address?query=$query");
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -185,7 +184,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
       child: RegisterTextField(
         hinttext: widget.hinttext,
         key: _textFieldKey,
-        icon: const Icon(EneftyIcons.buildings_outline),
+        // icon: const Icon(EneftyIcons.buildings_outline),
         textEditingController: widget.textEditingController,
         validator: (value) {
           if (value == null || value.isEmpty) {

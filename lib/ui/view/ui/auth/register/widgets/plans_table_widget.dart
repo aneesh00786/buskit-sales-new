@@ -34,7 +34,7 @@ class PlansTableWidgets extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
@@ -43,7 +43,11 @@ class PlansTableWidgets extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: CustomText(content: feature?.name ?? featureName),
+                    child: CustomText(
+                      content: feature?.name ?? featureName,
+                      fontFamily: commonFont,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -51,7 +55,7 @@ class PlansTableWidgets extends StatelessWidget {
                 String? status =
                     plan.planFeatures?.features?[feature?.tagId]?.status;
                 return Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
@@ -61,21 +65,19 @@ class PlansTableWidgets extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      child: Icon(
-                        status == 'true'
-                            ? EneftyIcons.tick_circle_outline
-                            : EneftyIcons.close_circle_outline,
-                        color: status == 'true' ? Colors.green : Colors.red,
-                        size: 15,
-                      ),
-                      // child: Center(
-                      //   child: Image.asset(
-                      //     status == 'true'
-                      //         ? "assets/images/close and tick.png"
-                      //         : "assets/images/close png.png",
-                      //     height: 20,
-                      //   ),
+                      // child: Icon(
+                      //   status == 'true' ? Icons.check : Icons.close,
+                      //   color: status == 'true' ? Colors.green : Colors.red,
+                      //   size: 20,
                       // ),
+                      child: Center(
+                        child: Image.asset(
+                          status == 'true'
+                              ? "assets/images/close and tick.png"
+                              : "assets/images/close png.png",
+                          height: 20,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -95,11 +97,14 @@ class TableTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: CustomText(
-        content: title,
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+      padding: EdgeInsets.only(top: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CustomText(
+          content: title,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/payment_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/paypal_starting_method.dart';
@@ -52,9 +53,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
     final price = double.tryParse(selectedPlan!.price.toString()) ?? 0.0;
     final totalPrice = price * _selectedQuantity;
     final cycle = selectedPlan!.billingCycle?.trim().toLowerCase();
-    final durationLabel = (cycle == 'monthly') ? '/Mo' : '/Yr';
+    final durationLabel = (cycle == 'monthly') ? '/Month' : '/Year';
 
-    return 'Subscribe ${selectedPlan!.planName} for ${_formatCurrency(totalPrice)}$durationLabel';
+    return 'Subscribe ${selectedPlan!.planName?.nkStringCapitalizeFirstCaracter} for USD ${_formatCurrency(totalPrice)}$durationLabel';
   }
 
   Map<String, List<Plan>> _groupPlansByName(List<Plan> plans) {
@@ -78,6 +79,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: white,
         title: CustomText(
           content: 'Register Plan',
           fontSize: 20,
@@ -87,7 +89,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding:
-              const EdgeInsets.only(left: 30, right: 30, bottom: 16, top: 16),
+              const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 16),
           child: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -104,7 +106,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   height: 100,
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 65, 203, 210),
+                    color: Color(0xFF48b0ba),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
@@ -122,82 +124,85 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                       }
                       plans = snapshot.data ?? [];
                       final groupedPlans = _groupPlansByName(plans!);
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minWidth: MediaQuery.of(context).size.width,
+                      return Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Center(
+                                child: CustomText(
+                                  content: "Feature",
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
+                              ),
                             ),
+                          ),
+                          // const SizedBox(width: 15),
+                          Expanded(
+                            flex: 6,
                             child: Row(
-                              children: [
-                                Padding(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: groupedPlans.entries.map((entry) {
+                                final planOptions = entry.value;
+
+                                Plan? monthlyPlan =
+                                    planOptions.firstWhereOrNull(
+                                  (p) =>
+                                      p.billingCycle?.trim().toLowerCase() ==
+                                      'monthly',
+                                );
+                                Plan? yearlyPlan = planOptions.firstWhereOrNull(
+                                  (p) =>
+                                      p.billingCycle?.trim().toLowerCase() ==
+                                      'yearly',
+                                );
+
+                                return Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: CustomText(
-                                    content: "Feature",
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: groupedPlans.entries.map((entry) {
-                                    final planOptions = entry.value;
-
-                                    Plan? monthlyPlan =
-                                        planOptions.firstWhereOrNull(
-                                      (p) =>
-                                          p.billingCycle
-                                              ?.trim()
-                                              .toLowerCase() ==
-                                          'monthly',
-                                    );
-                                    Plan? yearlyPlan =
-                                        planOptions.firstWhereOrNull(
-                                      (p) =>
-                                          p.billingCycle
-                                              ?.trim()
-                                              .toLowerCase() ==
-                                          'yearly',
-                                    );
-
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          if (monthlyPlan != null)
-                                            PlanCheckboxRow(
-                                              planName:
-                                                  "${monthlyPlan.planName} ${_formatCurrency(double.tryParse(monthlyPlan.price ?? '0.0') ?? 0.0)}/Mo USD",
-                                              isSelected: selectedPlan
-                                                      ?.planIdentifier ==
-                                                  monthlyPlan.planIdentifier,
-                                              onChanged: (_) =>
-                                                  onCheckedChanged(monthlyPlan),
-                                            ),
-                                          if (yearlyPlan != null)
-                                            PlanCheckboxRow(
-                                              planName:
-                                                  "${_formatCurrency(double.tryParse(yearlyPlan.price ?? '0.0') ?? 0.0)}/Year USD",
-                                              isSelected: selectedPlan
-                                                      ?.planIdentifier ==
-                                                  yearlyPlan.planIdentifier,
-                                              onChanged: (_) =>
-                                                  onCheckedChanged(yearlyPlan),
-                                            ),
-                                        ],
+                                      horizontal: 15),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CustomText(
+                                        content: monthlyPlan?.planName
+                                            .toString()
+                                            .nkStringCapitalizeFirstCaracter,
+                                        color: white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
-                            )),
+                                      if (monthlyPlan != null)
+                                        PlanCheckboxRow(
+                                          planName:
+                                              "USD ${_formatCurrency(double.tryParse(monthlyPlan.price ?? '0.0') ?? 0.0)}/Month",
+                                          isSelected:
+                                              selectedPlan?.planIdentifier ==
+                                                  monthlyPlan.planIdentifier,
+                                          onChanged: (_) =>
+                                              onCheckedChanged(monthlyPlan),
+                                        ),
+                                      if (yearlyPlan != null)
+                                        PlanCheckboxRow(
+                                          planName:
+                                              "USD ${_formatCurrency(double.tryParse(yearlyPlan.price ?? '0.0') ?? 0.0)}/Year",
+                                          isSelected:
+                                              selectedPlan?.planIdentifier ==
+                                                  yearlyPlan.planIdentifier,
+                                          onChanged: (_) =>
+                                              onCheckedChanged(yearlyPlan),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -210,8 +215,9 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   width: MediaQuery.of(context).size.width * 0.4,
                   decoration: BoxDecoration(
                       gradient: const LinearGradient(colors: [
+                        Color(0xFF48b0ba),
                         Color.fromARGB(255, 65, 203, 210),
-                        Color.fromARGB(255, 145, 234, 238),
+                        // Color.fromARGB(255, 145, 234, 238),
                         Color.fromARGB(255, 113, 165, 238)
                       ]),
                       boxShadow: [
@@ -258,7 +264,7 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                   height: 20,
                 ),
                 CustomText(
-                  content: "Number of liescense",
+                  content: "Number of Licenses",
                 ),
                 const SizedBox(
                   height: 20,
@@ -332,16 +338,17 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 65, 203, 210),
+                          color: Color(0xFF48b0ba),
                           borderRadius: BorderRadius.circular(15)),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: CustomText(
                           content: _getSelectedPlanText(),
                           textAlign: TextAlign.center,
-                          fontSize: 16,
+                          fontSize: 20,
                           color: white,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: commonFont,
                         ),
                       ),
                     ),

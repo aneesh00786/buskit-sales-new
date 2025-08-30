@@ -25,6 +25,7 @@ class InvoicePreview extends StatefulWidget {
 class _InvoicePreviewState extends State<InvoicePreview> {
   String htmlContent = "";
   bool isLoading = true;
+  bool isSendingMail = false;
 
   @override
   void initState() {
@@ -89,8 +90,14 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                       nkSmallSizeBox(),
                       GestureDetector(
                         onTap: () async {
+                          setState(() {
+                            isSendingMail = true;
+                          });
                           var response =
                               await ApiWorker().sendInvoice(widget.orderId);
+                          setState(() {
+                            isSendingMail = false;
+                          });
 
                           showCustomToastDisplay(
                               context,
@@ -102,17 +109,19 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                                   ? Icons.check
                                   : Icons.close);
                         },
-                        child: Container(
-                          color: Colors.green,
-                          width: 40,
-                          child: const Center(
-                            child: Icon(
-                              Icons.outgoing_mail,
-                              color: white,
-                              size: 30,
-                            ),
-                          ),
-                        ),
+                        child: !isSendingMail
+                            ? Container(
+                                color: Colors.green,
+                                width: 40,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.outgoing_mail,
+                                    color: white,
+                                    size: 30,
+                                  ),
+                                ),
+                              )
+                            : CircularProgressIndicator(color: Colors.green),
                       ),
                       nkSmallSizeBox(),
                       const Spacer(),

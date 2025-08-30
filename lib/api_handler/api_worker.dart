@@ -2703,6 +2703,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<Response> sendInvoice(String orderId) async {
+    log("SEND INVOICE");
     try {
       Map<String, dynamic> data = {
         "order_id": orderId,

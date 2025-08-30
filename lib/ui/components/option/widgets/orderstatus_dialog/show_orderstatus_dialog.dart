@@ -325,21 +325,12 @@ void showOrderStatusDialog(
                                                                           child:
                                                                               InkWell(
                                                                             onTap:
-                                                                                () async {
+                                                                                () {
                                                                               if (order.invoice.isNotEmpty) {
-                                                                                bool isOnline = await ConnectivityService().isOnline();
-                                                                                if (isOnline) {
-                                                                                  showDialog(
-                                                                                    context: context,
-                                                                                    builder: (context) {
-                                                                                      return InvoicePreview(
-                                                                                        orderId: order.orderId,
-                                                                                      );
-                                                                                    },
-                                                                                  );
-                                                                                } else {
-                                                                                  showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
-                                                                                }
+                                                                                showInvoicePreviewOnline(
+                                                                                  context,
+                                                                                  order.orderId,
+                                                                                );
                                                                               }
                                                                             },
                                                                             child:

@@ -971,21 +971,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   child:
                                                                       InkWell(
                                                                     onTap: () {
-                                                                      // showDetailedOrderInvoiceDialog(
-                                                                      //     context,
-                                                                      //     order.orderId,
-                                                                      //     true);
-                                                                      showDialog(
-                                                                        context:
-                                                                            context,
-                                                                        builder:
-                                                                            (context) {
-                                                                          return InvoicePreview(
-                                                                            orderId:
-                                                                                order.orderId,
-                                                                          );
-                                                                        },
-                                                                      );
+                                                                      showInvoicePreviewOnline(
+                                                                                  context,
+                                                                                  order.orderId,
+                                                                                );
+                                                                      
                                                                     },
                                                                     child:
                                                                         Center(

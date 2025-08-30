@@ -359,15 +359,9 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                   width: flexWidth * 0.9,
                                                   child: InkWell(
                                                     onTap: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return InvoicePreview(
-                                                            orderId:
-                                                                order.orderId ??
-                                                                    '',
-                                                          );
-                                                        },
+                                                      showInvoicePreviewOnline(
+                                                        context,
+                                                        order.orderId ?? '',
                                                       );
                                                     },
                                                     child: Center(

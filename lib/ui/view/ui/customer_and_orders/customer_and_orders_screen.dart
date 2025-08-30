@@ -3726,19 +3726,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 0.9,
                                                     child: InkWell(
                                                       onTap: () {
-                                                        // showDetailedOrderInvoiceDialog(
-                                                        //     context,
-                                                        //     order.orderId,
-                                                        //     true);
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return InvoicePreview(
-                                                              orderId:
-                                                                  order.orderId,
-                                                            );
-                                                          },
-                                                        );
+                                                        showInvoicePreviewOnline(
+                                                                                  context,
+                                                                                  order.orderId,
+                                                                                );
+                                                        
                                                       },
                                                       child: Center(
                                                         child: Text(

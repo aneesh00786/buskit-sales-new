@@ -167,14 +167,11 @@ MyCommnonContainer OrdersPayments(
                                       child: Center(
                                         child: InkWell(
                                           onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return InvoicePreview(
-                                                  orderId: order.orderId,
-                                                );
-                                              },
-                                            );
+                                            showInvoicePreviewOnline(
+                                                                                  context,
+                                                                                  order.orderId,
+                                                                                );
+                                            
                                           },
                                           child: MyRegularText(
                                             color: primaryColor,

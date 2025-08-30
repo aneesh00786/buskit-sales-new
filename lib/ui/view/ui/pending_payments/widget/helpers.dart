@@ -488,13 +488,9 @@ Widget _buildInvoiceNumber(CustomerData customerData, BuildContext context) {
   return Center(
       child: InkWell(
     onTap: () {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return InvoicePreview(
-            orderId: customerData.orderId,
-          );
-        },
+      showInvoicePreviewOnline(
+        context,
+        customerData.orderId,
       );
     },
     child: Text(

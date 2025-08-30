@@ -232,13 +232,9 @@ void pendingPaymentCollectionDialog(
                               DataCell(Center(
                                   child: InkWell(
                                 onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return InvoicePreview(
-                                        orderId: payment.orderId,
-                                      );
-                                    },
+                                  showInvoicePreviewOnline(
+                                    context,
+                                    payment.orderId,
                                   );
                                 },
                                 child: Text(

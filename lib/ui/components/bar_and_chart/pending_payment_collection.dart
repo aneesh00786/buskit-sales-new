@@ -98,13 +98,10 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<PendingAmount> selectedItems, double enteredAmount) {
-
     for (var item in selectedItems) {
-
       double itemAmount = (item.receivableAmount ??
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
           .toDouble();
-
 
       if (enteredAmount > 0) {
         double appliedAmount =
@@ -125,9 +122,7 @@ void pendingPaymentCollectionDialog(
           transactionDate: "",
           transactionId: "",
         );
-      } else {
-      }
-
+      } else {}
     }
   }
 
@@ -229,13 +224,9 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(
                   child: InkWell(
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return InvoicePreview(
-                              orderId: payment.orderId ?? '',
-                            );
-                          },
+                        showInvoicePreviewOnline(
+                          context,
+                          payment.orderId ?? '',
                         );
                       },
                       child: Text(
@@ -646,8 +637,7 @@ void pendingPaymentCollectionDialog(
                                           selectedItemsList, enteredAmount);
 
                                       updateSelectedItems();
-                                    } else {
-                                    }
+                                    } else {}
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.transparent,

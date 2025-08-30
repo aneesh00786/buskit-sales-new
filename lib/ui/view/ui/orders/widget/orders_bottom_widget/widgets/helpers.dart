@@ -385,14 +385,11 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
             // Get.snackbar('Error', e.toString());
           }
         } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return InvoicePreview(
-                orderId: orderData.orderId ?? '',
-              );
-            },
-          );
+          showInvoicePreviewOnline(
+                                                                                  context,
+                                                                                  orderData.orderId ?? '',
+                                                                                );
+          
         }
       },
       icon: const Icon(Icons.visibility, size: 16),

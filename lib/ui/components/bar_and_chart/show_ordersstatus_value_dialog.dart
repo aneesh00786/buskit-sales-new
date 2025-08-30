@@ -116,15 +116,14 @@ void showValueOrderDialog(
                         child: SizedBox(
                           height: contentHeight,
                           child: ScrollbarTheme(
-                                        data: const ScrollbarThemeData(
-                                          minThumbLength: 150,
-                                          thickness: WidgetStatePropertyAll(5),
-                                          thumbColor: WidgetStatePropertyAll(
-                                              Colors.blue),
-                                        ),
-                                        child: Scrollbar(
-                                          thumbVisibility: true,
-                                          trackVisibility: true,
+                            data: const ScrollbarThemeData(
+                              minThumbLength: 150,
+                              thickness: WidgetStatePropertyAll(5),
+                              thumbColor: WidgetStatePropertyAll(Colors.blue),
+                            ),
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              trackVisibility: true,
                               child: ListView.builder(
                                 itemCount: filteredOrders.isEmpty
                                     ? 1
@@ -134,10 +133,9 @@ void showValueOrderDialog(
                                 itemBuilder: (context, index) {
                                   if (filteredOrders.isEmpty) {
                                     return Container(
-                                      height: rowHeight,
-                                      alignment: Alignment.center,
-                                      child: const NodataWidget()
-                                    );
+                                        height: rowHeight,
+                                        alignment: Alignment.center,
+                                        child: const NodataWidget());
                                   }
                                   final orderDetails = filteredOrders[index];
                                   return Container(
@@ -167,7 +165,8 @@ void showValueOrderDialog(
                                           child: Center(
                                             child: Text(
                                               getFormattedOrderCreatAt(
-                                                  orderDetails.orderCreatAt ?? ''),
+                                                  orderDetails.orderCreatAt ??
+                                                      ''),
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 color: secondaryTextColor,
@@ -179,15 +178,9 @@ void showValueOrderDialog(
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return InvoicePreview(
-                                                      orderId:
-                                                          orderDetails.orderId ??
-                                                              '',
-                                                    );
-                                                  },
+                                                showInvoicePreviewOnline(
+                                                  context,
+                                                  orderDetails.orderId ?? '',
                                                 );
                                               },
                                               child: Text(
@@ -204,7 +197,8 @@ void showValueOrderDialog(
                                           child: Center(
                                             child: Text(
                                               getStatusName(
-                                                  orderDetails.orderStatus ?? 0),
+                                                  orderDetails.orderStatus ??
+                                                      0),
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 color: secondaryTextColor,
@@ -216,7 +210,8 @@ void showValueOrderDialog(
                                           child: Center(
                                             child: Text(
                                               formatAmount(
-                                                  orderDetails.orderTotal ?? 0.0),
+                                                  orderDetails.orderTotal ??
+                                                      0.0),
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 color: secondaryTextColor,

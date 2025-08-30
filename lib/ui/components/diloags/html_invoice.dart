@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -149,5 +150,22 @@ class _InvoicePreviewState extends State<InvoicePreview> {
     html = html.replaceAll(RegExp(r'<img[^>]+src="data:image[^"]+"[^>]*>'), '');
 
     return html;
+  }
+}
+
+void showInvoicePreviewOnline(BuildContext context, String orderId) async {
+  bool isOnline = await ConnectivityService().isOnline();
+
+  if (isOnline) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return InvoicePreview(
+          orderId: orderId,
+        );
+      },
+    );
+  } else {
+    showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
   }
 }

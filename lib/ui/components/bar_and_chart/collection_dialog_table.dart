@@ -118,10 +118,9 @@ void showValueCollectionDialog(
                               itemBuilder: (context, index) {
                                 if (completedOrders.isEmpty) {
                                   return Container(
-                                    height: rowHeight,
-                                    alignment: Alignment.center,
-                                    child: const NodataWidget()
-                                  );
+                                      height: rowHeight,
+                                      alignment: Alignment.center,
+                                      child: const NodataWidget());
                                 }
                                 final order = completedOrders[index];
                                 return Container(
@@ -163,14 +162,9 @@ void showValueCollectionDialog(
                                         child: Center(
                                           child: InkWell(
                                             onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return InvoicePreview(
-                                                    orderId:
-                                                        order.orderId ?? '',
-                                                  );
-                                                },
+                                              showInvoicePreviewOnline(
+                                                context,
+                                                order.orderId ?? '',
                                               );
                                             },
                                             child: Text(

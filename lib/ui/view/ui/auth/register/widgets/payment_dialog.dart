@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class PaymentDialogContent extends StatefulWidget {
   Plan plan;
@@ -353,14 +356,14 @@ class PayPalWebViewScreen extends StatefulWidget {
   final int adminId;
   final int planId;
   final double amount;
-  final String orderId;
+  final int licenses;
 
   const PayPalWebViewScreen({
     super.key,
     required this.adminId,
     required this.planId,
     required this.amount,
-    required this.orderId,
+    required this.licenses,
   });
 
   @override
@@ -369,76 +372,96 @@ class PayPalWebViewScreen extends StatefulWidget {
 
 class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
   InAppWebViewController? webViewController;
-  String? _htmlContent;
-  late String _queryParams;
+  String htmlContent = "";
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
-    _loadHtmlAndParams();
+    loadRouteCredit();
   }
 
-  Future<void> _loadHtmlAndParams() async {
-    final html = await rootBundle.loadString('assets/pay_with_paypal.html');
-    _queryParams =
-        '?adminId=${widget.adminId}&planId=${widget.planId}&amount=${widget.amount}&currency=USD';
-    setState(() {
-      _htmlContent = html;
-    });
+  Future<void> loadRouteCredit() async {
+    final request = {
+      "admin_id": widget.adminId.toString(),
+      "licenses": widget.licenses.toString(),
+      "amount": widget.amount.toString(),
+      "plan_id": widget.planId.toString()
+    };
+
+    log("Request: $request");
+
+    try {
+      final url = Uri.parse('${ApiConstants.baseUrl}subscriptionView');
+      final response = await http.post(
+        url,
+        body: request,
+      );
+
+      log("Status code: ${response.statusCode}");
+      log("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          htmlContent = response.body;
+          isLoading = false;
+        });
+      } else {
+        throw Exception(
+            'Failed to load Subscription view: ${response.statusCode}');
+      }
+    } catch (e) {
+      log("Error 2: $e");
+      setState(() {
+        htmlContent = "<h2>Error loading Subscription view</h2>";
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
       child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.5,
-        child: _htmlContent == null
+        child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: InAppWebView(
-                  initialData: InAppWebViewInitialData(
-                    data: _htmlContent!,
-                    baseUrl: WebUri("${ApiConstants.baseUrl}$_queryParams"),
-                    encoding: 'utf-8',
-                    mimeType: 'text/html',
-                  ),
-                  onWebViewCreated: (controller) {
-                    webViewController = controller;
-                    controller.addJavaScriptHandler(
-                      handlerName: 'paymentSuccess',
-                      callback: (args) async {
-                        final data = args[0];
-                        final orderId = widget.orderId;
-                        final adminId =
-                            int.tryParse(data['adminId'].toString()) ?? 0;
-                        final planId =
-                            int.tryParse(data['planId'].toString()) ?? 0;
-                        final amount =
-                            double.tryParse(data['amount'].toString()) ?? 0.0;
-                        final currency = data['currency'] ?? 'USD';
-                        final licenses = data['licenses'] ?? '1';
-                        await ApiWorker().saveSubscription(
-                          userId: adminId,
-                          planId: planId,
-                          orderId: orderId,
-                          amount: amount,
-                          licenses: licenses,
-                          currency: currency,
-                        );
+            : InAppWebView(
+                initialData: InAppWebViewInitialData(
+                  data: htmlContent,
+                  baseUrl: WebUri("https://test.thrivewoo.com"),
+                  mimeType: "text/html",
+                  encoding: "utf-8",
+                ),
+                initialSettings: InAppWebViewSettings(
+                  transparentBackground: true,
+                  javaScriptEnabled: true,
+                  allowUniversalAccessFromFileURLs: true,
+                  allowFileAccessFromFileURLs: true,
+                  mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+                ),
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                  controller.addJavaScriptHandler(
+                    handlerName: 'paymentSuccess',
+                    callback: (args) async {
+                      if (!mounted) return;
+                      Navigator.of(context).pop();
+                      _showSuccessDialog(context);
+                    },
+                  );
 
-                        if (!mounted) return;
-                        Navigator.of(context).pop();
-                        _showSuccessDialog(context);
-                      },
-                    );
-                  },
-                  initialOptions: InAppWebViewGroupOptions(
-                    crossPlatform: InAppWebViewOptions(
-                      javaScriptEnabled: true,
-                    ),
+                  controller.addJavaScriptHandler(
+                    handlerName: "closeDialog",
+                    callback: (args) {
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+                initialOptions: InAppWebViewGroupOptions(
+                  crossPlatform: InAppWebViewOptions(
+                    javaScriptEnabled: true,
                   ),
                 ),
               ),

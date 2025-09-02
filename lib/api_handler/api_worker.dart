@@ -1974,41 +1974,94 @@ class ApiWorker with ApiConstants {
     return OrderProcessInvoice.fromJson(response.data);
   }
 
-  Future<ScheduleListResponse> fetchSchedule(
-      String endDate, String startDate) async {
+  Future<ScheduleListResponse?> fetchSchedule(
+    String endDate,
+    String startDate,
+  ) async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
     final cacheKey =
         'schedule_${companyId}_${salesmanId}_${startDate}_$endDate';
-    final scheduleBox = Hive.box('scheduleBox');
 
-    // Check cache first
-    final cachedData = scheduleBox.get(cacheKey);
-    if (cachedData != null) {
+    final scheduleBox = Hive.box('scheduleBox');
+    log('Fetching schedule for company ID: $companyId, salesman ID: $salesmanId, startDate=$startDate, endDate=$endDate');
+
+    bool isOnline = await ConnectivityService().isOnline();
+
+    if (isOnline) {
       try {
-        return ScheduleListResponse.fromJson(cachedData);
+        final requestData = {
+          "end_date": endDate,
+          "salesman_id": salesmanId,
+          "start_date": startDate,
+          "company_id": companyId,
+        };
+
+        log("[fetchSchedule] 📤 API Request Payload: $requestData");
+
+        final response = await responsePostMethod(
+          endPoint:  ApiConstants.fetchSchedule,
+          requestData: requestData,
+        );
+
+        log("[fetchSchedule] 📥 Raw Response: ${response.data}");
+
+        final scheduleResponse = ScheduleListResponse.fromJson(response.data);
+
+        log('[fetchSchedule] ✅ Parsed Schedule Response: ${scheduleResponse.toJson()}');
+
+        await scheduleBox.put(cacheKey, response.data);
+        log('[fetchSchedule] Data saved to Hive with key: $cacheKey');
+
+        return scheduleResponse;
+      } on DioException catch (dioError) {
+        log("❌ [fetchSchedule] Dio error: ${dioError.response?.data}");
+
+        // handleExceptionMessage(
+        //   apiName: 'Fetch Schedule',
+        //   response: dioError.response,
+        //   error: dioError,
+        // );
+
+        final cachedData = scheduleBox.get(cacheKey);
+        if (cachedData != null) {
+          log('[fetchSchedule] Loaded cached schedule data: $cachedData');
+          return ScheduleListResponse.fromJson(
+              Map<String, dynamic>.from(cachedData));
+        } else {
+          log("❌ [fetchSchedule] No cached schedule data available.");
+          NkCommonFunction.showErrorSnakBar(
+            'No offline schedule data available.',
+          );
+        }
       } catch (e) {
-        log('Cache parse error for $cacheKey: $e');
+        log("❌ [fetchSchedule] Unexpected error: $e");
+        NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
       }
+    } else {
+      log("[fetchSchedule] ⚠️ No internet. Loading from Hive...");
     }
 
-    final response = await dio
-        .postbycustom(ApiConstants.fetchSchedule,
-            data: FormData.fromMap({
-              "end_date": endDate,
-              "salesman_id": salesmanId,
-              "start_date": startDate,
-              "company_id": companyId,
-            }))
-        .onError((DioException error, stackTrace) {
-      log(error.toString());
-      return Future.error(throw DioExceptionHandler.fromDioError(
-        error,
-      ));
-    });
-    // Cache the response
-    await scheduleBox.put(cacheKey, response.data);
-    return ScheduleListResponse.fromJson(response.data);
+    try {
+      final cachedData = scheduleBox.get(cacheKey);
+      if (cachedData != null) {
+        log('[fetchSchedule] Loaded cached schedule data: $cachedData');
+        return ScheduleListResponse.fromJson(
+            Map<String, dynamic>.from(cachedData));
+      } else {
+        log("❌ [fetchSchedule] No cached schedule data available.");
+        NkCommonFunction.showErrorSnakBar(
+          'No offline schedule data available.',
+        );
+      }
+    } catch (e) {
+      log('❌ [fetchSchedule] Error reading Hive cache: $e');
+      NkCommonFunction.showErrorSnakBar(
+        'Error accessing offline schedule data.',
+      );
+    }
+
+    return null;
   }
 
   Future<String?> getWeeklyType() async {
@@ -2230,41 +2283,70 @@ class ApiWorker with ApiConstants {
   }) async {
     final id = SessionHelper.loginSavedData?.id ?? '';
     final cacheKey = 'timesheet_${id}_${startDate ?? ''}_${endDate ?? ''}';
-    final timesheetBox = Hive.box('timesheetBox');
+    final timesheetBox = await Hive.openBox('timesheetBox');
 
-    // Check cache first
-    final cachedData = timesheetBox.get(cacheKey);
-    if (cachedData != null) {
+    log('➡️ [getTimeSheetData] Called with startDate=$startDate, endDate=$endDate');
+    bool isOnline = await ConnectivityService().isOnline();
+    log('[getTimeSheetData] Has Internet: $isOnline');
+
+    final requestData = {
+      "startdate": startDate,
+      "enddate": endDate,
+      "id": id,
+    };
+
+    if (isOnline) {
       try {
-        return StaffTimesheetResponse.fromJson(cachedData);
+        log('[getTimeSheetData] 📤 API Request: $requestData');
+
+        final response = await responsePostMethod(
+          requestData: requestData,
+          endPoint: ApiConstants.getStaffTimeSheet,
+        );
+
+        log('[getTimeSheetData] 📥 API Raw Response: ${response.data}');
+
+        if (response.statusCode == 200) {
+          log("✅ [getTimeSheetData] Success with status ${response.statusCode}");
+          await timesheetBox.put(cacheKey, response.data);
+          log('[getTimeSheetData] Data saved to Hive for key: $cacheKey');
+          return StaffTimesheetResponse.fromJson(response.data);
+        } else {
+          log("⚠️ [getTimeSheetData] API returned status: ${response.statusCode}");
+          // handleExceptionMessage(response: response, apiName: "time sheet");
+          return _getFromCache(timesheetBox, cacheKey);
+        }
+      } on DioException catch (error) {
+        log("❌ [getTimeSheetData] DioException: ${error.response?.statusCode ?? 0}");
+        log("❌ [getTimeSheetData] Error Response: ${error.response?.data}");
+        // handleExceptionMessage(
+        //   response: error.response,
+        //   apiName: "time sheet",
+        //   error: error,
+        // );
+        return _getFromCache(timesheetBox, cacheKey);
       } catch (e) {
-        log('Cache parse error for $cacheKey: $e');
+        log("❌ [getTimeSheetData] Unknown Error: $e");
+        return _getFromCache(timesheetBox, cacheKey);
       }
+    } else {
+      log('[getTimeSheetData] No internet. Using Hive cache...');
+      return _getFromCache(timesheetBox, cacheKey);
     }
+  }
 
-    log("🔍 API Request: startDate=$startDate, endDate=$endDate, id=$id");
-    try {
-      final response = await dio.postbycustom(
-        ApiConstants.getStaffTimeSheet,
-        data: FormData.fromMap({
-          "startdate": startDate,
-          "enddate": endDate,
-          "id": id,
-        }),
-      );
+  StaffTimesheetResponse _getFromCache(Box timesheetBox, String cacheKey) {
+    log('➡️ [_getFromCache] Fetching cache for key: $cacheKey');
+    final cachedData = timesheetBox.get(cacheKey);
 
-      log("✅ API Response: \\${response.statusMessage}, Data: \\${response.data}");
-      // Cache the response
-      await timesheetBox.put(cacheKey, response.data);
-      return StaffTimesheetResponse.fromJson(response.data);
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "time sheet", error: error);
-      log("❌ API Error: \\${error.response?.statusCode} - \\${error.message}");
-      throw DioExceptionHandler.fromDioError(error);
-    } catch (e) {
-      log("❌ Unknown API Error: $e");
-      rethrow;
+    if (cachedData != null) {
+      log('📦 [_getFromCache] Found cached data for key: $cacheKey');
+      final castedData = LocalStorage().castToStringDynamic(cachedData);
+      return StaffTimesheetResponse.fromJson(castedData);
+    } else {
+      log('❌ [_getFromCache] No cached data found for key: $cacheKey');
+      throw Exception(
+          'No internet and no cached data available for $cacheKey.');
     }
   }
 
@@ -2728,9 +2810,9 @@ class ApiWorker with ApiConstants {
 
   Future<String> getRouteCredit() async {
     try {
-      final response = await dio.postbycustom(
-        ApiConstants.getRouteCredit,
-        data: {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.getRouteCredit,
+        requestData: {
           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
         },
       );
@@ -3236,7 +3318,7 @@ class ApiWorker with ApiConstants {
       }
     }
   }
-  
+
   Future<ProductFrequencyResponse> getProductFrequency() async {
     try {
       final isConnected = await ConnectivityService().isOnline();
@@ -3262,7 +3344,8 @@ class ApiWorker with ApiConstants {
           endPoint: ApiConstants.getProductFrequency,
         );
 
-        final productFrequency = ProductFrequencyResponse.fromJson(response.data);
+        final productFrequency =
+            ProductFrequencyResponse.fromJson(response.data);
         await box.put(cacheKey, productFrequency.toJson());
 
         return productFrequency;

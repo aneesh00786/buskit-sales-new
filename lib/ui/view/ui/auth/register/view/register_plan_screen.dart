@@ -303,11 +303,11 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                         try {
                           final prefs = await SharedPreferences.getInstance();
                           final int? adminId = prefs.getInt('admin_id');
-                          final orderId = await ApiWorker().createPayPalOrder(
-                            amount: totalAmount.toString(),
-                            currency: "USD",
-                            adminId: adminId ?? 0,
-                          );
+                          // final orderId = await ApiWorker().createPayPalOrder(
+                          //   amount: totalAmount.toString(),
+                          //   currency: "USD",
+                          //   adminId: adminId ?? 0,
+                          // );
                           if (mounted) Navigator.of(context).pop();
                           await showDialog(
                             context: context,
@@ -316,13 +316,12 @@ class _RegisterPlanScreenState extends State<RegisterPlanScreen> {
                               adminId: adminId ?? 0,
                               amount: totalAmount,
                               planId: selectedPlan!.id ?? 0,
-                              orderId: orderId ?? '',
+                              licenses: _selectedQuantity,
                             ),
                           );
                         } catch (e) {
                           if (mounted) {
-                            Navigator.of(context)
-                                .pop(); // remove loader if error
+                            Navigator.of(context).pop();
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Error: ${e.toString()}")),

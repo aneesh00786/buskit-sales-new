@@ -239,14 +239,14 @@ class StaffController extends GetxController {
       var data = await ApiWorker()
           .fetchSchedule(formatDate(endDate), formatDate(startDate));
 
-      if (data.data != null) {
-        scheduleList.assignAll(data.data!);
+      if (data?.data != null) {
+        scheduleList.assignAll(data!.data!);
       } else {
         log('No schedule data available.');
         scheduleList.assignAll([]);
       }
 
-      return data.data;
+      return data?.data;
     } catch (e, stacktrace) {
       log('Error fetching schedule: $e');
       log('Stacktrace: $stacktrace');

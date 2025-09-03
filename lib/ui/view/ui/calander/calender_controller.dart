@@ -132,10 +132,11 @@ class CalenderMapController extends GetxController {
 
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
+
     if (status.isGranted) {
-      locationPermissionGranted.value = true;
-      getCurrentLocation();
+      return;
     } else if (status.isPermanentlyDenied) {
+    } else {
       showPermissionDeniedDialog();
     }
   }

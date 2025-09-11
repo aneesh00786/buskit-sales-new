@@ -532,16 +532,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Text('Cancel Subscription?'),
+                  title: Text('Cancel & Delete Account?'),
                   content: Text(
-                      'Are you sure you want to cancel the subscription plan?'),
+                      'Once deleted, your account and all associated data will be permanently removed.\nDo you wish to proceed ?',
+                      style: TextStyle(fontSize: 14)),
                   actions: [
                     TextButton(
                       child: const Text('Cancel'),
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
                     ElevatedButton(
-                        child: const Text('Confirm'),
+                        child: const Text('Ok'),
                         onPressed: () {
                           Navigator.of(context).pop(true);
                           showCancelPlanDialog(context);
@@ -560,7 +561,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
-                  'Cancel Subscription',
+                  'Cancel & Delete Account',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,

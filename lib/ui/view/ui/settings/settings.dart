@@ -21,6 +21,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/widget/password_textfield.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -128,14 +129,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ? const Center(child: Text('Failed to load data'))
             : Scaffold(
                 appBar: AppBar(
-                  title: CustomText(
-                    content: "Settings",
-                  ),
                   actions: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: _buildCancelPlanButton(),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: _buildChangePasswordButton(),
-                    )
+                    ),
                   ],
                 ),
                 body: SingleChildScrollView(
@@ -145,6 +147,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       key: formKey,
                       child: Column(
                         children: [
+                          CustomText(
+                            content: "Settings",
+                          ),
+                          nkMediumSizeBox(),
+                          nkMediumSizeBox(),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -158,10 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   text: 'Profile Image',
                                 ),
                               ),
-                              nkSmallSizeBox(),
-                              nkSmallSizeBox(),
-                              nkSmallSizeBox(),
-                              nkSmallSizeBox(),
+                              nkMediumSizeBox(),
                               SizedBox(
                                 width: 200,
                                 child: idAndImagePicWidget(
@@ -173,6 +177,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
+                          nkMediumSizeBox(),
+                          nkMediumSizeBox(),
                           nkMediumSizeBox(),
                           Row(
                             children: [
@@ -499,6 +505,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 padding: EdgeInsets.all(10.0),
                 child: Text(
                   'Change Password',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 10,
+        )
+      ],
+    );
+  }
+
+  Widget _buildCancelPlanButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Cancel Subscription?'),
+                  content: Text(
+                      'Are you sure you want to cancel the subscription plan?'),
+                  actions: [
+                    TextButton(
+                      child: const Text('Cancel'),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                    ElevatedButton(
+                        child: const Text('Confirm'),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                          showCancelPlanDialog(context);
+                        }),
+                  ],
+                );
+              },
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text(
+                  'Cancel Subscription',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,

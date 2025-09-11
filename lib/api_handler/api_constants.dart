@@ -100,7 +100,6 @@ mixin class ApiConstants {
       "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
   // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc";
-  static const String gGoogleApiKey = "AlzaSynLUFjx_AH5TJxhbt6SLjsak2qKBUTWqdl";
   // GOOGLE MAP API'S
   static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
   static const String gmapBaseUrl = "https://maps.googleapis.com/maps/api/";

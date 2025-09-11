@@ -131,12 +131,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 appBar: AppBar(
                   actions: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: _buildCancelPlanButton(),
-                    ),
-                    Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: _buildChangePasswordButton(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: _buildCancelPlanButton(),
                     ),
                   ],
                 ),
@@ -553,7 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: primaryColor,
+              color: Colors.red.shade700,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Center(

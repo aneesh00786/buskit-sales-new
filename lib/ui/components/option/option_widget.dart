@@ -208,11 +208,25 @@ class _OptionWidgetState extends State<OptionWidget> {
 
   Widget options(OrderCountListt? orderCountList, BuildContext context,
       DashboardProvider provider) {
-    return Row(
-      children: _defaultOption(context, provider, orderCountList)
-          .map((e) => orderOptions(e, orderCountList, context))
-          .toList(),
-    );
+    if (isTabletOrPhoneLandscape(context)) {
+      return Row(
+        children: _defaultOption(context, provider, orderCountList)
+            .map((e) => orderOptions(e, orderCountList, context))
+            .toList(),
+      );
+    } else {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: 700,
+          child: Row(
+            children: _defaultOption(context, provider, orderCountList)
+                .map((e) => orderOptions(e, orderCountList, context))
+                .toList(),
+          ),
+        ),
+      );
+    }
   }
 
   List<OptionData> _defaultOption(BuildContext context,
@@ -483,14 +497,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                       CustomText(
                         content: optionData.title,
                         maxLine: 1,
-                        fontSize: (MediaQuery.of(context).orientation ==
-                                Orientation.portrait)
-                            ? (ResponsiveInfo.isMobileDimension(context)
-                                ? 7
-                                : 12)
-                            : (ResponsiveInfo.isMobileDimension(context)
-                                ? 7
-                                : 12),
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
                       ),
@@ -500,9 +507,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                           CustomText(
                             content: _getCountForTitle(
                                 optionData.title, orderCountList),
-                            fontSize: ResponsiveInfo.isMobileDimension(context)
-                                ? 7.7
-                                : 14,
+                            fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: optionData.color,
                           ),
@@ -513,18 +518,12 @@ class _OptionWidgetState extends State<OptionWidget> {
                             InkWell(
                               onTap: optionData.onUnFilterTap,
                               child: CircleAvatar(
-                                radius:
-                                    ResponsiveInfo.isMobileDimension(context)
-                                        ? 6
-                                        : 10,
+                                radius: 10,
                                 backgroundColor: red,
                                 child: CustomText(
                                   content: _getUnFilteredCountForTitle(
                                       optionData.title, orderCountList),
-                                  fontSize:
-                                      ResponsiveInfo.isMobileDimension(context)
-                                          ? 7.7
-                                          : 10,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w900,
                                   color: white,
                                 ),

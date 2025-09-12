@@ -538,7 +538,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 4.7),
                                       SizedBox(
                                         height: screenWidth * 0.7,
-                                        child: totalSalse(context),
+                                        child: TabTab(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -570,7 +570,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: totalSalse(context),
+                                            child: TabTab(context),
                                           ),
                                           const SizedBox(width: 4.7),
                                           Expanded(
@@ -641,7 +641,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       const SizedBox(height: 4.7),
                                       SizedBox(
                                         height: screenWidth * 0.7,
-                                        child: totalSalse(context),
+                                        child: TabTab(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -861,29 +861,27 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget TabTab(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
-      child: Consumer<CustomersProvider>(builder: (context, provider, child) {
-        return FutureBuilder<CustomerTotalSaleResponse>(
-            future: provider.customerTotalSaleResponseFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                return MyCommnonContainer(
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 211, 211, 211)
-                          .withOpacity(0.2),
-                      blurRadius: 5,
-                      offset: const Offset(4, 4),
-                    ),
-                  ],
-                  borderRadius: 25,
-                  height: 320,
-                  width: double.infinity,
-                  isCommonBorder: true,
-                  child: Column(
+      child: MyCommnonContainer(
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+            blurRadius: 5,
+            offset: const Offset(4, 4),
+          ),
+        ],
+        borderRadius: 25,
+        height: 320,
+        width: double.infinity,
+        isCommonBorder: true,
+        child: Consumer<CustomersProvider>(builder: (context, provider, child) {
+          return FutureBuilder<CustomerTotalSaleResponse>(
+              future: provider.customerTotalSaleResponseFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  // return Center(child: Text('Error 4: ${snapshot.error}'));
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Stack(
@@ -944,7 +942,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             bottom: 5),
                                         decoration: _tabIndex == 1
                                             ? BoxDecoration(
-                                                color: primaryColor
+                                                color: const Color(0xff5bc0de)
                                                     .withOpacity(0.2),
                                                 borderRadius:
                                                     const BorderRadius.only(
@@ -989,8 +987,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       Provider.of<CustomersProvider>(context,
                                               listen: false)
                                           .fetchCustomerDashboardDataSalseData(
-                                        widget.cusId,
-                                      );
+                                              widget.cusId);
                                     });
                                   },
                                   items: provider.yearList
@@ -1017,13 +1014,148 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             : totalSalseCustomers(context),
                       ),
                     ],
-                  ),
-                );
-              } else {
-                return const Center(child: NodataWidget());
-              }
-            });
-      }),
+                  );
+                } else if (snapshot.hasData) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 240,
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _tabIndex = 0;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            right: 20,
+                                            left: 20,
+                                            top: 5,
+                                            bottom: 5),
+                                        decoration: _tabIndex == 0
+                                            ? BoxDecoration(
+                                                color: primaryColor
+                                                    .withOpacity(0.2),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(25),
+                                                  bottomRight:
+                                                      Radius.circular(25),
+                                                ),
+                                              )
+                                            : null,
+                                        child: Text(
+                                          'Revenue',
+                                          style: _tabIndex == 0
+                                              ? cardHeadingTextStyle
+                                              : tabTextStyle,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _tabIndex = 1;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            right: 20,
+                                            left: 20,
+                                            top: 5,
+                                            bottom: 5),
+                                        decoration: _tabIndex == 1
+                                            ? BoxDecoration(
+                                                color: const Color(0xff5bc0de)
+                                                    .withOpacity(0.2),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                  topLeft: Radius.circular(25),
+                                                  bottomRight:
+                                                      Radius.circular(25),
+                                                ),
+                                              )
+                                            : null,
+                                        child: Text(
+                                          'Customer Offer',
+                                          style: _tabIndex == 1
+                                              ? cardHeadingTextStyle
+                                              : tabTextStyle,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                            top: fullScreenWidth(context) > 680 ? 2 : 32,
+                            right: 10,
+                            child: Padding(
+                              padding: const EdgeInsets.all(0.0),
+                              child: Container(
+                                height: 26,
+                                padding: const EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xffeef2f7),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: DropdownButton<int>(
+                                  iconSize: 18,
+                                  value: selectedYear,
+                                  underline: Container(),
+                                  onChanged: (int? newValue) {
+                                    setState(() {
+                                      selectedYear = newValue!;
+                                      Provider.of<CustomersProvider>(context,
+                                              listen: false)
+                                          .fetchCustomerDashboardDataSalseData(
+                                              widget.cusId);
+                                    });
+                                  },
+                                  items: provider.yearList
+                                      .map((item) => DropdownMenuItem<int>(
+                                            value: item.year,
+                                            child: Text(
+                                              item.year.toString(),
+                                              style: cardHeadingTextStyle,
+                                            ),
+                                          ))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: fullScreenWidth(context) > 680 ? 0 : 30,
+                      ),
+                      Expanded(
+                        child: _tabIndex == 0
+                            ? totalSalse(context)
+                            : totalSalseCustomers(context),
+                      ),
+                    ],
+                  );
+                } else {
+                  return const Center(child: Text('No data available'));
+                }
+              });
+        }),
+      ),
     );
   }
 

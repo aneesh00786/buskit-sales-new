@@ -40,44 +40,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: white,
-        resizeToAvoidBottomInset: false,
-        key: HomeController.homeScaffoldKey,
-        extendBody: false,
-        drawer: Drawer(
-          child: NkSidebarXSideBar(
-            key: const Key("drawer"),
-            controller: homeController.sidebarXController,
-            itemList: homeController.drawSidebarItems(context),
-            userDetails: homeController.userDetails ?? LoginData(),
-          ),
+    return Scaffold(
+      backgroundColor: white,
+      resizeToAvoidBottomInset: false,
+      key: HomeController.homeScaffoldKey,
+      extendBody: false,
+      drawer: Drawer(
+        child: NkSidebarXSideBar(
+          key: const Key("drawer"),
+          controller: homeController.sidebarXController,
+          itemList: homeController.drawSidebarItems(context),
+          userDetails: homeController.userDetails ?? LoginData(),
         ),
-        body: SafeArea(
-          child: Row(
-            children: [
-              Obx(() {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: NkSideBarOnlyIcon(
-                    headerWidget: homeController.upperSideBar(),
-                    itemList: homeController.drawSidebarItems(context),
-                    sidebarXController: homeController.sidebarXController,
-                  ),
-                );
-              }),
-              Expanded(
-                flex: 2,
-                child: Navigator(
-                  reportsRouteUpdateToEngine: true,
-                  initialRoute: AppRoutes.dashboard,
-                  key: Get.nestedKey(2),
-                  onGenerateRoute: homeController.onGenerateRoute,
+      ),
+      body: SafeArea(
+        child: Row(
+          children: [
+            Obx(() {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: NkSideBarOnlyIcon(
+                  headerWidget: homeController.upperSideBar(),
+                  itemList: homeController.drawSidebarItems(context),
+                  sidebarXController: homeController.sidebarXController,
                 ),
-              )
-            ],
-          ),
+              );
+            }),
+            Expanded(
+              flex: 2,
+              child: Navigator(
+                reportsRouteUpdateToEngine: true,
+                initialRoute: AppRoutes.dashboard,
+                key: Get.nestedKey(2),
+                onGenerateRoute: homeController.onGenerateRoute,
+              ),
+            )
+          ],
         ),
       ),
     );

@@ -93,7 +93,7 @@ Widget totalSalse(BuildContext context) {
                                       'Bookings : ${formatAmount(paymentCompleted)}',
                                     ),
                                   ),
-                                  SizedBox(width:10),
+                                  SizedBox(width: 10),
                                   InkWell(
                                     onTap: () {
                                       if (remaCompleted == 0) {

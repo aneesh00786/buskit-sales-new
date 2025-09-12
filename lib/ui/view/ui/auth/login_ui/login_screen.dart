@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_left_side_widgte.dart';
@@ -12,7 +13,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final LoginController loginController = Get.put(LoginController());
 
   @override
@@ -27,15 +29,35 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       backgroundColor: white,
       extendBody: true,
       resizeToAvoidBottomInset: true,
-      body: Row(
-        children: [
-          const Flexible(child: LoginLeftSideWidget()),
-          Flexible(
-            child: LoginRightSideWidget(
-              loginController: loginController,
-            ),
-          ),
-        ],
+      body: SafeArea(
+        child: LayoutBuilder(builder: (context, constraints) {
+          if (isTabletOrPhoneLandscape(context)) {
+            return Row(
+              children: [
+                const Flexible(child: LoginLeftSideWidget()),
+                Flexible(
+                  child: LoginRightSideWidget(
+                    loginController: loginController,
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                const Expanded(flex: 2, child: LoginLeftSideWidget()),
+                Expanded(
+                  flex: 3,
+                  child: SingleChildScrollView(
+                    child: LoginRightSideWidget(
+                      loginController: loginController,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        }),
       ),
     );
   }

@@ -395,7 +395,7 @@ class _ProductGridState extends State<ProductGrid> {
 
   @override
   Widget build(BuildContext context) {
-    const double desiredItemWidth = 250.0;
+    const double desiredItemWidth = 280.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

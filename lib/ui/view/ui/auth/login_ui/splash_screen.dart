@@ -22,10 +22,13 @@ class SplashScreenLogging extends StatelessWidget {
               color: white,
             ),
             const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold, color: white),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                message,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, color: white),
+              ),
             ),
             const SizedBox(height: 24),
             // Always show the button for testing

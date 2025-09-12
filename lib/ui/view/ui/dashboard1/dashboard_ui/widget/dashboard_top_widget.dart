@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
@@ -21,6 +22,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/day_picker.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/month_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/range_picker.dart';
@@ -107,7 +109,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       children: [
         calender(),
         nkSmallSizeBox(),
-        const SizedBox(height: 10),
         Obx(() {
           if (widget.dashBoardController.isLoading.value) {
             return const Center(
@@ -145,165 +146,252 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     );
   }
 
+  Widget _buildFilterDropdown(
+      DashboardProvider provider, BuildContext context) {
+    return SizedBox(
+      height: 45,
+      width: 120,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade50,
+              blurRadius: 8,
+              offset: const Offset(2, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(
+              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+          child: DropdownButton<FilterDateEnum>(
+            value: provider.selectedFilterTemp,
+            onChanged: (newValue) async {
+              bool isOnline = await ConnectivityService().isOnline();
+              if (!isOnline) {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+                return;
+              }
+
+              if (newValue != null) {
+                provider.onFilterChanged(newValue);
+              }
+            },
+            items: const [
+              DropdownMenuItem(
+                value: FilterDateEnum.thisMonth,
+                child: Text('Month', style: TextStyle(fontSize: 12)),
+              ),
+              DropdownMenuItem(
+                value: FilterDateEnum.thisWeek,
+                child: Text('Week', style: TextStyle(fontSize: 12)),
+              ),
+              DropdownMenuItem(
+                value: FilterDateEnum.today,
+                child: Text('Day', style: TextStyle(fontSize: 12)),
+              ),
+              DropdownMenuItem(
+                value: FilterDateEnum.thisYear,
+                child: Text('Year', style: TextStyle(fontSize: 12)),
+              ),
+              DropdownMenuItem(
+                value: FilterDateEnum.range,
+                child: Text('Range', style: TextStyle(fontSize: 12)),
+              ),
+            ],
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(10),
+            underline: Container(),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget calender() {
+    final loginController = Get.find<LoginController>();
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
-            bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-            Widget rowContent = Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 5),
-                      SizedBox(
-                        height: isSmallScreen ? 35 : 45,
-                        width: isSmallScreen ? 90 : 120,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                                color: Colors.grey.shade300, width: 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade50,
-                                blurRadius: 8,
-                                offset: const Offset(2, 4),
+            /// --- Tablet Layout (keep as Row)
+            if (isTabletOrPhoneLandscape(context)) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 5),
+                        _buildFilterDropdown(provider, context),
+                        if (provider.selectedFilterTemp ==
+                            FilterDateEnum.thisMonth) ...[
+                          const SizedBox(width: 10),
+                          const MonthDropdown()
+                        ],
+                        if (provider.selectedFilterTemp ==
+                            FilterDateEnum.thisWeek) ...[
+                          const SizedBox(width: 10),
+                          const WeekDropdown()
+                        ],
+                        if (provider.selectedFilterTemp ==
+                            FilterDateEnum.thisYear) ...[
+                          const SizedBox(width: 10),
+                          const YearDropdown()
+                        ],
+                        if (provider.selectedFilterTemp ==
+                            FilterDateEnum.today) ...[
+                          const SizedBox(width: 10),
+                          const DatePickerWidget()
+                        ],
+                        if (provider.selectedFilterTemp ==
+                            FilterDateEnum.range) ...[
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                width: 320,
+                                child: RangePickerWidget(),
                               ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
-                            child: DropdownButton<FilterDateEnum>(
-                              value: provider.selectedFilterTemp,
-                              onChanged: (newValue) async {
-                                bool isOnline =
-                                    await ConnectivityService().isOnline();
-                                if (!isOnline) {
-                                  showCustomToastDisplay(context,
-                                      "You are Offline!", red, Icons.close);
-                                  return;
-                                }
-
-                                if (newValue != null) {
-                                  provider.onFilterChanged(newValue);
-                                }
-                              },
-                              items: [
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisMonth,
-                                  child: Text(
-                                    'Month',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 9.8,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisWeek,
-                                  child: Text(
-                                    'Week',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.today,
-                                  child: Text(
-                                    'Day',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisYear,
-                                  child: Text(
-                                    'Year',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.range,
-                                  child: Text(
-                                    'Range',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: isSmallScreen ? 7.7 : 10.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              isExpanded: true,
-                              borderRadius: BorderRadius.circular(10),
-                              underline: Container(),
                             ),
                           ),
-                        ),
-                      ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  // Obx(() => loginController.isSyncing.value
+                  //     ? SizedBox(
+                  //         width: 100,
+                  //         child: Center(
+                  //           child: GestureDetector(
+                  //             onTap: () {
+                  //               showDialog(
+                  //                 context: context,
+                  //                 builder: (context) => AlertDialog(
+                  //                   title: const Text('Syncing'),
+                  //                   content: const Text(
+                  //                       'Data syncing in background'),
+                  //                   actions: [
+                  //                     TextButton(
+                  //                       onPressed: () =>
+                  //                           Navigator.of(context).pop(),
+                  //                       child: const Text('OK'),
+                  //                     ),
+                  //                   ],
+                  //                 ),
+                  //               );
+                  //             },
+                  //             child: const CircularProgressIndicator(),
+                  //           ),
+                  //         ),
+                  //       )
+                  //     : const SizedBox.shrink()),
+                  const SizedBox(width: 20),
+                  NotificationWidget(
+                    startDate: provider.selectedStartDate,
+                    endDate: provider.selectedEndDate,
+                  ),
+                  SizedBox(width: 120, child: profiloe()),
+                ],
+              );
+            }
+
+            /// --- Phone Layout
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Top Row: Notification + Update Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    NotificationWidget(
+                      startDate: provider.selectedStartDate,
+                      endDate: provider.selectedEndDate,
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(width: 120, child: profiloe()),
+                  ],
+                ),
+                const SizedBox(height: 4),
+
+                /// Filters and Sync in a horizontal scroll
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(width: 5),
+                      _buildFilterDropdown(provider, context),
                       if (provider.selectedFilterTemp ==
                           FilterDateEnum.thisMonth) ...[
                         const SizedBox(width: 10),
-                        const MonthDropdown(),
+                        const MonthDropdown()
                       ],
                       if (provider.selectedFilterTemp ==
                           FilterDateEnum.thisWeek) ...[
                         const SizedBox(width: 10),
-                        const WeekDropdown(),
+                        const WeekDropdown()
                       ],
                       if (provider.selectedFilterTemp ==
                           FilterDateEnum.thisYear) ...[
                         const SizedBox(width: 10),
-                        const YearDropdown(),
+                        const YearDropdown()
                       ],
                       if (provider.selectedFilterTemp ==
                           FilterDateEnum.today) ...[
                         const SizedBox(width: 10),
-                        const DatePickerWidget(),
+                        const DatePickerWidget()
                       ],
                       if (provider.selectedFilterTemp ==
                           FilterDateEnum.range) ...[
                         const SizedBox(width: 10),
-                        const Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                              width: 320,
-                              child: RangePickerWidget(),
-                            ),
-                          ),
+                        const SizedBox(
+                          width: 320,
+                          child: RangePickerWidget(),
                         ),
                       ],
+                      const SizedBox(width: 20),
+                      // Obx(() => loginController.isSyncing.value
+                      //     ? SizedBox(
+                      //         width: 100,
+                      //         child: Center(
+                      //           child: GestureDetector(
+                      //             onTap: () {
+                      //               showDialog(
+                      //                 context: context,
+                      //                 builder: (context) => AlertDialog(
+                      //                   title: const Text('Syncing'),
+                      //                   content: const Text(
+                      //                       'Data syncing in background'),
+                      //                   actions: [
+                      //                     TextButton(
+                      //                       onPressed: () =>
+                      //                           Navigator.of(context).pop(),
+                      //                       child: const Text('OK'),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               );
+                      //             },
+                      //             child: const CircularProgressIndicator(),
+                      //           ),
+                      //         ),
+                      //       )
+                      //     : const SizedBox.shrink()),
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
-                NotificationWidget(
-                  startDate: provider.selectedStartDate,
-                  endDate: provider.selectedEndDate,
-                ),
-                profiloe(),
+                SizedBox(height: 12)
               ],
             );
-
-            return rowContent;
           },
         );
       },

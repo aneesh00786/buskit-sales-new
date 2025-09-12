@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
 
-
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -94,8 +93,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
 
   void _fetchDraftCounts(OrderDataas? orderCountList) async {
     int offlineCount = await getOfflineDraftCount(widget.customerId);
-    int onlineCount =
-        orderCountList != null ? (orderCountList.draftOrder) : 0;
+    int onlineCount = orderCountList != null ? (orderCountList.draftOrder) : 0;
     setState(() {
       _offlineDraftCount = offlineCount;
       _onlineDraftCount = onlineCount;
@@ -203,11 +201,25 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
 
   Widget options(OrderDataas orderCountList, BuildContext context,
       CustomersProvider provider) {
-    return Row(
-      children: _defaultOption(context, provider, orderCountList)
-          .map((e) => orderOptions(e, orderCountList, context))
-          .toList(),
-    );
+    if (isTabletOrPhoneLandscape(context)) {
+      return Row(
+        children: _defaultOption(context, provider, orderCountList)
+            .map((e) => orderOptions(e, orderCountList, context))
+            .toList(),
+      );
+    } else {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: 700,
+          child: Row(
+            children: _defaultOption(context, provider, orderCountList)
+                .map((e) => orderOptions(e, orderCountList, context))
+                .toList(),
+          ),
+        ),
+      );
+    }
   }
 
   List<OptionData> _defaultOption(BuildContext context,
@@ -406,7 +418,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
       OptionData optionData, OrderDataas orderCountList, BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance.height * 0.02,
+      height: AppDimensions.instance!.height * 0.02,
       fit: BoxFit.contain,
     );
 
@@ -415,10 +427,6 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
         child: MyCommnonContainer(
           color: white,
           onTap: optionData.onTap,
-          margin: nkSymmetricPadding(
-            vertical: 0,
-            horizontal: AppDimensions.instance.width * 0.001,
-          ),
           boxShadow: [
             BoxShadow(
               color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
@@ -427,12 +435,16 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
             ),
           ],
           borderRadius: 20,
+          margin: nkSymmetricPadding(
+            vertical: 0,
+            horizontal: AppDimensions.instance!.width * 0.001,
+          ),
           padding: nkLargePadding(),
           isCommonBorder: true,
           child: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            padding: EdgeInsets.zero,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 10,
               children: [
                 Container(
@@ -450,26 +462,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     children: [
                       CustomText(
                         content: optionData.title,
-                        fontSize: (MediaQuery.of(context).orientation ==
-                                Orientation.portrait)
-                            ? (ResponsiveInfo.isMobileDimension(context)
-                                ? 4.9
-                                : 12)
-                            : (ResponsiveInfo.isMobileDimension(context)
-                                ? 7
-                                : 12),
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomText(
                             content: optionData.count,
-                            fontSize: ResponsiveInfo.isMobileDimension(context)
-                                ? 7.7
-                                : 14,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: optionData.color,
                           ),
@@ -510,101 +513,88 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
       );
     }
 
-    // Default for other options
     return Flexible(
-      child: MyCommnonContainer(
-        color: white,
-        onTap: optionData.onTap,
-        margin: nkSymmetricPadding(
-          vertical: 0,
-          horizontal: AppDimensions.instance.width * 0.001,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-            blurRadius: 2,
-            offset: const Offset(4, 4),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 3, left: 3),
+        child: MyCommnonContainer(
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+              blurRadius: 2,
+              offset: const Offset(4, 4),
+            ),
+          ],
+          borderRadius: 20,
+          onTap: optionData.onTap,
+          margin: nkSymmetricPadding(
+            vertical: 0,
+            horizontal: AppDimensions.instance!.width * 0.001,
           ),
-        ],
-        borderRadius: 20,
-        padding: nkLargePadding(),
-        isCommonBorder: true,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: optionData.svgBgColor,
-                    borderRadius: BorderRadius.circular(15)),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: svgComponent,
+          padding: nkLargePadding(),
+          isCommonBorder: true,
+          child: Padding(
+            padding: EdgeInsets.zero,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 10,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: optionData.svgBgColor,
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: svgComponent,
+                  ),
                 ),
-              ),
-              Flexible(
-                child: Wrap(
-                  direction: Axis.vertical,
-                  children: [
-                    CustomText(
-                      content: optionData.title,
-                      maxLine: 1,
-                      fontSize: (MediaQuery.of(context).orientation ==
-                              Orientation.portrait)
-                          ? (ResponsiveInfo.isMobileDimension(context)
-                              ? 4.9
-                              : 12)
-                          : (ResponsiveInfo.isMobileDimension(context)
-                              ? 7
-                              : 12),
-                      fontWeight: FontWeight.w600,
-                      color: secondaryTextColor,
-                    ),
-                    SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomText(
-                          content: _getCountForTitle(
-                              optionData.title, orderCountList),
-                          fontSize: ResponsiveInfo.isMobileDimension(context)
-                              ? 7.7
-                              : 14,
-                          fontWeight: FontWeight.w800,
-                          color: optionData.color,
-                        ),
-                        if (_getUnFilteredCountForTitle(
-                                optionData.title, orderCountList) !=
-                            "0") ...[
-                          const SizedBox(width: 30),
-                          InkWell(
-                            onTap: optionData.onUnFilterTap,
-                            child: CircleAvatar(
-                              radius: ResponsiveInfo.isMobileDimension(context)
-                                  ? 6
-                                  : 10,
-                              backgroundColor: red,
-                              child: CustomText(
-                                content: _getUnFilteredCountForTitle(
-                                    optionData.title, orderCountList),
-                                fontSize:
-                                    ResponsiveInfo.isMobileDimension(context)
-                                        ? 7.7
-                                        : 10,
-                                fontWeight: FontWeight.bold,
-                                color: white,
+                Flexible(
+                  child: Wrap(
+                    direction: Axis.vertical,
+                    children: [
+                      CustomText(
+                        content: optionData.title,
+                        maxLine: 1,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: secondaryTextColor,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            content: _getCountForTitle(
+                                optionData.title, orderCountList),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: optionData.color,
+                          ),
+                          if (_getUnFilteredCountForTitle(
+                                  optionData.title, orderCountList) !=
+                              "0") ...[
+                            const SizedBox(width: 30),
+                            InkWell(
+                              onTap: optionData.onUnFilterTap,
+                              child: CircleAvatar(
+                                radius: 10,
+                                backgroundColor: red,
+                                child: CustomText(
+                                  content: _getUnFilteredCountForTitle(
+                                      optionData.title, orderCountList),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: white,
+                                ),
                               ),
                             ),
-                          ),
-                        ]
-                      ],
-                    ),
-                  ],
+                          ]
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -972,10 +962,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       InkWell(
                                                                     onTap: () {
                                                                       showInvoicePreviewOnline(
-                                                                                  context,
-                                                                                  order.orderId,
-                                                                                );
-                                                                      
+                                                                        context,
+                                                                        order
+                                                                            .orderId,
+                                                                      );
                                                                     },
                                                                     child:
                                                                         Center(

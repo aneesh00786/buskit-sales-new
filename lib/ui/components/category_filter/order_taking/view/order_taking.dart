@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -414,13 +415,7 @@ class _OrderTakingState extends State<OrderTaking>
       ),
       body: Obx(() {
         if (widget.productsController.categoryData.value.data == null) {
-          widget.productsController.loadCategoriesAndDefaultProducts();
-          return const Center(
-            child: SpinKitFadingCube(
-              color: primaryColor,
-              size: 20.0,
-            ),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
         return Stack(
           alignment: Alignment.topCenter,
@@ -467,7 +462,9 @@ class _OrderTakingState extends State<OrderTaking>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.40,
+                        width: isTabletOrPhoneLandscape(context)
+                            ? MediaQuery.of(context).size.width * 0.40
+                            : MediaQuery.of(context).size.width * 0.3,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -552,16 +549,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                         );
                                                       } else {
                                                         customerAndOrderController
-                                                            .selectedCustomerName
-                                                            .value = customer
-                                                                .businessName ??
-                                                            '';
-                                                        customerAndOrderController
-                                                            .selectedCustomerImage
-                                                            .value = customer
-                                                                .imageUrl ??
-                                                            '';
-                                                        customerAndOrderController
                                                             .setCustomerId(customer
                                                                     .customerId ??
                                                                 '');
@@ -582,30 +569,6 @@ class _OrderTakingState extends State<OrderTaking>
                                                             .selectedCustomerId
                                                             .value = customer
                                                                 .customerId ??
-                                                            '';
-                                                        widget
-                                                            .productsController
-                                                            .selectedCustomerName
-                                                            .value = customer
-                                                                .businessName ??
-                                                            '';
-                                                        widget
-                                                            .productsController
-                                                            .selectedCustomerImageUrl
-                                                            .value = customer
-                                                                .imageUrl ??
-                                                            '';
-                                                        widget
-                                                            .productsController
-                                                            .selectedCustomerMobileNo
-                                                            .value = customer
-                                                                .mobileno ??
-                                                            '';
-                                                        widget
-                                                            .productsController
-                                                            .selectedCustomerEmail
-                                                            .value = customer
-                                                                .email ??
                                                             '';
                                                         customerSearchController
                                                             .clear();
@@ -705,32 +668,21 @@ class _OrderTakingState extends State<OrderTaking>
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          widget.productsController.selectedCustomerName.isEmpty
-                              ? IntrinsicWidth(
-                                  child: SizedBox(
-                                    width: 140.0,
-                                    height: 50.0,
-                                  ),
-                                )
-                              : IntrinsicWidth(
-                                  child: CustomSwitch(
-                                    initialValue: customerAndOrderController
-                                        .isActive.value,
-                                    onChanged: (value) {
-                                      customerAndOrderController
-                                          .isActive.value = value;
-                                    },
-                                    active: customerAndOrderController
-                                        .isActive.value,
-                                    selectedName: widget.productsController
-                                        .selectedCustomerName.value,
-                                    customerId: widget.productsController
-                                        .selectedCustomerId.value,
-                                  ),
-                                )
+                          const SizedBox(width: 10),
+                          IntrinsicWidth(
+                            child: CustomSwitch(
+                              initialValue:
+                                  customerAndOrderController.isActive.value,
+                              onChanged: (value) {
+                                customerAndOrderController.isActive.value =
+                                    value;
+                              },
+                              active: customerAndOrderController.isActive.value,
+                              selectedName: widget.productsController
+                                  .selectedCustomerName.value,
+                              customerId: widget.selectedCustId.toString(),
+                            ),
+                          )
                         ],
                       ))
                     ],
@@ -783,45 +735,17 @@ class _OrderTakingState extends State<OrderTaking>
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: IconButton(
-                                  icon: Text(
-                                    initial,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: primaryColor,
-                                      fontWeight: FontWeight.bold,
+                                    icon: Text(
+                                      initial,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  onPressed: () {
-                                    log("CategoryName : $categoryName");
-                                    _selectCategory(categoryName);
-                                    CategoryData selectedCategory =
-                                        categories[index];
-                                    if (selectedCategory.subCategoryItem !=
-                                            null &&
-                                        selectedCategory
-                                            .subCategoryItem!.isNotEmpty) {
-                                      String firstSubCategoryId =
-                                          selectedCategory
-                                                  .subCategoryItem!.first.id ??
-                                              '';
-                                      String firstSubCategoryName =
-                                          selectedCategory.subCategoryItem!
-                                              .first.subCategory
-                                              .toString();
-                                      widget
-                                          .productsController
-                                          .selectedSubCategoryName
-                                          .value = firstSubCategoryName;
-                                      widget
-                                          .productsController
-                                          .selectedSubCategoryId
-                                          .value = firstSubCategoryId;
-                                      _selectedOption = firstSubCategoryName;
-                                      _fetchProductsByCategory(
-                                          firstSubCategoryId);
-                                    }
-                                  },
-                                ),
+                                    onPressed: () {
+                                      _selectCategory(categoryName);
+                                    }),
                               );
                             },
                           ),
@@ -839,8 +763,7 @@ class _OrderTakingState extends State<OrderTaking>
                     setState(() {
                       _isDrawerOpen = false;
                     });
-                    _drawerTimer
-                        ?.cancel(); // Cancel the timer if user closes manually
+                    _drawerTimer?.cancel();
                   },
                   child: Container(
                     color: Colors.transparent,

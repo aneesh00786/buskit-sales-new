@@ -452,92 +452,115 @@ class _OptionWidgetState extends State<OptionWidget> {
       BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance.height * 0.02,
+      height: AppDimensions.instance!.height * 0.02,
       fit: BoxFit.contain,
     );
 
     return Flexible(
       child: Padding(
         padding: const EdgeInsets.only(right: 3, left: 3),
-        child: MyCommnonContainer(
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-              blurRadius: 2,
-              offset: const Offset(4, 4),
-            ),
-          ],
-          borderRadius: 20,
-          onTap: optionData.onTap,
-          margin: nkSymmetricPadding(
-            vertical: 0,
-            horizontal: AppDimensions.instance.width * 0.001,
-          ),
-          padding: nkLargePadding(),
-          isCommonBorder: true,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 10,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                      color: optionData.svgBgColor,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: svgComponent,
-                  ),
-                ),
-                Flexible(
-                  child: Wrap(
-                    direction: Axis.vertical,
-                    children: [
-                      CustomText(
-                        content: optionData.title,
-                        maxLine: 1,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: secondaryTextColor,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          CustomText(
-                            content: _getCountForTitle(
-                                optionData.title, orderCountList),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: optionData.color,
-                          ),
-                          if (_getUnFilteredCountForTitle(
-                                  optionData.title, orderCountList) !=
-                              "0") ...[
-                            const SizedBox(width: 30),
-                            InkWell(
-                              onTap: optionData.onUnFilterTap,
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: red,
-                                child: CustomText(
-                                  content: _getUnFilteredCountForTitle(
-                                      optionData.title, orderCountList),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  color: white,
-                                ),
-                              ),
-                            ),
-                          ]
-                        ],
-                      ),
-                    ],
-                  ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Main container (parent tap works everywhere else)
+            MyCommnonContainer(
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
+                  blurRadius: 2,
+                  offset: const Offset(4, 4),
                 ),
               ],
+              borderRadius: 20,
+              onTap: optionData.onTap,
+              margin: nkSymmetricPadding(
+                vertical: 0,
+                horizontal: AppDimensions.instance!.width * 0.001,
+              ),
+              padding: nkLargePadding(),
+              isCommonBorder: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 10,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: optionData.svgBgColor,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: svgComponent,
+                    ),
+                  ),
+                  Flexible(
+                    child: Wrap(
+                      direction: Axis.vertical,
+                      children: [
+                        CustomText(
+                          content: optionData.title,
+                          maxLine: 1,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: secondaryTextColor,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: _getCountForTitle(
+                                  optionData.title, orderCountList),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: optionData.color,
+                            ),
+                            // leave space for badge
+                            SizedBox(width: 30),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+
+            // Red count badge brought to front with hit area
+            if (_getUnFilteredCountForTitle(optionData.title, orderCountList) !=
+                "0")
+              Positioned(
+                right: 12,
+                top: 24,
+                child: InkWell(
+                  onTap: optionData.onUnFilterTap,
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8), // 8px hit area
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: 0.5,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: CircleAvatar(
+                      radius: 10,
+                      backgroundColor: red,
+                      child: CustomText(
+                        content: _getUnFilteredCountForTitle(
+                            optionData.title, orderCountList),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

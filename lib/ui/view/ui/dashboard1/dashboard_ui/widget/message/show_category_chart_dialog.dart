@@ -112,7 +112,7 @@ void showCategoryChartDialog(
                                     monthlyPerformance: monthlyPerformance??[],
                                     allCategory: categories!,
                                     staffProjection: staffProjection,
-                                    targetType: categoryTarget,
+                                    categoryTarget: categoryTarget,
                                     isMonthly:
                                         categoryTarget == '0' ? true : false,
                                     isDayOrRange: provider.selectedFilter ==

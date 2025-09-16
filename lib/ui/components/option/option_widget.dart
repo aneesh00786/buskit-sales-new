@@ -532,7 +532,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 "0")
               Positioned(
                 right: 12,
-                top: 24,
+                top: 20,
                 child: InkWell(
                   onTap: optionData.onUnFilterTap,
                   customBorder: const CircleBorder(),

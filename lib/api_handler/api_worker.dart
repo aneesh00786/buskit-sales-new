@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
@@ -766,7 +767,7 @@ class ApiWorker with ApiConstants {
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          log('API Response Data: $responseData');
+          // log('API Response Data: $responseData');
 
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
@@ -910,7 +911,7 @@ class ApiWorker with ApiConstants {
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          log('[getAllProducts] API Response Data: $responseData');
+          // log('[getAllProducts] API Response Data: $responseData');
 
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
@@ -1039,7 +1040,7 @@ class ApiWorker with ApiConstants {
       for (var product in existingProducts) {
         if (product.productId != null) {
           await productBox.delete(product.productId);
-          log('Removed existing product: ${product.productId}');
+          // log('Removed existing product: ${product.productId}');
         }
       }
 
@@ -1105,7 +1106,7 @@ class ApiWorker with ApiConstants {
         for (var product in existingProducts) {
           if (product.productId != null) {
             await productBox.delete(product.productId);
-            log('Removed existing product: ${product.productId}');
+            // log('Removed existing product: ${product.productId}');
           }
         }
       }
@@ -2000,7 +2001,7 @@ class ApiWorker with ApiConstants {
         log("[fetchSchedule] 📤 API Request Payload: $requestData");
 
         final response = await responsePostMethod(
-          endPoint:  ApiConstants.fetchSchedule,
+          endPoint: ApiConstants.fetchSchedule,
           requestData: requestData,
         );
 
@@ -3357,6 +3358,60 @@ class ApiWorker with ApiConstants {
         response: error is DioException ? error.response : null,
       );
       throw Exception('Failed to fetch product frequency: $error');
+    }
+  }
+
+  Future<List<PromotionReponse>> getPromotions() async {
+    try {
+      final isConnected = await ConnectivityService().isOnline();
+      final cacheKey =
+          "${SessionHelper.loginSavedData?.company_id ?? 0}_promotion_data";
+
+      final box = await Hive.openBox('promotionsBox');
+
+      if (!isConnected) {
+        final savedPromotions = box.get(cacheKey) as List?;
+        if (savedPromotions != null) {
+          return List<PromotionReponse>.from(
+            savedPromotions.map(
+              (x) => PromotionReponse.fromJson(
+                ApiService().castToStringDynamic(x),
+              ),
+            ),
+          );
+        } else {
+          throw Exception('No data available offline');
+        }
+      } else {
+        final response = await dio.getbycustom(
+          ApiConstants.promotions,
+          queryParameters: {
+            "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+          },
+        );
+
+        // Response is a list of promotions
+        final promotions = List<PromotionReponse>.from(
+          response.data.map((x) => PromotionReponse.fromJson(x)),
+        );
+
+        // Save in Hive as a list of maps
+        await box.put(
+          cacheKey,
+          promotions.map((e) => e.toJson()).toList(),
+        );
+
+        log("PROMOTION RESPONSE : $response");
+
+        return promotions;
+      }
+    } catch (error) {
+      log('Error occurred while fetching promotions: $error');
+      handleExceptionMessage(
+        apiName: 'Fetch Promotions',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch promotions data: $error');
     }
   }
 }

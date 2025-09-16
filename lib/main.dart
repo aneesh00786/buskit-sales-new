@@ -95,6 +95,7 @@ void main() async {
   await Hive.openBox('draftAndCartIdsBox');
   await Hive.openBox('draftItemsBox');
   await Hive.openBox('productFrequencyBox');
+  await Hive.openBox('promotionsBox');
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
   SystemChrome.setPreferredOrientations([
@@ -259,4 +260,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 }
-

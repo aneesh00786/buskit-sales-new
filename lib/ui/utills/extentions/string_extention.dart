@@ -7,6 +7,22 @@ extension StringExtension on String {
     return "${this[0].toUpperCase()}${substring(1)}";
   }
 
+  String get nkStringCleanAndCapitalize {
+    if (isEmpty) return this;
+
+    // Replace any non-alphanumeric character with space
+    String cleaned = replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ');
+
+    // Split words, capitalize first letter of each, join back
+    List<String> words = cleaned
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .toList();
+
+    return words.join(' ');
+  }
+
   String get nkValueWithCurrencySymbol {
     final currencySymbol = (SessionHelper.settingsData
                 ?.firstWhere(
@@ -38,7 +54,7 @@ String formatAmount(dynamic value) {
               )
               .value ??
           '')
-      .trim(); 
+      .trim();
   double amount;
 
   try {

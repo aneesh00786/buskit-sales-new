@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/search/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
@@ -879,7 +880,7 @@ class ProductsController extends GetxController {
     refresh();
   }
 
-    RxList<ProductFrequencyData> productFrequencyList =
+  RxList<ProductFrequencyData> productFrequencyList =
       <ProductFrequencyData>[].obs;
 
   Future<List<ProductFrequencyData>> loadProductFrequency() async {
@@ -898,5 +899,30 @@ class ProductsController extends GetxController {
       log("Error loading Product Frequency: $error");
     }
     return productFrequencyList;
+  }
+
+  // FETCH PROMOTIONS
+  final promotions = <PromotionReponse>[].obs;
+  final isPromotionLoading = false.obs;
+
+  Rx<PromotionReponse?> selectedPromotion = Rx<PromotionReponse?>(null);
+
+  Future<void> fetchPromotions() async {
+    try {
+      isPromotionLoading.value = true;
+
+      final result = await ApiWorker().getPromotions();
+
+      promotions.assignAll(result);
+    } catch (e) {
+      log('Error fetching promotions: $e');
+      promotions.clear();
+    } finally {
+      isPromotionLoading.value = false;
+    }
+  }
+
+  void selectPromotion(PromotionReponse promo) {
+    selectedPromotion.value = promo;
   }
 }

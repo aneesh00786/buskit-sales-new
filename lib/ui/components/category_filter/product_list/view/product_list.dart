@@ -143,26 +143,26 @@ class _ProductGridState extends State<ProductGrid> {
           widget.productsController.getInitialSubCategoryIdAndName();
       name = subCategoryItem?.subCategory ?? '';
 
-      log('_fetchInitialProducts: SubCategoryItem - ID: ${subCategoryItem?.id}, Name: ${subCategoryItem?.subCategory}');
-      log('_fetchInitialProducts: Current selectedSubCategoryId: ${widget.productsController.selectedSubCategoryId.value}');
+      // log('_fetchInitialProducts: SubCategoryItem - ID: ${subCategoryItem?.id}, Name: ${subCategoryItem?.subCategory}');
+      // log('_fetchInitialProducts: Current selectedSubCategoryId: ${widget.productsController.selectedSubCategoryId.value}');
 
       if (subCategoryItem?.id != null && subCategoryItem!.id!.isNotEmpty) {
-        log('_fetchInitialProducts: Fetching products for SCID: ${subCategoryItem.id}');
+        // log('_fetchInitialProducts: Fetching products for SCID: ${subCategoryItem.id}');
         List<ProductModel> fetchedProducts = await widget.productsController
             .fetchProducts(subCategoryItem.id.toString());
 
-        log('_fetchInitialProducts: API returned ${fetchedProducts.length} products');
-        log('_fetchInitialProducts: Product SCIDs: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
-        log('_fetchInitialProducts: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
+        // log('_fetchInitialProducts: API returned ${fetchedProducts.length} products');
+        // log('_fetchInitialProducts: Product SCIDs: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
+        // log('_fetchInitialProducts: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
 
         setState(() {
           products = fetchedProducts;
           isLoading = false;
         });
 
-        log('_fetchInitialProducts: Final product count: ${products.length} for subcategory: ${subCategoryItem.subCategory}');
+        // log('_fetchInitialProducts: Final product count: ${products.length} for subcategory: ${subCategoryItem.subCategory}');
       } else {
-        log('_fetchInitialProducts: No valid subcategory ID found');
+        // log('_fetchInitialProducts: No valid subcategory ID found');
         setState(() {
           isLoading = false;
         });
@@ -531,7 +531,7 @@ class _ProductGridState extends State<ProductGrid> {
                                     colorCodeString.replaceFirst('#', '0xFF')),
                               );
 
-                              log("Product Color ${product.productId} Color: $productColor");
+                              // log("Product Color ${product.productId} Color: $productColor");
 
                               return GestureDetector(
                                 onTap: () {

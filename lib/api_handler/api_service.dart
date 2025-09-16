@@ -514,7 +514,7 @@ class ApiService {
           endPoint: ApiConstants.fetchIndividualChat,
           options: Options(headers: {'Content-Type': 'application/json'}));
       log('Request body of Chat: $requestBody');
-      log('API Response Data: ${response.data}');
+      // log('API Response Data: ${response.data}');
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse =
             response.data is Map<String, dynamic>

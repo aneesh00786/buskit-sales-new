@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_screen.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -77,15 +78,30 @@ class PromotionDetails extends StatelessWidget {
                       _buildDiscountScopeTarget(promo),
 
                       /// Expiry
+                      SizedBox(
+                        height: 24,
+                      ),
+                      if (promo.startDate != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                          child: Text(
+                            "Started: ${NKDateUtils.commonDayFormat3(NKDateUtils.formatStringUTCDateTime(promo.startDate.toString()))}",
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ],
                       Padding(
-                        padding: const EdgeInsets.all(22.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
                         child: Text(
-                          "Expiry: ${promo.endDate ?? 'N/A'}",
+                          promo.endDate == null
+                              ? "Expiry: N/A"
+                              : "Expiry: ${NKDateUtils.commonDayFormat3(NKDateUtils.formatStringUTCDateTime(promo.endDate.toString()))}",
                           style: const TextStyle(fontSize: 20),
                         ),
                       ),
 
                       /// Add to cart button
+                      SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Container(
@@ -219,14 +235,31 @@ class PromotionDetails extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildRow("Discount:", promo.discountText),
+            _buildRow("DISCOUNT : ", promo.discountText),
             const Divider(color: Colors.grey),
-            _buildRow("Scope:", promo.scopeText),
+            _buildRow("SCOPE : ", promo.scopeText),
             const Divider(color: Colors.grey),
-            _buildRow("Target:", promo.targetText),
+            _buildRow("TARGET : ", promo.targetText),
+
+            // Min order (if available)
+            if (promo.minOrderValue != null) ...[
+              const Divider(color: Colors.grey),
+              _buildRow("MIN ORDER : ", formatAmount(promo.minOrderValue)),
+            ],
+
+            // Extra info (tiers / bundle items)
             if (promo.extraInfoText != null) ...[
               const Divider(color: Colors.grey),
-              _buildRow("Extra:", promo.extraInfoText.toString()),
+              _buildRow(
+                promo.promoType == "tiered_discount" ? "TIERS : " : "EXTRA : ",
+                promo.extraInfoText.toString(),
+              ),
+            ],
+
+            // Days (for happy_hours)
+            if (promo.daysText != null) ...[
+              const Divider(color: Colors.grey),
+              _buildRow("DAYS : ", promo.daysText!),
             ],
           ],
         ),
@@ -246,12 +279,16 @@ class PromotionDetails extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: black,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 2,
+            textAlign: TextAlign.end,
+            style: const TextStyle(
+              fontSize: 16,
+              color: black,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

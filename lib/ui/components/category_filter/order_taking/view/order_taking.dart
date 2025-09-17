@@ -431,6 +431,7 @@ class _OrderTakingState extends State<OrderTaking>
                           profiloe(),
                         ],
                       ),
+                      SizedBox(height: 10),
                       Row(
                         children: [
                           Container(
@@ -741,7 +742,7 @@ class _OrderTakingState extends State<OrderTaking>
                     left: widget.productsController.selectedCustomerName.isEmpty
                         ? 40
                         : 0,
-                    top: 0,
+                    top: 10,
                   ),
                   child: Consumer<CustomersProvider>(
                     builder: (context, provider, child) => Row(
@@ -983,7 +984,7 @@ class _OrderTakingState extends State<OrderTaking>
               ),
               Positioned(
                 left: 0,
-                top: 0,
+                top: 10,
                 bottom: 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 60),
@@ -1063,7 +1064,7 @@ class _OrderTakingState extends State<OrderTaking>
                 ),
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 300),
-                top: 0,
+                top: 10,
                 bottom: 0,
                 left: _isDrawerOpen ? 50 : -_drawerWidth,
                 child: Padding(

@@ -1,12 +1,11 @@
+import 'dart:convert';
+
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_details.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_list.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class PromotionScreen extends StatelessWidget {
   final ProductsController controller;
@@ -77,6 +76,12 @@ extension PromotionHelpers on PromotionReponse {
           return "Sample: ${sample.sampleDetails ?? sample.quantity ?? ''}";
         }
         return "Sample";
+      case 'free_gift':
+        if (freeItems != null && freeItems!.isNotEmpty) {
+          final gift = freeItems!.first;
+          return "Free: ${gift.giftName ?? 'Gift'}";
+        }
+        return "Free Gift";
       case 'product_bundle':
         return "Bundle at \$${bundlePrice ?? ''}";
       case 'bogo':
@@ -93,11 +98,43 @@ extension PromotionHelpers on PromotionReponse {
               .toList();
           final min = discounts.reduce((a, b) => a < b ? a : b);
           final max = discounts.reduce((a, b) => a > b ? a : b);
-          return "${tiers!.length} tier (${min.toStringAsFixed(2)}% - ${max.toStringAsFixed(2)}%)";
+          return "${tiers!.length} tiers (${min.toStringAsFixed(2)}% - ${max.toStringAsFixed(2)}%)";
         }
         return "Tiered Discount";
+      case 'flat_discount':
+        return "\$${discountValue ?? '0'} off";
+      case 'percentage_discount':
+        final percent = "${discountValue ?? '0'}% off";
+        if (maxDiscount != null) {
+          return "$percent (max \$${maxDiscount})";
+        }
+        return percent;
+      case 'happy_hours':
+        final percent = "${discountPercentage ?? '0'}% off";
+        if (startTime != null && endTime != null) {
+          return "$percent during $startTime - $endTime";
+        }
+        return percent;
+      case 'seasonal':
+        final percent = "${discountPercentage ?? '0'}% off";
+        if (seasonName != null) {
+          return "$percent - $seasonName";
+        }
+        return percent;
+      case 'flash_sale':
+        final percent = "${discountPercentage ?? '0'}% off";
+        if (saleDuration != null) {
+          return "$percent for $saleDuration minutes";
+        }
+        return percent;
+      case 'limited_time':
+        final percent = "${discountPercentage ?? '0'}% off";
+        if (offerDuration != null) {
+          return "$percent for $offerDuration hours";
+        }
+        return percent;
       default:
-        return "Discount";
+        return "Special Offer";
     }
   }
 
@@ -107,9 +144,18 @@ extension PromotionHelpers on PromotionReponse {
       case 'all':
         return "All Products";
       case 'products':
-        return "${products?.length ?? 0} product${(products?.length ?? 0) > 1 ? 's' : ''}";
+        final count = products?.length ?? 0;
+        if (count == 0) {
+          return "Specific Products";
+        } else {
+          return "$count product${count != 1 ? 's' : ''}";
+        }
       case 'categories':
-        return "${categories?.length ?? 0} categor${(categories?.length ?? 0) > 1 ? 'ies' : 'y'}";
+        final count = categories?.length ?? 0;
+        return "$count categor${count != 1 ? 'ies' : 'y'}";
+      case 'brands':
+        final count = brands?.length ?? 0;
+        return "$count brand${count != 1 ? 's' : ''}";
       default:
         return "Scope Unknown";
     }
@@ -121,6 +167,10 @@ extension PromotionHelpers on PromotionReponse {
       case 'all_users':
         return "All Customers";
       case 'specific_users':
+        if (targetUsers != null) {
+          final count = targetUsersDecoded.length;
+          return "$count customer${count > 1 ? 's' : ''}";
+        }
         return "Specific Customers";
       default:
         return "Target Unknown";
@@ -141,11 +191,47 @@ extension PromotionHelpers on PromotionReponse {
           return tiers!
               .map((t) =>
                   "Buy ${t.buyQuantity ?? ''} ${t.buyQuantityType ?? ''} → ${t.discountValue ?? ''}% off")
-              .join(", ");
+              .join("\n");
         }
         return null;
       default:
         return null;
     }
+  }
+
+  /// Helper to decode target users JSON safely
+  List<String> get targetUsersDecoded {
+    try {
+      if (targetUsers == null) return [];
+
+      if (targetUsers is String) {
+        final decoded = jsonDecode(targetUsers!);
+        if (decoded is List) {
+          return List<String>.from(decoded);
+        }
+      } else if (targetUsers is List) {
+        return List<String>.from(targetUsers as List);
+      }
+
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Min order text
+  String? get minOrderText {
+    if (minOrderValue != null) {
+      return "\$${minOrderValue}";
+    }
+    return null;
+  }
+
+  /// Days text (for happy hours)
+  String? get daysText {
+    if (promoType == 'happy_hours' && daysOfWeek != null) {
+      return daysOfWeek;
+    }
+    return null;
   }
 }

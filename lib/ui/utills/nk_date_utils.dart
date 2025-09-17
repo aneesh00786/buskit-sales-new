@@ -8,6 +8,8 @@ class NKDateUtils {
   static final DateFormat _firstDayFormat = DateFormat('MMM dd');
   static final DateFormat _fullDayFormat = DateFormat('EEE dd MMM, yyyy');
   // static final DateFormat _apiDayFormat = DateFormat('dd/MM/yyyy');
+  static final DateFormat _commonTimeFormat = DateFormat('hh:mm');
+  static final DateFormat _commonTimeOnlyFormat = DateFormat('hh:mm a');
   static final DateFormat _apiDayFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat _commonDayFormat = DateFormat('dd/MM/yyyy');
   static final DateFormat _commonDayFormat2 = DateFormat('dd-MM-yyyy');
@@ -15,6 +17,8 @@ class NKDateUtils {
       DateFormat('dd/MM/yyyy hh:mm');
   static final DateFormat _commonFullDateTimeFormat2 =
       DateFormat('dd/MM/yyyy  hh:mm a');
+  static final DateFormat _commonDayFormat3 = DateFormat('MMM dd, yyyy');
+
   static String commonFullDateTimeFormat(DateTime d) =>
       _commonFullDateTimeFormat.format(d);
   static String commonFullDateTimeFormat2(DateTime d) =>
@@ -32,11 +36,12 @@ class NKDateUtils {
   static String commonDayFormat(DateTime d) => _commonDayFormat.format(d);
 
   static String commonDayFormat2(DateTime d) => _commonDayFormat2.format(d);
-  static final DateFormat _commonTimeFormat = DateFormat('hh:mm');
+  
   static String commonTimeFormat(DateTime d) => _commonTimeFormat.format(d);
   
-  static final DateFormat _commonTimeOnlyFormat = DateFormat('hh:mm a');
   static String commonTimeOnlyFormat(DateTime d) => _commonTimeOnlyFormat.format(d);
+
+  static String commonDayFormat3(DateTime d) => _commonDayFormat3.format(d);
 
   static const List<String> weekdays = [
     'Monday',

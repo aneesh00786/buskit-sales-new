@@ -191,6 +191,19 @@ class _OptionWidgetState extends State<OptionWidget> {
               );
             } else if (snapshot.hasError || !snapshot.hasData) {
               return const NodataWidget();
+              // return options(
+              //     OrderCountListt(
+              //       cancelOrder: 0,
+              //       draftFilteredCount: 0,
+              //       draftOrder: 0,
+              //       estimateFilterOrder: 0,
+              //       estimateOrder: 0,
+              //       preorderFilterOrder: 0,
+              //       preorderOrder: 0,
+              //       totalOrder: 0,
+              //     ),
+              //     context,
+              //     provider);
             } else if (snapshot.hasData) {
               final countData = snapshot.data!.orderCountList;
 
@@ -532,7 +545,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 "0")
               Positioned(
                 right: 12,
-                top: 20,
+                top: isPhonePortrait(context) ? 20 : 24,
                 child: InkWell(
                   onTap: optionData.onUnFilterTap,
                   customBorder: const CircleBorder(),

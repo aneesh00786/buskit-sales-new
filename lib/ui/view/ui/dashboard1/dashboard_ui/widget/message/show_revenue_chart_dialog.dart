@@ -83,18 +83,7 @@ void showRevenueChartDialog(
                                     ),
                                   );
                                 } else if (snapshot.hasError) {
-                                  return const Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.error_outline,
-                                            size: 50, color: Colors.red),
-                                        Text(
-                                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding."),
-                                      ],
-                                    ),
-                                  );
+                                  return const NodataWidget();
                                 } else if (snapshot.hasData) {
                                   final categoryPerformance =
                                       snapshot.data!.revenue;
@@ -135,42 +124,46 @@ void showRevenueChartDialog(
                                         runSpacing: 4,
                                         children: [
                                           InkWell(
-                                      onTap: () {
-                                        if (bookingRevenueLength != 0) {
-                                          showValueDialog(context,
-                                              categoryPerformance, 'Booking');
-                                        } else {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        }
-                                      },
-                                      child: _buildLegendItem(
-                                        const Color(0xff1d3d63),
-                                        'Bookings : ${formatAmount(bookingRevenueLength)}',
-                                      ),
-                                    ),
-                                    SizedBox(width:10),
-                                    InkWell(
-                                      onTap: () {
-                                        if (orderRevenueLast != 0) {
-                                          showValueDialog(context,
-                                              categoryPerformance, 'Order');
-                                        } else {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
-                                        }
-                                      },
-                                      child: _buildLegendItem(
-                                        Colors.blue,
-                                        'Orders : ${formatAmount(orderRevenueLast)}',
-                                      ),
-                                    ),
+                                            onTap: () {
+                                              if (bookingRevenueLength != 0) {
+                                                showValueDialog(
+                                                    context,
+                                                    categoryPerformance,
+                                                    'Booking');
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              const Color(0xff1d3d63),
+                                              'Bookings : ${formatAmount(bookingRevenueLength)}',
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          InkWell(
+                                            onTap: () {
+                                              if (orderRevenueLast != 0) {
+                                                showValueDialog(
+                                                    context,
+                                                    categoryPerformance,
+                                                    'Order');
+                                              } else {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "No Record Found",
+                                                    red,
+                                                    Icons.close);
+                                              }
+                                            },
+                                            child: _buildLegendItem(
+                                              Colors.blue,
+                                              'Orders : ${formatAmount(orderRevenueLast)}',
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),

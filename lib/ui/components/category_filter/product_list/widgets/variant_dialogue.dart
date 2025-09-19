@@ -799,129 +799,128 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () async {
-                            final customerId = customerAndOrderController
-                                    .customerId.value.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget
-                                    .productController.selectedCustomerId.value;
+                        onPressed: () async {
+                          final customerId = customerAndOrderController
+                                  .customerId.value.isNotEmpty
+                              ? customerAndOrderController.customerId.value
+                              : widget
+                                  .productController.selectedCustomerId.value;
 
-                            int totalCount = 0;
+                          int totalCount = 0;
 
-                            if ((customerAndOrderController
-                                    .customerId.value.isNotEmpty) ||
-                                (widget.productController.selectedCustomerName
-                                    .value.isNotEmpty)) {
-                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
-                              for (var i = 0;
-                                  i < widget.detailsCopy.length;
-                                  i++) {
-                                if (localCounts[i] > 0) {
-                                  totalCount += localCounts[i];
-                                } else {}
-                              }
-                              if (totalCount == 0) {
-                                showCustomToastDisplay(
-                                    context,
-                                    "Choose at least one variant to add to cart",
-                                    Colors.orange,
-                                    Icons.warning);
-                                return;
-                              }
-                              for (var i = 0;
-                                  i < widget.detailsCopy.length;
-                                  i++) {
-                                Detail detail = widget.detailsCopy[i];
-                                if (localCounts[i] > 0) {
-                                  final bool isPack = detail.saleBy == 'Pack';
-                                  await CartDatabaseManager().addToCart(
-                                    customerId: customerId,
-                                    localCount: localCounts[i],
-                                    detail: detail,
-                                    isPack: isPack,
-                                    productName:
-                                        widget.product.productName ?? '',
-                                    inclTax: widget.product.inclTax ?? '',
-                                    isChcked: true,
-                                    catId: widget.product.catId ?? 0,
-                                  );
-                                  widget.productController.isCartModified
-                                      .value = true;
-                                  log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
-                                } else {
-                                  log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
-                                }
-                              }
-
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final cartProvider =
-                                    Provider.of<CustomersProvider>(context,
-                                        listen: false);
-                                cartProvider.updateCartCount(customerId);
-                                cartProvider.getCartItemCounts(customerId);
-                                widget.onDone();
-
-                                Navigator.pop(context);
-                              });
-                            } else {
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    actions: [
-                                      const SizedBox(height: 20),
-                                      const Center(
-                                          child: Icon(
-                                              Icons.warning_amber_outlined,
-                                              size: 50,
-                                              color: Colors.orange)),
-                                      const SizedBox(height: 20),
-                                      Center(
-                                          child: CustomText(
-                                              content:
-                                                  "Please Select a Customer",
-                                              fontSize: 18)),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: CustomText(
-                                            content: "Ok", color: primaryColor),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                          if ((customerAndOrderController
+                                  .customerId.value.isNotEmpty) ||
+                              (widget.productController.selectedCustomerName
+                                  .value.isNotEmpty)) {
+                            log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
+                            for (var i = 0;
+                                i < widget.detailsCopy.length;
+                                i++) {
+                              if (localCounts[i] > 0) {
+                                totalCount += localCounts[i];
+                              } else {}
                             }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryButtonColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.04,
-                              vertical: screenHeight * 0.01,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            if (totalCount == 0) {
+                              showCustomToastDisplay(
+                                  context,
+                                  "Choose at least one variant to add to cart",
+                                  Colors.orange,
+                                  Icons.warning);
+                              return;
+                            }
+                            for (var i = 0;
+                                i < widget.detailsCopy.length;
+                                i++) {
+                              Detail detail = widget.detailsCopy[i];
+                              if (localCounts[i] > 0) {
+                                final bool isPack = detail.saleBy == 'Pack';
+                                await CartDatabaseManager().addToCart(
+                                  customerId: customerId,
+                                  localCount: localCounts[i],
+                                  detail: detail,
+                                  isPack: isPack,
+                                  productName: widget.product.productName ?? '',
+                                  inclTax: widget.product.inclTax ?? '',
+                                  isChcked: true,
+                                  catId: widget.product.catId ?? 0,
+                                );
+                                widget.productController.isCartModified.value =
+                                    true;
+                                log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
+                              } else {
+                                log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
+                              }
+                            }
+
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              final cartProvider =
+                                  Provider.of<CustomersProvider>(context,
+                                      listen: false);
+                              cartProvider.updateCartCount(customerId);
+                              cartProvider.getCartItemCounts(customerId);
+                              widget.onDone();
+
+                              Navigator.pop(context);
+                            });
+                          } else {
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  actions: [
+                                    const SizedBox(height: 20),
+                                    const Center(
+                                        child: Icon(
+                                            Icons.warning_amber_outlined,
+                                            size: 50,
+                                            color: Colors.orange)),
+                                    const SizedBox(height: 20),
+                                    Center(
+                                        child: CustomText(
+                                            content: "Please Select a Customer",
+                                            fontSize: 18)),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: CustomText(
+                                          content: "Ok", color: primaryColor),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryButtonColor,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04,
+                            vertical: screenHeight * 0.01,
                           ),
-                          child: Row(
-                            children: [
-                              CustomText(
-                                content: "Add to Cart",
-                                fontSize: screenWidth * 0.02,
-                                color: Colors.white,
-                              ),
-                              SizedBox(
-                                width: screenWidth * 0.02,
-                              ),
-                              Icon(
-                                EneftyIcons.shopping_cart_outline,
-                                size: screenWidth * 0.03,
-                                color: white,
-                              )
-                            ],
-                          )),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CustomText(
+                              content: "Add to Cart",
+                              fontSize: screenWidth * 0.02,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: screenWidth * 0.02,
+                            ),
+                            Icon(
+                              EneftyIcons.shopping_cart_outline,
+                              size: screenWidth * 0.03,
+                              color: white,
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

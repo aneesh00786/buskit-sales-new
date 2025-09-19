@@ -43,7 +43,7 @@ class OrderController extends GetxController {
     isCountLoading(true);
     try {
       var notificationData =
-          await Get.find<NotificationController>().loadNotificationData('', '');
+          await Get.find<NotificationController>().loadNotificationData();
       offlineOrderCount.value = offlineOrders.length;
       if (notificationData.mainNotification != null) {
         var mainNotification = notificationData.mainNotification!;

@@ -1095,8 +1095,266 @@ class _OrderTakingState extends State<OrderTaking>
             ],
           );
         } else {
-          return PromotionScreen(
-            controller: widget.productsController,
+          return Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: 76),
+                  Expanded(
+                    child: PromotionScreen(
+                      controller: widget.productsController,
+                    ),
+                  ),
+                ],
+              ),
+              Obx(
+                () => Padding(
+                  padding: EdgeInsets.only(
+                    left: widget.productsController.selectedCustomerName.isEmpty
+                        ? 40
+                        : 0,
+                    top: 10,
+                  ),
+                  child: Consumer<CustomersProvider>(
+                    builder: (context, provider, child) => Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: isTabletOrPhoneLandscape(context)
+                              ? MediaQuery.of(context).size.width * 0.40
+                              : MediaQuery.of(context).size.width * 0.25,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomSearchBar(
+                                text: "Search customer...",
+                                controller: customerSearchController,
+                                onChange: (value) {
+                                  filterCustomers(value);
+                                },
+                                icon: EneftyIcons.profile_outline,
+                              ),
+                              Expanded(
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : customerSearchController.text.isNotEmpty
+                                        ? filteredCustomers.isEmpty
+                                            ? Align(
+                                                alignment: Alignment.topCenter,
+                                                child: Material(
+                                                  child: Container(
+                                                    width: 300,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color: Colors.white,
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 10,
+                                                        horizontal: 20),
+                                                    child: const Text(
+                                                      'No customers found.',
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            : ListView.builder(
+                                                shrinkWrap: true,
+                                                itemCount:
+                                                    filteredCustomers.length,
+                                                itemBuilder: (context, index) {
+                                                  CustomerAndOrderData
+                                                      customer =
+                                                      filteredCustomers[index];
+                                                  return Container(
+                                                    color: Colors.white,
+                                                    child: ListTile(
+                                                      leading: CircleAvatar(
+                                                        backgroundImage:
+                                                            NetworkImage(
+                                                          '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                        ),
+                                                      ),
+                                                      title: Text(customer
+                                                              .businessName ??
+                                                          ''),
+                                                      subtitle: Text(
+                                                          customer.customerId ??
+                                                              ''),
+                                                      onTap: () async {
+                                                        await provider
+                                                            .updateCartCount(
+                                                                customer.customerId ??
+                                                                    '');
+                                                        if (customerAndOrderController
+                                                                .isActive
+                                                                .value ==
+                                                            true) {
+                                                          _showWarningDialog(
+                                                            context,
+                                                            'Please check out from the current customer',
+                                                            const Center(
+                                                              child: Icon(
+                                                                Icons
+                                                                    .warning_amber_outlined,
+                                                                size: 40,
+                                                                color: Colors
+                                                                    .orange,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          customerAndOrderController
+                                                              .setCustomerId(
+                                                                  customer.customerId ??
+                                                                      '');
+                                                          widget
+                                                              .productsController
+                                                              .updateSelectedCustomer(
+                                                                  id: customer
+                                                                          .customerId ??
+                                                                      '',
+                                                                  imageUrl:
+                                                                      customer.imageUrl ??
+                                                                          '',
+                                                                  name: customer
+                                                                          .businessName ??
+                                                                      '');
+                                                          widget
+                                                              .productsController
+                                                              .selectedCustomerId
+                                                              .value = customer
+                                                                  .customerId ??
+                                                              '';
+                                                          customerSearchController
+                                                              .clear();
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
+                                                },
+                                              )
+                                        : const SizedBox.shrink(),
+                              ),
+                              if (widget.productsController.showDialog.value)
+                                AlertDialog(
+                                  title: const Text('Warning'),
+                                  content: Text(_dialogMessage),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          widget.productsController.closeDialog,
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                        IntrinsicWidth(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Hero(
+                              tag: 'product_image',
+                              child: AnimatedBuilder(
+                                animation: animationController,
+                                builder: (context, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, animation.value),
+                                    child: child,
+                                  );
+                                },
+                                child: Consumer<CustomersProvider>(
+                                  builder: (context, provider, child) =>
+                                      IconButton(
+                                    onPressed: () {
+                                      _showCartDialog(cartDialogKey);
+                                    },
+                                    icon: Stack(
+                                      children: [
+                                        const Icon(
+                                          Icons.shopping_cart_outlined,
+                                          size: 30,
+                                        ),
+                                        if (isCartCountLoading)
+                                          const Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(Colors.red),
+                                              ),
+                                            ),
+                                          )
+                                        else if (provider.cartItemCount > 0)
+                                          Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${provider.cartItemCount}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            IntrinsicWidth(
+                              child: CustomSwitch(
+                                initialValue:
+                                    customerAndOrderController.isActive.value,
+                                onChanged: (value) {
+                                  customerAndOrderController.isActive.value =
+                                      value;
+                                },
+                                active:
+                                    customerAndOrderController.isActive.value,
+                                selectedName: widget.productsController
+                                    .selectedCustomerName.value,
+                                customerId: widget.selectedCustId.toString(),
+                              ),
+                            )
+                          ],
+                        ))
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           );
         }
       }),

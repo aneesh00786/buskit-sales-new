@@ -1,17 +1,23 @@
 // ignore_for_file: library_prefixes, empty_catches, non_constant_identifier_names
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
     as orderResponseModel;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -110,13 +116,35 @@ class DashboardProvider with ChangeNotifier {
     _selectedEndDate = '';
   }
 
-  void resetFilter() {
+  final List<String> months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+
+  void resetFilter() async {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedFilterTemp = FilterDateEnum.thisMonth;
     _selectedFilterName = "Month";
     _selectedFilterNameTemp = "Month";
     _selectedStartDate = '';
     _selectedEndDate = '';
+    _selectedFilterMonths = [months[DateTime.now().month - 1]];
+    _selectedFilterWeeks = [
+      "week${((DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays) ~/ 7) + 1}"
+    ];
+    _selectedYear = DateTime.now().year;
+
+    await fetchAllOrdersAtOnce();
   }
 
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
@@ -310,7 +338,7 @@ class DashboardProvider with ChangeNotifier {
         _selectedFilterNameTemp = "Week";
         break;
       case FilterDateEnum.thisYear:
-        _selectedFilterNameTemp = "Year";
+        _selectedFilterNameTemp = "year";
         break;
       case FilterDateEnum.thisMonth:
         _selectedFilterNameTemp = "Month";
@@ -351,7 +379,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchAllOrdersAtOnce() async {
-    log("fetchAllOrdersAtOnce");
     await fetchOrdersData(OrderStatus.delivered, checkDate: true);
     await fetchOrdersData(OrderStatus.estimates, checkDate: true);
     await fetchOrdersData(OrderStatus.estimates, checkDate: false);
@@ -362,42 +389,101 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
+    log("[1] FETCH DASH AGAIN");
     NotificationController notificationController =
         Get.find<NotificationController>();
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
-
+    final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+    jsonDecode(jsonString);
+    if (_dataFetched) return;
     try {
-      final now = DateTime.now();
-      String startDate =
-          DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
-      String endDate = DateTime(now.year, now.month + 1, 0)
-          .toIso8601String()
-          .substring(0, 10);
-      _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
-        return _apiService.fetchDashboardData(
-          fetchType: _selectedFilterName,
-          startDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
-          endDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
-          selectedDay:
-              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
-          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
-              ? _selectedFilterMonths
-              : [],
-          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
-              ? _selectedFilterWeeks
-              : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
-          salesmanId: salesmanId,
-        );
-      });
-
-      notificationController.loadNotificationData(startDate, endDate);
-      if (!_isDraftFetched) {
-        await CartDatabaseManager().getDraftItems();
-        _isDraftFetched = true;
+      bool isOnline = await ConnectivityService().isOnline();
+      if (isOnline) {
+        log("ONLINE");
+        _futureResponseModel =
+            Future.delayed(const Duration(seconds: 2), () async {
+          final api = await _apiService.fetchDashboardData(
+            fetchType: _selectedFilterName,
+            startDate: _selectedFilter == FilterDateEnum.range
+                ? _selectedStartDate
+                : '',
+            endDate:
+                _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+            selectedDay:
+                _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+            selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+                ? _selectedFilterMonths
+                : [],
+            selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+                ? _selectedFilterWeeks
+                : [],
+            year:
+                _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+          );
+          // Save to Hive after successful fetch
+          log("TRY");
+          try {
+            final dashboardBox = Hive.box('dashboardBox');
+            final apiJson = api.toJson();
+            dashboardBox.put('dashboardData', jsonEncode(apiJson));
+          } catch (e) {
+            _logger.e('Error saving dashboard data to Hive', error: e);
+          }
+          return api;
+        });
+      } else {
+        log("OFFLINE");
+        // Offline: Try to load from Hive
+        try {
+          final dashboardBox = Hive.box('dashboardBox');
+          final cachedData = dashboardBox.get('dashboardData');
+          if (cachedData != null) {
+            // If cachedData is a String (JSON), decode it first
+            dynamic decodedData = cachedData;
+            if (cachedData is String) {
+              try {
+                decodedData = jsonDecode(cachedData);
+              } catch (e) {
+                log('Error decoding cached dashboard JSON: $e');
+                decodedData = {};
+              }
+            }
+            Map<String, dynamic> safeMap = ensureStringKeyedMap(decodedData);
+            final responseModel = ResponseModell.fromJson(safeMap);
+            _futureResponseModel = Future.value(responseModel);
+            log('Successfully loaded dashboard data from cache');
+          } else {
+            log('No cached dashboard data available');
+            NkCommonFunction.showErrorSnakBar(
+                'No offline dashboard data available. Please connect to the internet at least once.');
+            // Create an empty response model to prevent UI errors
+            _futureResponseModel = Future.value(ResponseModell(
+              statusCode: 200,
+              status: false,
+              message: 'No offline data available',
+              allCategory: [],
+              categoryPerformance: [],
+              monthlyPerformance: [],
+            ));
+          }
+        } catch (e) {
+          _logger.e('Error loading dashboard data from Hive', error: e);
+          log('Error loading offline dashboard data: $e');
+          NkCommonFunction.showErrorSnakBar(
+              'Error loading offline dashboard data. Please connect to the internet.');
+          // Create an empty response model to prevent UI errors
+          _futureResponseModel = Future.value(ResponseModell(
+            statusCode: 200,
+            status: false,
+            message: 'Error loading offline data',
+            allCategory: [],
+            categoryPerformance: [],
+            monthlyPerformance: [],
+          ));
+        }
       }
+      if (_selectedFilter != FilterDateEnum.range) {}
+      notificationController.loadNotificationData();
+      await CartDatabaseManager().getDraftItems();
       notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching data', error: e, stackTrace: stackTrace);

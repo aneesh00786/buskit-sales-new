@@ -24,7 +24,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
   @override
   void initState() {
     super.initState();
-    notificationController.loadNotificationData(widget.startDate??'', widget.endDate??'');
+    notificationController.loadNotificationData();
     notificationController.loadLeadsCountData();
   }
 

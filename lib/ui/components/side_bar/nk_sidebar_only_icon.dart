@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -123,6 +124,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isRecentOrders = index == 7;
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
+    bool isCustomersAndOrders = index == 1;
+    bool isDashboard = index == 0;
     return GestureDetector(
       onTap: () async {
         bool hasDraftId = CartDatabaseManager()
@@ -154,6 +157,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
           }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
+          if (isCustomersAndOrders) {
+            Provider.of<CustomersProvider>(context, listen: false)
+                .resetFilters();
+          }
+          if (isDashboard) {
+            Provider.of<DashboardProvider>(context, listen: false)
+                .resetFilter();
+          }
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();
@@ -175,6 +186,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
           }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
+          if (isCustomersAndOrders) {
+            Provider.of<CustomersProvider>(context, listen: false)
+                .resetFilters();
+          }
+          if (isDashboard) {
+            Provider.of<DashboardProvider>(context, listen: false)
+                .resetFilter();
+          }
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();

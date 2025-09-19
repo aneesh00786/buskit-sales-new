@@ -11,8 +11,6 @@ class NotificationController extends GetxController {
 
   RxBool isNotificationLoading = false.obs;
   Future<RecentOrderCountData> loadNotificationData(
-    String startDate,
-    String endDate,
   ) async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       isNotificationLoading.value = true;

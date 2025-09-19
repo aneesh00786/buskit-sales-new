@@ -39,7 +39,7 @@ class CartDatabaseManager {
   }
 
   Future<List<CartItem>> getDraftItems() async {
-    log("GET DRAFT ITEMS CALLED");
+    // log("GET DRAFT ITEMS CALLED");
     final dio = Dio();
     const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
     final now = DateTime.now();
@@ -61,7 +61,7 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    log('Request Body of FetchAll Order draft :$requestBody');
+    // log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
     final cacheKey = '${companyId}_$salesmanId';

@@ -47,13 +47,13 @@ class ApiService {
     List<String>? selectedMonths,
     List<String>? selectedWeeks,
     int? year,
-    String? salesmanId,
   }) async {
     final String jsonString =
         await SessionManager.getStringValue(SpString.spLogin);
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     final String createdToken = jsonMap['createdToken'];
-    Object? sendData;
+
+    dynamic sendData;
 
     switch (fetchType) {
       case "Month":
@@ -74,6 +74,7 @@ class ApiService {
       default:
         sendData = selectedMonths;
     }
+    final url = Uri.parse('$_baseUrl/Get_dashboard_list');
     final Map<String, dynamic> requestBody = {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "selected_range": sendData,
@@ -81,48 +82,120 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "year": fetchType == "Year" ? year : DateTime.now().year,
     };
-    final dashboardBox = Hive.box('dashboardBox');
+    log("GET_DASHBOARD_LIST request : $requestBody");
+    final dashboardBox = await getHiveBoxSafely('dashboardBox');
     try {
-      bool isOnline = await _connectivityService.isOnline();
+      final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        // NkCommonFunction.showErrorSnakBar(
-        //     'No Internet Connection. Please check your network');
-        final cachedDataString = dashboardBox.get('dashboardData');
-        log('Dashboard Cached data : $cachedDataString');
-        if (cachedDataString == null) {
-          throw Exception('No cached dashboard data found');
-        }
-        final parsedJson = jsonDecode(cachedDataString);
-        return localStorage.mapJsonToResponseModel(parsedJson);
-      } else {
-        final response = await responsePostMethod(
-          requestData: requestBody,
-          endPoint: ApiConstants.getDashboardList,
-          options: Options(
-            headers: {'Authorization': 'Bearer $createdToken'},
-          ),
-        );
-        if (response.statusCode == 200) {
-          log("The Status code is : ${response.statusCode}");
-          final jsonResponse = response.data;
-          await dashboardBox.put('dashboardData', jsonEncode(jsonResponse));
-          return localStorage.mapJsonToResponseModel(jsonResponse);
-        } else if (response.statusCode == 400 || response.statusCode == 401) {
-          _handleTokenExpiration();
-          throw Exception('Session expired');
+        NkCommonFunction.showErrorSnakBar(
+            'No Internet Connection. Please check your network');
+
+        final cachedData = dashboardBox.get('dashboardData');
+        if (cachedData != null) {
+          try {
+            final safeMap = ensureStringKeyedMap(cachedData);
+            return _mapJsonToResponseModel(safeMap);
+          } catch (e) {
+            throw Exception(
+                'Failed to process cached data due to type mismatch.');
+          }
         } else {
-          throw Exception(
-              'Failed to load data. Status code: ${response.statusCode}, Message: ${response.statusMessage}');
+          throw Exception('No cached data available.');
         }
       }
-    } on DioException catch (error) {
-      log("Caught DioException");
-      log('Error Response :${error.response}');
-      handleExceptionMessage(
-          response: error.response, apiName: "dashboard data", error: error);
+      final response = await Dio().post(
+        url.toString(),
+        options: Options(
+          headers: {'Authorization': 'Bearer $createdToken'},
+        ),
+        data: jsonEncode(requestBody),
+      );
+      log("GET_DASH_LIST response: $response");
+      if (response.statusCode == 200) {
+        log("1");
+        final jsonResponse = response.data;
+        log("2");
+        await dashboardBox.put(
+            'dashboardData', Map<String, dynamic>.from(jsonResponse));
+        log("3");
+        return _mapJsonToResponseModel(ensureStringKeyedMap(jsonResponse));
+      } else if (response.statusCode == 400 || response.statusCode == 401) {
+        _handleTokenExpiration();
+        throw Exception('Session expired');
+      } else {
+        throw Exception(
+            'Failed to load data with status code:  [${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      handleHttpResponseError(
+          statusCode: e.response?.statusCode ?? 0,
+          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+          message: 'Dashboard');
       final cachedData = dashboardBox.get('dashboardData');
-      return localStorage.storedDashboardDatas(cachedData, dashboardBox);
+      if (cachedData != null) {
+        try {
+          final safeCachedData = ensureStringKeyedMap(cachedData);
+          return _mapJsonToResponseModel(safeCachedData);
+        } catch (e) {
+          throw Exception(
+              'Failed to process cached data due to type mismatch.');
+        }
+      } else {
+        throw Exception('No cached data available.');
+      }
     }
+  }
+
+  ResponseModell _mapJsonToResponseModel(Map<String, dynamic> jsonResponse) {
+    var allCategoryList = jsonResponse['data']['all_category'] as List;
+    log("4");
+    List<Category> allCategory =
+        allCategoryList.map((json) => Category.fromJson(json)).toList();
+    log("5");
+
+    var performanceList = jsonResponse['data']['category_performance'] as List;
+    List<CategoryPerformancee> categoryPerformance = performanceList
+        .map((json) => CategoryPerformancee.fromJson(json))
+        .toList();
+
+    var monthPerformanceList =
+        jsonResponse['data']['monthly_performance'] as List;
+    List<MonthlyPerformancee> montlyPerformance = monthPerformanceList
+        .map((json) => MonthlyPerformancee.fromJson(json))
+        .toList();
+
+    final revenueJson =
+        jsonResponse['data']['revenu'] as Map<String, dynamic>? ?? {};
+    final Revenuee revenue = Revenuee.fromJson(revenueJson);
+
+    var collectionJson = jsonResponse['data']['collection'];
+    Collection collection = Collection.fromJson(collectionJson ?? {});
+
+    var deliveryJson = jsonResponse['data']['delivery'];
+    Delivery delivery = Delivery.fromJson(deliveryJson ?? {});
+
+    var topSellingList = jsonResponse['data']['top_selling_product'] as List;
+    List<TopSellingProductA> topSellingProducts = topSellingList
+        .map((json) => TopSellingProductA.fromJson(json))
+        .toList();
+
+    var orderCountListJson = jsonResponse['data']['order_count_list'];
+    OrderCountListt orderCountList =
+        OrderCountListt.fromJson(orderCountListJson ?? {});
+
+    return ResponseModell(
+      statusCode: jsonResponse['status_code'] ?? 0,
+      status: jsonResponse['status'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      allCategory: allCategory,
+      categoryPerformance: categoryPerformance,
+      monthlyPerformance: montlyPerformance,
+      revenue: revenue,
+      collection: collection,
+      delivery: delivery,
+      topSellingProducts: topSellingProducts,
+      orderCountList: orderCountList,
+    );
   }
 
   void _handleTokenExpiration() async {
@@ -580,7 +653,7 @@ class ApiService {
         sendData = [selectedDay];
         break;
       case "Year":
-        sendData = year;
+        sendData = year.toString();
         break;
       case "Range":
         sendData = [startDate, endDate];
@@ -611,7 +684,7 @@ class ApiService {
             "categories_id": "",
             "customer_id": "",
             "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-            "time_range": fetchType,
+            "time_range": fetchType == "Year" ? 'year' : fetchType,
             "selected_range": sendData,
             "payment_type": "",
             "year": fetchType == "Year" ? year : DateTime.now().year,
@@ -719,7 +792,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        log('Fetch All Orders Response: $jsonResponse');
+        // log('Fetch All Orders Response: $jsonResponse');
 
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});

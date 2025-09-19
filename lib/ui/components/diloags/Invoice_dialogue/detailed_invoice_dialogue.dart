@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -191,9 +192,7 @@ void showDetailedOrderInvoiceDialog(
                                   columns: [
                                     DataColumn(
                                       label: SizedBox(
-                                        width: fullScreenWidth(context) > 740
-                                            ? 250
-                                            : 130,
+                                        width: fullScreenWidth(context) * 0.2,
                                         child: const Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text('ITEMS NAME'),
@@ -247,14 +246,20 @@ void showDetailedOrderInvoiceDialog(
                                           ),
                                           child: SizedBox(
                                             width:
-                                                fullScreenWidth(context) > 740
-                                                    ? 250
-                                                    : 130,
-                                            child: Text(
-                                              "${item.productName} - ${item.variationName}",
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                            ),
+                                                fullScreenWidth(context) * 0.2,
+                                            child: ProductNameWithTax(
+                                                productName:
+                                                    item.productName.toString(),
+                                                variationName: item
+                                                    .variationName
+                                                    .toString(),
+                                                isInclTax:
+                                                    item.inclTax == "incl_tax",
+                                                maxWidth:
+                                                    fullScreenWidth(context) *
+                                                        0.2,
+                                                style: const TextStyle(
+                                                    fontSize: 14)),
                                           ),
                                         ),
                                       ),
@@ -292,16 +297,6 @@ void showDetailedOrderInvoiceDialog(
                                             TextSpan(
                                               text: formatAmount(
                                                   item.totalPrice ?? 0),
-                                              children: item.inclTax ==
-                                                      "incl_tax"
-                                                  ? [
-                                                      const TextSpan(
-                                                        text: "  (Incl. Tax)",
-                                                        style: TextStyle(
-                                                            fontSize: 10),
-                                                      ),
-                                                    ]
-                                                  : [],
                                             ),
                                             maxLines: 1,
                                           ),

@@ -274,20 +274,6 @@ class HomeController extends GetxController {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      // if (!_isDisposed) {
-                      //   Navigator.pop(context);
-                      //   await handleLogout(context);
-                      //   dio.interceptors.clear();
-                      //   if (!_isDisposed) {
-                      //     Get.offAllNamed(AppRoutes.login);
-                      //   }
-                      //   if (!_isDisposed) {
-                      //     Provider.of<DashboardProvider>(context, listen: false)
-                      //         .resetProvider();
-                      //     Provider.of<DashboardProvider>(context, listen: false)
-                      //         .resetFilter();
-                      //   }
-                      // }
                       await handleLogoutOnConfirmation(context);
                     },
                     style: ElevatedButton.styleFrom(

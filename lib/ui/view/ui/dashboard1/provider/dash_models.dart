@@ -10,7 +10,9 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      category: json['category'],
+      category: json['category'] is List
+          ? (json['category'].isNotEmpty ? json['category'][0] : null)
+          : json['category'],
     );
   }
 
@@ -471,6 +473,27 @@ class ResponseModell {
           ? OrderCountListt.fromJson(json['data']?['order_count_list'])
           : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status_code': statusCode,
+      'status': status,
+      'message': message,
+      'data': {
+        'all_category': allCategory?.map((e) => e.toJson()).toList(),
+        'category_performance':
+            categoryPerformance?.map((e) => e.toJson()).toList(),
+        'monthly_performance':
+            monthlyPerformance?.map((e) => e.toJson()).toList(),
+        'revenu': revenue?.toJson(),
+        'collection': collection?.toJson(),
+        'delivery': delivery?.toJson(),
+        'top_selling_product':
+            topSellingProducts?.map((e) => e.toJson()).toList() ?? [],
+        'order_count_list': orderCountList?.toJson(),
+      },
+    };
   }
 }
 

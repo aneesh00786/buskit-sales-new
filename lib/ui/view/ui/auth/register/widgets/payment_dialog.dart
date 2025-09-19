@@ -430,7 +430,7 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             : InAppWebView(
                 initialData: InAppWebViewInitialData(
                   data: htmlContent,
-                  baseUrl: WebUri("https://test.thrivewoo.com"),
+                  baseUrl: WebUri(ApiConstants.baseUrl1),
                   mimeType: "text/html",
                   encoding: "utf-8",
                 ),

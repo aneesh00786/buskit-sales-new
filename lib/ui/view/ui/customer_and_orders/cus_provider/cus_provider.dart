@@ -108,6 +108,10 @@ class CustomersProvider with ChangeNotifier {
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
 
+  void resetFilters() {
+    _selectedFilter = FilterDateEnum.thisMonth;
+  }
+
   void resetProvider() {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedStartDate = '';
@@ -683,10 +687,11 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-    log("Filter type : ${_selectedFilter == FilterDateEnum.range
-            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-                .toString()
-            : _selectedFilter.name}");
+    log("Filter type : ${_selectedFilter == FilterDateEnum.range ? [
+        _selectedFilter.name,
+        _selectedStartDate,
+        _selectedEndDate
+      ].toString() : _selectedFilter.name}");
 
     _errorMessage = '';
     Get.find<NotificationController>();
@@ -869,7 +874,7 @@ class CustomersProvider with ChangeNotifier {
       if (selectedFilter != FilterDateEnum.range) {
         fetchCustomerData();
         notificationController.loadNotificationData(
-            _selectedStartDate, _selectedEndDate);
+            );
       }
       notifyListeners();
     }

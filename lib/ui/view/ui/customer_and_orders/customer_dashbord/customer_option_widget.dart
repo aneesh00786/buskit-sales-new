@@ -588,7 +588,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                 "0")
               Positioned(
                 right: 12,
-                top: 20,
+                top: isPhonePortrait(context) ? 20 : 24,
                 child: InkWell(
                   onTap: optionData.onUnFilterTap,
                   customBorder: const CircleBorder(),

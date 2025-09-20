@@ -203,7 +203,7 @@ void showDetailedOrderInvoiceDialog(
                                       label: Expanded(
                                         child: Align(
                                             alignment: Alignment.center,
-                                            child: Text('UNIT PRICE')),
+                                            child: Text('PRICE')),
                                       ),
                                     ),
                                     const DataColumn(

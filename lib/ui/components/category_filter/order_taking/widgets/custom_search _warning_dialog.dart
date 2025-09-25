@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
 
 class CustomSearchBar extends StatelessWidget {
@@ -8,6 +7,7 @@ class CustomSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChange;
   final IconData icon;
+  final FocusNode? focusNode;
 
   const CustomSearchBar({
     super.key,
@@ -15,12 +15,14 @@ class CustomSearchBar extends StatelessWidget {
     required this.controller,
     required this.onChange,
     required this.icon,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChange,
       decoration: InputDecoration(
         fillColor: Colors.white,
@@ -49,45 +51,6 @@ class CustomSearchBar extends StatelessWidget {
         ),
         prefixIcon: Icon(icon),
       ),
-    );
-  }
-}
-class WarningDialog extends StatelessWidget {
-  final String message;
-  final VoidCallback onOkPressed;
-
-  const WarningDialog({
-    super.key,
-    required this.message,
-    required this.onOkPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      actions: [
-        const SizedBox(height: 20),
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Center(
-            child: Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.orange,
-              size: 50,
-            ),
-          ),
-        ),
-        Center(
-          child: CustomText(
-            content: message,
-            fontSize: 17,
-          ),
-        ),
-        TextButton(
-          onPressed: onOkPressed,
-          child: const Text('Ok'),
-        ),
-      ],
     );
   }
 }

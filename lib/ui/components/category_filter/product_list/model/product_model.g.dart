@@ -204,13 +204,14 @@ class DetailAdapter extends TypeAdapter<Detail> {
       pack: fields[30] as String?,
       discount: fields[31] as num?,
       totaltax: fields[32] as num?,
+      productName: fields[33] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Detail obj) {
     writer
-      ..writeByte(31)
+      ..writeByte(32)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -272,7 +273,9 @@ class DetailAdapter extends TypeAdapter<Detail> {
       ..writeByte(31)
       ..write(obj.discount)
       ..writeByte(32)
-      ..write(obj.totaltax);
+      ..write(obj.totaltax)
+      ..writeByte(33)
+      ..write(obj.productName);
   }
 
   @override

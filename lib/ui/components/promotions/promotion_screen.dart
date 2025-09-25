@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_details.dart';
@@ -133,6 +134,13 @@ extension PromotionHelpers on PromotionReponse {
           return "$percent for $offerDuration hours";
         }
         return percent;
+      case 'buy_x_get_y':
+        if (deals != null && deals!.isNotEmpty) {
+          final deal = deals!.first;
+          return "Buy ${deal.buyQuantity} ${deal.buyQuantityType}, "
+              "Get ${deal.getQuantity} ${deal.getQuantityType} free";
+        }
+        return "Buy X Get Y";
       default:
         return "Special Offer";
     }
@@ -146,7 +154,7 @@ extension PromotionHelpers on PromotionReponse {
       case 'products':
         final count = products?.length ?? 0;
         if (count == 0) {
-          return "Specific Products";
+          return "No Products";
         } else {
           return "$count product${count != 1 ? 's' : ''}";
         }

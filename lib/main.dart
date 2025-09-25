@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -17,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_da
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/draft_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/get_theme.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -35,7 +33,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -251,7 +248,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               initialBinding: CommonBinding(),
               getPages: AppRoutes.genratedRoutes,
               initialRoute: widget.initialRout,
-              themeMode: ThemeMode.system,
+              themeMode: ThemeMode.light,
               debugShowCheckedModeBanner: false,
             ),
           ),

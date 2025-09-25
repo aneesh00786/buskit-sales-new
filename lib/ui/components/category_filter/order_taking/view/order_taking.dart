@@ -701,6 +701,7 @@ class _OrderTakingState extends State<OrderTaking>
               ],
       ),
       body: Obx(() {
+        final FocusNode customerFocusNode = FocusNode();
         if (selectedIndex == 0) {
           if (widget.productsController.categoryData.value.data == null) {
             return const Center(child: CircularProgressIndicator());
@@ -759,6 +760,7 @@ class _OrderTakingState extends State<OrderTaking>
                               CustomSearchBar(
                                 text: "Search customer...",
                                 controller: customerSearchController,
+                                focusNode: customerFocusNode, // <-- attach here
                                 onChange: (value) {
                                   filterCustomers(value);
                                 },
@@ -817,6 +819,8 @@ class _OrderTakingState extends State<OrderTaking>
                                                           customer.customerId ??
                                                               ''),
                                                       onTap: () async {
+                                                        customerFocusNode
+                                                            .unfocus();
                                                         await provider
                                                             .updateCartCount(
                                                                 customer.customerId ??
@@ -1131,6 +1135,7 @@ class _OrderTakingState extends State<OrderTaking>
                               CustomSearchBar(
                                 text: "Search customer...",
                                 controller: customerSearchController,
+                                focusNode: customerFocusNode, // <-- attach here
                                 onChange: (value) {
                                   filterCustomers(value);
                                 },

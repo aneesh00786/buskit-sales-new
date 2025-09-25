@@ -68,25 +68,35 @@ class PromotionDetails extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       /// Title + description
-                      ListTile(
-                        title: Text(
-                          promo.title ?? "Untitled",
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                        subtitle: Text(
-                          (promo.description == null ||
-                                  promo.description!.isEmpty)
-                              ? "No description"
-                              : promo.description!,
-                          style: const TextStyle(fontSize: 16),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ListTile(
+                              title: Text(
+                                promo.title ?? "Untitled",
+                                style: const TextStyle(fontSize: 24),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                (promo.description == null ||
+                                        promo.description!.isEmpty)
+                                    ? "No description"
+                                    : promo.description!,
+                                style: const TextStyle(fontSize: 16),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          _buildStatus(promo),
+                          SizedBox(width: 20),
+                        ],
                       ),
 
                       /// Type + Status pills
                       _buildTypeAndStatus(promo),
-                      _buildPromoCode(promo),
+                      // _buildPromoCode(promo),
 
                       /// Discount / Scope / Target
                       _buildDiscountScopeTarget(promo),
@@ -120,73 +130,209 @@ class PromotionDetails extends StatelessWidget {
                         padding: const EdgeInsets.all(20.0),
                         child: InkWell(
                           onTap: () async {
-                            final customerId = customerAndOrderController
-                                    .customerId.value.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : productController.selectedCustomerId.value;
-
-                            int totalCount = 0;
-
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (productController
                                     .selectedCustomerName.value.isNotEmpty)) {
                               showCustomToastDisplay(
                                   context,
-                                  "ADD TO CART BUTTON PRESSED",
-                                  Colors.orange,
-                                  Icons.warning);
-                              // log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
-                              // for (var i = 0;
-                              //     i < widget.detailsCopy.length;
-                              //     i++) {
-                              //   if (localCounts[i] > 0) {
-                              //     totalCount += localCounts[i];
-                              //   } else {}
-                              // }
-                              // if (totalCount == 0) {
-                              //   showCustomToastDisplay(
-                              //       context,
-                              //       "Choose at least one variant to add to cart",
-                              //       Colors.orange,
-                              //       Icons.warning);
-                              //   return;
-                              // }
-                              // for (var i = 0;
-                              //     i < widget.detailsCopy.length;
-                              //     i++) {
-                              //   Detail detail = widget.detailsCopy[i];
-                              //   if (localCounts[i] > 0) {
-                              //     final bool isPack = detail.saleBy == 'Pack';
-                              //     await CartDatabaseManager().addToCart(
-                              //       customerId: customerId,
-                              //       localCount: localCounts[i],
-                              //       detail: detail,
-                              //       isPack: isPack,
-                              //       productName:
-                              //           widget.product.productName ?? '',
-                              //       inclTax: widget.product.inclTax ?? '',
-                              //       isChcked: true,
-                              //       catId: widget.product.catId ?? 0,
-                              //     );
-                              //     productController.isCartModified
-                              //         .value = true;
-                              //     log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
-                              //   } else {
-                              //     log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
-                              //   }
-                              // }
+                                  "ADD TO CART - ${promo.promoType?.nkStringCleanAndCapitalize} [${promo.promoCode}]",
+                                  Colors.green.shade800,
+                                  Icons.check);
+                              // _showPromoDialog(context, promo);
 
-                              // WidgetsBinding.instance.addPostFrameCallback((_) {
-                              //   final cartProvider =
-                              //       Provider.of<CustomersProvider>(context,
-                              //           listen: false);
-                              //   cartProvider.updateCartCount(customerId);
-                              //   cartProvider.getCartItemCounts(customerId);
-                              //   widget.onDone();
+                              // ---------------------------------------------------------------------------------------------------
 
-                              //   Navigator.pop(context);
-                              // });
+                              final customerId = customerAndOrderController
+                                      .customerId.value.isNotEmpty
+                                  ? customerAndOrderController.customerId.value
+                                  : productController.selectedCustomerId.value;
+
+                              // --- Percentage Discount based promos ---
+                              if (promo.promoType == "percentage_discount" ||
+                                  promo.promoType == "happy_hours" ||
+                                  promo.promoType == "seasonal" ||
+                                  promo.promoType == "flash_sale" ||
+                                  promo.promoType == "limited_time") {
+                                log("[PROMO] === Percentage Discount Promo Started ===");
+                                log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                // Decide which discount field to use
+                                final discountValue = promo.promoType ==
+                                        "percentage_discount"
+                                    ? double.tryParse(
+                                        promo.discountValue.toString())
+                                    : double.tryParse(
+                                        promo.discountPercentage.toString());
+
+                                log("[PROMO] Promo Discount: $discountValue");
+
+                                // Flatten all product variants into one list
+                                final allVariants = promo.products
+                                        ?.expand((p) => p.variants ?? [])
+                                        .toList() ??
+                                    [];
+
+                                log("[PROMO] Flattened variants count: ${allVariants.length}");
+
+                                if (allVariants.isEmpty) {
+                                  log("[PROMO] No variants found in promo → stopping flow");
+                                  showCustomToastDisplay(
+                                    context,
+                                    "No variants found for this promotion",
+                                    Colors.orange,
+                                    Icons.warning,
+                                  );
+                                  return;
+                                }
+
+                                for (final v in allVariants) {
+                                  log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                      "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+
+                                  // Map each variant into your Detail model
+                                  final detail = Detail(
+                                    variationId: v.id,
+                                    productId: v.productId,
+                                    variationName: v.variationName,
+                                    unitType: v.unitType,
+                                    price: (v.price ?? '0').toString(),
+                                    sellPrice: (v.sellPrice ?? '0').toString(),
+                                    tax: double.tryParse(v.tax ?? '0') ?? 0,
+                                    packtype: v.packtype,
+                                    pieces: v.pieces,
+                                    stock: v.stock,
+                                    lowstock: v.lowstock,
+                                    fullstock: v.fullstock,
+                                    imageUrl: v.imageUrl,
+                                    productName: v.productName,
+                                    discount: discountValue,
+                                  );
+
+                                  log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                      "productId: ${detail.productId}, name: ${detail.productName}");
+
+                                  final bool isPack = detail.saleBy == 'Pack';
+                                  log("[PROMO] IsPack? $isPack");
+
+                                  final catId =
+                                      extractCategoryId(v.productId.toString());
+                                  log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+
+                                  await CartDatabaseManager().addToCartPromo(
+                                    customerId: customerId,
+                                    localCount: 1,
+                                    detail: detail,
+                                    isPack: true,
+                                    productName: v.productName ?? '',
+                                    inclTax: v.tax ?? '',
+                                    isChcked: true,
+                                    catId: catId,
+                                    promoCode: promo.promoCode,
+                                  );
+
+                                  log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
+                                  productController.isCartModified.value = true;
+                                }
+
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  final cartProvider =
+                                      Provider.of<CustomersProvider>(context,
+                                          listen: false);
+                                  log("[PROMO] Updating cart count for customer: $customerId");
+                                  cartProvider.updateCartCount(customerId);
+                                  cartProvider.getCartItemCounts(customerId);
+                                });
+
+                                log("[PROMO] === Percentage Discount Promo Completed ===");
+                              }
+
+                              // --- Free Item promos ---
+                              if (promo.promoType == "free_gift" ||
+                                  promo.promoType == "free_sample") {
+                                log("[PROMO] === Free Item Promo Started ===");
+                                log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                final allVariants = promo.products
+                                        ?.expand((p) => p.variants ?? [])
+                                        .toList() ??
+                                    [];
+
+                                log("[PROMO] Flattened variants count: ${allVariants.length}");
+
+                                if (allVariants.isEmpty) {
+                                  log("[PROMO] No variants found in promo → stopping flow");
+                                  showCustomToastDisplay(
+                                    context,
+                                    "No variants found for this promotion",
+                                    Colors.orange,
+                                    Icons.warning,
+                                  );
+                                  return;
+                                }
+
+                                for (final v in allVariants) {
+                                  log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                      "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+
+                                  final detail = Detail(
+                                    variationId: v.id,
+                                    productId: v.productId,
+                                    variationName: v.variationName,
+                                    unitType: v.unitType,
+                                    price: (v.price ?? '0').toString(),
+                                    sellPrice: (v.sellPrice ?? '0').toString(),
+                                    tax: double.tryParse(v.tax ?? '0') ?? 0,
+                                    packtype: v.packtype,
+                                    pieces: v.pieces,
+                                    stock: v.stock,
+                                    lowstock: v.lowstock,
+                                    fullstock: v.fullstock,
+                                    imageUrl: v.imageUrl,
+                                    productName: v.productName,
+                                  );
+
+                                  log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                      "productId: ${detail.productId}, name: ${detail.productName}");
+
+                                  final bool isPack = detail.saleBy == 'Pack';
+                                  log("[PROMO] IsPack? $isPack");
+
+                                  final catId =
+                                      extractCategoryId(v.productId.toString());
+                                  log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+
+                                  await CartDatabaseManager().addToCartPromo(
+                                    customerId: customerId,
+                                    localCount: 1,
+                                    detail: detail,
+                                    isPack: true,
+                                    productName: v.productName ?? '',
+                                    inclTax: v.tax ?? '',
+                                    isChcked: true,
+                                    catId: catId,
+                                    promoCode: promo.promoCode,
+                                  );
+
+                                  log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
+                                  productController.isCartModified.value = true;
+                                }
+
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  final cartProvider =
+                                      Provider.of<CustomersProvider>(context,
+                                          listen: false);
+                                  log("[PROMO] Updating cart count for customer: $customerId");
+                                  cartProvider.updateCartCount(customerId);
+                                  cartProvider.getCartItemCounts(customerId);
+                                });
+
+                                log("[PROMO] === Free Item Promo Completed ===");
+                              }
+
+                              // ---------------------------------------------------------------------------------------------------
                             } else {
                               showDialog(
                                 barrierDismissible: false,
@@ -249,6 +395,139 @@ class PromotionDetails extends StatelessWidget {
     );
   }
 
+  void _showPromoDialog(BuildContext context, PromotionReponse promo) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(promo.title ?? "Promotion"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// Always show the main offer text
+                  Text(
+                    promo.discountText,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  /// Scope (only if not "All Products")
+                  if (promo.productScope != "all") ...[
+                    Text("Applicable For: ${promo.scopeText}"),
+                    const SizedBox(height: 8),
+                  ],
+
+                  /// Min order value (if defined)
+                  if (promo.minOrderText != null) ...[
+                    Text("Minimum Order: ${promo.minOrderText}"),
+                    const SizedBox(height: 8),
+                  ],
+
+                  /// Time-based conditions
+                  if (promo.daysText != null)
+                    Text("Valid on: ${promo.daysText}"),
+                  if (promo.promoType == "happy_hours" &&
+                      promo.startTime != null &&
+                      promo.endTime != null) ...[
+                    Text("Timing: ${promo.startTime} - ${promo.endTime}"),
+                    const SizedBox(height: 8),
+                  ],
+                  if (promo.promoType == "flash_sale" &&
+                      promo.saleDuration != null)
+                    Text("Duration: ${promo.saleDuration} minutes"),
+                  if (promo.promoType == "limited_time" &&
+                      promo.offerDuration != null)
+                    Text("Duration: ${promo.offerDuration} hours"),
+
+                  /// Applicable products (only if present)
+                  if (promo.products != null && promo.products!.isNotEmpty) ...[
+                    const Divider(),
+                    const Text("Products:",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    ...promo.products!.map((p) {
+                      final variant = p.variants?.isNotEmpty == true
+                          ? p.variants!.first
+                          : null;
+                      return ListTile(
+                        dense: true,
+                        title: Text(variant?.productName ?? "Unknown"),
+                        subtitle: Text(variant?.variationName ?? ""),
+                      );
+                    }).toList(),
+                  ],
+
+                  /// Free items (gift / sample)
+                  if (promo.freeItems != null &&
+                      promo.freeItems!.isNotEmpty) ...[
+                    const Divider(),
+                    const Text("Free Item:",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    ...promo.freeItems!.map((f) =>
+                        Text("${f.giftName ?? f.sampleDetails ?? 'Item'} "
+                            "(Qty: ${f.quantity} ${f.quantityType})")),
+                  ],
+
+                  /// Bundle items
+                  if (promo.bundleItems != null &&
+                      promo.bundleItems!.isNotEmpty) ...[
+                    const Divider(),
+                    Text("Bundle Price: \$${promo.bundlePrice ?? ''}",
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    ...promo.bundleItems!.map((item) {
+                      final product = promo.products?.firstWhere(
+                        (p) => p.id == item.variantId,
+                      );
+                      final variant = product?.variants?.isNotEmpty == true
+                          ? product?.variants!.first
+                          : null;
+                      return ListTile(
+                        dense: true,
+                        title: Text(variant?.productName ?? "Unknown"),
+                        subtitle: Text(
+                            "${variant?.variationName ?? ""} x ${item.quantity} ${item.unitType}"),
+                      );
+                    }).toList(),
+                  ],
+
+                  /// Tiered discount details
+                  if (promo.extraInfoText != null) ...[
+                    const Divider(),
+                    const Text("Discount Tiers:",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Text(promo.extraInfoText!),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // TODO: Apply offer logic
+              },
+              child: const Text("Apply Offer"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   /// Promotion Type + Status pills
   Widget _buildTypeAndStatus(PromotionReponse promo) {
     return Padding(
@@ -257,6 +536,7 @@ class PromotionDetails extends StatelessWidget {
         spacing: 12,
         children: [
           // Promotion type pill
+          _buildPromoCode(promo),
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
@@ -288,99 +568,57 @@ class PromotionDetails extends StatelessWidget {
               ),
             ),
           ),
-
-          // Status pill
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.green.shade400,
-            ),
-            padding: const EdgeInsets.all(2),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color.fromARGB(255, 203, 255, 205),
-                    Color.fromARGB(255, 185, 255, 187),
-                  ],
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    radius: 5,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    promo.status?.nkStringCapitalizeFirstCaracter ?? "Inactive",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.green.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
+  Widget _buildStatus(PromotionReponse promo) {
+    return PromoStatusChip(promo: promo);
+  }
+
   Widget _buildPromoCode(PromotionReponse promo) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 0, bottom: 20.0, left: 20, right: 20),
-      child: Row(
-        spacing: 12,
-        children: [
-          // Promo code pill
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.green.shade400,
-            ),
-            padding: const EdgeInsets.all(2),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color.fromARGB(255, 222, 255, 223),
-                    Color.fromARGB(255, 185, 255, 187),
-                  ],
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Code : ${promo.promoCode}",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.green.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    return Row(
+      spacing: 12,
+      children: [
+        // Promo code pill
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            color: Colors.green.shade400,
+          ),
+          padding: const EdgeInsets.all(2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color.fromARGB(255, 222, 255, 223),
+                  Color.fromARGB(255, 185, 255, 187),
                 ],
               ),
             ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Code : ${promo.promoCode}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.green.shade800,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -399,9 +637,9 @@ class PromotionDetails extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildRow("DISCOUNT : ", promo.discountText),
+            _buildRow("OFFER : ", promo.discountText),
             const Divider(color: Colors.grey),
-            _buildRow("SCOPE : ", promo.scopeText),
+            _buildRow("APPLICABLE : ", promo.scopeText),
             const Divider(color: Colors.grey),
             _buildRow("TARGET : ", promo.targetText),
 
@@ -415,13 +653,17 @@ class PromotionDetails extends StatelessWidget {
             if (promo.extraInfoText != null) ...[
               const Divider(color: Colors.grey),
               _buildRow(
-                promo.promoType == "tiered_discount" ? "TIERS : " : "EXTRA : ",
+                promo.promoType == "tiered_discount"
+                    ? "TIERS : "
+                    : promo.promoType == "product_bundle"
+                        ? "ITEMS : "
+                        : "EXTRA : ",
                 promo.extraInfoText.toString(),
               ),
             ],
 
             // Days (for happy_hours)
-            if (promo.daysText != null) ...[
+            if (promo.daysText != null && promo.daysText != '') ...[
               const Divider(color: Colors.grey),
               _buildRow("DAYS : ", promo.daysText!),
             ],
@@ -458,4 +700,98 @@ class PromotionDetails extends StatelessWidget {
       ],
     );
   }
+}
+
+class PromoStatusChip extends StatefulWidget {
+  final PromotionReponse promo;
+
+  const PromoStatusChip({super.key, required this.promo});
+
+  @override
+  State<PromoStatusChip> createState() => _PromoStatusChipState();
+}
+
+class _PromoStatusChipState extends State<PromoStatusChip>
+    with SingleTickerProviderStateMixin {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final statusText =
+        widget.promo.status?.nkStringCapitalizeFirstCaracter ?? "Inactive";
+
+    return GestureDetector(
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: Colors.green.shade400,
+        ),
+        padding: const EdgeInsets.all(2),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: _expanded ? 16 : 10,
+            ),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color.fromARGB(255, 203, 255, 205),
+                  Color.fromARGB(255, 185, 255, 187),
+                ],
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircleAvatar(
+                  backgroundColor: Colors.green,
+                  radius: 5,
+                ),
+                if (_expanded) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.green.shade800,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Extracts the numeric categoryId (everything after 'C' before 'SC')
+int extractCategoryId(String productId) {
+  final scIndex = productId.indexOf("SC");
+  if (scIndex == -1 || !productId.startsWith("C")) {
+    throw ArgumentError("Invalid productId: $productId");
+  }
+  final categoryPart = productId.substring(1, scIndex); // skip 'C'
+  return int.tryParse(categoryPart) ??
+      (throw ArgumentError("Invalid category number in: $productId"));
+}
+
+/// Extract subCategoryId dynamically (everything before "PD")
+String extractSubCategoryId(String productId) {
+  final pdIndex = productId.indexOf("PD");
+  if (pdIndex == -1) {
+    throw ArgumentError("Invalid productId: missing PD → $productId");
+  }
+  return productId.substring(0, pdIndex);
 }

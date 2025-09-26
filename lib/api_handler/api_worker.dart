@@ -744,6 +744,52 @@ class ApiWorker with ApiConstants {
     }
   }
 
+  Future<CategoryModel> getCategoryForPromo(List<String> categories) async {
+    try {
+      // final isConnected = await ConnectivityService().isOnline();
+      // final cacheKey =
+      //     "${SessionHelper.loginSavedData?.company_id ?? 0}_categoryData";
+
+      final request = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "categories": categories
+      };
+
+      log("request123 : $request");
+      // final box = await Hive.openBox('categoriesBox');
+
+      // if (!isConnected) {
+      //   final savedCategory = box.get(cacheKey) as Map?;
+      //   if (savedCategory != null) {
+      //     return CategoryModel.fromJson(
+      //       ApiService().castToStringDynamic(savedCategory),
+      //     );
+      //   } else {
+      //     throw Exception('No data available offline');
+      //   }
+      // } else {
+      final response = await dio.postbycustom(
+        ApiConstants.getPromoCategories,
+        data: request,
+      );
+
+      final category = CategoryModel.fromJson(response.data);
+      // await box.put(cacheKey, category.toJson());
+
+      log("RESPONSE : ${category.toJson()}");
+
+      return category;
+      // }
+    } catch (error) {
+      log('Error occurred while fetching category Promo: $error');
+      handleExceptionMessage(
+        apiName: 'Fetch Category Promo',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch category Promo data: $error');
+    }
+  }
+
   Future<List<ProductModel>> getTempProduct(String subCatId,
       {required int companyid}) async {
     log('=== getTempProduct START ===');

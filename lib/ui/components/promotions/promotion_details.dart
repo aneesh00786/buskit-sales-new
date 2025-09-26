@@ -1,10 +1,18 @@
+import 'dart:async';
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_list.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/view/product_list.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_screen.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/widgets/promo_category_list.dart';
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -126,264 +134,360 @@ class PromotionDetails extends StatelessWidget {
 
                       /// Add to cart button
                       SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: InkWell(
-                          onTap: () async {
-                            if ((customerAndOrderController
-                                    .customerId.value.isNotEmpty) ||
-                                (productController
-                                    .selectedCustomerName.value.isNotEmpty)) {
-                              showCustomToastDisplay(
-                                  context,
-                                  "ADD TO CART - ${promo.promoType?.nkStringCleanAndCapitalize} [${promo.promoCode}]",
-                                  Colors.green.shade800,
-                                  Icons.check);
-                              // _showPromoDialog(context, promo);
-
-                              // ---------------------------------------------------------------------------------------------------
-
-                              final customerId = customerAndOrderController
-                                      .customerId.value.isNotEmpty
-                                  ? customerAndOrderController.customerId.value
-                                  : productController.selectedCustomerId.value;
-
-                              // --- Percentage Discount based promos ---
-                              if (promo.promoType == "percentage_discount" ||
-                                  promo.promoType == "happy_hours" ||
-                                  promo.promoType == "seasonal" ||
-                                  promo.promoType == "flash_sale" ||
-                                  promo.promoType == "limited_time") {
-                                log("[PROMO] === Percentage Discount Promo Started ===");
-                                log("[PROMO] Promo details: ${promo.toJson()}");
-
-                                // Decide which discount field to use
-                                final discountValue = promo.promoType ==
-                                        "percentage_discount"
-                                    ? double.tryParse(
-                                        promo.discountValue.toString())
-                                    : double.tryParse(
-                                        promo.discountPercentage.toString());
-
-                                log("[PROMO] Promo Discount: $discountValue");
-
-                                // Flatten all product variants into one list
-                                final allVariants = promo.products
-                                        ?.expand((p) => p.variants ?? [])
-                                        .toList() ??
-                                    [];
-
-                                log("[PROMO] Flattened variants count: ${allVariants.length}");
-
-                                if (allVariants.isEmpty) {
-                                  log("[PROMO] No variants found in promo → stopping flow");
-                                  showCustomToastDisplay(
+                      if (promo.productScope == "products") ...[
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: InkWell(
+                            onTap: () async {
+                              if ((customerAndOrderController
+                                      .customerId.value.isNotEmpty) ||
+                                  (productController
+                                      .selectedCustomerName.value.isNotEmpty)) {
+                                showCustomToastDisplay(
                                     context,
-                                    "No variants found for this promotion",
-                                    Colors.orange,
-                                    Icons.warning,
-                                  );
-                                  return;
+                                    "ADD TO CART - ${promo.promoType?.nkStringCleanAndCapitalize} [${promo.promoCode}]",
+                                    Colors.green.shade800,
+                                    Icons.check);
+                                // _showPromoDialog(context, promo);
+
+                                // ---------------------------------------------------------------------------------------------------
+
+                                final customerId = customerAndOrderController
+                                        .customerId.value.isNotEmpty
+                                    ? customerAndOrderController
+                                        .customerId.value
+                                    : productController
+                                        .selectedCustomerId.value;
+
+                                // --- Percentage Discount based promos ---
+                                if (promo.promoType == "percentage_discount" ||
+                                    promo.promoType == "happy_hours" ||
+                                    promo.promoType == "seasonal" ||
+                                    promo.promoType == "flash_sale" ||
+                                    promo.promoType == "limited_time") {
+                                  log("[PROMO] === Percentage Discount Promo Started ===");
+                                  log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                  // Decide which discount field to use
+                                  final discountValue = promo.promoType ==
+                                          "percentage_discount"
+                                      ? double.tryParse(
+                                          promo.discountValue.toString())
+                                      : double.tryParse(
+                                          promo.discountPercentage.toString());
+
+                                  log("[PROMO] Promo Discount: $discountValue");
+
+                                  // Flatten all product variants into one list
+                                  final allVariants = promo.products
+                                          ?.expand((p) => p.variants ?? [])
+                                          .toList() ??
+                                      [];
+
+                                  log("[PROMO] Flattened variants count: ${allVariants.length}");
+
+                                  if (allVariants.isEmpty) {
+                                    log("[PROMO] No variants found in promo → stopping flow");
+                                    showCustomToastDisplay(
+                                      context,
+                                      "No variants found for this promotion",
+                                      Colors.orange,
+                                      Icons.warning,
+                                    );
+                                    return;
+                                  }
+
+                                  for (final v in allVariants) {
+                                    log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                        "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+
+                                    // Map each variant into your Detail model
+                                    final detail = Detail(
+                                      variationId: v.id,
+                                      productId: v.productId,
+                                      variationName: v.variationName,
+                                      unitType: v.unitType,
+                                      price: (v.price ?? '0').toString(),
+                                      sellPrice:
+                                          (v.sellPrice ?? '0').toString(),
+                                      tax: double.tryParse(v.tax ?? '0') ?? 0,
+                                      packtype: v.packtype,
+                                      pieces: v.pieces,
+                                      stock: v.stock,
+                                      lowstock: v.lowstock,
+                                      fullstock: v.fullstock,
+                                      imageUrl: v.imageUrl,
+                                      productName: v.productName,
+                                      discount: discountValue,
+                                    );
+
+                                    log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                        "productId: ${detail.productId}, name: ${detail.productName}");
+
+                                    final bool isPack = detail.saleBy == 'Pack';
+                                    log("[PROMO] IsPack? $isPack");
+
+                                    final catId = extractCategoryId(
+                                        v.productId.toString());
+                                    log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+
+                                    await CartDatabaseManager().addToCartPromo(
+                                      customerId: customerId,
+                                      localCount: 1,
+                                      detail: detail,
+                                      isPack: true,
+                                      productName: v.productName ?? '',
+                                      inclTax: v.tax ?? '',
+                                      isChcked: true,
+                                      catId: catId,
+                                      promoCode: promo.promoCode,
+                                    );
+
+                                    log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
+                                    productController.isCartModified.value =
+                                        true;
+                                  }
+
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    final cartProvider =
+                                        Provider.of<CustomersProvider>(context,
+                                            listen: false);
+                                    log("[PROMO] Updating cart count for customer: $customerId");
+                                    cartProvider.updateCartCount(customerId);
+                                    cartProvider.getCartItemCounts(customerId);
+                                  });
+
+                                  log("[PROMO] === Percentage Discount Promo Completed ===");
                                 }
 
-                                for (final v in allVariants) {
-                                  log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-                                      "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+                                // --- Free Item promos ---
+                                if (promo.promoType == "free_gift" ||
+                                    promo.promoType == "free_sample") {
+                                  log("[PROMO] === Free Item Promo Started ===");
+                                  log("[PROMO] Promo details: ${promo.toJson()}");
 
-                                  // Map each variant into your Detail model
-                                  final detail = Detail(
-                                    variationId: v.id,
-                                    productId: v.productId,
-                                    variationName: v.variationName,
-                                    unitType: v.unitType,
-                                    price: (v.price ?? '0').toString(),
-                                    sellPrice: (v.sellPrice ?? '0').toString(),
-                                    tax: double.tryParse(v.tax ?? '0') ?? 0,
-                                    packtype: v.packtype,
-                                    pieces: v.pieces,
-                                    stock: v.stock,
-                                    lowstock: v.lowstock,
-                                    fullstock: v.fullstock,
-                                    imageUrl: v.imageUrl,
-                                    productName: v.productName,
-                                    discount: discountValue,
-                                  );
+                                  final allVariants = promo.products
+                                          ?.expand((p) => p.variants ?? [])
+                                          .toList() ??
+                                      [];
 
-                                  log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-                                      "productId: ${detail.productId}, name: ${detail.productName}");
+                                  log("[PROMO] Flattened variants count: ${allVariants.length}");
 
-                                  final bool isPack = detail.saleBy == 'Pack';
-                                  log("[PROMO] IsPack? $isPack");
+                                  if (allVariants.isEmpty) {
+                                    log("[PROMO] No variants found in promo → stopping flow");
+                                    showCustomToastDisplay(
+                                      context,
+                                      "No variants found for this promotion",
+                                      Colors.orange,
+                                      Icons.warning,
+                                    );
+                                    return;
+                                  }
 
-                                  final catId =
-                                      extractCategoryId(v.productId.toString());
-                                  log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+                                  for (final v in allVariants) {
+                                    log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                        "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
 
-                                  await CartDatabaseManager().addToCartPromo(
-                                    customerId: customerId,
-                                    localCount: 1,
-                                    detail: detail,
-                                    isPack: true,
-                                    productName: v.productName ?? '',
-                                    inclTax: v.tax ?? '',
-                                    isChcked: true,
-                                    catId: catId,
-                                    promoCode: promo.promoCode,
-                                  );
+                                    final detail = Detail(
+                                      variationId: v.id,
+                                      productId: v.productId,
+                                      variationName: v.variationName,
+                                      unitType: v.unitType,
+                                      price: (v.price ?? '0').toString(),
+                                      sellPrice:
+                                          (v.sellPrice ?? '0').toString(),
+                                      tax: double.tryParse(v.tax ?? '0') ?? 0,
+                                      packtype: v.packtype,
+                                      pieces: v.pieces,
+                                      stock: v.stock,
+                                      lowstock: v.lowstock,
+                                      fullstock: v.fullstock,
+                                      imageUrl: v.imageUrl,
+                                      productName: v.productName,
+                                    );
 
-                                  log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
-                                  productController.isCartModified.value = true;
+                                    log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                        "productId: ${detail.productId}, name: ${detail.productName}");
+
+                                    final bool isPack = detail.saleBy == 'Pack';
+                                    log("[PROMO] IsPack? $isPack");
+
+                                    final catId = extractCategoryId(
+                                        v.productId.toString());
+                                    log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+
+                                    await CartDatabaseManager().addToCartPromo(
+                                      customerId: customerId,
+                                      localCount: 1,
+                                      detail: detail,
+                                      isPack: true,
+                                      productName: v.productName ?? '',
+                                      inclTax: v.tax ?? '',
+                                      isChcked: true,
+                                      catId: catId,
+                                      promoCode: promo.promoCode,
+                                    );
+
+                                    log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
+                                    productController.isCartModified.value =
+                                        true;
+                                  }
+
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    final cartProvider =
+                                        Provider.of<CustomersProvider>(context,
+                                            listen: false);
+                                    log("[PROMO] Updating cart count for customer: $customerId");
+                                    cartProvider.updateCartCount(customerId);
+                                    cartProvider.getCartItemCounts(customerId);
+                                  });
+
+                                  log("[PROMO] === Free Item Promo Completed ===");
                                 }
 
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  final cartProvider =
-                                      Provider.of<CustomersProvider>(context,
-                                          listen: false);
-                                  log("[PROMO] Updating cart count for customer: $customerId");
-                                  cartProvider.updateCartCount(customerId);
-                                  cartProvider.getCartItemCounts(customerId);
-                                });
-
-                                log("[PROMO] === Percentage Discount Promo Completed ===");
-                              }
-
-                              // --- Free Item promos ---
-                              if (promo.promoType == "free_gift" ||
-                                  promo.promoType == "free_sample") {
-                                log("[PROMO] === Free Item Promo Started ===");
-                                log("[PROMO] Promo details: ${promo.toJson()}");
-
-                                final allVariants = promo.products
-                                        ?.expand((p) => p.variants ?? [])
-                                        .toList() ??
-                                    [];
-
-                                log("[PROMO] Flattened variants count: ${allVariants.length}");
-
-                                if (allVariants.isEmpty) {
-                                  log("[PROMO] No variants found in promo → stopping flow");
-                                  showCustomToastDisplay(
-                                    context,
-                                    "No variants found for this promotion",
-                                    Colors.orange,
-                                    Icons.warning,
-                                  );
-                                  return;
-                                }
-
-                                for (final v in allVariants) {
-                                  log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-                                      "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
-
-                                  final detail = Detail(
-                                    variationId: v.id,
-                                    productId: v.productId,
-                                    variationName: v.variationName,
-                                    unitType: v.unitType,
-                                    price: (v.price ?? '0').toString(),
-                                    sellPrice: (v.sellPrice ?? '0').toString(),
-                                    tax: double.tryParse(v.tax ?? '0') ?? 0,
-                                    packtype: v.packtype,
-                                    pieces: v.pieces,
-                                    stock: v.stock,
-                                    lowstock: v.lowstock,
-                                    fullstock: v.fullstock,
-                                    imageUrl: v.imageUrl,
-                                    productName: v.productName,
-                                  );
-
-                                  log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-                                      "productId: ${detail.productId}, name: ${detail.productName}");
-
-                                  final bool isPack = detail.saleBy == 'Pack';
-                                  log("[PROMO] IsPack? $isPack");
-
-                                  final catId =
-                                      extractCategoryId(v.productId.toString());
-                                  log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
-
-                                  await CartDatabaseManager().addToCartPromo(
-                                    customerId: customerId,
-                                    localCount: 1,
-                                    detail: detail,
-                                    isPack: true,
-                                    productName: v.productName ?? '',
-                                    inclTax: v.tax ?? '',
-                                    isChcked: true,
-                                    catId: catId,
-                                    promoCode: promo.promoCode,
-                                  );
-
-                                  log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
-                                  productController.isCartModified.value = true;
-                                }
-
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  final cartProvider =
-                                      Provider.of<CustomersProvider>(context,
-                                          listen: false);
-                                  log("[PROMO] Updating cart count for customer: $customerId");
-                                  cartProvider.updateCartCount(customerId);
-                                  cartProvider.getCartItemCounts(customerId);
-                                });
-
-                                log("[PROMO] === Free Item Promo Completed ===");
-                              }
-
-                              // ---------------------------------------------------------------------------------------------------
-                            } else {
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    actions: [
-                                      const SizedBox(height: 20),
-                                      const Center(
-                                          child: Icon(
-                                              Icons.warning_amber_outlined,
-                                              size: 50,
-                                              color: Colors.orange)),
-                                      const SizedBox(height: 20),
-                                      Center(
+                                // ---------------------------------------------------------------------------------------------------
+                              } else {
+                                showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      actions: [
+                                        const SizedBox(height: 20),
+                                        const Center(
+                                            child: Icon(
+                                                Icons.warning_amber_outlined,
+                                                size: 50,
+                                                color: Colors.orange)),
+                                        const SizedBox(height: 20),
+                                        Center(
+                                            child: CustomText(
+                                                content:
+                                                    "Please Select a Customer",
+                                                fontSize: 18)),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
                                           child: CustomText(
-                                              content:
-                                                  "Please Select a Customer",
-                                              fontSize: 18)),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: CustomText(
-                                            content: "Ok", color: primaryColor),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                          },
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: primaryColor,
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Add to Cart",
-                                style: TextStyle(
-                                  color: white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                                              content: "Ok",
+                                              color: primaryColor),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: primaryColor,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Add to Cart",
+                                  style: TextStyle(
+                                    color: white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
+                      if (promo.productScope != "products") ...[
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: InkWell(
+                            onTap: () async {
+                              if ((customerAndOrderController
+                                      .customerId.value.isNotEmpty) ||
+                                  (productController
+                                      .selectedCustomerName.value.isNotEmpty)) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Show products - ${promo.promoType?.nkStringCleanAndCapitalize}",
+                                    Colors.green.shade800,
+                                    Icons.check);
+
+                                if (promo.productScope == "categories") {
+                                  if (promo.categories!.isNotEmpty) {
+                                    List<String> subcatIds = [];
+                                    for (var category in promo.categories!) {
+                                      if (category.subIds != null) {
+                                        subcatIds.addAll(List<String>.from(
+                                            category.subIds!.toList()));
+                                      }
+                                    }
+                                    CategoryModel categoryData =
+                                        await ApiWorker()
+                                            .getCategoryForPromo(subcatIds);
+
+                                    _showProductSelectionDialog(
+                                        context, promo, categoryData);
+                                  }
+                                }
+
+                                // ---------------------------------------------------------------------------------------------------
+                              } else {
+                                showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      actions: [
+                                        const SizedBox(height: 20),
+                                        const Center(
+                                            child: Icon(
+                                                Icons.warning_amber_outlined,
+                                                size: 50,
+                                                color: Colors.orange)),
+                                        const SizedBox(height: 20),
+                                        Center(
+                                            child: CustomText(
+                                                content:
+                                                    "Please Select a Customer",
+                                                fontSize: 18)),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: CustomText(
+                                              content: "Ok",
+                                              color: primaryColor),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: primaryColor,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Show Products",
+                                  style: TextStyle(
+                                    color: white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]
                     ],
                   ),
                 ),
@@ -523,6 +627,219 @@ class PromotionDetails extends StatelessWidget {
               child: const Text("Apply Offer"),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showProductSelectionDialog(BuildContext context, PromotionReponse promo,
+      CategoryModel categoryData) {
+    final double _drawerWidth = 300.0;
+    ProductsController productController = Get.find<ProductsController>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool _isDrawerOpen = true;
+        String _selectedCategory = '';
+        String _selectedOption = '';
+        String _id = '';
+        Timer? _drawerTimer;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void _toggleDrawer() {
+              setState(() {
+                _isDrawerOpen = !_isDrawerOpen;
+              });
+
+              // auto-close after 3s
+              _drawerTimer?.cancel();
+              if (_isDrawerOpen) {
+                _drawerTimer = Timer(const Duration(seconds: 3), () {
+                  setState(() {
+                    _isDrawerOpen = false;
+                  });
+                });
+              }
+            }
+
+            void _selectCategory(String categoryName) {
+              setState(() {
+                _selectedCategory = categoryName;
+              });
+            }
+
+            void _fetchProductsByCategory(String subCategoryId) {
+              setState(() {
+                _id = subCategoryId;
+              });
+              // productController.fetchProductsByCategory(subCategoryId);
+            }
+
+            return Dialog(
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Select Products",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            dialogCloseButton1(context, red),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 60),
+                            Expanded(
+                              child: Container(
+                                  color: Colors.grey.withValues(alpha: 0.01)),
+                              // ProductGrid(
+                              //   optionName: _selectedOption,
+                              //   productsController: productController,
+                              //   id: _id,
+                              //   playAddToCartAnimation: null,
+
+                              // ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  /// Vertical mini drawer with initials
+                  Positioned(
+                    left: 0,
+                    top: 10,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 60),
+                      child: Container(
+                        width: 50,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        color: primaryColor.withOpacity(0.2),
+                        child: Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.menu,
+                                size: 20,
+                                color: primaryColor,
+                              ),
+                              onPressed: _toggleDrawer,
+                            ),
+                            const SizedBox(height: 20),
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: categoryData.data?.length ?? 0,
+                                itemBuilder: (context, index) {
+                                  List<CategoryData> categories =
+                                      categoryData.data ?? [];
+                                  String categoryName =
+                                      categories[index].categoryName ?? '';
+                                  String initial = categoryName.isNotEmpty
+                                      ? categoryName[0].toUpperCase()
+                                      : '';
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: IconButton(
+                                      icon: Text(
+                                        initial,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          _selectCategory(categoryName),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Overlay when drawer is open
+                  if (_isDrawerOpen)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isDrawerOpen = false;
+                          });
+                          _drawerTimer?.cancel();
+                        },
+                        child: Container(color: Colors.transparent),
+                      ),
+                    ),
+
+                  /// Slide-out category drawer
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    top: 10,
+                    bottom: 0,
+                    left: _isDrawerOpen ? 50 : -_drawerWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 60),
+                      child: Container(
+                        width: _drawerWidth,
+                        color: Colors.white,
+                        child: CategoryListPromo(
+                          categoryModel:
+                              categoryData, // <-- pass the full CategoryModel
+                          categories: categoryData.data!.map((entry) {
+                            return CategoryItemPromo(
+                              title: entry.categoryName ?? '',
+                              options: entry.subCategoryItem ?? [],
+                            );
+                          }).toList(),
+                          onOptionSelected: (selectedSubcategoryId) {
+                            log('Selected Subcategory ID: $selectedSubcategoryId');
+                            _fetchProductsByCategory(selectedSubcategoryId);
+                          },
+                          onDrawerToggle: _toggleDrawer,
+                          selectedCategory: _selectedCategory,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

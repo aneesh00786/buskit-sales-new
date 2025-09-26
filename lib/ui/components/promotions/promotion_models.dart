@@ -611,22 +611,26 @@ class BundleItem {
 
 class Category {
   String? categoryId;
-  dynamic subId;
+    List<String>? subIds;
+    String? selected;
 
-  Category({
-    this.categoryId,
-    this.subId,
-  });
+    Category({
+        this.categoryId,
+        this.subIds,
+        this.selected,
+    });
 
-  factory Category.fromJson(Map<String, dynamic> json) => Category(
+    factory Category.fromJson(Map<String, dynamic> json) => Category(
         categoryId: json["category_id"],
-        subId: json["sub_id"],
-      );
+        subIds: json["sub_ids"] == null ? [] : List<String>.from(json["sub_ids"]!.map((x) => x)),
+        selected: json["selected"],
+    );
 
-  Map<String, dynamic> toJson() => {
+    Map<String, dynamic> toJson() => {
         "category_id": categoryId,
-        "sub_id": subId,
-      };
+        "sub_ids": subIds == null ? [] : List<dynamic>.from(subIds!.map((x) => x)),
+        "selected": selected,
+    };
 }
 
 class Deal {

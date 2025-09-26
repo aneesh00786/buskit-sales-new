@@ -134,6 +134,7 @@ mixin class ApiConstants {
 
   static const String showRoute = "show-route";
   static const String fetchCategories = "fetch_categories";
+  static const String getPromoCategories = "get-promo-categories";
   static const String fetchProduct = "fetch_product";
   static const String promotions = "promotions";
 

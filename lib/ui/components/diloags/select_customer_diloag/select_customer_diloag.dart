@@ -141,8 +141,9 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       cusName: productsController.selectedCustomerName.value,
                       cusImage:
                           productsController.selectedCustomerImageUrl.value,
-                          cusEmail: productsController.selectedCustomerEmail.value,
-              cusMobile: productsController.selectedCustomerMobileNo.value,
+                      cusEmail: productsController.selectedCustomerEmail.value,
+                      cusMobile:
+                          productsController.selectedCustomerMobileNo.value,
                     ),
                     id: 2,
                   );
@@ -190,11 +191,13 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
       return OrientationBuilder(builder: (context, ore) {
         return MyCommnonContainer(
           color: white,
-          margin: AppDimensions.instance.orientation == Orientation.landscape
-              ? nkExtraLargePadding(
-                  right: AppDimensions.instance.width * .10,
-                  left: AppDimensions.instance.width * .10)
-              : EdgeInsets.all(fullScreenWidth(context) * 0.08),
+          margin: isPhonePortrait(context)
+              ? EdgeInsets.zero
+              : AppDimensions.instance.orientation == Orientation.landscape
+                  ? nkExtraLargePadding(
+                      right: AppDimensions.instance.width * .10,
+                      left: AppDimensions.instance.width * .10)
+                  : EdgeInsets.all(fullScreenWidth(context) * 0.08),
           child: ClipRRect(
             borderRadius:
                 BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
@@ -219,7 +222,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       Expanded(
                         child: Center(
                           child: CustomText(
-                            content: "Time",
+                            content: isPhonePortrait(context) ? "" : "Time",
                             fontWeight: FontWeight.w700,
                             fontSize: 14,
                           ),
@@ -264,332 +267,725 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                               initialPeriod = period;
                             }
 
-                            return Padding(
-                              padding: nkSmallPadding(left: 0, right: 0),
-                              child: InkWell(
-                                highlightColor: Colors.transparent,
-                                splashFactory: NoSplash.splashFactory,
-                                child: Card(
-                                  elevation: 10,
-                                  shadowColor: black.withOpacity(0.2),
-                                  color: white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(15.0),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        // Avatar
-                                        CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                            '${ApiConstants.imageBaseUrl}${customer.imageUrl}',
+                            if (!isPhonePortrait(context)) {
+                              return Padding(
+                                padding: nkSmallPadding(left: 0, right: 0),
+                                child: InkWell(
+                                  highlightColor: Colors.transparent,
+                                  splashFactory: NoSplash.splashFactory,
+                                  child: Card(
+                                    elevation: 10,
+                                    shadowColor: black.withOpacity(0.2),
+                                    color: white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          // Avatar
+                                          CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              '${ApiConstants.imageBaseUrl}${customer.imageUrl}',
+                                            ),
+                                            radius: 24,
                                           ),
-                                          radius: 24,
-                                        ),
-                                        const SizedBox(width: 12),
+                                          const SizedBox(width: 12),
 
-                                        // Title and Subtitle
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // Title
-                                              CustomText(
-                                                content: customer.businessName,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                              const SizedBox(height: 4),
-                                              // Subtitle details
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  CustomText(
-                                                    content: customer.mobileno,
-                                                    fontSize: 12,
-                                                    maxLine: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  CustomText(
-                                                    content: customer.email,
-                                                    fontSize: 12,
-                                                    maxLine: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                          // Title and Subtitle
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Title
+                                                CustomText(
+                                                  content:
+                                                      customer.businessName,
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                // Subtitle details
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    CustomText(
+                                                      content:
+                                                          customer.mobileno,
+                                                      fontSize: 12,
+                                                      maxLine: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    CustomText(
+                                                      content: customer.email,
+                                                      fontSize: 12,
+                                                      maxLine: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
 
-                                        const SizedBox(width: 8),
+                                          const SizedBox(width: 8),
 
-                                        // Red container (right of subtitle)
-                                        TimePickerField(
-                                          eventId: customer.eventId,
-                                          initialHour: initialHour,
-                                          initialMinute: initialMinute,
-                                          initialPeriod: initialPeriod,
-                                          onTimeSelected: (eventId, time) {
-                                            setState(() {
-                                              selectedEventTimes[eventId] =
-                                                  time;
-                                            });
-                                          },
-                                        ),
+                                          // Red container (right of subtitle)
+                                          TimePickerField(
+                                            eventId: customer.eventId,
+                                            initialHour: initialHour,
+                                            initialMinute: initialMinute,
+                                            initialPeriod: initialPeriod,
+                                            onTimeSelected: (eventId, time) {
+                                              setState(() {
+                                                selectedEventTimes[eventId] =
+                                                    time;
+                                              });
+                                            },
+                                          ),
 
-                                        const SizedBox(width: 8),
+                                          const SizedBox(width: 8),
 
-                                        // Trailing icons
-                                        SizedBox(
-                                          width: 100,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              SizedBox(
-                                                width: 20,
-                                                child: Obx(() {
-                                                  return Checkbox(
-                                                    value: widget
-                                                        .calenderMapController
-                                                        .checkedList[index],
-                                                    onChanged: (value) {
-                                                      widget
+                                          // Trailing icons
+                                          SizedBox(
+                                            width: 100,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                SizedBox(
+                                                  width: 20,
+                                                  child: Obx(() {
+                                                    return Checkbox(
+                                                      value: widget
                                                           .calenderMapController
-                                                          .toggleCustomerSelection(
-                                                              index,
-                                                              value ?? false,
-                                                              widget.eventData);
-                                                    },
-                                                  );
-                                                }),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              SizedBox(
-                                                width: 30,
-                                                child: IconButton(
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                  onPressed: () {
-                                                    final CalendarEventData<
-                                                            EventData> event =
-                                                        widget.eventData[index];
-                                                    Navigator.of(context).pop();
-                                                    WidgetsBinding.instance
-                                                        .addPostFrameCallback(
-                                                            (_) {
-                                                      homeController
-                                                          .sidebarXController
-                                                          .selectIndex(1);
-                                                      homeController
-                                                          .selectedIndex
-                                                          .value = 1;
-                                                      log('${event.event!.customerId}');
-                                                      customerAndOrderController
-                                                          .setCustomerId(event
-                                                                  .event
-                                                                  ?.customerId ??
-                                                              '');
-                                                      productsController
-                                                          .selectedCustomerName
-                                                          .value = event.event
-                                                              ?.businessName ??
-                                                          '';
-                                                      productsController
-                                                          .selectedCustomerId
-                                                          .value = event.event
-                                                              ?.customerId ??
-                                                          '';
-                                                      productsController
-                                                          .selectedCustomerImageUrl
-                                                          .value = event.event
-                                                              ?.imageUrl ??
-                                                          '';
-                                                      log("customerId 1 : ${productsController.selectedCustomerId.value}");
-                                                      Get.to(
-                                                          () =>
-                                                              CustomerDachScreen(
-                                                                isDirectDialogue:
-                                                                    true,
-                                                                year: 2024,
-                                                                isFromCalendar:
-                                                                    false,
-                                                                cusId: event
-                                                                        .event!
-                                                                        .customerId ??
-                                                                    '',
-                                                                cusName: event
-                                                                        .event!
-                                                                        .businessName ??
-                                                                    '',
-                                                                cusImage: event
-                                                                        .event!
-                                                                        .imageUrl ??
-                                                                    '',
-                                                                cusEmail: event
-                                                                        .event!
-                                                                        .email ??
-                                                                    '',
-                                                                cusMobile: event
-                                                                        .event!
-                                                                        .mobileNo ??
-                                                                    '',
-                                                                productsController:
-                                                                    productsController,
-                                                                isFromGoogle:
-                                                                    false,
-                                                              ),
-                                                          binding:
-                                                              BindingsBuilder(
-                                                                  () {
-                                                        Get.lazyPut<ApiWorker>(
-                                                            () => ApiWorker());
-                                                      }), id: 2);
-                                                      Provider.of<CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .fetchCustomerDashboardData(
-                                                        event.event!.customerId
-                                                            .toString(),
-                                                      );
-                                                      Provider.of<CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .fetchCustomerDashboardRevenueData(
-                                                        event.event!.customerId
-                                                            .toString(),
-                                                      );
-                                                      Provider.of<CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .fetchCustomerDashboardDataSalseData(
-                                                              event.event!
-                                                                  .customerId
-                                                                  .toString());
-                                                      Provider.of<CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .fetchCustomersDataDash(
-                                                              event.event!
-                                                                  .customerId
-                                                                  .toString());
-                                                      Provider.of<CustomersProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .fetchCustomerDashboardCountData(
-                                                              event.event!
-                                                                  .customerId
-                                                                  .toString());
-                                                    });
-                                                  },
-                                                  icon: const Icon(
-                                                    EneftyIcons
-                                                        .arrow_square_right_outline,
-                                                    color: primaryColor,
-                                                    size: 25,
-                                                  ),
-                                                  highlightColor: white,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              SizedBox(
-                                                width: 30,
-                                                child: Obx(
-                                                  () {
-                                                    if (widget
-                                                            .calenderMapController
-                                                            .currentLatLng
-                                                            .value ==
-                                                        null) {
-                                                      return Container(
-                                                        height: 30,
-                                                        width: 35,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10),
-                                                        child:
-                                                            const CircularProgressIndicator(
-                                                                strokeWidth: 2),
-                                                      );
-                                                    }
-
-                                                    double currentLatitude =
+                                                          .checkedList[index],
+                                                      onChanged: (value) {
                                                         widget
                                                             .calenderMapController
-                                                            .currentLatLng
-                                                            .value!
-                                                            .latitude;
-                                                    double currentLongitude =
-                                                        widget
-                                                            .calenderMapController
-                                                            .currentLatLng
-                                                            .value!
-                                                            .longitude;
-                                                    return IconButton(
-                                                      icon: const Icon(
-                                                        Icons.near_me_outlined,
-                                                        size: 25,
-                                                        color: red,
-                                                      ),
-                                                      onPressed: () async {
-                                                        final isOnline =
-                                                            await ConnectivityService()
-                                                                .isOnline();
-                                                        if (!isOnline) {
-                                                          showCustomToastDisplay(
-                                                            context,
-                                                            'You are offline. Show Route is disabled.',
-                                                            red,
-                                                            Icons.close,
-                                                          );
-                                                          return;
-                                                        }
-                                                        if (subscriptionController
-                                                                .visitNavigation
-                                                                .value ==
-                                                            "true") {
-                                                          selectedCustomer = widget
-                                                              .calenderMapController
-                                                              .selectedCustomers[index];
-                                                          navigatedToMap = true;
-                                                          navigateToo(
-                                                            currentLatitude,
-                                                            currentLongitude,
-                                                            double.parse(
-                                                                selectedCustomer
-                                                                        ?.latitude ??
-                                                                    ''),
-                                                            double.parse(
-                                                                selectedCustomer
-                                                                        ?.longitude ??
-                                                                    ''),
-                                                          );
-                                                          log('Selected Customer : ${selectedCustomer?.businessName}');
-                                                        } else {
-                                                          showUpgradePlanDialog(
-                                                              context);
-                                                        }
+                                                            .toggleCustomerSelection(
+                                                                index,
+                                                                value ?? false,
+                                                                widget
+                                                                    .eventData);
                                                       },
-                                                      highlightColor: white,
                                                     );
-                                                  },
+                                                  }),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 4),
+                                                SizedBox(
+                                                  width: 30,
+                                                  child: IconButton(
+                                                    constraints:
+                                                        const BoxConstraints(),
+                                                    onPressed: () {
+                                                      final CalendarEventData<
+                                                              EventData> event =
+                                                          widget
+                                                              .eventData[index];
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) {
+                                                        homeController
+                                                            .sidebarXController
+                                                            .selectIndex(1);
+                                                        homeController
+                                                            .selectedIndex
+                                                            .value = 1;
+                                                        log('${event.event!.customerId}');
+                                                        customerAndOrderController
+                                                            .setCustomerId(event
+                                                                    .event
+                                                                    ?.customerId ??
+                                                                '');
+                                                        productsController
+                                                            .selectedCustomerName
+                                                            .value = event.event
+                                                                ?.businessName ??
+                                                            '';
+                                                        productsController
+                                                            .selectedCustomerId
+                                                            .value = event.event
+                                                                ?.customerId ??
+                                                            '';
+                                                        productsController
+                                                            .selectedCustomerImageUrl
+                                                            .value = event.event
+                                                                ?.imageUrl ??
+                                                            '';
+                                                        log("customerId 1 : ${productsController.selectedCustomerId.value}");
+                                                        Get.to(
+                                                            () =>
+                                                                CustomerDachScreen(
+                                                                  isDirectDialogue:
+                                                                      true,
+                                                                  year: 2024,
+                                                                  isFromCalendar:
+                                                                      false,
+                                                                  cusId: event
+                                                                          .event!
+                                                                          .customerId ??
+                                                                      '',
+                                                                  cusName: event
+                                                                          .event!
+                                                                          .businessName ??
+                                                                      '',
+                                                                  cusImage: event
+                                                                          .event!
+                                                                          .imageUrl ??
+                                                                      '',
+                                                                  cusEmail: event
+                                                                          .event!
+                                                                          .email ??
+                                                                      '',
+                                                                  cusMobile: event
+                                                                          .event!
+                                                                          .mobileNo ??
+                                                                      '',
+                                                                  productsController:
+                                                                      productsController,
+                                                                  isFromGoogle:
+                                                                      false,
+                                                                ),
+                                                            binding:
+                                                                BindingsBuilder(
+                                                                    () {
+                                                          Get.lazyPut<
+                                                                  ApiWorker>(
+                                                              () =>
+                                                                  ApiWorker());
+                                                        }), id: 2);
+                                                        Provider.of<CustomersProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .fetchCustomerDashboardData(
+                                                          event
+                                                              .event!.customerId
+                                                              .toString(),
+                                                        );
+                                                        Provider.of<CustomersProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .fetchCustomerDashboardRevenueData(
+                                                          event
+                                                              .event!.customerId
+                                                              .toString(),
+                                                        );
+                                                        Provider.of<CustomersProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .fetchCustomerDashboardDataSalseData(
+                                                                event.event!
+                                                                    .customerId
+                                                                    .toString());
+                                                        Provider.of<CustomersProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .fetchCustomersDataDash(
+                                                                event.event!
+                                                                    .customerId
+                                                                    .toString());
+                                                        Provider.of<CustomersProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .fetchCustomerDashboardCountData(
+                                                                event.event!
+                                                                    .customerId
+                                                                    .toString());
+                                                      });
+                                                    },
+                                                    icon: const Icon(
+                                                      EneftyIcons
+                                                          .arrow_square_right_outline,
+                                                      color: primaryColor,
+                                                      size: 25,
+                                                    ),
+                                                    highlightColor: white,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                SizedBox(
+                                                  width: 30,
+                                                  child: Obx(
+                                                    () {
+                                                      if (widget
+                                                              .calenderMapController
+                                                              .currentLatLng
+                                                              .value ==
+                                                          null) {
+                                                        return Container(
+                                                          height: 30,
+                                                          width: 35,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(10),
+                                                          child:
+                                                              const CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2),
+                                                        );
+                                                      }
+
+                                                      double currentLatitude =
+                                                          widget
+                                                              .calenderMapController
+                                                              .currentLatLng
+                                                              .value!
+                                                              .latitude;
+                                                      double currentLongitude =
+                                                          widget
+                                                              .calenderMapController
+                                                              .currentLatLng
+                                                              .value!
+                                                              .longitude;
+                                                      return IconButton(
+                                                        icon: const Icon(
+                                                          Icons
+                                                              .near_me_outlined,
+                                                          size: 25,
+                                                          color: red,
+                                                        ),
+                                                        onPressed: () async {
+                                                          final isOnline =
+                                                              await ConnectivityService()
+                                                                  .isOnline();
+                                                          if (!isOnline) {
+                                                            showCustomToastDisplay(
+                                                              context,
+                                                              'You are offline. Show Route is disabled.',
+                                                              red,
+                                                              Icons.close,
+                                                            );
+                                                            return;
+                                                          }
+                                                          if (subscriptionController
+                                                                  .visitNavigation
+                                                                  .value ==
+                                                              "true") {
+                                                            selectedCustomer = widget
+                                                                .calenderMapController
+                                                                .selectedCustomers[index];
+                                                            navigatedToMap =
+                                                                true;
+                                                            navigateToo(
+                                                              currentLatitude,
+                                                              currentLongitude,
+                                                              double.parse(
+                                                                  selectedCustomer
+                                                                          ?.latitude ??
+                                                                      ''),
+                                                              double.parse(
+                                                                  selectedCustomer
+                                                                          ?.longitude ??
+                                                                      ''),
+                                                            );
+                                                            log('Selected Customer : ${selectedCustomer?.businessName}');
+                                                          } else {
+                                                            showUpgradePlanDialog(
+                                                                context);
+                                                          }
+                                                        },
+                                                        highlightColor: white,
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                            if (isPhonePortrait(context)) {
+                              return Padding(
+                                padding: nkSmallPadding(left: 0, right: 0),
+                                child: InkWell(
+                                  highlightColor: Colors.transparent,
+                                  splashFactory: NoSplash.splashFactory,
+                                  child: Card(
+                                    elevation: 10,
+                                    shadowColor: black.withOpacity(0.2),
+                                    color: white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              // Avatar
+                                              CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                  '${ApiConstants.imageBaseUrl}${customer.imageUrl}',
+                                                ),
+                                                radius: 24,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Title
+                                                    CustomText(
+                                                      content:
+                                                          customer.businessName,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 14,
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        CustomText(
+                                                          content:
+                                                              customer.mobileno,
+                                                          fontSize: 12,
+                                                          maxLine: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        CustomText(
+                                                          content:
+                                                              customer.email,
+                                                          fontSize: 12,
+                                                          maxLine: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          nkMediumSizeBox(),
+                                          nkMediumSizeBox(),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              CustomText(
+                                                content: "Time : ",
+                                                fontSize: 12,
+                                                maxLine: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              TimePickerField(
+                                                eventId: customer.eventId,
+                                                initialHour: initialHour,
+                                                initialMinute: initialMinute,
+                                                initialPeriod: initialPeriod,
+                                                onTimeSelected:
+                                                    (eventId, time) {
+                                                  setState(() {
+                                                    selectedEventTimes[
+                                                        eventId] = time;
+                                                    // Update the scheduleTime for the customer in customerOnlyList
+                                                    customer.scheduleTime =
+                                                        time;
+                                                  });
+                                                },
+                                              ),
+                                              Spacer(),
+
+                                              const SizedBox(width: 8),
+
+                                              // Trailing icons
+                                              SizedBox(
+                                                width: 100,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    // Checkbox
+                                                    SizedBox(
+                                                      width: 20,
+                                                      child: Obx(() {
+                                                        return Checkbox(
+                                                          value: widget
+                                                              .calenderMapController
+                                                              .checkedList[index],
+                                                          onChanged: (value) {
+                                                            widget
+                                                                .calenderMapController
+                                                                .toggleCustomerSelection(
+                                                                    index,
+                                                                    value ??
+                                                                        false,
+                                                                    widget
+                                                                        .eventData);
+                                                          },
+                                                        );
+                                                      }),
+                                                    ),
+                                                    const SizedBox(width: 4),
+
+                                                    // Navigation icon
+                                                    SizedBox(
+                                                      width: 30,
+                                                      child: IconButton(
+                                                        constraints:
+                                                            const BoxConstraints(),
+                                                        onPressed: () {
+                                                          final CalendarEventData<
+                                                                  EventData>
+                                                              event =
+                                                              widget.eventData[
+                                                                  index];
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback(
+                                                                  (_) {
+                                                            homeController
+                                                                .sidebarXController
+                                                                .selectIndex(1);
+                                                            homeController
+                                                                .selectedIndex
+                                                                .value = 1;
+                                                            log('${event.event!.customerId}');
+                                                            customerAndOrderController
+                                                                .setCustomerId(event
+                                                                        .event
+                                                                        ?.customerId ??
+                                                                    '');
+                                                            productsController
+                                                                .selectedCustomerName
+                                                                .value = event
+                                                                    .event
+                                                                    ?.businessName ??
+                                                                '';
+                                                            productsController
+                                                                .selectedCustomerId
+                                                                .value = event
+                                                                    .event
+                                                                    ?.customerId ??
+                                                                '';
+                                                            productsController
+                                                                .selectedCustomerImageUrl
+                                                                .value = event
+                                                                    .event
+                                                                    ?.imageUrl ??
+                                                                '';
+                                                            log("customerId 1 : ${productsController.selectedCustomerId.value}");
+                                                            Get.to(
+                                                                () =>
+                                                                    CustomerDachScreen(
+                                                                      isDirectDialogue:
+                                                                          true,
+                                                                      year:
+                                                                          2024,
+                                                                      isFromCalendar:
+                                                                          false,
+                                                                      cusId: event
+                                                                              .event!
+                                                                              .customerId ??
+                                                                          '',
+                                                                      cusName:
+                                                                          event.event!.businessName ??
+                                                                              '',
+                                                                      cusImage:
+                                                                          event.event!.imageUrl ??
+                                                                              '',
+                                                                      cusEmail:
+                                                                          event.event!.email ??
+                                                                              '',
+                                                                      cusMobile:
+                                                                          event.event!.mobileNo ??
+                                                                              '',
+                                                                      productsController:
+                                                                          productsController,
+                                                                      isFromGoogle:
+                                                                          false,
+                                                                    ),
+                                                                binding:
+                                                                    BindingsBuilder(
+                                                                        () {
+                                                              Get.lazyPut<
+                                                                      ApiWorker>(
+                                                                  () =>
+                                                                      ApiWorker());
+                                                            }), id: 2);
+                                                            Provider.of<CustomersProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .fetchCustomerDashboardData(
+                                                              event.event!
+                                                                  .customerId
+                                                                  .toString(),
+                                                            );
+                                                            Provider.of<CustomersProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .fetchCustomerDashboardRevenueData(
+                                                              event.event!
+                                                                  .customerId
+                                                                  .toString(),
+                                                            );
+                                                            Provider.of<CustomersProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .fetchCustomerDashboardDataSalseData(event
+                                                                    .event!
+                                                                    .customerId
+                                                                    .toString());
+                                                            Provider.of<CustomersProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .fetchCustomersDataDash(event
+                                                                    .event!
+                                                                    .customerId
+                                                                    .toString());
+                                                            Provider.of<CustomersProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .fetchCustomerDashboardCountData(event
+                                                                    .event!
+                                                                    .customerId
+                                                                    .toString());
+                                                          });
+                                                        },
+                                                        icon: const Icon(
+                                                          EneftyIcons
+                                                              .arrow_square_right_outline,
+                                                          color: primaryColor,
+                                                          size: 25,
+                                                        ),
+                                                        highlightColor: white,
+                                                      ),
+                                                    ),
+
+                                                    const SizedBox(width: 4),
+
+                                                    // Near Me Button
+                                                    SizedBox(
+                                                      width: 30,
+                                                      child: Obx(
+                                                        () {
+                                                          if (widget
+                                                                  .calenderMapController
+                                                                  .currentLatLng
+                                                                  .value ==
+                                                              null) {
+                                                            return Container(
+                                                              height: 30,
+                                                              width: 35,
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(10),
+                                                              child:
+                                                                  const CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2),
+                                                            );
+                                                          }
+
+                                                          double
+                                                              currentLatitude =
+                                                              widget
+                                                                  .calenderMapController
+                                                                  .currentLatLng
+                                                                  .value!
+                                                                  .latitude;
+                                                          double
+                                                              currentLongitude =
+                                                              widget
+                                                                  .calenderMapController
+                                                                  .currentLatLng
+                                                                  .value!
+                                                                  .longitude;
+                                                          return IconButton(
+                                                            icon: const Icon(
+                                                              Icons
+                                                                  .near_me_outlined,
+                                                              size: 25,
+                                                              color: red,
+                                                            ),
+                                                            onPressed:
+                                                                () async {
+                                                              final isOnline =
+                                                                  await ConnectivityService()
+                                                                      .isOnline();
+                                                              if (!isOnline) {
+                                                                showCustomToastDisplay(
+                                                                  context,
+                                                                  'You are offline. Show Route is disabled.',
+                                                                  red,
+                                                                  Icons.close,
+                                                                );
+                                                                return;
+                                                              }
+                                                              if (subscriptionController
+                                                                      .visitNavigation
+                                                                      .value ==
+                                                                  "true") {
+                                                                selectedCustomer = widget
+                                                                    .calenderMapController
+                                                                    .selectedCustomers[index];
+                                                                navigatedToMap =
+                                                                    true;
+                                                                navigateToo(
+                                                                  currentLatitude,
+                                                                  currentLongitude,
+                                                                  double.parse(
+                                                                      selectedCustomer
+                                                                              ?.latitude ??
+                                                                          ''),
+                                                                  double.parse(
+                                                                      selectedCustomer
+                                                                              ?.longitude ??
+                                                                          ''),
+                                                                );
+                                                                log('Selected Customer : ${selectedCustomer?.businessName}');
+                                                              } else {
+                                                                showUpgradePlanDialog(
+                                                                    context);
+                                                              }
+                                                            },
+                                                            highlightColor:
+                                                                white,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
                           },
                         ),
                       )

@@ -26,9 +26,11 @@ class OrderstatusTotalRow extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: scrollController3,
       child: SizedBox(
-        width: fullScreenWidth(context) > 640
-            ? fullScreenWidth(context) * 1
-            : fullScreenWidth(context) * 1.1,
+        width: isPhonePortrait(context)
+            ? fullScreenWidth(context) * 2.3
+            : fullScreenWidth(context) > 640
+                ? fullScreenWidth(context) * 1
+                : fullScreenWidth(context) * 1.1,
         child: Row(
           children: [
             Expanded(
@@ -73,7 +75,7 @@ class OrderstatusTotalRow extends StatelessWidget {
                     DataRow(
                       cells: [
                         DataCell(SizedBox(width: flexWidth * 4.5)),
-                        DataCell(SizedBox(width: flexWidth * 4.1)),
+                        DataCell(SizedBox(width: flexWidth * 1)),
                       ],
                     ),
                   ]),

@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
@@ -13,12 +14,17 @@ void showValueOrderDialog(
     context: context,
     builder: (context) {
       return Dialog(
+        insetPadding: isPhonePortrait(context) || isPhoneLandscape(context)
+            ? EdgeInsets.zero
+            : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.6;
+            double dialogWidth = isPhonePortrait(context)
+                ? fullScreenWidth(context)
+                : fullScreenWidth(context) * 0.7;
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;

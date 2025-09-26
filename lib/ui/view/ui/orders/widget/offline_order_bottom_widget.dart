@@ -166,7 +166,9 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
+                  width: isTabletOrPhoneLandscape(context)
+                      ? MediaQuery.of(context).size.width
+                      : fullScreenWidth(context) * 2,
                   child: Column(
                     children: [
                       Container(

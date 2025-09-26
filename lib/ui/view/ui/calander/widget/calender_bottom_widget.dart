@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -81,7 +82,9 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
       cellAspectRatio:
           AppDimensions.instance.orientation == Orientation.landscape
               ? 1.7
-              : 0.8,
+              : isTablet(context)
+                  ? 0.85
+                  : 0.5,
       headerStyle: HeaderStyle(
         decoration: BoxDecoration(
           color: primaryColor.withOpacity(0.4),

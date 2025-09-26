@@ -156,8 +156,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Row(
-                                          children: const [
+                                        const Row(
+                                          children: [
                                             Icon(Icons.warning_amber_rounded,
                                                 color: Colors.orange),
                                             SizedBox(width: 8),
@@ -423,6 +423,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Week selector (optional)
                       if (mode == EventType.monthly ||
                           mode == EventType.fortnightly)
                         Column(
@@ -463,6 +465,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                             const SizedBox(height: 16),
                           ],
                         ),
+
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -474,25 +477,39 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      ...daysOfWeek.map((day) {
-                        return CheckboxListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(day),
-                          value: selectedDays.contains(day.toLowerCase()),
-                          onChanged: (bool? value) {
-                            setState(() {
-                              if (value == true) {
-                                selectedDays.add(day.toLowerCase());
-                              } else {
-                                selectedDays.remove(day.toLowerCase());
-                              }
-                            });
-                          },
-                        );
-                      }),
+
+                      // ✅ Scrollable checkboxes
+                      Flexible(
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: daysOfWeek.map((day) {
+                              return CheckboxListTile(
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text(day),
+                                value: selectedDays.contains(day.toLowerCase()),
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      selectedDays.add(day.toLowerCase());
+                                    } else {
+                                      selectedDays.remove(day.toLowerCase());
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 20),
+
+                      // Action buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -533,8 +550,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Row(
-                                          children: const [
+                                        const Row(
+                                          children: [
                                             Icon(Icons.warning_amber_rounded,
                                                 color: Colors.orange),
                                             SizedBox(width: 8),

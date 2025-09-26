@@ -364,7 +364,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
+                    width: isTabletOrPhoneLandscape(context)
+                        ? MediaQuery.of(context).size.width
+                        : fullScreenWidth(context) * 2,
                     child: OrdersBottomTitleRow(
                       widget: widget,
                       scrollController2: _scrollController2,

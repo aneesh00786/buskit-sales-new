@@ -112,10 +112,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
 
     return SizedBox(
       height: isMobile
-          ? screenHeight * 0.9
+          ? null
           : MediaQuery.of(context).orientation == Orientation.portrait
               ? screenHeight * 0.9
-              : screenHeight * 1.55,
+              : screenHeight * 2,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(
@@ -151,7 +151,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   SizedBox(
                       height: screenWidth * 0.7,
                       child: orderDeliveryChart(context)),
-                  const SizedBox(height: 70),
+                  const SizedBox(height: 10),
                 ],
               ),
             )

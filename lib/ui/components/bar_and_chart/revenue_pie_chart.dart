@@ -1,10 +1,10 @@
-
 // ignore_for_file: deprecated_member_use
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
 import 'package:flutter/material.dart';
+
 class DoughnutDefault extends StatefulWidget {
   final Revenuee categoryData;
   final dynamic booking;
@@ -30,6 +30,7 @@ class DoughnutDefault extends StatefulWidget {
   // ignore: library_private_types_in_public_api
   _DoughnutDefaultState createState() => _DoughnutDefaultState();
 }
+
 class _DoughnutDefaultState extends State<DoughnutDefault> {
   @override
   void initState() {
@@ -63,9 +64,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
         : 0.0;
 
     if (totalRevenue == 0) {
-      return const Center(
-        child: NodataWidget()
-      );
+      return const Center(child: NodataWidget());
     }
 
     return Column(
@@ -81,32 +80,34 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
               centerSpaceRadius: widget.isBig ? 80 : 43,
               sections: [
                 fl_chart.PieChartSectionData(
-                  value: bookingRevenuePercentage,
-                  color: widget.bColor,
-                  radius: widget.isBig ? 60 : 25,
-                  showTitle: false,
-                ),
-                fl_chart.PieChartSectionData(
                   value: orderRevenuePercentage,
                   color: widget.aColor,
                   radius: widget.isBig ? 60 : 25,
                   showTitle: false,
                 ),
+                fl_chart.PieChartSectionData(
+                  value: bookingRevenuePercentage,
+                  color: widget.bColor,
+                  radius: widget.isBig ? 60 : 25,
+                  showTitle: false,
+                ),
               ],
               pieTouchData: fl_chart.PieTouchData(
-                touchCallback:
-                    (fl_chart.FlTouchEvent event, fl_chart.PieTouchResponse? response) {
+                touchCallback: (fl_chart.FlTouchEvent event,
+                    fl_chart.PieTouchResponse? response) {
                   if (event is fl_chart.FlTapUpEvent &&
                       response != null &&
                       response.touchedSection != null) {
                     int touchedIndex =
                         response.touchedSection!.touchedSectionIndex;
 
-                    if (touchedIndex == 1) {
+                    // INDEX 0 = ORDER
+                    // INDEX 1 = BOOKING
+                    if (touchedIndex == 0) {
                       const title = 'Order';
                       showValueDialog(context, widget.categoryData, title);
-                    } else if (touchedIndex == 0) {
-                      const title = 'Pre-Order';
+                    } else if (touchedIndex == 1) {
+                      const title = 'Booking';
                       showValueDialog(context, widget.categoryData, title);
                     }
                   }
@@ -122,6 +123,7 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
     );
   }
 }
+
 class ChartData2 {
   final String label;
   final num value;
@@ -129,6 +131,3 @@ class ChartData2 {
 
   ChartData2(this.label, this.value, this.color);
 }
-
-
-

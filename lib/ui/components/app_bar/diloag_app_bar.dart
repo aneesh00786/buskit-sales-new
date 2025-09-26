@@ -1,20 +1,16 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../common_size/nk_font_size.dart';
-
-// ignore: must_be_immutable
 class DiloagAppBar extends PreferredSize {
-  Widget? appBarChild;
-  Size? appBarSize;
-  String title;
-  Color? backgroundColor;
-  void Function()? onCloseTap;
+  final Widget? appBarChild;
+  final Size? appBarSize;
+  final String title;
+  final Color? backgroundColor;
+  final void Function()? onCloseTap;
 
   DiloagAppBar(
       {super.key,
@@ -32,7 +28,9 @@ class DiloagAppBar extends PreferredSize {
   Widget get child => PreferredSize(
       preferredSize: preferredSize,
       child: Container(
-        padding: nkRegularPadding(),
+        height: 55,
+        padding: const EdgeInsets.all(14),
+        // nkRegularPadding(),
         decoration: BoxDecoration(color: backgroundColor ?? primaryColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,7 +40,8 @@ class DiloagAppBar extends PreferredSize {
                 MyRegularText(
                   label: title,
                   fontWeight: NkGeneralSize.nkBoldFontWeight(),
-                  fontSize: NkFontSize.largeFont(),
+                  fontSize: 16,
+                  // NkFontSize.largeFont(),
                   color: buttonTextColor,
                 ),
             closeIcon
@@ -55,19 +54,25 @@ class DiloagAppBar extends PreferredSize {
             () {
               Get.back();
             },
-        child: Container(
-          height: AppDimensions.instance.height * 0.05,
-          decoration: BoxDecoration(
-            border: Border.all(color: buttonTextColor),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.close,
-                size: AppDimensions.instance.height * 0.02,
-                color: buttonTextColor,
+        child: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          child: SizedBox(
+            width: 25.8,
+            height: 25.8,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: red,
+                ),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(3.5),
+                child: Icon(
+                  Icons.close,
+                  color: red,
+                  size: 16,
+                ),
               ),
             ),
           ),

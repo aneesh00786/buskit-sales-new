@@ -644,7 +644,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     child: Container(
                       color: Colors.white, // background for axis area
                       width: dynamicMaxY.toString().length * 7 + 10,
-                      padding: const EdgeInsets.only(top: 3, bottom: 50),
+                      padding: const EdgeInsets.only(top: 6, bottom: 53),
                       child: BarChart(
                         BarChartData(
                           minY: 0,

@@ -3,15 +3,13 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/category_list.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/view/product_list.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_screen.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/widgets/promo_category_list.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/widgets/promo_product_list.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -406,6 +404,7 @@ class PromotionDetails extends StatelessWidget {
                           padding: const EdgeInsets.all(20.0),
                           child: InkWell(
                             onTap: () async {
+                              log("10");
                               if ((customerAndOrderController
                                       .customerId.value.isNotEmpty) ||
                                   (productController
@@ -416,21 +415,34 @@ class PromotionDetails extends StatelessWidget {
                                     Colors.green.shade800,
                                     Icons.check);
 
+                                log("1");
+
                                 if (promo.productScope == "categories") {
+                                  log("2");
                                   if (promo.categories!.isNotEmpty) {
-                                    List<String> subcatIds = [];
-                                    for (var category in promo.categories!) {
-                                      if (category.subIds != null) {
-                                        subcatIds.addAll(List<String>.from(
-                                            category.subIds!.toList()));
-                                      }
-                                    }
+                                    log("3");
+
+                                    // Collect all subcategory IDs as List<String>
+                                    final List<String> subcatIds = promo
+                                        .categories!
+                                        .expand((category) =>
+                                            (category.subIds ?? [])
+                                                as Iterable<String>)
+                                        .toList();
+
+                                    log("Collected subcatIds: $subcatIds");
+
+                                    // Call API with subcatIds
                                     CategoryModel categoryData =
                                         await ApiWorker()
                                             .getCategoryForPromo(subcatIds);
 
                                     _showProductSelectionDialog(
-                                        context, promo, categoryData);
+                                      context,
+                                      promo,
+                                      categoryData,
+                                      formatAmount(promo.minOrderValue),
+                                    );
                                   }
                                 }
 
@@ -476,7 +488,7 @@ class PromotionDetails extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  "Show Products",
+                                  "Select Products",
                                   style: TextStyle(
                                     color: white,
                                     fontSize: 20,
@@ -632,10 +644,14 @@ class PromotionDetails extends StatelessWidget {
     );
   }
 
-  void _showProductSelectionDialog(BuildContext context, PromotionReponse promo,
-      CategoryModel categoryData) {
+  void _showProductSelectionDialog(
+    BuildContext context,
+    PromotionReponse promo,
+    CategoryModel categoryData,
+    String? minOrderAmount,
+  ) {
     final double _drawerWidth = 300.0;
-    ProductsController productController = Get.find<ProductsController>();
+    final ProductsController productController = Get.find<ProductsController>();
 
     showDialog(
       context: context,
@@ -646,20 +662,40 @@ class PromotionDetails extends StatelessWidget {
         String _id = '';
         Timer? _drawerTimer;
 
+        // Pre-select first category + subcategory
+        if (categoryData.data != null && categoryData.data!.isNotEmpty) {
+          final firstCategory = categoryData.data![0];
+          _selectedCategory = firstCategory.categoryName ?? '';
+          if (firstCategory.subCategoryItem != null &&
+              firstCategory.subCategoryItem!.isNotEmpty) {
+            final firstSub = firstCategory.subCategoryItem![0];
+            _id = firstSub.id ?? '';
+            _selectedOption = firstSub.subCategory ?? '';
+          }
+        }
+
         return StatefulBuilder(
           builder: (context, setState) {
-            void _toggleDrawer() {
-              setState(() {
-                _isDrawerOpen = !_isDrawerOpen;
-              });
+            // Animation controller inside dialog
+            final AnimationController animationController = AnimationController(
+              duration: const Duration(milliseconds: 500),
+              vsync: Navigator.of(context), // use Navigator as TickerProvider
+            );
 
-              // auto-close after 3s
+            // Play add-to-cart animation
+            void playAddToCartAnimation() {
+              animationController
+                  .forward()
+                  .then((_) => animationController.reverse());
+            }
+
+            void _toggleDrawer() {
+              setState(() => _isDrawerOpen = !_isDrawerOpen);
+
               _drawerTimer?.cancel();
               if (_isDrawerOpen) {
                 _drawerTimer = Timer(const Duration(seconds: 3), () {
-                  setState(() {
-                    _isDrawerOpen = false;
-                  });
+                  setState(() => _isDrawerOpen = false);
                 });
               }
             }
@@ -667,13 +703,25 @@ class PromotionDetails extends StatelessWidget {
             void _selectCategory(String categoryName) {
               setState(() {
                 _selectedCategory = categoryName;
+
+                // Auto-select first subcategory of the new category
+                final category = categoryData.data!
+                    .firstWhere((c) => c.categoryName == categoryName);
+                if (category.subCategoryItem != null &&
+                    category.subCategoryItem!.isNotEmpty) {
+                  final firstSub = category.subCategoryItem![0];
+                  _id = firstSub.id ?? '';
+                  _selectedOption = firstSub.subCategory ?? '';
+                }
               });
             }
 
             void _fetchProductsByCategory(String subCategoryId) {
               setState(() {
                 _id = subCategoryId;
+                // _selectedOption = subCategoryName;
               });
+              // Trigger API call if needed
               // productController.fetchProductsByCategory(subCategoryId);
             }
 
@@ -709,6 +757,21 @@ class PromotionDetails extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            if (minOrderAmount != null &&
+                                minOrderAmount != "") ...[
+                              Text(
+                                "[ MIN ORDER : $minOrderAmount ]",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            SizedBox(width: 30),
                             dialogCloseButton1(context, red),
                           ],
                         ),
@@ -718,15 +781,13 @@ class PromotionDetails extends StatelessWidget {
                           children: [
                             const SizedBox(width: 60),
                             Expanded(
-                              child: Container(
-                                  color: Colors.grey.withValues(alpha: 0.01)),
-                              // ProductGrid(
-                              //   optionName: _selectedOption,
-                              //   productsController: productController,
-                              //   id: _id,
-                              //   playAddToCartAnimation: null,
-
-                              // ),
+                              child: ProductGridPromo(
+                                optionName: _selectedOption,
+                                productsController: productController,
+                                id: _id,
+                                playAddToCartAnimation: playAddToCartAnimation,
+                                categoryData: categoryData,
+                              ),
                             ),
                             const SizedBox(width: 10),
                           ],
@@ -761,11 +822,10 @@ class PromotionDetails extends StatelessWidget {
                               child: ListView.builder(
                                 itemCount: categoryData.data?.length ?? 0,
                                 itemBuilder: (context, index) {
-                                  List<CategoryData> categories =
-                                      categoryData.data ?? [];
-                                  String categoryName =
+                                  final categories = categoryData.data ?? [];
+                                  final categoryName =
                                       categories[index].categoryName ?? '';
-                                  String initial = categoryName.isNotEmpty
+                                  final initial = categoryName.isNotEmpty
                                       ? categoryName[0].toUpperCase()
                                       : '';
                                   return Padding(
@@ -797,9 +857,7 @@ class PromotionDetails extends StatelessWidget {
                     Positioned.fill(
                       child: GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _isDrawerOpen = false;
-                          });
+                          setState(() => _isDrawerOpen = false);
                           _drawerTimer?.cancel();
                         },
                         child: Container(color: Colors.transparent),
@@ -818,8 +876,7 @@ class PromotionDetails extends StatelessWidget {
                         width: _drawerWidth,
                         color: Colors.white,
                         child: CategoryListPromo(
-                          categoryModel:
-                              categoryData, // <-- pass the full CategoryModel
+                          categoryModel: categoryData,
                           categories: categoryData.data!.map((entry) {
                             return CategoryItemPromo(
                               title: entry.categoryName ?? '',

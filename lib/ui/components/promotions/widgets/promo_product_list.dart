@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/widgets/variant_dialog_promo.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
@@ -8,33 +9,34 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
-class ProductGrid extends StatefulWidget {
+class ProductGridPromo extends StatefulWidget {
   String optionName;
   final ProductsController productsController;
   String id;
   final VoidCallback playAddToCartAnimation;
+  CategoryModel categoryData;
 
-  ProductGrid({
+  ProductGridPromo({
     super.key,
     required this.optionName,
     required this.productsController,
     required this.id,
     required this.playAddToCartAnimation,
+    required this.categoryData,
   });
 
   @override
   // ignore: library_private_types_in_public_api
-  _ProductGridState createState() => _ProductGridState();
+  _ProductGridPromoState createState() => _ProductGridPromoState();
 }
 
-class _ProductGridState extends State<ProductGrid> {
+class _ProductGridPromoState extends State<ProductGridPromo> {
   List<ProductModel> products = [];
   String? name;
   bool isLoading = true;
@@ -100,6 +102,7 @@ class _ProductGridState extends State<ProductGrid> {
           List<ProductModel> offlineProducts = productBox.values
               .where((product) => product.scid == selectedSubCatId)
               .toList();
+          log("Loaded ${offlineProducts.length} products for subcategory $selectedSubCatId from legacy cache");
 
           if (offlineProducts.isNotEmpty) {
             log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
@@ -110,6 +113,7 @@ class _ProductGridState extends State<ProductGrid> {
             isLoading = false;
           });
         } else {
+          log("No products available offline for subcategory $selectedSubCatId");
           setState(() {
             products = [];
             isLoading = false;
@@ -117,6 +121,7 @@ class _ProductGridState extends State<ProductGrid> {
         }
       }
     } catch (e) {
+      log('Error loading products from Hive: $e');
       setState(() {
         products = [];
         isLoading = false;
@@ -125,7 +130,7 @@ class _ProductGridState extends State<ProductGrid> {
   }
 
   @override
-  void didUpdateWidget(covariant ProductGrid oldWidget) {
+  void didUpdateWidget(covariant ProductGridPromo oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.id != oldWidget.id) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -148,7 +153,6 @@ class _ProductGridState extends State<ProductGrid> {
           products = fetchedProducts;
           isLoading = false;
         });
-
       } else {
         setState(() {
           isLoading = false;
@@ -164,8 +168,12 @@ class _ProductGridState extends State<ProductGrid> {
 
   Future<void> _fetchProductsByCategory(String categoryId) async {
     if (categoryId.isEmpty) {
+      log('Category ID is empty, skipping product fetch');
       return;
     }
+
+    log('_fetchProductsByCategory: Fetching products for categoryId: $categoryId');
+    log('_fetchProductsByCategory: Current selectedSubCategoryId: ${widget.productsController.selectedSubCategoryId.value}');
 
     setState(() {
       widget.productsController.isLoading.value = true;
@@ -175,12 +183,18 @@ class _ProductGridState extends State<ProductGrid> {
       List<ProductModel> fetchedProducts =
           await widget.productsController.fetchProducts(categoryId);
 
+      log('_fetchProductsByCategory: API returned ${fetchedProducts.length} products');
+      log('_fetchProductsByCategory: Product SCIDs: ${fetchedProducts.map((p) => p.scid).toSet().toList()}');
+      log('_fetchProductsByCategory: Product names: ${fetchedProducts.map((p) => p.productName).toList()}');
+
       setState(() {
         products = fetchedProducts;
         widget.productsController.isLoading.value = false;
       });
 
+      log('_fetchProductsByCategory: Final product count: ${products.length} for category: $categoryId');
     } catch (e) {
+      log('Error fetching products for category: $e');
       setState(() {
         widget.productsController.isLoading.value = false;
       });
@@ -189,25 +203,25 @@ class _ProductGridState extends State<ProductGrid> {
 
   @override
   Widget build(BuildContext context) {
-    const double desiredItemWidth = 280.0;
+    const double desiredItemWidth = 300.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final double fontSize =
-                (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
-            return Text(
-              widget.productsController.selectedSubCategoryName.value.isEmpty
-                  ? name ?? ''
-                  : widget.productsController.selectedSubCategoryName.value,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          },
-        ),
+        // LayoutBuilder(
+        //   builder: (context, constraints) {
+        //     final double fontSize =
+        //         (constraints.maxWidth * 0.06).clamp(11.0, 16.0);
+        //     return Text(
+        //       widget.productsController.selectedSubCategoryName.value.isEmpty
+        //           ? name ?? ''
+        //           : widget.productsController.selectedSubCategoryName.value,
+        //       style: TextStyle(
+        //         fontSize: fontSize,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //     );
+        //   },
+        // ),
         const SizedBox(height: 16),
         Obx(() {
           final selectedCustomerId =
@@ -639,7 +653,7 @@ class _ProductGridState extends State<ProductGrid> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ProductVariantDialogue(
+        return ProductVariantDialoguePromo(
           index: index,
           product: product,
           productList: productList,

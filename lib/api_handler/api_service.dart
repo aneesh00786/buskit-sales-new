@@ -112,12 +112,9 @@ class ApiService {
       );
       log("GET_DASH_LIST response: $response");
       if (response.statusCode == 200) {
-        log("1");
         final jsonResponse = response.data;
-        log("2");
         await dashboardBox.put(
             'dashboardData', Map<String, dynamic>.from(jsonResponse));
-        log("3");
         return _mapJsonToResponseModel(ensureStringKeyedMap(jsonResponse));
       } else if (response.statusCode == 400 || response.statusCode == 401) {
         _handleTokenExpiration();
@@ -148,10 +145,8 @@ class ApiService {
 
   ResponseModell _mapJsonToResponseModel(Map<String, dynamic> jsonResponse) {
     var allCategoryList = jsonResponse['data']['all_category'] as List;
-    log("4");
     List<Category> allCategory =
         allCategoryList.map((json) => Category.fromJson(json)).toList();
-    log("5");
 
     var performanceList = jsonResponse['data']['category_performance'] as List;
     List<CategoryPerformancee> categoryPerformance = performanceList

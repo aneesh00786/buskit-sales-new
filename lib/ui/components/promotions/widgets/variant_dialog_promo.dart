@@ -24,6 +24,7 @@ class ProductVariantDialoguePromo extends StatefulWidget {
   final VoidCallback onDone;
   final List<Detail> detailsCopy;
   final ProductsController productController;
+  final ValueChanged<List<Map<String, dynamic>>>? onVariantsSelected;
 
   const ProductVariantDialoguePromo({
     super.key,
@@ -33,13 +34,16 @@ class ProductVariantDialoguePromo extends StatefulWidget {
     required this.onDone,
     required this.detailsCopy,
     required this.productController,
+    this.onVariantsSelected,
   });
 
   @override
-  State<ProductVariantDialoguePromo> createState() => _ProductVariantDialoguePromoState();
+  State<ProductVariantDialoguePromo> createState() =>
+      _ProductVariantDialoguePromoState();
 }
 
-class _ProductVariantDialoguePromoState extends State<ProductVariantDialoguePromo> {
+class _ProductVariantDialoguePromoState
+    extends State<ProductVariantDialoguePromo> {
   CustomerAndOrderController customerAndOrderController =
       Get.put(CustomerAndOrderController());
   List<String> droDownItem = ['Pack', 'Pcs'];
@@ -828,40 +832,31 @@ class _ProductVariantDialoguePromoState extends State<ProductVariantDialogueProm
                                   Icons.warning);
                               return;
                             }
+                            // Accumulate selections and return to parent instead of adding to cart
+                            final List<Map<String, dynamic>> selections = [];
                             for (var i = 0;
                                 i < widget.detailsCopy.length;
                                 i++) {
                               Detail detail = widget.detailsCopy[i];
                               if (localCounts[i] > 0) {
-                                final bool isPack = detail.saleBy == 'Pack';
-                                await CartDatabaseManager().addToCart(
-                                  customerId: customerId,
-                                  localCount: localCounts[i],
-                                  detail: detail,
-                                  isPack: isPack,
-                                  productName: widget.product.productName ?? '',
-                                  inclTax: widget.product.inclTax ?? '',
-                                  isChcked: true,
-                                  catId: widget.product.catId ?? 0,
-                                );
-                                widget.productController.isCartModified.value =
-                                    true;
-                                log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
-                              } else {
-                                log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
+                                selections.add({
+                                  'detail': detail,
+                                  'quantity': localCounts[i],
+                                  'isPack': (detail.saleBy ?? 'Pack') == 'Pack',
+                                  'productName':
+                                      widget.product.productName ?? '',
+                                  'inclTax': widget.product.inclTax ?? '',
+                                  'catId': widget.product.catId ?? 0,
+                                });
+                                log('Selected variant ID: ${detail.variationId} with quantity ${localCounts[i]}');
                               }
                             }
 
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              final cartProvider =
-                                  Provider.of<CustomersProvider>(context,
-                                      listen: false);
-                              cartProvider.updateCartCount(customerId);
-                              cartProvider.getCartItemCounts(customerId);
-                              widget.onDone();
+                            if (widget.onVariantsSelected != null) {
+                              widget.onVariantsSelected!(selections);
+                            }
 
-                              Navigator.pop(context);
-                            });
+                            Navigator.pop(context);
                           } else {
                             showDialog(
                               barrierDismissible: false,

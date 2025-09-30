@@ -652,6 +652,7 @@ class PromotionDetails extends StatelessWidget {
   ) {
     final double _drawerWidth = 300.0;
     final ProductsController productController = Get.find<ProductsController>();
+    final CustomerAndOrderController customerAndOrderController = Get.find<CustomerAndOrderController>();
 
     showDialog(
       context: context,
@@ -661,6 +662,7 @@ class PromotionDetails extends StatelessWidget {
         String _selectedOption = '';
         String _id = '';
         Timer? _drawerTimer;
+        List<Map<String, dynamic>> _selectedItems = [];
 
         // Pre-select first category + subcategory
         if (categoryData.data != null && categoryData.data!.isNotEmpty) {
@@ -771,6 +773,47 @@ class PromotionDetails extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
+                            const SizedBox(width: 10),
+                            // Selected items icon button
+                            IconButton(
+                              tooltip: 'View selected items',
+                              icon: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  const Icon(Icons.shopping_bag, color: Colors.white),
+                                  if (_selectedItems.isNotEmpty)
+                                    Positioned(
+                                      right: -4,
+                                      top: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          '${_selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              onPressed: () {
+                                _showSelectedItemsDialog(
+                                  context,
+                                  setState,
+                                  _selectedItems,
+                                  productController,
+                                  customerAndOrderController,
+                                  minOrderAmount,
+                                );
+                              },
+                            ),
                             SizedBox(width: 30),
                             dialogCloseButton1(context, red),
                           ],
@@ -787,6 +830,27 @@ class PromotionDetails extends StatelessWidget {
                                 id: _id,
                                 playAddToCartAnimation: playAddToCartAnimation,
                                 categoryData: categoryData,
+                                onVariantsSelected: (selections) {
+                                  // Merge selections into _selectedItems (by variationId + isPack)
+                                  setState(() {
+                                    for (final s in selections) {
+                                      final Detail d = s['detail'] as Detail;
+                                      final int qty = s['quantity'] as int;
+                                      final bool isPack = s['isPack'] as bool;
+                                      final String key = '${d.variationId}_${isPack ? 'P' : 'U'}';
+                                      final idx = _selectedItems.indexWhere((e) {
+                                        final Detail ed = e['detail'] as Detail;
+                                        final bool eIsPack = e['isPack'] as bool;
+                                        return ed.variationId == d.variationId && eIsPack == isPack;
+                                      });
+                                      if (idx >= 0) {
+                                        _selectedItems[idx]['quantity'] = (_selectedItems[idx]['quantity'] as int) + qty;
+                                      } else {
+                                        _selectedItems.add(s);
+                                      }
+                                    }
+                                  });
+                                },
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -897,6 +961,172 @@ class PromotionDetails extends StatelessWidget {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showSelectedItemsDialog(
+    BuildContext context,
+    void Function(void Function()) parentSetState,
+    List<Map<String, dynamic>> selectedItems,
+    ProductsController productController,
+    CustomerAndOrderController customerAndOrderController,
+    String? minOrderAmountFormatted,
+  ) {
+    double? _parseAmount(String? s) {
+      if (s == null || s.isEmpty) return null;
+      final cleaned = s.replaceAll(RegExp(r'[^0-9\.]'), '');
+      return double.tryParse(cleaned);
+    }
+
+    double _priceForItem(Map<String, dynamic> e) {
+      final Detail d = e['detail'] as Detail;
+      final bool isPack = e['isPack'] as bool;
+      // Prefer sellingPackPrice when pack; fallback to sellPrice * pieces
+      if (isPack) {
+        final double pack = (d.sellingPackPrice?.toDouble() ?? 0);
+        if (pack > 0) return pack;
+        final double unit = double.tryParse(d.sellPrice.toString()) ?? 0;
+        final int pcs = (d.pieces ?? 1).toInt();
+        return unit * pcs;
+      } else {
+        return double.tryParse(d.sellPrice.toString()) ?? 0;
+      }
+    }
+
+    double _computeSelectedTotal() {
+      double total = 0;
+      for (final e in selectedItems) {
+        final int qty = (e['quantity'] as int); 
+        total += _priceForItem(e) * qty;
+      }
+      return total;
+    }
+
+    final double? _minOrderValue = _parseAmount(minOrderAmountFormatted);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Selected Items'),
+          content: SizedBox(
+            width: 500,
+            child: selectedItems.isEmpty
+                ? const Text('No items selected yet.')
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...selectedItems.map((e) {
+                        final Detail d = e['detail'] as Detail;
+                        final int qty = e['quantity'] as int;
+                        final bool isPack = e['isPack'] as bool;
+                        final String priceText = formatAmount(d.sellPrice);
+                        return ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(d.productName ?? d.variationName ?? ''),
+                          subtitle: Text('${d.variationName ?? ''} • ${isPack ? 'Pack' : 'Pcs'}'),
+                          trailing: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('Qty: $qty'),
+                              Text(priceText),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Total:', style: TextStyle(fontWeight: FontWeight.w600)),
+                          Builder(
+                            builder: (_) {
+                              final total = _computeSelectedTotal();
+                              return Text(
+                                formatAmount(total.toString()),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      if (_minOrderValue != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Min Order:', style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(minOrderAmountFormatted ?? ''),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: selectedItems.isEmpty
+                  ? null
+                  : () async {
+                      final currentTotal = _computeSelectedTotal();
+                      if (_minOrderValue != null && currentTotal < _minOrderValue) {
+                        showCustomToastDisplay(
+                          context,
+                          'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
+                          Colors.orange,
+                          Icons.warning,
+                        );
+                        return;
+                      }
+                      final customerId = customerAndOrderController
+                              .customerId.value.isNotEmpty
+                          ? customerAndOrderController.customerId.value
+                          : productController.selectedCustomerId.value;
+
+                      for (final e in selectedItems) {
+                        final Detail detail = e['detail'] as Detail;
+                        final int qty = e['quantity'] as int;
+                        final bool isPack = e['isPack'] as bool;
+                        final String productName = (e['productName'] as String?) ?? '';
+                        final String inclTax = (e['inclTax'] as String?) ?? '';
+                        final int catId = (e['catId'] as int?) ?? 0;
+
+                        await CartDatabaseManager().addToCart(
+                          customerId: customerId,
+                          localCount: qty,
+                          detail: detail,
+                          isPack: isPack,
+                          productName: productName,
+                          inclTax: inclTax,
+                          isChcked: true,
+                          catId: catId,
+                        );
+                        productController.isCartModified.value = true;
+                      }
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                        cartProvider.updateCartCount(customerId);
+                        cartProvider.getCartItemCounts(customerId);
+                      });
+
+                      Navigator.pop(context); // close selected items dialog
+                      Navigator.pop(context); // close Select Products dialog
+
+                      parentSetState(() {
+                        selectedItems.clear();
+                      });
+                    },
+              child: const Text('Add to Cart'),
+            ),
+          ],
         );
       },
     );

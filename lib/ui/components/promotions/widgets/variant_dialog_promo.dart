@@ -901,7 +901,7 @@ class _ProductVariantDialoguePromoState
                         child: Row(
                           children: [
                             CustomText(
-                              content: "Add to Cart",
+                              content: "Add to Selection",
                               fontSize: screenWidth * 0.02,
                               color: Colors.white,
                             ),
@@ -909,7 +909,7 @@ class _ProductVariantDialoguePromoState
                               width: screenWidth * 0.02,
                             ),
                             Icon(
-                              EneftyIcons.shopping_cart_outline,
+                              Icons.shopping_bag,
                               size: screenWidth * 0.03,
                               color: white,
                             )

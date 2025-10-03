@@ -51,6 +51,9 @@ class CartItem extends HiveObject {
   @HiveField(14)
   String? promoCode;
 
+  @HiveField(15)
+  String? promoMsg;
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -67,6 +70,7 @@ class CartItem extends HiveObject {
     this.catId,
     this.isPromo,
     this.promoCode,
+    this.promoMsg,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -86,6 +90,7 @@ class CartItem extends HiveObject {
       catId: json['categories_id'],
       isPromo: json['is_promo'],
       promoCode: json['promo_code'],
+      promoMsg: json['promo_msg'],
     );
   }
 
@@ -105,7 +110,8 @@ class CartItem extends HiveObject {
       'boxType': boxType,
       'categories_id': catId,
       'is_promo': isPromo,
-      'promo_code': promoCode
+      'promo_code': promoCode,
+      'promo_msg': promoMsg
     };
   }
 
@@ -125,6 +131,7 @@ class CartItem extends HiveObject {
     int? catId,
     bool? isPromo,
     String? promoCode,
+    String? promoMsg,
   }) {
     return CartItem(
       detail: detail ?? this.detail,
@@ -142,6 +149,7 @@ class CartItem extends HiveObject {
       catId: catId ?? this.catId,
       isPromo: isPromo ?? this.isPromo,
       promoCode: promoCode ?? this.promoCode,
+      promoMsg: promoMsg ?? this.promoMsg,
     );
   }
 }

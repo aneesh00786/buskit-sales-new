@@ -621,6 +621,7 @@ class CartDatabaseManager {
   required bool isChcked,
   required int catId,
   String? promoCode,
+  String? promoMsg,
 }) async {
   if (localCount <= 0) {
     throw ArgumentError("[PROMO] Error: Count must be greater than zero.");
@@ -712,6 +713,7 @@ class CartDatabaseManager {
         catId: catId,
         isPromo: true,
         promoCode: promoCode,
+        promoMsg: promoMsg,
       );
 
       await cartBox.add(newCartItem);

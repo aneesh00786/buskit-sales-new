@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -83,38 +82,73 @@ class GroupedItemDataRows {
                   fontSize: fontSize,
                   maxLines: groupedItem.promoCode == null ? 2 : 1,
                 ),
-                if (groupedItem.promoCode != null) ...[
-                  Container(
-                    height: 30,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.green.shade400,
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 8),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color.fromARGB(255, 222, 255, 223),
-                              Color.fromARGB(255, 185, 255, 187),
+                if (groupedItem.promoCode != null &&
+                    groupedItem.promoMsg != null) ...[
+                  InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          return AlertDialog(
+                            title: const Text('Applied Offer'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(groupedItem.promoCode ?? '',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.green.shade800,
+                                        fontSize: 20)),
+                                const SizedBox(height: 8),
+                                Text(groupedItem.promoMsg ?? '',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16)),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('OK'),
+                              )
                             ],
-                          ),
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      height: 30,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.green.shade400,
                         ),
-                        child: Text(
-                          "${groupedItem.promoCode}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.green.shade800,
-                            fontWeight: FontWeight.w600,
+                        padding: const EdgeInsets.all(2),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 8),
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                Color.fromARGB(255, 222, 255, 223),
+                                Color.fromARGB(255, 185, 255, 187),
+                              ],
+                            ),
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          child: Text(
+                            "${groupedItem.promoCode}",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.green.shade800,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ),

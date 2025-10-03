@@ -233,10 +233,11 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
 
   @override
   Widget build(BuildContext context) {
-    const double desiredItemWidth = 300.0;
+    const double desiredItemWidth = 280.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
             final double fontSize =
@@ -510,7 +511,12 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
+                                                    maxLines: 1,
+                                                    textAlign: TextAlign.right,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
+                                                  SizedBox(width: 3),
                                                   product.inclTax != '' &&
                                                           product.inclTax !=
                                                               null
@@ -539,7 +545,7 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
                                                                             .w600),
                                                           ),
                                                         )
-                                                      : Container()
+                                                      : SizedBox.shrink()
                                                 ],
                                               ),
                                             ),

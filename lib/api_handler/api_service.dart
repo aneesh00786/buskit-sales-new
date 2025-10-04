@@ -35,7 +35,6 @@ import 'package:provider/provider.dart';
 class ApiService {
   static const String _baseUrl = ApiConstants.baseUrl1;
   final LocalStorage localStorage = LocalStorage();
-  final ConnectivityService _connectivityService = ConnectivityService();
   final Dio dio = Dio();
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 

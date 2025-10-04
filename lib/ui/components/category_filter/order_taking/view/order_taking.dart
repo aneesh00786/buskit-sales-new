@@ -1366,6 +1366,27 @@ class _OrderTakingState extends State<OrderTaking>
     );
   }
 
+  // void _selectCategory(String categoryName) {
+  //   setState(() {
+  //     _selectedCategory = categoryName;
+  //     _isDrawerOpen = true;
+  //   });
+
+  //   // Cancel any existing drawer timer before starting a new one
+  //   _drawerTimer?.cancel();
+
+  //   log('Selected Category: $_selectedCategory');
+
+  //   _drawerTimer = Timer(const Duration(seconds: 3), () {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isDrawerOpen = false;
+  //       });
+  //       log('Drawer closed after 3 seconds');
+  //     }
+  //   });
+  // }
+
   void _selectCategory(String categoryName) {
     setState(() {
       _selectedCategory = categoryName;
@@ -1385,6 +1406,37 @@ class _OrderTakingState extends State<OrderTaking>
         log('Drawer closed after 3 seconds');
       }
     });
+
+    // Find the category and automatically select its first subcategory
+    List<CategoryData> categories =
+        widget.productsController.categoryData.value.data ?? [];
+    CategoryData? selectedCategory = categories.firstWhere(
+      (category) => category.categoryName == categoryName,
+      orElse: () => CategoryData(),
+    );
+
+    if (selectedCategory.subCategoryItem != null &&
+        selectedCategory.subCategoryItem!.isNotEmpty) {
+      final firstSubCategory = selectedCategory.subCategoryItem![0];
+      final firstSubCategoryId = firstSubCategory.id ?? '';
+      final firstSubCategoryName = firstSubCategory.subCategory ?? '';
+
+      log('_selectCategory: Auto-selecting first subcategory - Name: $firstSubCategoryName, ID: $firstSubCategoryId');
+
+      // Set the selected subcategory in the controller
+      widget.productsController.selectedSubCategoryId.value =
+          firstSubCategoryId;
+      widget.productsController.selectedSubCategoryName.value =
+          firstSubCategoryName;
+
+      // Update the _id variable so ProductGrid can detect the change
+      setState(() {
+        _id = firstSubCategoryId;
+      });
+
+      // Load products for the first subcategory
+      _loadProductsForSubCategory(firstSubCategoryId);
+    }
   }
 
   void _showCartDialog(GlobalKey<CartDialogueState> dialogKey) {

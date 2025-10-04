@@ -3460,4 +3460,65 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch promotions data: $error');
     }
   }
+
+  Future<List<ProductModel>> getProductByBrand(
+    List<String> brandNames,
+  ) async {
+    final isConnected = await ConnectivityService().isOnline();
+    log('Internet Connection: $isConnected');
+
+    if (isConnected) {
+      try {
+        final request = {
+          "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+          "brand_names": brandNames,
+        };
+        log('API Request Parameters: $request');
+
+        final response = await dio.postbycustom(
+          ApiConstants.fetchProductByBrand,
+          data: request,
+        );
+
+        log('API Response Status Code: ${response.statusCode}');
+
+        if (response.statusCode == 200) {
+          final responseData = response.data;
+
+          // Parse the new response structure
+          final productApiResponse = ProductApiResponse.fromJson(responseData);
+          log('Parsed ProductApiResponse - Total scid groups: ${productApiResponse.data.length}');
+
+          // Collect products from ALL subcategories
+          List<ProductModel> allProducts = [];
+          for (var scidGroup in productApiResponse.data) {
+            log('Adding products from scid group: ${scidGroup.scid} '
+                '(contains ${scidGroup.products.length} products)');
+            allProducts.addAll(scidGroup.products);
+          }
+
+          log('Total Products Fetched: ${allProducts.length}');
+          log('=== getProductByBrand END (Online) ===');
+          return allProducts;
+        } else {
+          log("Failed to load products, status code: ${response.statusCode}");
+          log('=== getProductByBrand END (API Error) ===');
+          return [];
+        }
+      } catch (e) {
+        log("Error fetching products: $e");
+        handleExceptionMessage(
+          apiName: 'Get Product By Brand',
+          response: e is DioException ? e.response : null,
+        );
+        log('=== getProductByBrand END (Exception) ===');
+        return [];
+      }
+    } else {
+      // Offline: simply return empty (since no caching is used)
+      log('Offline mode: no cached products available');
+      log('=== getProductByBrand END (Offline) ===');
+      return [];
+    }
+  }
 }

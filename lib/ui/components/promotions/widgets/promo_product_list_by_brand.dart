@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/widgets/variant_dialog_promo.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
@@ -19,6 +20,7 @@ class ProductGridPromoByBrand extends StatefulWidget {
   final VoidCallback playAddToCartAnimation;
   final List<ProductModel> products; // ✅ directly passed
   final ValueChanged<List<Map<String, dynamic>>>? onVariantsSelected;
+  final PromotionReponse? promo;
 
   ProductGridPromoByBrand({
     super.key,
@@ -28,6 +30,7 @@ class ProductGridPromoByBrand extends StatefulWidget {
     required this.playAddToCartAnimation,
     required this.products,
     this.onVariantsSelected,
+    this.promo,
   });
 
   @override
@@ -510,6 +513,7 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
           detailsCopy: detailsCopy,
           productController: widget.productsController,
           onVariantsSelected: widget.onVariantsSelected,
+          // promo: widget.promo,
         );
       },
     );

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+
 import 'dart:async';
 import 'dart:developer';
 
@@ -144,14 +146,14 @@ class PromotionDetails extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Builder(builder: (context) {
                             // Flattened variants for total calculation
-                            final List<dynamic> _allVariantsStatic = promo
+                            final List<dynamic> allVariantsStatic = promo
                                     .products
                                     ?.expand((p) => p.variants ?? [])
                                     .toList() ??
                                 [];
 
                             // If multiple products, show product selection dialog
-                            if (_allVariantsStatic.length > 1) {
+                            if (allVariantsStatic.length > 1) {
                               return InkWell(
                                 onTap: () async {
                                   if ((customerAndOrderController
@@ -161,7 +163,7 @@ class PromotionDetails extends StatelessWidget {
                                     _showMultiProductSelectionDialog(
                                       context,
                                       promo,
-                                      _allVariantsStatic,
+                                      allVariantsStatic,
                                     );
                                   } else {
                                     showDialog(
@@ -216,21 +218,23 @@ class PromotionDetails extends StatelessWidget {
                               );
                             }
 
-                            // Single product - show quantity selector
+                            // Single product - show quantity selector or tier dropdown for tiered_discount
                             final ValueNotifier<int> qty =
                                 ValueNotifier<int>(1);
+                            final ValueNotifier<Tier?> selectedTier =
+                                ValueNotifier<Tier?>(null);
 
-                            double? _parseAmount(String? s) {
+                            double? parseAmount(String? s) {
                               if (s == null || s.isEmpty) return null;
                               final cleaned =
                                   s.replaceAll(RegExp(r'[^0-9\.]'), '');
                               return double.tryParse(cleaned);
                             }
 
-                            Future<bool> _validateMinOrderBeforeAdd(
+                            Future<bool> validateMinOrderBeforeAdd(
                                 List<dynamic> allVariants) async {
                               final double? minOrder =
-                                  _parseAmount(promo.minOrderValue?.toString());
+                                  parseAmount(promo.minOrderValue?.toString());
                               if (minOrder == null) return true;
                               double total = 0;
                               for (final v in allVariants) {
@@ -286,7 +290,7 @@ class PromotionDetails extends StatelessWidget {
                                     valueListenable: qty,
                                     builder: (context, value, _) {
                                       double unitSum = 0;
-                                      for (final v in _allVariantsStatic) {
+                                      for (final v in allVariantsStatic) {
                                         final double unit = double.tryParse(
                                                 (v.sellPrice ?? '0')
                                                     .toString()) ??
@@ -306,55 +310,126 @@ class PromotionDetails extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                // Quantity selector
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.grey.shade400),
-                                        color: Colors.white,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                            tooltip: 'Decrease',
-                                            icon: const Icon(Icons.remove),
-                                            onPressed: () {
-                                              if (qty.value > 1)
-                                                qty.value = qty.value - 1;
-                                            },
-                                          ),
-                                          ValueListenableBuilder<int>(
-                                            valueListenable: qty,
-                                            builder: (context, value, _) =>
-                                                Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
-                                              child: Text(
-                                                '$value',
-                                                style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
+                                // Show tier dropdown for tiered_discount, quantity selector for others
+                                if (promo.promoType == "tiered_discount" &&
+                                    promo.tiers != null &&
+                                    promo.tiers!.isNotEmpty) ...[
+                                  // Tier dropdown for tiered_discount
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        width: 200,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.grey.shade400),
+                                          color: Colors.white,
+                                        ),
+                                        child: ValueListenableBuilder<Tier?>(
+                                          valueListenable: selectedTier,
+                                          builder: (context, value, _) =>
+                                              DropdownButtonHideUnderline(
+                                            child: DropdownButton<Tier>(
+                                              value: value,
+                                              hint: const Text('Select Tier'),
+                                              isExpanded: true,
+                                              items:
+                                                  promo.tiers!.map((Tier tier) {
+                                                final requiredQty =
+                                                    (tier.buyQuantity as num?)
+                                                            ?.toInt() ??
+                                                        0;
+                                                final qtyType =
+                                                    tier.buyQuantityType ?? '';
+                                                final discountValue =
+                                                    double.tryParse(tier
+                                                                .discountValue
+                                                                ?.toString() ??
+                                                            '0') ??
+                                                        0;
+                                                return DropdownMenuItem<Tier>(
+                                                  value: tier,
+                                                  child: Text(
+                                                    '${requiredQty} ${qtyType} - ${discountValue.toStringAsFixed(0)}% off',
+                                                    style: const TextStyle(
+                                                        fontSize: 14),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (Tier? newValue) {
+                                                selectedTier.value = newValue;
+                                                if (newValue != null) {
+                                                  // Set quantity to the tier's required quantity
+                                                  qty.value =
+                                                      (newValue.buyQuantity
+                                                                  as num?)
+                                                              ?.toInt() ??
+                                                          1;
+                                                }
+                                              },
                                             ),
                                           ),
-                                          IconButton(
-                                            tooltip: 'Increase',
-                                            icon: const Icon(Icons.add),
-                                            onPressed: () {
-                                              qty.value = qty.value + 1;
-                                            },
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
+                                ] else ...[
+                                  // Quantity selector for non-tiered_discount promotions
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.grey.shade400),
+                                          color: Colors.white,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                              tooltip: 'Decrease',
+                                              icon: const Icon(Icons.remove),
+                                              onPressed: () {
+                                                if (qty.value > 1) {
+                                                  qty.value = qty.value - 1;
+                                                }
+                                              },
+                                            ),
+                                            ValueListenableBuilder<int>(
+                                              valueListenable: qty,
+                                              builder: (context, value, _) =>
+                                                  Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0),
+                                                child: Text(
+                                                  '$value',
+                                                  style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              tooltip: 'Increase',
+                                              icon: const Icon(Icons.add),
+                                              onPressed: () {
+                                                qty.value = qty.value + 1;
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                                 const SizedBox(height: 12),
                                 InkWell(
                                   onTap: () async {
@@ -379,6 +454,19 @@ class PromotionDetails extends StatelessWidget {
                                                   .customerId.value
                                               : productController
                                                   .selectedCustomerId.value;
+
+                                      // Validate tier selection for tiered_discount promotions
+                                      if (promo.promoType ==
+                                              "tiered_discount" &&
+                                          selectedTier.value == null) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Please select a tier discount",
+                                          Colors.orange,
+                                          Icons.warning,
+                                        );
+                                        return;
+                                      }
 
                                       // --- Percentage Discount based promos ---
                                       if (promo.promoType ==
@@ -423,7 +511,7 @@ class PromotionDetails extends StatelessWidget {
 
                                         // Validate min order with selected quantity
                                         final allowed =
-                                            await _validateMinOrderBeforeAdd(
+                                            await validateMinOrderBeforeAdd(
                                                 allVariants);
                                         if (!allowed) return;
 
@@ -499,6 +587,130 @@ class PromotionDetails extends StatelessWidget {
                                         log("[PROMO] === Percentage Discount Promo Completed ===");
                                       }
 
+                                      // --- Tiered Discount promos ---
+                                      if (promo.promoType ==
+                                          "tiered_discount") {
+                                        log("[PROMO] === Tiered Discount Promo Started ===");
+                                        log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
+
+                                        log("[PROMO] Flattened variants count: ${allVariants.length}");
+
+                                        if (allVariants.isEmpty) {
+                                          log("[PROMO] No variants found in promo → stopping flow");
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
+
+                                        // Validate min order with selected quantity
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
+
+                                        for (final v in allVariants) {
+                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                              "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+
+                                          // Calculate tiered discount for this quantity
+                                          double? tieredDiscount;
+                                          if (promo.promoType ==
+                                                  "tiered_discount" &&
+                                              selectedTier.value != null) {
+                                            // For tiered_discount, use the selected tier's discount
+                                            tieredDiscount = double.tryParse(
+                                                    selectedTier.value!
+                                                            .discountValue
+                                                            ?.toString() ??
+                                                        '0') ??
+                                                0;
+                                            log("[PROMO] Using selected tier discount: $tieredDiscount% for tiered_discount");
+                                          } else {
+                                            // For other promotions, calculate based on quantity
+                                            tieredDiscount =
+                                                _calculateTieredDiscount(
+                                                    promo, qty.value, true);
+                                            log("[PROMO] Tiered discount calculated: $tieredDiscount% for quantity: ${qty.value}");
+                                          }
+
+                                          // Map each variant into your Detail model
+                                          final detail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                            discount: tieredDiscount,
+                                          );
+
+                                          log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                              "productId: ${detail.productId}, name: ${detail.productName}");
+
+                                          final bool isPack =
+                                              detail.saleBy == 'Pack';
+                                          log("[PROMO] IsPack? $isPack");
+
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
+                                          log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
+
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: qty.value,
+                                            detail: detail,
+                                            isPack: true,
+                                            productName: v.productName ?? '',
+                                            inclTax: v.tax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg: promo.discountText,
+                                          );
+
+                                          log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
+
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          log("[PROMO] Updating cart count for customer: $customerId");
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        log("[PROMO] === Tiered Discount Promo Completed ===");
+                                      }
+
                                       // --- Free Item promos ---
                                       if (promo.promoType == "free_gift" ||
                                           promo.promoType == "free_sample") {
@@ -526,7 +738,7 @@ class PromotionDetails extends StatelessWidget {
 
                                         // Validate min order with selected quantity
                                         final allowed =
-                                            await _validateMinOrderBeforeAdd(
+                                            await validateMinOrderBeforeAdd(
                                                 allVariants);
                                         if (!allowed) return;
 
@@ -626,7 +838,7 @@ class PromotionDetails extends StatelessWidget {
 
                                         // Validate min order using PAID quantity only
                                         final allowed =
-                                            await _validateMinOrderBeforeAdd(
+                                            await validateMinOrderBeforeAdd(
                                                 allVariants);
                                         if (!allowed) return;
 
@@ -761,7 +973,7 @@ class PromotionDetails extends StatelessWidget {
 
                                         // Validate min order against PAID items only
                                         final allowed =
-                                            await _validateMinOrderBeforeAdd(
+                                            await validateMinOrderBeforeAdd(
                                                 paidVariants);
                                         if (!allowed) return;
 
@@ -1146,10 +1358,14 @@ class PromotionDetails extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) {
-        List<Map<String, dynamic>> _selectedItems = [];
+        List<Map<String, dynamic>> selectedItems = [];
 
         return StatefulBuilder(
           builder: (context, setState) {
+            // Add tier selection for tiered_discount promotions
+            final ValueNotifier<Tier?> selectedTier =
+                ValueNotifier<Tier?>(null);
+
             return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -1209,6 +1425,8 @@ class PromotionDetails extends StatelessWidget {
                       ),
                     ),
 
+                    // Tier selection for tiered_discount promotions
+
                     // Product List
                     Expanded(
                       child: Padding(
@@ -1223,11 +1441,11 @@ class PromotionDetails extends StatelessWidget {
                                 int qty = 0; // Start with 0 quantity
 
                                 // Check if this variant is already selected
-                                final existingIndex = _selectedItems.indexWhere(
+                                final existingIndex = selectedItems.indexWhere(
                                     (e) => e['variant'].id == variant.id);
                                 if (existingIndex >= 0) {
-                                  qty = _selectedItems[existingIndex]
-                                      ['quantity'] as int;
+                                  qty = selectedItems[existingIndex]['quantity']
+                                      as int;
                                 }
 
                                 return Card(
@@ -1322,7 +1540,7 @@ class PromotionDetails extends StatelessWidget {
                                                     _updateSelectedItems(
                                                         variant,
                                                         qty,
-                                                        _selectedItems,
+                                                        selectedItems,
                                                         setState);
                                                   }
                                                 },
@@ -1349,7 +1567,7 @@ class PromotionDetails extends StatelessWidget {
                                                   _updateSelectedItems(
                                                       variant,
                                                       qty,
-                                                      _selectedItems,
+                                                      selectedItems,
                                                       setState);
                                                 },
                                               ),
@@ -1383,7 +1601,7 @@ class PromotionDetails extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Total Items: ${_selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
+                                  'Total Items: ${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -1397,7 +1615,7 @@ class PromotionDetails extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Total Amount: ${formatAmount(_computeTotalAmount(_selectedItems))}',
+                                  'Total Amount: ${formatAmount(_computeTotalAmount(selectedItems))}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -1409,7 +1627,7 @@ class PromotionDetails extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton(
-                            onPressed: _selectedItems.isEmpty
+                            onPressed: selectedItems.isEmpty
                                 ? null
                                 : () async {
                                     final customerId =
@@ -1420,10 +1638,22 @@ class PromotionDetails extends StatelessWidget {
                                             : productController
                                                 .selectedCustomerId.value;
 
+                                    // Validate tier selection for tiered_discount promotions
+                                    if (promo.promoType == "tiered_discount" &&
+                                        selectedTier.value == null) {
+                                      showCustomToastDisplay(
+                                        context,
+                                        "Please select a tier discount",
+                                        Colors.orange,
+                                        Icons.warning,
+                                      );
+                                      return;
+                                    }
+
                                     // Validate min order
                                     final double total = double.tryParse(
                                             _computeTotalAmount(
-                                                _selectedItems)) ??
+                                                selectedItems)) ??
                                         0;
 
                                     final double? minOrder =
@@ -1443,7 +1673,7 @@ class PromotionDetails extends StatelessWidget {
                                     }
 
                                     // Add all selected items to cart
-                                    for (final e in _selectedItems) {
+                                    for (final e in selectedItems) {
                                       final variant = e['variant'] as dynamic;
                                       final int qty = e['quantity'] as int;
 
@@ -1467,12 +1697,21 @@ class PromotionDetails extends StatelessWidget {
                                         imageUrl: variant.imageUrl,
                                         productName: variant.productName,
                                         discount: promo.promoType ==
-                                                "percentage_discount"
-                                            ? double.tryParse(
-                                                promo.discountValue.toString())
-                                            : double.tryParse(promo
-                                                .discountPercentage
-                                                .toString()),
+                                                    "tiered_discount" &&
+                                                selectedTier.value != null
+                                            ? double.tryParse(selectedTier
+                                                        .value!.discountValue
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0
+                                            : promo.promoType ==
+                                                    "percentage_discount"
+                                                ? double.tryParse(promo
+                                                    .discountValue
+                                                    .toString())
+                                                : double.tryParse(promo
+                                                    .discountPercentage
+                                                    .toString()),
                                       );
 
                                       final catId = extractCategoryId(
@@ -1489,6 +1728,7 @@ class PromotionDetails extends StatelessWidget {
                                         promo: promo,
                                         productController: productController,
                                         context: context,
+                                        selectedTier: selectedTier.value,
                                       );
                                     }
 
@@ -1506,7 +1746,7 @@ class PromotionDetails extends StatelessWidget {
                                     Navigator.pop(context);
                                     showCustomToastDisplay(
                                       context,
-                                      "Added ${_selectedItems.length} products to cart",
+                                      "Added ${selectedItems.length} products to cart",
                                       Colors.green.shade800,
                                       Icons.check,
                                     );
@@ -1568,6 +1808,7 @@ class PromotionDetails extends StatelessWidget {
     required PromotionReponse promo,
     required ProductsController productController,
     required BuildContext context,
+    Tier? selectedTier,
   }) async {
     // Determine discount value based on promo type
     double? discountValue;
@@ -1579,6 +1820,14 @@ class PromotionDetails extends StatelessWidget {
       discountValue = promo.promoType == "percentage_discount"
           ? double.tryParse(promo.discountValue.toString())
           : double.tryParse(promo.discountPercentage.toString());
+    } else if (promo.promoType == "tiered_discount") {
+      // Handle tiered discount - use selected tier if available, otherwise calculate
+      if (selectedTier != null) {
+        discountValue =
+            double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
+      } else {
+        discountValue = _calculateTieredDiscount(promo, localCount, isPack);
+      }
     }
 
     // Create detail with discount if applicable
@@ -1618,6 +1867,46 @@ class PromotionDetails extends StatelessWidget {
     productController.isCartModified.value = true;
   }
 
+  /// Calculate tiered discount based on quantity and tiers
+  double? _calculateTieredDiscount(
+      PromotionReponse promo, int quantity, bool isPack) {
+    if (promo.tiers == null || promo.tiers!.isEmpty) return null;
+
+    // Sort tiers by buy_quantity in descending order to find the highest applicable tier
+    final sortedTiers = List<Tier>.from(promo.tiers!);
+    sortedTiers.sort((a, b) {
+      final aQty = (a.buyQuantity as num?)?.toInt() ?? 0;
+      final bQty = (b.buyQuantity as num?)?.toInt() ?? 0;
+      return bQty.compareTo(aQty); // Descending order
+    });
+
+    // Find the highest tier that the quantity qualifies for
+    for (final tier in sortedTiers) {
+      final requiredQty = (tier.buyQuantity as num?)?.toInt() ?? 0;
+      final qtyType = (tier.buyQuantityType as String?)?.toLowerCase() ?? '';
+
+      // Check if quantity type matches (pack/box/unit)
+      bool typeMatches = false;
+      if (isPack) {
+        typeMatches =
+            qtyType == 'pack' || qtyType == 'box' || qtyType == 'carton';
+      } else {
+        typeMatches =
+            qtyType == 'unit' || qtyType == 'piece' || qtyType == 'pcs';
+      }
+
+      if (quantity >= requiredQty && typeMatches) {
+        final discountValue =
+            double.tryParse(tier.discountValue?.toString() ?? '0') ?? 0;
+        log("[TIERED] Applied tier: $requiredQty $qtyType → $discountValue% discount for quantity: $quantity");
+        return discountValue;
+      }
+    }
+
+    log("[TIERED] No tier applicable for quantity: $quantity, isPack: $isPack");
+    return null;
+  }
+
   void _updateSelectedItems(
     dynamic variant,
     int quantity,
@@ -1642,139 +1931,6 @@ class PromotionDetails extends StatelessWidget {
     });
   }
 
-  void _showPromoDialog(BuildContext context, PromotionReponse promo) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(promo.title ?? "Promotion"),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Always show the main offer text
-                  Text(
-                    promo.discountText,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  /// Scope (only if not "All Products")
-                  if (promo.productScope != "all") ...[
-                    Text("Applicable For: ${promo.scopeText}"),
-                    const SizedBox(height: 8),
-                  ],
-
-                  /// Min order value (if defined)
-                  if (promo.minOrderText != null) ...[
-                    Text("Minimum Order: ${promo.minOrderText}"),
-                    const SizedBox(height: 8),
-                  ],
-
-                  /// Time-based conditions
-                  if (promo.daysText != null)
-                    Text("Valid on: ${promo.daysText}"),
-                  if (promo.promoType == "happy_hours" &&
-                      promo.startTime != null &&
-                      promo.endTime != null) ...[
-                    Text("Timing: ${promo.startTime} - ${promo.endTime}"),
-                    const SizedBox(height: 8),
-                  ],
-                  if (promo.promoType == "flash_sale" &&
-                      promo.saleDuration != null)
-                    Text("Duration: ${promo.saleDuration} minutes"),
-                  if (promo.promoType == "limited_time" &&
-                      promo.offerDuration != null)
-                    Text("Duration: ${promo.offerDuration} hours"),
-
-                  /// Applicable products (only if present)
-                  if (promo.products != null && promo.products!.isNotEmpty) ...[
-                    const Divider(),
-                    const Text("Products:",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    ...promo.products!.map((p) {
-                      final variant = p.variants?.isNotEmpty == true
-                          ? p.variants!.first
-                          : null;
-                      return ListTile(
-                        dense: true,
-                        title: Text(variant?.productName ?? "Unknown"),
-                        subtitle: Text(variant?.variationName ?? ""),
-                      );
-                    }).toList(),
-                  ],
-
-                  /// Free items (gift / sample)
-                  if (promo.freeItems != null &&
-                      promo.freeItems!.isNotEmpty) ...[
-                    const Divider(),
-                    const Text("Free Item:",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    ...promo.freeItems!.map((f) =>
-                        Text("${f.giftName ?? f.sampleDetails ?? 'Item'} "
-                            "(Qty: ${f.quantity} ${f.quantityType})")),
-                  ],
-
-                  /// Bundle items
-                  if (promo.bundleItems != null &&
-                      promo.bundleItems!.isNotEmpty) ...[
-                    const Divider(),
-                    Text("Bundle Price: \$${promo.bundlePrice ?? ''}",
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    ...promo.bundleItems!.map((item) {
-                      final product = promo.products?.firstWhere(
-                        (p) => p.id == item.variantId,
-                      );
-                      final variant = product?.variants?.isNotEmpty == true
-                          ? product?.variants!.first
-                          : null;
-                      return ListTile(
-                        dense: true,
-                        title: Text(variant?.productName ?? "Unknown"),
-                        subtitle: Text(
-                            "${variant?.variationName ?? ""} x ${item.quantity} ${item.unitType}"),
-                      );
-                    }).toList(),
-                  ],
-
-                  /// Tiered discount details
-                  if (promo.extraInfoText != null) ...[
-                    const Divider(),
-                    const Text("Discount Tiers:",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    Text(promo.extraInfoText!),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // TODO: Apply offer logic
-              },
-              child: const Text("Apply Offer"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showProductSelectionByBrandDialog(
     BuildContext context,
     PromotionReponse promo,
@@ -1789,10 +1945,14 @@ class PromotionDetails extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) {
-        List<Map<String, dynamic>> _selectedItems = [];
+        List<Map<String, dynamic>> selectedItems = [];
 
         return StatefulBuilder(
           builder: (context, setState) {
+            // Add tier selection for tiered_discount promotions
+            final ValueNotifier<Tier?> selectedTier =
+                ValueNotifier<Tier?>(null);
+
             // Animation controller inside dialog
             final AnimationController animationController = AnimationController(
               duration: const Duration(milliseconds: 500),
@@ -1867,7 +2027,7 @@ class PromotionDetails extends StatelessWidget {
                                 _showSelectedItemsDialog(
                                   context,
                                   setState,
-                                  _selectedItems,
+                                  selectedItems,
                                   productController,
                                   customerAndOrderController,
                                   minOrderAmount,
@@ -1894,7 +2054,7 @@ class PromotionDetails extends StatelessWidget {
                                     color: Colors.white,
                                     size: 24,
                                   ),
-                                  if (_selectedItems.isNotEmpty)
+                                  if (selectedItems.isNotEmpty)
                                     Positioned(
                                       right: -4,
                                       top: -4,
@@ -1905,7 +2065,7 @@ class PromotionDetails extends StatelessWidget {
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
-                                          '${_selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
+                                          '${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
@@ -1920,7 +2080,7 @@ class PromotionDetails extends StatelessWidget {
                                 _showSelectedItemsDialog(
                                   context,
                                   setState,
-                                  _selectedItems,
+                                  selectedItems,
                                   productController,
                                   customerAndOrderController,
                                   minOrderAmount,
@@ -1945,6 +2105,7 @@ class PromotionDetails extends StatelessWidget {
                             id: "", // no subcategory filtering
                             playAddToCartAnimation: playAddToCartAnimation,
                             products: productList,
+                            promo: promo,
                             onVariantsSelected: (selections) {
                               // Merge selections into _selectedItems (by variationId + isPack)
                               setState(() {
@@ -1952,19 +2113,19 @@ class PromotionDetails extends StatelessWidget {
                                   final Detail d = s['detail'] as Detail;
                                   final int qty = s['quantity'] as int;
                                   final bool isPack = s['isPack'] as bool;
-                                  final idx = _selectedItems.indexWhere((e) {
+                                  final idx = selectedItems.indexWhere((e) {
                                     final Detail ed = e['detail'] as Detail;
                                     final bool eIsPack = e['isPack'] as bool;
                                     return ed.variationId == d.variationId &&
                                         eIsPack == isPack;
                                   });
                                   if (idx >= 0) {
-                                    _selectedItems[idx]['quantity'] =
-                                        (_selectedItems[idx]['quantity']
+                                    selectedItems[idx]['quantity'] =
+                                        (selectedItems[idx]['quantity']
                                                 as int) +
                                             qty;
                                   } else {
-                                    _selectedItems.add(s);
+                                    selectedItems.add(s);
                                   }
                                 }
                               });
@@ -1989,7 +2150,7 @@ class PromotionDetails extends StatelessWidget {
     CategoryModel categoryData,
     String? minOrderAmount,
   ) {
-    final double _drawerWidth = 300.0;
+    final double drawerWidth = 300.0;
     final ProductsController productController = Get.find<ProductsController>();
     final CustomerAndOrderController customerAndOrderController =
         Get.find<CustomerAndOrderController>();
@@ -1997,27 +2158,31 @@ class PromotionDetails extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) {
-        bool _isDrawerOpen = true;
-        String _selectedCategory = '';
-        String _selectedOption = '';
-        String _id = '';
-        Timer? _drawerTimer;
-        List<Map<String, dynamic>> _selectedItems = [];
+        bool isDrawerOpen = true;
+        String selectedCategory = '';
+        String selectedOption = '';
+        String id = '';
+        Timer? drawerTimer;
+        List<Map<String, dynamic>> selectedItems = [];
 
         // Pre-select first category + subcategory
         if (categoryData.data != null && categoryData.data!.isNotEmpty) {
           final firstCategory = categoryData.data![0];
-          _selectedCategory = firstCategory.categoryName ?? '';
+          selectedCategory = firstCategory.categoryName ?? '';
           if (firstCategory.subCategoryItem != null &&
               firstCategory.subCategoryItem!.isNotEmpty) {
             final firstSub = firstCategory.subCategoryItem![0];
-            _id = firstSub.id ?? '';
-            _selectedOption = firstSub.subCategory ?? '';
+            id = firstSub.id ?? '';
+            selectedOption = firstSub.subCategory ?? '';
           }
         }
 
         return StatefulBuilder(
           builder: (context, setState) {
+            // Add tier selection for tiered_discount promotions
+            final ValueNotifier<Tier?> selectedTier =
+                ValueNotifier<Tier?>(null);
+
             // Animation controller inside dialog
             final AnimationController animationController = AnimationController(
               duration: const Duration(milliseconds: 500),
@@ -2031,20 +2196,20 @@ class PromotionDetails extends StatelessWidget {
                   .then((_) => animationController.reverse());
             }
 
-            void _toggleDrawer() {
-              setState(() => _isDrawerOpen = !_isDrawerOpen);
+            void toggleDrawer() {
+              setState(() => isDrawerOpen = !isDrawerOpen);
 
-              _drawerTimer?.cancel();
-              if (_isDrawerOpen) {
-                _drawerTimer = Timer(const Duration(seconds: 3), () {
-                  setState(() => _isDrawerOpen = false);
+              drawerTimer?.cancel();
+              if (isDrawerOpen) {
+                drawerTimer = Timer(const Duration(seconds: 3), () {
+                  setState(() => isDrawerOpen = false);
                 });
               }
             }
 
-            void _selectCategory(String categoryName) {
+            void selectCategory(String categoryName) {
               setState(() {
-                _selectedCategory = categoryName;
+                selectedCategory = categoryName;
 
                 // Auto-select first subcategory of the new category
                 final category = categoryData.data!
@@ -2052,15 +2217,15 @@ class PromotionDetails extends StatelessWidget {
                 if (category.subCategoryItem != null &&
                     category.subCategoryItem!.isNotEmpty) {
                   final firstSub = category.subCategoryItem![0];
-                  _id = firstSub.id ?? '';
-                  _selectedOption = firstSub.subCategory ?? '';
+                  id = firstSub.id ?? '';
+                  selectedOption = firstSub.subCategory ?? '';
                 }
               });
             }
 
-            void _fetchProductsByCategory(String subCategoryId) {
+            void fetchProductsByCategory(String subCategoryId) {
               setState(() {
-                _id = subCategoryId;
+                id = subCategoryId;
                 // _selectedOption = subCategoryName;
               });
               // Trigger API call if needed
@@ -2129,7 +2294,7 @@ class PromotionDetails extends StatelessWidget {
                                 _showSelectedItemsDialog(
                                   context,
                                   setState,
-                                  _selectedItems,
+                                  selectedItems,
                                   productController,
                                   customerAndOrderController,
                                   minOrderAmount,
@@ -2158,7 +2323,7 @@ class PromotionDetails extends StatelessWidget {
                                     color: Colors.white,
                                     size: 24,
                                   ),
-                                  if (_selectedItems.isNotEmpty)
+                                  if (selectedItems.isNotEmpty)
                                     Positioned(
                                       right: -4,
                                       top: -4,
@@ -2169,7 +2334,7 @@ class PromotionDetails extends StatelessWidget {
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
-                                          '${_selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
+                                          '${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
@@ -2184,7 +2349,7 @@ class PromotionDetails extends StatelessWidget {
                                 _showSelectedItemsDialog(
                                   context,
                                   setState,
-                                  _selectedItems,
+                                  selectedItems,
                                   productController,
                                   customerAndOrderController,
                                   minOrderAmount,
@@ -2203,11 +2368,12 @@ class PromotionDetails extends StatelessWidget {
                             const SizedBox(width: 60),
                             Expanded(
                               child: ProductGridPromo(
-                                optionName: _selectedOption,
+                                optionName: selectedOption,
                                 productsController: productController,
-                                id: _id,
+                                id: id,
                                 playAddToCartAnimation: playAddToCartAnimation,
                                 categoryData: categoryData,
+                                promo: promo,
                                 onVariantsSelected: (selections) {
                                   // Merge selections into _selectedItems (by variationId + isPack)
                                   setState(() {
@@ -2215,10 +2381,7 @@ class PromotionDetails extends StatelessWidget {
                                       final Detail d = s['detail'] as Detail;
                                       final int qty = s['quantity'] as int;
                                       final bool isPack = s['isPack'] as bool;
-                                      final String key =
-                                          '${d.variationId}_${isPack ? 'P' : 'U'}';
-                                      final idx =
-                                          _selectedItems.indexWhere((e) {
+                                      final idx = selectedItems.indexWhere((e) {
                                         final Detail ed = e['detail'] as Detail;
                                         final bool eIsPack =
                                             e['isPack'] as bool;
@@ -2227,12 +2390,12 @@ class PromotionDetails extends StatelessWidget {
                                             eIsPack == isPack;
                                       });
                                       if (idx >= 0) {
-                                        _selectedItems[idx]['quantity'] =
-                                            (_selectedItems[idx]['quantity']
+                                        selectedItems[idx]['quantity'] =
+                                            (selectedItems[idx]['quantity']
                                                     as int) +
                                                 qty;
                                       } else {
-                                        _selectedItems.add(s);
+                                        selectedItems.add(s);
                                       }
                                     }
                                   });
@@ -2265,7 +2428,7 @@ class PromotionDetails extends StatelessWidget {
                                 size: 20,
                                 color: primaryColor,
                               ),
-                              onPressed: _toggleDrawer,
+                              onPressed: toggleDrawer,
                             ),
                             const SizedBox(height: 20),
                             Expanded(
@@ -2290,7 +2453,7 @@ class PromotionDetails extends StatelessWidget {
                                         ),
                                       ),
                                       onPressed: () =>
-                                          _selectCategory(categoryName),
+                                          selectCategory(categoryName),
                                     ),
                                   );
                                 },
@@ -2303,12 +2466,12 @@ class PromotionDetails extends StatelessWidget {
                   ),
 
                   /// Overlay when drawer is open
-                  if (_isDrawerOpen)
+                  if (isDrawerOpen)
                     Positioned.fill(
                       child: GestureDetector(
                         onTap: () {
-                          setState(() => _isDrawerOpen = false);
-                          _drawerTimer?.cancel();
+                          setState(() => isDrawerOpen = false);
+                          drawerTimer?.cancel();
                         },
                         child: Container(color: Colors.transparent),
                       ),
@@ -2319,11 +2482,11 @@ class PromotionDetails extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     top: 10,
                     bottom: 0,
-                    left: _isDrawerOpen ? 50 : -_drawerWidth,
+                    left: isDrawerOpen ? 50 : -drawerWidth,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 60),
                       child: Container(
-                        width: _drawerWidth,
+                        width: drawerWidth,
                         color: Colors.white,
                         child: CategoryListPromo(
                           categoryModel: categoryData,
@@ -2335,10 +2498,10 @@ class PromotionDetails extends StatelessWidget {
                           }).toList(),
                           onOptionSelected: (selectedSubcategoryId) {
                             log('Selected Subcategory ID: $selectedSubcategoryId');
-                            _fetchProductsByCategory(selectedSubcategoryId);
+                            fetchProductsByCategory(selectedSubcategoryId);
                           },
-                          onDrawerToggle: _toggleDrawer,
-                          selectedCategory: _selectedCategory,
+                          onDrawerToggle: toggleDrawer,
+                          selectedCategory: selectedCategory,
                         ),
                       ),
                     ),
@@ -2361,13 +2524,13 @@ class PromotionDetails extends StatelessWidget {
     String? minOrderAmountFormatted,
     PromotionReponse promo,
   ) {
-    double? _parseAmount(String? s) {
+    double? parseAmount(String? s) {
       if (s == null || s.isEmpty) return null;
       final cleaned = s.replaceAll(RegExp(r'[^0-9\.]'), '');
       return double.tryParse(cleaned);
     }
 
-    double _priceForItem(Map<String, dynamic> e) {
+    double priceForItem(Map<String, dynamic> e) {
       final Detail d = e['detail'] as Detail;
       final bool isPack = e['isPack'] as bool;
       // Prefer sellingPackPrice when pack; fallback to sellPrice * pieces
@@ -2382,21 +2545,24 @@ class PromotionDetails extends StatelessWidget {
       }
     }
 
-    double _computeSelectedTotal() {
+    double computeSelectedTotal() {
       double total = 0;
       for (final e in selectedItems) {
         final int qty = (e['quantity'] as int);
-        total += _priceForItem(e) * qty;
+        total += priceForItem(e) * qty;
       }
       return total;
     }
 
-    final double? _minOrderValue = _parseAmount(minOrderAmountFormatted);
+    final double? minOrderValue = parseAmount(minOrderAmountFormatted);
 
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
+          // Add tier selection for tiered_discount promotions
+          final ValueNotifier<Tier?> selectedTier = ValueNotifier<Tier?>(null);
+
           return Dialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -2512,7 +2678,7 @@ class PromotionDetails extends StatelessWidget {
                                 style: TextStyle(fontWeight: FontWeight.w600)),
                             Builder(
                               builder: (_) {
-                                final total = _computeSelectedTotal();
+                                final total = computeSelectedTotal();
                                 return Text(
                                   formatAmount(total.toString()),
                                   style: const TextStyle(
@@ -2522,7 +2688,7 @@ class PromotionDetails extends StatelessWidget {
                             ),
                           ],
                         ),
-                        if (_minOrderValue != null) ...[
+                        if (minOrderValue != null) ...[
                           const SizedBox(height: 4),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2543,9 +2709,9 @@ class PromotionDetails extends StatelessWidget {
                                   ? null
                                   : () async {
                                       final currentTotal =
-                                          _computeSelectedTotal();
-                                      if (_minOrderValue != null &&
-                                          currentTotal < _minOrderValue) {
+                                          computeSelectedTotal();
+                                      if (minOrderValue != null &&
+                                          currentTotal < minOrderValue) {
                                         showCustomToastDisplay(
                                           context,
                                           'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
@@ -2561,6 +2727,19 @@ class PromotionDetails extends StatelessWidget {
                                                   .customerId.value
                                               : productController
                                                   .selectedCustomerId.value;
+
+                                      // Validate tier selection for tiered_discount promotions
+                                      if (promo.promoType ==
+                                              "tiered_discount" &&
+                                          selectedTier.value == null) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Please select a tier discount",
+                                          Colors.orange,
+                                          Icons.warning,
+                                        );
+                                        return;
+                                      }
 
                                       for (final e in selectedItems) {
                                         final Detail detail =
@@ -2585,6 +2764,7 @@ class PromotionDetails extends StatelessWidget {
                                           promo: promo,
                                           productController: productController,
                                           context: context,
+                                          selectedTier: selectedTier.value,
                                         );
                                       }
 
@@ -2698,7 +2878,7 @@ class PromotionDetails extends StatelessWidget {
                   );
                 }).toList(),
               );
-            }).toList(),
+            }),
             const Divider(),
           ],
         ],
@@ -2735,7 +2915,7 @@ class PromotionDetails extends StatelessWidget {
                 ),
               ),
               child: Text(
-                promo.promoType!.nkStringCleanAndCapitalize ?? "Promotion",
+                promo.promoType!.nkStringCleanAndCapitalize,
                 style: const TextStyle(
                   fontSize: 16,
                   color: primaryColor,

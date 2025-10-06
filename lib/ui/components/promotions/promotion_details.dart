@@ -141,6 +141,281 @@ class PromotionDetails extends StatelessWidget {
 
                       /// Add to cart button
                       SizedBox(height: 20),
+
+                      /// Bundle quantity selector for product_bundle promotions
+                      if (promo.promoType == "product_bundle") ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Builder(builder: (context) {
+                            // Create quantity notifier for bundle
+                            final ValueNotifier<int> bundleQty =
+                                ValueNotifier<int>(1);
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Bundle Price: ${formatAmount(promo.bundlePrice)}",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Quantity:",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.grey.shade400),
+                                        color: Colors.white,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            tooltip: 'Decrease',
+                                            icon: const Icon(Icons.remove),
+                                            onPressed: () {
+                                              if (bundleQty.value > 1) {
+                                                bundleQty.value =
+                                                    bundleQty.value - 1;
+                                              }
+                                            },
+                                          ),
+                                          ValueListenableBuilder<int>(
+                                            valueListenable: bundleQty,
+                                            builder: (context, value, _) =>
+                                                Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                              child: Text(
+                                                '$value',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            tooltip: 'Increase',
+                                            icon: const Icon(Icons.add),
+                                            onPressed: () {
+                                              bundleQty.value =
+                                                  bundleQty.value + 1;
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                InkWell(
+                                  onTap: () async {
+                                    if ((customerAndOrderController
+                                            .customerId.value.isNotEmpty) ||
+                                        (productController.selectedCustomerName
+                                            .value.isNotEmpty)) {
+                                      final customerId =
+                                          customerAndOrderController
+                                                  .customerId.value.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : productController
+                                                  .selectedCustomerId.value;
+
+                                      log("[BUNDLE] === Product Bundle Promo Started ===");
+                                      log("[BUNDLE] Bundle price: ${promo.bundlePrice}");
+                                      log("[BUNDLE] Quantity: ${bundleQty.value}");
+
+                                      // Create a special bundle detail with bundle price
+                                      final bundleDetail = Detail(
+                                        variationId:
+                                            "BUNDLE_${promo.id}", // Special bundle ID
+                                        productId: "BUNDLE_${promo.id}",
+                                        variationName: promo.title ?? "Bundle",
+                                        unitType: "bundle",
+                                        price: promo.bundlePrice?.toString() ??
+                                            "0",
+                                        sellPrice:
+                                            promo.bundlePrice?.toString() ??
+                                                "0",
+                                        tax: 0, // Bundle tax handled separately
+                                        packtype: "bundle",
+                                        pieces: 1,
+                                        stock: 999, // High stock for bundles
+                                        lowstock: 0,
+                                        fullstock: 999,
+                                        imageUrl:
+                                            promo.products?.isNotEmpty == true
+                                                ? promo.products![0].variants
+                                                            ?.isNotEmpty ==
+                                                        true
+                                                    ? promo.products![0]
+                                                        .variants![0].imageUrl
+                                                    : null
+                                                : null,
+                                        productName: promo.title ?? "Bundle",
+                                      );
+
+                                      final catId =
+                                          0; // Special category for bundles
+
+                                      // Create detailed bundle message with all items
+                                      String bundleDetailsMsg =
+                                          "Bundle: ${promo.title}\n\n";
+                                      if (promo.bundleItems != null &&
+                                          promo.bundleItems!.isNotEmpty) {
+                                        bundleDetailsMsg += "Items included:\n";
+                                        for (final bundleItem
+                                            in promo.bundleItems!) {
+                                          // Find the corresponding product variant
+                                          Product? product;
+                                          try {
+                                            product =
+                                                promo.products?.firstWhere(
+                                              (p) =>
+                                                  p.id == bundleItem.variantId,
+                                            );
+                                          } catch (e) {
+                                            product = null;
+                                          }
+
+                                          if (product?.variants?.isNotEmpty ==
+                                              true) {
+                                            final variant =
+                                                product!.variants!.first;
+                                            final unitPrice = double.tryParse(
+                                                    variant.sellPrice
+                                                            ?.toString() ??
+                                                        '0') ??
+                                                0;
+                                            final totalPrice = unitPrice *
+                                                (bundleItem.quantity ?? 1);
+
+                                            bundleDetailsMsg +=
+                                                "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
+                                            bundleDetailsMsg +=
+                                                "  Qty: ${bundleItem.quantity} ${bundleItem.unitType}\n";
+                                            bundleDetailsMsg +=
+                                                "  Price: ${formatAmount(unitPrice.toString())} each\n";
+                                            bundleDetailsMsg +=
+                                                "  Total: ${formatAmount(totalPrice.toString())}\n\n";
+                                          }
+                                        }
+                                        bundleDetailsMsg +=
+                                            "Bundle Price: ${formatAmount(promo.bundlePrice)}";
+                                      }
+
+                                      await CartDatabaseManager()
+                                          .addToCartPromo(
+                                        customerId: customerId,
+                                        localCount: bundleQty.value,
+                                        detail: bundleDetail,
+                                        isPack: true,
+                                        productName: promo.title ?? "Bundle",
+                                        inclTax: "0",
+                                        isChcked: true,
+                                        catId: catId,
+                                        promoCode: promo.promoCode,
+                                        promoMsg: bundleDetailsMsg,
+                                      );
+
+                                      log("[BUNDLE] ✅ Bundle added to cart → customerId: $customerId, quantity: ${bundleQty.value}");
+                                      productController.isCartModified.value =
+                                          true;
+
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        final cartProvider =
+                                            Provider.of<CustomersProvider>(
+                                                context,
+                                                listen: false);
+                                        log("[BUNDLE] Updating cart count for customer: $customerId");
+                                        cartProvider
+                                            .updateCartCount(customerId);
+                                        cartProvider
+                                            .getCartItemCounts(customerId);
+                                      });
+
+                                      showCustomToastDisplay(
+                                        context,
+                                        "Bundle added to cart",
+                                        Colors.green.shade800,
+                                        Icons.check,
+                                      );
+
+                                      log("[BUNDLE] === Product Bundle Promo Completed ===");
+                                    } else {
+                                      showDialog(
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            actions: [
+                                              const SizedBox(height: 20),
+                                              const Center(
+                                                  child: Icon(
+                                                      Icons
+                                                          .warning_amber_outlined,
+                                                      size: 50,
+                                                      color: Colors.orange)),
+                                              const SizedBox(height: 20),
+                                              Center(
+                                                  child: CustomText(
+                                                      content:
+                                                          "Please Select a Customer",
+                                                      fontSize: 18)),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: CustomText(
+                                                    content: "Ok",
+                                                    color: primaryColor),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: primaryColor,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Add Bundle to Cart",
+                                        style: TextStyle(
+                                          color: white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ],
+
                       if (promo.productScope == "products") ...[
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -1199,7 +1474,8 @@ class PromotionDetails extends StatelessWidget {
                           }),
                         ),
                       ],
-                      if (promo.productScope != "products") ...[
+                      if (promo.productScope != "products" &&
+                          promo.promoType != "product_bundle") ...[
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: InkWell(
@@ -2835,6 +3111,66 @@ class PromotionDetails extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// ✅ Show Bundle Items for product_bundle
+          if (promo.promoType == "product_bundle" &&
+              promo.bundleItems != null &&
+              promo.bundleItems!.isNotEmpty) ...[
+            const Text(
+              "Bundle Items:",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            ...promo.bundleItems!.map((bundleItem) {
+              // Find the corresponding product variant
+              Product? product;
+              try {
+                product = promo.products?.firstWhere(
+                  (p) => p.id == bundleItem.variantId,
+                );
+              } catch (e) {
+                product = null;
+              }
+
+              if (product?.variants?.isNotEmpty == true) {
+                final variant = product!.variants!.first;
+                return ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: ClipOval(
+                    child: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            '${ApiConstants.imageBaseUrl}/${variant.imageUrl}',
+                        placeholder: (context, url) => const Padding(
+                          padding: EdgeInsets.all(15.0),
+                          child: CircleAvatar(
+                              radius: 10, child: CircularProgressIndicator()),
+                        ),
+                        fit: BoxFit.cover,
+                        errorWidget: (context, url, error) =>
+                            Image.asset('assets/images/Image-not-found.png'),
+                      ),
+                    ),
+                  ),
+                  title: Text(variant.productName ?? "-"),
+                  subtitle: Text(
+                      "${variant.variationName ?? "-"} • Qty: ${bundleItem.quantity} ${bundleItem.unitType}"),
+                  trailing: Text(
+                    formatAmount(variant.sellPrice ?? '0'),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: primaryColor,
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox();
+            }),
+            const Divider(),
+          ],
+
           /// ✅ Show Applicable Products
           if (promo.productScope == "products" &&
               promo.products != null &&
@@ -3005,6 +3341,13 @@ class PromotionDetails extends StatelessWidget {
             if (promo.minOrderValue != null) ...[
               const Divider(color: Colors.grey),
               _buildRow("MIN ORDER : ", formatAmount(promo.minOrderValue)),
+            ],
+
+            // Bundle price for product_bundle
+            if (promo.promoType == "product_bundle" &&
+                promo.bundlePrice != null) ...[
+              const Divider(color: Colors.grey),
+              _buildRow("BUNDLE PRICE : ", formatAmount(promo.bundlePrice)),
             ],
 
             // Extra info (tiers / bundle items)

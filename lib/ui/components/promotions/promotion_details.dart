@@ -862,6 +862,112 @@ class PromotionDetails extends StatelessWidget {
                                         log("[PROMO] === Percentage Discount Promo Completed ===");
                                       }
 
+                                      // --- FLAT DISCOUNT promos (cart-level fixed amount) ---
+                                      if (promo.promoType == "flat_discount") {
+                                        log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
+                                        log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                        // Flatten variants
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
+                                        if (allVariants.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
+
+                                        // Validate min order with existing helper (based on selected qty)
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
+
+                                        // 1) Add products normally without modifying discount
+                                        for (final v in allVariants) {
+                                          final detail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                          );
+
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
+
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: qty.value,
+                                            detail: detail,
+                                            isPack: true,
+                                            productName: v.productName ?? '',
+                                            inclTax: v.tax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg:
+                                                "Flat discount will be applied on total",
+                                          );
+
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
+
+                                        // 2) Store fixed flat discount per customer for cart total display
+                                        final double flatAmount =
+                                            double.tryParse(promo.discountValue
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                        if (flatAmount > 0) {
+                                          productController
+                                                  .flatDiscountByCustomer[
+                                              customerId] = flatAmount;
+                                          log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
+                                        }
+
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Items added. Flat discount will be applied on total",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+
+                                        log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
+                                      }
+
                                       // --- Tiered Discount promos ---
                                       if (promo.promoType ==
                                           "tiered_discount") {

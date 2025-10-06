@@ -917,6 +917,40 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                     ),
+                    // Flat discount (cart-level)
+                    Builder(builder: (context) {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      if (flatDisc <= 0) return const SizedBox.shrink();
+                      return Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Flat Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: "-" + formatAmount(flatDisc),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
                     Container(
                       height: 40,
                       width: double.infinity,
@@ -943,13 +977,29 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const Divider(),
-                    CartTotalWidget(
-                      title: 'Final Amount',
-                      content: orderSubtotal,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color2: Colors.green,
-                    ),
+                    // CartTotalWidget(
+                    //   title: 'Final Amount',
+                    //   content: orderSubtotal,
+                    //   fontSize: 20,
+                    //   fontWeight: FontWeight.w700,
+                    //   color2: Colors.green,
+                    // ),
+                    Builder(builder: (context) {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      final double finalAmt = (orderSubtotal - flatDisc)
+                          .clamp(0.0, double.infinity);
+                      return CartTotalWidget(
+                        title: 'Final Amount',
+                        content: finalAmt,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color2: Colors.green,
+                      );
+                    }),
                   ],
                   if (!isOrder) ...[
                     (widget.productsController.preorderItems.isEmpty)
@@ -1218,6 +1268,40 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                     ),
+                    // Flat discount (cart-level)
+                    Builder(builder: (context) {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      if (flatDisc <= 0) return const SizedBox.shrink();
+                      return Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Flat Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: "-" + formatAmount(flatDisc),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
                     Container(
                       height: 40,
                       width: double.infinity,
@@ -1244,13 +1328,29 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const Divider(),
-                    CartTotalWidget(
-                      title: 'Final Amount',
-                      content: preorderSubtotal,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color2: Colors.green,
-                    ),
+                    // CartTotalWidget(
+                    //   title: 'Final Amount',
+                    //   content: preorderSubtotal,
+                    //   fontSize: 20,
+                    //   fontWeight: FontWeight.w700,
+                    //   color2: Colors.green,
+                    // ),
+                    Builder(builder: (context) {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      final double finalAmt = (preorderSubtotal - flatDisc)
+                          .clamp(0.0, double.infinity);
+                      return CartTotalWidget(
+                        title: 'Final Amount',
+                        content: finalAmt,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color2: Colors.green,
+                      );
+                    }),
                   ],
                   SizedBox(
                     height: _selectedValue == "Quick Sale"
@@ -2714,6 +2814,9 @@ class CartDialogueState extends State<CartDialogue> {
       provider.updateCartCount(customerId);
     });
 
+    // If no remaining items carry a flat discount promo, clear it
+    _maybeClearFlatDiscountForCustomer(customerId);
+
     log('Deleted variant: ${variantToDelete.detail.variationName} with stock set to 0');
   }
 
@@ -2844,6 +2947,8 @@ class CartDialogueState extends State<CartDialogue> {
           .where((item) => item.detail.stock == 0)
           .toList();
     });
+    // Clear flat discount if its source items are gone
+    _maybeClearFlatDiscountForCustomer(customerId);
     log('Cart Item Cleared : $cartItem');
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
@@ -2887,7 +2992,31 @@ class CartDialogueState extends State<CartDialogue> {
       preorderTax = Utils().calculateTotalTax(preorderItems);
     });
 
+    // Clear flat discount if its source items are gone
+    final String cid =
+        widget.customerId ?? widget.productsController.selectedCustomerId.value;
+    _maybeClearFlatDiscountForCustomer(cid);
+
     log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
+  }
+
+  /// Clears cart-level flat discount for a customer if no remaining items
+  /// are associated with the flat discount promo (based on promoMsg marker).
+  void _maybeClearFlatDiscountForCustomer(String customerId) {
+    try {
+      final hasFlatPromoItems = widget.productsController.cartItems.any((item) {
+        final msg = item.promoMsg?.toLowerCase() ?? '';
+        return msg.contains('flat discount');
+      });
+      if (!hasFlatPromoItems) {
+        if (widget.productsController.flatDiscountByCustomer
+            .containsKey(customerId)) {
+          widget.productsController.flatDiscountByCustomer.remove(customerId);
+          log('[FlatDiscount] Cleared cart-level flat discount for customer $customerId');
+          setState(() {});
+        }
+      }
+    } catch (_) {}
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {

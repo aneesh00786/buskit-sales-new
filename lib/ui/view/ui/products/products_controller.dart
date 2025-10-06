@@ -74,6 +74,9 @@ class ProductsController extends GetxController {
   RxBool isCartModified = false.obs;
   RxDouble allItemsTotalSave = 0.0.obs;
 
+  // Fixed flat discount per customer (cart-level), applied at display time in cart UI
+  final Map<String, double> flatDiscountByCustomer = {};
+
   List<CartItem> cartItems = [];
   List<CartItem> orderItems = [];
   List<CartItem> preorderItems = [];

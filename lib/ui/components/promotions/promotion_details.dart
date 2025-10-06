@@ -2020,7 +2020,182 @@ class PromotionDetails extends StatelessWidget {
                                             : productController
                                                 .selectedCustomerId.value;
 
-                                    // Validate tier selection for tiered_discount promotions
+                                    // Special case: Flat discount (cart-level)
+                                    if (promo.promoType == "flat_discount") {
+                                      log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
+                                      log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                      // Flatten all variants in this promo
+                                      final allVariants = promo.products
+                                              ?.expand((p) => p.variants ?? [])
+                                              .toList() ??
+                                          [];
+                                      if (allVariants.isEmpty) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "No variants found for this promotion",
+                                          Colors.orange,
+                                          Icons.warning,
+                                        );
+                                        return;
+                                      }
+
+                                      double? parseAmount(String? s) {
+                                        if (s == null || s.isEmpty) return null;
+                                        final cleaned = s.replaceAll(
+                                            RegExp(r'[^0-9\.]'), '');
+                                        return double.tryParse(cleaned);
+                                      }
+
+                                      Future<bool> validateMinOrderBeforeAdd(
+                                          List<dynamic> allVariants) async {
+                                        final double? minOrder = parseAmount(
+                                            promo.minOrderValue?.toString());
+                                        if (minOrder == null) return true;
+                                        double total = 0;
+                                        // Compute total using selectedItems quantities
+                                        for (final e in selectedItems) {
+                                          final v = e['variant'];
+                                          final int qty = e['quantity'] as int;
+
+                                          final double unit = double.tryParse(
+                                                  (v.sellPrice ?? '0')
+                                                      .toString()) ??
+                                              0;
+                                          final int pcs =
+                                              (v.pieces ?? 1).toInt();
+
+                                          total += (unit * pcs) * qty;
+                                        }
+
+                                        if (total < minOrder) {
+                                          await showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                actions: [
+                                                  const SizedBox(height: 20),
+                                                  const Center(
+                                                      child: Icon(
+                                                          Icons
+                                                              .warning_amber_outlined,
+                                                          size: 50,
+                                                          color:
+                                                              Colors.orange)),
+                                                  const SizedBox(height: 20),
+                                                  Center(
+                                                      child: CustomText(
+                                                          content:
+                                                              "Minimum order is ${formatAmount(promo.minOrderValue)}",
+                                                          fontSize: 18)),
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: CustomText(
+                                                        content: "Ok",
+                                                        color: primaryColor),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                          return false;
+                                        }
+                                        return true;
+                                      }
+
+                                      // Validate min order using existing helper
+                                      final allowed =
+                                          await validateMinOrderBeforeAdd(
+                                              allVariants);
+                                      if (!allowed) return;
+
+                                      // 1) Add all promo variants to cart (no discount on each product directly)
+                                      for (final e in selectedItems) {
+                                        final v = e['variant'];
+                                        final int qty = e['quantity'] as int;
+
+                                        final detail = Detail(
+                                          variationId: v.id,
+                                          productId: v.productId,
+                                          variationName: v.variationName,
+                                          unitType: v.unitType,
+                                          price: (v.price ?? '0').toString(),
+                                          sellPrice:
+                                              (v.sellPrice ?? '0').toString(),
+                                          tax: double.tryParse(v.tax ?? '0') ??
+                                              0,
+                                          packtype: v.packtype,
+                                          pieces: v.pieces,
+                                          stock: v.stock,
+                                          lowstock: v.lowstock,
+                                          fullstock: v.fullstock,
+                                          imageUrl: v.imageUrl,
+                                          productName: v.productName,
+                                        );
+
+                                        final catId = extractCategoryId(
+                                            v.productId.toString());
+
+                                        await CartDatabaseManager()
+                                            .addToCartPromo(
+                                          customerId: customerId,
+                                          localCount:
+                                              qty, // ✅ now correctly from selectedItems
+                                          detail: detail,
+                                          isPack: true,
+                                          productName: v.productName ?? '',
+                                          inclTax: v.tax ?? '',
+                                          isChcked: true,
+                                          catId: catId,
+                                          promoCode: promo.promoCode,
+                                          promoMsg:
+                                              "Flat discount will be applied on total",
+                                        );
+
+                                        productController.isCartModified.value =
+                                            true;
+                                      }
+
+                                      // 2) Store cart-level discount for display
+                                      final double flatAmount = double.tryParse(
+                                              promo.discountValue?.toString() ??
+                                                  '0') ??
+                                          0;
+                                      if (flatAmount > 0) {
+                                        productController
+                                                .flatDiscountByCustomer[
+                                            customerId] = flatAmount;
+                                        log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
+                                      }
+
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        final cartProvider =
+                                            Provider.of<CustomersProvider>(
+                                                context,
+                                                listen: false);
+                                        cartProvider
+                                            .updateCartCount(customerId);
+                                        cartProvider
+                                            .getCartItemCounts(customerId);
+                                      });
+
+                                      showCustomToastDisplay(
+                                        context,
+                                        "Items added. Flat discount will be applied on total",
+                                        Colors.green.shade800,
+                                        Icons.check,
+                                      );
+
+                                      log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
+                                      return; // stop here, don’t run normal flow
+                                    }
+
+                                    // ---------------- Normal promo flow (unchanged) ----------------
+
+                                    // Validate tier selection for tiered_discount
                                     if (promo.promoType == "tiered_discount" &&
                                         selectedTier.value == null) {
                                       showCustomToastDisplay(
@@ -3090,8 +3265,109 @@ class PromotionDetails extends StatelessWidget {
                               onPressed: selectedItems.isEmpty
                                   ? null
                                   : () async {
+                                      final customerId =
+                                          customerAndOrderController
+                                                  .customerId.value.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : productController
+                                                  .selectedCustomerId.value;
+
+                                      // ---------------- Flat Discount Promo ----------------
+                                      if (promo.promoType == "flat_discount") {
+                                        log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
+                                        log("[PROMO] Promo details: ${promo.toJson()}");
+
+                                        final currentTotal =
+                                            computeSelectedTotal();
+
+                                        // Validate min order
+                                        if (minOrderValue != null &&
+                                            currentTotal < minOrderValue) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
+
+                                        // Add all promo variants to cart (no discount at item level)
+                                        for (final e in selectedItems) {
+                                          final Detail detail =
+                                              e['detail'] as Detail;
+                                          final int qty = e['quantity'] as int;
+                                          final bool isPack =
+                                              e['isPack'] as bool;
+                                          final String productName =
+                                              (e['productName'] as String?) ??
+                                                  '';
+                                          final String inclTax =
+                                              (e['inclTax'] as String?) ?? '';
+                                          final int catId =
+                                              (e['catId'] as int?) ?? 0;
+
+                                          await _addToCartWithPromoLogic(
+                                            customerId: customerId,
+                                            localCount: qty,
+                                            detail: detail,
+                                            isPack: isPack,
+                                            productName: productName,
+                                            inclTax: inclTax,
+                                            catId: catId,
+                                            promo: promo,
+                                            productController:
+                                                productController,
+                                            context: context,
+                                            selectedTier: selectedTier.value,
+                                          );
+                                        }
+
+                                        // Store cart-level flat discount
+                                        final double flatAmount =
+                                            double.tryParse(promo.discountValue
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                        if (flatAmount > 0) {
+                                          productController
+                                                  .flatDiscountByCustomer[
+                                              customerId] = flatAmount;
+                                          log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
+                                        }
+
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Items added. Flat discount will be applied on total",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+
+                                        log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                        return; // Stop here, skip normal flow
+                                      }
+
+                                      // ---------------- Normal Promo Flow ----------------
+
                                       final currentTotal =
                                           computeSelectedTotal();
+
+                                      // Validate min order
                                       if (minOrderValue != null &&
                                           currentTotal < minOrderValue) {
                                         showCustomToastDisplay(
@@ -3102,15 +3378,8 @@ class PromotionDetails extends StatelessWidget {
                                         );
                                         return;
                                       }
-                                      final customerId =
-                                          customerAndOrderController
-                                                  .customerId.value.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : productController
-                                                  .selectedCustomerId.value;
 
-                                      // Validate tier selection for tiered_discount promotions
+                                      // Tier validation for tiered_discount
                                       if (promo.promoType ==
                                               "tiered_discount" &&
                                           selectedTier.value == null) {
@@ -3123,6 +3392,7 @@ class PromotionDetails extends StatelessWidget {
                                         return;
                                       }
 
+                                      // Add selected items normally
                                       for (final e in selectedItems) {
                                         final Detail detail =
                                             e['detail'] as Detail;
@@ -3150,6 +3420,7 @@ class PromotionDetails extends StatelessWidget {
                                         );
                                       }
 
+                                      // Refresh cart counts
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                         final cartProvider =

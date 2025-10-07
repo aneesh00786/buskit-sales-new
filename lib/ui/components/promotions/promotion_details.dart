@@ -3073,6 +3073,221 @@ class PromotionDetails extends StatelessWidget {
     );
   }
 
+  // Builds a grouped product list with a table-like structure
+  Widget _buildGroupedProductsList(
+    List<Map<String, dynamic>> selectedItems,
+    void Function(void Function()) setStateDialog,
+    void Function(void Function()) parentSetState,
+  ) {
+    // Group items by product name
+    final Map<String, List<Map<String, dynamic>>> groupedItems = {};
+
+    for (final item in selectedItems) {
+      final Detail detail = item['detail'] as Detail;
+      final String productName = detail.productName ?? 'Unknown Product';
+
+      if (!groupedItems.containsKey(productName)) {
+        groupedItems[productName] = [];
+      }
+      groupedItems[productName]!.add(item);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: groupedItems.entries.map((entry) {
+        final String productName = entry.key;
+        final List<Map<String, dynamic>> variants = entry.value;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Colors.grey[200],
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      productName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Table header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Variant',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Qty',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Price',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Total',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 40), // Space for delete button
+                ],
+              ),
+            ),
+
+            // Variants
+            ...variants.map((item) {
+              final Detail detail = item['detail'] as Detail;
+              final int quantity = item['quantity'] as int;
+              final bool isPack = item['isPack'] as bool;
+
+              // Calculate price and total
+              double price = 0;
+              if (isPack) {
+                price = (detail.sellingPackPrice?.toDouble() ?? 0);
+                if (price <= 0) {
+                  final double unitPrice =
+                      double.tryParse(detail.sellPrice.toString()) ?? 0;
+                  final int pieces = (detail.pieces ?? 1).toInt();
+                  price = unitPrice * pieces;
+                }
+              } else {
+                price = double.tryParse(detail.sellPrice.toString()) ?? 0;
+              }
+
+              final double total = price * quantity;
+              final String variantName = detail.variationName ?? 'Standard';
+              final String packType = isPack ? 'Pack' : 'Pcs';
+
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    // Variant name
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        '$variantName ($packType)',
+                        style: const TextStyle(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    // Quantity
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        quantity.toString(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+
+                    // Price
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        formatAmount(price.toString()),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+
+                    // Total
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        formatAmount(total.toString()),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+
+                    // Delete button
+                    SizedBox(
+                      width: 40,
+                      child: IconButton(
+                        icon: const Icon(Icons.delete,
+                            size: 14, color: Colors.red),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {
+                          // Find the exact item in the original list
+                          final int indexToRemove =
+                              selectedItems.indexWhere((element) {
+                            final Detail elementDetail =
+                                element['detail'] as Detail;
+                            final bool elementIsPack =
+                                element['isPack'] as bool;
+
+                            return elementDetail.id == detail.id &&
+                                elementIsPack == isPack;
+                          });
+
+                          if (indexToRemove != -1) {
+                            setStateDialog(() {
+                              selectedItems.removeAt(indexToRemove);
+                            });
+                            parentSetState(() {});
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+
+            const Divider(),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
   void _showSelectedItemsDialog(
     BuildContext context,
     void Function(void Function()) parentSetState,
@@ -3174,54 +3389,12 @@ class PromotionDetails extends StatelessWidget {
                             child: Scrollbar(
                               thumbVisibility:
                                   true, // always show the scrollbar
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: selectedItems.length,
-                                itemBuilder: (context, index) {
-                                  final e = selectedItems[index];
-                                  final Detail d = e['detail'] as Detail;
-                                  final int qty = e['quantity'] as int;
-                                  final bool isPack = e['isPack'] as bool;
-                                  final String priceText =
-                                      formatAmount(d.sellPrice);
-
-                                  return ListTile(
-                                    dense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(
-                                        d.productName ?? d.variationName ?? ''),
-                                    subtitle: Text(
-                                        '${d.variationName ?? ''} • ${isPack ? 'Pack' : 'Pcs'}'),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text('Qty: $qty'),
-                                            Text(priceText),
-                                          ],
-                                        ),
-                                        const SizedBox(width: 8),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete,
-                                              size: 14, color: Colors.red),
-                                          onPressed: () {
-                                            setStateDialog(() {
-                                              selectedItems.removeAt(index);
-                                            });
-                                            parentSetState(() {
-                                              selectedItems.removeAt(index);
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
+                              child: SingleChildScrollView(
+                                child: _buildGroupedProductsList(
+                                  selectedItems,
+                                  setStateDialog,
+                                  parentSetState,
+                                ),
                               ),
                             ),
                           ),

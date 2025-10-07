@@ -892,31 +892,31 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const SizedBox(height: 5.0),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Discount',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(totalDiscount),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Discount',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(totalDiscount),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     // Flat discount (cart-level)
                     Builder(builder: (context) {
                       final String cid =
@@ -924,7 +924,7 @@ class CartDialogueState extends State<CartDialogue> {
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
                           0.0;
-                      if (flatDisc <= 0) return const SizedBox.shrink();
+                      // if (flatDisc <= 0) return const SizedBox.shrink();
                       return Container(
                         height: 40,
                         width: double.infinity,
@@ -935,13 +935,13 @@ class CartDialogueState extends State<CartDialogue> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CustomText(
-                                content: 'Flat Discount',
+                                content: 'Discount',
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: "-" + formatAmount(flatDisc),
+                                content: formatAmount(totalDiscount + flatDisc),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -1243,31 +1243,31 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const SizedBox(height: 5.0),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Discount',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(totalDiscountPreorder),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Discount',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(totalDiscountPreorder),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     // Flat discount (cart-level)
                     Builder(builder: (context) {
                       final String cid =
@@ -1275,7 +1275,7 @@ class CartDialogueState extends State<CartDialogue> {
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
                           0.0;
-                      if (flatDisc <= 0) return const SizedBox.shrink();
+                      // if (flatDisc <= 0) return const SizedBox.shrink();
                       return Container(
                         height: 40,
                         width: double.infinity,
@@ -1286,13 +1286,13 @@ class CartDialogueState extends State<CartDialogue> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CustomText(
-                                content: 'Flat Discount',
+                                content: 'Discount',
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: "-" + formatAmount(flatDisc),
+                                content: formatAmount(totalDiscount + flatDisc),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,

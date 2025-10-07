@@ -504,20 +504,27 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
                                                     ),
                                                   ],
                                                   const Spacer(),
-                                                  Text(
-                                                    smallestSellPrice ==
-                                                            largestSellPrice
-                                                        ? '${formatAmount(smallestSellPrice.toString())} '
-                                                        : '${formatAmount(smallestSellPrice.toString())} - ${formatAmountOnly(largestSellPrice.toString())} ',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 9,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                  SizedBox(
+                                                    width:
+                                                        constraints.maxWidth *
+                                                            0.35,
+                                                    child: Text(
+                                                      smallestSellPrice ==
+                                                              largestSellPrice
+                                                          ? '${formatAmount(smallestSellPrice.toString())} '
+                                                          : '${formatAmount(smallestSellPrice.toString())} - ${formatAmountOnly(largestSellPrice.toString())} ',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 9,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                      maxLines: 1,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
-                                                    maxLines: 1,
-                                                    textAlign: TextAlign.right,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
                                                   ),
                                                   SizedBox(width: 3),
                                                   product.inclTax != '' &&

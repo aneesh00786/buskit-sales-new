@@ -86,36 +86,399 @@ class GroupedItemDataRows {
                     groupedItem.promoMsg != null) ...[
                   InkWell(
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) {
-                          return AlertDialog(
-                            title: const Text('Applied Offer'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(groupedItem.promoCode ?? '',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.green.shade800,
-                                        fontSize: 20)),
-                                const SizedBox(height: 8),
-                                Text(groupedItem.promoMsg ?? '',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16)),
+                      if (groupedItem.promoMsg!.startsWith("Bundle")) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) {
+                            // Parse the bundle message to extract bundle items
+                            final String bundleMsg = groupedItem.promoMsg ?? '';
+                            final List<Map<String, String>> bundleItems = [];
+
+                            // Extract bundle title
+                            String bundleTitle = '';
+                            if (bundleMsg.startsWith('Bundle:')) {
+                              final titleEndIndex = bundleMsg.indexOf('\n\n');
+                              if (titleEndIndex > 0) {
+                                bundleTitle = bundleMsg
+                                    .substring(7, titleEndIndex)
+                                    .trim();
+                              }
+                            }
+
+                            // Extract items from the message
+                            if (bundleMsg.contains('Items included:')) {
+                              final itemsStartIndex =
+                                  bundleMsg.indexOf('Items included:') +
+                                      'Items included:'.length;
+                              final itemsEndIndex =
+                                  bundleMsg.lastIndexOf('Bundle Price:');
+
+                              if (itemsStartIndex > 0 &&
+                                  itemsEndIndex > itemsStartIndex) {
+                                final itemsSection = bundleMsg
+                                    .substring(itemsStartIndex, itemsEndIndex)
+                                    .trim();
+                                final itemBlocks = itemsSection.split('\n\n');
+
+                                for (final block in itemBlocks) {
+                                  if (block.trim().isEmpty) continue;
+
+                                  final lines = block.split('\n');
+                                  if (lines.length >= 4) {
+                                    // Extract product name and variant
+                                    String productName = '';
+                                    String variantName = '';
+                                    if (lines[0].startsWith('• ')) {
+                                      final fullProductText =
+                                          lines[0].substring(2);
+                                      // Split product name and variant if it contains a comma
+                                      if (fullProductText.contains(',')) {
+                                        final parts =
+                                            fullProductText.split(',');
+                                        productName = parts[0].trim();
+                                        variantName = parts.length > 1
+                                            ? parts[1].trim()
+                                            : '';
+                                      } else {
+                                        productName = fullProductText;
+                                      }
+                                    }
+
+                                    // Extract quantity
+                                    String quantity = '';
+                                    if (lines[1].trim().startsWith('Qty:')) {
+                                      quantity =
+                                          lines[1].trim().substring(4).trim();
+                                    }
+
+                                    // Extract price
+                                    String price = '';
+                                    if (lines[2].trim().startsWith('Price:')) {
+                                      price =
+                                          lines[2].trim().substring(6).trim();
+                                    }
+
+                                    // Extract total
+                                    String total = '';
+                                    if (lines[3].trim().startsWith('Total:')) {
+                                      total =
+                                          lines[3].trim().substring(6).trim();
+                                    }
+
+                                    bundleItems.add({
+                                      'product': productName,
+                                      'variant': variantName,
+                                      'quantity': quantity,
+                                      'price': price,
+                                      'total': total,
+                                    });
+                                  }
+                                }
+                              }
+                            }
+
+                            // Extract bundle price
+                            String bundlePrice = '';
+                            if (bundleMsg.contains('Bundle Price:')) {
+                              final priceStartIndex =
+                                  bundleMsg.lastIndexOf('Bundle Price:') +
+                                      'Bundle Price:'.length;
+                              bundlePrice =
+                                  bundleMsg.substring(priceStartIndex).trim();
+                            }
+
+                            return AlertDialog(
+                              title: Text('Bundle Details: ${bundleTitle}'),
+                              content: Container(
+                                width: double.maxFinite,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(groupedItem.promoCode ?? '',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.green.shade800,
+                                            fontSize: 18)),
+                                    const SizedBox(height: 16),
+
+                                    // Table header
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        border: Border(
+                                          bottom: BorderSide(
+                                              color: Colors.grey.shade400),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 3,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Product',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Quantity',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Price',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Total',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Table rows
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        maxHeight:
+                                            200, // Set a max height for scrolling
+                                      ),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: bundleItems.map((item) {
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade300),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 3,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            item['product'] ??
+                                                                '',
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          if ((item['variant'] ??
+                                                                  '')
+                                                              .isNotEmpty)
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      top: 4.0,
+                                                                      left:
+                                                                          8.0),
+                                                              child: Text(
+                                                                item['variant'] ??
+                                                                    '',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade700,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        item['quantity'] ?? '',
+                                                        style: TextStyle(
+                                                            fontSize: 14),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        item['price'] ?? '',
+                                                        style: TextStyle(
+                                                            fontSize: 14),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        item['total'] ?? '',
+                                                        style: TextStyle(
+                                                            fontSize: 14),
+                                                        textAlign:
+                                                            TextAlign.right,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Bundle total
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        border: Border(
+                                          bottom: BorderSide(
+                                              color: Colors.grey.shade400),
+                                          top: BorderSide(
+                                              color: Colors.grey.shade400),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 7,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Bundle Price:',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                bundlePrice,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.green.shade800,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('OK'),
+                                )
                               ],
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('OK'),
-                              )
-                            ],
-                          );
-                        },
-                      );
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) {
+                            return AlertDialog(
+                              title: const Text('Applied Offer'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(groupedItem.promoCode ?? '',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.green.shade800,
+                                          fontSize: 20)),
+                                  const SizedBox(height: 8),
+                                  Text(groupedItem.promoMsg ?? '',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16)),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('OK'),
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      }
                     },
                     child: Container(
                       height: 30,

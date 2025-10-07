@@ -901,7 +901,7 @@ class _ProductVariantDialoguePromoState
                         child: Row(
                           children: [
                             CustomText(
-                              content: "Add to Selection",
+                              content: "Select",
                               fontSize: screenWidth * 0.02,
                               color: Colors.white,
                             ),

@@ -559,31 +559,6 @@ class PromotionDetails extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Total above quantity selector
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ValueListenableBuilder<int>(
-                                    valueListenable: qty,
-                                    builder: (context, value, _) {
-                                      double unitSum = 0;
-                                      for (final v in allVariantsStatic) {
-                                        final double unit = double.tryParse(
-                                                (v.sellPrice ?? '0')
-                                                    .toString()) ??
-                                            0;
-                                        final int pcs = (v.pieces ?? 1).toInt();
-                                        unitSum += unit * pcs;
-                                      }
-                                      final double total = unitSum * value;
-                                      return Text(
-                                        'Total: ${formatAmount(total.toString())}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
                                 const SizedBox(height: 8),
                                 // Show tier dropdown for tiered_discount, quantity selector for others
                                 if (promo.promoType == "tiered_discount" &&
@@ -705,7 +680,33 @@ class PromotionDetails extends StatelessWidget {
                                     ],
                                   ),
                                 ],
-                                const SizedBox(height: 12),
+                                SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ValueListenableBuilder<int>(
+                                    valueListenable: qty,
+                                    builder: (context, value, _) {
+                                      double unitSum = 0;
+                                      for (final v in allVariantsStatic) {
+                                        final double unit = double.tryParse(
+                                                (v.sellPrice ?? '0')
+                                                    .toString()) ??
+                                            0;
+                                        final int pcs = (v.pieces ?? 1).toInt();
+                                        unitSum += unit * pcs;
+                                      }
+                                      final double total = unitSum * value;
+                                      return Text(
+                                        'Total: ${formatAmount(total.toString())}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                                 InkWell(
                                   onTap: () async {
                                     if ((customerAndOrderController

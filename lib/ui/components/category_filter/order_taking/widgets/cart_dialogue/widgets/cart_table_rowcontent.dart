@@ -580,12 +580,50 @@ class GroupedItemDataRows {
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-                child: CustomText(
-                  content: formatAmount(groupedItem.totalPrice),
-                  textAlign: TextAlign.right,
-                  fontSize: fontSize,
-                  maxLine: 1,
-                ),
+                // child: CustomText(
+                //   content: formatAmount(groupedItem.totalPrice),
+                //   textAlign: TextAlign.right,
+                //   fontSize: fontSize,
+                //   maxLine: 1,
+                // ),
+                child: Builder(builder: (context) {
+                  // Recalculate total price for promo items to ensure it's always up-to-date
+                  double displayTotal = groupedItem.totalPrice;
+
+                  if (groupedItem.isPromo ?? false) {
+                    double effectiveSellingPrice =
+                        double.tryParse(groupedItem.detail.sellPrice ?? '0') ??
+                            0;
+                    int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
+                    num count = groupedItem.detail.count;
+                    num tax = groupedItem.detail.tax ?? 0;
+                    double appliedDiscountPercentage =
+                        groupedItem.detail.discount?.toDouble() ?? 0;
+
+                    if (appliedDiscountPercentage > 0) {
+                      effectiveSellingPrice -= (effectiveSellingPrice *
+                          appliedDiscountPercentage /
+                          100);
+                      tax -= (tax * appliedDiscountPercentage / 100);
+                    }
+
+                    num totalCount =
+                        groupedItem.isPack == true ? count * pieces : count;
+                    double priceWithTax =
+                        groupedItem.detail.inclTax == "incl_tax"
+                            ? effectiveSellingPrice
+                            : effectiveSellingPrice + tax;
+
+                    displayTotal = priceWithTax * totalCount;
+                  }
+
+                  return CustomText(
+                    content: formatAmount(displayTotal),
+                    textAlign: TextAlign.right,
+                    fontSize: fontSize,
+                    maxLine: 1,
+                  );
+                }),
               ),
             ),
           ),

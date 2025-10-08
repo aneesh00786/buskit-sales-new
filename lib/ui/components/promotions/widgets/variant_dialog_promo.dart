@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -25,6 +26,8 @@ class ProductVariantDialoguePromo extends StatefulWidget {
   final List<Detail> detailsCopy;
   final ProductsController productController;
   final ValueChanged<List<Map<String, dynamic>>>? onVariantsSelected;
+  // final List<Tier>? tiers;
+  final PromotionReponse? promo;
 
   const ProductVariantDialoguePromo({
     super.key,
@@ -35,6 +38,7 @@ class ProductVariantDialoguePromo extends StatefulWidget {
     required this.detailsCopy,
     required this.productController,
     this.onVariantsSelected,
+    this.promo,
   });
 
   @override
@@ -48,11 +52,18 @@ class _ProductVariantDialoguePromoState
       Get.put(CustomerAndOrderController());
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
+  late List<ValueNotifier<Tier?>> selectedTiers;
   late List<int> localCounts;
+
   @override
   void initState() {
     super.initState();
     localCounts = List<int>.filled(widget.detailsCopy.length, 0);
+    selectedTiers = List<ValueNotifier<Tier?>>.generate(
+      widget.detailsCopy.length,
+      (_) => ValueNotifier<Tier?>(null),
+    );
+
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(
         customerAndOrderController.customerId.value.isNotEmpty
@@ -552,235 +563,301 @@ class _ProductVariantDialoguePromoState
                                     ),
                                     DataCell(
                                       Container(
+                                        // width: 200,
+                                        // padding: const EdgeInsets.symmetric(
+                                        //     horizontal: 12),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5),
                                           color: const Color.fromARGB(
                                               255, 240, 239, 239),
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Container(
-                                              decoration: const BoxDecoration(
-                                                color: primaryColor,
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(5),
-                                                  bottomLeft:
-                                                      Radius.circular(5),
-                                                ),
-                                              ),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    if (localCounts[i] > 0) {
-                                                      localCounts[i]--;
-                                                    }
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  child: Icon(
-                                                    Icons.remove,
-                                                    color: Colors.white,
-                                                    size: iconSize,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            CustomText(
-                                              content: localCounts[i]
-                                                  .toStringAsFixed(0),
-                                              fontSize: fontSize,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              decoration: const BoxDecoration(
-                                                color: primaryColor,
-                                                borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(5),
-                                                  bottomRight:
-                                                      Radius.circular(5),
-                                                ),
-                                              ),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    detail.saleBy ??= 'Pack';
-                                                    if (detail.stock == 0) {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            shape:
-                                                                RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          15),
-                                                            ),
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                            title: const Row(
-                                                              children: [
-                                                                Icon(
-                                                                    Icons
-                                                                        .info_outline,
-                                                                    color: Colors
-                                                                        .red),
-                                                                SizedBox(
-                                                                    width: 8),
-                                                                Text(
-                                                                  'Out of Stock',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        20,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            content:
-                                                                const Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Text(
-                                                                  'This item is out of stock.',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    color: Colors
-                                                                        .black87,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                ),
-                                                                SizedBox(
-                                                                    height: 10),
-                                                                Text(
-                                                                  'Do you want to add this as a booking?',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            actions: [
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .redAccent,
-                                                                  shape:
-                                                                      RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
-                                                                  ),
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                  'No',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    localCounts[
-                                                                        i]++;
-                                                                  });
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  shape:
-                                                                      RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
-                                                                  ),
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                  'Yes',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          );
+                                        child:
+                                            widget.promo?.promoType ==
+                                                    "tiered_discount"
+                                                ? ValueListenableBuilder<Tier?>(
+                                                    valueListenable:
+                                                        selectedTiers[i],
+                                                    builder: (context, value,
+                                                            _) =>
+                                                        DropdownButtonHideUnderline(
+                                                      child:
+                                                          DropdownButton<Tier>(
+                                                        value: value,
+                                                        hint: const Text(
+                                                            'Select Tier'),
+                                                        isExpanded: true,
+                                                        items:
+                                                            widget.promo?.tiers
+                                                                    ?.map((Tier
+                                                                        tier) {
+                                                                  final requiredQty =
+                                                                      (tier.buyQuantity as num?)
+                                                                              ?.toInt() ??
+                                                                          0;
+                                                                  final qtyType =
+                                                                      tier.buyQuantityType ??
+                                                                          '';
+                                                                  final discountValue =
+                                                                      double.tryParse(tier.discountValue?.toString() ??
+                                                                              '0') ??
+                                                                          0;
+                                                                  return DropdownMenuItem<
+                                                                      Tier>(
+                                                                    value: tier,
+                                                                    child: Text(
+                                                                      '${requiredQty} ${qtyType} - ${discountValue.toStringAsFixed(0)}% off',
+                                                                      style: const TextStyle(
+                                                                          fontSize:
+                                                                              14),
+                                                                    ),
+                                                                  );
+                                                                }).toList() ??
+                                                                [],
+                                                        onChanged:
+                                                            (Tier? newValue) {
+                                                          setState(() {
+                                                            selectedTiers[i]
+                                                                    .value =
+                                                                newValue;
+                                                            if (newValue !=
+                                                                null) {
+                                                              // Set quantity to the tier's required quantity
+                                                              localCounts[
+                                                                  i] = (newValue
+                                                                              .buyQuantity
+                                                                          as num?)
+                                                                      ?.toInt() ??
+                                                                  1;
+                                                            } else {
+                                                              localCounts[i] =
+                                                                  0;
+                                                            }
+                                                          });
                                                         },
-                                                      );
-                                                    } else if (detail.stock ==
-                                                        0) {
-                                                      localCounts[i]++;
-                                                    } else {
-                                                      localCounts[i]++;
-                                                    }
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    color: Colors.white,
-                                                    size: iconSize,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      Container(
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    5),
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                    5),
+                                                          ),
+                                                        ),
+                                                        child: InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              if (localCounts[
+                                                                      i] >
+                                                                  0) {
+                                                                localCounts[
+                                                                    i]--;
+                                                              }
+                                                            });
+                                                          },
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5),
+                                                            child: Icon(
+                                                              Icons.remove,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: iconSize,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      CustomText(
+                                                        content: localCounts[i]
+                                                            .toStringAsFixed(0),
+                                                        fontSize: fontSize,
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Container(
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    5),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    5),
+                                                          ),
+                                                        ),
+                                                        child: InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              detail.saleBy ??=
+                                                                  'Pack';
+                                                              if (detail
+                                                                      .stock ==
+                                                                  0) {
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    return AlertDialog(
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(15),
+                                                                      ),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white,
+                                                                      title:
+                                                                          const Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                              Icons.info_outline,
+                                                                              color: Colors.red),
+                                                                          SizedBox(
+                                                                              width: 8),
+                                                                          Text(
+                                                                            'Out of Stock',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 20,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.black,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      content:
+                                                                          const Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          Text(
+                                                                            'This item is out of stock.',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 16,
+                                                                              color: Colors.black87,
+                                                                            ),
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                          ),
+                                                                          SizedBox(
+                                                                              height: 10),
+                                                                          Text(
+                                                                            'Do you want to add this as a booking?',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 16,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.black,
+                                                                            ),
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      actions: [
+                                                                        ElevatedButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          style:
+                                                                              ElevatedButton.styleFrom(
+                                                                            backgroundColor:
+                                                                                Colors.redAccent,
+                                                                            shape:
+                                                                                RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.circular(8),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              const Text(
+                                                                            'No',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        ElevatedButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            setState(() {
+                                                                              localCounts[i]++;
+                                                                            });
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          style:
+                                                                              ElevatedButton.styleFrom(
+                                                                            backgroundColor:
+                                                                                Colors.green,
+                                                                            shape:
+                                                                                RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.circular(8),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                              const Text(
+                                                                            'Yes',
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                );
+                                                              } else if (detail
+                                                                      .stock ==
+                                                                  0) {
+                                                                localCounts[
+                                                                    i]++;
+                                                              } else {
+                                                                localCounts[
+                                                                    i]++;
+                                                              }
+                                                            });
+                                                          },
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5),
+                                                            child: Icon(
+                                                              Icons.add,
+                                                              color:
+                                                                  Colors.white,
+                                                              size: iconSize,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
                                       ),
                                     ),
                                   ],
@@ -820,14 +897,14 @@ class _ProductVariantDialoguePromoState
                             for (var i = 0;
                                 i < widget.detailsCopy.length;
                                 i++) {
-                              if (localCounts[i] > 0) {
+                              if (selectedTiers[i].value != null) {
                                 totalCount += localCounts[i];
-                              } else {}
+                              }
                             }
                             if (totalCount == 0) {
                               showCustomToastDisplay(
                                   context,
-                                  "Choose at least one variant to add to cart",
+                                  "Choose at least one tier for a variant to add to cart",
                                   Colors.orange,
                                   Icons.warning);
                               return;
@@ -838,7 +915,7 @@ class _ProductVariantDialoguePromoState
                                 i < widget.detailsCopy.length;
                                 i++) {
                               Detail detail = widget.detailsCopy[i];
-                              if (localCounts[i] > 0) {
+                              if (selectedTiers[i].value != null) {
                                 selections.add({
                                   'detail': detail,
                                   'quantity': localCounts[i],
@@ -847,8 +924,9 @@ class _ProductVariantDialoguePromoState
                                       widget.product.productName ?? '',
                                   'inclTax': widget.product.inclTax ?? '',
                                   'catId': widget.product.catId ?? 0,
+                                  'tier': selectedTiers[i].value,
                                 });
-                                log('Selected variant ID: ${detail.variationId} with quantity ${localCounts[i]}');
+                                // log('Selected variant ID: ${detail.variationId} with tier ${selectedTiers[i].value?.} and quantity ${localCounts[i]}');
                               }
                             }
 

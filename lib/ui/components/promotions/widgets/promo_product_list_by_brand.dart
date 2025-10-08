@@ -513,7 +513,7 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
           detailsCopy: detailsCopy,
           productController: widget.productsController,
           onVariantsSelected: widget.onVariantsSelected,
-          // promo: widget.promo,
+          promo: widget.promo,
         );
       },
     );

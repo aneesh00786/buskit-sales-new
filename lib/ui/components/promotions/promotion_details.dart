@@ -737,7 +737,7 @@ class PromotionDetails extends StatelessWidget {
                                           selectedTier.value == null) {
                                         showCustomToastDisplay(
                                           context,
-                                          "Please select a tier discount",
+                                          "Please select a tier discount 1",
                                           Colors.orange,
                                           Icons.warning,
                                         );
@@ -1808,7 +1808,7 @@ class PromotionDetails extends StatelessWidget {
                       ),
                     ),
 
-                    // Tier selection for tiered_discount promotions
+                    // Removed global tier selection dropdown
 
                     // Product List
                     Expanded(
@@ -1900,63 +1900,186 @@ class PromotionDetails extends StatelessWidget {
                                           ),
                                         ),
 
-                                        // Quantity Selector
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            border: Border.all(
-                                                color: Colors.grey.shade400),
-                                            color: Colors.white,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                tooltip: 'Decrease',
-                                                icon: const Icon(Icons.remove,
-                                                    size: 18),
-                                                onPressed: () {
-                                                  if (qty > 0) {
-                                                    qty = qty - 1;
-                                                    itemSetState(() {});
-                                                    _updateSelectedItems(
-                                                        variant,
-                                                        qty,
-                                                        selectedItems,
-                                                        setState);
-                                                  }
-                                                },
-                                              ),
-                                              Padding(
+                                        // Tier Selector or Quantity Selector based on promo type
+                                        promo.promoType == "tiered_discount" &&
+                                                promo.tiers != null &&
+                                                promo.tiers!.isNotEmpty
+                                            ? Container(
+                                                width: 180,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                      color:
+                                                          Colors.grey.shade400),
+                                                  color: Colors.white,
+                                                ),
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        horizontal: 8.0),
-                                                child: Text(
-                                                  '$qty',
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600),
+                                                        horizontal: 12.0,
+                                                        vertical: 4.0),
+                                                child: StatefulBuilder(
+                                                  builder:
+                                                      (context, tierSetState) {
+                                                    // Get or initialize tier for this variant
+                                                    Tier? selectedVariantTier;
+
+                                                    // Check if this variant already has a tier selected
+                                                    final existingIndex =
+                                                        selectedItems
+                                                            .indexWhere((e) =>
+                                                                e['variant']
+                                                                    .id ==
+                                                                variant.id);
+                                                    if (existingIndex >= 0 &&
+                                                        selectedItems[
+                                                                    existingIndex]
+                                                                ['tier'] !=
+                                                            null) {
+                                                      selectedVariantTier =
+                                                          selectedItems[
+                                                                  existingIndex]
+                                                              ['tier'] as Tier?;
+                                                    }
+
+                                                    return DropdownButtonHideUnderline(
+                                                      child:
+                                                          DropdownButton<Tier>(
+                                                        value:
+                                                            selectedVariantTier,
+                                                        hint: const Text(
+                                                            'Select Tier'),
+                                                        isExpanded: true,
+                                                        items: promo.tiers!
+                                                            .map((Tier tier) {
+                                                          final requiredQty =
+                                                              (tier.buyQuantity
+                                                                          as num?)
+                                                                      ?.toInt() ??
+                                                                  0;
+                                                          final qtyType =
+                                                              tier.buyQuantityType ??
+                                                                  '';
+                                                          final discountValue =
+                                                              double.tryParse(tier
+                                                                          .discountValue
+                                                                          ?.toString() ??
+                                                                      '0') ??
+                                                                  0;
+
+                                                          return DropdownMenuItem<
+                                                              Tier>(
+                                                            value: tier,
+                                                            child: Text(
+                                                              'Buy $requiredQty - $discountValue%',
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          14),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                        onChanged:
+                                                            (Tier? newValue) {
+                                                          tierSetState(() {
+                                                            selectedVariantTier =
+                                                                newValue;
+                                                          });
+
+                                                          // Update selected items with the tier
+                                                          if (newValue !=
+                                                              null) {
+                                                            final buyQty = (newValue
+                                                                            .buyQuantity
+                                                                        as num?)
+                                                                    ?.toInt() ??
+                                                                1;
+                                                            _updateSelectedItemsWithTier(
+                                                              variant,
+                                                              buyQty, // Use tier's buy quantity
+                                                              selectedItems,
+                                                              setState,
+                                                              newValue,
+                                                            );
+                                                          } else {
+                                                            _updateSelectedItemsWithTier(
+                                                              variant,
+                                                              0, // Remove if no tier selected
+                                                              selectedItems,
+                                                              setState,
+                                                              null,
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                      color:
+                                                          Colors.grey.shade400),
+                                                  color: Colors.white,
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    IconButton(
+                                                      tooltip: 'Decrease',
+                                                      icon: const Icon(
+                                                          Icons.remove,
+                                                          size: 18),
+                                                      onPressed: () {
+                                                        if (qty > 0) {
+                                                          qty = qty - 1;
+                                                          itemSetState(() {});
+                                                          _updateSelectedItems(
+                                                              variant,
+                                                              qty,
+                                                              selectedItems,
+                                                              setState);
+                                                        }
+                                                      },
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8.0),
+                                                      child: Text(
+                                                        '$qty',
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      tooltip: 'Increase',
+                                                      icon: const Icon(
+                                                          Icons.add,
+                                                          size: 18),
+                                                      onPressed: () {
+                                                        qty = qty + 1;
+                                                        itemSetState(() {});
+                                                        _updateSelectedItems(
+                                                            variant,
+                                                            qty,
+                                                            selectedItems,
+                                                            setState);
+                                                      },
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                              IconButton(
-                                                tooltip: 'Increase',
-                                                icon: const Icon(Icons.add,
-                                                    size: 18),
-                                                onPressed: () {
-                                                  qty = qty + 1;
-                                                  itemSetState(() {});
-                                                  _updateSelectedItems(
-                                                      variant,
-                                                      qty,
-                                                      selectedItems,
-                                                      setState);
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -2197,15 +2320,25 @@ class PromotionDetails extends StatelessWidget {
                                     // ---------------- Normal promo flow (unchanged) ----------------
 
                                     // Validate tier selection for tiered_discount
-                                    if (promo.promoType == "tiered_discount" &&
-                                        selectedTier.value == null) {
-                                      showCustomToastDisplay(
-                                        context,
-                                        "Please select a tier discount",
-                                        Colors.orange,
-                                        Icons.warning,
-                                      );
-                                      return;
+                                    if (promo.promoType == "tiered_discount") {
+                                      // For tiered_discount, check if any item is missing a tier selection
+                                      bool missingTier = false;
+                                      for (final item in selectedItems) {
+                                        if (item['tier'] == null) {
+                                          missingTier = true;
+                                          break;
+                                        }
+                                      }
+
+                                      if (missingTier) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Please select a tier discount for all selected products",
+                                          Colors.orange,
+                                          Icons.warning,
+                                        );
+                                        return;
+                                      }
                                     }
 
                                     // Validate min order
@@ -2256,9 +2389,9 @@ class PromotionDetails extends StatelessWidget {
                                         productName: variant.productName,
                                         discount: promo.promoType ==
                                                     "tiered_discount" &&
-                                                selectedTier.value != null
-                                            ? double.tryParse(selectedTier
-                                                        .value!.discountValue
+                                                e['tier'] != null
+                                            ? double.tryParse(e['tier']
+                                                        .discountValue
                                                         ?.toString() ??
                                                     '0') ??
                                                 0
@@ -2463,6 +2596,33 @@ class PromotionDetails extends StatelessWidget {
 
     log("[TIERED] No tier applicable for quantity: $quantity, isPack: $isPack");
     return null;
+  }
+
+  void _updateSelectedItemsWithTier(
+    dynamic variant,
+    int quantity,
+    List<Map<String, dynamic>> selectedItems,
+    void Function(void Function()) setState,
+    Tier? tier,
+  ) {
+    setState(() {
+      final idx =
+          selectedItems.indexWhere((e) => e['variant'].id == variant.id);
+      if (idx >= 0) {
+        if (quantity > 0 && tier != null) {
+          selectedItems[idx]['quantity'] = quantity;
+          selectedItems[idx]['tier'] = tier;
+        } else {
+          selectedItems.removeAt(idx);
+        }
+      } else if (quantity > 0 && tier != null) {
+        selectedItems.add({
+          'variant': variant,
+          'quantity': quantity,
+          'tier': tier,
+        });
+      }
+    });
   }
 
   void _updateSelectedItems(
@@ -3334,7 +3494,7 @@ class PromotionDetails extends StatelessWidget {
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
           // Add tier selection for tiered_discount promotions
-          final ValueNotifier<Tier?> selectedTier = ValueNotifier<Tier?>(null);
+          // final ValueNotifier<Tier?> selectedTier = ValueNotifier<Tier?>(null);
 
           return Dialog(
             shape:
@@ -3402,6 +3562,55 @@ class PromotionDetails extends StatelessWidget {
                         const SizedBox(height: 8),
                         Divider(color: Colors.grey),
                         const SizedBox(height: 8),
+                        // Add tier selection dropdown for tiered_discount promotions
+                        // if (promo.promoType == "tiered_discount" &&
+                        //     promo.tiers != null &&
+                        //     promo.tiers!.isNotEmpty) ...[
+                        //   Container(
+                        //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        //     decoration: BoxDecoration(
+                        //       border: Border.all(color: Colors.grey.shade300),
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     child: ValueListenableBuilder<Tier?>(
+                        //       valueListenable: selectedTier,
+                        //       builder: (context, value, _) =>
+                        //           DropdownButtonHideUnderline(
+                        //         child: DropdownButton<Tier>(
+                        //           value: value,
+                        //           hint: const Text('Select Tier'),
+                        //           isExpanded: true,
+                        //           items: promo.tiers!.map((Tier tier) {
+                        //             final requiredQty =
+                        //                 (tier.buyQuantity as num?)?.toInt() ??
+                        //                     0;
+                        //             final qtyType = tier.buyQuantityType ?? '';
+                        //             final discountValue = double.tryParse(
+                        //                     tier.discountValue?.toString() ??
+                        //                         '0') ??
+                        //                 0;
+
+                        //             return DropdownMenuItem<Tier>(
+                        //               value: tier,
+                        //               child: Padding(
+                        //                 padding: const EdgeInsets.symmetric(
+                        //                     horizontal: 16.0),
+                        //                 child: Text(
+                        //                   'Buy $requiredQty $qtyType - Get $discountValue% off',
+                        //                   style: const TextStyle(fontSize: 14),
+                        //                 ),
+                        //               ),
+                        //             );
+                        //           }).toList(),
+                        //           onChanged: (Tier? newValue) {
+                        //             selectedTier.value = newValue;
+                        //           },
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        //   const SizedBox(height: 16),
+                        // ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -3494,7 +3703,7 @@ class PromotionDetails extends StatelessWidget {
                                             productController:
                                                 productController,
                                             context: context,
-                                            selectedTier: selectedTier.value,
+                                            // selectedTier: selectedTier.value,
                                           );
                                         }
 
@@ -3554,17 +3763,17 @@ class PromotionDetails extends StatelessWidget {
                                       }
 
                                       // Tier validation for tiered_discount
-                                      if (promo.promoType ==
-                                              "tiered_discount" &&
-                                          selectedTier.value == null) {
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Please select a tier discount",
-                                          Colors.orange,
-                                          Icons.warning,
-                                        );
-                                        return;
-                                      }
+                                      // if (promo.promoType ==
+                                      //         "tiered_discount" &&
+                                      //     selectedTier.value == null) {
+                                      //   showCustomToastDisplay(
+                                      //     context,
+                                      //     "Please select a tier discount 3",
+                                      //     Colors.orange,
+                                      //     Icons.warning,
+                                      //   );
+                                      //   return;
+                                      // }
 
                                       // Add selected items normally
                                       for (final e in selectedItems) {
@@ -3590,7 +3799,7 @@ class PromotionDetails extends StatelessWidget {
                                           promo: promo,
                                           productController: productController,
                                           context: context,
-                                          selectedTier: selectedTier.value,
+                                          // selectedTier: selectedTier.value,
                                         );
                                       }
 

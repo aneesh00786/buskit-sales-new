@@ -2503,14 +2503,25 @@ class PromotionDetails extends StatelessWidget {
   }) async {
     // Determine discount value based on promo type
     double? discountValue;
+    double? maxDiscountValue;
+    bool isPercentageBasedDiscount = false;
+
     if (promo.promoType == "percentage_discount" ||
         promo.promoType == "happy_hours" ||
         promo.promoType == "seasonal" ||
         promo.promoType == "flash_sale" ||
         promo.promoType == "limited_time") {
+      isPercentageBasedDiscount = true;
       discountValue = promo.promoType == "percentage_discount"
           ? double.tryParse(promo.discountValue.toString())
           : double.tryParse(promo.discountPercentage.toString());
+
+      // Store max discount value for percentage-based discounts
+      if (promo.maxDiscount != null &&
+          promo.maxDiscount.toString().isNotEmpty) {
+        maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
+      }
+      log("[PROMO] Max discount value: $maxDiscountValue");
     } else if (promo.promoType == "tiered_discount") {
       // Handle tiered discount - use selected tier if available, otherwise calculate
       if (selectedTier != null) {
@@ -2520,6 +2531,8 @@ class PromotionDetails extends StatelessWidget {
         discountValue = _calculateTieredDiscount(promo, localCount, isPack);
       }
     }
+
+    log('[PROMO] Discount max value 2: ${discountValue}');
 
     // Create detail with discount if applicable
     final detailWithDiscount = discountValue != null
@@ -2539,8 +2552,12 @@ class PromotionDetails extends StatelessWidget {
             imageUrl: detail.imageUrl,
             productName: detail.productName,
             discount: discountValue,
+            // Store max discount value in the detail object for later use in cart calculations
+            maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
           )
         : detail;
+
+    log('[PROMO] Discount max value 4: ${detailWithDiscount.maxDiscount}');
 
     await CartDatabaseManager().addToCartPromo(
       customerId: customerId,
@@ -4149,7 +4166,6 @@ class PromotionDetails extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            maxLines: 2,
             textAlign: TextAlign.end,
             style: const TextStyle(
               fontSize: 16,

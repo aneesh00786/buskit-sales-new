@@ -21,26 +21,35 @@ class GroupedItemDataRows {
     required Function calculateAmount,
   }) {
     return groupedItems.map((groupedItem) {
-      final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
-          ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
-              ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
-                  groupedItem.detail.count.toDouble()
-              : groupedItem.detail.count.toDouble()) *
-          ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
-                  0.0) /
-              100));
-      final discountPrice =
-          (((double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
-                      0.0) *
-                  ((double.tryParse(
-                              groupedItem.detail.discount?.toString() ?? '0') ??
-                          0.0) /
-                      100)) *
-              ((groupedItem.isPack == true ||
-                      groupedItem.detail.packtype == 'Pack')
-                  ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
-                      groupedItem.detail.count.toDouble()
-                  : groupedItem.detail.count.toDouble()));
+      // Calculate base price and total quantity
+      final double basePrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      final double totalQuantity = (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+          ? (groupedItem.detail.pieces?.toDouble() ?? 1) * groupedItem.detail.count.toDouble()
+          : groupedItem.detail.count.toDouble();
+      
+      // Calculate total base price before discount
+      final double totalBasePrice = basePrice * totalQuantity;
+      
+      // Get discount percentage and max discount if available
+      final double discountPercentage = double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ?? 0.0;
+      final double? maxDiscount = groupedItem.detail.maxDiscount?.toDouble();
+      
+      // Calculate uncapped discount amount
+      double uncappedDiscountAmount = totalBasePrice * (discountPercentage / 100);
+      
+      // Apply max discount cap if available
+      double actualDiscountAmount = uncappedDiscountAmount;
+      if (maxDiscount != null && maxDiscount > 0 && uncappedDiscountAmount > maxDiscount) {
+        actualDiscountAmount = maxDiscount;
+        log("[MAX_DISCOUNT] Capped discount from $uncappedDiscountAmount to $maxDiscount for ${groupedItem.detail.variationName}");
+      }
+      
+      // Calculate tax discount based on actual discount percentage
+      final double effectiveDiscountPercentage = totalBasePrice > 0 ? (actualDiscountAmount / totalBasePrice) * 100 : 0;
+      final taxDiscountAmount = (groupedItem.detail.tax ?? 0.0) * totalQuantity * (effectiveDiscountPercentage / 100);
+      
+      // Set the discount price for display
+      final discountPrice = actualDiscountAmount;
       final tax = (groupedItem.detail.tax ?? 0) *
           (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
               ? (groupedItem.detail.pieces ?? 0) * groupedItem.detail.count
@@ -549,9 +558,14 @@ class GroupedItemDataRows {
             TableContent(
               maxLines: 1,
               fontSize: fontSize,
-              content: formatAmount(
-                discountPrice,
-              ),
+              content: formatAmount(discountPrice),
+              // Add visual indicator for max discount cap
+              suffix: maxDiscount != null && maxDiscount > 0 && uncappedDiscountAmount > maxDiscount 
+                ? " (max)" 
+                : null,
+              suffixStyle: maxDiscount != null && maxDiscount > 0 && uncappedDiscountAmount > maxDiscount
+                ? const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 10)
+                : null,
             ),
           ),
           DataCell(
@@ -591,29 +605,35 @@ class GroupedItemDataRows {
                   double displayTotal = groupedItem.totalPrice;
 
                   if (groupedItem.isPromo ?? false) {
-                    double effectiveSellingPrice =
-                        double.tryParse(groupedItem.detail.sellPrice ?? '0') ??
-                            0;
+                    double basePrice = double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0;
                     int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
                     num count = groupedItem.detail.count;
                     num tax = groupedItem.detail.tax ?? 0;
-                    double appliedDiscountPercentage =
-                        groupedItem.detail.discount?.toDouble() ?? 0;
-
-                    if (appliedDiscountPercentage > 0) {
-                      effectiveSellingPrice -= (effectiveSellingPrice *
-                          appliedDiscountPercentage /
-                          100);
-                      tax -= (tax * appliedDiscountPercentage / 100);
+                    double discountPercentage = groupedItem.detail.discount?.toDouble() ?? 0;
+                    double? maxDiscount = groupedItem.detail.maxDiscount?.toDouble();
+                    
+                    // Calculate total quantity and base price
+                    num totalCount = groupedItem.isPack == true ? count * pieces : count;
+                    double totalBasePrice = basePrice * totalCount;
+                    
+                    // Calculate discount with max discount cap
+                    double uncappedDiscountAmount = totalBasePrice * (discountPercentage / 100);
+                    double actualDiscountAmount = uncappedDiscountAmount;
+                    
+                    if (maxDiscount != null && maxDiscount > 0 && uncappedDiscountAmount > maxDiscount) {
+                      actualDiscountAmount = maxDiscount;
+                      log("[MAX_DISCOUNT] Capped total discount from $uncappedDiscountAmount to $maxDiscount for ${groupedItem.detail.variationName}");
                     }
-
-                    num totalCount =
-                        groupedItem.isPack == true ? count * pieces : count;
-                    double priceWithTax =
-                        groupedItem.detail.inclTax == "incl_tax"
-                            ? effectiveSellingPrice
-                            : effectiveSellingPrice + tax;
-
+                    
+                    // Calculate effective discount percentage and apply to price and tax
+                    double effectiveDiscountPercentage = totalBasePrice > 0 ? (actualDiscountAmount / totalBasePrice) * 100 : 0;
+                    double effectiveSellingPrice = basePrice * (1 - effectiveDiscountPercentage / 100);
+                    tax = tax * (1 - effectiveDiscountPercentage / 100);
+                    
+                    double priceWithTax = groupedItem.detail.inclTax == "incl_tax"
+                        ? effectiveSellingPrice
+                        : effectiveSellingPrice + tax;
+                        
                     displayTotal = priceWithTax * totalCount;
                   }
 
@@ -656,23 +676,51 @@ class TableContent extends StatelessWidget {
   double fontSize;
   String content;
   int maxLines;
-  TableContent(
-      {super.key,
-      required this.fontSize,
-      required this.content,
-      this.maxLines = 2});
+  String? suffix;
+  TextStyle? suffixStyle;
+  
+  TableContent({
+    super.key,
+    required this.fontSize,
+    required this.content,
+    this.maxLines = 2,
+    this.suffix,
+    this.suffixStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-        child: CustomText(
-          content: content,
-          textAlign: TextAlign.center,
-          fontSize: fontSize,
-          maxLine: maxLines,
-        ),
+        child: suffix != null
+            ? RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: content,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: Colors.black,
+                      ),
+                    ),
+                    TextSpan(
+                      text: suffix,
+                      style: suffixStyle ?? TextStyle(
+                        fontSize: fontSize,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : CustomText(
+                content: content,
+                textAlign: TextAlign.center,
+                fontSize: fontSize,
+                maxLine: maxLines,
+              ),
       ),
     );
   }

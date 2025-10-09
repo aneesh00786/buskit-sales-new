@@ -879,121 +879,243 @@ class _ProductVariantDialoguePromoState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          final customerId = customerAndOrderController
-                                  .customerId.value.isNotEmpty
-                              ? customerAndOrderController.customerId.value
-                              : widget
-                                  .productController.selectedCustomerId.value;
+                      if (widget.promo?.promoType != "tiered_discount") ...[
+                        ElevatedButton(
+                          onPressed: () async {
+                            final customerId = customerAndOrderController
+                                    .customerId.value.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget
+                                    .productController.selectedCustomerId.value;
 
-                          int totalCount = 0;
+                            int totalCount = 0;
 
-                          if ((customerAndOrderController
-                                  .customerId.value.isNotEmpty) ||
-                              (widget.productController.selectedCustomerName
-                                  .value.isNotEmpty)) {
-                            log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
-                            for (var i = 0;
-                                i < widget.detailsCopy.length;
-                                i++) {
-                              if (selectedTiers[i].value != null) {
-                                totalCount += localCounts[i];
+                            if ((customerAndOrderController
+                                    .customerId.value.isNotEmpty) ||
+                                (widget.productController.selectedCustomerName
+                                    .value.isNotEmpty)) {
+                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                if (localCounts[i] > 0) {
+                                  totalCount += localCounts[i];
+                                } else {}
                               }
-                            }
-                            if (totalCount == 0) {
-                              showCustomToastDisplay(
-                                  context,
-                                  "Choose at least one tier for a variant to add to cart",
-                                  Colors.orange,
-                                  Icons.warning);
-                              return;
-                            }
-                            // Accumulate selections and return to parent instead of adding to cart
-                            final List<Map<String, dynamic>> selections = [];
-                            for (var i = 0;
-                                i < widget.detailsCopy.length;
-                                i++) {
-                              Detail detail = widget.detailsCopy[i];
-                              if (selectedTiers[i].value != null) {
-                                selections.add({
-                                  'detail': detail,
-                                  'quantity': localCounts[i],
-                                  'isPack': (detail.saleBy ?? 'Pack') == 'Pack',
-                                  'productName':
-                                      widget.product.productName ?? '',
-                                  'inclTax': widget.product.inclTax ?? '',
-                                  'catId': widget.product.catId ?? 0,
-                                  'tier': selectedTiers[i].value,
-                                });
-                                // log('Selected variant ID: ${detail.variationId} with tier ${selectedTiers[i].value?.} and quantity ${localCounts[i]}');
+                              if (totalCount == 0) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Choose at least one variant to add to cart",
+                                    Colors.orange,
+                                    Icons.warning);
+                                return;
                               }
-                            }
+                              // Accumulate selections and return to parent instead of adding to cart
+                              final List<Map<String, dynamic>> selections = [];
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                Detail detail = widget.detailsCopy[i];
+                                if (localCounts[i] > 0) {
+                                  selections.add({
+                                    'detail': detail,
+                                    'quantity': localCounts[i],
+                                    'isPack':
+                                        (detail.saleBy ?? 'Pack') == 'Pack',
+                                    'productName':
+                                        widget.product.productName ?? '',
+                                    'inclTax': widget.product.inclTax ?? '',
+                                    'catId': widget.product.catId ?? 0,
+                                  });
+                                  log('Selected variant ID: ${detail.variationId} with quantity ${localCounts[i]}');
+                                }
+                              }
 
-                            if (widget.onVariantsSelected != null) {
-                              widget.onVariantsSelected!(selections);
-                            }
+                              if (widget.onVariantsSelected != null) {
+                                widget.onVariantsSelected!(selections);
+                              }
 
-                            Navigator.pop(context);
-                          } else {
-                            showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  actions: [
-                                    const SizedBox(height: 20),
-                                    const Center(
-                                        child: Icon(
-                                            Icons.warning_amber_outlined,
-                                            size: 50,
-                                            color: Colors.orange)),
-                                    const SizedBox(height: 20),
-                                    Center(
+                              Navigator.pop(context);
+                            } else {
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      const SizedBox(height: 20),
+                                      const Center(
+                                          child: Icon(
+                                              Icons.warning_amber_outlined,
+                                              size: 50,
+                                              color: Colors.orange)),
+                                      const SizedBox(height: 20),
+                                      Center(
+                                          child: CustomText(
+                                              content:
+                                                  "Please Select a Customer",
+                                              fontSize: 18)),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
                                         child: CustomText(
-                                            content: "Please Select a Customer",
-                                            fontSize: 18)),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: CustomText(
-                                          content: "Ok", color: primaryColor),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryButtonColor,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.04,
-                            vertical: screenHeight * 0.01,
+                                            content: "Ok", color: primaryColor),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryButtonColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.01,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          child: Row(
+                            children: [
+                              CustomText(
+                                content: "Select",
+                                fontSize: screenWidth * 0.02,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: screenWidth * 0.02,
+                              ),
+                              Icon(
+                                Icons.shopping_bag,
+                                size: screenWidth * 0.03,
+                                color: white,
+                              )
+                            ],
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            CustomText(
-                              content: "Select",
-                              fontSize: screenWidth * 0.02,
-                              color: Colors.white,
+                      ],
+                      if (widget.promo?.promoType == "tiered_discount") ...[
+                        ElevatedButton(
+                          onPressed: () async {
+                            final customerId = customerAndOrderController
+                                    .customerId.value.isNotEmpty
+                                ? customerAndOrderController.customerId.value
+                                : widget
+                                    .productController.selectedCustomerId.value;
+
+                            int totalCount = 0;
+
+                            if ((customerAndOrderController
+                                    .customerId.value.isNotEmpty) ||
+                                (widget.productController.selectedCustomerName
+                                    .value.isNotEmpty)) {
+                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                if (selectedTiers[i].value != null) {
+                                  totalCount += localCounts[i];
+                                }
+                              }
+                              if (totalCount == 0) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Choose at least one tier for a variant to add to cart",
+                                    Colors.orange,
+                                    Icons.warning);
+                                return;
+                              }
+                              // Accumulate selections and return to parent instead of adding to cart
+                              final List<Map<String, dynamic>> selections = [];
+                              for (var i = 0;
+                                  i < widget.detailsCopy.length;
+                                  i++) {
+                                Detail detail = widget.detailsCopy[i];
+                                if (selectedTiers[i].value != null) {
+                                  selections.add({
+                                    'detail': detail,
+                                    'quantity': localCounts[i],
+                                    'isPack':
+                                        (detail.saleBy ?? 'Pack') == 'Pack',
+                                    'productName':
+                                        widget.product.productName ?? '',
+                                    'inclTax': widget.product.inclTax ?? '',
+                                    'catId': widget.product.catId ?? 0,
+                                    'tier': selectedTiers[i].value,
+                                  });
+                                  // log('Selected variant ID: ${detail.variationId} with tier ${selectedTiers[i].value?.} and quantity ${localCounts[i]}');
+                                }
+                              }
+
+                              if (widget.onVariantsSelected != null) {
+                                widget.onVariantsSelected!(selections);
+                              }
+
+                              Navigator.pop(context);
+                            } else {
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actions: [
+                                      const SizedBox(height: 20),
+                                      const Center(
+                                          child: Icon(
+                                              Icons.warning_amber_outlined,
+                                              size: 50,
+                                              color: Colors.orange)),
+                                      const SizedBox(height: 20),
+                                      Center(
+                                          child: CustomText(
+                                              content:
+                                                  "Please Select a Customer",
+                                              fontSize: 18)),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: CustomText(
+                                            content: "Ok", color: primaryColor),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryButtonColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.01,
                             ),
-                            SizedBox(
-                              width: screenWidth * 0.02,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            Icon(
-                              Icons.shopping_bag,
-                              size: screenWidth * 0.03,
-                              color: white,
-                            )
-                          ],
+                          ),
+                          child: Row(
+                            children: [
+                              CustomText(
+                                content: "Select",
+                                fontSize: screenWidth * 0.02,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: screenWidth * 0.02,
+                              ),
+                              Icon(
+                                Icons.shopping_bag,
+                                size: screenWidth * 0.03,
+                                color: white,
+                              )
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

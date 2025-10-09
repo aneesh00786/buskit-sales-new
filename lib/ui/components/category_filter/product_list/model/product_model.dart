@@ -283,6 +283,9 @@ class Detail {
   @HiveField(33)
   String? productName;
 
+  @HiveField(34)
+  num? maxDiscount;
+
   Detail({
     this.id,
     this.companyId,
@@ -316,6 +319,7 @@ class Detail {
     this.discount,
     this.totaltax,
     this.productName,
+    this.maxDiscount,
   });
   Detail copyWith({
     int? id,
@@ -348,42 +352,45 @@ class Detail {
     num? unitTax,
     String? pack,
     num? discount,
-    num? totalTax,
+    num? totaltax,
+    num? maxDiscount,
     String? productName,
   }) {
     return Detail(
-        id: id ?? this.id,
-        companyId: companyId ?? this.companyId,
-        productId: productId ?? this.productId,
-        variationId: variationId ?? this.variationId,
-        inNo: inNo ?? this.inNo,
-        barcode: barcode ?? this.barcode,
-        variationName: variationName ?? this.variationName,
-        unitType: unitType ?? this.unitType,
-        price: price ?? this.price,
-        sellPrice: sellPrice ?? this.sellPrice,
-        tax: tax ?? this.tax,
-        packtype: packtype ?? this.packtype,
-        pieces: pieces ?? this.pieces,
-        stock: stock ?? this.stock,
-        lowstock: lowstock ?? this.lowstock,
-        fullstock: fullstock ?? this.fullstock,
-        imageUrl: imageUrl ?? this.imageUrl,
-        status: status ?? this.status,
-        vStatus: vStatus ?? this.vStatus,
-        count: count ?? this.count,
-        saleBy: saleBy ?? this.saleBy,
-        totalPrice: totalPrice ?? this.totalPrice,
-        sellingPrice: sellingPrice ?? this.sellingPrice,
-        packPrice: packPrice ?? this.packPrice,
-        sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
-        inclTax: inclTax ?? this.inclTax,
-        initialQuantity: initialQuantity ?? this.initialQuantity,
-        unitTax: unitTax ?? this.unitTax,
-        pack: pack ?? this.pack,
-        discount: discount ?? this.discount,
-        totaltax: totaltax ?? totaltax,
-        productName: productName ?? this.productName);
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      productId: productId ?? this.productId,
+      variationId: variationId ?? this.variationId,
+      inNo: inNo ?? this.inNo,
+      barcode: barcode ?? this.barcode,
+      variationName: variationName ?? this.variationName,
+      unitType: unitType ?? this.unitType,
+      price: price ?? this.price,
+      sellPrice: sellPrice ?? this.sellPrice,
+      tax: tax ?? this.tax,
+      packtype: packtype ?? this.packtype,
+      pieces: pieces ?? this.pieces,
+      stock: stock ?? this.stock,
+      lowstock: lowstock ?? this.lowstock,
+      fullstock: fullstock ?? this.fullstock,
+      imageUrl: imageUrl ?? this.imageUrl,
+      status: status ?? this.status,
+      vStatus: vStatus ?? this.vStatus,
+      count: count ?? this.count,
+      saleBy: saleBy ?? this.saleBy,
+      totalPrice: totalPrice ?? this.totalPrice,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      packPrice: packPrice ?? this.packPrice,
+      sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
+      inclTax: inclTax ?? this.inclTax,
+      initialQuantity: initialQuantity ?? this.initialQuantity,
+      unitTax: unitTax ?? this.unitTax,
+      pack: pack ?? this.pack,
+      discount: discount ?? this.discount,
+      totaltax: totaltax ?? totaltax,
+      productName: productName ?? this.productName,
+      maxDiscount: maxDiscount ?? this.maxDiscount,
+    );
   }
 
   Detail.fromJson(Map<String, dynamic> json)
@@ -418,7 +425,8 @@ class Detail {
         pack = json['packtype'],
         discount = json['discount'],
         totaltax = json['total_tax'],
-        productName = json['product_name'];
+        productName = json['product_name'],
+        maxDiscount = json['max_discount'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -454,6 +462,7 @@ class Detail {
     data['discount'] = discount;
     data['total_tax'] = totaltax;
     data['product_name'] = productName;
+    data['max_discount'] = maxDiscount;
     return data;
   }
 }

@@ -43,13 +43,28 @@ class Utils {
         final double discountPercentage =
             (double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0) /
                 100;
+        final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
         final double count = item.isPack == true
             ? (item.detail.pieces?.toDouble() ?? 1) *
                 item.detail.count.toDouble()
             : item.detail.count.toDouble();
-        final double discountPrice = sellPrice * discountPercentage * count;
-        log('Discount for item: $discountPrice');
-        return sum + discountPrice;
+
+        // Calculate total base price and uncapped discount
+        final double totalBasePrice = sellPrice * count;
+        double uncappedDiscountAmount = totalBasePrice * discountPercentage;
+
+        // Apply max discount cap if available
+        double actualDiscountAmount = uncappedDiscountAmount;
+        if (maxDiscount != null &&
+            maxDiscount > 0 &&
+            uncappedDiscountAmount > maxDiscount) {
+          actualDiscountAmount = maxDiscount;
+          log("[MAX_DISCOUNT] Capped total discount from $uncappedDiscountAmount to $maxDiscount for ${item.detail.variationName}");
+        }
+
+        log('Discount for item: $actualDiscountAmount');
+        return sum + actualDiscountAmount;
       }
       return sum;
     });
@@ -165,8 +180,51 @@ class Utils {
         // Use discount already passed in cartItem.detail.discount
         appliedDiscountPercentage = cartItem.detail.discount?.toDouble() ?? 0;
         if (appliedDiscountPercentage > 0) {
-          effectiveSellingPrice -=
-              (effectiveSellingPrice * appliedDiscountPercentage / 100);
+          // Get the base price for discount calculation
+          double basePrice = effectiveSellingPrice;
+
+          // Calculate the total quantity
+          int pieces = cartItem.detail.pieces?.toInt() ?? 1;
+          num count = cartItem.detail.count;
+          num totalCount = cartItem.isPack == true ? count * pieces : count;
+
+          // Calculate the total price before discount
+          double totalBasePrice = basePrice * totalCount.toDouble();
+
+          // Calculate the discount amount on the total price
+          double totalDiscountAmount =
+              totalBasePrice * appliedDiscountPercentage / 100;
+
+          // Check if there's a max discount limit
+          log('[PROMO] Discount max value: ${cartItem.detail.maxDiscount}');
+          
+          if (cartItem.detail.maxDiscount != null &&
+              cartItem.detail.maxDiscount! > 0) {
+            double maxDiscountValue = cartItem.detail.maxDiscount!.toDouble();
+
+            // If discount amount exceeds max discount, cap it
+
+            if (totalDiscountAmount > maxDiscountValue) {
+              totalDiscountAmount = maxDiscountValue;
+              log('[PROMO] Discount capped at max value: $maxDiscountValue for total price $totalBasePrice');
+
+              // Recalculate the effective discount percentage for display
+              double effectiveDiscountPercentage =
+                  (totalDiscountAmount / totalBasePrice) * 100;
+              cartItem.detail.discount = effectiveDiscountPercentage;
+              appliedDiscountPercentage = effectiveDiscountPercentage;
+
+              // Show notification that max discount was applied
+              log('[PROMO] Effective discount percentage reduced to: $effectiveDiscountPercentage%');
+            }
+          }
+
+          // Calculate the discount amount per unit
+          double discountAmountPerUnit =
+              totalDiscountAmount / totalCount.toDouble();
+
+          // Apply the (potentially capped) discount per unit
+          effectiveSellingPrice -= discountAmountPerUnit;
           tax -= (tax * appliedDiscountPercentage / 100);
 
           log('[PROMO] Promo discount applied: $appliedDiscountPercentage%. '

@@ -359,49 +359,69 @@ class CartDialogueState extends State<CartDialogue> {
       totalDiscount = widget.productsController.orderItems.fold(
         0.0,
         (sum, item) {
-          final discountPrice = (((double.tryParse(
-                          item.detail.sellPrice?.toString() ?? '0') ??
-                      0.0) *
-                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
-                          0.0) /
-                      100)) *
-              ((item.isPack == true || item.detail.packtype == 'Pack')
+          if (item.isChecked != true) return sum;
+
+          final double sellPrice =
+              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          final double discountPercentage =
+              double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+          final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+          // Calculate total quantity
+          final double totalQuantity =
+              (item.isPack == true || item.detail.packtype == 'Pack')
                   ? (item.detail.pieces?.toDouble() ?? 1) *
                       item.detail.count.toDouble()
-                  : item.detail.count.toDouble()));
-          if (item.isChecked == true) {
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum + discountPrice;
-            } else {
-              return 0;
-            }
-          } else {
-            return 0;
+                  : item.detail.count.toDouble();
+
+          // Calculate total price before discount
+          final double totalPrice = sellPrice * totalQuantity;
+
+          // Calculate discount amount
+          double discountAmount = totalPrice * (discountPercentage / 100);
+
+          // Apply max discount cap if applicable
+          if (maxDiscount != null &&
+              maxDiscount > 0 &&
+              discountAmount > maxDiscount) {
+            discountAmount = maxDiscount;
           }
+
+          return sum + discountAmount;
         },
       );
       totalDiscountPreorder = widget.productsController.preorderItems.fold(
         0.0,
         (sum, item) {
-          final discountPrice = (((double.tryParse(
-                          item.detail.sellPrice?.toString() ?? '0') ??
-                      0.0) *
-                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
-                          0.0) /
-                      100)) *
-              ((item.isPack == true || item.detail.packtype == 'Pack')
+          if (item.isChecked != true) return sum;
+
+          final double sellPrice =
+              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          final double discountPercentage =
+              double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+          final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+          // Calculate total quantity
+          final double totalQuantity =
+              (item.isPack == true || item.detail.packtype == 'Pack')
                   ? (item.detail.pieces?.toDouble() ?? 1) *
                       item.detail.count.toDouble()
-                  : item.detail.count.toDouble()));
-          if (item.isChecked == true) {
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum + discountPrice;
-            } else {
-              return 0;
-            }
-          } else {
-            return 0;
+                  : item.detail.count.toDouble();
+
+          // Calculate total price before discount
+          final double totalPrice = sellPrice * totalQuantity;
+
+          // Calculate discount amount
+          double discountAmount = totalPrice * (discountPercentage / 100);
+
+          // Apply max discount cap if applicable
+          if (maxDiscount != null &&
+              maxDiscount > 0 &&
+              discountAmount > maxDiscount) {
+            discountAmount = maxDiscount;
           }
+
+          return sum + discountAmount;
         },
       );
       setState(() {

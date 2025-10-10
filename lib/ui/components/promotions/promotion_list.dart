@@ -6,8 +6,9 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 
 class PromotionList extends StatelessWidget {
   final ProductsController controller;
+  final bool isDrawer;
 
-  const PromotionList({super.key, required this.controller});
+  const PromotionList({super.key, required this.controller, this.isDrawer = false});
 
   @override
   Widget build(BuildContext context) {

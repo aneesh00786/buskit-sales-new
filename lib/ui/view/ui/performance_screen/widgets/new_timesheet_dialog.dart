@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
@@ -45,6 +46,7 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       backgroundColor: white,
       surfaceTintColor: white,
       shape: RoundedRectangleBorder(
@@ -133,7 +135,9 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
 
   Widget _buildTable(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.7,
+      width: isPhonePortrait(context)
+          ? fullScreenWidth(context)
+          : fullScreenWidth(context) * 0.7,
       padding: const EdgeInsets.all(8.0),
       child: Table(
         border: TableBorder.all(color: Colors.grey),

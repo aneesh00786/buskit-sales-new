@@ -481,7 +481,7 @@ void paymentCollectionDialog(
                                         height: 35,
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.15,
+                                                0.35,
                                         child: DropdownButtonFormField<String>(
                                           value: selectedPaymentMethod,
                                           decoration: InputDecoration(

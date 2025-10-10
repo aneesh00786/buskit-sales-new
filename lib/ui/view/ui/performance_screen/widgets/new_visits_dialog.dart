@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -46,7 +47,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
       endDate,
     );
 
-
     _loadVisitsForDay(_selectedDay as DateTime);
   }
 
@@ -59,7 +59,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   }
 
   void _loadVisitsForDay(DateTime day) {
-
     final scheduleDataForDate =
         widget.staffController.scheduleList.firstWhereOrNull((data) {
       if (data.start == null) return false;
@@ -78,7 +77,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
     });
 
     if (scheduleDataForDate != null) {
-
       if (scheduleDataForDate.customer != null &&
           scheduleDataForDate.customer!.isNotEmpty) {
         visits = scheduleDataForDate.customer!.map((customer) {
@@ -91,7 +89,6 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
       }
 
       appointmentCount = scheduleDataForDate.customer?.length ?? 0;
-
     } else {
       visits = [];
       appointmentCount = 0;
@@ -115,6 +112,7 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
@@ -128,7 +126,9 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                   ),
                 )
               : SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: isPhonePortrait(context)
+                      ? fullScreenWidth(context)
+                      : fullScreenWidth(context) * 0.7,
                   child: Column(
                     children: [
                       Container(
@@ -158,7 +158,9 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                         ),
                       ),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.6,
+                        width: isPhonePortrait(context)
+                            ? fullScreenWidth(context)
+                            : fullScreenWidth(context) * 0.7,
                         padding: const EdgeInsets.all(15.0),
                         child: TableCalendar(
                           firstDay: DateTime.utc(2020, 1, 1),
@@ -271,7 +273,9 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                       ),
                       Expanded(
                         child: Container(
-                          width: MediaQuery.of(context).size.width * 0.6,
+                          width: isPhonePortrait(context)
+                              ? fullScreenWidth(context)
+                              : fullScreenWidth(context) * 0.7,
                           padding: const EdgeInsets.all(15.0),
                           child: ListView.separated(
                             shrinkWrap: true,

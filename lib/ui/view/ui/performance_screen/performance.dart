@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-
 import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -50,12 +49,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  String selectedValue =  DateTime.now().year.toString();
+  String selectedValue = DateTime.now().year.toString();
   String staffProjection = '';
   String targetType = '';
 
   Future<void> _loadSettings() async {
-
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -72,7 +70,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-
       log("Error fetching settings: $e");
     }
   }
@@ -148,12 +145,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         backgroundColor: white,
         actions: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
+            width: MediaQuery.of(context).size.width * 0.8,
             child: Row(
               children: [
-                Flexible(
+                Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
                         height: isSmallScreen ? 29 : 38,
@@ -284,7 +282,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             staffProjection: staffProjection,
                             targetType: targetType);
                       } else {
-                        errorSnackbar("No internet connection . please check your network");
+                        errorSnackbar(
+                            "No internet connection . please check your network");
                       }
                     },
                     child: Container(
@@ -338,8 +337,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         : () {
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
-                          }
-                    ),
+                          }),
                 OptionData(
                   title: 'Check-in/out',
                   unfilteredCount: "0",
@@ -366,8 +364,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                               StaffRouteDialog(
                                   staffController: staffController),
                             );
-                          }
-                    ),
+                          }),
                 OptionData(
                   title: 'Customers',
                   unfilteredCount: "0",

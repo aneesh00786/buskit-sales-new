@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -49,6 +50,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
     double totalWidth = MediaQuery.of(context).size.width;
     log("DATE FORMAT :${widget.invoiceData!.orderCreatAt?.toIso8601String() ?? ''}");
     return Dialog(
+      insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       backgroundColor: white,
       child: Padding(
@@ -132,181 +134,207 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: DataTable(
-                      // ignore: deprecated_member_use
-                      dataRowHeight: 40,
-                      headingRowHeight: 40,
-                      horizontalMargin: 20,
-                      headingTextStyle: const TextStyle(
-                        color: black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      columns: [
-                        DataColumn(
-                          label: SizedBox(
-                            width: totalWidth * 0.2,
-                            child: const Text('ITEM NAME'),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: isPhonePortrait(context)
+                            ? fullScreenWidth(context) * 2
+                            : null,
+                        child: DataTable(
+                          dataRowHeight: 40,
+                          headingRowHeight: 40,
+                          horizontalMargin: 20,
+                          headingTextStyle: const TextStyle(
+                            color: black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'PRICE',
-                              textAlign: TextAlign.center,
+                          columns: [
+                            DataColumn(
+                              label: SizedBox(
+                                width: isPhonePortrait(context)
+                                    ? fullScreenWidth(context) * 0.4
+                                    : fullScreenWidth(context) * 0.2,
+                                child: const Text('ITEM NAME'),
+                              ),
                             ),
-                          ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'QTY',
-                              textAlign: TextAlign.center,
+                            const DataColumn(
+                              label: Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'PRICE',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'DISCOUNT',
-                              textAlign: TextAlign.center,
+                            const DataColumn(
+                              label: Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'QTY',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'TAX',
-                              textAlign: TextAlign.center,
+                            const DataColumn(
+                              label: Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'DISCOUNT',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const DataColumn(
-                          label: Expanded(
-                            flex: 2,
-                            child: Text(
-                              'TOTAL',
-                              textAlign: TextAlign.right,
+                            const DataColumn(
+                              label: Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'TAX',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                      rows: (widget.invoiceData?.cart != null &&
-                              widget.invoiceData!.cart!.isNotEmpty)
-                          ? List.generate(
-                              widget.invoiceData!.cart!.length,
-                              (index) {
-                                return DataRow(
-                                  cells: [
-                                    // DataCell(
-                                    //   SizedBox(
-                                    //     width: totalWidth * 0.2,
-                                    //     child: Text(
-                                    //       ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}'),
-                                    //       maxLines: 2,
-                                    //       overflow: TextOverflow.ellipsis,
-                                    //       style: const TextStyle(fontSize: 14),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    DataCell(
-                                      Tooltip(
-                                        message:
-                                            "${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}",
-                                        preferBelow: false,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black87,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: SizedBox(
-                                          width: totalWidth * 0.2,
-                                          child: ProductNameWithTax(
-                                            productName: widget.invoiceData!
-                                                .cart![index].productName
-                                                .toString(),
-                                            variationName: widget.invoiceData!
-                                                .cart![index].variationName
-                                                .toString(),
-                                            isInclTax: widget.invoiceData!
-                                                    .cart![index].inclTax ==
-                                                "incl_tax",
-                                            maxWidth: totalWidth * 0.2,
-                                            style:
-                                                const TextStyle(fontSize: 14),
+                            const DataColumn(
+                              label: Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'TOTAL',
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: (widget.invoiceData?.cart != null &&
+                                  widget.invoiceData!.cart!.isNotEmpty)
+                              ? List.generate(
+                                  widget.invoiceData!.cart!.length,
+                                  (index) {
+                                    return DataRow(
+                                      cells: [
+                                        // DataCell(
+                                        //   SizedBox(
+                                        //     width: totalWidth * 0.2,
+                                        //     child: Text(
+                                        //       ('${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}'),
+                                        //       maxLines: 2,
+                                        //       overflow: TextOverflow.ellipsis,
+                                        //       style: const TextStyle(fontSize: 14),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        DataCell(
+                                          Tooltip(
+                                            message:
+                                                "${widget.invoiceData!.cart![index].productName} - ${widget.invoiceData!.cart![index].variationName}",
+                                            preferBelow: false,
+                                            decoration: BoxDecoration(
+                                              color: Colors.black87,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: SizedBox(
+                                              width: isPhonePortrait(context)
+                                                  ? fullScreenWidth(context) *
+                                                      0.4
+                                                  : fullScreenWidth(context) *
+                                                      0.2,
+                                              child: ProductNameWithTax(
+                                                productName: widget.invoiceData!
+                                                    .cart![index].productName
+                                                    .toString(),
+                                                variationName: widget
+                                                    .invoiceData!
+                                                    .cart![index]
+                                                    .variationName
+                                                    .toString(),
+                                                isInclTax: widget.invoiceData!
+                                                        .cart![index].inclTax ==
+                                                    "incl_tax",
+                                                maxWidth: isPhonePortrait(
+                                                        context)
+                                                    ? fullScreenWidth(context) *
+                                                        0.4
+                                                    : fullScreenWidth(context) *
+                                                        0.2,
+                                                style: const TextStyle(
+                                                    fontSize: 14),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(formatAmount(widget
-                                                .invoiceData?.cart?[index].price
-                                                ?.toString() ??
-                                            '0')),
-                                      ),
-                                    ),
-                                    // Quantity
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          (widget.invoiceData!.cart![index]
-                                                      .packType ==
-                                                  'Pack')
-                                              ? '${(widget.invoiceData?.cart?[index].pieces ?? 0) * (widget.invoiceData?.cart?[index].quantity?.toInt() ?? 0)}'
-                                                  ' (${widget.invoiceData?.cart?[index].quantity ?? 0} ${widget.invoiceData?.cart?[index].packType})'
-                                              : '${widget.invoiceData?.cart?[index].quantity ?? 0}',
+                                        DataCell(
+                                          Center(
+                                            child: Text(formatAmount(widget
+                                                    .invoiceData
+                                                    ?.cart?[index]
+                                                    .price
+                                                    ?.toString() ??
+                                                '0')),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(
-                                          formatAmount(widget.invoiceData
-                                              ?.cart?[index].discountAmount),
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Center(
-                                        child: Text(formatAmount(widget
-                                            .invoiceData?.cart?[index].tax)),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Text.rich(
-                                            TextSpan(
-                                              text: formatAmount(widget
-                                                  .invoiceData!
-                                                  .cart![index]
-                                                  .total),
+                                        // Quantity
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              (widget.invoiceData!.cart![index]
+                                                          .packType ==
+                                                      'Pack')
+                                                  ? '${(widget.invoiceData?.cart?[index].pieces ?? 0) * (widget.invoiceData?.cart?[index].quantity?.toInt() ?? 0)}'
+                                                      ' (${widget.invoiceData?.cart?[index].quantity ?? 0} ${widget.invoiceData?.cart?[index].packType})'
+                                                  : '${widget.invoiceData?.cart?[index].quantity ?? 0}',
                                             ),
-                                            maxLines: 1,
-                                          )),
-                                    ),
-                                  ],
-                                );
-                              },
-                            )
-                          : [
-                              const DataRow(
-                                cells: [
-                                  DataCell(Text('No items available.')),
-                                  DataCell(Text('')),
-                                  DataCell(Text('')),
-                                  DataCell(Text('')),
-                                  DataCell(Text('')),
-                                  DataCell(Text('')),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              formatAmount(widget
+                                                  .invoiceData
+                                                  ?.cart?[index]
+                                                  .discountAmount),
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: Text(formatAmount(widget
+                                                .invoiceData
+                                                ?.cart?[index]
+                                                .tax)),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text.rich(
+                                                TextSpan(
+                                                  text: formatAmount(widget
+                                                      .invoiceData!
+                                                      .cart![index]
+                                                      .total),
+                                                ),
+                                                maxLines: 1,
+                                              )),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : [
+                                  const DataRow(
+                                    cells: [
+                                      DataCell(Text('No items available.')),
+                                      DataCell(Text('')),
+                                      DataCell(Text('')),
+                                      DataCell(Text('')),
+                                      DataCell(Text('')),
+                                      DataCell(Text('')),
+                                    ],
+                                  ),
                                 ],
-                              ),
-                            ],
+                        ),
+                      ),
                     ),
                   ),
                 ],

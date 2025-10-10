@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -88,6 +89,10 @@ void showSalesmanPopup(
                 final categories = snapshot.data!.data;
 
                 return AlertDialog(
+                  insetPadding:
+                      isPhonePortrait(context) || isPhoneLandscape(context)
+                          ? EdgeInsets.zero
+                          : null,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -132,131 +137,134 @@ void showSalesmanPopup(
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(6.0),
-                              child: DataTable(
-                                // ignore: deprecated_member_use
-                                dataRowHeight: 50,
-                                headingRowHeight: 40,
-                                columnSpacing: 30,
-                                headingRowColor: WidgetStatePropertyAll(
-                                    Colors.grey.shade300),
-                                border: TableBorder.all(color: Colors.grey),
-                                columns: const [
-                                  DataColumn(
-                                    label: DialogTableHeaderText(
-                                      text: 'Product',
-                                      fontSize: 13,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  // ignore: deprecated_member_use
+                                  dataRowHeight: 50,
+                                  headingRowHeight: 40,
+                                  columnSpacing: 30,
+                                  headingRowColor: WidgetStatePropertyAll(
+                                      Colors.grey.shade300),
+                                  border: TableBorder.all(color: Colors.grey),
+                                  columns: const [
+                                    DataColumn(
+                                      label: DialogTableHeaderText(
+                                        text: 'Product',
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogTableHeaderText(
-                                      text: 'Invoice',
-                                      fontSize: 13,
+                                    DataColumn(
+                                      label: DialogTableHeaderText(
+                                        text: 'Invoice',
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogTableHeaderText(
-                                      text: 'Quantity',
-                                      fontSize: 13,
+                                    DataColumn(
+                                      label: DialogTableHeaderText(
+                                        text: 'Quantity',
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  ),
-                                  DataColumn(
-                                    label: DialogTableHeaderText(
-                                      text: 'Price',
-                                      fontSize: 13,
+                                    DataColumn(
+                                      label: DialogTableHeaderText(
+                                        text: 'Price',
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                rows: [
-                                  ...categories.map((s) {
-                                    return DataRow(
+                                  ],
+                                  rows: [
+                                    ...categories.map((s) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(Center(
+                                            child: Text(
+                                              '${s.productName} ${s.variationName}',
+                                              style: const TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 13,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          )),
+                                          DataCell(Center(
+                                            child: Text(
+                                              s.orderId,
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          )),
+                                          DataCell(Center(
+                                            child: Text(
+                                              '${s.quantity}',
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          )),
+                                          DataCell(Center(
+                                            child: Text(
+                                              formatAmount(s.totalPrice),
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          )),
+                                        ],
+                                      );
+                                    }),
+                                    DataRow(
                                       cells: [
-                                        DataCell(Center(
-                                          child: Text(
-                                            '${s.productName} ${s.variationName}',
-                                            style: const TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 13,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        )),
-                                        DataCell(Center(
-                                          child: Text(
-                                            s.orderId,
-                                            maxLines: 1,
-                                            style: const TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 13,
+                                        DataCell(
+                                          Container(
+                                            alignment: Alignment.center,
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8, horizontal: 50),
+                                            child: const Text(
+                                              'Total',
+                                              style: TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                        )),
-                                        DataCell(Center(
-                                          child: Text(
-                                            '${s.quantity}',
-                                            maxLines: 1,
-                                            style: const TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 13,
+                                        ),
+                                        const DataCell(SizedBox.shrink()),
+                                        const DataCell(SizedBox.shrink()),
+                                        DataCell(
+                                          Center(
+                                            child: Text(
+                                              formatAmount(
+                                                  categories.fold<double>(
+                                                0.0,
+                                                (sum, s) =>
+                                                    sum +
+                                                    (num.parse(s.totalPrice)),
+                                              )),
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                color: secondaryTextColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
-                                        )),
-                                        DataCell(Center(
-                                          child: Text(
-                                            formatAmount(s.totalPrice),
-                                            maxLines: 1,
-                                            style: const TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        )),
+                                        ),
                                       ],
-                                    );
-                                  }),
-                                  DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Container(
-                                          alignment: Alignment.center,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 8, horizontal: 50),
-                                          child: const Text(
-                                            'Total',
-                                            style: TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                      const DataCell(SizedBox.shrink()),
-                                      const DataCell(SizedBox.shrink()),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            formatAmount(
-                                                categories.fold<double>(
-                                              0.0,
-                                              (sum, s) =>
-                                                  sum +
-                                                  (num.parse(s.totalPrice)),
-                                            )),
-                                            maxLines: 1,
-                                            style: const TextStyle(
-                                              color: secondaryTextColor,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],

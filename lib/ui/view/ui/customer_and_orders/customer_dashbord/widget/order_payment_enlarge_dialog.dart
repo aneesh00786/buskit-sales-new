@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -11,23 +12,29 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
   return showDialog(
     context: context,
     builder: (context) {
       return Dialog(
+        insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
+        backgroundColor: white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.7;
+            double dialogWidth = isPhonePortrait(context)
+                ? fullScreenWidth(context)
+                : fullScreenWidth(context) * 0.8;
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;
             double listHeight = recentOrders.length * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+
             return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: maxDialogHeight,
@@ -117,7 +124,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                             if (recentOrders.isEmpty) {
                               return SizedBox(
                                 height: rowHeight,
-                                child:  Center(child: NodataWidget()),
+                                child: Center(child: NodataWidget()),
                               );
                             } else {
                               var order = recentOrders[index];
@@ -227,5 +234,3 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
     },
   );
 }
-
-

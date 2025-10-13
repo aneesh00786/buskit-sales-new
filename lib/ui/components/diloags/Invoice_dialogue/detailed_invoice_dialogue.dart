@@ -25,6 +25,7 @@ void showDetailedOrderInvoiceDialog(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
+        insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -101,7 +102,7 @@ void showDetailedOrderInvoiceDialog(
                                 'Staff : ${orderInvoiceData.salesmanName ?? 'N/A'}'),
                           ],
                         ),
-                        if (invoice) ...[
+                        if (invoice && !isPhonePortrait(context)) ...[
                           const Spacer(),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,6 +151,33 @@ void showDetailedOrderInvoiceDialog(
                         ),
                       ],
                     ),
+                    if (invoice && isPhonePortrait(context)) ...[
+                      SizedBox(height: 20),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'Payment Status : ',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 12),
+                            ),
+                            TextSpan(
+                              text: (orderInvoiceData.paymentStatus == 0
+                                  ? 'NOT PAID'
+                                  : 'COMPLETED'),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: orderInvoiceData.paymentStatus == 0
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                          'Payment Mode : ${_getPaymentTypeName(orderInvoiceData.paymentStatus ?? 0)}'),
+                    ],
                   ],
                 ),
               ),
@@ -180,130 +208,171 @@ void showDetailedOrderInvoiceDialog(
                           Row(
                             children: [
                               Expanded(
-                                child: DataTable(
-                                  dataRowHeight: 40,
-                                  headingRowHeight: 40,
-                                  horizontalMargin: 20,
-                                  headingTextStyle: const TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  columns: [
-                                    DataColumn(
-                                      label: SizedBox(
-                                        width: fullScreenWidth(context) * 0.2,
-                                        child: const Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text('ITEMS NAME'),
-                                        ),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: SizedBox(
+                                    width: isPhonePortrait(context)
+                                        ? fullScreenWidth(context) * 2
+                                        : null,
+                                    child: DataTable(
+                                      dataRowHeight: 40,
+                                      headingRowHeight: 40,
+                                      horizontalMargin: 20,
+                                      headingTextStyle: const TextStyle(
+                                        color: black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ),
-                                    const DataColumn(
-                                      label: Expanded(
-                                        child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text('PRICE')),
-                                      ),
-                                    ),
-                                    const DataColumn(
-                                      label: Expanded(
-                                        child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text('QUANTITY')),
-                                      ),
-                                    ),
-                                    const DataColumn(
-                                      label: Expanded(
-                                        child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text('TAX')),
-                                      ),
-                                    ),
-                                    const DataColumn(
-                                      label: Expanded(
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Text('TOTAL'),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  rows: (dashBoardController
-                                              .fetchSpecificOrderData?.cart ??
-                                          [])
-                                      .map((item) {
-                                    return DataRow(cells: [
-                                      DataCell(
-                                        Tooltip(
-                                          message:
-                                              "${item.productName} - ${item.variationName}",
-                                          preferBelow: false,
-                                          decoration: BoxDecoration(
-                                            color: Colors.black87,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: SizedBox(
-                                            width:
-                                                fullScreenWidth(context) * 0.2,
-                                            child: ProductNameWithTax(
-                                                productName:
-                                                    item.productName.toString(),
-                                                variationName: item
-                                                    .variationName
-                                                    .toString(),
-                                                isInclTax:
-                                                    item.inclTax == "incl_tax",
-                                                maxWidth:
-                                                    fullScreenWidth(context) *
-                                                        0.2,
-                                                style: const TextStyle(
-                                                    fontSize: 14)),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            formatAmount(item.price ?? 0),
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            item.packType == 'Pack'
-                                                ? '${(item.pieces ?? 0) * (item.quantity ?? 0)} (${item.quantity} ${item.packType})'
-                                                : item.quantity?.toString() ??
-                                                    '0',
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: Text(
-                                            formatAmount(item.tax ?? 0),
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Text.rich(
-                                            TextSpan(
-                                              text: formatAmount(
-                                                  item.totalPrice ?? 0),
+                                      columns: [
+                                        DataColumn(
+                                          label: SizedBox(
+                                            width: isPhonePortrait(context)
+                                                ? fullScreenWidth(context) * 0.4
+                                                : fullScreenWidth(context) *
+                                                    0.2,
+                                            child: const Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text('ITEMS NAME'),
                                             ),
-                                            maxLines: 1,
                                           ),
                                         ),
-                                      ),
-                                    ]);
-                                  }).toList(),
+                                        const DataColumn(
+                                          label: Expanded(
+                                            child: Align(
+                                                alignment: Alignment.center,
+                                                child: Text('PRICE')),
+                                          ),
+                                        ),
+                                        const DataColumn(
+                                          label: Expanded(
+                                            child: Align(
+                                                alignment: Alignment.center,
+                                                child: Text('QUANTITY')),
+                                          ),
+                                        ),
+                                        const DataColumn(
+                                              label: Expanded(
+                                                child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text('DISCOUNT')),
+                                              ),
+                                            ),
+                                        const DataColumn(
+                                          label: Expanded(
+                                            child: Align(
+                                                alignment: Alignment.center,
+                                                child: Text('TAX')),
+                                          ),
+                                        ),
+                                        const DataColumn(
+                                          label: Expanded(
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text('TOTAL'),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      rows: (dashBoardController
+                                                  .fetchSpecificOrderData
+                                                  ?.cart ??
+                                              [])
+                                          .map((item) {
+                                        return DataRow(cells: [
+                                          DataCell(
+                                            Tooltip(
+                                              message:
+                                                  "${item.productName} - ${item.variationName}",
+                                              preferBelow: false,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black87,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: SizedBox(
+                                                width: isPhonePortrait(context)
+                                                    ? fullScreenWidth(context) *
+                                                        0.4
+                                                    : fullScreenWidth(context) *
+                                                        0.2,
+                                                child: ProductNameWithTax(
+                                                    productName: item
+                                                        .productName
+                                                        .toString(),
+                                                    variationName: item
+                                                        .variationName
+                                                        .toString(),
+                                                    isInclTax: item.inclTax ==
+                                                        "incl_tax",
+                                                    maxWidth: isPhonePortrait(
+                                                            context)
+                                                        ? fullScreenWidth(
+                                                                context) *
+                                                            0.4
+                                                        : fullScreenWidth(
+                                                                context) *
+                                                            0.2,
+                                                    style: const TextStyle(
+                                                        fontSize: 14)),
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                formatAmount(item.price ?? 0),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                item.packType == 'Pack'
+                                                    ? '${(item.pieces ?? 0) * (item.quantity ?? 0)} (${item.quantity} ${item.packType})'
+                                                    : item.quantity
+                                                            ?.toString() ??
+                                                        '0',
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                                Center(
+                                                  child: Text(
+                                                    formatAmount(
+                                                      (item.totalPrice ?? 0) *
+                                                          (item.discount! /
+                                                              100),
+                                                    ),
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ),
+                                          DataCell(
+                                            Center(
+                                              child: Text(
+                                                formatAmount(item.tax ?? 0),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text.rich(
+                                                TextSpan(
+                                                  text: formatAmount(
+                                                      item.totalPrice ?? 0),
+                                                ),
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ]);
+                                      }).toList(),
+                                    ),
+                                  ),
                                 ),
                               )
                             ],

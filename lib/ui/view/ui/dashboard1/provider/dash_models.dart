@@ -2873,6 +2873,10 @@ class SpecificOrderCart {
   int? catId;
   dynamic taxName;
   num? tax;
+  num? discountValue;
+  num? discountPer;
+  num? discount;
+  List<TaxDatum>? taxData;
   String? inclTax;
 
   SpecificOrderCart({
@@ -2895,6 +2899,10 @@ class SpecificOrderCart {
     this.catId,
     this.taxName,
     this.tax,
+    this.discountValue,
+    this.discountPer,
+    this.discount,
+    this.taxData,
     this.inclTax,
   });
 
@@ -2912,13 +2920,24 @@ class SpecificOrderCart {
         totalPrice: json["total_price"],
         status: json["status"],
         orderPlaceStatus: json["order_place_status"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] != null
+            ? DateTime.tryParse(json["created_at"])
+            : null,
+        updatedAt: json["updated_at"] != null
+            ? DateTime.tryParse(json["updated_at"])
+            : null,
         variationName: json["variation_name"],
         productName: json["product_name"],
         catId: json["catId"],
         taxName: json["tax_name"],
         tax: num.tryParse(json["tax"].toString()) ?? 0,
+        discountValue: json["discount_value"],
+        discountPer: json["discount_per"],
+        discount: json["discount"],
+        taxData: json["taxData"] != null
+            ? List<TaxDatum>.from(
+                json["taxData"].map((x) => TaxDatum.fromJson(x)))
+            : [],
         inclTax: json["incl_tax"],
       );
 
@@ -2935,14 +2954,40 @@ class SpecificOrderCart {
         "total_price": totalPrice,
         "status": status,
         "order_place_status": orderPlaceStatus,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "variation_name": variationName,
         "product_name": productName,
         "catId": catId,
         "tax_name": taxName,
         "tax": tax,
+        "discount_value": discountValue,
+        "discount_per": discountPer,
+        "discount": discount,
+        "taxData": taxData != null
+            ? List<dynamic>.from(taxData!.map((x) => x.toJson()))
+            : [],
         "incl_tax": inclTax,
+      };
+}
+
+class TaxDatum {
+  String taxName;
+  int tax;
+
+  TaxDatum({
+    required this.taxName,
+    required this.tax,
+  });
+
+  factory TaxDatum.fromJson(Map<String, dynamic> json) => TaxDatum(
+        taxName: json["tax_name"],
+        tax: json["tax"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "tax_name": taxName,
+        "tax": tax,
       };
 }
 

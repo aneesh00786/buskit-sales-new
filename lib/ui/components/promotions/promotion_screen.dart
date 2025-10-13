@@ -8,24 +8,41 @@ import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 
-class PromotionScreen extends StatelessWidget {
+class PromotionScreen extends StatefulWidget {
   final ProductsController controller;
 
   const PromotionScreen({super.key, required this.controller});
 
   @override
+  State<PromotionScreen> createState() => _PromotionScreenState();
+}
+
+class _PromotionScreenState extends State<PromotionScreen> {
+  @override
+  void initState() {
+    super.initState();
+    setFirstPromoActive();
+  }
+
+  void setFirstPromoActive() {
+    if (widget.controller.promotions.isNotEmpty) {
+      widget.controller.selectedPromotion.value =
+          widget.controller.promotions.first;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool portrait = isPhonePortrait(context);
 
-    if (controller.promotions.isNotEmpty) {
-      controller.selectedPromotion.value = controller.promotions.first;
+    if (widget.controller.promotions.isNotEmpty) {
+      widget.controller.selectedPromotion.value =
+          widget.controller.promotions.first;
     }
 
     return Scaffold(
       appBar: isPhonePortrait(context)
           ? AppBar(
-              // title: const Text("Promotions"),
-              // backgroundColor: const Color(0xFF667eea),
               leading: (portrait)
                   ? Builder(
                       builder: (context) => IconButton(
@@ -42,7 +59,7 @@ class PromotionScreen extends StatelessWidget {
       drawer: portrait
           ? Drawer(
               child: SafeArea(
-                child: PromotionList(controller: controller),
+                child: PromotionList(controller: widget.controller),
               ),
             )
           : null,
@@ -51,15 +68,19 @@ class PromotionScreen extends StatelessWidget {
       body: portrait
           ? Padding(
               padding: const EdgeInsets.all(12.0),
-              child: PromotionDetails(controller: controller),
+              child: PromotionDetails(controller: widget.controller),
             )
           : Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
                 children: [
-                  PromotionList(controller: controller),
+                  Flexible(
+                      flex: 2,
+                      child: PromotionList(controller: widget.controller)),
                   const SizedBox(width: 10),
-                  PromotionDetails(controller: controller),
+                  Flexible(
+                      flex: 3,
+                      child: PromotionDetails(controller: widget.controller)),
                 ],
               ),
             ),

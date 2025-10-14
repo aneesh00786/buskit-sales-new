@@ -697,8 +697,9 @@ class CartDialogueState extends State<CartDialogue> {
                                         controller: _scrollController1,
                                         child: SizedBox(
                                           height: double.maxFinite,
-                                          width:
-                                              fullScreenWidth(context) * 1.15,
+                                          width: isPhonePortrait(context)
+                                              ? fullScreenWidth(context) * 2
+                                              : fullScreenWidth(context) * 1.15,
                                           child: Row(
                                             children: [
                                               Expanded(
@@ -880,7 +881,9 @@ class CartDialogueState extends State<CartDialogue> {
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,
                           child: Container(
-                            width: fullScreenWidth(context) * 1.15,
+                            width: isPhonePortrait(context)
+                                ? fullScreenWidth(context) * 2
+                                : fullScreenWidth(context) * 1.15,
                           ),
                         ),
                       ),
@@ -1051,8 +1054,9 @@ class CartDialogueState extends State<CartDialogue> {
                                         child: SizedBox(
                                           // color: red,
                                           height: double.maxFinite,
-                                          width:
-                                              fullScreenWidth(context) * 1.15,
+                                          width: isPhonePortrait(context)
+                                              ? fullScreenWidth(context) * 2
+                                              : fullScreenWidth(context) * 1.15,
                                           child: Row(
                                             children: [
                                               Expanded(
@@ -1231,7 +1235,9 @@ class CartDialogueState extends State<CartDialogue> {
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,
                           child: Container(
-                            width: fullScreenWidth(context) * 1.15,
+                            width: isPhonePortrait(context)
+                                ? fullScreenWidth(context) * 2
+                                : fullScreenWidth(context) * 1.15,
                           ),
                         ),
                       ),
@@ -1939,7 +1945,7 @@ class CartDialogueState extends State<CartDialogue> {
               children: [
                 CustomHeaderContainer(
                   text: productName,
-                  fontSize: fontSize,
+                  fontSize: isPhonePortrait(context) ? 14 : fontSize,
                 ),
                 const Spacer(),
                 SizedBox(
@@ -1981,11 +1987,15 @@ class CartDialogueState extends State<CartDialogue> {
                   dataRowHeight: rowHeight,
                   horizontalMargin: 5,
                   columnSpacing: 15,
-                  columns: DataTableColumns.getColumns(fontSize),
+                  columns: DataTableColumns.getColumns(
+                      isPhonePortrait(context) ? 12 : fontSize),
                   rows: GroupedItemDataRows.getRows(
                     groupedItems: groupedItems,
-                    fontSize: availableWidth / 55,
-                    availableWidth: availableWidth,
+                    fontSize:
+                        isPhonePortrait(context) ? 12 : availableWidth / 55,
+                    availableWidth: isPhonePortrait(context)
+                        ? fullScreenWidth(context) * 2
+                        : availableWidth,
                     context: context,
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,

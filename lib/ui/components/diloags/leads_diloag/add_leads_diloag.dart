@@ -790,7 +790,6 @@ class CustomButtonLeads extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -806,14 +805,14 @@ class CustomButtonLeads extends StatelessWidget {
               text,
               style: TextStyle(
                 color: primaryColor,
-                fontSize: isSmallScreen ? 7 : 13,
+                fontSize: 13,
               ),
             ),
             const SizedBox(width: 4),
             Icon(
               Icons.add_circle_outline,
               color: Colors.black,
-              size: isSmallScreen ? 10 : 14,
+              size: 14,
             ),
           ],
         ),

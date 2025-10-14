@@ -124,6 +124,7 @@ class _TableeeState extends State<Tableee> {
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: white,
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
@@ -2504,7 +2505,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return GestureDetector(
       onTap: onPressed,
       child: Container(

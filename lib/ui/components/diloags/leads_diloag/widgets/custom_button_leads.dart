@@ -28,13 +28,13 @@ class CustomButtonLeads extends StatelessWidget {
           children: [
             Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 color: primaryColor,
                 fontSize: 13,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(
+            Icon(
               Icons.add_circle_outline,
               color: Colors.black,
               size: 14,

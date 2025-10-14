@@ -61,7 +61,7 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    // log('Request Body of FetchAll Order draft :$requestBody');
+    log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
     final cacheKey = '${companyId}_$salesmanId';
@@ -116,6 +116,7 @@ class CartDatabaseManager {
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                   productName: cart['product_name'] as String? ?? '',
+                  maxDiscount: cart['max_discount'],
                 );
                 final cartItem = CartItem(
                   detail: detail,

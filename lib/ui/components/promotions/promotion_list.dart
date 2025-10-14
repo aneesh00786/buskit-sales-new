@@ -8,7 +8,8 @@ class PromotionList extends StatelessWidget {
   final ProductsController controller;
   final bool isDrawer;
 
-  const PromotionList({super.key, required this.controller, this.isDrawer = false});
+  const PromotionList(
+      {super.key, required this.controller, this.isDrawer = false});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class PromotionList extends StatelessWidget {
                       const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final promo = controller.promotions[index];
-                    return _buildPromotionCard(promo);
+                    return _buildPromotionCard(promo, context);
                   },
                 );
               }),
@@ -68,21 +69,55 @@ class PromotionList extends StatelessWidget {
           colors: [Color(0xFF667eea), Color(0xFF764ba2)],
         ),
       ),
-      child: const Center(
-        child: Text(
-          "Active Promotions",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+      child: Stack(
+        children: [
+          const Center(
+            child: Text(
+              "Active Promotions",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
+          // Close button only shown in drawer mode
+          if (isDrawer)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Builder(
+                builder: (context) => SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: white, width: 1)),
+                        child: IconButton(
+                          icon: const Icon(Icons.close,
+                              color: Colors.white, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
   /// Promotion Card Item
-  Widget _buildPromotionCard(PromotionReponse promo) {
+  Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
       height: 100,
@@ -119,7 +154,13 @@ class PromotionList extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-              onTap: () => controller.selectPromotion(promo), // 👈 important
+              onTap: () {
+                controller.selectPromotion(promo);
+                // Close drawer if in drawer mode
+                if (isDrawer) {
+                  Navigator.of(context).pop();
+                }
+              }, // 👈 important
             ),
           ),
         ],

@@ -2104,16 +2104,21 @@ class CartDialogueState extends State<CartDialogue> {
         } else {
           log('[processSaveAndSend] Preparing data for API call...');
           // Use only itemList for the API payload
-          List<Detail> detail = itemList.map((e) => e.detail).toList();
           log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
+
           final productBYData = AddToCartModel(
             customerId: customerId,
             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
             cartId: '',
-            cartList: await Future.wait(detail.map((e) async {
+            cartList: await Future.wait(itemList.map((item) async {
+              final e = item.detail; // for easier reference
+
               String packValue =
                   e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
-              return SendCartData(
+
+              if (item.isPromo == true) {
+                // ✅ Handle promo items
+                return SendCartData(
                   productId: e.productId ?? '',
                   variantId: e.variationId ?? '',
                   pack: packValue,
@@ -2121,14 +2126,32 @@ class CartDialogueState extends State<CartDialogue> {
                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                   discount: e.discount ?? 0,
                   quantity: e.count.toInt(),
-                  variantName: e.variationName ?? '');
+                  variantName: e.variationName ?? '',
+                  maxDiscount: e.maxDiscount?.toInt(),
+                  isPromo: true,
+                  promoCode: item.promoCode ?? '',
+                  promoMsg: item.promoMsg ?? '',
+                );
+              } else {
+                // ✅ Normal items
+                return SendCartData(
+                  productId: e.productId ?? '',
+                  variantId: e.variationId ?? '',
+                  pack: packValue,
+                  price: e.sellPrice.toString(),
+                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                  discount: e.discount ?? 0,
+                  quantity: e.count.toInt(),
+                  variantName: e.variationName ?? '',
+                );
+              }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),
           );
 
           List<String> varientIdsPass = [];
-          for (var item in detail) {
-            varientIdsPass.add(item.variationId ?? '');
+          for (var item in itemList) {
+            varientIdsPass.add(item.detail.variationId ?? '');
           }
 
           log("VARIENT IDS : $varientIdsPass");

@@ -64,6 +64,18 @@ class SendCartData extends HiveObject {
   @HiveField(7)
   String variantName;
 
+  @HiveField(8)
+  int? maxDiscount;
+
+  @HiveField(9)
+  bool? isPromo;
+
+  @HiveField(10)
+  String? promoCode;
+
+  @HiveField(11)
+  String? promoMsg;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -73,6 +85,10 @@ class SendCartData extends HiveObject {
     required this.discount,
     required this.quantity,
     required this.variantName,
+    this.maxDiscount,
+    this.isPromo,
+    this.promoCode,
+    this.promoMsg,
   });
 
   Map<String, dynamic> toJson() {
@@ -85,6 +101,10 @@ class SendCartData extends HiveObject {
       'discount': discount,
       'quantity': quantity,
       'variant_name': variantName,
+      'max_discount': maxDiscount,
+      'is_promo': isPromo,
+      'promo_code': promoCode,
+      'promo_msg': promoMsg,
     };
   }
 }

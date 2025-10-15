@@ -976,7 +976,9 @@ class _OrderTakingState extends State<OrderTaking>
                                     customerAndOrderController.isActive.value,
                                 selectedName: widget.productsController
                                     .selectedCustomerName.value,
-                                customerId: widget.selectedCustId.toString(),
+                                customerId: widget
+                                    .productsController.selectedCustomerId.value
+                                    .toString(),
                               ),
                             )
                           ],
@@ -1349,7 +1351,9 @@ class _OrderTakingState extends State<OrderTaking>
                                     customerAndOrderController.isActive.value,
                                 selectedName: widget.productsController
                                     .selectedCustomerName.value,
-                                customerId: widget.selectedCustId.toString(),
+                                customerId: widget
+                                    .productsController.selectedCustomerId.value
+                                    .toString(),
                               ),
                             )
                           ],

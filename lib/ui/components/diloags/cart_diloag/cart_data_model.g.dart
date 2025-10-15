@@ -71,13 +71,17 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       discount: fields[5] as num,
       quantity: fields[6] as int,
       variantName: fields[7] as String,
+      maxDiscount: fields[8] as int?,
+      isPromo: fields[9] as bool?,
+      promoCode: fields[10] as String?,
+      promoMsg: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SendCartData obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.productId)
       ..writeByte(1)
@@ -93,7 +97,15 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       ..writeByte(6)
       ..write(obj.quantity)
       ..writeByte(7)
-      ..write(obj.variantName);
+      ..write(obj.variantName)
+      ..writeByte(8)
+      ..write(obj.maxDiscount)
+      ..writeByte(9)
+      ..write(obj.isPromo)
+      ..writeByte(10)
+      ..write(obj.promoCode)
+      ..writeByte(11)
+      ..write(obj.promoMsg);
   }
 
   @override

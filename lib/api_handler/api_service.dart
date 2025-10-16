@@ -711,7 +711,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        log('Fetch All Orders Response: $jsonResponse');
+        // log('Fetch All Orders Response: $jsonResponse');
         await orderBox.put(cacheKey, jsonResponse);
         return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
       } else {

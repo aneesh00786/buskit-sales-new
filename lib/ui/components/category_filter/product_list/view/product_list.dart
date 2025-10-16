@@ -148,7 +148,6 @@ class _ProductGridState extends State<ProductGrid> {
           products = fetchedProducts;
           isLoading = false;
         });
-
       } else {
         setState(() {
           isLoading = false;
@@ -179,7 +178,6 @@ class _ProductGridState extends State<ProductGrid> {
         products = fetchedProducts;
         widget.productsController.isLoading.value = false;
       });
-
     } catch (e) {
       setState(() {
         widget.productsController.isLoading.value = false;

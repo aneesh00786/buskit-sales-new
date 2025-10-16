@@ -266,33 +266,81 @@ class ProductsController extends GetxController {
       final existingCartId = firstOrder['cart_id'] ?? '';
       final existingDraftId = firstOrder['draft_id'] ?? '';
 
+      // final productBYData = AddToCartModel(
+      //   customerId: customerId,
+      //   salesmanId: currentSalesmanId,
+      //   cartId: existingCartId,
+      //   cartList: detail
+      //       .map((e) => SendCartData(
+      //             productId: e.productId ?? '',
+      //             variantId: e.variationId ?? '',
+      //             pack: e.saleBy == 'Pack'
+      //                 ? e.pieces.toString()
+      //                 : e.count.toString(),
+      //             packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+      //             price: e.sellPrice.toString(),
+      //             discount: e.discount ?? 0,
+      //             quantity: e.count.toInt(),
+      //             variantName: e.variationName ?? '',
+      //           ))
+      //       .toList(),
+      //   total: finalAmount.value.toStringAsFixed(0),
+      // );
+
       final productBYData = AddToCartModel(
         customerId: customerId,
         salesmanId: currentSalesmanId,
         cartId: existingCartId,
-        cartList: detail
-            .map((e) => SendCartData(
-                  productId: e.productId ?? '',
-                  variantId: e.variationId ?? '',
-                  pack: e.saleBy == 'Pack'
-                      ? e.pieces.toString()
-                      : e.count.toString(),
-                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                  price: e.sellPrice.toString(),
-                  discount: e.discount ?? 0,
-                  quantity: e.count.toInt(),
-                  variantName: e.variationName ?? '',
-                ))
-            .toList(),
+        cartList: await Future.wait(allItems.map((item) async {
+          final e = item.detail; // shortcut
+
+          final packValue =
+              e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+
+          if (item.isPromo == true) {
+            // ✅ Handle promo items
+            return SendCartData(
+              productId: e.productId ?? '',
+              variantId: e.variationId ?? '',
+              pack: packValue,
+              price: e.sellPrice.toString(),
+              packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+              discount: e.discount ?? 0,
+              quantity: e.count.toInt(),
+              variantName: e.variationName ?? '',
+              maxDiscount: e.maxDiscount?.toInt(),
+              isPromo: true,
+              promoCode: item.promoCode ?? '',
+              promoMsg: item.promoMsg ?? '',
+            );
+          } else {
+            // ✅ Normal items
+            return SendCartData(
+              productId: e.productId ?? '',
+              variantId: e.variationId ?? '',
+              pack: packValue,
+              price: e.sellPrice.toString(),
+              packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+              discount: e.discount ?? 0,
+              quantity: e.count.toInt(),
+              variantName: e.variationName ?? '',
+            );
+          }
+        }).toList()),
         total: finalAmount.value.toStringAsFixed(0),
       );
 
-      List<String> varientIdsPass = [];
-      for (var item in detail) {
-        varientIdsPass.add(item.variationId ?? '');
+      // List<String> varientIdsPass = [];
+      // for (var item in detail) {
+      //   varientIdsPass.add(item.variationId ?? '');
+      // }
+
+      List<String> variantIdsPass = [];
+      for (var item in allItems) {
+        variantIdsPass.add(item.detail.variationId ?? '');
       }
 
-      log("VARIENT IDS : $varientIdsPass");
+      log("VARIENT IDS : $variantIdsPass");
 
       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
 
@@ -304,7 +352,7 @@ class ProductsController extends GetxController {
           orderStatus: 4,
           draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
           selctedItemCount: 1,
-          varientIds: varientIdsPass,
+          varientIds: variantIdsPass,
         );
 
         await ApiWorker().placeOrder(order, (statusCode, message, response) {

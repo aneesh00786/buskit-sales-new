@@ -73,6 +73,7 @@ class CartDatabaseManager {
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;
+          // log("[NEEDED] $response");
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
@@ -116,8 +117,12 @@ class CartDatabaseManager {
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
                   productName: cart['product_name'] as String? ?? '',
-                  maxDiscount: cart['max_discount'],
+                  maxDiscount:
+                      cart['max_discount'] != null || cart['max_discount'] != ""
+                          ? num.tryParse(cart['max_discount'].toString())
+                          : null,
                 );
+                log('[1] $cart');
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'] as String? ?? '',
@@ -137,14 +142,23 @@ class CartDatabaseManager {
                   isPack: (cart['packtype'] as String? ?? '') == "Pack",
                   catId: cart['catId'] as int? ?? 0,
                   salesmanId: order['salesman_id'] as String? ?? '',
+                  isPromo: cart['is_promo'] == 1,
+                  promoCode: (cart['promo_code'] != null &&
+                          cart['promo_code'].toString().isNotEmpty)
+                      ? cart['promo_code'].toString()
+                      : null,
+                  promoMsg: (cart['promo_msg'] != null &&
+                          cart['promo_msg'].toString().isNotEmpty)
+                      ? cart['promo_msg'].toString()
+                      : null,
                 );
+
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
                     'cartId', cart['cart_id'] as String? ?? '');
                 await prefs.setString(
                     'draftId', order['order_id'] as String? ?? '');
-                // log('Draft ID : ${cartItem.draftId}');
-                // log('Cart Items JSON ${cartItem.toJson()}');
+                log('[2] Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
                 fetchedItems.add(cartItem);
               }
@@ -252,6 +266,14 @@ class CartDatabaseManager {
               customerId: customerId,
               salesmanId: salesmanId,
               catId: 0,
+              isPromo: draft['is_promo'] == 1 ? true : false,
+              promoCode:
+                  draft['promo_code'] == null || draft['promo_code'] == ""
+                      ? draft['promo_code']
+                      : null,
+              promoMsg: draft['title'] == null || draft['title'] == ""
+                  ? draft['title']
+                  : null,
             );
             customerOfflineDraftItems.add(cartItem);
           }

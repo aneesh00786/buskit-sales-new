@@ -299,20 +299,42 @@ class ProductsController extends GetxController {
 
           if (item.isPromo == true) {
             // ✅ Handle promo items
-            return SendCartData(
-              productId: e.productId ?? '',
-              variantId: e.variationId ?? '',
-              pack: packValue,
-              price: e.sellPrice.toString(),
-              packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-              discount: e.discount ?? 0,
-              quantity: e.count.toInt(),
-              variantName: e.variationName ?? '',
-              maxDiscount: e.maxDiscount?.toInt(),
-              isPromo: true,
-              promoCode: item.promoCode ?? '',
-              promoMsg: item.promoMsg ?? '',
-            );
+            bool isBundle =
+                item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
+
+            if (isBundle) {
+              return SendCartData(
+                productId: e.productId ?? '',
+                variantId: e.variationId ?? '',
+                pack: packValue,
+                price: e.sellPrice.toString(),
+                packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                discount: e.discount ?? 0,
+                quantity: e.count.toInt(),
+                variantName: e.variationName ?? '',
+                maxDiscount: e.maxDiscount?.toInt(),
+                isPromo: true,
+                promoCode: item.promoCode ?? '',
+                promoMsg: item.promoMsg ?? '',
+                isBundle: isBundle,
+                bundleDetails: isBundle ? item.promoMsg : null,
+              );
+            } else {
+              return SendCartData(
+                productId: e.productId ?? '',
+                variantId: e.variationId ?? '',
+                pack: packValue,
+                price: e.sellPrice.toString(),
+                packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+                discount: e.discount ?? 0,
+                quantity: e.count.toInt(),
+                variantName: e.variationName ?? '',
+                maxDiscount: e.maxDiscount?.toInt(),
+                isPromo: true,
+                promoCode: item.promoCode ?? '',
+                promoMsg: item.promoMsg ?? '',
+              );
+            }
           } else {
             // ✅ Normal items
             return SendCartData(

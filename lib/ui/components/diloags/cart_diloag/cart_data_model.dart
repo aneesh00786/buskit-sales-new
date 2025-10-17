@@ -76,6 +76,12 @@ class SendCartData extends HiveObject {
   @HiveField(11)
   String? promoMsg;
 
+  @HiveField(12)
+  bool? isBundle;
+
+  @HiveField(13)
+  String? bundleDetails;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -89,10 +95,12 @@ class SendCartData extends HiveObject {
     this.isPromo,
     this.promoCode,
     this.promoMsg,
+    this.isBundle,
+    this.bundleDetails,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> json = {
       'product_id': productId,
       'Varient': variantId,
       'Pack': pack,
@@ -106,5 +114,13 @@ class SendCartData extends HiveObject {
       'promo_code': promoCode,
       'promo_msg': promoMsg,
     };
+
+    // Add bundle-specific fields if this is a bundle
+    if (isBundle == true) {
+      json['is_bundle'] = true;
+      json['bundle_details'] = bundleDetails;
+    }
+
+    return json;
   }
 }

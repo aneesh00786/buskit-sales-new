@@ -141,30 +141,47 @@ class GroupedItemDataRows {
                                 final itemsSection = bundleMsg
                                     .substring(itemsStartIndex, itemsEndIndex)
                                     .trim();
-                                final itemBlocks = itemsSection.split('\n\n');
+                                // Split by bullet points to ensure we capture all items
+                                final itemBlocks = itemsSection.split('• ');
+                                // Remove the first empty element if it exists
+                                if (itemBlocks.isNotEmpty &&
+                                    itemBlocks[0].trim().isEmpty) {
+                                  itemBlocks.removeAt(0);
+                                }
 
                                 for (final block in itemBlocks) {
                                   if (block.trim().isEmpty) continue;
 
                                   final lines = block.split('\n');
-                                  if (lines.length >= 4) {
+                                  if (lines.length >= 3) {
                                     // Extract product name and variant
                                     String productName = '';
                                     String variantName = '';
-                                    if (lines[0].startsWith('• ')) {
-                                      final fullProductText =
-                                          lines[0].substring(2);
-                                      // Split product name and variant if it contains a comma
-                                      if (fullProductText.contains(',')) {
-                                        final parts =
-                                            fullProductText.split(',');
-                                        productName = parts[0].trim();
-                                        variantName = parts.length > 1
-                                            ? parts[1].trim()
-                                            : '';
-                                      } else {
-                                        productName = fullProductText;
-                                      }
+
+                                    // First line now contains the product info without the bullet
+                                    final fullProductText = lines[0].trim();
+
+                                    // Check if the product name contains variant in parentheses
+                                    final RegExp regExp =
+                                        RegExp(r'(.*?)\s*\((.*?)\)');
+                                    final match =
+                                        regExp.firstMatch(fullProductText);
+
+                                    if (match != null &&
+                                        match.groupCount >= 2) {
+                                      productName =
+                                          match.group(1)?.trim() ?? '';
+                                      variantName =
+                                          match.group(2)?.trim() ?? '';
+                                    } else if (fullProductText.contains(',')) {
+                                      // Fallback to comma separation if no parentheses
+                                      final parts = fullProductText.split(',');
+                                      productName = parts[0].trim();
+                                      variantName = parts.length > 1
+                                          ? parts[1].trim()
+                                          : '';
+                                    } else {
+                                      productName = fullProductText;
                                     }
 
                                     // Extract quantity
@@ -243,7 +260,6 @@ class GroupedItemDataRows {
                                                   const EdgeInsets.all(8.0),
                                               child: Text(
                                                 'Product',
-                                                
                                                 style: TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold),

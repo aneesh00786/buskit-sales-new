@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -103,7 +104,9 @@ class CartDatabaseManager {
                   inclTax: cart['incl_tax'] as String? ?? '',
                   inNo: cart['in_no'] as String? ?? '',
                   barcode: cart['barcode'] as String? ?? '',
-                  variationName: cart['variation_name'] as String? ?? '',
+                  variationName: cart['is_bundle'] == true
+                      ? cart['title']
+                      : cart['variation_name'] as String? ?? '',
                   totaltax:
                       num.tryParse(cart['total_tax']?.toString() ?? '0') ?? 0,
                   unitType: cart['unitType'] as String? ?? '',
@@ -116,7 +119,9 @@ class CartDatabaseManager {
                   unitTax:
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
                   discount: num.tryParse(cart['discount'].toString()) ?? 0,
-                  productName: cart['product_name'] as String? ?? '',
+                  productName: cart['is_bundle'] == true
+                      ? cart['title']
+                      : cart['product_name'] as String? ?? '',
                   maxDiscount:
                       cart['max_discount'] != null || cart['max_discount'] != ""
                           ? num.tryParse(cart['max_discount'].toString())
@@ -125,7 +130,9 @@ class CartDatabaseManager {
                 log('[1] $cart');
                 final cartItem = CartItem(
                   detail: detail,
-                  productName: cart['product_name'] as String? ?? '',
+                  productName: cart['is_bundle'] == true
+                      ? cart['title']
+                      : cart['product_name'] as String? ?? '',
                   totalPrice: (discountedSellPrice *
                           (detail.packtype == 'Pack'
                               ? (detail.pieces ?? 1) *
@@ -147,10 +154,12 @@ class CartDatabaseManager {
                           cart['promo_code'].toString().isNotEmpty)
                       ? cart['promo_code'].toString()
                       : null,
-                  promoMsg: (cart['promo_msg'] != null &&
-                          cart['promo_msg'].toString().isNotEmpty)
-                      ? cart['promo_msg'].toString()
-                      : null,
+                  promoMsg: cart['is_bundle'] == true
+                      ? _buildBundlePromoMsg(cart)
+                      : (cart['promo_msg'] != null &&
+                              cart['promo_msg'].toString().isNotEmpty)
+                          ? cart['promo_msg'].toString()
+                          : null,
                 );
 
                 final prefs = await SharedPreferences.getInstance();
@@ -194,6 +203,42 @@ class CartDatabaseManager {
       }
       return [];
     }
+  }
+
+  String _buildBundlePromoMsg(Map<String, dynamic> cart) {
+    String bundleDetailsMsg = "Bundle: ${cart['title'] ?? 'Bundle'}\n\n      ";
+
+    final bundleItems = cart['bundle_items'];
+    // final products = cart.prod; // optional
+
+    if (bundleItems != null && bundleItems is List && bundleItems.isNotEmpty) {
+      bundleDetailsMsg += "Items included:\n";
+
+      for (final bundleItem in bundleItems) {
+        String productName = bundleItem['product_name'] ?? 'Unknown';
+        String variationName = bundleItem['variation_name'] ?? '';
+        String unitType = bundleItem['unitType'] ?? '';
+        final qty = bundleItem['quantity'] ?? 1;
+
+        double unitPrice =
+            double.tryParse(bundleItem['unit_price'].toString()) ?? 0;
+
+        final totalPrice = unitPrice * qty;
+
+        bundleDetailsMsg +=
+            "      • $productName (${variationName.trim().isNotEmpty ? variationName : ''})\n";
+        bundleDetailsMsg += "        Qty: $qty $unitType\n";
+        bundleDetailsMsg +=
+            "        Price: ${formatAmount(unitPrice.toString())} each\n";
+        bundleDetailsMsg +=
+            "        Total: ${formatAmount(totalPrice.toString())}\n\n";
+      }
+
+      bundleDetailsMsg +=
+          "Bundle Price: ${formatAmount(cart['bundle_price']?.toString() ?? '0')}";
+    }
+
+    return bundleDetailsMsg;
   }
 
   Future<Map<String, String>> getSavedIds() async {

@@ -54,6 +54,15 @@ class CartItem extends HiveObject {
   @HiveField(15)
   String? promoMsg;
 
+  @HiveField(16)
+  List<BundleItem>? bundleItems;
+
+  @HiveField(17)
+  String? title;
+
+  @HiveField(18)
+  String? bundlePrice;
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -71,6 +80,9 @@ class CartItem extends HiveObject {
     this.isPromo,
     this.promoCode,
     this.promoMsg,
+    this.bundleItems,
+    this.title,
+    this.bundlePrice,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -82,15 +94,18 @@ class CartItem extends HiveObject {
       count: json['count'] as int?,
       customerId: json['customer_id'] as String?,
       cartId: json['cart_id'] as String?,
-      draftId: json['id'] as String?,
+      draftId: json['id'].toString(),
       isChecked: json['isChecked'] as bool? ?? true,
       draftTotal: json['order_total'] as num? ?? 0,
       salesmanId: json['salesman_id'] as String?,
       boxType: json['boxType'],
       catId: json['categories_id'],
-      isPromo: json['is_promo'],
+      isPromo: json['is_promo'] == 1 ? true : false,
       promoCode: json['promo_code'],
       promoMsg: json['promo_msg'],
+      bundleItems: json['bundle_items'],
+      title: json['title'],
+      bundlePrice: json['bundle_price'],
     );
   }
 
@@ -111,7 +126,10 @@ class CartItem extends HiveObject {
       'categories_id': catId,
       'is_promo': isPromo,
       'promo_code': promoCode,
-      'promo_msg': promoMsg
+      'promo_msg': promoMsg,
+      'bundle_items': bundleItems,
+      'title': title,
+      'bundle_price': bundlePrice
     };
   }
 
@@ -132,6 +150,9 @@ class CartItem extends HiveObject {
     bool? isPromo,
     String? promoCode,
     String? promoMsg,
+    List<BundleItem>? bundleItems,
+    String? title,
+    String? bundlePrice,
   }) {
     return CartItem(
       detail: detail ?? this.detail,
@@ -150,6 +171,57 @@ class CartItem extends HiveObject {
       isPromo: isPromo ?? this.isPromo,
       promoCode: promoCode ?? this.promoCode,
       promoMsg: promoMsg ?? this.promoMsg,
+      bundleItems: bundleItems ?? this.bundleItems,
+      title: title ?? this.title,
+      bundlePrice: bundlePrice ?? this.bundlePrice,
     );
   }
+}
+
+class BundleItem {
+  String? productId;
+  String? variantId;
+  String? bundleItemUnitType;
+  int? quantity;
+  String? variationName;
+  String? unitType;
+  String? productName;
+  num? unitPrice;
+  num? totalPrice;
+
+  BundleItem({
+    this.productId,
+    this.variantId,
+    this.bundleItemUnitType,
+    this.quantity,
+    this.variationName,
+    this.unitType,
+    this.productName,
+    this.unitPrice,
+    this.totalPrice,
+  });
+
+  factory BundleItem.fromJson(Map<String, dynamic> json) => BundleItem(
+        productId: json["product_id"],
+        variantId: json["variant_id"],
+        bundleItemUnitType: json["unit_type"],
+        quantity: json["quantity"],
+        variationName: json["variation_name"],
+        unitType: json["unitType"],
+        unitPrice: json['unit_price'],
+        totalPrice: json['total_price'],
+        productName: json['product_name'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "product_id": productId,
+        "variant_id": variantId,
+        "unit_type": bundleItemUnitType,
+        "quantity": quantity,
+        "variation_name": variationName,
+        "unitType": unitType,
+        "unit_price": unitPrice,
+        "total_price": totalPrice,
+        "product_name": productName,
+      };
 }

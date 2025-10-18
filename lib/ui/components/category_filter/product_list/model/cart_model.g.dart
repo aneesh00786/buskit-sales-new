@@ -33,13 +33,14 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       isPromo: fields[13] as bool?,
       promoCode: fields[14] as String?,
       promoMsg: fields[15] as String?,
+      bundleItems: (fields[16] as List?)?.cast<BundleItem>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, CartItem obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.detail)
       ..writeByte(1)
@@ -71,7 +72,9 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       ..writeByte(14)
       ..write(obj.promoCode)
       ..writeByte(15)
-      ..write(obj.promoMsg);
+      ..write(obj.promoMsg)
+      ..writeByte(16)
+      ..write(obj.bundleItems);
   }
 
   @override

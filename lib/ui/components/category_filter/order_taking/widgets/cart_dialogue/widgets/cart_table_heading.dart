@@ -2,14 +2,15 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
 
 class DataTableColumns {
-  static List<DataColumn> getColumns(double fontSize) {
+  static List<DataColumn> getColumns(double fontSize,
+      {bool isBundle = false}) {
     return [
       const DataColumn(
         label: SizedBox(width: 30),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Variant',
+          text: isBundle ? 'Bundle Name': 'Variant',
           fontSize: fontSize,
           align: TextAlign.center,
         ),

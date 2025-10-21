@@ -672,21 +672,25 @@ class _OrderTakingState extends State<OrderTaking>
                               widget.productsController.selectedCustomerName
                                       .isEmpty
                                   ? Container()
-                                  : Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          widget.productsController
-                                              .selectedCustomerName.value,
-                                        ),
-                                        const MyRegularText(
-                                          label: "Customer",
-                                          fontSize: 9,
-                                        ),
-                                      ],
+                                  : Expanded(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            widget.productsController
+                                                .selectedCustomerName.value,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const MyRegularText(
+                                            label: "Customer",
+                                            fontSize: 9,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                               const SizedBox(width: 10),
                             ],

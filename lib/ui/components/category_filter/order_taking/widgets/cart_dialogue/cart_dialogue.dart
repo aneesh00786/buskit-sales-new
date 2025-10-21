@@ -1944,7 +1944,8 @@ class CartDialogueState extends State<CartDialogue> {
             Row(
               children: [
                 CustomHeaderContainer(
-                  text: productName,
+                  text:
+                      productName.startsWith('Bundle') ? "Bundle" : productName,
                   fontSize: isPhonePortrait(context) ? 14 : fontSize,
                 ),
                 const Spacer(),
@@ -1988,7 +1989,8 @@ class CartDialogueState extends State<CartDialogue> {
                   horizontalMargin: 5,
                   columnSpacing: 15,
                   columns: DataTableColumns.getColumns(
-                      isPhonePortrait(context) ? 12 : fontSize),
+                      isPhonePortrait(context) ? 12 : fontSize,
+                      isBundle: productName.startsWith('Bundle')),
                   rows: GroupedItemDataRows.getRows(
                     groupedItems: groupedItems,
                     fontSize:

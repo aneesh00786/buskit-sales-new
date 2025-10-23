@@ -62,7 +62,7 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    log('Request Body of FetchAll Order draft :$requestBody');
+    // log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
     final cacheKey = '${companyId}_$salesmanId';
@@ -74,7 +74,6 @@ class CartDatabaseManager {
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log("[NEEDED] $response");
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
@@ -127,7 +126,6 @@ class CartDatabaseManager {
                           ? num.tryParse(cart['max_discount'].toString())
                           : null,
                 );
-                log('[1] $cart');
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['is_bundle'] == true
@@ -167,7 +165,7 @@ class CartDatabaseManager {
                     'cartId', cart['cart_id'] as String? ?? '');
                 await prefs.setString(
                     'draftId', order['order_id'] as String? ?? '');
-                log('[2] Cart Items JSON ${cartItem.toJson()}');
+                // log('[2] Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
                 fetchedItems.add(cartItem);
               }
@@ -472,14 +470,14 @@ class CartDatabaseManager {
       "limit": 1000,
       "page": 1,
     };
-    log('Request Body of FetchAll Order: $requestBody');
+    // log('Request Body of FetchAll Order: $requestBody');
 
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
 
       if (isOnline) {
-        log('Fetching draft and cart IDs from API for customer ID: $customerId');
+        // log('Fetching draft and cart IDs from API for customer ID: $customerId');
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;

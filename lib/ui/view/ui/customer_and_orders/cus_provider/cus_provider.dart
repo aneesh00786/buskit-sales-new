@@ -460,20 +460,15 @@ class CustomersProvider with ChangeNotifier {
       final startIndex = (_currentPage - 1) * itemsPerPage;
       final endIndex = startIndex + itemsPerPage;
 
-      log('[getCurrentPageCustomers] Search mode: $_searchCustomerName, Page: $_currentPage, Total customers: ${_customers.length}, Start: $startIndex, End: $endIndex');
-
       if (startIndex < _customers.length) {
         final result = _customers.sublist(startIndex,
             endIndex > _customers.length ? _customers.length : endIndex);
-        log('[getCurrentPageCustomers] Returning ${result.length} customers for current page');
         return result;
       } else {
-        log('[getCurrentPageCustomers] No customers for current page');
         return [];
       }
     } else {
       // For normal browsing, return all filtered customers
-      log('[getCurrentPageCustomers] Normal mode: returning ${_filteredCustomers.length} customers');
       return _filteredCustomers;
     }
   }
@@ -873,8 +868,7 @@ class CustomersProvider with ChangeNotifier {
 
       if (selectedFilter != FilterDateEnum.range) {
         fetchCustomerData();
-        notificationController.loadNotificationData(
-            );
+        notificationController.loadNotificationData();
       }
       notifyListeners();
     }

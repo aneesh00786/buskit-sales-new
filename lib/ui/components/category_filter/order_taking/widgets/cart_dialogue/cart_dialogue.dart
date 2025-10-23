@@ -2135,9 +2135,9 @@ class CartDialogueState extends State<CartDialogue> {
                     maxDiscount: e.maxDiscount?.toInt(),
                     isPromo: true,
                     promoCode: item.promoCode ?? '',
-                    promoMsg: item.promoMsg ?? '',
+                    promoMsg: "Bundle: ${e.variationName}",
                     isBundle: isBundle,
-                    bundleDetails: isBundle ? item.promoMsg : null,
+                    bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
                   );
                 } else {
                   return SendCartData(

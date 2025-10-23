@@ -24,7 +24,7 @@ Widget placeholderWidget() {
   );
 }
 
-Widget customerDetailsWidget(CustomerCart orderData) {
+Widget customerDetailsWidget(CustomerDetails orderData) {
   return GestureDetector(
     onTap: () => {},
     child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -35,7 +35,7 @@ Widget customerDetailsWidget(CustomerCart orderData) {
           width: 34,
           color: Colors.grey[200],
           child: Image.network(
-            '${ApiConstants.baseUrl}uploads/${orderData.customerDetails!.imageUrl}',
+            '${ApiConstants.imageBaseUrl}${orderData.imageUrl ?? ''}',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -57,19 +57,19 @@ Widget customerDetailsWidget(CustomerCart orderData) {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content: orderData.customerDetails?.businessName ?? 'Unknown',
+                content: orderData.businessName ?? 'Unknown',
                 maxLine: 2,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
               CustomText(
-                content: orderData.customerDetails?.mobileno ?? 'Unknown',
+                content: orderData.mobileno ?? 'Unknown',
                 maxLine: 2,
                 fontSize: 10,
               ),
               MyRegularText(
                 align: TextAlign.start,
-                label: orderData.customerDetails?.email ?? 'Unknown',
+                label: orderData.email ?? 'Unknown',
                 maxlines: 1,
                 fontSize: 12,
                 overflow: TextOverflow.ellipsis,
@@ -81,13 +81,13 @@ Widget customerDetailsWidget(CustomerCart orderData) {
 }
 
 Widget orderNumberWidget(
-    CustomerCart orderData, OrderData orderDetailsData, int selectedTabIndex) {
+    OrderData orderDetailsData, int selectedTabIndex) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         MyRegularText(
-          label: orderData.optionOrderData?.orderId ?? 'N/A',
+          label: orderDetailsData.orderId ?? 'N/A',
           fontWeight: FontWeight.w600,
           fontSize: 11,
         ),
@@ -111,27 +111,26 @@ Widget orderNumberWidget(
   );
 }
 
-Widget orderCreatedDateWidget(
-    CustomerCart orderData, OrderData orderDetailsData, int selectedTabIndex) {
+Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
   return Center(
     child: selectedTabIndex == 0
         ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyRegularText(
-                label: orderData.optionOrderData?.orderCreatAt != null
+                label: orderDetailsData.orderCreatAt != null
                     ? NKDateUtils.commonDayFormat2(
                         NKDateUtils.formatStringUTCDateTime(
-                            orderData.optionOrderData!.orderCreatAt!))
+                            orderDetailsData.orderCreatAt!))
                     : 'N/A',
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
               MyRegularText(
-                label: orderData.optionOrderData?.orderCreatAt != null
+                label: orderDetailsData.orderCreatAt != null
                     ? NKDateUtils.commonTimeOnlyFormat(
                         NKDateUtils.formatStringUTCDateTime(
-                            orderData.optionOrderData!.orderCreatAt!))
+                            orderDetailsData.orderCreatAt!))
                     : 'N/A',
                 fontSize: 12,
               ),
@@ -142,7 +141,7 @@ Widget orderCreatedDateWidget(
             children: [
               MyRegularText(
                 label:
-                    "${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'} ${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'}",
+                    "${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'} ${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'}",
                 fontWeight: FontWeight.w600,
                 fontSize: 11,
               ),
@@ -170,11 +169,11 @@ Widget orderCreatedByWidget(OrderData orderData) {
   );
 }
 
-Widget orderPrice(CustomerCart orderData) {
+Widget orderPrice(OrderData orderDetailsData) {
   return Center(
     child: MyRegularText(
-      label: orderData.optionOrderData?.orderTotal != null
-          ? formatAmount(orderData.optionOrderData!.orderTotal)
+      label: orderDetailsData.orderTotal != null
+          ? formatAmount(orderDetailsData.orderTotal)
           : 'N/A',
       fontWeight: FontWeight.w600,
       fontSize: 11,
@@ -183,9 +182,9 @@ Widget orderPrice(CustomerCart orderData) {
   );
 }
 
-Widget paymentStatus(CustomerCart orderData) {
+Widget paymentStatus(OrderData orderData) {
   Color statusColor;
-  switch (orderData.optionOrderData?.paymentStatus) {
+  switch (orderData.paymentStatus) {
     case 0:
       statusColor = Colors.red;
       break;
@@ -204,7 +203,7 @@ Widget paymentStatus(CustomerCart orderData) {
       backgroundColor: statusColor,
       radius: 12,
       child: Icon(
-        orderData.optionOrderData?.paymentStatus == 0
+        orderData.paymentStatus == 0
             ? Icons.close
             : Icons.check,
         size: 20,
@@ -214,9 +213,9 @@ Widget paymentStatus(CustomerCart orderData) {
   );
 }
 
-Widget orderStatus(CustomerCart orderData) {
+Widget orderStatus(OrderData orderData) {
   Color statusColor;
-  switch (orderData.optionOrderData?.orderStatus) {
+  switch (orderData.orderStatus) {
     case 11:
       statusColor = const Color.fromARGB(255, 225, 250, 191);
       break;
@@ -242,7 +241,7 @@ Widget orderStatus(CustomerCart orderData) {
       statusColor = Colors.grey;
   }
 
-  return orderData.optionOrderData?.orderStatus == 14
+  return orderData.orderStatus == 14
       ? Center(
           child: Padding(
             padding: const EdgeInsets.all(0),
@@ -259,15 +258,15 @@ Widget orderStatus(CustomerCart orderData) {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomText(
-                        content: orderData.optionOrderData?.orderStatus != null
+                        content: orderData.orderStatus != null
                             ? OrderHandlingClass.fromType(
-                                    orderData.optionOrderData!.orderStatus!)
+                                    orderData.orderStatus!)
                                 .name
                             : 'Unknown',
                         fontSize: 11.0,
                         fontWeight: FontWeight.w600,
                       ),
-                      if (orderData.optionOrderData?.orderStatus == 14) ...[
+                      if (orderData.orderStatus == 14) ...[
                         const SizedBox(height: 3),
                         Row(
                           children: [
@@ -301,16 +300,16 @@ Widget orderStatus(CustomerCart orderData) {
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: orderData.optionOrderData?.orderStatus != null
+                  color: orderData.orderStatus != null
                       ? statusColor
                       : Colors.grey,
                   borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                 ),
                 child: Center(
                   child: CustomText(
-                    content: orderData.optionOrderData?.orderStatus != null
+                    content: orderData.orderStatus != null
                         ? OrderHandlingClass.fromType(
-                                orderData.optionOrderData!.orderStatus!)
+                                orderData.orderStatus!)
                             .name
                         : 'Unknown',
                     fontSize: 11,
@@ -386,10 +385,9 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
           }
         } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
           showInvoicePreviewOnline(
-                                                                                  context,
-                                                                                  orderData.orderId ?? '',
-                                                                                );
-          
+            context,
+            orderData.orderId ?? '',
+          );
         }
       },
       icon: const Icon(Icons.visibility, size: 16),

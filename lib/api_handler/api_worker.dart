@@ -626,7 +626,7 @@ class ApiWorker with ApiConstants {
       final response = await dio1
           .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToCart}",
-        data: FormData.fromMap(sendData),
+        data: sendData,
       )
           .timeout(const Duration(seconds: 10), onTimeout: () {
         throw DioException(
@@ -662,7 +662,7 @@ class ApiWorker with ApiConstants {
       final response = await dio1
           .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToDraft}",
-        data: FormData.fromMap(sendData),
+        data: sendData,
       )
           .timeout(const Duration(seconds: 15), onTimeout: () {
         throw DioException(
@@ -679,14 +679,14 @@ class ApiWorker with ApiConstants {
         log('[addToDraft] Response Data: ${response.data}');
         return CartOrderModel.fromJson(response.data);
       } else {
-        handleExceptionMessage(response: response, apiName: "add to draft");
         log('[addToDraft] Unexpected status code: ${response.statusCode}');
+        handleExceptionMessage(response: response, apiName: "add to draft");
         return null;
       }
     } on DioException catch (error) {
+      log('[addToDraft] Exception: $error');
       handleExceptionMessage(
           response: error.response, apiName: "add to draft", error: error);
-      log('[addToCart] Exception: $error');
       return Future.error(DioExceptionHandler.fromDioError(error));
     }
   }

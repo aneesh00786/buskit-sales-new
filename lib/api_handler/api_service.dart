@@ -81,7 +81,7 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "year": fetchType == "Year" ? year : DateTime.now().year,
     };
-    log("GET_DASHBOARD_LIST request : $requestBody");
+    // log("GET_DASHBOARD_LIST request : $requestBody");
     final dashboardBox = await getHiveBoxSafely('dashboardBox');
     try {
       final bool isOnline = await ConnectivityService().isOnline();
@@ -109,7 +109,7 @@ class ApiService {
         ),
         data: jsonEncode(requestBody),
       );
-      log("GET_DASH_LIST response: $response");
+      // log("GET_DASH_LIST response: $response");
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         await dashboardBox.put(
@@ -756,7 +756,7 @@ class ApiService {
       "page": 1,
     };
 
-    log("Request Body Of fetchCustomerDashOrders: $requestBody");
+    // log("Request Body Of fetchCustomerDashOrders: $requestBody");
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final cacheKey =

@@ -208,10 +208,10 @@ class ProductsController extends GetxController {
 
     final allItems = itemMap.values.toList();
 
-    log('🧾 Draft box to process: ${CartDatabaseManager().draftBox.values}');
-    log('🧾 Cart box to process: ${CartDatabaseManager().cartBox.values}');
-    log('🧾 Total items to process: ${allItems.length}');
-    log('🧾 Items to process: ${allItems.map((e) => e.toJson()).toList()}');
+    // log('🧾 Draft box to process: ${CartDatabaseManager().draftBox.values}');
+    // log('🧾 Cart box to process: ${CartDatabaseManager().cartBox.values}');
+    // log('🧾 Total items to process: ${allItems.length}');
+    // log('🧾 Items to process: ${allItems.map((e) => e.toJson()).toList()}');
 
     allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
 
@@ -228,7 +228,7 @@ class ProductsController extends GetxController {
 
     final detail = dedupedDetails.values.toList();
     log('✅ Deduplicated item count: ${detail.length}');
-    log("details 22 : ${detail.map((e) => e.toJson()).toList()}");
+    // log("details 22 : ${detail.map((e) => e.toJson()).toList()}");
 
     final isOnline = await connectivityService.isOnline();
     log('🌐 Connectivity: ${isOnline ? "Online" : "Offline"}');
@@ -315,9 +315,9 @@ class ProductsController extends GetxController {
                 maxDiscount: e.maxDiscount?.toInt(),
                 isPromo: true,
                 promoCode: item.promoCode ?? '',
-                promoMsg: item.promoMsg ?? '',
+                promoMsg: "Bundle: ${e.variationName}",
                 isBundle: isBundle,
-                bundleDetails: isBundle ? item.promoMsg : null,
+                bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
               );
             } else {
               return SendCartData(

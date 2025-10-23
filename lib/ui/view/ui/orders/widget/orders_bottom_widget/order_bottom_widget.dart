@@ -301,10 +301,28 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                 height: (fullScreenHeight(context) - 242) / 10,
                                 child: Row(
                                   children: [
+                                    // Expanded(
+                                    //     flex: 2, child: placeholderWidget()),
+                                    // Expanded(
+                                    //     flex: 8, child: placeholderWidget()),
                                     Expanded(
-                                        flex: 2, child: placeholderWidget()),
+                                      flex: 2,
+                                      child: Center(
+                                        child: CustomText(
+                                          content:
+                                              '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                          maxLine: 1,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
                                     Expanded(
-                                        flex: 8, child: placeholderWidget()),
+                                      flex: 8,
+                                      child: customerDetailsWidget(
+                                          orderData.customer!.first),
+                                    ),
                                   ],
                                 ),
                               );
@@ -335,7 +353,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                   Expanded(
                                     flex: 8,
                                     child: customerDetailsWidget(
-                                        orderData.cart!.first),
+                                        orderData.customer!.first),
                                   ),
                                 ],
                               ),

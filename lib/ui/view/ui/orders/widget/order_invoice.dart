@@ -47,7 +47,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    double totalWidth = MediaQuery.of(context).size.width;
     log("DATE FORMAT :${widget.invoiceData!.orderCreatAt?.toIso8601String() ?? ''}");
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
@@ -139,7 +138,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                       child: SizedBox(
                         width: isPhonePortrait(context)
                             ? fullScreenWidth(context) * 2
-                            : null,
+                            : fullScreenWidth(context) * 0.85,
                         child: DataTable(
                           dataRowHeight: 40,
                           headingRowHeight: 40,

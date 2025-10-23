@@ -208,11 +208,6 @@ class ProductsController extends GetxController {
 
     final allItems = itemMap.values.toList();
 
-    // log('🧾 Draft box to process: ${CartDatabaseManager().draftBox.values}');
-    // log('🧾 Cart box to process: ${CartDatabaseManager().cartBox.values}');
-    // log('🧾 Total items to process: ${allItems.length}');
-    // log('🧾 Items to process: ${allItems.map((e) => e.toJson()).toList()}');
-
     allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
 
     final Map<String, Detail> dedupedDetails = {};
@@ -249,9 +244,6 @@ class ProductsController extends GetxController {
         allItemsTotal: allItemsTotalSave.value,
       );
 
-      // CartDatabaseManager().cartItems.clear();
-      //come back
-      // CartDatabaseManager().clearDraftBoxForCustomer(customerId: customerId);
       CartDatabaseManager().clearCart(customerId: customerId);
       return false;
     } else {
@@ -266,33 +258,12 @@ class ProductsController extends GetxController {
       final existingCartId = firstOrder['cart_id'] ?? '';
       final existingDraftId = firstOrder['draft_id'] ?? '';
 
-      // final productBYData = AddToCartModel(
-      //   customerId: customerId,
-      //   salesmanId: currentSalesmanId,
-      //   cartId: existingCartId,
-      //   cartList: detail
-      //       .map((e) => SendCartData(
-      //             productId: e.productId ?? '',
-      //             variantId: e.variationId ?? '',
-      //             pack: e.saleBy == 'Pack'
-      //                 ? e.pieces.toString()
-      //                 : e.count.toString(),
-      //             packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-      //             price: e.sellPrice.toString(),
-      //             discount: e.discount ?? 0,
-      //             quantity: e.count.toInt(),
-      //             variantName: e.variationName ?? '',
-      //           ))
-      //       .toList(),
-      //   total: finalAmount.value.toStringAsFixed(0),
-      // );
-
       final productBYData = AddToCartModel(
         customerId: customerId,
         salesmanId: currentSalesmanId,
         cartId: existingCartId,
         cartList: await Future.wait(allItems.map((item) async {
-          final e = item.detail; // shortcut
+          final e = item.detail;
 
           final packValue =
               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
@@ -352,17 +323,34 @@ class ProductsController extends GetxController {
         total: finalAmount.value.toStringAsFixed(0),
       );
 
-      // List<String> varientIdsPass = [];
-      // for (var item in detail) {
-      //   varientIdsPass.add(item.variationId ?? '');
-      // }
-
       List<String> variantIdsPass = [];
+
+// pattern to catch lines like “Variant Id: VARIATION31”
+      final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
       for (var item in allItems) {
-        variantIdsPass.add(item.detail.variationId ?? '');
+        final variantId = item.detail.variationId ?? '';
+        if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+          variantIdsPass.add(variantId);
+        }
+
+        // also add any ids listed inside a bundle promoMsg
+        if (item.isPromo == true &&
+            (item.promoMsg?.startsWith('Bundle') ?? false)) {
+          final promoMsg = item.promoMsg ?? '';
+          for (final m in variantIdRegex.allMatches(promoMsg)) {
+            final extracted = m.group(1);
+            if (extracted != null && extracted.isNotEmpty) {
+              variantIdsPass.add(extracted);
+            }
+          }
+        }
       }
 
-      log("VARIENT IDS : $variantIdsPass");
+// remove duplicates
+      variantIdsPass = variantIdsPass.toSet().toList();
+
+      log("VARIANT IDS (including bundle promo items): $variantIdsPass");
 
       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
 

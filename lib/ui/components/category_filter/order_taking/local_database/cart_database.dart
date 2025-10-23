@@ -62,7 +62,7 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    // log('Request Body of FetchAll Order draft :$requestBody');
+    log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
     final cacheKey = '${companyId}_$salesmanId';
@@ -74,6 +74,7 @@ class CartDatabaseManager {
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;
+          log("FetchAllOrder response : $responseData");
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
@@ -160,6 +161,8 @@ class CartDatabaseManager {
                           : null,
                 );
 
+                log("Bundle MSG : ${cartItem.promoMsg}");
+
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
                     'cartId', cart['cart_id'] as String? ?? '');
@@ -217,6 +220,7 @@ class CartDatabaseManager {
         String variationName = bundleItem['variation_name'] ?? '';
         String unitType = bundleItem['unitType'] ?? '';
         final qty = bundleItem['quantity'] ?? 1;
+        String variationId = bundleItem['variant_id'] ?? '';
 
         double unitPrice =
             double.tryParse(bundleItem['unit_price'].toString()) ?? 0;
@@ -229,7 +233,8 @@ class CartDatabaseManager {
         bundleDetailsMsg +=
             "        Price: ${formatAmount(unitPrice.toString())} each\n";
         bundleDetailsMsg +=
-            "        Total: ${formatAmount(totalPrice.toString())}\n\n";
+            "        Total: ${formatAmount(totalPrice.toString())}\n";
+        bundleDetailsMsg += "        Variant Id: $variationId\n\n";
       }
 
       bundleDetailsMsg +=

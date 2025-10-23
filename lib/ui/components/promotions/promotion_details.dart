@@ -313,7 +313,9 @@ class PromotionDetails extends StatelessWidget {
                                             bundleDetailsMsg +=
                                                 "  Price: ${formatAmount(unitPrice.toString())} each\n";
                                             bundleDetailsMsg +=
-                                                "  Total: ${formatAmount(totalPrice.toString())}\n\n";
+                                                "  Total: ${formatAmount(totalPrice.toString())}\n";
+                                            bundleDetailsMsg +=
+                                                "  Variant Id: ${variant.id}\n\n";
                                           }
                                         }
                                         bundleDetailsMsg +=

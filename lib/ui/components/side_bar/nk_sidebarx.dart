@@ -5,16 +5,12 @@ import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -69,7 +65,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
   SearchModel searchData = SearchModel();
-  final ApiWorker _apiWorker = ApiWorker();
   TabController? _tabController;
   TabController? get tabController => _tabController;
   final int currentYear = DateTime.now().year;
@@ -90,8 +85,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   @override
   Widget build(BuildContext context) {
     log('ImagePath Side : ${widget.userDetails.imagePath}');
-    final dashboardProvider =
-        Provider.of<DashboardProvider>(context, listen: false);
+    Provider.of<DashboardProvider>(context, listen: false);
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
         controller: widget._controller,

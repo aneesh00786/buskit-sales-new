@@ -1,4 +1,3 @@
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -8,10 +7,10 @@ class CustomButtonLeads extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomButtonLeads({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

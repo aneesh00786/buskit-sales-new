@@ -40,7 +40,6 @@ class CartDatabaseManager {
   }
 
   Future<List<CartItem>> getDraftItems() async {
-    // log("GET DRAFT ITEMS CALLED");
     final dio = Dio();
     const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
     final now = DateTime.now();
@@ -62,7 +61,6 @@ class CartDatabaseManager {
       "page": 1,
     };
 
-    log('Request Body of FetchAll Order draft :$requestBody');
     final List<CartItem> fetchedItems = [];
     // Caching logic
     final cacheKey = '${companyId}_$salesmanId';
@@ -74,14 +72,10 @@ class CartDatabaseManager {
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;
-          log("FetchAllOrder response : $responseData");
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             await draftBox.clear();
-            // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {
-              // Only process drafts for the current salesman
-              // if (order['salesman_id'] != currentSalesmanId) continue;
               final List<dynamic> carts = order['cart'] ?? [];
               for (var cart in carts) {
                 final double discountPercentage =
@@ -161,43 +155,27 @@ class CartDatabaseManager {
                           : null,
                 );
 
-                log("Bundle MSG : ${cartItem.promoMsg}");
-
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
                     'cartId', cart['cart_id'] as String? ?? '');
                 await prefs.setString(
                     'draftId', order['order_id'] as String? ?? '');
-                // log('[2] Cart Items JSON ${cartItem.toJson()}');
                 await draftBox.add(cartItem);
                 fetchedItems.add(cartItem);
               }
             }
-            // Cache the result
             await draftItemsBox.put(
                 cacheKey, fetchedItems.map((e) => e.toJson()).toList());
-          } else {
-            log('API response status is false: ${responseData['message']}');
           }
-        } else {
-          log('Error fetching draft items from API: ${response.statusCode} ${response.data}');
         }
-      } else {
-        log('No internet connection. Skipping API fetch.');
       }
-      // Only return drafts for the current salesman
       final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
       return fetchedItems
           .where((item) => item.salesmanId == currentSalesmanId)
           .toList();
-    } on DioException catch (e) {
-      log('Error fetching draft items: $e');
-      // handleExceptionMessage(
-      //       response: e.response, apiName: "draft");
-      // Try to return cached data if available
+    } on DioException {
       final cachedData = draftItemsBox.get(cacheKey);
       if (cachedData != null && cachedData is List) {
-        log('Returning cached draft items for key: $cacheKey');
         return List<Map<String, dynamic>>.from(cachedData)
             .map((e) => CartItem.fromJson(e))
             .toList();
@@ -256,8 +234,6 @@ class CartDatabaseManager {
 
   Future<List<CartItem>> getCartItems(String customerId,
       {bool draftsOnly = false}) async {
-    print(
-        '[CartDB] getCartItems called for customerId=$customerId, draftsOnly=$draftsOnly');
     try {
       if (draftsOnly) {
         final customerDraftItems = draftBox.values
@@ -285,7 +261,6 @@ class CartDatabaseManager {
           (d) => d['customer_id'] == customerId,
           orElse: () => null,
         );
-        log("DRAFT OF CUSTOMER 2: $draft");
         if (draft != null) {
           final List details = draft['details'];
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -327,8 +302,6 @@ class CartDatabaseManager {
           }
         }
 
-        log("customerOfflineDraftItems : ${customerOfflineDraftItems.map((e) => e.toJson()).toList()}");
-
         final customerCartItems = cartBox.values
             .where((item) => item.customerId == customerId)
             .toList();
@@ -359,101 +332,12 @@ class CartDatabaseManager {
         }
 
         final combinedItems = itemMap.values.toList();
-
-        log('[CartDB] getCartItems returning customerCartItems : ${customerCartItems.map((e) => e.toJson()).toList()}');
-        log('[CartDB] getCartItems returning customerDraftItems : ${customerDraftItems.map((e) => e.toJson()).toList()}');
-        log('[CartDB] getCartItems returning ${combinedItems.length} combined items');
         return Future.value(combinedItems);
       }
     } catch (e) {
-      print('[CartDB] ERROR in getCartItems for $customerId: $e');
       return Future.value([]);
     }
   }
-
-  // Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(
-  //     String customerId) async {
-  //   final dio = Dio();
-  //   const apiUrl = '${ApiConstants.baseUrl}fetch_all_order';
-  //   final now = DateTime.now();
-  //   final startOfMonth = DateTime(now.year, now.month, 1);
-  //   final endOfMonth = DateTime(now.year, now.month + 1, 0);
-  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  //   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  //   final requestBody = {
-  //     "companyId": companyId,
-  //     "customer_id": customerId,
-  //     "salesman_id": salesmanId,
-  //     "order_type": 4,
-  //     "payment_type": 1,
-  //     "start_date":
-  //         " [${startOfMonth.year}-${startOfMonth.month.toString().padLeft(2, '0')}-${startOfMonth.day.toString().padLeft(2, '0')}]",
-  //     "end_date":
-  //         " [${endOfMonth.year}-${endOfMonth.month.toString().padLeft(2, '0')}-${endOfMonth.day.toString().padLeft(2, '0')}]",
-  //     "limit": 1000,
-  //     "page": 1,
-  //   };
-  //   log('Request Body of FetchAll Order: $requestBody');
-
-  //   // Caching logic
-  //   final cacheKey = '${companyId}_${customerId}_$salesmanId';
-  //   final draftAndCartIdsBox = await Hive.openBox('draftAndCartIdsBox');
-  //   try {
-  //     final connectivityService = ConnectivityService();
-  //     final isOnline = await connectivityService.isOnline();
-
-  //     if (isOnline) {
-  //       log('Fetching draft and cart IDs from API for customer ID: $customerId');
-  //       final response = await dio.post(apiUrl, data: requestBody);
-  //       if (response.statusCode == 200) {
-  //         final responseData = response.data;
-  //         if (responseData['status'] == true) {
-  //           final List<dynamic> orders = responseData['data'] ?? [];
-  //           List<Map<String, String?>> draftAndCartIds = [];
-  //           for (var order in orders) {
-  //             draftAndCartIds.add({
-  //               'cart_id': order['cart_id'] as String?,
-  //               'draft_id': order['order_id'] as String?,
-  //             });
-  //           }
-  //           log('Draft and Cart IDs fetched from API: $draftAndCartIds');
-  //           // Cache the result
-  //           await draftAndCartIdsBox.put(cacheKey, draftAndCartIds);
-  //           return draftAndCartIds;
-  //         } else {
-  //           log('API response status is false: ${responseData['message']}');
-  //         }
-  //       } else {
-  //         log('Error fetching draft and cart IDs from API: ${response.statusCode} ${response.data}');
-  //       }
-  //     } else {
-  //       log('No internet connection.');
-  //     }
-  //   } catch (e) {
-  //     log('Error fetching draft and cart IDs: $e');
-  //   }
-  //   // Try to return cached data if available
-  //   final cachedData = draftAndCartIdsBox.get(cacheKey);
-  //   if (cachedData != null && cachedData is List) {
-  //     log('Returning cached draft and cart IDs for key: $cacheKey');
-  //     return List<Map<String, String?>>.from(cachedData);
-  //   }
-  //   // Fallback: try to get from local draftBox
-  //   final localDrafts =
-  //       draftBox.values.where((item) => item.customerId == customerId).toList();
-  //   if (localDrafts.isNotEmpty) {
-  //     final ids = localDrafts
-  //         .map((item) => {
-  //               'cart_id': item.cartId,
-  //               'draft_id': item.draftId,
-  //             })
-  //         .toList();
-  //     log('[Fallback] Returning draft/cart IDs from local draftBox for customer $customerId: $ids');
-  //     return ids;
-  //   }
-  //   log('[Fallback] No draft/cart IDs found for customer $customerId (API, cache, or local)');
-  //   return [];
-  // }
 
   Future<List<Map<String, String?>>> getDraftAndCartIdsFromApi(
       String customerId) async {
@@ -475,14 +359,12 @@ class CartDatabaseManager {
       "limit": 1000,
       "page": 1,
     };
-    // log('Request Body of FetchAll Order: $requestBody');
 
     try {
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
 
       if (isOnline) {
-        // log('Fetching draft and cart IDs from API for customer ID: $customerId');
         final response = await dio.post(apiUrl, data: requestBody);
         if (response.statusCode == 200) {
           final responseData = response.data;
@@ -495,16 +377,9 @@ class CartDatabaseManager {
                 'draft_id': order['order_id'] as String?,
               });
             }
-            log('Draft and Cart IDs fetched from API: $draftAndCartIds');
             return draftAndCartIds;
-          } else {
-            log('API response status is false: ${responseData['message']}');
           }
-        } else {
-          log('Error fetching draft and cart IDs from API: ${response.statusCode} ${response.data}');
         }
-      } else {
-        log('No internet connection.');
       }
     } catch (e) {
       log('Error fetching draft and cart IDs: $e');
@@ -535,22 +410,14 @@ class CartDatabaseManager {
         ? (effectiveSellingPrice * (detail.pieces ?? 1) * itemCount)
         : (effectiveSellingPrice * itemCount);
 
-    log('Discount Selling Price== $discountSellingPrice');
-    log('Effective Selling Price== $effectiveSellingPrice');
-
     if (discountData != null && discountData.customerId == customerId) {
-      log('Checking applicable discounts for catId: $catId against customer discount categories: ${discountData.discounts?.map((discount) => discount.categoriesId).toList()}');
       final applicableDiscount = discountData.discounts?.firstWhere(
         (discount) {
-          log('Evaluating discount: ${discount.categoriesId}, '
-              'Effective Selling Price: $effectiveSellingPrice, '
-              'Discount Value: ${discount.value}');
           return discount.categoriesId == catId.toString() &&
               discountSellingPrice * localCount >
                   (double.tryParse(discount.value ?? '0') ?? 0);
         },
         orElse: () {
-          log('No matching discount found for catId: $catId or discount selling price is less than discount value.');
           return DiscountModel();
         },
       );
@@ -560,12 +427,8 @@ class CartDatabaseManager {
             double.tryParse(applicableDiscount.discount ?? '0') ?? 0;
         effectiveSellingPrice -=
             (effectiveSellingPrice * discountPercentage / 100);
-        log('Applied discount of $discountPercentage% to product in category ${applicableDiscount.categoriesId}. '
-            'New Selling Price: $effectiveSellingPrice');
-        log('Discount Amount: $discountPercentage');
         detail.discount = discountPercentage;
       } else {
-        log('No applicable discount found for category ID: $catId or discount selling price is less than discount value.');
         detail.discount = 0;
       }
     }
@@ -587,7 +450,6 @@ class CartDatabaseManager {
       throw ArgumentError("Error: Count must be greater than zero.");
     }
 
-    log("DETAIL2 : ${detail.discount}");
     final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
     CustomerDiscountModel? discountData;
     discountData = discountBox.values.firstWhere(
@@ -615,9 +477,7 @@ class CartDatabaseManager {
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
     if (existingDraftItemIndex != -1) {
-      log("existingDraftItemIndex != -1");
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
-      log("existingDraftItemIndex : ${existingDraftItem.toJson().toString()}");
       existingDraftItem.detail.count += localCount.toDouble();
       existingDraftItem.totalPrice = existingDraftItem.isPack!
           ? (existingDraftItem.detail.count *
@@ -626,17 +486,13 @@ class CartDatabaseManager {
               .toDouble()
           : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
       await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
-      log('Updated product in draft: ${existingDraftItem.detail.variationName}, '
-          'New Count: ${existingDraftItem.detail.count}, Total Price: ${existingDraftItem.totalPrice}');
     } else {
       final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
           item.detail.variationName == detail.variationName &&
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
       if (existingCartItemIndex != -1) {
-        log("existingCartItemIndex != -1");
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
-        log("existingCartItemIndex : ${existingCartItem.toJson().toString()}");
         final double priceWithTax =
             existingCartItem.detail.inclTax != "incl_tax"
                 ? effectiveSellingPrice + discountedTax
@@ -649,18 +505,13 @@ class CartDatabaseManager {
                 .toDouble()
             : (existingCartItem.detail.count * priceWithTax).toDouble();
         await cartBox.putAt(existingCartItemIndex, existingCartItem);
-        log('Updated product in cart: ${existingCartItem.detail.variationName}, '
-            'New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
       } else {
-        log("NEW ADDED VARIANT");
         final double priceWithTax = inclTax != "incl_tax"
             ? effectiveSellingPrice + discountedTax
             : effectiveSellingPrice;
         final computedTotalAmount = isPack
             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
             : (localCount * priceWithTax);
-        log('Incl Tax: $inclTax');
-        // Clone the detail object and set count to localCount
         final newDetail = Detail.fromJson(detail.toJson());
         newDetail.count = localCount.toDouble();
         newDetail.inclTax = inclTax;
@@ -676,8 +527,6 @@ class CartDatabaseManager {
           catId: catId,
         );
         await cartBox.add(newCartItem);
-        log('New product added to cart: ${newCartItem.detail.variationName}, '
-            'Count: ${newCartItem.detail.count}, Total Price: ${newCartItem.totalPrice}');
       }
     }
   }
@@ -698,9 +547,6 @@ class CartDatabaseManager {
       throw ArgumentError("[PROMO] Error: Count must be greater than zero.");
     }
 
-    log("[PROMO] Adding to cart → Variant: ${detail.variationId}, Count: $localCount");
-
-    // Calculate effective selling price (without discountBox)
     double effectiveSellingPrice = calculateEffectivePrice(
       detail: detail,
       isPack: isPack,
@@ -716,14 +562,12 @@ class CartDatabaseManager {
         ? detail.tax! - (detail.tax! * discountPercentage / 100)
         : 0.0;
 
-    // Check existing draft
     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
 
     if (existingDraftItemIndex != -1) {
-      log("[PROMO] Updating existing draft item");
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
       existingDraftItem.detail.count += localCount.toDouble();
       existingDraftItem.totalPrice = existingDraftItem.isPack!
@@ -733,17 +577,13 @@ class CartDatabaseManager {
               .toDouble()
           : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
       await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
-      log("[PROMO] Updated draft → ${existingDraftItem.detail.variationName}, "
-          "Count: ${existingDraftItem.detail.count}, Total: ${existingDraftItem.totalPrice}");
     } else {
-      // Check existing cart
       final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
           item.detail.variationName == detail.variationName &&
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
 
       if (existingCartItemIndex != -1) {
-        log("[PROMO] Updating existing cart item");
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
         final double priceWithTax = inclTax != "incl_tax"
             ? effectiveSellingPrice + discountedTax
@@ -758,10 +598,7 @@ class CartDatabaseManager {
             : (existingCartItem.detail.count * priceWithTax).toDouble();
 
         await cartBox.putAt(existingCartItemIndex, existingCartItem);
-        log("[PROMO] Updated cart → ${existingCartItem.detail.variationName}, "
-            "Count: ${existingCartItem.detail.count}, Total: ${existingCartItem.totalPrice}");
       } else {
-        log("[PROMO] Adding new variant to cart");
         final double priceWithTax = inclTax != "incl_tax"
             ? effectiveSellingPrice + discountedTax
             : effectiveSellingPrice;
@@ -769,13 +606,9 @@ class CartDatabaseManager {
             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
             : (localCount * priceWithTax);
 
-        // Clone detail and set count
         final newDetail = Detail.fromJson(detail.toJson());
-        log('[PROMO] Discount max value 5: ${newDetail.maxDiscount}');
         newDetail.count = localCount.toDouble();
         newDetail.inclTax = inclTax;
-
-        log('[PROMO] Discount max value 3: ${newDetail.maxDiscount}');
 
         final newCartItem = CartItem(
           detail: newDetail,
@@ -793,8 +626,6 @@ class CartDatabaseManager {
         );
 
         await cartBox.add(newCartItem);
-        log("[PROMO] New product added → ${newCartItem.detail.variationName}, "
-            "Count: ${newCartItem.detail.count}, Total: ${newCartItem.totalPrice}");
       }
     }
   }
@@ -821,12 +652,10 @@ class CartDatabaseManager {
     }
     await cartBox.clear();
     await getCartItems(customerId);
-    log('Unchecked cart items moved to draftBox, and checked items removed for customer: $customerId');
   }
 
   Future<void> updateCartItemCount(Detail detail, int newCount) async {
     if (newCount <= 0) {
-      log("Error: Count must be greater than zero.");
       return;
     }
     try {
@@ -847,7 +676,6 @@ class CartDatabaseManager {
                   num.parse(existingCartItem.detail.sellPrice ?? '0'))
               .toDouble();
       await cartBox.put(existingCartItem.key, existingCartItem);
-      log('Updated product in cart: ${existingCartItem.detail.variationName}, New Count: ${existingCartItem.detail.count}, Total Price: ${existingCartItem.totalPrice}');
     } catch (e) {
       log('Error updating cart item: $e');
     }
@@ -861,17 +689,13 @@ class CartDatabaseManager {
           .where((item) => item.customerId == customerId)
           .cast<CartItem>()
           .toList();
-      log('Retrieved cart items for customer: ${cartItems.map((item) => item.toJson()).toList()}');
       if (cartItemsa.isNotEmpty) {
         final firstItem = cartItemsa.last;
-        log('First Cart ID : ${firstItem.cartId}');
-        log('First Draft ID : ${firstItem.draftId}');
         return {
           'cart_id': firstItem.cartId,
           'id': firstItem.draftId,
         };
       }
-      log('No saved cart details found for customer ID: $customerId');
       return null;
     } catch (e) {
       log('Error retrieving cart and draft IDs: $e');
@@ -891,24 +715,16 @@ class CartDatabaseManager {
     final key = item.key;
     if (item.boxType == false) {
       if (cartBox.containsKey(key)) {
-        log('Item found with key: $key, proceeding to delete');
         cartBox.delete(key);
-      } else {
-        log('Item with key: $key does not exist in cartBox');
       }
     } else {
       if (draftBox.containsKey(key)) {
-        log('Item found with key: $key, proceeding to delete');
         draftBox.delete(key);
-      } else {
-        log('Item with key: $key does not exist in cartBox');
       }
     }
   }
 
   Future<void> clearCart({required String customerId}) async {
-    // LOG: clearCart called
-    print('[CartDB] clearCart called for customerId=$customerId');
     try {
       List<CartItem> remainingCartItems = cartBox.values
           .where((item) => item.customerId != customerId)
@@ -922,45 +738,35 @@ class CartDatabaseManager {
       await draftBox.addAll(remainingDraftItems);
       getCartItems(customerId);
     } catch (e) {
-      print('[CartDB] ERROR in clearCart for $customerId: $e');
+      log('[CartDB] ERROR in clearCart for $customerId: $e');
     }
   }
 
   Future<void> clearCartBoxForCustomer({required String customerId}) async {
-    // LOG: clearCart called
-    print('[CartDB] clearCartBoxForCustomer called for customerId=$customerId');
     try {
       List<CartItem> remainingCartItems = cartBox.values
           .where((item) => item.customerId != customerId)
           .toList();
       await cartBox.clear();
       await cartBox.addAll(remainingCartItems);
-      // getCartItems(customerId);
     } catch (e) {
       print('[CartDB] ERROR in clearCart for $customerId: $e');
     }
   }
 
   Future<void> clearDraftBoxForCustomer({required String customerId}) async {
-    // LOG: clearCart called
-    print(
-        '[CartDB] clearDraftBoxForCustomer called for customerId=$customerId');
     try {
       List<CartItem> remainingCartItems = draftBox.values
           .where((item) => item.customerId != customerId)
           .toList();
       await draftBox.clear();
       await draftBox.addAll(remainingCartItems);
-      // getCartItems(customerId);
     } catch (e) {
       print('[CartDB] ERROR in clearCart for $customerId: $e');
     }
   }
 
   Future<void> clearCartOnlyForCustomer(String customerId) async {
-    // LOG: clearCartOnlyForCustomer called
-    print(
-        '[CartDB] clearCartOnlyForCustomer called for customerId=$customerId');
     try {
       final keysToRemoveCart = cartBox.keys.where((key) {
         final item = cartBox.get(key);
@@ -980,9 +786,6 @@ class CartDatabaseManager {
   }
 
   Future<void> clearAllItemsForCustomer(String customerId) async {
-    // LOG: clearAllItemsForCustomer called
-    print(
-        '[CartDB] clearAllItemsForCustomer called for customerId=$customerId');
     try {
       final keysToRemoveCart = cartBox.keys.where((key) {
         final item = cartBox.get(key);
@@ -1006,42 +809,16 @@ class CartDatabaseManager {
   Future<void> handleCartPersistenceOnRestart(
       String? selectedCustomerId) async {
     try {
-      log('=== Cart Persistence on Restart ===');
-      log('Checking cart persistence on app restart...');
-
-      // Check if there are any cart items
       final cartItems = this.cartItems;
-      final orphanedItems = orphanedCartItems;
-      log('Total cart items found on restart: ${cartItems.length}');
-      log('Orphaned cart items (no customer ID): ${orphanedItems.length}');
-
       if (cartItems.isNotEmpty) {
-        log('Cart items details:');
-        for (int i = 0; i < cartItems.length; i++) {
-          final item = cartItems[i];
-          log('  Item $i: ${item.productName} - Customer: ${item.customerId ?? 'null'} - Count: ${item.count}');
-        }
-
         if (selectedCustomerId != null && selectedCustomerId.isNotEmpty) {
-          log('Customer ID present: $selectedCustomerId. Moving cart items to draft...');
-
-          // Move cart items to draft for the selected customer
           await moveCartItemsToDraft(selectedCustomerId);
-          log('Cart items successfully moved to draft for customer: $selectedCustomerId');
         } else {
-          log('No customer ID present. Clearing cart items...');
-
-          // Clear all cart items if no customer ID is present
           await clearCompleteCart();
-          log('Cart items cleared due to no customer ID');
         }
-      } else {
-        log('No cart items found on app restart');
       }
-      log('=== Cart Persistence Complete ===');
     } catch (e) {
       log('Error handling cart persistence on restart: $e');
-      log('Stack trace: ${StackTrace.current}');
     }
   }
 
@@ -1056,7 +833,6 @@ class CartDatabaseManager {
     required String customerImageUrl,
     required double allItemsTotal,
   }) async {
-    log("DETAILS : ${details.map((e) => e.toJson()).toList()}");
     try {
       var offlineDraftsBox = await Hive.openBox('offlineDrafts');
       List<dynamic> drafts =
@@ -1077,7 +853,6 @@ class CartDatabaseManager {
         };
         List<dynamic> existingDetails = existingDraft['details'];
         for (var detail in details) {
-          log("existing added stock ${detail.stock}");
           existingDetails.add({
             'product_id': detail.productId ?? '',
             'variant_id': detail.variationId ?? '',

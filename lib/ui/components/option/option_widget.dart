@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
@@ -459,7 +458,7 @@ class _OptionWidgetState extends State<OptionWidget> {
       BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance!.height * 0.02,
+      height: AppDimensions.instance.height * 0.02,
       fit: BoxFit.contain,
     );
 
@@ -483,7 +482,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               onTap: optionData.onTap,
               margin: nkSymmetricPadding(
                 vertical: 0,
-                horizontal: AppDimensions.instance!.width * 0.001,
+                horizontal: AppDimensions.instance.width * 0.001,
               ),
               padding: nkLargePadding(),
               isCommonBorder: true,

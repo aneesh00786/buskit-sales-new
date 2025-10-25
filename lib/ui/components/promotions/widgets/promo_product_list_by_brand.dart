@@ -1,4 +1,5 @@
-import 'dart:developer';
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/widgets/variant_dialog_promo.dart';
@@ -22,7 +23,7 @@ class ProductGridPromoByBrand extends StatefulWidget {
   final ValueChanged<List<Map<String, dynamic>>>? onVariantsSelected;
   final PromotionReponse? promo;
 
-  ProductGridPromoByBrand({
+  const ProductGridPromoByBrand({
     super.key,
     required this.optionName,
     required this.productsController,

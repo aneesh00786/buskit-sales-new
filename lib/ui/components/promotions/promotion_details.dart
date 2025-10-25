@@ -606,7 +606,7 @@ class PromotionDetails extends StatelessWidget {
                                                 return DropdownMenuItem<Tier>(
                                                   value: tier,
                                                   child: Text(
-                                                    '${requiredQty} ${qtyType} - ${discountValue.toStringAsFixed(0)}% off',
+                                                    '$requiredQty $qtyType - ${discountValue.toStringAsFixed(0)}% off',
                                                     style: const TextStyle(
                                                         fontSize: 14),
                                                   ),
@@ -1424,6 +1424,7 @@ class PromotionDetails extends StatelessWidget {
                                         // Prefer deal.getVariantId when present; fallback to first variant in promo.getProducts
                                         String? getVariantId =
                                             deal.getVariantId?.toString();
+                                        // ignore: prefer_typing_uninitialized_variables
                                         var getVariant;
 
                                         // Search in promo.getProducts for matching variant
@@ -1959,9 +1960,6 @@ class PromotionDetails extends StatelessWidget {
                                                                           as num?)
                                                                       ?.toInt() ??
                                                                   0;
-                                                          final qtyType =
-                                                              tier.buyQuantityType ??
-                                                                  '';
                                                           final discountValue =
                                                               double.tryParse(tier
                                                                           .discountValue
@@ -2534,7 +2532,7 @@ class PromotionDetails extends StatelessWidget {
       }
     }
 
-    log('[PROMO] Discount max value 2: ${discountValue}');
+    log('[PROMO] Discount max value 2: $discountValue');
 
     // Create detail with discount if applicable
     final detailWithDiscount = discountValue != null
@@ -2593,7 +2591,7 @@ class PromotionDetails extends StatelessWidget {
     // Find the highest tier that the quantity qualifies for
     for (final tier in sortedTiers) {
       final requiredQty = (tier.buyQuantity as num?)?.toInt() ?? 0;
-      final qtyType = (tier.buyQuantityType as String?)?.toLowerCase() ?? '';
+      final qtyType = (tier.buyQuantityType)?.toLowerCase() ?? '';
 
       // Check if quantity type matches (pack/box/unit)
       bool typeMatches = false;
@@ -2687,8 +2685,6 @@ class PromotionDetails extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             // Add tier selection for tiered_discount promotions
-            final ValueNotifier<Tier?> selectedTier =
-                ValueNotifier<Tier?>(null);
 
             // Animation controller inside dialog
             final AnimationController animationController = AnimationController(
@@ -2917,8 +2913,6 @@ class PromotionDetails extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             // Add tier selection for tiered_discount promotions
-            final ValueNotifier<Tier?> selectedTier =
-                ValueNotifier<Tier?>(null);
 
             // Animation controller inside dialog
             final AnimationController animationController = AnimationController(
@@ -3458,7 +3452,7 @@ class PromotionDetails extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
 
             const Divider(),
           ],

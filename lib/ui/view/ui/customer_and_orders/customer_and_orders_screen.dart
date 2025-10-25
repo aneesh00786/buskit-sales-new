@@ -165,7 +165,7 @@ class _TableeeState extends State<Tableee> {
 
   Widget calender() {
     return Consumer<DashboardProvider>(builder: (context, provider, child) {
-      bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
+      ResponsiveInfo.isMobileDimension(context);
       if (isTabletOrPhoneLandscape(context)) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -750,7 +750,7 @@ class _TableeeState extends State<Tableee> {
   }
 
   Consumer<CustomersProvider> addCustomer(BuildContext context) {
-    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
+    ResponsiveInfo.isMobileDimension(context);
     return Consumer<CustomersProvider>(builder: (context, provider, child) {
       return FutureBuilder<CustomerResponse>(
         future: provider.customerResponse,

@@ -2294,8 +2294,6 @@ class CartDialogueState extends State<CartDialogue> {
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
-                            final cartItemCount = await cartProvider
-                                .getCartItemCounts(customerId);
 
                             CartDatabaseManager().addListener(() {
                               cartProvider.updateCartCount(customerId);

@@ -13,7 +13,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -606,7 +605,7 @@ class _ProductVariantDialoguePromoState
                                                                       Tier>(
                                                                     value: tier,
                                                                     child: Text(
-                                                                      '${requiredQty} ${qtyType} - ${discountValue.toStringAsFixed(0)}% off',
+                                                                      '$requiredQty $qtyType - ${discountValue.toStringAsFixed(0)}% off',
                                                                       style: const TextStyle(
                                                                           fontSize:
                                                                               14),
@@ -882,11 +881,6 @@ class _ProductVariantDialoguePromoState
                       if (widget.promo?.promoType != "tiered_discount") ...[
                         ElevatedButton(
                           onPressed: () async {
-                            final customerId = customerAndOrderController
-                                    .customerId.value.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget
-                                    .productController.selectedCustomerId.value;
 
                             int totalCount = 0;
 
@@ -1000,11 +994,6 @@ class _ProductVariantDialoguePromoState
                       if (widget.promo?.promoType == "tiered_discount") ...[
                         ElevatedButton(
                           onPressed: () async {
-                            final customerId = customerAndOrderController
-                                    .customerId.value.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget
-                                    .productController.selectedCustomerId.value;
 
                             int totalCount = 0;
 

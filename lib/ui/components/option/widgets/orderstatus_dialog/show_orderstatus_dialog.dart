@@ -291,9 +291,7 @@ void showOrderStatusDialog(
                                                                               .center,
                                                                       children: [
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? getFormattedOrderCreatAt(order.orderCreatedAt.toString())
-                                                                              : 'N/A',
+                                                                          getFormattedOrderCreatAt(order.orderCreatedAt.toString()),
                                                                           style:
                                                                               TextStyle(
                                                                             fontSize:
@@ -305,9 +303,7 @@ void showOrderStatusDialog(
                                                                               TextOverflow.ellipsis,
                                                                         ),
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt)
-                                                                              : 'N/A',
+                                                                          NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt),
                                                                           style:
                                                                               TextStyle(
                                                                             fontSize:

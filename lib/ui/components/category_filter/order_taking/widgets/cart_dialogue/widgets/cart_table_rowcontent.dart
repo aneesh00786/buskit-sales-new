@@ -228,8 +228,8 @@ class GroupedItemDataRows {
                             }
 
                             return AlertDialog(
-                              title: Text('Bundle Details: ${bundleTitle}'),
-                              content: Container(
+                              title: Text('Bundle Details: $bundleTitle'),
+                              content: SizedBox(
                                 width: double.maxFinite,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -520,7 +520,7 @@ class GroupedItemDataRows {
                         );
                       }
                     },
-                    child: Container(
+                    child: SizedBox(
                       height: 30,
                       child: Container(
                         decoration: BoxDecoration(

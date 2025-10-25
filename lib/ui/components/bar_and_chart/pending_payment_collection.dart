@@ -876,8 +876,6 @@ void pendingPaymentCollectionDialog(
 
                                             updateSelectedItems();
                                           } else {
-                                            print(
-                                                "Please enter a valid amount.");
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(

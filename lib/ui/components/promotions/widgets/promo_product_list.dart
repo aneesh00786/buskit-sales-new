@@ -195,7 +195,7 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
 
           selectedSubCategoryId = "${firstSubcategory.id}";
           selectedSubCategoryName = "${firstSubcategory.subCategory}";
-          log("getInitialSubCategoryIdAndName : selectedSubCategoryId.value : ${selectedSubCategoryId}");
+          log("getInitialSubCategoryIdAndName : selectedSubCategoryId.value : $selectedSubCategoryId");
 
           return firstSubcategory;
         } else {

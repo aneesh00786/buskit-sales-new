@@ -7,7 +7,6 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -213,7 +212,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   }
 
   Widget calender() {
-    final loginController = Get.find<LoginController>();
+    Get.find<LoginController>();
 
     return LayoutBuilder(
       builder: (context, constraints) {

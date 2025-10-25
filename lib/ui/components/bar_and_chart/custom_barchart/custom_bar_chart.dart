@@ -1,99 +1,15 @@
-// ignore_for_file: must_be_immutable
-import 'dart:developer' as dev;
+// ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 import 'dart:math';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
-import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/category_line_chart.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/bar_chart_legend.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/create_groups_helpers.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/scrollable_chart_view.dart';
-import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/widget/static_chart_view.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
-import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-// class CustomBarChart extends StatefulWidget {
-//   final List<Category> allCategory;
-//   final List<CategoryPerformancee> categoryPerformance;
-//   final List<MonthlyPerformancee> monthlyPerformance;
-//   final String staffProjection;
-//   final String targetType;
-//   final bool isScroll;
-//   final bool isMonthly;
-//   final bool isDayOrRange;
-
-//   const CustomBarChart({
-//     super.key,
-//     required this.allCategory,
-//     required this.categoryPerformance,
-//     required this.monthlyPerformance,
-//     required this.staffProjection,
-//     required this.targetType,
-//     this.isScroll = true,
-//     this.isMonthly = false,
-//     this.isDayOrRange = false,
-//   });
-
-//   @override
-//   State<CustomBarChart> createState() => _CustomBarChartState();
-// }
-
-// class _CustomBarChartState extends State<CustomBarChart> {
-//   List<BarChartGroupData>? barGroups;
-//   int? dynamicMaxY;
-//   int? dynamicInterval;
-//   @override
-//   void initState() {
-//     super.initState();
-//     barGroups = createBarGroups(
-//       allCategory: widget.allCategory,
-//       categoryPerformance: widget.categoryPerformance,
-//       isDayOrRange: widget.isDayOrRange,
-//       isMonthly: widget.isMonthly,
-//       monthlyPerformance: widget.monthlyPerformance,
-//       staffProjection: widget.staffProjection,
-//     );
-//     _calculateYAxisMetrics();
-//   }
-
-//   void _calculateYAxisMetrics() {
-//     final maxVal = barGroups!
-//         .expand((g) => g.barRods)
-//         .map((rod) => rod.toY)
-//         .fold<double>(0.0, max);
-
-//     final magnitude = pow(10, maxVal.toInt().toString().length - 1).toInt();
-//     dynamicMaxY = ((maxVal / magnitude).ceil()) * magnitude;
-
-//     dynamicInterval = [
-//       [1000000000, 200000000],
-//       [100000000, 20000000],
-//       [10000000, 2000000],
-//       [1000000, 200000],
-//       [500000, 100000],
-//       [200000, 50000],
-//       [100000, 20000],
-//       [50000, 10000],
-//       [10000, 2000],
-//       [5000, 1000],
-//       [1000, 500],
-//       [500, 100],
-//       [100, 50],
-//       [50, 10],
-//     ].firstWhere((pair) => dynamicMaxY! >= pair[0], orElse: () => [0, 5])[1];
-//   }
-
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
@@ -117,6 +33,7 @@ class CustomBarChart extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomBarChartState createState() => _CustomBarChartState();
 }
 

@@ -140,6 +140,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ? fullScreenWidth(context) * 2
                             : fullScreenWidth(context) * 0.85,
                         child: DataTable(
+                          // ignore: deprecated_member_use
                           dataRowHeight: 40,
                           headingRowHeight: 40,
                           horizontalMargin: 20,

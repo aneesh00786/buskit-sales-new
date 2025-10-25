@@ -27,7 +27,6 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModell>? _futureResponseModel;
   Future<SalesmenResponse>? _salesmenResponse;
   Future<MessagesResponse>? _individualChatResponse;
-  bool _isDraftFetched = false;
   List<String> _selectedFilterMonths = [];
   List<String> get selectedFilterMonths => _selectedFilterMonths;
   List<orderResponseModel.OrderData> _chartOrderData = [];

@@ -986,6 +986,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 ),
                               );
                             }
+                            return null;
                           },
                         ),
                       )

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_details.dart';
@@ -129,7 +128,7 @@ extension PromotionHelpers on PromotionReponse {
       case 'percentage_discount':
         final percent = "${discountValue ?? '0'}% off";
         if (maxDiscount != null) {
-          return "$percent (max \$${maxDiscount})";
+          return "$percent (max \$$maxDiscount)";
         }
         return percent;
       case 'happy_hours':
@@ -252,7 +251,7 @@ extension PromotionHelpers on PromotionReponse {
   /// Min order text
   String? get minOrderText {
     if (minOrderValue != null) {
-      return "\$${minOrderValue}";
+      return "\$$minOrderValue";
     }
     return null;
   }

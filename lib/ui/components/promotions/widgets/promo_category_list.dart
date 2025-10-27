@@ -158,7 +158,6 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
                             return GestureDetector(
                               onTap: () {
                                 if (option.id == null || option.id!.isEmpty) {
-                                  log('ERROR: Subcategory ${option.subCategory} has no ID');
                                   return;
                                 }
                                 log('Promo selecting subcategory: '

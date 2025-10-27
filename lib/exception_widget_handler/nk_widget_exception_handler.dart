@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_connectivity_error_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicator.dart';
@@ -148,7 +147,6 @@ class _NkWidgetExceptionHandelState extends State<NkWidgetExceptionHandel> {
   get _timerCallback => _timer =
           Timer.periodic(Duration(milliseconds: (_attemt + 1) * 300), (timer) {
         if (_attemt >= 3 || !widget.isShowRetrySection) {
-          log("Timer Cancel $_attemt");
           _timer!.cancel();
           _streamControllerValueIsEmpty(widget.data);
           return;

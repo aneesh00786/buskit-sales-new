@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -53,7 +52,6 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Obx(() {
-        log("🧐 UI State - isTimesheetLoading: ${widget.staffController.isTimesheetLoading.value}");
         return widget.staffController.isTimesheetLoading.value
             ? SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,

@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/widgets/currency_uinit.dart';
@@ -91,10 +90,9 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           showSuggestionsOverlay();
         }
       } else {
-        log("Error: ${response.statusCode}");
       }
     } catch (e) {
-      log("Error: $e");
+      //
     }
   }
 
@@ -213,10 +211,9 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         final data = json.decode(response.body);
         extractAndPopulateFields(data);
       } else {
-        log("Place details error: ${response.statusCode}");
       }
     } catch (e) {
-      log("Place details exception: $e");
+      //
     }
   }
 

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/null_check_oprations.dart';
@@ -51,7 +50,6 @@ class MyNetworkImage extends StatelessWidget {
       cacheManager: cacheManager,
       errorWidget: errorWidget ??
           (context, url, error) {
-            log('IMAGE ERROR ${error.toString()}');
             return NkCommonFunction.errorWidget();
           },
       imageBuilder: imageBuilder,

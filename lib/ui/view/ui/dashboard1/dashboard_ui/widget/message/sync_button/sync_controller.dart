@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -58,10 +57,9 @@ class SyncController extends GetxController {
       await CartDatabaseManager().getDraftItems();
       await ApiWorker().fetchDiscounts(companyId, salesmanId);
 
-      log('Sync finished successfully');
       await _updateLastSyncTime();
-    } catch (e, st) {
-      log("Error while syncing: $e\n$st");
+    } catch (e) {
+      //
     } finally {
       isSyncing.value = false;
     }
@@ -89,10 +87,8 @@ class SyncController extends GetxController {
     final connectivityService = ConnectivityService();
 
     final String currentMonth = DateFormat.MMMM().format(DateTime.now());
-    log("📆 Month passed : $currentMonth");
 
     try {
-      log('loadAllInitialData: Starting to load all initial data...');
 
       await Future.wait([
         connectivityService.syncOfflineOrders(
@@ -201,10 +197,8 @@ class SyncController extends GetxController {
       ]);
 
       // Check cache status after loading all data
-      log('loadAllInitialData: Checking cache status after data loading...');
       await productsController.checkCacheStatus();
-    } catch (e, stack) {
-      log('Error in Future.wait during login: $e\n$stack');
+    } catch (e) {
       // Optionally: Show a user-friendly error message here
       // Do NOT rethrow, so the future always completes
     }

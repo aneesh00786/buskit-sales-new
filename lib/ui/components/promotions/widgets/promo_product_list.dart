@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
@@ -56,14 +55,12 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
   void initState() {
     super.initState();
     _checkInternetConnection();
-    log('Option name : ${widget.optionName}');
   }
 
   Future<void> _checkInternetConnection() async {
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
     hasInternet = !connectivityResult.contains(ConnectivityResult.none);
-    log('Has Internet: $hasInternet');
 
     if (hasInternet) {
       _fetchInitialProducts();
@@ -103,17 +100,13 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
       } else {
         var productBox = Hive.box<ProductModel>('products');
         if (productBox.isNotEmpty) {
-          final allScids =
-              productBox.values.map((p) => p.scid).toSet().toList();
-          log('All scids available in legacy cache: $allScids');
+          productBox.values.map((p) => p.scid).toSet().toList();
 
           List<ProductModel> offlineProducts = productBox.values
               .where((product) => product.scid == selectedSubCatId)
               .toList();
-          log("Loaded ${offlineProducts.length} products for subcategory $selectedSubCatId from legacy cache");
 
           if (offlineProducts.isNotEmpty) {
-            log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
           }
 
           setState(() {
@@ -121,7 +114,6 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
             isLoading = false;
           });
         } else {
-          log("No products available offline for subcategory $selectedSubCatId");
           setState(() {
             products = [];
             isLoading = false;
@@ -129,7 +121,6 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
         }
       }
     } catch (e) {
-      log('Error loading products from Hive: $e');
       setState(() {
         products = [];
         isLoading = false;
@@ -172,7 +163,6 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
         });
       }
     } catch (e) {
-      log('Error fetching initial products: $e');
       setState(() {
         isLoading = false;
       });
@@ -190,23 +180,17 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
             firstCategory.subCategoryItem!.isNotEmpty) {
           var firstSubcategory = firstCategory.subCategoryItem!.first;
 
-          log("Fetching initial subcategory ID: ${firstSubcategory.id}");
-          log("Fetching initial subcategory name: ${firstSubcategory.subCategory}");
 
           selectedSubCategoryId = "${firstSubcategory.id}";
           selectedSubCategoryName = "${firstSubcategory.subCategory}";
-          log("getInitialSubCategoryIdAndName : selectedSubCategoryId.value : $selectedSubCategoryId");
 
           return firstSubcategory;
         } else {
-          log("No subcategories found in the first category: ${firstCategory.categoryName}");
           return null;
         }
       }
-      log("No categories found in categoryData");
       return null;
     } catch (e) {
-      log("Error fetching initial subcategory details: $e");
       return null;
     }
   }

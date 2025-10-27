@@ -9,7 +9,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pendin
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -467,7 +466,6 @@ Widget _buildPaymentCollectionButton(
     child: InkResponse(
       onTap: () {
         if (subscriptionController.appPaymentCollection.value == "true") {
-          log('Collect Pyament ${subscriptionController.appPaymentCollection.value}');
           pendingPaymentCollectionDialog(context, customerData.customerId);
         } else {
           showUpgradePlanDialog(context);

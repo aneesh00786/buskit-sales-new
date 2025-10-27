@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -97,10 +96,8 @@ class CalenderMapController extends GetxController {
         mobileno: event.event?.mobileNo ?? '');
     if (value) {
       selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
-      log('Customer Added: ${customer.businessName}');
     } else {
       selectedCustomers.remove(customer);
-      log('Customer Removed: ${customer.businessName}');
     }
   }
 
@@ -126,7 +123,6 @@ class CalenderMapController extends GetxController {
             eventIds: eventIds,
           ));
     } else {
-      log('No customers selected');
     }
   }
 
@@ -170,7 +166,6 @@ class CalenderMapController extends GetxController {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        log('Location services are disabled.');
         return;
       }
       Position position = await Geolocator.getCurrentPosition(
@@ -190,12 +185,10 @@ class CalenderMapController extends GetxController {
             CameraUpdate.newLatLng(currentLatLng.value!),
           );
         }
-        log('Address: $address');
       } else {
-        log('No address found for the provided coordinates.');
       }
     } catch (e) {
-      log('Error getting location: $e');
+      //
     }
   }
 
@@ -219,11 +212,9 @@ class CalenderMapController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        log('API Response Distance: $data');
 
         if (data['rows'].isNotEmpty) {
           final elements = data['rows'][0]['elements'];
-          log('Elements length for row 0: ${elements.length}');
 
           for (int i = 0; i < elements.length; i++) {
             if (i >= selectedCustomers.length) break;
@@ -234,21 +225,17 @@ class CalenderMapController extends GetxController {
               final duration = element['duration']['text'];
               selectedCustomers[i].distance = distance;
               selectedCustomers[i].duration = duration;
-              log('Customer: ${selectedCustomers[i].businessName}, Distance: $distance, Duration: $duration');
             } else {
-              log('Distance data unavailable for Customer: ${selectedCustomers[i].businessName}');
             }
           }
           sortCustomersByDistance();
           selectedCustomers.refresh();
         } else {
-          log('No distance data found');
         }
       } else {
-        log('Failed to fetch distance: ${response.statusCode}');
       }
     } catch (e) {
-      log('Error fetching distance and time: $e');
+      //
     }
   }
 
@@ -273,7 +260,6 @@ class CalenderMapController extends GetxController {
       suggestions.clear();
       return;
     }
-    log('Search Query: $query');
     try {
       final response = await http.get(
         Uri.parse(
@@ -286,15 +272,12 @@ class CalenderMapController extends GetxController {
         if (data['predictions'] is List) {
           suggestions.value =
               List<Map<String, dynamic>>.from(data['predictions']);
-          log('Suggestions fetched: ${suggestions.length}');
         } else {
-          log('Unexpected format for predictions: ${data['predictions']}');
         }
       } else {
-        log('Failed to load places: ${response.statusCode}');
       }
     } catch (e) {
-      log('Error occurred: $e');
+      //
     }
   }
 
@@ -306,29 +289,22 @@ class CalenderMapController extends GetxController {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        log('Fetched Place Details: $data');
         if (data['result'] != null && data['result']['geometry'] != null) {
           final place = data['result'];
           final lat = place['geometry']['location']['lat'];
           final lng = place['geometry']['location']['lng'];
-          final String name = place['name'];
           searchedLatLng.value = LatLng(lat, lng);
-          log('Lat $lat Long $lng');
           createMarkers();
-          log('Place details fetched: $name at ($lat, $lng)');
         } else {
-          log('No result or geometry found in response: $data');
         }
       } else {
-        log('Failed to fetch place details: ${response.statusCode}');
       }
     } catch (e) {
-      log('Error fetching place details: $e');
+      //
     }
   }
 
   void selectSuggestion(Map<String, dynamic> suggestion) async {
-    log('Selected suggestion: ${suggestion['description']}');
     final placeId = suggestion['place_id'];
     try {
       final response = await http.get(
@@ -344,12 +320,10 @@ class CalenderMapController extends GetxController {
         suggestions.clear();
         createMarkers();
         getDirections();
-        log('Location marked: $lat, $lng');
       } else {
-        log('Failed to load place details: ${response.statusCode},${response.body}');
       }
     } catch (e) {
-      log('Error occurred while fetching place details: $e');
+      //
     }
   }
 
@@ -380,20 +354,15 @@ class CalenderMapController extends GetxController {
           List<LatLng> polylineCoordinates = decodePolyline(points);
           addPolyline(polylineCoordinates);
           createMarkers();
-          log('Points :$points');
         } else {
-          log('No routes found');
         }
       } else {
-        log('Failed to load directions: ${response.statusCode}');
       }
     } catch (e) {
       if (e is http.ClientException) {
       } else if (e is http.Response) {
       } else {
-        log(e.toString());
       }
-      log('Error occurred while fetching directions: $e');
     }
   }
 
@@ -459,7 +428,6 @@ class CalenderMapController extends GetxController {
       );
     }
     for (var customer in selectedCustomers) {
-      log('Customer: ${customer.businessName}, Lat: ${customer.latitude}, Lng: ${customer.longitude}');
       if (customer.latitude != null && customer.longitude != null) {
         markers.add(
           Marker(
@@ -473,7 +441,6 @@ class CalenderMapController extends GetxController {
           ),
         );
       } else {
-        log('Customer lat and long :${customer.latitude}, ${customer.longitude}');
       }
     }
 
@@ -541,8 +508,6 @@ class CalenderMapController extends GetxController {
       ),
     );
     eventControllerv1.addAll(eventData);
-    log("Events loaded: $eventData");
-    log("Events loaded: ${eventData.length}");
     refresh();
   }
 
@@ -597,7 +562,7 @@ class CalenderMapController extends GetxController {
       final data = await ApiWorker().getRouteCredit();
       routeCredit.value = data;
     } catch (e) {
-      log("Error fetching route credit: $e");
+      //
     } finally {
       isRouteCreditLoading.value = false;
     }
@@ -608,7 +573,6 @@ class CalenderMapController extends GetxController {
       String eventDate, List<String> customerIds) async {
     try {
       isOnlyCustomerLoading.value = true;
-      log("Fetching for $customerIds");
 
       final now = DateTime.now();
       final firstDayOfMonth = DateTime(now.year, now.month, 1);
@@ -625,16 +589,13 @@ class CalenderMapController extends GetxController {
         endDate,
       );
 
-      log("loadOnlyCustomerData response : $response");
       if (response.data.isNotEmpty) {
         customerOnlyList.value = response.data;
       } else {
         customerOnlyList.clear();
       }
 
-      log("Customer data loaded successfully.");
     } catch (error) {
-      log("Error loading customer data: $error");
       customerOnlyList.clear();
     } finally {
       isOnlyCustomerLoading.value = false;
@@ -659,9 +620,7 @@ class CalenderMapController extends GetxController {
         showRouteResultList.addAll(response.results);
       }
 
-      log("show route data loaded successfully.");
     } catch (error) {
-      log("Error loading show route data: $error");
       showRouteResultList.clear();
     } finally {
       isShowRouteLoading.value = false;

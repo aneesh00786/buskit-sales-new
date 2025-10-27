@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -56,7 +55,7 @@ class OrderController extends GetxController {
         rejectedCount.value = 0;
       }
     } catch (e) {
-      log("Error loading order count data: $e");
+      //
     } finally {
       isCountLoading(false);
     }
@@ -64,7 +63,6 @@ class OrderController extends GetxController {
 
   Future<List<OrderData>> loadOrderData(
       {required int selectedIndex, bool hasOfflineOrders = false}) async {
-    log("hasOfflineOrders : $hasOfflineOrders");
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       orderDataList.clear();
@@ -136,7 +134,6 @@ class OrderController extends GetxController {
       );
 
       if (data.data == null || data.data!.isEmpty) {
-        log("Order details not found.");
         orderDataList.clear();
       } else {
         orderDataList.assignAll(data.data!);
@@ -144,12 +141,10 @@ class OrderController extends GetxController {
         if (data.pagination != null && data.pagination!.totalPages != null) {
           totalPages.value = data.pagination!.totalPages!.toInt();
         } else {
-          log("Pagination details are missing.");
           totalPages.value = 1;
         }
       }
     } catch (e) {
-      log("Error loading order data: $e");
       isOrderLoading.value = false;
     } finally {
       isOrderLoading.value = false;
@@ -168,8 +163,6 @@ class OrderController extends GetxController {
     }
     loadOrderData(selectedIndex: selectedTabIndex.value);
     refresh();
-    print('444+${searchData.startDate}');
-    print('444++${searchData.endDate}');
   }
 
   void updateTabIndex(int newIndex, {bool hasOfflineOrders = false}) {
@@ -199,7 +192,6 @@ class OrderController extends GetxController {
     required int orderStatus,
   }) async {
     isLoading(true);
-    log("Loading Order Process Invoice Data");
 
     var data = await _apiWorker.getOrderProcessInvoiceData(
       orderId: orderId,
@@ -217,7 +209,6 @@ class OrderController extends GetxController {
     required String orderId,
   }) async {
     isLoading(true);
-    log("Loading Specific Order Invoice Data");
 
     var data = await ApiWorker().fetchSpecificOrderInvoice(
       orderId,
@@ -235,7 +226,6 @@ class OrderController extends GetxController {
     required String orderId,
   }) async {
     isLoading(true);
-    log("Loading Waiting for Approval Invoice Data");
 
     var data = await _apiWorker.loadWaitingForApproval(
       orderId: orderId,

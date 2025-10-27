@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class CurrencyUtils {
@@ -101,14 +100,12 @@ class CurrencyUtils {
     List<dynamic>? listOfSavedData,
   }) async {
     if (listOfSavedData == null || listOfSavedData.isEmpty) {
-      log("listOfSavedData is empty, using default country (USA)");
       return {"symbol": "\$", "price": amount};
     }
     final userCountryCode = listOfSavedData[0]["country"];
     final userCurrency = findCurrency(userCountryCode);
 
     if (userCurrency == null || userCurrency["code"] == "N/A") {
-      log("User currency not found, using default USD.");
       return {"symbol": "\$", "price": amount};
     }
     final toCurrency = userCurrency["code"];
@@ -118,14 +115,12 @@ class CurrencyUtils {
           "https://api.frankfurter.app/latest?amount=$amount&from=$fromCurrency&to=$toCurrency"));
       final data = json.decode(response.body);
       if (data["rates"] == null || !data["rates"].containsKey(toCurrency)) {
-        log("Exchange rate for $toCurrency not found.");
         return {"symbol": userCurrency["symbol"], "price": amount};
       }
       final convertedPrice = double.parse(data["rates"][toCurrency].toString())
           .toStringAsFixed(2);
       return {"symbol": userCurrency["symbol"], "price": convertedPrice};
     } catch (error) {
-      log("Currency conversion failed: $error");
       return {"symbol": "\$", "price": amount};
     }
   }

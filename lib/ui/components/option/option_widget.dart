@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -123,7 +122,6 @@ class _OptionWidgetState extends State<OptionWidget> {
           offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
       return drafts.length;
     } catch (e) {
-      log('Error getting offline draft count: $e');
       return 0;
     }
   }
@@ -621,7 +619,6 @@ class _OptionWidgetState extends State<OptionWidget> {
       bool filterNeeded = false}) {
     final HomeController homeController2 = Get.put(HomeController());
 
-    log("[OFFLINE DRAFT LIST] : $offlineDraftDetails");
 
     VoidCallback? onDraftUpdated;
     if (isDraft) {
@@ -633,7 +630,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-          log('Error getting fresh offline draft data: $e');
+      //
         }
 
         if (mounted) {
@@ -1440,9 +1437,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   final customerId =
                                                                       customer
                                                                           ?.customerId;
-                                                                  final customerName =
-                                                                      customer?.businessName ??
-                                                                          'Unknown';
 
                                                                   if (customerId !=
                                                                           null &&
@@ -1453,7 +1447,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     final offlineAmount =
                                                                         customerOfflineTotals[
                                                                             customerId]!;
-                                                                    log("[TOTAL] Using OFFLINE total for customer: $customerName (ID: $customerId) → $offlineAmount");
                                                                     return sum +
                                                                         offlineAmount;
                                                                   } else {
@@ -1461,7 +1454,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     final onlineAmount =
                                                                         order.orderTotal ??
                                                                             0.0;
-                                                                    log("[TOTAL] Using ONLINE total for customer: $customerName (ID: $customerId) → $onlineAmount");
                                                                     return sum +
                                                                         onlineAmount;
                                                                   }
@@ -1473,22 +1465,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         0.0,
                                                                         (sum,
                                                                             draft) {
-                                                                  final custName =
-                                                                      draft['displayData']
-                                                                              [
-                                                                              'customerName'] ??
-                                                                          'Unknown';
-                                                                  final custId =
-                                                                      draft['displayData']
-                                                                              [
-                                                                              'customerId'] ??
-                                                                          'N/A';
                                                                   final offlineAmount =
                                                                       draft['displayData']
                                                                               [
                                                                               'displayTotal'] ??
                                                                           0.0;
-                                                                  log("[TOTAL] Adding VISIBLE OFFLINE draft for customer: $custName (ID: $custId) → $offlineAmount");
                                                                   return sum +
                                                                       offlineAmount;
                                                                 })),
@@ -1743,22 +1724,17 @@ class _OptionWidgetState extends State<OptionWidget> {
   List<OrdersDash> _applyDateFiltering(
       List<OrdersDash> orders, DashboardProvider provider) {
     if (orders.isEmpty) {
-      debugPrint("[Filter] Orders list is empty before filtering.");
       return orders;
     }
 
-    debugPrint("==================================================");
-    debugPrint("[Filter] Orders BEFORE filtering: count = ${orders.length}");
     debugPrint(
         "[Filter] Orders BEFORE filtering (sample): ${orders.take(5).map((o) => o.orderCreatedAt).toList()}");
 
-    debugPrint("[Filter] Selected Filter: ${provider.selectedFilter}");
 
     List<OrdersDash> filteredOrders = [];
 
     switch (provider.selectedFilter) {
       case FilterDateEnum.today:
-        debugPrint("[Filter] Selected Date: ${provider.selectedDate}");
         if (provider.selectedDate.isNotEmpty) {
           final selectedDate = DateTime.parse(provider.selectedDate);
           final today =
@@ -1776,7 +1752,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         break;
 
       case FilterDateEnum.thisWeek:
-        debugPrint("[Filter] Selected Weeks: ${provider.selectedFilterWeeks}");
         if (provider.selectedFilterWeeks.isNotEmpty) {
           filteredOrders = orders.where((order) {
             if (order.orderCreatedAt == null) return false;
@@ -1826,7 +1801,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         break;
 
       case FilterDateEnum.thisYear:
-        debugPrint("[Filter] Selected Year: ${provider.selectedYear}");
         final selectedYear = provider.selectedYear;
         filteredOrders = orders.where((order) {
           if (order.orderCreatedAt == null) return false;
@@ -1859,7 +1833,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         "[Filter] Orders AFTER filtering: count = ${filteredOrders.length}");
     debugPrint(
         "[Filter] Orders AFTER filtering (sample): ${filteredOrders.take(5).map((o) => o.orderCreatedAt).toList()}");
-    debugPrint("==================================================");
 
     return filteredOrders;
   }
@@ -2623,7 +2596,6 @@ Future<void> _initializeCustomerData(
     ProductsController productsController,
     CustomerAndOrderController customerAndOrderController) async {
   if (customerId.isEmpty) {
-    log('Error: Customer ID is empty in CustomerDachScreen.');
     return;
   }
   customerAndOrderController.setCustomerId(customerId);
@@ -2633,7 +2605,6 @@ Future<void> _initializeCustomerData(
     imageUrl: customerImage,
     id: customerId,
   );
-  log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $businessName, Image: $customerImage');
 }
 
 Text text(List<InvoiceDash> invoices, dynamic s) {

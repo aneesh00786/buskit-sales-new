@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -99,7 +98,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-      log("Error fetching settings: $e");
+      //
     }
   }
 
@@ -817,7 +816,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             //       provider.selectedChat!.salesmanId, message);
             //   communicationController.clear();
             // }
-            // print(message);
           },
           child: Icon(
             Icons.send,
@@ -1100,10 +1098,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
     socket.connect();
     socket.on('connect', (_) {
-      log('Connected to socket server');
     });
     socket.on('disconnect', (_) {
-      log('Disconnected from socket server');
     });
     socket.emit('join_room', salesmanId);
 
@@ -1116,7 +1112,6 @@ class _ChatScreenState extends State<ChatScreen> {
         updatedAt: msg['updated_at'],
         createdAt: msg['created_at'],
       );
-      log('Date Time :${newMessage.updatedAt}');
       Provider.of<DashboardProvider>(context, listen: false)
           .addMessages([newMessage]);
       _scrollToBottom();
@@ -1141,7 +1136,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final fileBytes = _selectedImage!.readAsBytesSync();
     final base64Image = base64Encode(fileBytes);
     if (fileBytes.length > 1 * 1024 * 1024) {
-      debugPrint('Image is too large to send');
       return null;
     }
     return base64Image;
@@ -1160,7 +1154,6 @@ class _ChatScreenState extends State<ChatScreen> {
       String cleanedString = cleanBase64(base64String);
       return base64Decode(cleanedString);
     } catch (e) {
-      debugPrint("Error decoding image: $e");
       return null;
     }
   }
@@ -1255,7 +1248,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           );
         } catch (e) {
-          debugPrint("Error decoding image: $e");
           return const Text(
             'Failed to load image',
             style: TextStyle(color: Colors.red),
@@ -1298,7 +1290,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    log('This function hasbeen called');
     String message = _controller.text.trim();
     String? base64Image = _prepareImage();
     if (message.isEmpty && base64Image == null) return;

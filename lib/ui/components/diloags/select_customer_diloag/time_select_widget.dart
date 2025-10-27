@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +30,9 @@ class _TimePickerFieldState extends State<TimePickerField> {
   @override
   void initState() {
     super.initState();
-    log('TIMEE widget : ${widget.initialHour} : ${widget.initialMinute}   ${widget.initialPeriod}');
     selectedHour = widget.initialHour;
     selectedMinute = widget.initialMinute;
     selectedPeriod = widget.initialPeriod;
-    log('TIMEE : $selectedHour : $selectedMinute   $selectedPeriod');
   }
 
   void showTimePickerPopup() async {

@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -412,7 +411,6 @@ Color shouldShowIndicator(DateTime date, List<ScheduleListData> scheduleList) {
       date.startOfDay.isBefore(DateTime.now().startOfDay) &&
           scheduleList.any((schedule) => schedule.checkIn == null);
 
-  log('schedule List: $scheduleList');
 
   bool isTodayAndCheckInNull =
       date.startOfDay.isAtSameMomentAs(DateTime.now().startOfDay) &&

@@ -2,7 +2,6 @@
 
 // ignore_for_file: avoid_print
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -250,7 +249,6 @@ class CartDatabaseManager {
           }
         }
         final result = deduped.values.toList();
-        print('[CartDB] getCartItems returning ${result.length} draft items');
         return Future.value(result);
       } else {
         List<CartItem> customerOfflineDraftItems = [];
@@ -382,7 +380,7 @@ class CartDatabaseManager {
         }
       }
     } catch (e) {
-      log('Error fetching draft and cart IDs: $e');
+      //
     }
     return [];
   }
@@ -677,7 +675,7 @@ class CartDatabaseManager {
               .toDouble();
       await cartBox.put(existingCartItem.key, existingCartItem);
     } catch (e) {
-      log('Error updating cart item: $e');
+      //
     }
   }
 
@@ -698,7 +696,6 @@ class CartDatabaseManager {
       }
       return null;
     } catch (e) {
-      log('Error retrieving cart and draft IDs: $e');
       return null;
     }
   }
@@ -738,7 +735,7 @@ class CartDatabaseManager {
       await draftBox.addAll(remainingDraftItems);
       getCartItems(customerId);
     } catch (e) {
-      log('[CartDB] ERROR in clearCart for $customerId: $e');
+      //
     }
   }
 
@@ -750,7 +747,7 @@ class CartDatabaseManager {
       await cartBox.clear();
       await cartBox.addAll(remainingCartItems);
     } catch (e) {
-      print('[CartDB] ERROR in clearCart for $customerId: $e');
+      //
     }
   }
 
@@ -762,7 +759,7 @@ class CartDatabaseManager {
       await draftBox.clear();
       await draftBox.addAll(remainingCartItems);
     } catch (e) {
-      print('[CartDB] ERROR in clearCart for $customerId: $e');
+      //
     }
   }
 
@@ -776,7 +773,7 @@ class CartDatabaseManager {
         await cartBox.delete(key);
       }
     } catch (e) {
-      print('[CartDB] ERROR in clearCartOnlyForCustomer for $customerId: $e');
+      //
     }
   }
 
@@ -802,7 +799,7 @@ class CartDatabaseManager {
         await draftBox.delete(key);
       }
     } catch (e) {
-      print('[CartDB] ERROR in clearAllItemsForCustomer for $customerId: $e');
+      //
     }
   }
 
@@ -818,7 +815,7 @@ class CartDatabaseManager {
         }
       }
     } catch (e) {
-      log('Error handling cart persistence on restart: $e');
+      //
     }
   }
 
@@ -913,7 +910,7 @@ class CartDatabaseManager {
 
       await offlineDraftsBox.put('drafts', drafts);
     } catch (e) {
-      log('[saveDraftOffline] Error saving draft locally: $e');
+      //
     }
   }
 }

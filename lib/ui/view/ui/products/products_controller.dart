@@ -1,6 +1,5 @@
 // ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
@@ -82,14 +81,12 @@ class ProductsController extends GetxController {
   List<CartItem> preorderItems = [];
 
   void clearCartItemsInController() {
-    log("[clearCartItemsInController]");
     cartItems.clear();
     orderItems.clear();
     preorderItems.clear();
   }
 
   void clearCartItemsInControllerAndHive(String customerId) async {
-    log('[ProductsController] clearCartItemsInControllerAndHive called for customerId=$customerId');
     await CartDatabaseManager().clearCartOnlyForCustomer(customerId);
     cartItems.clear();
     orderItems.clear();
@@ -401,7 +398,7 @@ class ProductsController extends GetxController {
       await _apiWorker.clearProductsForSubCategory(subCatId);
 
     } catch (e) {
-      log('clearProductsForSubCategory: Error occurred: $e');
+      //
     }
   }
 
@@ -547,7 +544,7 @@ class ProductsController extends GetxController {
       } else {
       }
     } catch (e) {
-      log('Error loading categories and default products: $e');
+      //
     }
   }
 
@@ -619,7 +616,7 @@ class ProductsController extends GetxController {
       } else {
       }
     } catch (e) {
-      log('refreshProducts: Error refreshing products: $e');
+      //
     }
   }
 
@@ -663,7 +660,7 @@ class ProductsController extends GetxController {
       }
 
     } catch (e) {
-      log('Error checking cache status: $e');
+      //
     }
   }
 
@@ -685,7 +682,7 @@ class ProductsController extends GetxController {
       await fetchProducts(subCategoryId);
 
     } catch (e) {
-      log('selectSubCategory: Error selecting subcategory: $e');
+      //
     }
   }
 
@@ -717,7 +714,7 @@ class ProductsController extends GetxController {
       }
       refresh();
     } catch (error) {
-      log("Error loading Product Frequency: $error");
+      //
     }
     return productFrequencyList;
   }
@@ -736,7 +733,6 @@ class ProductsController extends GetxController {
 
       promotions.assignAll(result);
     } catch (e) {
-      log('Error fetching promotions: $e');
       promotions.clear();
     } finally {
       isPromotionLoading.value = false;

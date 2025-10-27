@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -41,7 +40,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     _initializeControllers();
     staffController.loadWeeklyType();
     staffController.isWeekly.listen((value) {
-      log("WEEKLY value updated: $value");
       _loadSalesmanValueTarget();
     });
     _initializeState();
@@ -122,7 +120,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       _isLoading = true;
     });
 
-    log("WEEKLY 2345 ${staffController.isWeekly.value}");
 
     try {
       await staffController.loadSalesmanValueTarget(
@@ -160,27 +157,23 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           (index) => TextEditingController(text: '0'),
         );
 
-        log("Weekly Target Projection: $weeklyTargetProjection");
-        log("Relevant Weeks: $relevantWeeks");
 
         for (var i = 0; i < relevantWeeks.length; i++) {
           final weekKey = relevantWeeks[i];
           final weekData = weeklyTargetProjection[weekKey];
 
-          log("Week $weekKey Data: $weekData");
 
           int projection = 0;
           if (weekData is Map<String, dynamic>) {
             projection = weekData["projection"] ?? 0;
           }
 
-          log("Week $weekKey Projection: $projection");
 
           _weeklyProjectionControllers[i].text = projection.toString();
         }
       }
     } catch (e) {
-      log("Error in _loadSalesmanValueTarget: $e");
+      //
     }
 
     if (!mounted) return;
@@ -310,7 +303,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       _projectionControllers.add(TextEditingController());
     }
     if (staffController.salesmanValueTargetList.isEmpty) {
-      log('This item is getting Worked');
       return List.generate(12, (index) {
         final monthName = getMonthName(index + 1);
         return TableRow(
@@ -375,7 +367,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       final weekKey = week;
       final weekData = weeklyTargetProjection[weekKey];
 
-      log('Targets: $weekData');
       int target = 0;
       if (weekData is Map<String, dynamic>) {
         target = weekData["value"] ?? 0;
@@ -393,7 +384,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 controller: _weeklyProjectionControllers[i],
                 textAlign: TextAlign.center,
                 onChanged: (newValue) {
-                  log("Updated projection for Week $week: $newValue");
                   setState(() {});
                 },
                 decoration: InputDecoration(
@@ -424,7 +414,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
         final targetData = staffController.salesmanValueTargetList[i];
         final targetValue =
             staffController.salesmanValueTargetList[i].target.toString();
-        log('');
         final projectionValue = _projectionControllers[i].text.trim();
 
         monthTarget[targetData.month.toString()] = [

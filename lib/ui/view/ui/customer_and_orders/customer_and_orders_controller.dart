@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -51,7 +50,6 @@ class CustomerAndOrderController extends GetxController {
 }
 Future<List<CustomerAndOrderData>> loadCustomer() async {
   try {
-    log("Fetching customers...");
     var response = await ApiWorker().getCustomer();
     if (response.custAndOrderdata != null) {
       customerAndOrderList.assignAll(response.custAndOrderdata!);
@@ -60,7 +58,7 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     }
     refresh(); 
   } catch (error) {
-    log("Error loading customer data: $error");
+      //
   }
   return customerAndOrderList;
 }

@@ -86,7 +86,6 @@ void showCollectionChartDialog(
                                     ),
                                   );
                                 } else if (snapshot.hasError) {
-                                  debugPrint("Error: ${snapshot.error}");
                                   return const NodataWidget();
                                 } else if (!snapshot.hasData ||
                                     (snapshot.data != null &&

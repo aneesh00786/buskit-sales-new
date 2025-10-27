@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -34,7 +33,6 @@ class _CustomerOrderDetailsScreenState
     // productsController.loadDataOfCategory.whenComplete(() {
     // });
     productsController.updateCustomerAndOrderData(widget.customerAndOrderData);
-    log("DATATATAA ${widget.customerAndOrderData.fullname}");
     super.initState();
   }
 

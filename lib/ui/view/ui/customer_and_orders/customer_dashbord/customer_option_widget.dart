@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -1534,7 +1533,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-          log('Error getting fresh offline draft data: $e');
+      //
         }
 
         if (mounted) {

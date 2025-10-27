@@ -237,10 +237,6 @@ class PromotionDetails extends StatelessWidget {
                                               : productController
                                                   .selectedCustomerId.value;
 
-                                      log("[BUNDLE] === Product Bundle Promo Started ===");
-                                      log("[BUNDLE] Bundle price: ${promo.bundlePrice}");
-                                      log("[BUNDLE] Quantity: ${bundleQty.value}");
-
                                       // Create a special bundle detail with bundle price
                                       final bundleDetail = Detail(
                                         variationId:
@@ -336,7 +332,6 @@ class PromotionDetails extends StatelessWidget {
                                         promoMsg: bundleDetailsMsg,
                                       );
 
-                                      log("[BUNDLE] ✅ Bundle added to cart → customerId: $customerId, quantity: ${bundleQty.value}");
                                       productController.isCartModified.value =
                                           true;
 
@@ -346,7 +341,6 @@ class PromotionDetails extends StatelessWidget {
                                             Provider.of<CustomersProvider>(
                                                 context,
                                                 listen: false);
-                                        log("[BUNDLE] Updating cart count for customer: $customerId");
                                         cartProvider
                                             .updateCartCount(customerId);
                                         cartProvider
@@ -359,8 +353,6 @@ class PromotionDetails extends StatelessWidget {
                                         Colors.green.shade800,
                                         Icons.check,
                                       );
-
-                                      log("[BUNDLE] === Product Bundle Promo Completed ===");
                                     } else {
                                       showDialog(
                                         barrierDismissible: false,
@@ -753,9 +745,6 @@ class PromotionDetails extends StatelessWidget {
                                           promo.promoType == "seasonal" ||
                                           promo.promoType == "flash_sale" ||
                                           promo.promoType == "limited_time") {
-                                        log("[PROMO] === Percentage Discount Promo Started ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         // Decide which discount field to use
                                         final discountValue = promo.promoType ==
                                                 "percentage_discount"
@@ -765,8 +754,6 @@ class PromotionDetails extends StatelessWidget {
                                                 .discountPercentage
                                                 .toString());
 
-                                        log("[PROMO] Promo Discount: $discountValue");
-
                                         // Flatten all product variants into one list
                                         final allVariants = promo.products
                                                 ?.expand(
@@ -774,10 +761,7 @@ class PromotionDetails extends StatelessWidget {
                                                 .toList() ??
                                             [];
 
-                                        log("[PROMO] Flattened variants count: ${allVariants.length}");
-
                                         if (allVariants.isEmpty) {
-                                          log("[PROMO] No variants found in promo → stopping flow");
                                           showCustomToastDisplay(
                                             context,
                                             "No variants found for this promotion",
@@ -822,13 +806,8 @@ class PromotionDetails extends StatelessWidget {
                                           log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
                                               "productId: ${detail.productId}, name: ${detail.productName}");
 
-                                          final bool isPack =
-                                              detail.saleBy == 'Pack';
-                                          log("[PROMO] IsPack? $isPack");
-
                                           final catId = extractCategoryId(
                                               v.productId.toString());
-                                          log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
 
                                           await CartDatabaseManager()
                                               .addToCartPromo(
@@ -844,7 +823,6 @@ class PromotionDetails extends StatelessWidget {
                                             promoMsg: promo.discountText,
                                           );
 
-                                          log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -855,21 +833,15 @@ class PromotionDetails extends StatelessWidget {
                                               Provider.of<CustomersProvider>(
                                                   context,
                                                   listen: false);
-                                          log("[PROMO] Updating cart count for customer: $customerId");
                                           cartProvider
                                               .updateCartCount(customerId);
                                           cartProvider
                                               .getCartItemCounts(customerId);
                                         });
-
-                                        log("[PROMO] === Percentage Discount Promo Completed ===");
                                       }
 
                                       // --- FLAT DISCOUNT promos (cart-level fixed amount) ---
                                       if (promo.promoType == "flat_discount") {
-                                        log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         // Flatten variants
                                         final allVariants = promo.products
                                                 ?.expand(
@@ -946,7 +918,6 @@ class PromotionDetails extends StatelessWidget {
                                           productController
                                                   .flatDiscountByCustomer[
                                               customerId] = flatAmount;
-                                          log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
                                         }
 
                                         WidgetsBinding.instance
@@ -967,26 +938,18 @@ class PromotionDetails extends StatelessWidget {
                                           Colors.green.shade800,
                                           Icons.check,
                                         );
-
-                                        log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
                                       }
 
                                       // --- Tiered Discount promos ---
                                       if (promo.promoType ==
                                           "tiered_discount") {
-                                        log("[PROMO] === Tiered Discount Promo Started ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         final allVariants = promo.products
                                                 ?.expand(
                                                     (p) => p.variants ?? [])
                                                 .toList() ??
                                             [];
 
-                                        log("[PROMO] Flattened variants count: ${allVariants.length}");
-
                                         if (allVariants.isEmpty) {
-                                          log("[PROMO] No variants found in promo → stopping flow");
                                           showCustomToastDisplay(
                                             context,
                                             "No variants found for this promotion",
@@ -1018,13 +981,11 @@ class PromotionDetails extends StatelessWidget {
                                                             ?.toString() ??
                                                         '0') ??
                                                 0;
-                                            log("[PROMO] Using selected tier discount: $tieredDiscount% for tiered_discount");
                                           } else {
                                             // For other promotions, calculate based on quantity
                                             tieredDiscount =
                                                 _calculateTieredDiscount(
                                                     promo, qty.value, true);
-                                            log("[PROMO] Tiered discount calculated: $tieredDiscount% for quantity: ${qty.value}");
                                           }
 
                                           // Map each variant into your Detail model
@@ -1052,13 +1013,8 @@ class PromotionDetails extends StatelessWidget {
                                           log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
                                               "productId: ${detail.productId}, name: ${detail.productName}");
 
-                                          final bool isPack =
-                                              detail.saleBy == 'Pack';
-                                          log("[PROMO] IsPack? $isPack");
-
                                           final catId = extractCategoryId(
                                               v.productId.toString());
-                                          log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
 
                                           await CartDatabaseManager()
                                               .addToCartPromo(
@@ -1074,7 +1030,6 @@ class PromotionDetails extends StatelessWidget {
                                             promoMsg: promo.discountText,
                                           );
 
-                                          log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -1085,32 +1040,23 @@ class PromotionDetails extends StatelessWidget {
                                               Provider.of<CustomersProvider>(
                                                   context,
                                                   listen: false);
-                                          log("[PROMO] Updating cart count for customer: $customerId");
                                           cartProvider
                                               .updateCartCount(customerId);
                                           cartProvider
                                               .getCartItemCounts(customerId);
                                         });
-
-                                        log("[PROMO] === Tiered Discount Promo Completed ===");
                                       }
 
                                       // --- Free Item promos ---
                                       if (promo.promoType == "free_gift" ||
                                           promo.promoType == "free_sample") {
-                                        log("[PROMO] === Free Item Promo Started ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         final allVariants = promo.products
                                                 ?.expand(
                                                     (p) => p.variants ?? [])
                                                 .toList() ??
                                             [];
 
-                                        log("[PROMO] Flattened variants count: ${allVariants.length}");
-
                                         if (allVariants.isEmpty) {
-                                          log("[PROMO] No variants found in promo → stopping flow");
                                           showCustomToastDisplay(
                                             context,
                                             "No variants found for this promotion",
@@ -1153,13 +1099,8 @@ class PromotionDetails extends StatelessWidget {
                                           log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
                                               "productId: ${detail.productId}, name: ${detail.productName}");
 
-                                          final bool isPack =
-                                              detail.saleBy == 'Pack';
-                                          log("[PROMO] IsPack? $isPack");
-
                                           final catId = extractCategoryId(
                                               v.productId.toString());
-                                          log("[PROMO] Extracted CategoryId: $catId from productId: ${v.productId}");
 
                                           await CartDatabaseManager()
                                               .addToCartPromo(
@@ -1175,7 +1116,6 @@ class PromotionDetails extends StatelessWidget {
                                             promoMsg: promo.discountText,
                                           );
 
-                                          log("[PROMO] ✅ Added to cart → variationId: ${detail.variationId}, customerId: $customerId");
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -1186,31 +1126,22 @@ class PromotionDetails extends StatelessWidget {
                                               Provider.of<CustomersProvider>(
                                                   context,
                                                   listen: false);
-                                          log("[PROMO] Updating cart count for customer: $customerId");
                                           cartProvider
                                               .updateCartCount(customerId);
                                           cartProvider
                                               .getCartItemCounts(customerId);
                                         });
-
-                                        log("[PROMO] === Free Item Promo Completed ===");
                                       }
 
                                       // --- BOGO promos ---
                                       if (promo.promoType == "bogo") {
-                                        log("[PROMO] === BOGO Promo Started ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         final allVariants = promo.products
                                                 ?.expand(
                                                     (p) => p.variants ?? [])
                                                 .toList() ??
                                             [];
 
-                                        log("[PROMO] Flattened variants count: ${allVariants.length}");
-
                                         if (allVariants.isEmpty) {
-                                          log("[PROMO] No variants found in promo → stopping flow");
                                           showCustomToastDisplay(
                                             context,
                                             "No variants found for this promotion",
@@ -1227,8 +1158,6 @@ class PromotionDetails extends StatelessWidget {
                                         if (!allowed) return;
 
                                         for (final v in allVariants) {
-                                          log("[PROMO] Processing BOGO variant → ID: ${v.id}, ProductId: ${v.productId}, Name: ${v.productName}");
-
                                           // Paid detail
                                           final paidDetail = Detail(
                                             variationId: v.id,
@@ -1278,25 +1207,18 @@ class PromotionDetails extends StatelessWidget {
                                               Provider.of<CustomersProvider>(
                                                   context,
                                                   listen: false);
-                                          log("[PROMO] Updating cart count for customer: $customerId");
                                           cartProvider
                                               .updateCartCount(customerId);
                                           cartProvider
                                               .getCartItemCounts(customerId);
                                         });
-
-                                        log("[PROMO] === BOGO Promo Completed ===");
                                       }
 
                                       // --- BUY X GET Y promos ---
                                       if (promo.promoType == "buy_x_get_y") {
-                                        log("[PROMO] === BUY_X_GET_Y Promo Started ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         // Extract deal config (assuming one primary deal)
                                         final deals = promo.deals ?? [];
                                         if (deals.isEmpty) {
-                                          log("[PROMO] No deals configured → stopping flow");
                                           showCustomToastDisplay(
                                             context,
                                             "No deal configuration found for this promotion",
@@ -1322,7 +1244,6 @@ class PromotionDetails extends StatelessWidget {
                                                 .toLowerCase();
 
                                         if (buyQty <= 0 || getQty < 0) {
-                                          log("[PROMO] Invalid buy/get quantities → buy:$buyQty get:$getQty");
                                           showCustomToastDisplay(
                                             context,
                                             "Invalid deal quantities",
@@ -1351,9 +1272,7 @@ class PromotionDetails extends StatelessWidget {
                                                 .toList() ??
                                             [];
 
-                                        if (paidVariants.isEmpty) {
-                                          log("[PROMO] No paid variants found in promo.products");
-                                        }
+                                        if (paidVariants.isEmpty) {}
 
                                         // Validate min order against PAID items only
                                         final allowed =
@@ -1445,7 +1364,6 @@ class PromotionDetails extends StatelessWidget {
                                         }
 
                                         if (getVariant == null) {
-                                          log("[PROMO] No eligible GET variant found; skipping free item add");
                                         } else {
                                           // 2) Add FREE items: quantity = dealsApplicable * getQty
                                           final int freeToAdd =
@@ -1516,14 +1434,11 @@ class PromotionDetails extends StatelessWidget {
                                               Provider.of<CustomersProvider>(
                                                   context,
                                                   listen: false);
-                                          log("[PROMO] Updating cart count for customer: $customerId");
                                           cartProvider
                                               .updateCartCount(customerId);
                                           cartProvider
                                               .getCartItemCounts(customerId);
                                         });
-
-                                        log("[PROMO] === BUY_X_GET_Y Promo Completed ===");
                                       }
 
                                       // ---------------------------------------------------------------------------------------------------
@@ -1590,7 +1505,6 @@ class PromotionDetails extends StatelessWidget {
                           padding: const EdgeInsets.all(20.0),
                           child: InkWell(
                             onTap: () async {
-                              log("10");
                               if ((customerAndOrderController
                                       .customerId.value.isNotEmpty) ||
                                   (productController
@@ -1601,8 +1515,6 @@ class PromotionDetails extends StatelessWidget {
                                     Colors.green.shade800,
                                     Icons.check);
 
-                                log("1");
-
                                 if (promo.productScope == "categories") {
                                   if (promo.categories!.isNotEmpty) {
                                     // Collect all subcategory IDs as List<String>
@@ -1612,8 +1524,6 @@ class PromotionDetails extends StatelessWidget {
                                             (category.subIds ?? [])
                                                 as Iterable<String>)
                                         .toList();
-
-                                    log("Collected subcatIds: $subcatIds");
 
                                     // Call API with subcatIds
                                     CategoryModel categoryData =
@@ -1653,8 +1563,6 @@ class PromotionDetails extends StatelessWidget {
                                 if (promo.productScope == "brands") {
                                   var response = await ApiWorker()
                                       .getProductByBrand(promo.brands ?? []);
-
-                                  log("BRANDS RESPONSE : $response");
 
                                   _showProductSelectionByBrandDialog(
                                     context,
@@ -2146,9 +2054,6 @@ class PromotionDetails extends StatelessWidget {
 
                                     // Special case: Flat discount (cart-level)
                                     if (promo.promoType == "flat_discount") {
-                                      log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
-                                      log("[PROMO] Promo details: ${promo.toJson()}");
-
                                       // Flatten all variants in this promo
                                       final allVariants = promo.products
                                               ?.expand((p) => p.variants ?? [])
@@ -2291,7 +2196,6 @@ class PromotionDetails extends StatelessWidget {
                                         productController
                                                 .flatDiscountByCustomer[
                                             customerId] = flatAmount;
-                                        log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
                                       }
 
                                       WidgetsBinding.instance
@@ -2313,7 +2217,6 @@ class PromotionDetails extends StatelessWidget {
                                         Icons.check,
                                       );
 
-                                      log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
                                       return; // stop here, don’t run normal flow
                                     }
 
@@ -2521,7 +2424,6 @@ class PromotionDetails extends StatelessWidget {
           promo.maxDiscount.toString().isNotEmpty) {
         maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
       }
-      log("[PROMO] Max discount value: $maxDiscountValue");
     } else if (promo.promoType == "tiered_discount") {
       // Handle tiered discount - use selected tier if available, otherwise calculate
       if (selectedTier != null) {
@@ -2531,8 +2433,6 @@ class PromotionDetails extends StatelessWidget {
         discountValue = _calculateTieredDiscount(promo, localCount, isPack);
       }
     }
-
-    log('[PROMO] Discount max value 2: $discountValue');
 
     // Create detail with discount if applicable
     final detailWithDiscount = discountValue != null
@@ -2556,8 +2456,6 @@ class PromotionDetails extends StatelessWidget {
             maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
           )
         : detail;
-
-    log('[PROMO] Discount max value 4: ${detailWithDiscount.maxDiscount}');
 
     await CartDatabaseManager().addToCartPromo(
       customerId: customerId,
@@ -2606,12 +2504,10 @@ class PromotionDetails extends StatelessWidget {
       if (quantity >= requiredQty && typeMatches) {
         final discountValue =
             double.tryParse(tier.discountValue?.toString() ?? '0') ?? 0;
-        log("[TIERED] Applied tier: $requiredQty $qtyType → $discountValue% discount for quantity: $quantity");
         return discountValue;
       }
     }
 
-    log("[TIERED] No tier applicable for quantity: $quantity, isPack: $isPack");
     return null;
   }
 
@@ -3228,7 +3124,6 @@ class PromotionDetails extends StatelessWidget {
                             );
                           }).toList(),
                           onOptionSelected: (selectedSubcategoryId) {
-                            log('Selected Subcategory ID: $selectedSubcategoryId');
                             fetchProductsByCategory(selectedSubcategoryId);
                           },
                           onDrawerToggle: toggleDrawer,
@@ -3671,9 +3566,6 @@ class PromotionDetails extends StatelessWidget {
 
                                       // ---------------- Flat Discount Promo ----------------
                                       if (promo.promoType == "flat_discount") {
-                                        log("[PROMO] === Flat Discount Promo Started (cart-level) ===");
-                                        log("[PROMO] Promo details: ${promo.toJson()}");
-
                                         final currentTotal =
                                             computeSelectedTotal();
 
@@ -3730,7 +3622,6 @@ class PromotionDetails extends StatelessWidget {
                                           productController
                                                   .flatDiscountByCustomer[
                                               customerId] = flatAmount;
-                                          log("[PROMO] Stored cart-level flat discount ${flatAmount.toStringAsFixed(2)} for $customerId");
                                         }
 
                                         WidgetsBinding.instance
@@ -3752,7 +3643,6 @@ class PromotionDetails extends StatelessWidget {
                                           Icons.check,
                                         );
 
-                                        log("[PROMO] === Flat Discount Promo Completed (cart-level) ===");
                                         Navigator.pop(context);
                                         Navigator.pop(context);
                                         return; // Stop here, skip normal flow

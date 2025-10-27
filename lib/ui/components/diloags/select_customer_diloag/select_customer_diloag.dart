@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -240,11 +239,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                           padding: nkRegularPadding(),
                           itemCount: widget.eventData.length,
                           itemBuilder: (context, index) {
-                            CalendarEventData<EventData> customerEvent =
-                                widget.eventData[index];
                             final customer = widget
                                 .calenderMapController.customerOnlyList[index];
-                            log('${customerEvent.event?.imageUrl}');
 
                             String initialHour = '__';
                             String initialMinute = '__';
@@ -399,7 +395,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                         homeController
                                                             .selectedIndex
                                                             .value = 1;
-                                                        log('${event.event!.customerId}');
                                                         customerAndOrderController
                                                             .setCustomerId(event
                                                                     .event
@@ -420,7 +415,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                             .value = event.event
                                                                 ?.imageUrl ??
                                                             '';
-                                                        log("customerId 1 : ${productsController.selectedCustomerId.value}");
                                                         Get.to(
                                                             () =>
                                                                 CustomerDachScreen(
@@ -586,7 +580,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                                           ?.longitude ??
                                                                       ''),
                                                             );
-                                                            log('Selected Customer : ${selectedCustomer?.businessName}');
                                                           } else {
                                                             showUpgradePlanDialog(
                                                                 context);
@@ -764,7 +757,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                             homeController
                                                                 .selectedIndex
                                                                 .value = 1;
-                                                            log('${event.event!.customerId}');
                                                             customerAndOrderController
                                                                 .setCustomerId(event
                                                                         .event
@@ -788,7 +780,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                                     .event
                                                                     ?.imageUrl ??
                                                                 '';
-                                                            log("customerId 1 : ${productsController.selectedCustomerId.value}");
                                                             Get.to(
                                                                 () =>
                                                                     CustomerDachScreen(
@@ -962,7 +953,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                                                               ?.longitude ??
                                                                           ''),
                                                                 );
-                                                                log('Selected Customer : ${selectedCustomer?.businessName}');
                                                               } else {
                                                                 showUpgradePlanDialog(
                                                                     context);
@@ -1096,7 +1086,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   .where((e) => e['time']!.isNotEmpty)
                                   .toList();
 
-                              log(selectedEventTimes.toString());
 
                               var saveVisit = await ApiWorker()
                                   .scheduleVisit(events: events);
@@ -1164,7 +1153,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                           customer.address.toString())
                                       .toList();
 
-                                  log("Addresses: $addresses");
 
                                   var creditResponse =
                                       await ApiWorker().debitRouteCredits(

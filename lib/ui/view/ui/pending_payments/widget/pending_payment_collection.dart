@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -86,23 +85,19 @@ void pendingPaymentCollectionDialog(
 
   void processPayments(
       List<IndividualPendingData> selectedItems, double enteredAmount) {
-    log("Processing payments with amount: $enteredAmount");
 
     for (var item in selectedItems) {
-      log("Amount before ${item.orderId}: $enteredAmount");
 
       double itemAmount =
           (item.receivableAmount ?? ((item.orderTotal) - (item.receivedAmount)))
               .toDouble();
 
-      log("Processing item: ${item.orderId} with amount: $itemAmount");
 
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
 
-        log("Applied amount to ${item.orderId}: $appliedAmount");
 
         ApiWorker().customerPayment(
           context: context,
@@ -120,11 +115,8 @@ void pendingPaymentCollectionDialog(
           transactionId: "",
         );
       } else {
-        log("No remaining balance to process ${item.orderId}");
       }
 
-      log("Amount after ${item.orderId}: $enteredAmount");
-      log("-----------------------------------------------------------");
     }
   }
 
@@ -537,7 +529,6 @@ void pendingPaymentCollectionDialog(
                                         updateSelectedItems();
                                         Navigator.pop(context);
                                       } else {
-                                        log("Please enter a valid amount.");
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(

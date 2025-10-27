@@ -136,7 +136,6 @@ class CustomersProvider with ChangeNotifier {
     required String targetType,
     required String staffProjection,
   }) {
-    log('This function has called');
     barGroups = targetType == '0'
         ? valuePerformance.asMap().entries.map((entry) {
             int index = entry.key;
@@ -212,31 +211,24 @@ class CustomersProvider with ChangeNotifier {
 
   Future<int> getCartItemCounts(String customerId) async {
     try {
-      log("Customer Id inside getCartItemCounts: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
-      log("Cart items inside count : ${cartItems.map((e) => e.toJson()).toList()}");
       final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();
-      log('Cart count calculated for customer $customerId: $cartItemCount');
       updateCartCount(customerId);
       return cartItemCount;
     } catch (e) {
-      log('Error calculating cart item counts for customer $customerId: $e');
       return 0;
     }
   }
 
   Future<void> updateCartCount(String customerId) async {
     try {
-      log("Customer Id inside updateCartCount: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       cartItemCount = cartItems.length;
-      log('The cart item Count $cartItemCount');
       notifyListeners();
-      log('Cart count updated for customer $customerId: $cartItemCount');
     } catch (e) {
-      log('Error updating cart count for customer $customerId: $e');
+      //
     }
   }
 
@@ -271,7 +263,6 @@ class CustomersProvider with ChangeNotifier {
   }
 
   void updateSearchQuery(String query) async {
-    log("updateSearchQuery query : $query");
     _searchCustomerName = query;
     _currentPage = 1;
     _errorMessage = ''; // Clear previous error messages
@@ -299,7 +290,7 @@ class CustomersProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      log("Error fetching customer data: $e");
+      //
     } finally {
       notifyListeners();
     }
@@ -307,8 +298,6 @@ class CustomersProvider with ChangeNotifier {
 
   /// Performs offline search by searching through all cached customer data
   Future<void> performOfflineSearch(String searchQuery) async {
-    log('[performOfflineSearch] Starting offline search for: $searchQuery');
-
     try {
       _isLoading = true;
       notifyListeners();
@@ -331,7 +320,6 @@ class CustomersProvider with ChangeNotifier {
                 jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
             final response = CustomerResponseModelxx.fromJson(safeMap);
             allCachedCustomers.addAll(response.data);
-            log('[performOfflineSearch] Loaded ${response.data.length} customers from page $page');
 
             // Check if there are more pages
             if (page >= response.pagination.totalPages) {
@@ -340,11 +328,9 @@ class CustomersProvider with ChangeNotifier {
               page++;
             }
           } catch (e) {
-            log('[performOfflineSearch] Error parsing cached data for page $page: $e');
             hasMoreData = false;
           }
         } else {
-          log('[performOfflineSearch] No cached data for page $page, stopping search');
           hasMoreData = false;
         }
       }
@@ -355,8 +341,6 @@ class CustomersProvider with ChangeNotifier {
         final query = searchQuery.toLowerCase();
         return customer.businessName.toLowerCase().startsWith(query);
       }).toList();
-
-      log('[performOfflineSearch] Found ${searchResults.length} matching customers out of ${allCachedCustomers.length} total cached customers');
 
       if (searchResults.isNotEmpty) {
         // Store all search results and calculate pagination
@@ -380,7 +364,7 @@ class CustomersProvider with ChangeNotifier {
               setOrderTotal(response.orderTotal);
               setYearList(response.yearsListOfAll);
             } catch (e) {
-              log('[performOfflineSearch] Error loading order totals and year list: $e');
+              //
             }
           }
         }
@@ -392,7 +376,6 @@ class CustomersProvider with ChangeNotifier {
             'No customers found matching "$searchQuery" in offline data.';
       }
     } catch (e) {
-      log('[performOfflineSearch] Error during offline search: $e');
       _errorMessage = 'Error performing offline search: $e';
       _filteredCustomers = [];
     } finally {
@@ -403,8 +386,6 @@ class CustomersProvider with ChangeNotifier {
 
   /// Loads cached data for the current page when offline
   Future<void> loadCachedDataForCurrentPage() async {
-    log('[loadCachedDataForCurrentPage] Loading cached data for page $_currentPage');
-
     try {
       _isLoading = true;
       notifyListeners();
@@ -420,23 +401,19 @@ class CustomersProvider with ChangeNotifier {
               jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
           final response = CustomerResponseModelxx.fromJson(safeMap);
 
-          log('[loadCachedDataForCurrentPage] Loaded ${response.data.length} customers from page $_currentPage');
           setCustomers(response.data, response.pagination.totalPages);
           setOrderTotal(response.orderTotal);
           setYearList(response.yearsListOfAll);
           _errorMessage = '';
         } catch (e) {
-          log('[loadCachedDataForCurrentPage] Error parsing cached data: $e');
           _filteredCustomers = [];
           _errorMessage = 'Corrupted offline data for this page.';
         }
       } else {
-        log('[loadCachedDataForCurrentPage] No cached data for page $_currentPage');
         _filteredCustomers = [];
         _errorMessage = 'No offline data for this page.';
       }
     } catch (e) {
-      log('[loadCachedDataForCurrentPage] Error loading cached data: $e');
       _errorMessage = 'Error loading offline data: $e';
       _filteredCustomers = [];
     } finally {
@@ -650,8 +627,6 @@ class CustomersProvider with ChangeNotifier {
     final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
     int currentYear = now.year;
 
-    log('Start Date End Date $formattedStartDate, $formattedEndDate');
-
     try {
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
@@ -696,11 +671,8 @@ class CustomersProvider with ChangeNotifier {
     final cacheKey = '${companyId}_customer_list_$page';
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
-      log('[fetchCustomerData] Offline mode. Looking for cacheKey: $cacheKey');
-
       // If there's an active search query, perform offline search
       if (_searchCustomerName.isNotEmpty) {
-        log('[fetchCustomerData] Offline search mode with query: $_searchCustomerName');
         await performOfflineSearch(_searchCustomerName);
         return;
       }
@@ -713,7 +685,6 @@ class CustomersProvider with ChangeNotifier {
               jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
 
           final response = CustomerResponseModelxx.fromJson(safeMap);
-          log('[fetchCustomerData] Loaded [${response.data.length}] customers from cacheKey: $cacheKey');
           setCustomers(response.data, response.pagination.totalPages);
           setOrderTotal(response.orderTotal);
           setYearList(response.yearsListOfAll);
@@ -721,7 +692,6 @@ class CustomersProvider with ChangeNotifier {
           notifyListeners();
           return;
         } catch (e) {
-          log('[fetchCustomerData] Error parsing cached data for page $page: $e');
           _filteredCustomers = [];
           _errorMessage = 'Corrupted offline data for this page.';
           _isLoading = false;
@@ -729,7 +699,6 @@ class CustomersProvider with ChangeNotifier {
           return;
         }
       } else {
-        log('[fetchCustomerData] No cached data for page $page');
         _filteredCustomers = [];
         _errorMessage = 'No offline data for this page.';
         _isLoading = false;
@@ -745,12 +714,9 @@ class CustomersProvider with ChangeNotifier {
         _selectedFilter == FilterDateEnum.range) {
       try {
         _isLoading = true;
-        log("fetchCustomer query : $_searchCustomerName");
         final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
             ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
             : _selectedFilter.name;
-
-        log('Final valueFromDw sent to API: $valueFromDw');
 
         _customersFuture = _apiService.fetchCustomer(
           salesmanId: '',
@@ -761,12 +727,10 @@ class CustomersProvider with ChangeNotifier {
           page: page,
           valueFromDw: valueFromDw,
         );
-        log('Selecetd Filters : $_selectedFilter');
         _customersFuture!.then((value) {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
           setYearList(value.yearsListOfAll);
-          log('year list : ${value.yearsListOfAll.first.orderYears ?? ''}');
           // notificationController.loadNotificationData();
           _isLoading = false;
           notifyListeners();
@@ -911,7 +875,6 @@ class CustomersProvider with ChangeNotifier {
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline && _searchCustomerName.isNotEmpty) {
       // For offline search, just update the UI since all results are already loaded
-      log('[refreshCurrentPage] Offline search mode - just updating UI');
       notifyListeners();
     } else {
       fetchCustomerData(page: _currentPage);
@@ -962,24 +925,18 @@ class CustomersProvider with ChangeNotifier {
 
   /// Handles pagination clicks for both online and offline modes
   void handlePaginationClick(int page) async {
-    log('[handlePaginationClick] Page: $page, Current page: $_currentPage, Search: $_searchCustomerName');
-
     if (page == _currentPage) return; // No change needed
 
     _currentPage = page;
-    log('[handlePaginationClick] Updated current page to: $_currentPage');
 
     // Check if we're offline and have an active search
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline && _searchCustomerName.isNotEmpty) {
       // For offline search, just update the UI since all results are already loaded
-      log('[handlePaginationClick] Offline search mode - just updating UI');
-      log('[handlePaginationClick] Total customers: ${_customers.length}, Total pages: $_totalPages');
       logCurrentState();
       notifyListeners();
     } else {
       // For normal browsing or online search, fetch data for the new page
-      log('[handlePaginationClick] Online mode - fetching data for page: $page');
       fetchCustomerData(page: page);
     }
   }
@@ -1010,12 +967,7 @@ class CustomersProvider with ChangeNotifier {
   ScrollController get scrollController => _scrollController;
 
   /// Debug method to log current state
-  void logCurrentState() {
-    log('[logCurrentState] Current page: $_currentPage, Total pages: $_totalPages');
-    log('[logCurrentState] Search query: "$_searchCustomerName"');
-    log('[logCurrentState] Total customers: ${_customers.length}, Filtered customers: ${_filteredCustomers.length}');
-    log('[logCurrentState] Current page customers: ${getCurrentPageCustomers().length}');
-  }
+  void logCurrentState() {}
 
   @override
   void dispose() {

@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math' as rand;
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -123,13 +122,11 @@ class LoginController extends GetxController {
         endPoint: ApiConstants.sendVerificationMail,
       );
       if (response.data['status'] == true) {
-        log('Verification mail sent successfully.');
         successMessage.value =
             "An OTP has been sent to your email. Please enter the OTP below to verify your email.";
         isEmailVerified.value = false;
         isOtpSent.value = true;
       } else {
-        log('Error: ${response.data['message'] ?? 'Unknown error occurred.'}');
         successMessage.value = "Verification failed. Please try again.";
         isEmailVerified.value = false;
       }
@@ -139,7 +136,6 @@ class LoginController extends GetxController {
       successMessage.value = "Verification failed. Please try again.";
       isEmailVerified.value = false;
     } catch (e) {
-      log('Unexpected error: $e');
       successMessage.value = "Verification failed. Please try again.";
       isEmailVerified.value = false;
     }
@@ -215,10 +211,6 @@ class LoginController extends GetxController {
     DateTime now = DateTime.now();
     DateFormat('MMMM').format(now);
     try {
-      final requestBody = {
-        "email": emailController.text.removeAllWhitespace,
-        "password": passwordController.text,
-      };
       bool isOnline = await ConnectivityService().isOnline();
 
       if (!isOnline) {
@@ -227,13 +219,10 @@ class LoginController extends GetxController {
         return false;
       }
 
-      log("Request Body: $requestBody");
       loginResponce = await _apiWorker.loginApi(
         emailController.text.removeAllWhitespace,
         passwordController.text,
       );
-      log("Response Body: ${loginResponce?.toJson()}");
-      log("StatusCode: ${loginResponce?.statusCode}");
 
       if (loginResponce?.statusCode == 200) {
         try {
@@ -242,7 +231,6 @@ class LoginController extends GetxController {
               loginResponce?.data?.salesmanId ?? '');
 
           if (response.statusCode == 200) {
-            log('success', name: 'userVerification');
           } else {
             final message = response.message;
             Get.snackbar(
@@ -253,7 +241,6 @@ class LoginController extends GetxController {
               colorText: Colors.white,
               duration: const Duration(seconds: 5),
             );
-            log(message, name: 'userVerification');
             showCustomToastDisplay(
               context,
               response.message,
@@ -264,7 +251,6 @@ class LoginController extends GetxController {
             return false;
           }
         } catch (e) {
-          log('userVerification exception: $e', name: 'userVerification');
           showCustomToastDisplay(
             context,
             "App not activated, Please contact admin",
@@ -292,7 +278,6 @@ class LoginController extends GetxController {
 
         await SessionHelper().setLoginData(loginResponce!.data!);
         await SessionHelper().getLoginData();
-        log("Fetching settings after login...");
         await Future.delayed(const Duration(seconds: 2));
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final settings = await _apiWorker
@@ -325,30 +310,21 @@ class LoginController extends GetxController {
         );
 
         requiredDataFuture.then((_) async {
-          log('[SyncInBackground] requiredDataFuture.then triggered');
           if (settings != null) {
             await SessionHelper().setSettingsData(settings);
             await SessionHelper().getSettingsData();
           }
           // If sync in background was pressed, navigate to home immediately
           if (syncInBackground) {
-            log('[SyncInBackground] syncInBackground is true, navigating home');
             if (!navigationCompleter.isCompleted) {
-              log('[SyncInBackground] Completing navigationCompleter (from then)');
               navigationCompleter.complete();
-            } else {
-              log('[SyncInBackground] navigationCompleter already completed (from then)');
-            }
+            } else {}
           } else {
             // Otherwise, wait for customer sync to finish before navigating
-            log('[SyncInBackground] Waiting for customerSyncFuture');
             await customerSyncFuture;
             if (!navigationCompleter.isCompleted) {
-              log('[SyncInBackground] Completing navigationCompleter (after customerSyncFuture)');
               navigationCompleter.complete();
-            } else {
-              log('[SyncInBackground] navigationCompleter already completed (after customerSyncFuture)');
-            }
+            } else {}
           }
         });
 
@@ -379,7 +355,6 @@ class LoginController extends GetxController {
   }
 
   void _handleException(Object e) {
-    log("Login Error: $e");
     loginButtonController.error();
     loginButtonController.reset();
 
@@ -477,7 +452,6 @@ class LoginController extends GetxController {
     int page = 1;
     try {
       // Fetch first page to get totalPages
-      log('[fetchAllCustomerPages] Fetching customer page 1');
       final firstResponse = await apiService.fetchCustomer(
         salesmanId: '',
         customerName: provider.searchCustomerName,
@@ -497,16 +471,13 @@ class LoginController extends GetxController {
       allOrderTotals.addAll(firstResponse.orderTotal);
       allYearsList.addAll(firstResponse.yearsListOfAll);
       totalPages = firstResponse.pagination.totalPages;
-      log('[fetchAllCustomerPages] First page fetched, totalPages reported: $totalPages');
       // Save first page to Hive with cacheKey
       final customerBox = Hive.box('customerBox');
       final cacheKeyFirst =
           '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
-      log('[fetchAllCustomerPages] Caching page 1 with ${firstResponse.data.length} customers');
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        log('[fetchAllCustomerPages] Fetching customer page $page');
         final response = await apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           customerName: provider.searchCustomerName,
@@ -528,12 +499,10 @@ class LoginController extends GetxController {
         final cacheKey =
             '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
         await customerBox.put(cacheKey, response.toJson());
-        log('[fetchAllCustomerPages] Caching page $page with ${response.data.length} customers');
       }
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
-      log('[fetchAllCustomerPages] Finished fetching all pages. Total pages: $totalPages, Total customers: ${allCustomers.length}');
       // Build unique customerId list from all pages
       final allCustomerIds = allCustomers
           .map((c) => c.customerId)
@@ -542,7 +511,6 @@ class LoginController extends GetxController {
           .toList();
       await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
-      log('Error fetching all customer pages : $e');
       rethrow;
     }
   }
@@ -568,7 +536,7 @@ class LoginController extends GetxController {
         allYearsList.addAll(response.yearsListOfAll);
         totalPages = response.pagination.totalPages;
       } catch (e) {
-        log('Error parsing cached customer page $page: $e');
+        //
       }
       page++;
     }
@@ -589,27 +557,23 @@ class LoginController extends GetxController {
     for (final customerId in customerIds) {
       if (customerId.isEmpty) continue;
       try {
-        log('[prefetchDash] Dashboard for $customerId');
         await apiService.fetchCustomerDashboardDataa(
             customerId, year, startDate, endDate);
       } catch (e) {
-        log('Error prefetching dashboard data $e');
+        //
       }
       try {
-        log('[prefetchDash] TotalSale for $customerId');
         await apiService.fetchCustomerTotalSale(customerId, year);
       } catch (e) {
-        log('Error prefetching total sale $e');
+        //
       }
       try {
-        log('[prefetchDash] Revenue for $customerId');
         await apiService.fetchCustomerRevenueData(
             customerId, year, startDate, endDate);
       } catch (e) {
-        log('Error prefetching revenue $e');
+        //
       }
       try {
-        log('[prefetchDash] Draft for $customerId');
         await apiService.fetchCustomerDashOrders(
           cusId: customerId,
           salesmanId: '',
@@ -619,13 +583,12 @@ class LoginController extends GetxController {
           checkDate: false,
         );
       } catch (e) {
-        log('Error prefetching Draft $e');
+        //
       }
       try {
-        log('[prefetchDash] OrderCount for $customerId');
         await apiService.fetchOrderCount(customerId, startDate, endDate);
       } catch (e) {
-        log('Error prefetching order count $e');
+        //
       }
     }
   }
@@ -636,17 +599,14 @@ class LoginController extends GetxController {
     String label, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    log('\x1B[32m******************************** $label ********************************\x1B[0m');
     try {
       return await future.timeout(
         timeout,
         onTimeout: () async {
-          log('[Timeout] $label did not complete in ${timeout.inSeconds}s');
           return Future.value(null); // ✅ ensure it's Future<T?>
         },
       );
-    } catch (e, stack) {
-      log('[Error] $label failed: $e\n$stack');
+    } catch (e) {
       return null;
     }
   }
@@ -662,11 +622,8 @@ class LoginController extends GetxController {
     final connectivityService = ConnectivityService();
 
     final String currentMonth = DateFormat.MMMM().format(DateTime.now());
-    log("📆 Month passed : $currentMonth");
 
     try {
-      log('loadAllInitialData: Starting to load all initial data...');
-
       await Future.wait([
         connectivityService.syncOfflineOrders(
           onOrderSynced: orderController.loadOfflineOrders,
@@ -787,10 +744,8 @@ class LoginController extends GetxController {
       ]);
 
       // Check cache status after loading all data
-      log('loadAllInitialData: Checking cache status after data loading...');
       await productsController.checkCacheStatus();
-    } catch (e, stack) {
-      log('Error in Future.wait during login: $e\n$stack');
+    } catch (e) {
       // Optionally: Show a user-friendly error message here
       // Do NOT rethrow, so the future always completes
     }

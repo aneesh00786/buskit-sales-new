@@ -6,7 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class Utils {
   double calculateSubtotal(List<CartItem> items) {
-    log('Calculating Cart Subtotal');
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
         double sellingPrice =
@@ -16,18 +15,14 @@ class Utils {
           final num discountPercentage = item.detail.discount!;
           sellingPrice -= (sellingPrice * discountPercentage / 100);
           tax -= (tax * discountPercentage / 100);
-          log('Applying discount of $discountPercentage% to selling price.');
-          log('Discounted Selling Price: $sellingPrice');
         }
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
-        log('Tax Amount: $tax');
         double totalCount = item.isPack == true ? count * pieces : count;
         sellingPrice = item.detail.inclTax == "incl_tax"
             ? sellingPrice
             : sellingPrice + tax;
         double itemTotal = sellingPrice * totalCount;
-        log('Item Total (after tax and discount): $itemTotal');
         return sum + itemTotal;
       }
       return sum;
@@ -35,7 +30,6 @@ class Utils {
   }
 
   double calculateTotalDiscount(List<CartItem> items) {
-    log('Calculating Total Discount');
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {
         final double sellPrice =
@@ -60,10 +54,8 @@ class Utils {
             maxDiscount > 0 &&
             uncappedDiscountAmount > maxDiscount) {
           actualDiscountAmount = maxDiscount;
-          log("[MAX_DISCOUNT] Capped total discount from $uncappedDiscountAmount to $maxDiscount for ${item.detail.variationName}");
         }
 
-        log('Discount for item: $actualDiscountAmount');
         return sum + actualDiscountAmount;
       }
       return sum;
@@ -147,7 +139,6 @@ class Utils {
   // }
 
   double calculateTotalPrice(CartItem cartItem, int localCount) {
-    log('[PROMO] Calculating total price for cart item');
     final discountBox = Hive.box<CustomerDiscountModel>('discounts');
     CustomerDiscountModel? discountData;
 
@@ -165,14 +156,12 @@ class Utils {
       num count = cartItem.detail.count;
       num tax = cartItem.detail.tax ?? 0;
 
-      log('[PROMO] Initial Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
 
       double calculatedSellPrice = cartItem.isPack == true
           ? effectiveSellingPrice * pieces
           : effectiveSellingPrice;
 
       final double totalPriceForComparison = calculatedSellPrice * localCount;
-      log('[PROMO] Calculated Selling Price for Discount Check: $totalPriceForComparison');
 
       double appliedDiscountPercentage = 0.0;
 
@@ -196,7 +185,6 @@ class Utils {
               totalBasePrice * appliedDiscountPercentage / 100;
 
           // Check if there's a max discount limit
-          log('[PROMO] Discount max value: ${cartItem.detail.maxDiscount}');
           
           if (cartItem.detail.maxDiscount != null &&
               cartItem.detail.maxDiscount! > 0) {
@@ -206,7 +194,6 @@ class Utils {
 
             if (totalDiscountAmount > maxDiscountValue) {
               totalDiscountAmount = maxDiscountValue;
-              log('[PROMO] Discount capped at max value: $maxDiscountValue for total price $totalBasePrice');
 
               // Recalculate the effective discount percentage for display
               double effectiveDiscountPercentage =
@@ -215,7 +202,6 @@ class Utils {
               appliedDiscountPercentage = effectiveDiscountPercentage;
 
               // Show notification that max discount was applied
-              log('[PROMO] Effective discount percentage reduced to: $effectiveDiscountPercentage%');
             }
           }
 
@@ -230,7 +216,6 @@ class Utils {
           log('[PROMO] Promo discount applied: $appliedDiscountPercentage%. '
               'Updated Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
         } else {
-          log('[PROMO] No discount set in promo item.');
         }
       } else if (discountData?.customerId == cartItem.customerId) {
         final applicableDiscount = discountData?.discounts?.firstWhere(
@@ -253,10 +238,8 @@ class Utils {
           log('[PROMO] Customer discount applied: $appliedDiscountPercentage%. '
               'Updated Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
         } else {
-          log('[PROMO] No applicable discount found.');
         }
       } else {
-        log('[PROMO] No discount data found for customer ID: ${cartItem.customerId}');
       }
 
       cartItem.detail.discount = appliedDiscountPercentage;
@@ -266,14 +249,11 @@ class Utils {
           ? effectiveSellingPrice
           : effectiveSellingPrice + tax;
 
-      log('[PROMO] Price with Tax: $priceWithTax');
 
       double totalPrice = priceWithTax * totalCount;
-      log('[PROMO] Final Total Price (after tax and discount): $totalPrice');
 
       return totalPrice;
     } else {
-      log('[PROMO] Item is not checked; returning price as 0.0');
       return 0.0;
     }
   }

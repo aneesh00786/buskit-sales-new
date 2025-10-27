@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
@@ -48,9 +47,7 @@ class HomeController extends GetxController {
         .fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
     SessionHelper().getLoginData().then((value) {
       userDetails = value;
-      log('User details assigned in onInit: $value');
     }).catchError((error) {
-      log('Error fetching user details in onInit: $error');
     });
   }
 
@@ -74,7 +71,6 @@ class HomeController extends GetxController {
         await Future.delayed(const Duration(milliseconds: 500));
         _handleTokenExpiration();
       }
-      log('Error fetching dashboard data: $e');
     }
   }
 

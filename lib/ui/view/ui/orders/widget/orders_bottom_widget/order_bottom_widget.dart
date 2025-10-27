@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -219,7 +218,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
-          log("countForTab 2 : $_countForTab");
           if (widget.orderController.offlineOrderCount.value != 0 ||
               !_isOnline) {
             return const Center(

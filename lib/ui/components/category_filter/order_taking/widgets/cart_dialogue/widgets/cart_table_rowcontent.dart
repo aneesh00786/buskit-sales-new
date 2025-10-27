@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -50,7 +49,6 @@ class GroupedItemDataRows {
           maxDiscount > 0 &&
           uncappedDiscountAmount > maxDiscount) {
         actualDiscountAmount = maxDiscount;
-        log("[MAX_DISCOUNT] Capped discount from $uncappedDiscountAmount to $maxDiscount for ${groupedItem.detail.variationName}");
       }
 
       // Calculate tax discount based on actual discount percentage
@@ -72,7 +70,6 @@ class GroupedItemDataRows {
       // log('Draft id is Contains or not? == ${groupedItem.draftId}');
       // log('Incl Tax  == ${groupedItem.detail.inclTax}');
       // log('Discount Amount on Get Rows : ${groupedItem.detail.discount}');
-      log('[PROMO CODE] : ${groupedItem.promoCode}');
       return DataRow(
         cells: [
           DataCell(
@@ -85,7 +82,6 @@ class GroupedItemDataRows {
                     onChanged: (bool? value) {
                       setState(() {
                         groupedItem.isChecked = value ?? false;
-                        log("Checkbox for ${groupedItem.detail.variationName} is ${groupedItem.isChecked ?? true ? 'checked' : 'unchecked'}");
                       });
                       calculateAmount();
                     },
@@ -108,7 +104,6 @@ class GroupedItemDataRows {
                     groupedItem.promoMsg != null) ...[
                   InkWell(
                     onTap: () {
-                      log("[PROMOTEST] ${groupedItem.promoMsg}");
                       if (groupedItem.promoMsg!.startsWith("Bundle")) {
                         showDialog(
                           context: context,
@@ -668,7 +663,6 @@ class GroupedItemDataRows {
                         maxDiscount > 0 &&
                         uncappedDiscountAmount > maxDiscount) {
                       actualDiscountAmount = maxDiscount;
-                      log("[MAX_DISCOUNT] Capped total discount from $uncappedDiscountAmount to $maxDiscount for ${groupedItem.detail.variationName}");
                     }
 
                     // Calculate effective discount percentage and apply to price and tax

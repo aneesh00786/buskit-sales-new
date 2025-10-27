@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -54,7 +53,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
             children: [
               nkMediumSizeBox(),
               Obx(() {
-                log(calenderController.isRouteCreditLoading.value.toString());
                 return SizedBox(
                   height: 40,
                   child: Row(

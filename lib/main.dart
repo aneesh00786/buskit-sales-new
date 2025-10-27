@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/sync_manager.dart';
@@ -137,37 +136,26 @@ void main() async {
           : AppRoutes.login));
 }
 
-/// Handles cart persistence when the app is restarted
 Future<void> _handleCartPersistenceOnRestart() async {
   try {
-    // Only handle cart persistence if user is logged in
     if (SessionHelper.loginSavedData != null) {
-      log('Handling cart persistence on app restart...');
 
-      // Get the ProductsController to access selectedCustomerId
       if (Get.isRegistered<ProductsController>()) {
         final productsController = Get.find<ProductsController>();
         final selectedCustomerId = productsController.selectedCustomerId.value;
 
-        log('Selected customer ID on restart: $selectedCustomerId');
-
-        // Call the cart persistence method
         await CartDatabaseManager()
             .handleCartPersistenceOnRestart(selectedCustomerId);
       } else {
-        log('ProductsController not available, clearing cart items as safety measure');
         await CartDatabaseManager().handleCartPersistenceOnRestart(null);
       }
     } else {
-      log('User not logged in, skipping cart persistence check');
     }
   } catch (e) {
-    log('Error in _handleCartPersistenceOnRestart: $e');
-    // As a fallback, clear cart items if there's an error
     try {
       await CartDatabaseManager().handleCartPersistenceOnRestart(null);
     } catch (fallbackError) {
-      log('Error in fallback cart persistence: $fallbackError');
+      //
     }
   }
 }
@@ -201,13 +189,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (SessionHelper.loginSavedData != null) {
       final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
       if (companyId != 0) {
-        log("Fetching settings...");
         List<AllCompanySettingsData>? settings =
             await ApiWorker().fetchAllSettings(companyId);
         if (settings != null) {
           await SessionHelper().setSettingsData(settings);
           await SessionHelper().getSettingsData();
-          log('Settings data fetched and saved: ${settings.length}');
         }
       }
     }

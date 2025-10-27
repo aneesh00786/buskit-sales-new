@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -38,7 +37,6 @@ class CategoryList extends StatefulWidget {
 
 class _CategoryListState extends State<CategoryList> {
   late int _expandedIndex;
-  Future<CategoryModel>? _categoryFuture;
   @override
   void initState() {
     super.initState();
@@ -46,8 +44,6 @@ class _CategoryListState extends State<CategoryList> {
         ? widget.categories
             .indexWhere((cat) => cat.title == widget.selectedCategory)
         : -1;
-    log('The Hive Categoryy List : ${_categoryFuture.toString()}');
-    _categoryFuture = widget.productsController.loadDataOfCategories();
   }
 
   @override
@@ -140,7 +136,6 @@ class _CategoryListState extends State<CategoryList> {
                                 );
                                 // Optionally, do not close the drawer here. Remove the next line if you want the drawer to stay open.
                                 // widget.onDrawerToggle();
-                                log('Auto-selected subcategory: ${firstSubCategory.subCategory} (ID: ${firstSubCategory.id})');
                               }
                             }
                           });
@@ -185,11 +180,9 @@ class _CategoryListState extends State<CategoryList> {
                               return GestureDetector(
                                 onTap: () {
                                   if (option.id == null || option.id!.isEmpty) {
-                                    log('ERROR: Subcategory ${option.subCategory} has no ID');
                                     return;
                                   }
 
-                                  log('Selecting subcategory: ${option.subCategory} with ID: ${option.id}');
                                   widget.onOptionSelected(option.id!);
                                   widget
                                       .productsController
@@ -198,7 +191,6 @@ class _CategoryListState extends State<CategoryList> {
                                   widget.productsController
                                       .selectedSubCategoryId.value = option.id!;
                                   widget.onDrawerToggle();
-                                  log('Selected subcategory: ${option.subCategory} with ID: ${option.id}');
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(

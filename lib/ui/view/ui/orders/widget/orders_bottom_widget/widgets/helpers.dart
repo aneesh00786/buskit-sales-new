@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -331,8 +330,6 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
   return Center(
     child: IconButton(
       onPressed: () async {
-        log('Order ID :${orderData.orderId ?? ''}');
-        log('Selected Tab Index :$selectedTabIndex');
         if (selectedTabIndex == 0) {
           try {
             await orderController.loadOrderProcessInvoiceData(

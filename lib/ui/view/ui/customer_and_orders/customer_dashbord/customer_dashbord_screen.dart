@@ -1,5 +1,4 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names, deprecated_member_use
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -90,8 +89,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   @override
   void initState() {
     super.initState();
-    log('Is Calender :${widget.isFromCalendar}');
-    log('Calender Calender Customer ID :${widget.cusId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(widget.cusId.toString());
@@ -129,7 +126,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     );
 
     // cartProvider.updateCartCount(customerOrderController.customerId.value);
-    log('CustomerId 2 :${customerOrderController.customerId.value}');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -158,7 +154,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       ProductsController productsController,
       CustomerAndOrderController customerAndOrderController) async {
     if (customerId.isEmpty) {
-      log('Error: Customer ID is empty in CustomerDachScreen.');
       return;
     }
     customerAndOrderController.setCustomerId(customerId);
@@ -168,7 +163,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       imageUrl: customerImage,
       id: customerId,
     );
-    log('CustomerDachScreen - Initialized Customer ID: $customerId, Name: $businessName, Image: $customerImage');
   }
 
   @override
@@ -215,8 +209,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
-            log("Customer Id checkout: ${widget.cusId}");
 
             return AlertDialog(
               title: const Text('Customer Check-Out'),
@@ -309,7 +301,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           }
                         }
                       } catch (e) {
-                        log('Error during check-out: $e');
+      //
                       }
 
                       if (context.mounted) Navigator.of(context).pop();
@@ -352,8 +344,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () async {
-                log("Customer Id backbutton : ${widget.cusId}");
-                log("${widget.isDirectDialogue} +${widget.isFromCalendar} + ${widget.isFromGoogle}");
 
                 if (widget.isFromGoogle) {
                   bool shouldProceed = await checkCustomerOut();

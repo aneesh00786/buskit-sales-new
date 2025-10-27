@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -61,7 +60,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           SessionHelper.loginSavedData?.salesmanId ?? '');
 
       if (response.statusCode == 200) {
-        log('success', name: 'userVerification');
       } else {
         final message = response.message;
         Get.snackbar(
@@ -72,11 +70,10 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           colorText: Colors.white,
           duration: const Duration(seconds: 5),
         );
-        log(message, name: 'userVerification');
         handleLogout(context);
       }
     } catch (e) {
-      log('userVerification exception: $e', name: 'userVerification');
+      //
     }
   }
 
@@ -118,11 +115,9 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             );
           }
           if (widget.dashBoardController.errorMessage.value.isNotEmpty) {
-            log('Error: ${widget.dashBoardController.errorMessage.value}');
             return const Center(child: NodataWidget());
           }
           final data = widget.dashBoardController.dashbordData.value;
-          log('DashBoard data Value ===========${data.orderCountList}');
           return OptionWidget(
             customType: "",
             customOrderStatusType: OrderStatus.preOrder,

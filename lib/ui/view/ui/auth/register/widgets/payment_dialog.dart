@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -46,9 +45,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     setState(() {
       cardDetails = controller.details;
     });
-    debugPrint("Card complete: ${cardDetails?.complete}");
-    debugPrint("Brand: ${cardDetails?.brand}");
-    debugPrint("Last4: ${cardDetails?.last4}");
   }
 
   @override
@@ -387,7 +383,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
       "plan_id": widget.planId.toString()
     };
 
-    log("Request: $request");
 
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}subscriptionView');
@@ -396,8 +391,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
         body: request,
       );
 
-      log("Status code: ${response.statusCode}");
-      log("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -409,7 +402,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             'Failed to load Subscription view: ${response.statusCode}');
       }
     } catch (e) {
-      log("Error 2: $e");
       setState(() {
         htmlContent = "<h2>Error loading Subscription view</h2>";
         isLoading = false;

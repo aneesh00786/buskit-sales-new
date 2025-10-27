@@ -2,7 +2,6 @@
 
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -158,7 +157,6 @@ class CartDialogueState extends State<CartDialogue> {
 
     localCounts =
         List<int>.filled(widget.productsController.cartItems.length, 0);
-    log('Customer ID in INitstate : ${widget.customerId ?? widget.productsController.selectedCustomerId.value}');
 
     _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
@@ -193,7 +191,6 @@ class CartDialogueState extends State<CartDialogue> {
       final customerId = widget.customerId ??
           widget.productsController.selectedCustomerId.value;
       final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
-      log('[CartDialogue] isDraftView: $isDraftView, customerId: $customerId');
 
       if (isDraftView) {
         if (!isOnline) {
@@ -204,7 +201,6 @@ class CartDialogueState extends State<CartDialogue> {
             (d) => d['customer_id'] == customerId,
             orElse: () => null,
           );
-          log('[CartDialogue] Found offline draft for customer: ${draft != null}');
 
           if (draft != null && draft['details'] != null) {
             final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -216,12 +212,9 @@ class CartDialogueState extends State<CartDialogue> {
               return item != null && item.customerId == customerId;
             }).toList();
 
-            log('[CartDialogue] Found ${keysToRemove.length} draft items to delete for customer $customerId');
-
             for (var key in keysToRemove) {
-              final deletedItem = draftBox.get(key);
+              draftBox.get(key);
               await draftBox.delete(key);
-              log('[CartDialogue] Deleted draftBox item with key $key: ${deletedItem?.toJson()}');
             }
 
             for (var detail in details) {
@@ -247,18 +240,7 @@ class CartDialogueState extends State<CartDialogue> {
                 catId: 0,
               );
               await draftBox.add(cartItem);
-              log('[CartDialogue] Added CartItem to draftBox: ${cartItem.toJson()}');
             }
-
-            final allDrafts = draftBox.values
-                .where((item) => item.customerId == customerId)
-                .toList();
-            log('[CartDialogue] Total items in draftBox for customer $customerId after insertion: ${allDrafts.length}');
-            for (var item in allDrafts) {
-              log('[CartDialogue] draftBox item: ${item.toJson()}');
-            }
-          } else {
-            log('[CartDialogue] No offline draft details found for customer $customerId');
           }
         }
       }
@@ -267,7 +249,6 @@ class CartDialogueState extends State<CartDialogue> {
 
       widget.productsController.cartItems = await CartDatabaseManager()
           .getCartItems(customerId, draftsOnly: isDraftView);
-      log('[CartDialogue] Loaded cartItems count: ${widget.productsController.cartItems.map((e) => e.toJson()).toList()}');
 
       await setCartToOrderAndPreorder();
 
@@ -313,9 +294,6 @@ class CartDialogueState extends State<CartDialogue> {
           }
         }
       }
-      log('CartItems Length :  ${widget.productsController.cartItems.length}');
-      log('Order Length :  ${widget.productsController.orderItems.length}');
-      log('PreOrder Length :  ${widget.productsController.preorderItems.length}');
       orderSubtotal =
           widget.productsController.orderItems.fold(0.0, (sum, item) {
         return item.isChecked! ? sum + (item.totalPrice) : sum;
@@ -450,7 +428,6 @@ class CartDialogueState extends State<CartDialogue> {
       }
       setOptions();
     } catch (e) {
-      log('Error loading cart items: $e');
       setState(() {
         _isLoading = false;
       });
@@ -475,13 +452,10 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     // log("[setCartToOrderAndPreorder] controller preorderItems : ${preorderItems.map((e) => e.toJson()).toList()}");
-    log("[setCartToOrderAndPreorder] controller preorderItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
   }
 
   @override
   Widget build(BuildContext context) {
-    log('preOrder items : ${widget.productsController.preorderItems.length}');
-    log('preOrder items : $isOrder');
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(
@@ -1074,7 +1048,6 @@ class CartDialogueState extends State<CartDialogue> {
                                                       .toSet()
                                                       .toList()
                                                       .map((productName) {
-                                                    log("preorderItems inside _buildGroupItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
                                                     List<CartItem>
                                                         groupedItems = widget
                                                             .productsController
@@ -1865,7 +1838,6 @@ class CartDialogueState extends State<CartDialogue> {
                                   );
                                 }
                               } else {
-                                log('CustomerIdz : $customerId');
                                 await processSaveAndSend(
                                   finalAmount: finalAmount,
                                   context: context,
@@ -2041,12 +2013,6 @@ class CartDialogueState extends State<CartDialogue> {
       itemList = [];
     }
     // Debug logging
-    log('DEBUG: _selectedValue: $_selectedValue');
-    log('DEBUG: orderItems: ${widget.productsController.orderItems.map((e) => e.toJson()).toList()}');
-    log('DEBUG: preorderItems: ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}');
-    log('DEBUG: itemList: ${itemList.map((e) => e.toJson()).toList()}');
-    log('DEBUG 2: customers and order controller customer Id : ${customeController.customerId.value}');
-    log('DEBUG 2: products controller customer Id : ${widget.productsController.selectedCustomerId.value}');
     final connectivityService = ConnectivityService();
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
@@ -2059,11 +2025,9 @@ class CartDialogueState extends State<CartDialogue> {
         },
       );
       try {
-        log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
 
         if (!isOnline) {
-          log('[processSaveAndSend] Device is offline. Saving order offline...');
           int status = _selectedValue == 'Sale Order'
               ? 11
               : _selectedValue == 'Booking'
@@ -2104,9 +2068,7 @@ class CartDialogueState extends State<CartDialogue> {
           }
           return;
         } else {
-          log('[processSaveAndSend] Preparing data for API call...');
           // Use only itemList for the API payload
-          log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
 
           final productBYData = AddToCartModel(
             customerId: customerId,
@@ -2137,7 +2099,8 @@ class CartDialogueState extends State<CartDialogue> {
                     promoCode: item.promoCode ?? '',
                     promoMsg: "Bundle: ${e.variationName}",
                     isBundle: isBundle,
-                    bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
+                    bundleDetails:
+                        isBundle ? "Bundle: ${e.variationName}" : null,
                   );
                 } else {
                   return SendCartData(
@@ -2177,14 +2140,10 @@ class CartDialogueState extends State<CartDialogue> {
             varientIdsPass.add(item.detail.variationId ?? '');
           }
 
-          log("VARIENT IDS : $varientIdsPass");
-          log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
           CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
-          log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
 
           if (cartOrder != null) {
-            log('[processSaveAndSend] Preparing order placement...');
             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
             int orderStatus = _selectedValue == 'Sale Order'
                 ? 11
@@ -2263,10 +2222,7 @@ class CartDialogueState extends State<CartDialogue> {
                     ], // The cart ID that was just sent
                     sentAmount: finalAmount,
                   );
-
-                  log('[processSaveAndSend] Successfully updated cached drafts after order placement');
                 } catch (e) {
-                  log('[processSaveAndSend] Error updating cached drafts: $e');
                   // Don't show error to user as this is a background operation
                 }
 
@@ -2393,7 +2349,6 @@ class CartDialogueState extends State<CartDialogue> {
         }
       } catch (e) {
         Navigator.pop(context);
-        log('[processSaveAndSend] Error: $e');
         showFailureDialog(context, 'An unexpected error occurred.');
       }
     } else {
@@ -2422,7 +2377,6 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
   Future<void> clearEntireCartForCustomer() async {
-    log('[clearEntireCartForCustomer]');
     String customerId = customeController.customerId.isNotEmpty
         ? customeController.customerId.value
         : widget.productsController.selectedCustomerId.value;
@@ -2534,9 +2488,6 @@ class CartDialogueState extends State<CartDialogue> {
           .toList();
     }
 
-    log('[saveOrderOffline] Cart Order data : ${widget.productsController.orderItems}');
-    log('[saveOrderOffline] Cart PreOrder data : ${widget.productsController.preorderItems}');
-
     // Save the order to offline orders box
     Map<String, dynamic> orderData = {
       'order_id': orderId,
@@ -2598,11 +2549,8 @@ class CartDialogueState extends State<CartDialogue> {
 
     var offlineBox = await Hive.openBox('offlineOrders');
     await offlineBox.put(orderId, orderData);
-    log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
 
-    log("PROCESSED ITEMS : ${processedItems.map((e) => e.toJson()).toList()}");
     for (final item in processedItems) {
-      log("DELETE CART ITEMS");
       CartDatabaseManager().deleteCartItem(item);
     }
 
@@ -2617,10 +2565,6 @@ class CartDialogueState extends State<CartDialogue> {
           .where((item) => item.detail.stock == 0)
           .toList();
     });
-
-    log("CART ITEMS: ${widget.productsController.cartItems}");
-    log("ORDER ITEMS: ${widget.productsController.orderItems}");
-    log("PREORDER ITEMS: ${widget.productsController.preorderItems}");
 
     // Update cached drafts after offline save
     try {
@@ -2667,10 +2611,8 @@ class CartDialogueState extends State<CartDialogue> {
         sentCartIds: [orderId],
         sentAmount: finalAmount,
       );
-
-      log('[saveOrderOffline] Successfully updated cached drafts after offline order save');
     } catch (e) {
-      log('[saveOrderOffline] Error updating cached drafts: $e');
+      //
     }
 
     {
@@ -2690,20 +2632,13 @@ class CartDialogueState extends State<CartDialogue> {
           drafts.indexWhere((draft) => draft['customer_id'] == checkCustomerId);
 
       if (existingDraftIndex != -1) {
-        var existingDraftForCustomer = drafts[existingDraftIndex];
-
         List<dynamic> detailsAfterProcessing = [];
-
-        log('existingDraftForCustomer : $existingDraftForCustomer');
 
         var newCartItems = remainingItems;
 
         for (var item in newCartItems) {
           item.isChecked = true;
         }
-
-        log('[newCartItems] : ${newCartItems.map((e) => e.toJson()).toList()}');
-        log('[newCartItems] display total : ${Utils().calculateSubtotal(newCartItems)}');
 
         if (newCartItems.isEmpty || newCartItems == []) {
           drafts.removeAt(existingDraftIndex);
@@ -2719,7 +2654,6 @@ class CartDialogueState extends State<CartDialogue> {
           };
 
           for (var detail in newCartItems) {
-            log("NEW CART ITEM DETAILS: ${detail.toJson()}");
             detailsAfterProcessing.add({
               'product_id': detail.detail.productId ?? '',
               'variant_id': detail.detail.variationId ?? '',
@@ -2744,10 +2678,6 @@ class CartDialogueState extends State<CartDialogue> {
         }
 
         await offlineDraftsBox.put('drafts', drafts);
-
-        var offlineDraftsBoxDisplay = await Hive.openBox('offlineDrafts');
-
-        log("OFFLINE DRAFT BOX AFTER REMOVING ITEM : ${offlineDraftsBoxDisplay.values}");
       }
     }
   }
@@ -2844,7 +2774,6 @@ class CartDialogueState extends State<CartDialogue> {
                 _deleteProduct(productName, isPreorder: isPreOrder);
                 await provider.updateCartCount(customerId);
                 _loadCartItems();
-                log('Draft Delete Clicked : $customerId');
                 Navigator.pop(context);
                 widget.productsController.isCartModified.value = true;
                 showCustomToastDisplay(
@@ -2890,8 +2819,6 @@ class CartDialogueState extends State<CartDialogue> {
 
     // If no remaining items carry a flat discount promo, clear it
     _maybeClearFlatDiscountForCustomer(customerId);
-
-    log('Deleted variant: ${variantToDelete.detail.variationName} with stock set to 0');
   }
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
@@ -2921,8 +2848,6 @@ class CartDialogueState extends State<CartDialogue> {
                       cartItem.totalPrice = Utils().calculateTotalPrice(
                           cartItem, cartItem.detail.count.toInt());
                       calculateAmounts();
-                      log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                      log('Draft ID On Cart ${cartItem.draftId}');
                       CartDatabaseManager().updateCart(cartItem);
                       CartDatabaseManager()
                           .getCartItems(cartItem.customerId ?? '');
@@ -2962,8 +2887,6 @@ class CartDialogueState extends State<CartDialogue> {
                     cartItem.totalPrice = Utils().calculateTotalPrice(
                         cartItem, cartItem.detail.count.toInt());
                     calculateAmounts();
-                    log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                    log('Draft ID On Cart ${cartItem.draftId}');
                     CartDatabaseManager().updateCart(cartItem);
                     widget.productsController.isCartModified.value = true;
                   });
@@ -3023,7 +2946,6 @@ class CartDialogueState extends State<CartDialogue> {
     });
     // Clear flat discount if its source items are gone
     _maybeClearFlatDiscountForCustomer(customerId);
-    log('Cart Item Cleared : $cartItem');
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
   }
@@ -3040,7 +2962,6 @@ class CartDialogueState extends State<CartDialogue> {
       }).toList();
 
       if (variantsToDelete.isEmpty) {
-        log('No ${isPreorder ? "preorder" : "order"} variants found for product: $productName');
         return;
       }
 
@@ -3070,8 +2991,6 @@ class CartDialogueState extends State<CartDialogue> {
     final String cid =
         widget.customerId ?? widget.productsController.selectedCustomerId.value;
     _maybeClearFlatDiscountForCustomer(cid);
-
-    log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
   }
 
   /// Clears cart-level flat discount for a customer if no remaining items
@@ -3086,7 +3005,6 @@ class CartDialogueState extends State<CartDialogue> {
         if (widget.productsController.flatDiscountByCustomer
             .containsKey(customerId)) {
           widget.productsController.flatDiscountByCustomer.remove(customerId);
-          log('[FlatDiscount] Cleared cart-level flat discount for customer $customerId');
           setState(() {});
         }
       }

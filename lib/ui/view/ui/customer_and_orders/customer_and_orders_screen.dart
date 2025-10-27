@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously, empty_catches
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -1469,7 +1468,6 @@ class _TableeeState extends State<Tableee> {
                                                     setState(() {
                                                       isAddingCustomer = false;
                                                     });
-                                                    log(error.toString());
                                                   }
                                                 },
                                           style: ElevatedButton.styleFrom(
@@ -1576,7 +1574,6 @@ class _TableeeState extends State<Tableee> {
     int page = 1;
     try {
       // Fetch first page to get totalPages
-      log('[fetchAllCustomerPages] Fetching customer page 1');
       final firstResponse = await apiService.fetchCustomer(
         salesmanId: '',
         customerName: provider.searchCustomerName,
@@ -1596,16 +1593,13 @@ class _TableeeState extends State<Tableee> {
       allOrderTotals.addAll(firstResponse.orderTotal);
       allYearsList.addAll(firstResponse.yearsListOfAll);
       totalPages = firstResponse.pagination.totalPages;
-      log('[fetchAllCustomerPages] First page fetched, totalPages reported: $totalPages');
       // Save first page to Hive with cacheKey
       final customerBox = Hive.box('customerBox');
       final cacheKeyFirst =
           '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
-      log('[fetchAllCustomerPages] Caching page 1 with ${firstResponse.data.length} customers');
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        log('[fetchAllCustomerPages] Fetching customer page $page');
         final response = await apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           customerName: provider.searchCustomerName,
@@ -1627,12 +1621,10 @@ class _TableeeState extends State<Tableee> {
         final cacheKey =
             '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
         await customerBox.put(cacheKey, response.toJson());
-        log('[fetchAllCustomerPages] Caching page $page with ${response.data.length} customers');
       }
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
-      log('[fetchAllCustomerPages] Finished fetching all pages. Total pages: $totalPages, Total customers: ${allCustomers.length}');
       // Build unique customerId list from all pages
       // final allCustomerIds = allCustomers
       //     .map((c) => c.customerId)
@@ -1641,7 +1633,6 @@ class _TableeeState extends State<Tableee> {
       //     .toList();
       // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
-      log('Error fetching all customer pages : $e');
       rethrow;
     }
   }
@@ -1677,7 +1668,6 @@ class TopTotalWidget extends StatelessWidget {
               child: TextField(
                 onChanged: (query) {
                   provider.updateSearchQuery(query);
-                  log("Entered query : $query");
                 },
                 controller: searchController,
                 decoration: InputDecoration(
@@ -2723,7 +2713,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       shouldNavigate = true;
                                                     }
 
-                                                    log("shouldNavigate : $shouldNavigate");
 
                                                     if (shouldNavigate) {
                                                       provider
@@ -2771,7 +2760,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               .selectedCustomerImage
                                                               .value =
                                                           customer.imageUrl;
-                                                      log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                       await Future.delayed(
                                                           const Duration(
                                                               milliseconds:
@@ -3293,7 +3281,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            log("Customer Id checkout: ${customerAndOrderController.customerId.value}");
 
             return AlertDialog(
               title: const Text('Customer Check-Out'),
@@ -3333,7 +3320,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           cartProvider.updateCartCount(customerId);
                         });
 
-                        log('CustomerId 2 :${customerAndOrderController.customerId.value}');
                         Get.to(
                                 ChangeNotifierProvider.value(
                                   value: Provider.of<CustomersProvider>(context,
@@ -3431,7 +3417,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           }
                         }
                       } catch (e) {
-                        log('Error during check-out: $e');
                       }
 
                       if (context.mounted) Navigator.of(context).pop();

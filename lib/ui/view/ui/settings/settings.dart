@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -88,7 +87,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching admin data: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -121,8 +119,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final salesman = SessionHelper.loginSavedData;
   @override
   Widget build(BuildContext context) {
-    log('Image URL : ${ApiConstants.imageBaseUrlss}${salesman?.imagePath ?? ''}');
-    log('Image URL ID: ${ApiConstants.imageBaseUrlss}${salesman?.idimagePath ?? ''}');
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : _adminData == null

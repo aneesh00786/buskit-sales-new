@@ -384,9 +384,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                                         primaryColor.withOpacity(0.2),
                                   ),
                                   child: const Text(
-                                    // 'Subscribe - \$${subscriptionController.plansData[selectedPlanIndex].price}',
                                     'Subscribe',
-                                    // 'Subscribe - ${formatAmount(selectedPaymentOption?.price)}',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         color: primaryColor,

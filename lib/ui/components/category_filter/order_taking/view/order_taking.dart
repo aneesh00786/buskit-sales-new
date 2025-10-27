@@ -104,9 +104,6 @@ class _OrderTakingState extends State<OrderTaking>
 
   @override
   void initState() {
-    log("[CUSTOMER ID] [widget.selectedCustId] : ${widget.selectedCustId}");
-    log("[CUSTOMER ID] [productsController] : ${widget.productsController.selectedCustomerId.value}");
-    log("[CUSTOMER ID] [customersAndOrderController] : ${customerAndOrderController.customerId.value}");
 
     {
       final cartProvider =
@@ -122,7 +119,6 @@ class _OrderTakingState extends State<OrderTaking>
       });
     }
 
-    log('Customer ID in Order Taking : ${customerAndOrderController.customerId.value}');
     super.initState();
     CartDatabaseManager().getDraftItems();
     widget.productsController.fetchCategoryData();
@@ -223,7 +219,6 @@ class _OrderTakingState extends State<OrderTaking>
         final firstSubCategoryId = categories[0].subCategoryItem![0].id ?? '';
         _selectedOption = firstSubCategory;
 
-        log('_selectFirstCategory: Subcategory name: $firstSubCategory, ID: $firstSubCategoryId');
 
         // Set the selected subcategory ID in the controller
         widget.productsController.selectedSubCategoryId.value =
@@ -244,7 +239,6 @@ class _OrderTakingState extends State<OrderTaking>
   }
 
   void _loadProductsForSubCategory(String subCategoryId) {
-    log('_loadProductsForSubCategory: Loading products for subcategory ID: $subCategoryId');
     widget.productsController.fetchProducts(subCategoryId);
   }
 
@@ -257,7 +251,6 @@ class _OrderTakingState extends State<OrderTaking>
   Future<void> _fetchProductsByCategory(String categoryId) async {
     setState(() {
       _id = categoryId;
-      log('Fetching products for category ID: $categoryId');
     });
   }
 
@@ -275,7 +268,7 @@ class _OrderTakingState extends State<OrderTaking>
         isLoading = false;
       });
     } catch (error) {
-      log("Error fetching customers: $error");
+      //
     }
   }
 
@@ -391,7 +384,6 @@ class _OrderTakingState extends State<OrderTaking>
                                               ),
                                               errorWidget:
                                                   (context, url, error) {
-                                                log('Failed to load image');
                                                 return const CircleAvatar(
                                                   radius: 20,
                                                   backgroundColor:
@@ -658,7 +650,6 @@ class _OrderTakingState extends State<OrderTaking>
                                             ),
                                           ),
                                           errorWidget: (context, url, error) {
-                                            log('Failed to load image');
                                             return const CircleAvatar(
                                               radius: 20,
                                               backgroundColor: Colors.blueGrey,
@@ -1093,7 +1084,6 @@ class _OrderTakingState extends State<OrderTaking>
                         );
                       }).toList(),
                       onOptionSelected: (selectedSubcategoryId) {
-                        log('Selected Subcategory ID: $selectedSubcategoryId');
                         _fetchProductsByCategory(selectedSubcategoryId);
                       },
                       onDrawerToggle: _toggleDrawer,
@@ -1404,14 +1394,12 @@ class _OrderTakingState extends State<OrderTaking>
     // Cancel any existing drawer timer before starting a new one
     _drawerTimer?.cancel();
 
-    log('Selected Category: $_selectedCategory');
 
     _drawerTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
           _isDrawerOpen = false;
         });
-        log('Drawer closed after 3 seconds');
       }
     });
 
@@ -1429,7 +1417,6 @@ class _OrderTakingState extends State<OrderTaking>
       final firstSubCategoryId = firstSubCategory.id ?? '';
       final firstSubCategoryName = firstSubCategory.subCategory ?? '';
 
-      log('_selectCategory: Auto-selecting first subcategory - Name: $firstSubCategoryName, ID: $firstSubCategoryId');
 
       // Set the selected subcategory in the controller
       widget.productsController.selectedSubCategoryId.value =
@@ -1515,7 +1502,6 @@ class _OrderTakingState extends State<OrderTaking>
           (d) => d['customer_id'] == customerId,
           orElse: () => null,
         );
-        log("DRAFT OF CUSTOMER : $draft");
         if (draft != null && draft['details'] != null) {
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
           final List details = draft['details'];
@@ -1558,7 +1544,7 @@ class _OrderTakingState extends State<OrderTaking>
         }
       }
     } catch (e) {
-      log('[OrderTaking] Error loading offline drafts: $e');
+      //
     }
   }
 }

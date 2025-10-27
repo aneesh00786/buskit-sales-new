@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -812,7 +811,6 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   .customerId.value.isNotEmpty) ||
                               (widget.productController.selectedCustomerName
                                   .value.isNotEmpty)) {
-                            log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
                             for (var i = 0;
                                 i < widget.detailsCopy.length;
                                 i++) {
@@ -846,9 +844,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 );
                                 widget.productController.isCartModified.value =
                                     true;
-                                log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
                               } else {
-                                log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
                               }
                             }
 

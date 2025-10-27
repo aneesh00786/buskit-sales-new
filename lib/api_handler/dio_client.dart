@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -76,7 +75,6 @@ class DioClient with ApiConstants {
           final errorMessage = DioExceptionHandler.fromDioError(err).toString();
           throw errorMessage;
         }
-        log('Retrying request ($retryCount/$maxRetries): $path');
       } catch (e) {
         throw e.toString();
       }
@@ -195,7 +193,6 @@ class DioExceptionHandler implements Exception {
         errorMessage = 'An unexpected error occurred.';
         break;
     }
-    log('Error occurred: $errorMessage');
   }
 
   @override
@@ -250,7 +247,6 @@ void handleExceptionMessage({
   String? apiName,
   DioException? error,
 }) {
-  log('Error Type: ${error?.type}');
   String message = "";
   final errorData = response?.data;
   if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
@@ -261,7 +257,6 @@ void handleExceptionMessage({
     NkCommonFunction.showErrorSnakBar("$message. $apiName");
   } else if (error?.type == DioExceptionType.connectionTimeout ||
       error?.type == DioExceptionType.receiveTimeout) {
-    log("Dio Timeout Error: $error");
     NkCommonFunction.showErrorSnakBar(
       "Request timed out. Please check your internet connection and try again. $apiName",
     );
@@ -312,23 +307,6 @@ class LoggerInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final options = err.requestOptions;
-    final requestPath = '${options.baseUrl}${options.path}';
-    logger.e('${options.method} request => $requestPath');
-    logger.d('Error: ${err.error}, Message: ${err.message}');
     return;
-  }
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final requestPath = '${options.baseUrl}${options.path}';
-    logger.i('${options.method} request => $requestPath');
-    return super.onRequest(options, handler);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.d('StatusCode: ${response.statusCode}, Data: ${response.data}');
-    return super.onResponse(response, handler);
   }
 }

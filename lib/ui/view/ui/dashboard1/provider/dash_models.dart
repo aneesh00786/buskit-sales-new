@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:intl/intl.dart';
@@ -2113,7 +2112,7 @@ class OrdersDash {
         return DateTime.parse(dateString);
       }
     } catch (e) {
-      log('Failed to parse date: $dateString, error: $e');
+      //
     }
     return DateTime(1970, 1, 1);
   }
@@ -2124,7 +2123,7 @@ class OrdersDash {
         return DateTime.parse(dateString);
       }
     } catch (e) {
-      log('Failed to parse nullable date: $dateString, error: $e');
+      //
     }
     return null;
   }

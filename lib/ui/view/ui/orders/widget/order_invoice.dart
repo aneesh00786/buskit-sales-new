@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -47,7 +46,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    log("DATE FORMAT :${widget.invoiceData!.orderCreatAt?.toIso8601String() ?? ''}");
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),

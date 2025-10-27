@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -135,8 +134,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
   @override
   void initState() {
-    log("customer Ids : ${widget.customerIds}");
-    log("Event Ids : ${widget.eventIds}");
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _mapController.suggestions.clear();
@@ -149,7 +146,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
     // Call loadShowRoute and log the result
     _mapController.loadShowRoute(widget.eventIds).then((_) {
-      log('ShowRouteResultList: ${_mapController.showRouteResultList}');
     });
   }
 
@@ -358,7 +354,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   ),
                 ),
                 Expanded(child: Obx(() {
-                  log('ShowRouteResultList Length: \\${_mapController.showRouteResultList.length}');
                   // Sort by scheduleTime ascending (hh:mm:ss)
                   final sortedList =
                       List<Result>.from(_mapController.showRouteResultList);
@@ -377,7 +372,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                     itemCount: sortedList.length,
                     itemBuilder: (context, index) {
                       final result = sortedList[index];
-                      log(result.toString());
                       // Trigger distance/duration fetch if not cached
                       if (!_distanceDurationCache
                               .containsKey(result.customerId) &&

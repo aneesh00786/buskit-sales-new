@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
@@ -26,15 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
     SessionHelper().getLoginData().then((value) {
       setState(() {
         homeController.userDetails = value;
-        log('User details updated: $value');
       });
     }).catchError((error) {
-      log('Error fetching login data: $error');
     });
 
     homeController.sidebarXController.addListener(() {
       homeController.changePageRouting();
-      log('SidebarXController listener triggered');
     });
   }
 

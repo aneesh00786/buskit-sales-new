@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -881,14 +879,12 @@ class _ProductVariantDialoguePromoState
                       if (widget.promo?.promoType != "tiered_discount") ...[
                         ElevatedButton(
                           onPressed: () async {
-
                             int totalCount = 0;
 
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {
@@ -921,7 +917,6 @@ class _ProductVariantDialoguePromoState
                                     'inclTax': widget.product.inclTax ?? '',
                                     'catId': widget.product.catId ?? 0,
                                   });
-                                  log('Selected variant ID: ${detail.variationId} with quantity ${localCounts[i]}');
                                 }
                               }
 
@@ -994,14 +989,12 @@ class _ProductVariantDialoguePromoState
                       if (widget.promo?.promoType == "tiered_discount") ...[
                         ElevatedButton(
                           onPressed: () async {
-
                             int totalCount = 0;
 
                             if ((customerAndOrderController
                                     .customerId.value.isNotEmpty) ||
                                 (widget.productController.selectedCustomerName
                                     .value.isNotEmpty)) {
-                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
                               for (var i = 0;
                                   i < widget.detailsCopy.length;
                                   i++) {

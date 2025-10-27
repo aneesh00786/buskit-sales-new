@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -12,7 +11,6 @@ class ProductMiddelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      log('isReached state: ${productsController.isReached.value}');
       return productsController.isReached.value
           ? CustomerDachScreen(
               isFromCalendar: true,

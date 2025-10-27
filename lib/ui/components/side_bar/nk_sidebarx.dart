@@ -1,7 +1,5 @@
-// ignore: file_names
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -79,12 +77,10 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         });
       }
     });
-    log('Switch state: $_onSwitchSelected');
   }
 
   @override
   Widget build(BuildContext context) {
-    log('ImagePath Side : ${widget.userDetails.imagePath}');
     Provider.of<DashboardProvider>(context, listen: false);
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
@@ -466,7 +462,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
           }
         }
       } catch (e) {
-        log('Error: $e');
+      //
       } finally {
         if (mounted) {
           setState(() {

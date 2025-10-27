@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
   final List<CategoryPerformancee> categoryPerformance;
@@ -259,7 +260,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     perfMonth.cid ?? '', perfMonth.cid ?? '');
               }
             } catch (e) {
-              debugPrint('Error finding MonthlyPerformancee: $e');
+              //
             }
           } else {
             try {
@@ -275,7 +276,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                 _showSalesmanPopup(perf.cid ?? 0, categoryName ?? '');
               }
             } catch (e) {
-              debugPrint('Error finding CategoryPerformancee: $e');
+              //
             }
           }
         }

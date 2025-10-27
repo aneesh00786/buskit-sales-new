@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
@@ -28,7 +27,6 @@ class SessionHelper {
   void createLoginDataBackup() {
     if (loginSavedData != null) {
       backupLoginData = loginSavedData;
-      log('Login data backup created: ${backupLoginData!.company_id}');
     }
   }
 
@@ -40,14 +38,12 @@ class SessionHelper {
   // Clear backup login data
   void clearBackupLoginData() {
     backupLoginData = null;
-    log('Backup login data cleared.');
   }
 
   // Clear original login data but keep backup
   Future<void> clearLoginDataKeepBackup() async {
     await SessionManager.clearData();
     loginSavedData = null;
-    log('Original login data cleared, backup preserved.');
   }
 
   Future<void> setLoginData(LoginData loginResponse) async {
@@ -83,7 +79,6 @@ class SessionHelper {
   Future<List<AllCompanySettingsData>?> getSettingsData() async {
     String response = await SessionManager.getStringValue(SpString.settingsKey);
     if (CheckNullData.checkNullOrEmptyString(response)) {
-      log('No settings data found in storage.');
       return null;
     } else {
       try {
@@ -91,10 +86,8 @@ class SessionHelper {
         List<AllCompanySettingsData> settingsList = jsonList
             .map((item) => AllCompanySettingsData.fromJson(item))
             .toList();
-        log('Fetched settings data: $settingsList');
         return settingsList;
       } catch (e) {
-        log('Error decoding settings data: $e');
         return null;
       }
     }
@@ -105,11 +98,9 @@ class SessionHelper {
     loginSavedData = null;
     settingsData = null;
     isLoggedIn.value = false;
-    log('All session data cleared.');
   }
   Future<void> clearSettingsData() async {
     await SessionManager.deleteData(SpString.settingsKey);
     settingsData = null;
-    log('Settings data cleared.');
   }
 }

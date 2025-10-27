@@ -1,6 +1,5 @@
 //Connectivity Plus
 
-import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -172,7 +171,6 @@ class ConnectivityService {
 
   Future<void> syncOfflineOrders({VoidCallback? onOrderSynced}) async {
     if (_isSyncing) {
-      log('[syncOfflineOrders] Sync is already in progress.');
       return;
     }
     _isSyncing = true;
@@ -180,24 +178,20 @@ class ConnectivityService {
     try {
       var offlineOrdersBox = await Hive.openBox('offlineOrders');
       if (offlineOrdersBox.isEmpty) {
-        log('[syncOfflineOrders] No offline orders to sync.');
         return;
       }
       var orders = offlineOrdersBox.values.toList();
       for (var order in orders) {
         try {
           if (processedCartIds.contains(order['cart_id'])) {
-            log('[syncOfflineOrders] Skipping already processed cart ID: ${order['cart_id']}');
             continue;
           }
-          log('[syncOfflineOrders] Processing offline order: $order');
           final String customerId = order['customer_id'] ?? '';
           var draftDetails =
               await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
           final firstDraft =
               draftDetails.isNotEmpty ? draftDetails.last : {'draft_id': ''};
           final String existingDraftId = firstDraft['draft_id'] ?? '';
-          log('Associated Cart ID for Customer $customerId: $existingDraftId');
 
           final AddToCartModel productBYData = AddToCartModel(
             customerId: customerId,
@@ -223,14 +217,10 @@ class ConnectivityService {
             varientIdsPass.add(item['variant_id'] ?? '');
           }
 
-          log("VARIENT IDS : $varientIdsPass");
-
-          log('[syncOfflineOrders] Sending API request with payload: ${productBYData.toJson()}');
           final CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
           if (cartOrder != null) {
             processedCartIds.add(cartOrder.cartId);
-            log('[syncOfflineOrders] Order added to cart successfully: ${cartOrder.cartId}');
             final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
             // const int orderStatus = 11;
             final CartOrderModel orderPayload = CartOrderModel(
@@ -248,13 +238,11 @@ class ConnectivityService {
               varientIds: varientIdsPass,
             );
 
-            log('[syncOfflineOrders] Sending Place Order payload: ${orderPayload.toJson()}');
             await ApiWorker().placeOrder(orderPayload,
                 (statusCode, message, response) async {
               if (statusCode == 200) {
                 showSyncSnackbar(
                     "Your order has been successfully placed", "Placed Order");
-                log('[syncOfflineOrders] Order synced successfully: ${orderPayload.cartId}');
 
                 // Update cached drafts after successful sync
                 try {
@@ -302,10 +290,7 @@ class ConnectivityService {
                     sentCartIds: [orderPayload.cartId],
                     sentAmount: orderPayload.orderPrice ?? 0.0,
                   );
-
-                  log('[syncOfflineOrders] Successfully updated cached drafts after order sync');
                 } catch (e) {
-                  log('[syncOfflineOrders] Error updating cached drafts: $e');
                   // Don't show error to user as this is a background operation
                 }
 
@@ -320,24 +305,20 @@ class ConnectivityService {
                     await orderController.loadOfflineOrders();
                   }
                 } catch (e) {
-                  log('OrderController not found or error updating offline orders: $e');
+                  //
                 }
                 onOrderSynced?.call();
-              } else {
-                log('[syncOfflineOrders] Failed to sync order: $message');
-              }
+              } else {}
             });
           }
         } catch (e) {
-          log('[syncOfflineOrders] Error syncing order: $e');
+          //
         }
       }
 
-      if (offlineOrdersBox.isEmpty) {
-        log('[syncOfflineOrders] All offline orders have been synced and the box is now empty.');
-      }
+      if (offlineOrdersBox.isEmpty) {}
     } catch (e) {
-      log('[syncOfflineOrders] General error: $e');
+      //
     } finally {
       _isSyncing = false;
     }
@@ -348,7 +329,6 @@ class ConnectivityService {
     int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     if (companyId != 0) {
       if (_isSyncing) {
-        log('[syncOfflineDrafts] Sync is already in progress.');
         return;
       }
       _isSyncing = true;
@@ -359,12 +339,10 @@ class ConnectivityService {
             offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
 
         if (drafts.isEmpty) {
-          log('[syncOfflineDrafts] No offline drafts to sync.');
           return;
         }
         for (var draft in drafts) {
           try {
-            log('[syncOfflineDrafts] Processing offline draft: $draft');
             final customerId = draft['customer_id'] ?? '';
             final cartDetails = await CartDatabaseManager()
                 .getDraftAndCartIdsFromApi(customerId);
@@ -374,8 +352,6 @@ class ConnectivityService {
                 : {'cart_id': '', 'draft_id': ''};
             final existingCartId = firstOrder['cart_id'] ?? '';
             final existingDraftId = firstOrder['draft_id'] ?? '';
-            log('Existing cart ID $existingCartId');
-            log('Existing Draft ID $existingDraftId');
 
             final customerDraftItems = CartDatabaseManager()
                 .draftBox
@@ -383,7 +359,6 @@ class ConnectivityService {
                 .where((item) => item.customerId == customerId)
                 .toList();
 
-            log("[customerDraftItems] : ${customerDraftItems.map((e) => e.toJson()).toList()}");
             final draftConvertedList = customerDraftItems.map((item) {
               final detail = item.detail;
 
@@ -416,16 +391,6 @@ class ConnectivityService {
                 }).toList() ??
                 [];
 
-            log('[syncOfflineDrafts] preCartList (${preCartList.length} items):');
-            for (var item in preCartList) {
-              log('[preCartList] ${item.toJson()}');
-            }
-
-            log('[syncOfflineDrafts] draftConvertedList (${draftConvertedList.length} items):');
-            for (var item in draftConvertedList) {
-              log('[draftConvertedList] ${item.toJson()}');
-            }
-
             final Map<String, SendCartData> itemMap = {};
 
             for (var item in draftConvertedList) {
@@ -447,13 +412,6 @@ class ConnectivityService {
               varientIdsPass.add(item.variantId);
             }
 
-            log("VARIENT IDS : $varientIdsPass");
-
-            log('[syncOfflineDrafts] combinedCartList (${combinedCartList.length} items):');
-            for (var item in combinedCartList) {
-              log('[combinedCartList] ${item.toJson()}');
-            }
-
             final AddToCartModel draftData = AddToCartModel(
               customerId: draft['customer_id'] ?? '',
               salesmanId: draft['salesman_id'] ?? '',
@@ -461,11 +419,9 @@ class ConnectivityService {
               cartList: combinedCartList,
               total: draft['total_amount']?.toString() ?? '0.0',
             );
-            log('[syncOfflineDrafts] Sending API request to save draft with payload: ${draftData.toJson()}');
             final CartOrderModel? savedDraft =
                 await ApiWorker().addToDraft(draftData.toJson());
             if (savedDraft != null) {
-              log('[syncOfflineDrafts] Draft synced successfully: ${savedDraft.draftId}');
               final int companyId =
                   SessionHelper.loginSavedData?.company_id ?? 0;
               const int orderStatus = 4;
@@ -487,7 +443,6 @@ class ConnectivityService {
                 transactionDate: draft['transactionDate'] ?? '',
                 varientIds: varientIdsPass,
               );
-              log('[syncOfflineDrafts] Sending Place Order payload: ${orderPayload.toJson()}');
 
               {
                 final customerCartItems = CartDatabaseManager()
@@ -514,12 +469,6 @@ class ConnectivityService {
                     itemMap[key] = item;
                   }
                 }
-
-                final combinedItems = itemMap.values.toList();
-
-                log('[CartDB] getCartItems returning customerCartItems : ${customerCartItems.map((e) => e.toJson()).toList()}');
-                log('[CartDB] getCartItems returning customerDraftItems : ${customerDraftItems.map((e) => e.toJson()).toList()}');
-                log('[CartDB] getCartItems returning ${combinedItems.length} combined items');
               }
 
               await ApiWorker().placeOrder(orderPayload,
@@ -528,7 +477,6 @@ class ConnectivityService {
                   showSyncSnackbar(
                       "Your order has been successfully saved as Draft",
                       "Saved Draft");
-                  log('[syncOfflineDrafts] Order placed successfully: ${orderPayload.cartId}');
 
                   final cartBox = CartDatabaseManager().cartBox;
 
@@ -540,10 +488,7 @@ class ConnectivityService {
 
                   if (keysToDelete.isNotEmpty) {
                     await cartBox.deleteAll(keysToDelete);
-                    log('[syncOfflineDrafts] Deleted ${keysToDelete.length} cartBox item(s) for customerId $customerId');
-                  } else {
-                    log('[syncOfflineDrafts] No cartBox items found for customerId $customerId');
-                  }
+                  } else {}
 
                   final draftBox = CartDatabaseManager().draftBox;
 
@@ -555,27 +500,20 @@ class ConnectivityService {
 
                   if (draftKeysToDelete.isNotEmpty) {
                     await draftBox.deleteAll(draftKeysToDelete);
-                    log('[syncOfflineDrafts] Deleted ${draftKeysToDelete.length} draftBox item(s) for customerId $customerId');
-                  } else {
-                    log('[syncOfflineDrafts] No draftBox items found for customerId $customerId');
-                  }
+                  } else {}
                 }
               });
               drafts.remove(draft);
               await offlineDraftsBox.put('drafts', drafts);
-            } else {
-              log('[syncOfflineDrafts] Failed to sync draft.');
-            }
+            } else {}
           } catch (e) {
-            log('[syncOfflineDrafts] Error syncing draft: $e');
+            //
           }
         }
 
-        if (drafts.isEmpty) {
-          log('[syncOfflineDrafts] All offline drafts have been synced and the list is now empty.');
-        }
+        if (drafts.isEmpty) {}
       } catch (e) {
-        log('[syncOfflineDrafts] General error: $e');
+        //
       } finally {
         _isSyncing = false;
       }
@@ -587,10 +525,8 @@ class ConnectivityService {
     dio.Dio dio1 = dio.Dio();
     var box = await Hive.openBox('offlineRequests');
     if (box.isEmpty) {
-      log("No offline requests to retry.");
       return;
     }
-    log("Retrying ${box.length} offline requests...");
     for (int i = 0; i < box.length; i++) {
       final request = box.getAt(i);
       if (request == null) continue;
@@ -601,13 +537,10 @@ class ConnectivityService {
           data: dio.FormData.fromMap(payload),
         );
         if (response.statusCode == 200) {
-          log("✅ Offline request sent successfully: ${request['url']}");
           await box.deleteAt(i);
-        } else {
-          log("❌ Failed to retry request: ${response.statusCode}");
-        }
+        } else {}
       } catch (e) {
-        log("❌ Error retrying request: $e");
+        //
       }
     }
   }

@@ -125,7 +125,6 @@ class PendingPaymentController extends GetxController {
 
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
-    log("Selected Items: $selectedItemsList");
     num remainingAmount = enteredAmount;
 
     for (int i = 0; i < selectedItemsList.length; i++) {
@@ -156,7 +155,6 @@ class PendingPaymentController extends GetxController {
     }
 
     if (remainingAmount > 0) {
-      log("Remaining balance after payment: $remainingAmount");
     }
   }
 

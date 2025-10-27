@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -46,14 +45,12 @@ class _ProductGridState extends State<ProductGrid> {
   void initState() {
     super.initState();
     _checkInternetConnection();
-    log('Option name : ${widget.optionName}');
   }
 
   Future<void> _checkInternetConnection() async {
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
     hasInternet = !connectivityResult.contains(ConnectivityResult.none);
-    log('Has Internet: $hasInternet');
 
     if (hasInternet) {
       _fetchInitialProducts();
@@ -93,16 +90,13 @@ class _ProductGridState extends State<ProductGrid> {
       } else {
         var productBox = Hive.box<ProductModel>('products');
         if (productBox.isNotEmpty) {
-          final allScids =
-              productBox.values.map((p) => p.scid).toSet().toList();
-          log('All scids available in legacy cache: $allScids');
+          productBox.values.map((p) => p.scid).toSet().toList();
 
           List<ProductModel> offlineProducts = productBox.values
               .where((product) => product.scid == selectedSubCatId)
               .toList();
 
           if (offlineProducts.isNotEmpty) {
-            log('Product scids found in legacy cache: ${offlineProducts.map((p) => p.scid).toSet().toList()}');
           }
 
           setState(() {
@@ -154,7 +148,6 @@ class _ProductGridState extends State<ProductGrid> {
         });
       }
     } catch (e) {
-      log('Error fetching initial products: $e');
       setState(() {
         isLoading = false;
       });

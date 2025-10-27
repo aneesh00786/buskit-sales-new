@@ -1,6 +1,5 @@
 // ignore_for_file: library_prefixes, empty_catches, non_constant_identifier_names
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -259,7 +258,6 @@ class DashboardProvider with ChangeNotifier {
         );
       });
 
-      log("Response: $_salesmanTargetByCategory");
     } catch (e, stackTrace) {
       _logger.e('Error fetching salesman targets',
           error: e, stackTrace: stackTrace);
@@ -350,7 +348,6 @@ class DashboardProvider with ChangeNotifier {
         break;
     }
 
-    log('on filter changed');
     if (selectedFilterTemp != null) {
       _selectedFilterTemp = selectedFilterTemp;
       notifyListeners();
@@ -388,7 +385,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchData() async {
-    log("[1] FETCH DASH AGAIN");
     NotificationController notificationController =
         Get.find<NotificationController>();
     final jsonString = await SessionManager.getStringValue(SpString.spLogin);
@@ -397,7 +393,6 @@ class DashboardProvider with ChangeNotifier {
     try {
       bool isOnline = await ConnectivityService().isOnline();
       if (isOnline) {
-        log("ONLINE");
         _futureResponseModel =
             Future.delayed(const Duration(seconds: 2), () async {
           final api = await _apiService.fetchDashboardData(
@@ -419,7 +414,6 @@ class DashboardProvider with ChangeNotifier {
                 _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
           );
           // Save to Hive after successful fetch
-          log("TRY");
           try {
             final dashboardBox = Hive.box('dashboardBox');
             final apiJson = api.toJson();
@@ -430,7 +424,6 @@ class DashboardProvider with ChangeNotifier {
           return api;
         });
       } else {
-        log("OFFLINE");
         // Offline: Try to load from Hive
         try {
           final dashboardBox = Hive.box('dashboardBox');
@@ -442,16 +435,13 @@ class DashboardProvider with ChangeNotifier {
               try {
                 decodedData = jsonDecode(cachedData);
               } catch (e) {
-                log('Error decoding cached dashboard JSON: $e');
                 decodedData = {};
               }
             }
             Map<String, dynamic> safeMap = ensureStringKeyedMap(decodedData);
             final responseModel = ResponseModell.fromJson(safeMap);
             _futureResponseModel = Future.value(responseModel);
-            log('Successfully loaded dashboard data from cache');
           } else {
-            log('No cached dashboard data available');
             NkCommonFunction.showErrorSnakBar(
                 'No offline dashboard data available. Please connect to the internet at least once.');
             // Create an empty response model to prevent UI errors
@@ -466,7 +456,6 @@ class DashboardProvider with ChangeNotifier {
           }
         } catch (e) {
           _logger.e('Error loading dashboard data from Hive', error: e);
-          log('Error loading offline dashboard data: $e');
           NkCommonFunction.showErrorSnakBar(
               'Error loading offline dashboard data. Please connect to the internet.');
           // Create an empty response model to prevent UI errors

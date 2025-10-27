@@ -1,7 +1,6 @@
 // ignore_for_file: library_prefixes, empty_catches, use_build_context_synchronously
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -1522,7 +1521,6 @@ class ApiService {
         }
       }
     } catch (e) {
-      log('Error updating customerDashOrdersBox: $e');
     }
 
     try {
@@ -1562,7 +1560,6 @@ class ApiService {
         }
       }
     } catch (e) {
-      log('Error updating fetchAllOrdersBox: $e');
     }
 
     if (deletedFromCustomerDashOrders) {
@@ -1577,17 +1574,14 @@ class ApiService {
           await orderCountBox.put(countKey, dataToBeModified.toJson());
         }
       } catch (e) {
-        log('Error updating orderCountBox: $e');
       }
     }
 
-    // 4️⃣ DASHBOARD BOX → only if deleted from fetchAllOrdersBox
     if (deletedFromFetchAllOrders) {
       try {
         final dashboardBox = Hive.box('dashboardBox');
         final cachedDashboardData = dashboardBox.get('dashboardData');
         if (cachedDashboardData != null) {
-          // Handle both string and Map formats safely
           Map<String, dynamic> dashboardMap;
           if (cachedDashboardData is String) {
             dashboardMap =
@@ -1624,7 +1618,6 @@ class ApiService {
           }
         }
       } catch (e) {
-        log('Error updating dashboardBox: $e');
       }
     }
 
@@ -1640,7 +1633,6 @@ class ApiService {
     }
   }
 
-  /// Null-safe helper
   Map<String, dynamic>? safeMapFrom(dynamic source) {
     if (source is Map) {
       return Map<String, dynamic>.from(source);
@@ -1649,7 +1641,6 @@ class ApiService {
   }
 }
 
-// Utility function to ensure cached data is a Map<String, dynamic>
 Map<String, dynamic> ensureStringKeyedMap(dynamic data) {
   if (data is Map<String, dynamic>) return data;
   if (data is Map) {

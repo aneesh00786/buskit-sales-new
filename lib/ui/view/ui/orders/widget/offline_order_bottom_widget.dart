@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -117,7 +116,6 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                           final order = Map<String, dynamic>.from(widget
                               .orderController.offlineOrders[index] as Map);
 
-                          log("Order data from HIVE : $order");
 
                           return Container(
                             color:
@@ -529,7 +527,6 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
   }
 
   Widget orderStatus(Map<String, dynamic> order) {
-    log("STATUS : ${order['order_status']}");
     final status = order['order_status'] ?? -1;
     Color statusColor;
 

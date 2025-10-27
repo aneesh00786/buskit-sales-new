@@ -81,7 +81,6 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "year": fetchType == "Year" ? year : DateTime.now().year,
     };
-    // log("GET_DASHBOARD_LIST request : $requestBody");
     final dashboardBox = await getHiveBoxSafely('dashboardBox');
     try {
       final bool isOnline = await ConnectivityService().isOnline();
@@ -109,7 +108,6 @@ class ApiService {
         ),
         data: jsonEncode(requestBody),
       );
-      // log("GET_DASH_LIST response: $response");
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
         await dashboardBox.put(
@@ -301,10 +299,6 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
     try {
-      bool isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        log('No internet Connection. Please check your network.');
-      }
       final response = await responsePostMethod(
           requestData: requestBody,
           endPoint: ApiConstants.fetchValuePerformance,
@@ -322,7 +316,6 @@ class ApiService {
             message: jsonResponse['message'] ?? '',
             data: allCategory);
       } else {
-        log('Request failed with status 1: ${response.statusCode}');
         handleExceptionMessage(
             response: response, apiName: "value perfromance");
         throw Exception('Failed to load data');
@@ -451,7 +444,6 @@ class ApiService {
           ? year?.toString()
           : DateTime.now().year.toString(),
     };
-    log("Request Body: $requestBody");
     try {
       final response = await responsePostMethod(
         requestData: requestBody,
@@ -467,7 +459,6 @@ class ApiService {
       } else {
         handleExceptionMessage(
             response: response, apiName: "salesman terget by category");
-        log('Request failed: ${response.statusCode} | Response: ${response.data}');
         throw Exception('Failed to load data');
       }
     } on DioException catch (error) {
@@ -528,7 +519,6 @@ class ApiService {
 
   Future<SalesmenResponse> fetchChatData(String salesmanId) async {
     final requestBody = {"salesman_id": salesmanId, "companyId": companyId};
-    log('Request Body of Chat: $requestBody');
     try {
       final response = await responsePostMethod(
           requestData: requestBody, endPoint: ApiConstants.fetchChat);
@@ -540,7 +530,6 @@ class ApiService {
             salesmanChats.add(SalesmanChat.fromJson(json));
           });
         }
-        log('Request Body of Chat: ${response.data}');
         return SalesmenResponse(
           statusCode: response.data['status_code'],
           status: response.data['status'],
@@ -560,7 +549,6 @@ class ApiService {
 
   Future<MessagesResponse> fetchIndividualChatApi(
       String chatId, int page) async {
-    log('Fetching Individual Chats for Chat ID: $chatId, Page: $page');
     final requestBody = {
       "salesman_id": chatId,
       "limit": 20,
@@ -571,17 +559,13 @@ class ApiService {
     try {
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        log('No internet connection. Fetching cached data from Hive.');
         final cachedData = chatBox.get(cacheKey);
         return localStorage.storedChatData(cachedData, cacheKey);
       }
-      log('Internet available. Fetching data from API.');
       final response = await responsePostMethod(
           requestData: requestBody,
           endPoint: ApiConstants.fetchIndividualChat,
           options: Options(headers: {'Content-Type': 'application/json'}));
-      log('Request body of Chat: $requestBody');
-      // log('API Response Data: ${response.data}');
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse =
             response.data is Map<String, dynamic>
@@ -614,7 +598,6 @@ class ApiService {
             'Failed to fetch individual chat data - ${response.statusCode}');
       }
     } on DioException catch (error) {
-      log('Error occurred: $error');
       handleExceptionMessage(
           response: error.response, apiName: "chat", error: error);
       final cachedData = chatBox.get(cacheKey);
@@ -686,18 +669,14 @@ class ApiService {
             "page": 1,
           };
 
-    log("Request Body [fetchAllOrders]: ${jsonEncode(requestBody)}");
-
     final cacheKey =
         '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
     final orderBox = Hive.box('fetchAllOrdersBox');
     try {
       final isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
-        log("Retrieving data from cache with key: $cacheKey");
         final cachedData = orderBox.get(cacheKey);
         if (cachedData != null) {
-          log("Cached data found: $cachedData");
           final castedData = LocalStorage()
               .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
           return OrderResponse.fromJson(castedData);
@@ -711,17 +690,14 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        // log('Fetch All Orders Response: $jsonResponse');
         await orderBox.put(cacheKey, jsonResponse);
         return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
       } else {
         throw Exception('Failed to fetch orders - ${response.statusCode}');
       }
     } on SocketException {
-      log("Network error, attempting to fetch cached data for key: $cacheKey");
       final cachedData = orderBox.get(cacheKey);
       if (cachedData != null) {
-        log("Using cached data after network failure: $cachedData");
         final castedData = LocalStorage()
             .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
         return OrderResponse.fromJson(castedData);
@@ -729,7 +705,6 @@ class ApiService {
         throw Exception('Network error, and no cached data is available.');
       }
     } catch (e) {
-      log('Unexpected error occurred: $e');
       throw Exception('Unexpected error occurred: $e');
     }
   }
@@ -756,12 +731,9 @@ class ApiService {
       "page": 1,
     };
 
-    // log("Request Body Of fetchCustomerDashOrders: $requestBody");
-
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final cacheKey =
         '${companyId}_${cusId}_$orderType${checkDate ? '_true' : ''}';
-    // '${companyId}_${cusId}_${salesmanId}_${startDate}_${endDate}_${orderType}';
     final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
 
     try {
@@ -769,10 +741,7 @@ class ApiService {
       if (!isOnline) {
         final cachedData = customerDashOrdersBox.get(cacheKey);
         if (cachedData != null) {
-          log('[CACHE-HIT] Loaded orders from Hive for key: $cacheKey');
           return OrderResponse.fromJson(Map<String, dynamic>.from(cachedData));
-        } else {
-          log('[CACHE-MISS] No cached data for key: $cacheKey');
         }
       }
 
@@ -786,13 +755,10 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        // log('Fetch All Orders Response: $jsonResponse');
 
         Pagination pagination =
             Pagination.fromJson(jsonResponse['pagination'] ?? {});
         List<dynamic>? orderData = jsonResponse['data'] as List<dynamic>?;
-
-        log('Fetch All Orders Customer Pagination: [${pagination.totalRecord}]');
 
         List<OrdersDash> orders = [];
         if (orderData != null) {
@@ -801,10 +767,8 @@ class ApiService {
               .toList();
         }
 
-        // Cache the result
         await customerDashOrdersBox.put(
             cacheKey, Map<String, dynamic>.from(jsonResponse));
-        log('[CACHE-SAVE] Saving orders to Hive for key: $cacheKey');
 
         return OrderResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
@@ -823,8 +787,6 @@ class ApiService {
 
       final cachedData = customerDashOrdersBox.get(cacheKey);
       if (cachedData != null) {
-        log('[CACHE-HIT] Loaded cached orders after error for key: $cacheKey');
-        log('[CACHE-HIT] Loaded cached orders : ${OrderResponse.fromJson(Map<String, dynamic>.from(cachedData))}');
         return OrderResponse.fromJson(Map<String, dynamic>.from(cachedData));
       }
 
@@ -837,7 +799,6 @@ class ApiService {
       "sales_id": SessionHelper.loginSavedData?.salesmanId ?? '',
       "company_id": SessionHelper.loginSavedData?.company_id ?? 0
     };
-    log('The Token $token');
     const hiveKey = 'salesmanDetails';
     final adminBox = await Hive.openBox('adminBox');
     bool isOnline = await ConnectivityService().isOnline();
@@ -904,7 +865,6 @@ class ApiService {
     required int page,
     required dynamic valueFromDw,
   }) async {
-    log("valueFromDw: $valueFromDw");
 
     dynamic value;
     if (valueFromDw == 'This Month') {
@@ -935,19 +895,11 @@ class ApiService {
     final cacheKey =
         '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
 
-    log('[fetchCustomer] Requesting page: $page, cacheKey: $cacheKey');
-
     try {
-      log('API URL: ${ApiConstants.fetchCustomer}');
-      log('Customer Request Body: $requestBody');
-
       final response = await responsePostMethod(
         endPoint: ApiConstants.fetchCustomer,
         requestData: requestBody,
       );
-
-      log('fetchCustomer : ${response.statusCode}');
-      log('fetchCustomer Body: ${response.data}');
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
@@ -975,7 +927,6 @@ class ApiService {
             [];
 
         await customerBox.put(cacheKey, jsonResponse);
-        log('Customer List Length: ${customers.length}');
 
         return CustomerResponseModelxx(
           statusCode: jsonResponse['status_code'] ?? 0,
@@ -990,16 +941,11 @@ class ApiService {
         throw Exception('Request failed with status: ${response.statusCode}');
       }
     } catch (e) {
-      log('Customer Exception: $e');
-
       handleHttpResponseError(
         statusCode: e is http.Response ? e.statusCode : 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
         message: 'Customer',
       );
-
-      final isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) log('Using cached data due to offline mode');
 
       final cachedData = customerBox.get(cacheKey);
 
@@ -1044,37 +990,6 @@ class ApiService {
     }
   }
 
-  // Future<bool> addEvent(
-  //     String customerId, int eventStatus, List<String> daysList) async {
-  //   final String daysJson = jsonEncode(daysList);
-  //   final url = Uri.parse('$_baseUrl/add_events');
-  //   final bodyMap = {
-  //     'customer_id': customerId,
-  //     'event_status': eventStatus,
-  //     'days_list': daysJson,
-  //     'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
-  //   };
-
-  //   final body = jsonEncode(bodyMap);
-
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: body,
-  //     );
-  //     if (response.statusCode == 200) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
-
   Future<AddEvent> addEvent(
     String customerId,
     int eventStatus,
@@ -1113,8 +1028,6 @@ class ApiService {
 
       return result;
     } catch (e) {
-      log('🔥 Exception in addEvent: $e');
-
       showCustomToastDisplay(
         context,
         "Please Assign Staff",
@@ -1136,7 +1049,6 @@ class ApiService {
 
   Map<String, dynamic> ensureStringKeyedMap(dynamic data) {
     if (data is Map<String, dynamic>) {
-      // Recursively process all values
       return data.map((key, value) => MapEntry(key, _convertValue(value)));
     }
     if (data is Map) {
@@ -1157,9 +1069,6 @@ class ApiService {
     throw Exception('Unsupported cached data format:  [${data.runtimeType}]');
   }
 
-  // Helper for recursive value conversion
-  // Handles nested maps and lists
-  // (kept private to this file)
   dynamic _convertValue(dynamic value) {
     if (value is Map) {
       return ensureStringKeyedMap(value);
@@ -1181,18 +1090,14 @@ class ApiService {
       "start_date": startDate,
     };
 
-    log("customer dash request : $requestBody");
     try {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         final cachedData = customerDashboardBox.get(customerId);
         if (cachedData != null) {
-          log("Full cachedData for customerId $customerId: ${jsonEncode(ensureStringKeyedMap(cachedData))}");
-          log("Returning cached dashboard data for customerId: $customerId");
           final safeMap = ensureStringKeyedMap(cachedData);
           return ApiResponseModel.fromJson(safeMap);
         } else {
-          log("No cachedData found for customerId $customerId");
           throw Exception(
               'No cached data available for customerId: $customerId');
         }
@@ -1209,7 +1114,6 @@ class ApiService {
           customerId,
           Map<String, dynamic>.from(jsonResponse),
         );
-        log("Data fetched and stored for customerId: $customerId");
         return ApiResponseModel.fromJson(ensureStringKeyedMap(jsonResponse));
       } else {
         handleExceptionMessage(
@@ -1227,12 +1131,9 @@ class ApiService {
           error: error);
       final cachedData = customerDashboardBox.get(customerId);
       if (cachedData != null) {
-        log("Full cachedData for customerId $customerId (after error): ${jsonEncode(ensureStringKeyedMap(cachedData))}");
-        log("Returning cached dashboard data after error for customerId: $customerId");
         final safeMap = ensureStringKeyedMap(cachedData);
         return ApiResponseModel.fromJson(safeMap);
       } else {
-        log("No cachedData found for customerId $customerId (after error)");
         throw Exception('No cached data available for customerId: $customerId');
       }
     }
@@ -1246,7 +1147,6 @@ class ApiService {
       "year": year,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-    log("customer dash request total sale : $requestBody");
     try {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
@@ -1254,9 +1154,7 @@ class ApiService {
             '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$year';
         final cachedData = customerTotalSaleBox.get(cacheKey);
         if (cachedData != null) {
-          log("Returning cached total sale data for customerId: $customerId, year: $year");
           final safeMap = ensureStringKeyedMap(cachedData);
-          log("Using cached total sale data for customerId: $customerId, year: $year");
           return CustomerTotalSaleResponse.fromJson(safeMap);
         } else {
           throw Exception(
@@ -1270,10 +1168,8 @@ class ApiService {
           headers: {'Content-Type': 'application/json'},
         ),
       );
-      log('API Response: ${response.data}');
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-        log('Parsed JSON: $jsonResponse');
         PaymentCompleted paymentCompleted = PaymentCompleted.fromJson(
             jsonResponse['data']['total_sale']['payment_completed']);
         PaymentRemaining paymentRemaining = PaymentRemaining.fromJson(
@@ -1290,7 +1186,6 @@ class ApiService {
           cacheKey,
           Map<String, dynamic>.from(jsonResponse),
         );
-        log("Data stored in Hive for customerId: $customerId, year: $year");
 
         return CustomerTotalSaleResponse(
           statusCode: jsonResponse['status_code'] ?? 0,
@@ -1305,7 +1200,6 @@ class ApiService {
           ),
         );
       } else {
-        log('Error Response: ${response.data}');
         throw Exception(
             'Failed to fetch customer total sale data - ${response.statusCode}');
       }
@@ -1318,9 +1212,7 @@ class ApiService {
           '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$year';
       final cachedData = customerTotalSaleBox.get(cacheKey);
       if (cachedData != null) {
-        log("Returning cached total sale data after error for customerId: $customerId, year: $year");
         final safeMap = ensureStringKeyedMap(cachedData);
-        log("Using cached total sale data after error for customerId: $customerId, year: $year");
         return CustomerTotalSaleResponse.fromJson(safeMap);
       } else {
         throw Exception(
@@ -1340,14 +1232,12 @@ class ApiService {
       "year": specifiedYear,
     };
 
-    log("customer dash request revenue : $requestBody");
     try {
       final bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         final cachedData = customerRevenueBox.get(customerId);
         if (cachedData != null) {
           final safeMap = ensureStringKeyedMap(cachedData);
-          log("Using cached revenue data for customerId: $customerId");
           return LocalStorage().storedCustomerRevenueData(safeMap, customerId);
         } else {
           throw Exception(
@@ -1367,7 +1257,6 @@ class ApiService {
           customerId,
           Map<String, dynamic>.from(responseData),
         );
-        log("Data fetched and stored for customerId: $customerId");
         return CustomerRevenueResponse.fromJson(responseData);
       } else {
         throw Exception(
@@ -1377,11 +1266,9 @@ class ApiService {
     } on DioException catch (error) {
       handleExceptionMessage(
           apiName: "customer revenue", error: error, response: error.response);
-      log("Error occurred while fetching revenue data: $error");
       final cachedData = customerRevenueBox.get(customerId);
       if (cachedData != null) {
         final safeMap = ensureStringKeyedMap(cachedData);
-        log("Using cached revenue data after error for customerId: $customerId");
         return LocalStorage().storedCustomerRevenueData(safeMap, customerId);
       } else {
         throw Exception('No cached data available for customerId: $customerId');
@@ -1396,10 +1283,7 @@ class ApiService {
   ) async {
     final orderCountBox = await getHiveBoxSafely('orderCountBox');
     final cacheKey =
-        // '${SessionHelper.loginSavedData?.company_id ?? -1}_${customerId}_$startDate$endDate';
         '${SessionHelper.loginSavedData?.company_id ?? -1}_$customerId';
-
-    log("ORDER COUNT GET CACHE KEY : $cacheKey");
 
     final requestBody = {
       "salesman_id": SessionHelper.loginSavedData?.salesmanId,
@@ -1409,8 +1293,6 @@ class ApiService {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
 
-    log("Count Request Body: $requestBody");
-
     try {
       final bool isOnline = await ConnectivityService().isOnline();
 
@@ -1418,9 +1300,6 @@ class ApiService {
         final cachedData = orderCountBox.get(cacheKey);
         if (cachedData != null) {
           final safeMap = ensureStringKeyedMap(cachedData);
-          log("📦 Using cached order count data (offline)");
-          log("safeMap type: ${safeMap.runtimeType}");
-          log("safeMap['data'] type: ${safeMap['data'].runtimeType}");
           return ApiResponsees.fromJson(safeMap);
         } else {
           throw Exception('No cached data available for order count.');
@@ -1432,28 +1311,20 @@ class ApiService {
         requestData: requestBody,
       );
 
-      log('📨 Order Count Response: ${response.data}');
-
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
 
-        // Cache data
         await orderCountBox.put(
             cacheKey, Map<String, dynamic>.from(jsonResponse));
-        log("✅ Cached order count data for $cacheKey");
 
         return ApiResponsees.fromJson(ensureStringKeyedMap(jsonResponse));
       } else {
         throw Exception('Failed to fetch order count - ${response.statusCode}');
       }
     } catch (e) {
-      log('🔥 Exception: $e');
       final cachedData = orderCountBox.get(cacheKey);
       if (cachedData != null) {
         final safeMap = ensureStringKeyedMap(cachedData);
-        log("📦 Using cached order count data after error");
-        log("safeMap type: ${safeMap.runtimeType}");
-        log("safeMap['data'] type: ${safeMap['data'].runtimeType}");
         return ApiResponsees.fromJson(safeMap);
       } else {
         throw Exception('No cached data available for order count.');
@@ -1608,227 +1479,6 @@ class ApiService {
     });
   }
 
-  /// Updates the cached drafts in customerDashOrdersBox and fetchAllOrdersBox after items are saved and sent
-  /// This method removes the sent items from the cached drafts and updates the totals
-  // Future<void> updateCachedDraftsAfterSaveAndSend(
-  //   BuildContext? context, {
-  //   required String customerId,
-  //   required String draftId,
-  //   required String salesmanId,
-  //   required String startDate,
-  //   required String endDate,
-  //   required dynamic orderType,
-  //   required List<String> sentCartIds,
-  //   required double sentAmount,
-  // }) async {
-  //   try {
-  //     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  //     final cacheKey = '${companyId}_${customerId}_4';
-  //     final cacheKeyDash = '${companyId}_orders_4';
-  //     final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
-  //     final orderBox = await Hive.openBox('fetchAllOrdersBox');
-
-  //     final cachedData = customerDashOrdersBox.get(cacheKey);
-  //     if (cachedData == null) {
-  //       log('[Z] [updateCachedDraftsAfterSaveAndSend] No cached data found for key: $cacheKey');
-  //       // return;
-  //     }
-  //     final cachedDataDash = orderBox.get(cacheKeyDash);
-  //     if (cachedDataDash == null) {
-  //       log('[Z] [updateCachedDraftsDashboardAfterSaveAndSend] No cached data found for key: $cacheKeyDash');
-  //       // return;
-  //     }
-
-  //     final Map<String, dynamic> cachedMap =
-  //         Map<String, dynamic>.from(cachedData);
-  //     final List<dynamic>? orderData = cachedMap['data'] as List<dynamic>?;
-
-  //     final Map<String, dynamic> cachedMapDash =
-  //         Map<String, dynamic>.from(cachedDataDash);
-  //     final List<dynamic>? orderDataDash =
-  //         cachedMapDash['data'] as List<dynamic>?;
-
-  //     if (orderData == null) {
-  //       return;
-  //     }
-
-  //     if (orderData.isNotEmpty) {
-  //       final targetOrder = Map<String, dynamic>.from(orderData[0]);
-  //       final targetIndex = 0;
-
-  //       if (targetIndex >= 0) {
-  //         final currentTotal = (targetOrder['order_total'] ?? 0.0).toDouble();
-  //         final newTotal = currentTotal - sentAmount;
-
-  //         final finalTotal =
-  //             newTotal > 0 ? double.parse(newTotal.toStringAsFixed(2)) : 0.0;
-
-  //         if (finalTotal == 0.0) {
-  //           await customerDashOrdersBox.delete(cacheKey);
-
-  //           // Update fetchAllOrdersBox - remove draft for this customer
-  //           if (orderDataDash != null && orderDataDash.isNotEmpty) {
-  //             // Find and remove drafts for this specific customer
-  //             final updatedOrderDataDash = <dynamic>[];
-  //             for (var order in orderDataDash) {
-  //               final orderMap = Map<String, dynamic>.from(order);
-  //               final orderCustomerId = orderMap['customer_id']?.toString();
-
-  //               // Keep orders that don't match this customer
-  //               if (orderCustomerId != customerId) {
-  //                 updatedOrderDataDash.add(order);
-  //               } else {
-  //                 // For this customer, check if order total becomes 0 after subtracting sentAmount
-  //                 final currentOrderTotal =
-  //                     (orderMap['order_total'] ?? 0.0).toDouble();
-  //                 final newOrderTotal = currentOrderTotal - sentAmount;
-  //                 final finalOrderTotal = newOrderTotal > 0
-  //                     ? double.parse(newOrderTotal.toStringAsFixed(2))
-  //                     : 0.0;
-
-  //                 // Only keep the order if the final total is greater than 0
-  //                 if (finalOrderTotal > 0) {
-  //                   orderMap['order_total'] = finalOrderTotal;
-  //                   updatedOrderDataDash.add(orderMap);
-  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
-  //                 } else {
-  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Removed draft for customer $customerId from fetchAllOrdersBox (total became 0)');
-  //                 }
-  //               }
-  //             }
-
-  //             final updatedCachedDataDash = {
-  //               ...cachedMapDash,
-  //               'data': updatedOrderDataDash,
-  //             };
-  //             await orderBox.put(cacheKeyDash, updatedCachedDataDash);
-  //             log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated fetchAllOrdersBox for customer $customerId');
-  //           }
-
-  //           {
-  //             ApiResponsees dataToBeModified;
-  //             final orderCountBox = await getHiveBoxSafely('orderCountBox');
-  //             final cacheKey =
-  //                 '${SessionHelper.loginSavedData?.company_id ?? -1}_$customerId';
-
-  //             final cachedData = orderCountBox.get(cacheKey);
-  //             if (cachedData != null) {
-  //               final safeMap = ensureStringKeyedMap(cachedData);
-  //               dataToBeModified = ApiResponsees.fromJson(safeMap);
-  //               dataToBeModified.data.draftOrder = 0;
-  //               await orderCountBox.put(cacheKey, dataToBeModified.toJson());
-  //             } else {
-  //               log("[Z] [COUNT_REMOVE] ❌ No cached data found for key: $cacheKey");
-  //             }
-  //           }
-
-  //           // Update dashboard data - decrement draftOrder count
-  //           {
-  //             final dashboardBox = Hive.box('dashboardBox');
-  //             final cachedDashboardData = dashboardBox.get('dashboardData');
-  //             if (cachedDashboardData != null) {
-  //               try {
-  //                 final dashboardJson = jsonDecode(cachedDashboardData);
-  //                 final Map<String, dynamic> dashboardMap =
-  //                     Map<String, dynamic>.from(dashboardJson);
-
-  //                 // Navigate to the orderCountList and update draftOrder
-  //                 if (dashboardMap['data'] != null &&
-  //                     dashboardMap['data']['order_count_list'] != null) {
-  //                   final orderCountList = dashboardMap['data']
-  //                       ['order_count_list'] as Map<String, dynamic>;
-
-  //                   // Handle the draft_order value which might be a string or int
-  //                   final currentDraftCountRaw =
-  //                       orderCountList['draft_order'] ?? 0;
-  //                   final currentDraftCount = currentDraftCountRaw is String
-  //                       ? int.tryParse(currentDraftCountRaw) ?? 0
-  //                       : (currentDraftCountRaw as int? ?? 0);
-
-  //                   final newDraftCount = currentDraftCount - 1;
-
-  //                   // Ensure the count doesn't go below 0
-  //                   orderCountList['draft_order'] =
-  //                       newDraftCount >= 0 ? newDraftCount.toString() : "0";
-
-  //                   // Update the dashboard data
-  //                   await dashboardBox.put(
-  //                       'dashboardData', jsonEncode(dashboardMap));
-  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated dashboard draftOrder count: $newDraftCount');
-  //                 } else {
-  //                   log('[Z] [updateCachedDraftsAfterSaveAndSend] Could not find orderCountList in dashboard data');
-  //                 }
-  //               } catch (e) {
-  //                 log('[Z] [updateCachedDraftsAfterSaveAndSend] Error updating dashboard data: $e');
-  //               }
-  //             } else {
-  //               log('[Z] [updateCachedDraftsAfterSaveAndSend] No cached dashboard data found');
-  //             }
-  //           }
-
-  //           final cusProvider =
-  //               Provider.of<CustomersProvider>(context!, listen: false);
-  //           cusProvider.fetchCustomerDashboardCountData(customerId);
-
-  //           return;
-  //         }
-
-  //         targetOrder['order_total'] = finalTotal;
-
-  //         if (targetOrder['cart'] != null && targetOrder['cart'] is List) {
-  //           List<dynamic> cartItems = List.from(targetOrder['cart']);
-  //           log("[Z] [updateCachedDraftsAfterSaveAndSend] Cart items before update: ${cartItems.length}");
-  //           targetOrder['cart'] = cartItems;
-  //         }
-
-  //         orderData[targetIndex] = targetOrder;
-
-  //         final updatedCachedData = {
-  //           ...cachedMap,
-  //           'data': orderData,
-  //         };
-
-  //         await customerDashOrdersBox.put(cacheKey, updatedCachedData);
-
-  //         // Update fetchAllOrdersBox - modify order total for this customer
-  //         if (orderDataDash != null && orderDataDash.isNotEmpty) {
-  //           final updatedOrderDataDash = <dynamic>[];
-  //           for (var order in orderDataDash) {
-  //             final orderMap = Map<String, dynamic>.from(order);
-  //             final orderCustomerId = orderMap['customer_id']?.toString();
-
-  //             if (orderCustomerId == customerId) {
-  //               // Update the order total for this customer
-  //               final currentOrderTotal =
-  //                   (orderMap['order_total'] ?? 0.0).toDouble();
-  //               final newOrderTotal = currentOrderTotal - sentAmount;
-  //               final finalOrderTotal = newOrderTotal > 0
-  //                   ? double.parse(newOrderTotal.toStringAsFixed(2))
-  //                   : 0.0;
-
-  //               orderMap['order_total'] = finalOrderTotal;
-  //               log('[Z] [updateCachedDraftsAfterSaveAndSend] Updated order total for customer $customerId in fetchAllOrdersBox: $finalOrderTotal');
-  //             }
-  //             updatedOrderDataDash.add(orderMap);
-  //           }
-
-  //           final updatedCachedDataDash = {
-  //             ...cachedMapDash,
-  //             'data': updatedOrderDataDash,
-  //           };
-  //           await orderBox.put(cacheKeyDash, updatedCachedDataDash);
-  //         }
-  //       } else {
-  //         log('[Z] [updateCachedDraftsAfterSaveAndSend] No matching draft found for draftId: $draftId or cartIds: $sentCartIds');
-  //       }
-  //     } else {
-  //       log('[Z] [updateCachedDraftsAfterSaveAndSend] No orders found in cached data');
-  //     }
-  //   } catch (e) {
-  //     log('[Z] [updateCachedDraftsAfterSaveAndSend] Error updating cached drafts: $e');
-  //   }
-  // }
-
   Future<void> updateCachedDraftsAfterSaveAndSend(
     BuildContext? context, {
     required String customerId,
@@ -1847,13 +1497,10 @@ class ApiService {
     bool deletedFromCustomerDashOrders = false;
     bool deletedFromFetchAllOrders = false;
 
-    // 1️⃣ CUSTOMER DASH ORDERS BOX
     try {
-      log('[Z2] ----------------------- [CUSTOMER DASH ORDERS BOX] -----------------------');
       final customerDashOrdersBox = await Hive.openBox('customerDashOrdersBox');
       final cachedData = customerDashOrdersBox.get(cacheKey);
       if (cachedData == null) {
-        log('[Z2] No cached data for $cacheKey');
       } else {
         final cachedMap = safeMapFrom(cachedData);
         final orderData = cachedMap?['data'] as List<dynamic>?;
@@ -1863,9 +1510,7 @@ class ApiService {
           final newTotal = currentTotal - sentAmount;
 
           if (newTotal <= 0) {
-            // Delete record if final total becomes 0
             await customerDashOrdersBox.delete(cacheKey);
-            log('[Z2] Deleted record from customerDashOrdersBox for $cacheKey');
             deletedFromCustomerDashOrders = true;
           } else {
             targetOrder['order_total'] =
@@ -1873,21 +1518,17 @@ class ApiService {
             orderData[0] = targetOrder;
             await customerDashOrdersBox
                 .put(cacheKey, {...cachedMap!, 'data': orderData});
-            log('[Z2] Updated customerDashOrdersBox for $cacheKey → ${targetOrder['order_total']}');
           }
         }
       }
     } catch (e) {
-      log('[Z2] Error updating customerDashOrdersBox: $e');
+      log('Error updating customerDashOrdersBox: $e');
     }
 
-    // 2️⃣ FETCH ALL ORDERS BOX
     try {
-      log('[Z2] ----------------------- [FETCH ALL ORDERS BOX] -----------------------');
       final orderBox = await Hive.openBox('fetchAllOrdersBox');
       final cachedDataDash = orderBox.get(cacheKeyDash);
       if (cachedDataDash == null) {
-        log('[Z2] No cached data for $cacheKeyDash');
       } else {
         final cachedMapDash = safeMapFrom(cachedDataDash);
         final orderDataDash = cachedMapDash?['data'] as List<dynamic>?;
@@ -1904,11 +1545,9 @@ class ApiService {
               if (newTotal <= 0) {
                 deleted = true;
                 deletedFromFetchAllOrders = true;
-                log('[Z2] Deleted order from fetchAllOrdersBox for $cacheKeyDash');
                 continue;
               } else {
                 map['order_total'] = double.parse(newTotal.toStringAsFixed(2));
-                log('[Z2] Updated fetchAllOrdersBox for $cacheKeyDash → ${map['order_total']}');
               }
             }
             updated.add(map);
@@ -1923,13 +1562,11 @@ class ApiService {
         }
       }
     } catch (e) {
-      log('[Z2] Error updating fetchAllOrdersBox: $e');
+      log('Error updating fetchAllOrdersBox: $e');
     }
 
-    // 3️⃣ ORDER COUNT BOX → only if deleted from customerDashOrdersBox
     if (deletedFromCustomerDashOrders) {
       try {
-        log('[Z2] ----------------------- [ORDER COUNT BOX] -----------------------');
         final orderCountBox = await getHiveBoxSafely('orderCountBox');
         final countKey = '${companyId}_$customerId';
         final cachedCount = orderCountBox.get(countKey);
@@ -1938,17 +1575,15 @@ class ApiService {
           final dataToBeModified = ApiResponsees.fromJson(safeMap);
           dataToBeModified.data.draftOrder = 0;
           await orderCountBox.put(countKey, dataToBeModified.toJson());
-          log('[Z2] Updated orderCountBox for $countKey → draftOrder set to 0');
         }
       } catch (e) {
-        log('[Z2] Error updating orderCountBox: $e');
+        log('Error updating orderCountBox: $e');
       }
     }
 
     // 4️⃣ DASHBOARD BOX → only if deleted from fetchAllOrdersBox
     if (deletedFromFetchAllOrders) {
       try {
-        log('[Z2] ----------------------- [DASHBOARD BOX] -----------------------');
         final dashboardBox = Hive.box('dashboardBox');
         final cachedDashboardData = dashboardBox.get('dashboardData');
         if (cachedDashboardData != null) {
@@ -1960,7 +1595,6 @@ class ApiService {
           } else if (cachedDashboardData is Map) {
             dashboardMap = ensureStringKeyedMap(cachedDashboardData);
           } else {
-            log('[Z2] Unexpected dashboard data type: ${cachedDashboardData.runtimeType}');
             return;
           }
 
@@ -1987,30 +1621,22 @@ class ApiService {
             } else {
               await dashboardBox.put('dashboardData', dashboardMap);
             }
-            log('[Z2] Updated dashboardBox draft_order → $newDraftCount');
-            log('[Z2] Updated dashboardBox draft_FilteredCount → $newFilteredDraftCount');
           }
         }
       } catch (e) {
-        log('[Z2] Error updating dashboardBox: $e');
+        log('Error updating dashboardBox: $e');
       }
     }
 
-    // ✅ Trigger provider updates if context is available
     if (context != null) {
       try {
-        // Update CustomersProvider
         Provider.of<CustomersProvider>(context, listen: false)
             .fetchCustomerDashboardCountData(customerId);
 
-        // Update DashboardProvider to refresh the UI
         final dashboardProvider =
             Provider.of<DashboardProvider>(context, listen: false);
         await dashboardProvider.fetchData();
-        log('[Z2] Triggered DashboardProvider refresh after cache update');
-      } catch (e) {
-        log('[Z2] Error triggering provider updates: $e');
-      }
+      } catch (e) {}
     }
   }
 

@@ -16,17 +16,3 @@ String getCountForTitle(String title, OrderDataas orderCountList) {
         return "0";
     }
   }
-  // String getStatusName(int orderStatus) {
-  //   switch (orderStatus) {
-  //     case 5:
-  //       return 'Order Processing';
-  //     case 10:
-  //       return 'Packed for Delivery';
-  //     case 1:
-  //       return 'Out for Delivery';
-  //     case 2:
-  //       return 'Delivered';
-  //     default:
-  //       return 'Unknown';
-  //   }
-  // }

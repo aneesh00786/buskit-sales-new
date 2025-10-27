@@ -53,7 +53,6 @@ TextStyle dialogTableHeaderStyle({
   );
 }
 
-//=============================================================================
 class DialogHeaderText extends StatelessWidget {
   final String text;
   final double fontSize;

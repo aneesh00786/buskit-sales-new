@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -92,12 +91,10 @@ void pendingPaymentCollectionDialog(
           (item.receivableAmount ?? ((item.orderTotal) - (item.receivedAmount)))
               .toDouble();
 
-
       if (enteredAmount > 0) {
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
-
 
         ApiWorker().customerPayment(
           context: context,

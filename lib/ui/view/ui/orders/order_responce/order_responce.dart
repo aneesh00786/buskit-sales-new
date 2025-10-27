@@ -59,7 +59,6 @@ class OrderData {
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
   List<OrderInvoice>? invoice;
-  // int? receivableAmount;
 
   OrderData({
     this.id,
@@ -79,7 +78,7 @@ class OrderData {
     this.generatedDate,
     this.cart,
     this.salesman,
-    // this.receivableAmount,
+
   });
 
   OrderData.fromJson(Map<String, dynamic> json) {
@@ -132,7 +131,7 @@ class OrderData {
         ?.map(
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
         .toList();
-    // receivableAmount = json['receivable_amount'] as int?;
+
   }
 
   Map<String, dynamic> toJson() {
@@ -156,7 +155,7 @@ class OrderData {
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();
     json['invoice'] = invoice?.map((e) => e.toJson()).toList();
-    // json['receivable_amount'] = receivableAmount;
+
     return json;
   }
 }

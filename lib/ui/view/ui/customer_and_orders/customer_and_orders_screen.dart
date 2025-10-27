@@ -2713,7 +2713,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       shouldNavigate = true;
                                                     }
 
-
                                                     if (shouldNavigate) {
                                                       provider
                                                           .setCurrentMonthDates();

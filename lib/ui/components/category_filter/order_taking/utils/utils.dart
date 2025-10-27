@@ -156,7 +156,6 @@ class Utils {
       num count = cartItem.detail.count;
       num tax = cartItem.detail.tax ?? 0;
 
-
       double calculatedSellPrice = cartItem.isPack == true
           ? effectiveSellingPrice * pieces
           : effectiveSellingPrice;
@@ -185,7 +184,7 @@ class Utils {
               totalBasePrice * appliedDiscountPercentage / 100;
 
           // Check if there's a max discount limit
-          
+
           if (cartItem.detail.maxDiscount != null &&
               cartItem.detail.maxDiscount! > 0) {
             double maxDiscountValue = cartItem.detail.maxDiscount!.toDouble();
@@ -248,7 +247,6 @@ class Utils {
       double priceWithTax = cartItem.detail.inclTax == "incl_tax"
           ? effectiveSellingPrice
           : effectiveSellingPrice + tax;
-
 
       double totalPrice = priceWithTax * totalCount;
 

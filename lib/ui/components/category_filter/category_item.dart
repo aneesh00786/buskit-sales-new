@@ -29,7 +29,7 @@ class _CategoryListState extends State<CategoryList> {
     super.initState();
     _expandedIndex = 0;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -125,10 +125,10 @@ class _CategoryListState extends State<CategoryList> {
                                 if (option.id == null || option.id!.isEmpty) {
                                   return;
                                 }
-                                
+
                                 widget.onOptionSelected(option.id!);
                                 widget.onDrawerToggle();
-                                
+
                                    widget.productsController
                                     .selectedSubCategoryName
                                     .value = option.subCategory.toString();

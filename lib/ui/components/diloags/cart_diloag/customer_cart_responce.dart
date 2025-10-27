@@ -72,7 +72,7 @@ class CustomerCartData {
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
             discountPrice: json['discount'] as String?,
-            // totalPrice: json['total'] as int?,
+
             setOrderId: json['cart_id'] as String?,
             setCustomerDetails: json['customer'] != null
                 ? CustomerDetails.fromJson((json['customer'] as List).first)
@@ -173,7 +173,7 @@ class CustomerCart {
 
   CustomerCart.fromJson(
     Map<String, dynamic> json, {
-    // int? totalPrice,
+
     String? discountPrice,
     String? discountAmount,
     String? setOrderId,
@@ -193,7 +193,7 @@ class CustomerCart {
     variationName = json['variation_name'];
     unitType = json['unitType'];
     price = json['price'];
-    // ;
+
     tax = num.tryParse(json['tax'].toString()) ?? 0;
     taxName = json['tax_name'];
     packtype = json['packtype'];
@@ -209,10 +209,10 @@ class CustomerCart {
     salesmanReason = json['reason'] ?? '';
     discount = discountPrice;
     discountAmount = discountAmount;
-    // total = totalPrice;
+
     total = json['total_price'];
     totalAmount = json['total_amount'];
-    //  as int?;
+
     customerDetails = setCustomerDetails;
     orderId = setOrderId;
     optionOrderData = setOptionOrderData;
@@ -252,136 +252,6 @@ class CustomerCart {
     return json;
   }
 }
-
-// class CustomerCart {
-//   int? id;
-//   String? productId;
-//   String? brandname;
-//   String? productName;
-//   String? description;
-//   dynamic reasonBySalesman;
-//   String? imageUrl;
-//   int? status;
-//   String? scid;
-//   String? variationId;
-//   String? variationName;
-//   String? unitType;
-//   String? price;
-//   String? tax;
-//   String? packtype;
-//   int? pieces;
-//   int? stock;
-//   int? lowstock;
-//   int? fullstock;
-//   String? createdAt;
-//   String? updatedAt;
-//   String? cartId;
-//   int? quantity;
-//   String? discount;
-//   int? total;
-//   CustomerDetails? customerDetails;
-//   String? orderId;
-//   OptionOrderData? optionOrderData;
-//   String? salesmanReason;
-
-//   CustomerCart(
-//       {this.id,
-//       this.productId,
-//       this.brandname,
-//       this.productName,
-//       this.description,
-//       this.reasonBySalesman,
-//       this.imageUrl,
-//       this.status,
-//       this.scid,
-//       this.variationId,
-//       this.variationName,
-//       this.unitType,
-//       this.price,
-//       this.tax,
-//       this.packtype,
-//       this.pieces,
-//       this.stock,
-//       this.lowstock,
-//       this.fullstock,
-//       this.createdAt,
-//       this.updatedAt,
-//       this.cartId,
-//       this.salesmanReason,
-//       this.quantity,
-//       this.discount,
-//       this.total,
-//       this.orderId,
-//       this.customerDetails});
-
-//   CustomerCart.fromJson(
-//     Map<String, dynamic> json, {
-//     int? totalPrice,
-//     String? discountPrice,
-//     String? setOrderId,
-//     CustomerDetails? setCustomerDetails,
-//     OptionOrderData? setOptionOrderData,
-//   }) {
-//     id = json['id'] as int?;
-//     productId = json['product_id'] as String?;
-//     brandname = json['brandname'] as String?;
-//     productName = json['product_name'] as String?;
-//     description = json['description'] as String?;
-//     reasonBySalesman = json['reason_by_salesman'];
-//     imageUrl = json['image_url'] as String?;
-//     status = json['status'] as int?;
-//     scid = json['scid'] as String?;
-//     variationId = json['variation_id'] as String?;
-//     variationName = json['variation_name'] as String?;
-//     unitType = json['unitType'] as String?;
-//     price = json['price'] as String?;
-//     tax = json['tax'] as String?;
-//     packtype = json['packtype'] as String?;
-//     pieces = json['pieces'] as int?;
-//     stock = json['stock'] as int?;
-//     lowstock = json['lowstock'] as int?;
-//     fullstock = json['fullstock'] as int?;
-//     createdAt = json['created_at'] as String?;
-//     updatedAt = json['updated_at'] as String?;
-//     cartId = json['cart_id'] as String?;
-//     quantity = json['quantity'] as int?;
-//     salesmanReason = json['reason'] as String?;
-//     discount = discountPrice;
-//     total = totalPrice;
-//     customerDetails = setCustomerDetails;
-//     orderId = setOrderId;
-//     optionOrderData = setOptionOrderData;
-//   }
-
-//   get taxName => null;
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['id'] = id;
-//     json['product_id'] = productId;
-//     json['brandname'] = brandname;
-//     json['product_name'] = productName;
-//     json['description'] = description;
-//     json['reason_by_salesman'] = reasonBySalesman;
-//     json['image_url'] = imageUrl;
-//     json['status'] = status;
-//     json['scid'] = scid;
-//     json['variation_id'] = variationId;
-//     json['variation_name'] = variationName;
-//     json['unitType'] = unitType;
-//     json['price'] = price;
-//     json['tax'] = tax;
-//     json['packtype'] = packtype;
-//     json['pieces'] = pieces;
-//     json['stock'] = stock;
-//     json['lowstock'] = lowstock;
-//     json['fullstock'] = fullstock;
-//     json['created_at'] = createdAt;
-//     json['updated_at'] = updatedAt;
-//     json['cart_id'] = cartId;
-//     json['quantity'] = quantity;
-//     return json;
-//   }
-// }
 
 class CustomerDetails {
   int? id;

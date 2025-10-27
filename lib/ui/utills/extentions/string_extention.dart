@@ -10,10 +10,8 @@ extension StringExtension on String {
   String get nkStringCleanAndCapitalize {
     if (isEmpty) return this;
 
-    // Replace any non-alphanumeric character with space
     String cleaned = replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ');
 
-    // Split words, capitalize first letter of each, join back
     List<String> words = cleaned
         .split(' ')
         .where((w) => w.isNotEmpty)

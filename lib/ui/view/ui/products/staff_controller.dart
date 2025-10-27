@@ -225,7 +225,6 @@ class StaffController extends GetxController {
     try {
       isScheduleLoading.value = true;
 
-
       var data = await ApiWorker()
           .fetchSchedule(formatDate(endDate), formatDate(startDate));
 

@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -22,7 +22,7 @@ class _YearDropdownState extends State<YearDropdown> {
   final int endYear = DateTime.now().year;
   late List<int> years;
 
-  final GlobalKey _dropdownKey = GlobalKey(); // For accurate menu position
+  final GlobalKey _dropdownKey = GlobalKey(); 
 
   @override
   void initState() {
@@ -43,13 +43,13 @@ class _YearDropdownState extends State<YearDropdown> {
 
   Future<void> checkOnline() async {
     isOnline = await ConnectivityService().isOnline();
-    setState(() {}); // Refresh UI when online status changes
+    setState(() {}); 
   }
 
   void _selectYear(BuildContext context, int year) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     provider.updateSelectedYear(year);
-    setState(() {}); // To refresh dropdown text
+    setState(() {}); 
   }
 
   @override
@@ -108,7 +108,7 @@ class _YearDropdownState extends State<YearDropdown> {
                                 ? const Icon(Icons.check, color: Colors.blue)
                                 : null,
                             onTap: () {
-                              Navigator.pop(context); // Close menu
+                              Navigator.pop(context); 
                               _selectYear(context, year);
                             },
                           ),

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
@@ -192,11 +194,11 @@ class OrdersBottomTitleRow extends StatelessWidget {
             ),
           ),
         ),
-        // ignore: unnecessary_null_comparison
+
         if (widget.orderController.orderDataList == null) ...[
           const Text("Record not found"),
         ],
-        // ignore: unnecessary_null_comparison
+
         if (widget.orderController.orderDataList != null) ...[
           OrdersBottomList(
             scrollController2: _scrollController2,

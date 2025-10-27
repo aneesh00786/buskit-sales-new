@@ -57,7 +57,7 @@ class _PromotionScreenState extends State<PromotionScreen> {
       // 👉 Drawer only in portrait mode
       drawer: portrait
           ? Drawer(
-            
+
               child: SafeArea(
                 child: PromotionList(controller: widget.controller, isDrawer: true),
               ),

@@ -171,7 +171,7 @@ MyCommnonContainer OrdersPayments(
                                                                                   context,
                                                                                   order.orderId,
                                                                                 );
-                                            
+
                                           },
                                           child: MyRegularText(
                                             color: primaryColor,
@@ -280,4 +280,3 @@ MyCommnonContainer OrdersPayments(
       ),
     );
   }
-

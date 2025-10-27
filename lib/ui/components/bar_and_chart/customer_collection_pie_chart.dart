@@ -50,7 +50,7 @@ class CustomerCollectionPieChartState
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 16.0 : 10.0;
       final radius = isTouched ? 60.0 : 60.0;
-      //final widgetSize = isTouched ? 55.0 : 40.0;
+
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
       switch (i) {

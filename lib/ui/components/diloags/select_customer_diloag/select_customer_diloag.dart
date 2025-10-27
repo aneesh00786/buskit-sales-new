@@ -1086,7 +1086,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   .where((e) => e['time']!.isNotEmpty)
                                   .toList();
 
-
                               var saveVisit = await ApiWorker()
                                   .scheduleVisit(events: events);
 
@@ -1152,7 +1151,6 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                       .map((customer) =>
                                           customer.address.toString())
                                       .toList();
-
 
                                   var creditResponse =
                                       await ApiWorker().debitRouteCredits(

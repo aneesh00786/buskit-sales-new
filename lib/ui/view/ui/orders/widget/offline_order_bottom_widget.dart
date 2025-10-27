@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
@@ -115,7 +114,6 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                         itemBuilder: (BuildContext context, int index) {
                           final order = Map<String, dynamic>.from(widget
                               .orderController.offlineOrders[index] as Map);
-
 
                           return Container(
                             color:

@@ -80,16 +80,7 @@ class AppRoutes {
               CustomerOrderDetailsScreen(customerAndOrderData: Get.arguments),
           binding: CommonBinding(),
         ),
-        // GetPage(
-        //   name: customerDashbord,
-        //   arguments: Get.arguments,
-        //   transitionDuration: NkCommonFunction.longDuration(),
-        //   transition: Transition.rightToLeft,
-        //   page: () => const CustomerDachScreen(
-        //     isFromCalendar: false,
-        //   ),
-        //   binding: CommonBinding(),
-        // ),
+
         GetPage(
           name: pendingPayment,
           page: () => const PendingPaymentScreen(),

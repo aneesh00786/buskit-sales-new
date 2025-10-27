@@ -30,7 +30,7 @@ class DiloagAppBar extends PreferredSize {
       child: Container(
         height: 55,
         padding: const EdgeInsets.all(14),
-        // nkRegularPadding(),
+
         decoration: BoxDecoration(color: backgroundColor ?? primaryColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -41,7 +41,7 @@ class DiloagAppBar extends PreferredSize {
                   label: title,
                   fontWeight: NkGeneralSize.nkBoldFontWeight(),
                   fontSize: 16,
-                  // NkFontSize.largeFont(),
+
                   color: buttonTextColor,
                 ),
             closeIcon

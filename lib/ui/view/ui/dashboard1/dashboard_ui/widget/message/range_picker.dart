@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -137,7 +135,6 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
 
           await dashboardProvider.setTempToFilter();
 
-          // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
           await dashboardProvider.fetchAllOrdersAtOnce();
 
           dashboardProvider.fetchData();

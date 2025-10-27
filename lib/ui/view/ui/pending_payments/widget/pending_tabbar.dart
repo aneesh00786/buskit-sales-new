@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
 
@@ -17,7 +17,7 @@ class PendingTabBar extends StatefulWidget {
   const PendingTabBar({super.key, required this.orderController});
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _PendingTabBarState createState() => _PendingTabBarState();
 }
 

@@ -1,35 +1,3 @@
-// class CalenderDatas {
-//   int? statusCode;
-//   bool? status;
-//   String? message;
-//   List<EventData>? data;
-
-//   CalenderDatas({this.statusCode, this.status, this.message, this.data});
-
-//   CalenderDatas.fromJson(Map<String, dynamic> json) {
-//     statusCode = json['status_code'];
-//     status = json['status'];
-//     message = json['message'];
-//     if (json['data'] != null) {
-//       data = <EventData>[];
-//       json['data'].forEach((v) {
-//         data!.add(EventData.fromJson(v));
-//       });
-//     }
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-//     data['status_code'] = statusCode;
-//     data['status'] = status;
-//     data['message'] = message;
-//     if (this.data != null) {
-//       data['data'] = this.data!.map((v) => v.toJson()).toList();
-//     }
-//     return data;
-//   }
-// }
-
 class EventData {
   int? id;
   String? eventId;
@@ -210,4 +178,3 @@ class Customer {
   int get hashCode =>
       mobileno.hashCode ^ email.hashCode ^ latitude.hashCode ^ longitude.hashCode;
 }
-

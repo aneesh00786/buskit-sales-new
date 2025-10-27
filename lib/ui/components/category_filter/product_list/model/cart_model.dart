@@ -1,5 +1,3 @@
-//cart_model
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:hive_flutter/adapters.dart';
 part 'cart_model.g.dart';

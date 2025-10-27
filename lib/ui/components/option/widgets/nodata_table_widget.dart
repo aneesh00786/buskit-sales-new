@@ -1,4 +1,4 @@
-  import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ SizedBox nodataDialogueTable({
               ),
             ],
           ),
-          // Close Button
+
           Positioned(
             top: 1,
             right: 1,

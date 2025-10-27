@@ -65,11 +65,6 @@ class PlansTableWidgets extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      // child: Icon(
-                      //   status == 'true' ? Icons.check : Icons.close,
-                      //   color: status == 'true' ? Colors.green : Colors.red,
-                      //   size: 20,
-                      // ),
                       child: Center(
                         child: Image.asset(
                           status == 'true'

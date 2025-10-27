@@ -53,7 +53,6 @@ class LeadCustomerData {
   String? imageUrl;
   String? oldImageUrl;
 
-  /// for Update
   String? salesmanId;
   int? status;
   String? createAt;

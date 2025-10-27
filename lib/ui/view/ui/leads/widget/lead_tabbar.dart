@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
@@ -15,7 +17,7 @@ class LeadsTabBar extends StatefulWidget {
   const LeadsTabBar({super.key, required this.leadController, required this.leadsCustomerController,  required this.rejectedLeadsController});
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _LeadsTabBarState createState() => _LeadsTabBarState();
 }
 
@@ -65,10 +67,10 @@ class _LeadsTabBarState extends State<LeadsTabBar> {
                   ),
                   child: CustomText(
                    content: _tabs[index],
-                   
+
                       color: isSelected ? Colors.white : Colors.blue,
                       fontWeight: FontWeight.bold,
-                    
+
                   ),
                 ),
               );
@@ -77,7 +79,7 @@ class _LeadsTabBarState extends State<LeadsTabBar> {
         ),
         Expanded(
           flex: 3,
-          child: _getTabContent(), // Display content based on the selected tab
+          child: _getTabContent(), 
         ),
       ],
     );

@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -51,8 +49,7 @@ class MyThemeButton extends StatelessWidget {
                         NkGeneralSize.nkCommonBorderRadius(borderRadius: 25))),
             padding: padding,
             color: color ?? theme.buttonTheme.colorScheme?.background,
-            /* focusColor: color ??
-                theme.buttonTheme.colorScheme?.background.withOpacity(0.7),*/
+
             disabledColor: color,
             child: SizedBox(
               width: width,
@@ -78,8 +75,7 @@ class MyThemeButton extends StatelessWidget {
                         NkGeneralSize.nkCommonBorderRadius())),
             padding: padding,
             color: color ?? theme.buttonTheme.colorScheme?.background,
-            /* focusColor: color ??
-                theme.buttonTheme.colorScheme?.background.withOpacity(0.7),*/
+
             disabledColor: color ?? theme.buttonTheme.colorScheme?.background,
             child: SizedBox(
               width: width,

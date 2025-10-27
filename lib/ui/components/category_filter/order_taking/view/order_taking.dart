@@ -9,7 +9,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search%20_warning_dialog.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search_warning_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -218,7 +218,6 @@ class _OrderTakingState extends State<OrderTaking>
             categories[0].subCategoryItem![0].subCategory ?? '';
         final firstSubCategoryId = categories[0].subCategoryItem![0].id ?? '';
         _selectedOption = firstSubCategory;
-
 
         // Set the selected subcategory ID in the controller
         widget.productsController.selectedSubCategoryId.value =
@@ -1394,7 +1393,6 @@ class _OrderTakingState extends State<OrderTaking>
     // Cancel any existing drawer timer before starting a new one
     _drawerTimer?.cancel();
 
-
     _drawerTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
@@ -1416,7 +1414,6 @@ class _OrderTakingState extends State<OrderTaking>
       final firstSubCategory = selectedCategory.subCategoryItem![0];
       final firstSubCategoryId = firstSubCategory.id ?? '';
       final firstSubCategoryName = firstSubCategory.subCategory ?? '';
-
 
       // Set the selected subcategory in the controller
       widget.productsController.selectedSubCategoryId.value =

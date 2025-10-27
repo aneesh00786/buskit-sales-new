@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -93,7 +92,6 @@ class _CustomSwitchState extends State<CustomSwitch> {
 
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !isOn;
-
 
     // Show confirmation dialog
     bool? confirmAction = await showDialog<bool>(

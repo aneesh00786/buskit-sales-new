@@ -1,4 +1,4 @@
-// ignore_for_file: empty_catches, deprecated_member_use
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -22,7 +22,7 @@ class EditableDataCell extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _EditableDataCellState createState() => _EditableDataCellState();
 }
 
@@ -84,7 +84,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
             },
             decoration: InputDecoration(
               filled: true,
-              fillColor: isChanged || isTotalDifferent ? Colors.green[100] : Colors.white, // Compare the orderTotal here
+              fillColor: isChanged || isTotalDifferent ? Colors.green[100] : Colors.white, 
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(10.0),

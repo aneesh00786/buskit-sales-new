@@ -42,7 +42,7 @@ class MyRegularText extends StatelessWidget {
             textAlign: align,
             maxLines: maxlines ?? 2,
             softWrap: true,
-            //minFontSize: 12,
+
             overflow: overflow,
             style: style ??
                 theme.textTheme.labelMedium?.copyWith(
@@ -54,7 +54,7 @@ class MyRegularText extends StatelessWidget {
                   fontWeight: fontWeight ?? NkGeneralSize.nkGeneralFontWeight(),
                   fontStyle: FontStyle.normal,
                   decoration: decoration,
-                  //decorationColor: theme.de,
+
                   decorationThickness: 1,
                 ))
         : ErrorWidget.withDetails(

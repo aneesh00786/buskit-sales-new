@@ -37,7 +37,7 @@ Widget topSellingProductsCustomer(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fixed Header
+
                 Container(
                   height: 35,
                   color: Colors.grey.shade100,
@@ -136,7 +136,7 @@ Widget topSellingProductsCustomer(
                     ],
                   ),
                 ),
-                // Scrollable Content
+
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,

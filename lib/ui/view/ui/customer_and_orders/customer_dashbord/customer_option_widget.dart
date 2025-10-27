@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';

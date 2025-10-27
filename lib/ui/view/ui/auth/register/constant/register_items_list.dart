@@ -58,7 +58,7 @@ class RegisterItemsList {
   ];
   static const List<String> settingsPlan = [
     "Working days settings",
-    // "Order/Estimate/Pre-order/Draft counters with MM/YY",
+
     "Orders, drafts etc counters with MM/YY separation",
     "Working Hours"
   ];
@@ -68,7 +68,7 @@ class RegisterItemsList {
   ];
   static const List<String> salesappFeaturePlan = [
     "Staff check-in/out",
-    // "Reports",
+
     "Admin App"
   ];
   static const List<String> customerOrderPlan = [

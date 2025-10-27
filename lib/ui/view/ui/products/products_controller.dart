@@ -1,6 +1,5 @@
 // ignore_for_file: unused_local_variable, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
 
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/backup_data_fun.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';

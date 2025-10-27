@@ -28,7 +28,7 @@ class DashboardResponse {
 }
 
 class Data {
-//  final List<CategoryPerformance>? categoryPerformance;
+
   final Revenu? revenu;
   final Collection? collection;
   final Delivery? delivery;
@@ -36,7 +36,7 @@ class Data {
   final OrderCountList? orderCountList;
 
   Data({
-    //  this.categoryPerformance,
+
     this.revenu,
     this.collection,
     this.delivery,
@@ -73,35 +73,6 @@ class Data {
         'order_count_list': orderCountList?.toJson()
       };
 }
-
-// class CategoryPerformance {
-//   final int? cid;
-//   final String? category;
-//   final int? count;
-//   final List<Month>? month;
-
-//   CategoryPerformance({
-//     this.cid,
-//     this.category,
-//     this.count,
-//     this.month,
-//   });
-
-//   CategoryPerformance.fromJson(Map<String, dynamic> json)
-//       : cid = json['cid'] as int?,
-//         category = json['category'] as String?,
-//         count = json['count'] as int?,
-//         month = (json['month'] as List?)
-//             ?.map((dynamic e) => Month.fromJson(e as Map<String, dynamic>))
-//             .toList();
-
-//   Map<String, dynamic> toJson() => {
-//         'cid': cid,
-//         'category': category,
-//         'count': count,
-//         'month': month?.map((e) => e.toJson()).toList()
-//       };
-// }
 
 class Month {
   final String? month;
@@ -188,26 +159,6 @@ class Sell {
       {'count': count, 'total_price': totalPrice, 'percentage': percentage};
 }
 
-// class Order {
-//   final int? count;
-//   final String? totalPrice;
-//   final int? percentage;
-//
-//   Order({
-//     this.count,
-//     this.totalPrice,
-//     this.percentage,
-//   });
-//
-//   Order.fromJson(Map<String, dynamic> json)
-//       : count = json['count'] as int?,
-//         totalPrice = json['total_price'] as String?,
-//         percentage = json['percentage'] as int?;
-//
-//   Map<String, dynamic> toJson() =>
-//       {'count': count, 'total_price': totalPrice, 'percentage': percentage};
-// }
-
 class Collection {
   final Order? order;
   final Payment? payment;
@@ -283,25 +234,6 @@ class Delivery {
   Map<String, dynamic> toJson() =>
       {'order': order?.toJson(), 'delivery_order': deliveryOrder?.toJson()};
 }
-
-/*class Order {
-  final int? count;
-  final String? percentage;
-
-  Order({
-    this.count,
-    this.percentage,
-  });
-
-  Order.fromJson(Map<String, dynamic> json)
-      : count = json['count'] as int?,
-        percentage = json['percentage'] as String?;
-
-  Map<String, dynamic> toJson() => {
-    'count' : count,
-    'percentage' : percentage
-  };
-}*/
 
 class DeliveryOrder {
   final int? count;

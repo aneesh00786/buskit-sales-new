@@ -188,7 +188,7 @@ class NavbarAndTargetContent {
   DateTime? lastOnline;
   int? status;
   int? customer;
-  //come_back
+
   dynamic totalTarget;
   double? actual;
   int? timesheet;
@@ -462,7 +462,6 @@ class ScheduleListCustomer {
       };
 }
 
-//####################################### VALUE TARGET ###########################################
 class SalesmanValueTargetResponse {
   bool? success;
   List<SalesmanValueTargetData>? data;

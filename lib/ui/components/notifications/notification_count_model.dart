@@ -104,8 +104,6 @@ class MainNotification {
       };
 }
 
-/// LEADS COUNT
-
 class LeadsCountData {
     int? statusCode;
     bool? status;

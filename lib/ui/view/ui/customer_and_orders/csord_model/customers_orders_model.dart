@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:convert';
 
 import '../../dashboard1/provider/dash_models.dart';
@@ -469,7 +467,6 @@ class Order {
   final String? mobileNo;
   final String? imageUrl;
   final String? invoiceId;
-  // final List<InvoiceDash> invoice;
 
   Order({
     required this.id,
@@ -496,8 +493,7 @@ class Order {
     this.mobileNo,
     this.imageUrl,
     this.invoiceId,
-    // required this.invoice,
-    // this.receivableAmount,
+
   });
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -562,7 +558,6 @@ class Order {
         'image_url': imageUrl,
         'mobileno': mobileNo,
 
-        // 'receivable_amount': receivableAmount,
       };
 }
 
@@ -619,7 +614,6 @@ class OrderTotalxx {
     this.previousYearSale,
   });
 
-  // Factory constructor to create an instance from a JSON map
   factory OrderTotalxx.fromJson(Map<String, dynamic> json) {
     return OrderTotalxx(
       sales: json['sales'] != null ? json['sales'].toString() : '',
@@ -1460,7 +1454,6 @@ class DiscountData {
   }
 }
 
-// The root model class
 class ApiResponsees {
   final int statusCode;
   final bool status;
@@ -1474,7 +1467,6 @@ class ApiResponsees {
     required this.data,
   });
 
-  // Convert a JSON map to an ApiResponse object
   factory ApiResponsees.fromJson(Map<String, dynamic> json) {
     return ApiResponsees(
       statusCode: json['status_code'] ?? 0,
@@ -1887,7 +1879,7 @@ class ProductResponse {
   });
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
-    // Check for 'data' key and convert to a list of ProductDetail
+
     var dataList = json['data'] as List? ?? [];
     List<ProductDetail> productDetailsList =
         dataList.map((i) => ProductDetail.fromJson(i)).toList();
@@ -1929,7 +1921,7 @@ class SamlwEodel {
 class Datum {
   int id;
   String customerId;
-  CartId cartId;
+  String cartId;
   String fullname;
   String mobileno;
   String email;
@@ -2006,8 +1998,6 @@ class Datum {
   });
 }
 
-enum CartId { CART22, CART36, EMPTY }
-
 class CreditPeriod {
   int creditPeriod;
 
@@ -2059,8 +2049,6 @@ class Paginationddd {
     required this.perPage,
   });
 }
-
-// NEW REVENUE SECTION
 
 class CustomerRevenueResponse {
   int statusCode;
@@ -2184,7 +2172,7 @@ class BookingRevenueDatum {
     required this.receivedAmount,
     this.receivedAmountDate,
     required this.checkDueDate,
-    this.checkNumber, // Nullable
+    this.checkNumber, 
     this.transactionDate,
     required this.transactionDetails,
     required this.rejectionReason,
@@ -2219,7 +2207,7 @@ class BookingRevenueDatum {
             ? null
             : DateTime.parse(json["received_amount_date"]),
         checkDueDate: DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"], // Handle null
+        checkNumber: json["check_number"], 
         transactionDate: json["transaction_date"] == null
             ? null
             : DateTime.parse(json["transaction_date"]),
@@ -2253,7 +2241,7 @@ class BookingRevenueDatum {
         "received_amount": receivedAmount,
         "received_amount_date": receivedAmountDate?.toIso8601String(),
         "check_due_date": checkDueDate.toIso8601String(),
-        "check_number": checkNumber, // Nullable
+        "check_number": checkNumber, 
         "transaction_date": transactionDate?.toIso8601String(),
         "transaction_details": transactionDetails,
         "rejection_reason": rejectionReason,

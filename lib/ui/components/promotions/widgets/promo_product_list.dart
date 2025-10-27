@@ -180,7 +180,6 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
             firstCategory.subCategoryItem!.isNotEmpty) {
           var firstSubcategory = firstCategory.subCategoryItem!.first;
 
-
           selectedSubCategoryId = "${firstSubcategory.id}";
           selectedSubCategoryName = "${firstSubcategory.subCategory}";
 

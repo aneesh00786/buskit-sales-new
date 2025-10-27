@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -449,5 +447,3 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
     );
   }
 }
-
-

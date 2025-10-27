@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';

@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -62,7 +61,6 @@ class _EditablePendingPaymentCellState
       isChanged = false;
     });
 
-
     try {
       final dio = Dio();
 
@@ -72,12 +70,10 @@ class _EditablePendingPaymentCellState
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
 
-
       final response = await dio.post(
         '${ApiConstants.baseUrl}post_receivable_amount',
         data: data,
       );
-
 
       if (response.statusCode == 200) {
         // Success case

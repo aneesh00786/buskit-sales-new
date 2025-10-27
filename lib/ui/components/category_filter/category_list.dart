@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';

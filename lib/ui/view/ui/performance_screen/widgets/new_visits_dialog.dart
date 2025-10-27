@@ -411,7 +411,6 @@ Color shouldShowIndicator(DateTime date, List<ScheduleListData> scheduleList) {
       date.startOfDay.isBefore(DateTime.now().startOfDay) &&
           scheduleList.any((schedule) => schedule.checkIn == null);
 
-
   bool isTodayAndCheckInNull =
       date.startOfDay.isAtSameMomentAs(DateTime.now().startOfDay) &&
           scheduleList.any((schedule) => schedule.checkIn == null);

@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -12,7 +10,6 @@ class OrderPaginationWidget extends StatelessWidget {
 
   const OrderPaginationWidget({super.key, required this.orderController});
 
-  // Advanced pagination logic for numbering and page changing
   List<dynamic> _buildPagination(int currentPage, int totalPages) {
     List<dynamic> pages = [];
 

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: must_be_immutable, deprecated_member_use
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -19,7 +19,6 @@ const TextStyle bodyTextStyle = TextStyle(
   fontFamily: fontFamilyName,
   fontWeight: FontWeight.normal,
   fontSize: 12.0,
-  // color: Colors.grey,
 );
 
 const TextStyle tabTextStyle = TextStyle(
@@ -57,8 +56,6 @@ TextStyle dialogTableHeaderStyle({
   );
 }
 
-//=============================================================================
-//
 class DialogHeaderText extends StatelessWidget {
   final String text;
   final double fontSize;
@@ -116,7 +113,6 @@ class DialogTableHeaderText extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   Color? color;
   String? fontFamily;
@@ -154,7 +150,7 @@ class CustomText extends StatelessWidget {
     );
   }
 }
-// ignore: must_be_immutable
+
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -200,7 +196,6 @@ Widget dashboardContainerHeader(String text) {
     ),
   );
 }
-
 
 Widget filledIcon(String svgIconPath) {
   return SvgPicture.asset(

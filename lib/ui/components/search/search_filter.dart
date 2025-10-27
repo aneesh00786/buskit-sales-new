@@ -1,11 +1,7 @@
-
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:flutter/material.dart';
-
 
 class SearchFilter extends StatelessWidget {
   final void Function(String)? onChanged;

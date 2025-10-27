@@ -115,7 +115,6 @@ class SendCartData extends HiveObject {
       'promo_msg': promoMsg,
     };
 
-    // Add bundle-specific fields if this is a bundle
     if (isBundle == true) {
       json['is_bundle'] = true;
       json['bundle_details'] = bundleDetails;

@@ -120,7 +120,6 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       _isLoading = true;
     });
 
-
     try {
       await staffController.loadSalesmanValueTarget(
         SessionHelper.loginSavedData?.salesmanId ?? 'unknown',
@@ -157,17 +156,14 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
           (index) => TextEditingController(text: '0'),
         );
 
-
         for (var i = 0; i < relevantWeeks.length; i++) {
           final weekKey = relevantWeeks[i];
           final weekData = weeklyTargetProjection[weekKey];
-
 
           int projection = 0;
           if (weekData is Map<String, dynamic>) {
             projection = weekData["projection"] ?? 0;
           }
-
 
           _weeklyProjectionControllers[i].text = projection.toString();
         }

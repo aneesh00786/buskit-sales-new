@@ -1,9 +1,3 @@
-// To parse this JSON data, do
-//
-//     final dashboardResponse2 = dashboardResponse2FromJson(jsonString);
-
-// ignore_for_file: constant_identifier_names
-
 import 'dart:convert';
 
 DashboardResponse2 dashboardResponse2FromJson(String str) =>
@@ -105,7 +99,7 @@ class AllCategory {
 }
 
 class CategoryPerformance {
-  SalesmanId salesmanId;
+  String salesmanId;
   int cid;
   String category;
   int count;
@@ -123,7 +117,7 @@ class CategoryPerformance {
 
   factory CategoryPerformance.fromJson(Map<String, dynamic> json) =>
       CategoryPerformance(
-        salesmanId: salesmanIdValues.map[json["salesman_id"]]!,
+        salesmanId: json["salesman_id"],
         cid: json["cid"],
         category: json["category"],
         count: json["count"],
@@ -133,7 +127,7 @@ class CategoryPerformance {
       );
 
   Map<String, dynamic> toJson() => {
-        "salesman_id": salesmanIdValues.reverse[salesmanId],
+        "salesman_id": salesmanId,
         "cid": cid,
         "category": category,
         "count": count,
@@ -173,15 +167,6 @@ class Salesman {
         "actual_price": actualPrice,
       };
 }
-
-enum SalesmanId { SALES1, SALES3, SALES6, SALES7 }
-
-final salesmanIdValues = EnumValues({
-  "SALES1": SalesmanId.SALES1,
-  "SALES3": SalesmanId.SALES3,
-  "SALES6": SalesmanId.SALES6,
-  "SALES7": SalesmanId.SALES7
-});
 
 class Collection {
   CollectionOrder order;
@@ -250,7 +235,7 @@ class PendingAmount {
   int id;
   String orderId;
   String customerId;
-  SalesmanId salesmanId;
+  String salesmanId;
   int paymentStatus;
   int paymentType;
   String paymentDetail;
@@ -311,7 +296,7 @@ class PendingAmount {
         id: json["id"],
         orderId: json["order_id"],
         customerId: json["customer_id"],
-        salesmanId: salesmanIdValues.map[json["salesman_id"]]!,
+        salesmanId: json["salesman_id"],
         paymentStatus: json["payment_status"],
         paymentType: json["payment_type"],
         paymentDetail: json["payment_detail"],
@@ -348,7 +333,7 @@ class PendingAmount {
         "id": id,
         "order_id": orderId,
         "customer_id": customerId,
-        "salesman_id": salesmanIdValues.reverse[salesmanId],
+        "salesman_id": salesmanId,
         "payment_status": paymentStatus,
         "payment_type": paymentType,
         "payment_detail": paymentDetail,
@@ -548,7 +533,7 @@ class OrderRevenueDatum {
   int id;
   String cartId;
   String customerId;
-  SalesmanId salesmanId;
+  String salesmanId;
   int total;
   String discount;
   int status;
@@ -600,7 +585,7 @@ class OrderRevenueDatum {
         id: json["id"],
         cartId: json["cart_id"],
         customerId: json["customer_id"],
-        salesmanId: salesmanIdValues.map[json["salesman_id"]]!,
+        salesmanId: json["salesman_id"],
         total: json["total"],
         discount: json["discount"],
         status: json["status"],
@@ -628,7 +613,7 @@ class OrderRevenueDatum {
         "id": id,
         "cart_id": cartId,
         "customer_id": customerId,
-        "salesman_id": salesmanIdValues.reverse[salesmanId],
+        "salesman_id": salesmanId,
         "total": total,
         "discount": discount,
         "status": status,
@@ -737,13 +722,13 @@ class Customer {
   String businessNo;
   String remark;
   String imageUrl;
-  SalesmanId salesmanId;
+  String salesmanId;
   int status;
   DateTime createAt;
-  SalesmanName salesmanName;
+  String salesmanName;
   String discount;
   int eventType;
-  EventDays? eventDays;
+  int? eventDays;
   int creditPeriod;
 
   Customer({
@@ -786,13 +771,13 @@ class Customer {
         businessNo: json["business_no"],
         remark: json["remark"],
         imageUrl: json["image_url"],
-        salesmanId: salesmanIdValues.map[json["salesman_id"]]!,
+        salesmanId: json["salesman_id"],
         status: json["status"],
         createAt: DateTime.parse(json["create_at"]),
-        salesmanName: salesmanNameValues.map[json["salesman_name"]]!,
+        salesmanName: json["salesman_name"],
         discount: json["discount"],
         eventType: json["event_type"],
-        eventDays: eventDaysValues.map[json["event_days"]]!,
+        eventDays: json["event_days"],
         creditPeriod: json["credit_period"],
       );
 
@@ -811,33 +796,16 @@ class Customer {
         "business_no": businessNo,
         "remark": remark,
         "image_url": imageUrl,
-        "salesman_id": salesmanIdValues.reverse[salesmanId],
+        "salesman_id": salesmanId,
         "status": status,
         "create_at": createAt.toIso8601String(),
-        "salesman_name": salesmanNameValues.reverse[salesmanName],
+        "salesman_name": salesmanName,
         "discount": discount,
         "event_type": eventType,
-        "event_days": eventDaysValues.reverse[eventDays],
+        "event_days": eventDays,
         "credit_period": creditPeriod,
       };
 }
-
-enum EventDays { EMPTY, FRIDAY, MONDAY }
-
-final eventDaysValues = EnumValues({
-  "[]": EventDays.EMPTY,
-  "[\"friday\"]": EventDays.FRIDAY,
-  "[\"monday\"]": EventDays.MONDAY
-});
-
-enum SalesmanName { B, N, RP, SALES6 }
-
-final salesmanNameValues = EnumValues({
-  "B": SalesmanName.B,
-  "N": SalesmanName.N,
-  "RP": SalesmanName.RP,
-  "SALES6": SalesmanName.SALES6
-});
 
 class QuantityList {
   VariationName variationName;

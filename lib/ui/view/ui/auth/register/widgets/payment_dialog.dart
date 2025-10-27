@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -383,14 +382,12 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
       "plan_id": widget.planId.toString()
     };
 
-
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}subscriptionView');
       final response = await http.post(
         url,
         body: request,
       );
-
 
       if (response.statusCode == 200) {
         setState(() {

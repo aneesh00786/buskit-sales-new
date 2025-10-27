@@ -1,10 +1,6 @@
-
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
-
 
 class LoginLeftSideWidget extends StatefulWidget {
   const LoginLeftSideWidget({super.key});
@@ -68,7 +64,7 @@ class _LoginLeftSideWidgetState extends State<LoginLeftSideWidget> {
                   style: TextStyle(color: white, fontSize: 20, fontWeight: FontWeight.bold,),),
                ),
              ),
-        
+
             ],
           ),
         ),

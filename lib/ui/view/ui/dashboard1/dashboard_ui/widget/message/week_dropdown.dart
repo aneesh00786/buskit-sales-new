@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -51,7 +51,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
 
   Future<void> checkOnline() async {
     isOnline = await ConnectivityService().isOnline();
-    setState(() {}); // Refresh UI when online status changes
+    setState(() {}); 
   }
 
   void _toggleWeekSelection(BuildContext context, String week) {

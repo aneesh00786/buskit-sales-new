@@ -118,7 +118,7 @@ Widget buildCheckInOutDialogContent(
 
       return Stack(
         children: [
-          // Header Background
+
           Container(
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
@@ -129,13 +129,13 @@ Widget buildCheckInOutDialogContent(
             ),
             height: headerHeight,
           ),
-          // Table Content
+
           SizedBox(
             width: availableWidth,
             height: containerHeight,
             child: Column(
               children: [
-                // Table Header
+
                 Container(
                   height: headerHeight,
                   decoration: const BoxDecoration(

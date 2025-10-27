@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:flutter/material.dart';

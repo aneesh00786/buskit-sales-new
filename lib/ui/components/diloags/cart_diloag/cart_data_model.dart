@@ -110,8 +110,8 @@ class SendCartData extends HiveObject {
       'quantity': quantity,
       'variant_name': variantName,
       'max_discount': maxDiscount,
-      'is_promo': isPromo,
-      'promo_code': promoCode,
+      'is_promo': isPromo ?? false,
+      'promo_code': promoCode ?? "",
       'promo_msg': promoMsg,
     };
 

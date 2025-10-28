@@ -2068,8 +2068,6 @@ class CartDialogueState extends State<CartDialogue> {
           }
           return;
         } else {
-          // Use only itemList for the API payload
-
           final productBYData = AddToCartModel(
             customerId: customerId,
             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
@@ -2129,16 +2127,37 @@ class CartDialogueState extends State<CartDialogue> {
                   discount: e.discount ?? 0,
                   quantity: e.count.toInt(),
                   variantName: e.variationName ?? '',
+                  isPromo: false,
+                  promoCode: "",
                 );
               }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),
           );
 
-          List<String> varientIdsPass = [];
+          List<String> variantIdsPass = [];
+
+          final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
           for (var item in itemList) {
-            varientIdsPass.add(item.detail.variationId ?? '');
+            final variantId = item.detail.variationId ?? '';
+            if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+              variantIdsPass.add(variantId);
+            }
+
+            if (item.isPromo == true &&
+                (item.promoMsg?.startsWith('Bundle') ?? false)) {
+              final promoMsg = item.promoMsg ?? '';
+              for (final m in variantIdRegex.allMatches(promoMsg)) {
+                final extracted = m.group(1);
+                if (extracted != null && extracted.isNotEmpty) {
+                  variantIdsPass.add(extracted);
+                }
+              }
+            }
           }
+
+          variantIdsPass = variantIdsPass.toSet().toList();
 
           CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
@@ -2166,7 +2185,7 @@ class CartDialogueState extends State<CartDialogue> {
                   chequeOrTransactionNumberController.text.trim(),
               transactionDate: dateController.text.trim(),
               draftId: draftId.isNotEmpty ? draftId : '',
-              varientIds: varientIdsPass,
+              varientIds: variantIdsPass,
             );
 
             await ApiWorker().placeOrder(order,

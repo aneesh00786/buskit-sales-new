@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
@@ -526,6 +527,7 @@ class ApiWorker with ApiConstants {
   Future<CartOrderModel?> addToCart(Map<String, dynamic> sendData) async {
     sendData['companyId'] = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
+      log("ADD TO CART REQUEST : $sendData");
       final response = await dio1
           .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToCart}",
@@ -1824,6 +1826,7 @@ class ApiWorker with ApiConstants {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     cartOrder.companyId = companyId;
     try {
+      log("PLACE ORDER REQUEST : ${cartOrder.toJson()}");
       final response = await responsePostMethod(
           requestData: cartOrder.toJson(), endPoint: "place_order");
       if (response.statusCode == 200) {

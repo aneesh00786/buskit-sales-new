@@ -657,12 +657,6 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomerData({int page = 1}) async {
-    log("Filter type : ${_selectedFilter == FilterDateEnum.range ? [
-        _selectedFilter.name,
-        _selectedStartDate,
-        _selectedEndDate
-      ].toString() : _selectedFilter.name}");
-
     _errorMessage = '';
     Get.find<NotificationController>();
 
@@ -671,7 +665,6 @@ class CustomersProvider with ChangeNotifier {
     final cacheKey = '${companyId}_customer_list_$page';
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
-      // If there's an active search query, perform offline search
       if (_searchCustomerName.isNotEmpty) {
         await performOfflineSearch(_searchCustomerName);
         return;
@@ -680,7 +673,6 @@ class CustomersProvider with ChangeNotifier {
       final cachedData = customerBox.get(cacheKey);
       if (cachedData != null) {
         try {
-          // This safely converts the Hive-stored map into a Map<String, dynamic>
           final safeMap =
               jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
 
@@ -731,7 +723,6 @@ class CustomersProvider with ChangeNotifier {
           setCustomers(value.data, value.pagination.totalPages);
           setOrderTotal(value.orderTotal);
           setYearList(value.yearsListOfAll);
-          // notificationController.loadNotificationData();
           _isLoading = false;
           notifyListeners();
         }).catchError((error) {

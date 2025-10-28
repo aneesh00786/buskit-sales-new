@@ -628,7 +628,7 @@ class _OptionWidgetState extends State<OptionWidget> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-      //
+          //
         }
 
         if (mounted) {
@@ -1725,9 +1725,6 @@ class _OptionWidgetState extends State<OptionWidget> {
       return orders;
     }
 
-    debugPrint(
-        "[Filter] Orders BEFORE filtering (sample): ${orders.take(5).map((o) => o.orderCreatedAt).toList()}");
-
     List<OrdersDash> filteredOrders = [];
 
     switch (provider.selectedFilter) {
@@ -1769,8 +1766,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         break;
 
       case FilterDateEnum.thisMonth:
-        debugPrint(
-            "[Filter] Selected Months: ${provider.selectedFilterMonths}");
         if (provider.selectedFilterMonths.isNotEmpty) {
           filteredOrders = orders.where((order) {
             if (order.orderCreatedAt == null) return false;
@@ -1807,8 +1802,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         break;
 
       case FilterDateEnum.range:
-        debugPrint(
-            "[Filter] Selected Range: ${provider.selectedStartDate} → ${provider.selectedEndDate}");
         if (provider.selectedStartDate.isNotEmpty &&
             provider.selectedEndDate.isNotEmpty) {
           final startDate = DateTime.parse(provider.selectedStartDate);
@@ -1825,12 +1818,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         }
         break;
     }
-
-    debugPrint(
-        "[Filter] Orders AFTER filtering: count = ${filteredOrders.length}");
-    debugPrint(
-        "[Filter] Orders AFTER filtering (sample): ${filteredOrders.take(5).map((o) => o.orderCreatedAt).toList()}");
-
     return filteredOrders;
   }
 

@@ -175,7 +175,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                   height: headerHeight,
                   width: isPhonePortrait(context)
                       ? fullScreenWidth(context) * 2
-                      : null,
+                      : fullScreenWidth(context) * 0.7,
                   child: Row(
                     children: [
                       if (widget.isDash) ...[
@@ -211,7 +211,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                     height: contentHeight,
                     width: isPhonePortrait(context)
                         ? fullScreenWidth(context) * 2
-                        : null,
+                        : fullScreenWidth(context) * 0.7,
                     child: ScrollbarTheme(
                       data: const ScrollbarThemeData(
                         thickness: WidgetStatePropertyAll(5),
@@ -221,6 +221,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                         thumbVisibility: true,
                         trackVisibility: true,
                         child: ListView.builder(
+                          primary: false,
                           itemCount:
                               timesDataList.isEmpty ? 1 : timesDataList.length,
                           physics: const ClampingScrollPhysics(),
@@ -342,7 +343,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                 child: Container(
                   width: isPhonePortrait(context)
                       ? fullScreenWidth(context) * 2
-                      : null,
+                      : fullScreenWidth(context) * 0.7,
                   decoration: const BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -355,7 +356,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                   child: SizedBox(
                     width: isPhonePortrait(context)
                         ? fullScreenWidth(context) * 2
-                        : null,
+                        : double.maxFinite,
                     child: Row(
                       children: [
                         const SizedBox(width: 50),

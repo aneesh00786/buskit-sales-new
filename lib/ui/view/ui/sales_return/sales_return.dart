@@ -12,7 +12,7 @@ class _SalesReturnState extends State<SalesReturn> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('Sales Return Screennnn'),
+        child: Text('Sales Return Screennnnss'),
       ),
     );
   }

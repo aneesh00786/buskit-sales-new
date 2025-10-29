@@ -8,7 +8,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/sales_return.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -152,8 +153,18 @@ class HomeController extends GetxController {
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    } else if (settings.name == AppRoutes.settings &&
+    } 
+    else if (settings.name == AppRoutes.salesReturn &&
         sidebarXController.selectedIndex == 8) {
+      return GetPageRoute(
+        transition: Transition.leftToRightWithFade,
+        settings: settings,
+        page: () => const SalesReturn(),
+        binding: CommonBinding(),
+      );
+    }
+    else if (settings.name == AppRoutes.settings &&
+        sidebarXController.selectedIndex == 9) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -191,8 +202,14 @@ class HomeController extends GetxController {
       } else if (sidebarXController.selectedIndex == 7 &&
           selectedIndex.value != 7) {
         Get.offNamed(AppRoutes.ordersScreen, id: 2);
-      } else if (sidebarXController.selectedIndex == 8 &&
-          selectedIndex.value != 8) {
+      } 
+       else if (sidebarXController.selectedIndex == 8 &&
+        selectedIndex.value != 8) {
+      Get.offNamed(AppRoutes.salesReturn, id: 2);
+    } 
+      
+      else if (sidebarXController.selectedIndex == 9 &&
+          selectedIndex.value != 9) {
         Get.offNamed(AppRoutes.settings, id: 2);
       }
       selectedIndex.value = sidebarXController.selectedIndex;
@@ -208,8 +225,10 @@ class HomeController extends GetxController {
     performance,
     calendar,
     todayOrders,
+    salesReturn,
     settings,
-    logOut
+    logOut,
+   
   ].obs;
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
@@ -222,8 +241,9 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[5], index:5,  EneftyIcons.chart_square_bold),
       sideBarComponent(sidebarName[6], index:6,  EneftyIcons.calendar_bold),
       sideBarComponent(sidebarName[7], index:7,  EneftyIcons.shopping_cart_bold),
-      sideBarComponent(sidebarName[8], index:8,  EneftyIcons.setting_2_bold),
-      sideBarComponent(sidebarName[9], index:9,  SIdeBarIcon.ic_log_out,
+      sideBarComponent(sidebarName[8], index:8,  EneftyIcons.warning_2_outline),
+      sideBarComponent(sidebarName[9], index:9,  EneftyIcons.setting_2_bold),
+      sideBarComponent(sidebarName[10], index:10,  SIdeBarIcon.ic_log_out,
           context: context),
     ];
   }
@@ -307,16 +327,31 @@ class HomeController extends GetxController {
               //   color: Colors.black.withOpacity(0.7),
               //   weight: 700,
               // ),
+  
+//   SvgPicture.asset(
+//   getSidebarIcon(index ?? 0),
+//   height: (index == 8 || index == 9 || index == 10) ? 30 : 24,
+//   width: (index == 8 || index == 9 || index == 10) ? 30 : 24,
+//   color: sidebarXController.selectedIndex == index
+//       ? (index == 8 || index == 9 || index == 10)
+//           ? null
+//           : primaryColor
+//       : (index == 8 || index == 9 || index == 10)
+//           ? null
+//           : Colors.grey,
+// ),
+
+
               SvgPicture.asset(
                 getSidebarIcon(index ?? 0),
                 // 'assets/new_icons/ic_user.svg',
-                height: index == 8 || index == 9 ? 30 : 24,
-                width: index == 8 || index == 9 ? 30 : 24,
+                height: index == 9 || index == 10 ? 30 : 24,
+                width: index == 9 || index == 10 ? 30 : 24,
                 color: sidebarXController.selectedIndex == index
-                    ? index == 8 || index == 9
+                    ? index == 9 || index == 10
                         ? null
                         : primaryColor
-                    : index == 8 || index == 9
+                    : index == 9 || index == 10
                         ? null
                         : Colors.grey,
               ),
@@ -499,9 +534,11 @@ String getSidebarIcon(int index) {
       return "assets/sidebar_icons/stafficon.svg";
     case 7:
       return "assets/sidebar_icons/ordericon.svg";
-    case 8:
-      return "assets/sidebar_icons/settingsicon.svg";
+      case 8:
+      return "assets/sidebar_icons/ordericon.svg";
     case 9:
+      return "assets/sidebar_icons/settingsicon.svg";
+    case 10:
       return "assets/sidebar_icons/logouticon.svg";
     default:
       return "assets/sidebar_icons/ic_user.svg";

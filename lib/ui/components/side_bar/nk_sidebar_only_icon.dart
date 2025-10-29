@@ -220,13 +220,13 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               curve: Curves.easeInOut,
               child: SvgPicture.asset(
                 getSidebarIcon(index),
-                height: index == 8 || index == 9 ? 30 : 24,
-                width: index == 8 || index == 9 ? 30 : 24,
+                height: index == 9 || index == 10 ? 30 : 24,
+                width: index == 9 || index == 10 ? 30 : 24,
                 color: widget.sidebarXController.selectedIndex == index
-                    ? index == 8 || index == 9
+                    ? index == 9 || index == 10
                         ? null
                         : Theme.of(context).primaryColor
-                    : index == 8 || index == 9
+                    : index == 9 || index == 10
                         ? null
                         : Colors.grey,
               ),

@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/sales_return.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:get/get.dart';
 
@@ -42,7 +43,7 @@ class AppRoutes {
 
   static const String unknown = "/unknown";
   static const String settings = "/settings";
-
+  static const String salesReturn = "/salesReturn";
   static List<GetPage<dynamic>> get genratedRoutes => [
         GetPage(
             name: home, page: () => const HomeScreen(), binding: HomeBinding()),
@@ -113,6 +114,11 @@ class AppRoutes {
         GetPage(
           name: settings,
           page: () => const SettingsScreen(),
+          binding: CommonBinding(),
+        ),
+        GetPage(
+          name: salesReturn,
+          page: () => const SalesReturn(),
           binding: CommonBinding(),
         ),
       ];

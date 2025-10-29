@@ -105,6 +105,7 @@ const String event = "Event";
 
 const String setting = "Settings";
 const String logOut = "Logout";
+const String salesReturn = "Sales Return";
 const String search = "Search";
 const String someThingWentWrong = "Oops Something Went Wrong";
 const String retry = "Retry";

@@ -113,7 +113,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                       return Container(
                         height: fixedRowHeight,
                         decoration: BoxDecoration(
-                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                         color: index.isEven ? Colors.grey[50] : Color.fromARGB(255, 255, 255, 255),
+                          
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -180,7 +181,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 Container(
                   padding: const EdgeInsets.all(3),
                   height: 50,
-                  color: Colors.grey[200],
+                  color: const Color.fromARGB(255, 238, 238, 238),
                   child: Row(
                     children: [LeadsBottomPaginationWidget(), const Spacer()],
                   ),

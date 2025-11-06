@@ -31,6 +31,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/controller/sales_return_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,6 +94,8 @@ void main() async {
   await Hive.openBox('draftItemsBox');
   await Hive.openBox('productFrequencyBox');
   await Hive.openBox('promotionsBox');
+  await Hive.openBox('salesReturnBox');
+  await Hive.openBox('productReturnDetailsBox');
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
   SystemChrome.setPreferredOrientations([
@@ -123,6 +127,8 @@ void main() async {
   Get.put(ProductsController());
   Get.put(StaffController());
   Get.put(SyncController());
+  Get.put(SalesReturnController());
+  Get.put(ProductReturnController());
   final subscriptionController = Get.put(SubscriptionController());
 
   await subscriptionController

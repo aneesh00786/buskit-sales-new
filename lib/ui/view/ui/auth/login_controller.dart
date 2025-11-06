@@ -32,6 +32,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/controller/sales_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,8 @@ class LoginController extends GetxController {
       RoundedLoadingButtonController();
   SubscriptionController subscriptionController =
       Get.put(SubscriptionController());
+  SalesReturnController salesReturnController =
+      Get.put(SalesReturnController());
   RxBool isPasswordVisible = true.obs;
   PaginationModel paginationModel = PaginationModel();
   final int currentYear = DateTime.now().year;
@@ -648,6 +651,15 @@ class LoginController extends GetxController {
         leadsCustomerController.loadLeadsCustomerData,
         leadsRejectedController.loadRejectedLeadsData,
         orderController.loadOrderCountData(),
+
+        // NEWLY ADDED
+
+        ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
+
+        // ------------------------------------------
+
+        // ApiWorker().getProductReturnDetails(orderId: orderId),
+
         _apiWorker.getAllProducts(),
         calenderMapController.getRouteCredit(),
         _apiWorker.getCalendarEvents({

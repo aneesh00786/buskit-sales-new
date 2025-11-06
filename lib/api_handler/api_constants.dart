@@ -117,4 +117,7 @@ mixin class ApiConstants {
   static const String customerPayment = "customer_payment";
   static const String getProductFrequency = "get_product_frequency";
   static const String fetchProductByBrand = "fetch_product_by_brand";
+  static const String getReturnOrderDetails = "order_process_invoice";
+  static const String createSalesReturn = "create_sales_return";
+  static const String SearchInvoice = "SearchInvoice";
 }

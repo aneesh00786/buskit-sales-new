@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/sales_return_search_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_option_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/frequently_bought_product.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_category_chart_dialog.dart';
@@ -384,6 +385,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ),
           ),
           actions: [
+
+         ElevatedButton(
+              onPressed: () {
+                print('customer id: ${widget.cusId}');
+            OrderIdSnackBar.show(context,widget.cusId.toString());
+               
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:const Color.fromARGB(255, 38, 165, 42),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+              ),
+              child: const Text(
+                'Sales Return',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+  SizedBox(width: 20,),
+
             ElevatedButton(
               onPressed: () {
                 if (subscriptionController.orderTakingFromDashboard.value !=

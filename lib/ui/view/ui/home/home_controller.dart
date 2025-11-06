@@ -145,17 +145,9 @@ class HomeController extends GetxController {
           settings: settings,
           page: () => const CalenderScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.ordersScreen &&
-        sidebarXController.selectedIndex == 7) {
-      return GetPageRoute(
-        transition: Transition.leftToRightWithFade,
-        settings: settings,
-        page: () => const OrderScreen(),
-        binding: CommonBinding(),
-      );
     } 
     else if (settings.name == AppRoutes.salesReturn &&
-        sidebarXController.selectedIndex == 8) {
+        sidebarXController.selectedIndex == 7) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -163,6 +155,24 @@ class HomeController extends GetxController {
         binding: CommonBinding(),
       );
     }
+    else if (settings.name == AppRoutes.ordersScreen &&
+        sidebarXController.selectedIndex == 8) {
+      return GetPageRoute(
+        transition: Transition.leftToRightWithFade,
+        settings: settings,
+        page: () => const OrderScreen(),
+        binding: CommonBinding(),
+      );
+    } 
+    // else if (settings.name == AppRoutes.salesReturn &&
+    //     sidebarXController.selectedIndex == 8) {
+    //   return GetPageRoute(
+    //     transition: Transition.leftToRightWithFade,
+    //     settings: settings,
+    //     page: () => const SalesReturn(),
+    //     binding: CommonBinding(),
+    //   );
+    // }
     else if (settings.name == AppRoutes.settings &&
         sidebarXController.selectedIndex == 9) {
       return GetPageRoute(
@@ -199,14 +209,16 @@ class HomeController extends GetxController {
       } else if (sidebarXController.selectedIndex == 6 &&
           selectedIndex.value != 6) {
         Get.offNamed(AppRoutes.performance, id: 2);
-      } else if (sidebarXController.selectedIndex == 7 &&
-          selectedIndex.value != 7) {
-        Get.offNamed(AppRoutes.ordersScreen, id: 2);
       } 
-       else if (sidebarXController.selectedIndex == 8 &&
-        selectedIndex.value != 8) {
+      else if (sidebarXController.selectedIndex == 7 &&
+        selectedIndex.value != 7) {
       Get.offNamed(AppRoutes.salesReturn, id: 2);
     } 
+      else if (sidebarXController.selectedIndex == 8 &&
+          selectedIndex.value != 8) {
+        Get.offNamed(AppRoutes.ordersScreen, id: 2);
+      } 
+       
       
       else if (sidebarXController.selectedIndex == 9 &&
           selectedIndex.value != 9) {
@@ -224,8 +236,8 @@ class HomeController extends GetxController {
     leads,
     performance,
     calendar,
-    todayOrders,
     salesReturn,
+    todayOrders,
     settings,
     logOut,
    
@@ -533,7 +545,7 @@ String getSidebarIcon(int index) {
     case 6:
       return "assets/sidebar_icons/stafficon.svg";
     case 7:
-      return "assets/sidebar_icons/ordericon.svg";
+      return "assets/sidebar_icons/leadicon.svg";
       case 8:
       return "assets/sidebar_icons/ordericon.svg";
     case 9:

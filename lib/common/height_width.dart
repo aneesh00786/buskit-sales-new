@@ -49,3 +49,13 @@ bool isPhonePortrait(context) {
     return false;
   }
 }
+double salesReturncardWidth(BuildContext context) {
+  final fullW = MediaQuery.of(context).size.width;
+  final isPortrait = isPhonePortrait(context);
+
+  if (isPortrait) {
+    return fullW * 2.3;               // your original phone-portrait rule
+  } else {
+    return fullW > 640 ? fullW * 1 : fullW * 1.1;
+  }
+}

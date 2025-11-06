@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
@@ -16,11 +17,13 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calendar_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/sales_return_search_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
@@ -29,6 +32,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/perfo
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -2919,4 +2924,178 @@ class ApiWorker with ApiConstants {
       return [];
     }
   }
+
+  Future<GetRecentOrderReturn> getRecentOrdersReturns({
+    String? customerId,
+    String? salesmanId,
+    String? startDate,
+    String? endDate,
+    PaginationModel? paginationModel,
+  }) async {
+    bool isConnected = await ConnectivityService().isOnline();
+    final cacheKey =
+       "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${startDate ?? ''}_${endDate ?? ''}";
+        // "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${''}_${''}";
+
+    final box = Hive.box('salesReturnBox');
+
+    if (!isConnected) {
+      final savedData = box.get(cacheKey);
+      if (savedData != null && savedData is Map) {
+        return GetRecentOrderReturn.fromJson(
+          ApiService().castToStringDynamic(savedData),
+        );
+      } else {
+        throw Exception('No offline data available');
+      }
+    }
+
+    final response = await dio.postbycustom(
+      ApiConstants.getRecentOrder,
+      data: {
+        "companyId": 1,
+        "start_date": startDate ?? "",
+       "end_date": endDate ?? "",
+        "order_status": 2,
+        "limit": 1000,
+        "page": 1,
+      },
+    ).onError((DioException error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
+
+    final responseJson =
+        response.data as Map<String, dynamic>; // ✅ Ensure object
+
+    // ✅ Save full response object for correct offline parsing
+    await box.put(cacheKey, responseJson);
+
+    log("[getRecentOrdersReturns] Response Data: $responseJson");
+
+    return GetRecentOrderReturn.fromJson(responseJson);
+  }
+
+
+
+
+
+ Future<ProductReturn> getProductReturnDetails({
+  required String orderId
+ }) async{
+  if(orderId.isEmpty) throw Exception('orderId is required');
+  
+
+
+  bool isConnected = await ConnectivityService().isOnline();
+
+ final String cacheKey = "${SessionHelper.loginSavedData?.company_id?? 0}_return_details_$orderId";
+ final box = Hive.box('productReturnDetailsBox');
+ if(!isConnected){
+  final savedData = box.get(cacheKey);
+  if(savedData != null && savedData is Map){
+    return ProductReturn.fromJson(
+      ApiService().castToStringDynamic(savedData),
+    );
+  }else{
+    throw Exception('No offline data available for order $orderId');
+  }
+ }
+  final response = await dio.postbycustom(
+    ApiConstants.getReturnOrderDetails,
+    data: {
+       "companyId": 1,
+          "order_id": orderId,
+          "order_status": 2,
+    }
+  ).onError((DioException error, _){
+    return Future.error(DioExceptionHandler.fromDioError(error));
+  });
+  final responseJson = response.data as Map<String, dynamic>;
+  await box.put(cacheKey, responseJson);
+  final parsed = ProductReturn.fromJson(responseJson);
+ return parsed;
+
+ }
+
+
+Future<Map<String, dynamic>> submitButtonTap({
+  required String orderId,
+  required String invoiceId,
+  required String returnReason,
+  required List<Map<String, dynamic>> returnItems,
+}) async {
+  // Validation
+  if (orderId.isEmpty) throw Exception('orderId is required');
+  if (invoiceId.isEmpty) throw Exception('invoiceId is required');
+  if (returnItems.isEmpty) throw Exception('returnItems cannot be empty');
+
+  // Check internet
+  bool isConnected = await ConnectivityService().isOnline();
+  if (!isConnected) {
+    throw Exception('No internet connection. Return submission requires online access.');
+  }
+
+  // Payload
+  final Map<String, dynamic> payload = {
+    "order_id": orderId,
+    "invoice_id": invoiceId,
+    "company_id": "1",
+    "return_reason": returnReason,
+    "return_items": jsonEncode(returnItems),
+  };
+
+  // API Call
+  final response = await dio.postbycustom(
+    ApiConstants.createSalesReturn, // e.g., "/create_sales_return1"
+    data: payload,
+    options: Options(contentType: Headers.formUrlEncodedContentType),
+  ).onError<DioException>((error, _) {
+    return Future.error(DioExceptionHandler.fromDioError(error));
+  });
+
+  final responseJson = response.data as Map<String, dynamic>;
+
+  // Cache the successful response
+  // await box.put(cacheKey, responseJson);
+
+  return responseJson; // Return full response for controller to handle
+}
+
+Future<SearchResponse> searchInvoice({
+  required String query,
+  required String customerId,
+}) async {
+  // Validation
+  if (query.trim().isEmpty) throw Exception('Search query is required');
+  if (customerId.isEmpty) throw Exception('customerId is required');
+  
+  // Check internet
+  bool isConnected = await ConnectivityService().isOnline();
+  if (!isConnected) {
+    throw Exception('No internet connection. Search requires online access.');
+  }
+  
+  // Payload
+  final Map<String, dynamic> payload = {
+    "company_id": 1,
+    "search": query.trim(),
+    "customer_id": customerId,
+  };
+  
+  // API Call
+  final response = await dio.postbycustom(
+    ApiConstants.SearchInvoice, // Add this constant to your ApiConstants
+    data: payload,
+    options: Options(contentType: Headers.jsonContentType),
+  ).onError<DioException>((error, _) {
+    return Future.error(DioExceptionHandler.fromDioError(error));
+  });
+  
+  final responseJson = response.data as Map<String, dynamic>;
+  dev.log('response by search: $responseJson');
+  
+  // Return parsed response
+  return SearchResponse.fromJson(responseJson);
+}
+  
 }

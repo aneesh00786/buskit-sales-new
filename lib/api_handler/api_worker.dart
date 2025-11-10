@@ -33,11 +33,15 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/setti
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart' show Get;
+import 'package:get/get_instance/get_instance.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../common/pagination_model.dart';
@@ -3018,48 +3022,80 @@ class ApiWorker with ApiConstants {
  }
 
 
-Future<Map<String, dynamic>> submitButtonTap({
+ Future<Map<String, dynamic>> submitButtonTap({
   required String orderId,
   required String invoiceId,
   required String returnReason,
   required List<Map<String, dynamic>> returnItems,
+  required String customerId,
+  required String cartId,
+  required String salesmanId,
+  required String salesmanName,
 }) async {
-  // Validation
+  // -------------------------------------------------
+  // 1. Validation
+  // -------------------------------------------------
   if (orderId.isEmpty) throw Exception('orderId is required');
   if (invoiceId.isEmpty) throw Exception('invoiceId is required');
   if (returnItems.isEmpty) throw Exception('returnItems cannot be empty');
 
-  // Check internet
+  // -------------------------------------------------
+  // 2. Internet check
+  // -------------------------------------------------
   bool isConnected = await ConnectivityService().isOnline();
   if (!isConnected) {
     throw Exception('No internet connection. Return submission requires online access.');
   }
 
-  // Payload
+  // -------------------------------------------------
+  // 3. Payload (all strings)
+  // -------------------------------------------------
   final Map<String, dynamic> payload = {
     "order_id": orderId,
     "invoice_id": invoiceId,
     "company_id": "1",
+    "customer_id": customerId,
+    "cart_id": cartId,
     "return_reason": returnReason,
+    "created_by_id": salesmanId,
+    "created_by_name": salesmanName,
     "return_items": jsonEncode(returnItems),
   };
 
-  // API Call
-  final response = await dio.postbycustom(
+  debugPrint(">>> Sending API payload: ${jsonEncode(payload)}");
+
+  try {
+    final formData = FormData.fromMap(payload);
+
+    final response = await dio.postbycustom(
     ApiConstants.createSalesReturn, // e.g., "/create_sales_return1"
-    data: payload,
-    options: Options(contentType: Headers.formUrlEncodedContentType),
+    data: formData,
+    options: Options(contentType: Headers.multipartFormDataContentType),
   ).onError<DioException>((error, _) {
     return Future.error(DioExceptionHandler.fromDioError(error));
   });
 
-  final responseJson = response.data as Map<String, dynamic>;
+    debugPrint(">>> API Response status: ${response.statusCode}");
+    debugPrint(">>> API Response data: ${response.data}");
 
-  // Cache the successful response
-  // await box.put(cacheKey, responseJson);
-
-  return responseJson; // Return full response for controller to handle
+    if (response.statusCode == 200) {
+      final responseJson = response.data as Map<String, dynamic>;
+      return responseJson;
+    } else {
+      throw Exception("Failed with status ${response.statusCode}");
+    }
+  } on DioException catch (e) {
+    debugPrint("DioException: ${e.message}");
+    debugPrint("Dio Response: ${e.response?.data}");
+    throw Exception("Dio error: ${e.message}");
+  } catch (e) {
+    debugPrint("Unknown Error: $e");
+    throw Exception("Error: $e");
+  }
 }
+
+
+
 
 Future<SearchResponse> searchInvoice({
   required String query,

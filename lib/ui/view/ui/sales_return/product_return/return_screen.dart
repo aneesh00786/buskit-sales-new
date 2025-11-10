@@ -1,9 +1,14 @@
 import 'dart:io';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -27,7 +32,7 @@ class _ProductReturnDialogContentState
     extends State<ProductReturnDialogContent> {
   File? leadsImage;
 
-  Future<void> pickImage(ImageSource source) async {
+  Future<void> pickImages(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
@@ -77,6 +82,17 @@ class _ProductReturnDialogContentState
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Clear text every time screen is displayed
+    _ctrl.globalRemarkCtrl.clear();
+  }
+
+  bool _isRowInvalid(Cart cart) {
+    return (cart.damageQty + cart.returnQty) > (cart.quantity ?? 0);
+  }
+
   InputDecoration _numberFieldDecoration() => InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -102,13 +118,12 @@ class _ProductReturnDialogContentState
         contentPadding: const EdgeInsets.all(6),
       );
 
-  final TextEditingController _globalRemarkCtrl = TextEditingController();
+  // final TextEditingController _globalRemarkCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-
           // ---- SCROLLABLE BODY ----
           Expanded(child: Obx(() {
             if (_ctrl.orderData.value == null) {
@@ -122,27 +137,28 @@ class _ProductReturnDialogContentState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ---------- TITLE ----------
-                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   children: [
-                     Text(
-                    'Product Return - Invoice #${_ctrl.orderData.value!.invoice!.first.invoiceId}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Product Return - Invoice #${_ctrl.orderData.value!.invoice!.first.invoiceId}',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: SizedBox(
+                          // height: 50,
+                          // width: 50,
+                          child: const FaIcon(
+                            FontAwesomeIcons.circleXmark,
+                            color: Colors.red,
+                            size: 35,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                   InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                child: SizedBox(
-                  // height: 50,
-                  // width: 50,
-                  child: const FaIcon(
-                    FontAwesomeIcons.circleXmark,
-                    color: Colors.red,
-                    size: 35,
-                  ),
-                ),
-              ),
-                   ],
-                 ),
                   Divider(color: Colors.grey[400]),
                   const SizedBox(height: 16),
 
@@ -166,7 +182,7 @@ class _ProductReturnDialogContentState
                   // ---------- REMARK ----------
                   const Text('Remark *', style: TextStyle(color: Colors.red)),
                   TextField(
-                    controller: _globalRemarkCtrl,
+                    controller: _ctrl.globalRemarkCtrl,
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: 'Additional remarks or notes...',
@@ -204,7 +220,7 @@ class _ProductReturnDialogContentState
                         ),
                         onPressed: () {},
                         child: CustomText(
-                          content: 'Cncel',
+                          content: 'Cancel',
                           color: Colors.white,
                         ),
                       ),
@@ -244,7 +260,8 @@ class _ProductReturnDialogContentState
     if (order == null) {
       return const Center(child: SizedBox()); // Handled by parent Obx
     }
-
+    // final companyLogoUrl = getCompanyLogo(allCompanySettings);
+// print('image urlll:${order.imageUrl!}');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -254,10 +271,28 @@ class _ProductReturnDialogContentState
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                      radius: 20,
-                      backgroundImage:
-                          NetworkImage('https://picsum.photos/200/300')),
+                  Container(
+                    width: 50, // radius * 2
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle, // makes it round
+                      image: DecorationImage(
+                        image:
+                            NetworkImage("https://test.thrivewoo.com/uploads/setting/1739620175980.jpg"), // your network image
+                        fit: BoxFit.cover, // same as CircleAvatar
+                      ),
+                    ),
+
+                    child: order.imageUrl == null
+                        ? const Icon(Icons.person,
+                            size: 24, color: Color.fromARGB(255, 244, 8, 8))
+                        : null,
+                  ),
+
+                  // CircleAvatar(
+                  //     radius: 20,
+                  //     backgroundImage:
+                  //         NetworkImage(order.imageUrl!)),
                   const SizedBox(width: 8),
                   const Text('JRBS',
                       style:
@@ -354,14 +389,19 @@ class _ProductReturnDialogContentState
                   width: double.infinity,
                   color: e.key.isEven ? Colors.grey[50] : Colors.white,
                   padding: const EdgeInsets.all(8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      e.value.productName ?? '-',
-                      style: const TextStyle(fontSize: 13),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  child: Row(
+                    children: [
+                      // Product Name - takes available space
+                      Expanded(
+                        child: Text(
+                          '${e.value.productName ?? '-'} - ${e.value.variationName ?? '-'}',
+                          // e.value.productName ?? '-',
+                          style: const TextStyle(fontSize: 13),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -375,8 +415,8 @@ class _ProductReturnDialogContentState
             data: Theme.of(context).copyWith(
               scrollbarTheme: ScrollbarThemeData(
                 // thumbColor: WidgetStatePropertyAll( Color( primaryColor)), // Custom thumb color
-                thumbColor:WidgetStatePropertyAll(Colors.blue), 
-                    // WidgetStatePropertyAll(Theme.of(context).primaryColor),
+                thumbColor: WidgetStatePropertyAll(Colors.blue),
+                // WidgetStatePropertyAll(Theme.of(context).primaryColor),
                 radius: const Radius.circular(10), // Optional: rounded corners
                 thickness: WidgetStatePropertyAll(6), // Optional: thickness
               ),
@@ -402,21 +442,41 @@ class _ProductReturnDialogContentState
                           color: e.key.isEven ? Colors.grey[50] : Colors.white,
                           child: Row(
                             children: [
-                              _col(cart.price?.toStringAsFixed(2) ?? '0.00',
-                                  colUnit),
+                              // _col(cart.price?.toStringAsFixed(2) ?? '0.00',
+                              //     colUnit),
+                              _col(formatAmount(cart.price), colUnit),
                               _col(
                                   '${cart.pieces ?? 0} (${cart.quantity ?? 0} ${cart.packType ?? ''})'
                                       .trim(),
                                   colQty),
                               _col(
-                                  cart.totalPrice?.toStringAsFixed(2) ?? '0.00',
-                                  colAmt),
-                              _col(cart.discountAmount ?? '0.00', colDisc),
-                              _col(cart.tax?.toStringAsFixed(2) ?? '0.00',
-                                  colTax),
+                                formatAmount(
+                                    cart.totalPrice), // e.g., ₹ 1,500.00
+                                colAmt,
+                                align: TextAlign.right,
+                              ),
+                              // _col(cart.discountAmount ?? '0.00', colDisc),
                               _col(
-                                  cart.totalPrice?.toStringAsFixed(2) ?? '0.00',
-                                  colTotal),
+                                formatAmount(
+                                    cart.discountAmount), // e.g., ₹ 100.00
+                                colDisc,
+                                align: TextAlign.right,
+                              ),
+                              // _col(cart.tax?.toStringAsFixed(2) ?? '0.00',
+                              //     colTax),
+                              _col(
+                                formatAmount(cart.tax), // e.g., ₹ 270.00
+                                colTax,
+                                align: TextAlign.right,
+                              ),
+                              // _col(
+                              //     cart.totalPrice?.toStringAsFixed(2) ?? '0.00',
+                              //     colTotal),
+                              _col(
+                                formatAmount(cart.totalPrice),
+                                colTotal,
+                                align: TextAlign.right,
+                              ),
                               _col((cart.quantity ?? 0).toString(), colAvail,
                                   align: TextAlign.center),
                               SizedBox(
@@ -430,10 +490,31 @@ class _ProductReturnDialogContentState
                                       productReturnRowController.damageCtrl,
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
-                                  decoration:
-                                      _numberFieldDecoration(), // reuse your style
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  decoration: _numberFieldDecoration().copyWith(
+                                    // Optional: Visual error if invalid
+                                    errorText: _isRowInvalid(cart) ? '' : null,
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 1.5),
+                                    ),
+                                  ),
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: 80,
+                              //   child: TextField(
+                              //     controller:
+                              //         productReturnRowController.damageCtrl,
+                              //     keyboardType: TextInputType.number,
+                              //     textAlign: TextAlign.center,
+                              //     decoration:
+                              //         _numberFieldDecoration(), // reuse your style
+                              //   ),
+                              // ),
                               SizedBox(
                                 width: 30,
                               ),
@@ -445,19 +526,40 @@ class _ProductReturnDialogContentState
                                       productReturnRowController.returnCtrl,
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
-                                  decoration: _numberFieldDecoration(),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  decoration: _numberFieldDecoration().copyWith(
+                                    errorText: _isRowInvalid(cart) ? '' : null,
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                          color: Colors.red, width: 1.5),
+                                    ),
+                                  ),
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: 80,
+                              //   child: TextField(
+                              //     controller:
+                              //         productReturnRowController.returnCtrl,
+                              //     keyboardType: TextInputType.number,
+                              //     textAlign: TextAlign.center,
+                              //     decoration: _numberFieldDecoration(),
+                              //   ),
+                              // ),
                               SizedBox(
                                 width: 20,
                               ),
                               SizedBox(
                                 width: 80,
-                                child: _uploadImageBtn(
-                                  onPicked: (File file) =>
-                                      setState(() => cart.image = file),
-                                  currentFile: e.value.image,
-                                ),
+                                child: _uploadImageBtn(),
+                                //  _uploadImageBtn(
+                                //   onPicked: (File file) =>
+                                //       setState(() => cart.image = file),
+                                //   currentFile: e.value.image,
+                                // ),
                               ),
                               //  SizedBox(width:80,child:  _uploadImageBtn()),
                               SizedBox(
@@ -550,108 +652,107 @@ class _ProductReturnDialogContentState
     );
   }
 
-  Widget _editableNumberField() {
-    return TextField(
-      keyboardType: TextInputType.number,
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-        // Always visible border (when not focused)
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 1.5,
-          ),
-        ),
-        // Border when focused (slightly thicker for better UX)
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 2.0,
-          ),
-        ),
-        // Optional: fallback border
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        contentPadding: const EdgeInsets.all(6),
-      ),
-    );
-  }
+  // Widget _editableNumberField() {
+  //   return TextField(
+  //     keyboardType: TextInputType.number,
+  //     textAlign: TextAlign.center,
+  //     decoration: InputDecoration(
+  //       // Always visible border (when not focused)
+  //       enabledBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(8),
+  //         borderSide: const BorderSide(
+  //           color: Colors.blue,
+  //           width: 1.5,
+  //         ),
+  //       ),
+  //       // Border when focused (slightly thicker for better UX)
+  //       focusedBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(8),
+  //         borderSide: const BorderSide(
+  //           color: Colors.blue,
+  //           width: 2.0,
+  //         ),
+  //       ),
+  //       // Optional: fallback border
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //       contentPadding: const EdgeInsets.all(6),
+  //     ),
+  //   );
+  // }
 
-  Widget _uploadImageBtn(
-      {required Function(File) onPicked, File? currentFile}) {
-    return InkWell(
-      onTap: () async {
-        final picker = ImagePicker();
-        final picked = await picker.pickImage(source: ImageSource.gallery);
-        if (picked != null) onPicked(File(picked.path));
-      },
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: currentFile == null
-              ? const Icon(Icons.camera_alt, size: 20)
-              : const Icon(Icons.check, color: Colors.green),
-        ),
-      ),
-    );
-  }
-
-  // Widget _uploadImageBtn() {
-
+  // Widget _uploadImageBtn(
+  //     {required Function(File) onPicked, File? currentFile}) {
   //   return InkWell(
-  //     onTap: () {
-  //       showDialog(
-  //         barrierDismissible: false,
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Select Method'),
-  //             actions: [
-  //               IconButton(
-  //                 onPressed: () async {
-  //                   await  pickImage(ImageSource.camera);
-  //                   // setState(() {});
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 icon: const Icon(EneftyIcons.camera_outline),
-  //               ),
-  //               IconButton(
-  //                 onPressed: () async {
-  //                   await pickImage(ImageSource.gallery);
-  //                   // setState(() {});
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 icon: const Icon(EneftyIcons.gallery_bold),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
+  //     onTap: () async {
+  //       final picker = ImagePicker();
+  //       final picked = await picker.pickImage(source: ImageSource.gallery);
+  //       if (picked != null) onPicked(File(picked.path));
   //     },
   //     child: Container(
-  //       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
+  //       height: 40,
   //       decoration: BoxDecoration(
   //         border: Border.all(color: Colors.blue),
   //         borderRadius: BorderRadius.circular(8),
   //       ),
-  //       child: Row(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: const [
-  //           Icon(Icons.upload, size: 16, color: Colors.blue),
-  //           SizedBox(width: 4),
-  //           // Text('Upload Image', style: TextStyle(color: Colors.blue)),
-  //         ],
+  //       child: Center(
+  //         child: currentFile == null
+  //             ? const Icon(Icons.camera_alt, size: 20)
+  //             : const Icon(Icons.check, color: Colors.green),
   //       ),
   //     ),
   //   );
   // }
+
+  Widget _uploadImageBtn() {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Select Method'),
+              actions: [
+                IconButton(
+                  onPressed: () async {
+                    await pickImages(ImageSource.camera);
+                    // setState(() {});
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(EneftyIcons.camera_outline),
+                ),
+                IconButton(
+                  onPressed: () async {
+                    await pickImages(ImageSource.gallery);
+                    // setState(() {});
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(EneftyIcons.gallery_bold),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.upload, size: 16, color: Colors.blue),
+            SizedBox(width: 4),
+            // Text('Upload Image', style: TextStyle(color: Colors.blue)),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _reasonDropdown() {
     return TextField(
@@ -707,23 +808,42 @@ class _ProductReturnDialogContentState
     final List<Widget> rows = [];
 
     // Subtotal
-    rows.add(_totalRow('Subtotal:', '\$${subtotal.toStringAsFixed(2)}'));
+    rows.add(_totalRow(
+      'Subtotal:',
+      formatAmount(subtotal), // <-- uses currency symbol + Indian format
+    ));
+    // rows.add(_totalRow('Subtotal:', '\$${subtotal.toStringAsFixed(2)}'));
 
     // Discount (only if > 0)
     if (discount > 0) {
-      rows.add(_totalRow('Discount:', '-\$${discount.toStringAsFixed(2)}'));
+      rows.add(_totalRow(
+        'Discount:',
+        '-${formatAmount(discount)}',
+      ));
     }
+    // if (discount > 0) {
+    //   rows.add(_totalRow('Discount:', '-\$${discount.toStringAsFixed(2)}'));
+    // }
 
     // Taxes (only if exist)
     if (order.tax != null && order.tax!.isNotEmpty) {
       for (var t in order.tax!) {
-        final amount = double.tryParse(t.taxAmount.toString() ?? '0') ?? 0.0;
+        final amount = double.tryParse(t.taxAmount.toString()) ?? 0.0;
         rows.add(_totalRow(
           '${t.taxName ?? ''} - ${t.tax ?? ''}%',
-          '\$${amount.toStringAsFixed(2)}',
+          formatAmount(amount),
         ));
       }
     }
+    // if (order.tax != null && order.tax!.isNotEmpty) {
+    //   for (var t in order.tax!) {
+    //     final amount = double.tryParse(t.taxAmount.toString() ?? '0') ?? 0.0;
+    //     rows.add(_totalRow(
+    //       '${t.taxName ?? ''} - ${t.tax ?? ''}%',
+    //       '\$${amount.toStringAsFixed(2)}',
+    //     ));
+    //   }
+    // }
 
     // Divider before Total
     rows.add(const Divider(color: Colors.black));
@@ -731,9 +851,14 @@ class _ProductReturnDialogContentState
     // Total (bold)
     rows.add(_totalRow(
       'Total:',
-      '\$${orderTotal.toStringAsFixed(2)}',
+      formatAmount(orderTotal),
       style: const TextStyle(fontWeight: FontWeight.bold),
     ));
+    // rows.add(_totalRow(
+    //   'Total:',
+    //   '\$${orderTotal.toStringAsFixed(2)}',
+    //   style: const TextStyle(fontWeight: FontWeight.bold),
+    // ));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -774,3 +899,6 @@ class _ProductReturnDialogContentState
     );
   }
 }
+
+
+

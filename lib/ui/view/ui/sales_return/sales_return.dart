@@ -206,7 +206,7 @@ List<Widget> _buildFilters(
   }
 
   // Build the dropdown (always visible)
-  Widget _timePeriodDropdown() {
+  Widget timePeriodDropdown() {
     return Container(
     width: fieldWidth,
       height: fieldHeight,
@@ -244,36 +244,36 @@ List<Widget> _buildFilters(
           }
         },
         items: [
+           DropdownMenuItem(
+            // alignment: Alignment.center,
+            value: FilterDateEnum.today,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CustomText(content: 'Today', fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+           DropdownMenuItem(
+            // alignment: Alignment.center,
+            value: FilterDateEnum.thisWeek,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CustomText(content: 'This Week', fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
           DropdownMenuItem(
             // alignment: Alignment.center,
             value: FilterDateEnum.thisMonth,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: CustomText(content: 'Month', fontSize: 16, fontWeight: FontWeight.bold),
+              child: CustomText(content: 'This Month', fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
-          DropdownMenuItem(
-            // alignment: Alignment.center,
-            value: FilterDateEnum.thisWeek,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CustomText(content: 'Week', fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-          DropdownMenuItem(
-            // alignment: Alignment.center,
-            value: FilterDateEnum.today,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CustomText(content: 'Day', fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
+          ),  
           DropdownMenuItem(
             // alignment: Alignment.center,
             value: FilterDateEnum.thisYear,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: CustomText(content: 'Year', fontSize: 16, fontWeight: FontWeight.bold),
+              child: CustomText(content: 'This Year', fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           DropdownMenuItem(
@@ -316,7 +316,7 @@ List<Widget> _buildFilters(
     _buildFilterColumn(
       title: CustomText(content: 'Time Period', fontWeight: FontWeight.bold),
       spacing: 10,
-      child: _timePeriodDropdown(),
+      child: timePeriodDropdown(),
     ),
 
     

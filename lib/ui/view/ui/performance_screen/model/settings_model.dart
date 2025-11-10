@@ -77,6 +77,8 @@ class AllCompanySettingsData {
 }
 
 
+
+
 class Currency {
   String? country;
   String? currencyCode;

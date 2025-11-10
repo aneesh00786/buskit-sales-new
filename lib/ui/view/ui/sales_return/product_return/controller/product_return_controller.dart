@@ -3,6 +3,9 @@ import 'dart:convert';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
 import 'package:dio/dio.dart';
@@ -16,16 +19,8 @@ class ProductReturnController extends GetxController {
   var isLoading = true.obs;
   var cartItems = <Cart>[].obs;
   var orderData = Rxn<ProductReturnData>(); // Full order details
-
-  final Dio _dio = Dio();
   final List<ProductReturnRowController> rowControllers = [];
   final TextEditingController globalRemarkCtrl = TextEditingController();
-  
-   
-
-
-
-
   Future<void> fetchProductReturnDetails() async {
     if (orderId.value.isEmpty) return;
 
@@ -60,6 +55,10 @@ class ProductReturnController extends GetxController {
     }
   }
 Future<void> submitReturn() async {
+
+  final loginData = SessionHelper.loginSavedData;
+  final salesmanInternalId = loginData?.id?.toString();
+  debugPrint('Sending salesmanId (user ID): $salesmanInternalId');
   // ---------------------------------------------------------
   // 1. SYNC ROW CONTROLLERS (unchanged)
   // ---------------------------------------------------------
@@ -67,18 +66,22 @@ Future<void> submitReturn() async {
     Get.snackbar('Error', 'No items loaded. Please try again.');
     return;
   }
+  // final invalidRows = cartItems.where((item) =>
+  //     (item.damageQty + item.returnQty) > (item.quantity ?? 0));
 
-  for (final ctrl in rowControllers) {
-    final cart = ctrl.cart;
-    print('Row | Product: ${cart.productName} | '
-        'Damage: ${cart.damageQty} | Return: ${cart.returnQty} | '
-        'Reason: "${cart.itemReason}" | '
-        'Image: ${cart.image != null ? cart.image!.path.split('/').last : 'null'}');
-  }
+  // if (invalidRows.isNotEmpty) {
+  //   Get.snackbar(
+  //     "Invalid Input",
+  //     "Damage + Return Qty cannot exceed Available Qty for ${invalidRows.length} item(s)",
+  //     backgroundColor: Colors.red,
+  //     colorText: Colors.white,
+  //     duration: const Duration(seconds: 4),
+  //   );
+  //   return; // Stop submission
+  // }
 
-  // ---------------------------------------------------------
-  // 2. BUILD return_items
-  // ---------------------------------------------------------
+
+  LoginResponse? loginResponce;
   final List<Map<String, dynamic>> returnItems = cartItems
       .where((c) => c.damageQty > 0 || c.returnQty > 0)
       .map((c) {
@@ -88,13 +91,15 @@ Future<void> submitReturn() async {
       "variation_id": c.variationId ?? "",
       "damage_quantity": c.damageQty,
       "return_quantity": c.returnQty,
-      "original_quantity": c.quantity ?? 0,
-      "damage_refund_amount": (c.damageQty * (c.price ?? 0)).toStringAsFixed(2),
-      "return_refund_amount": (c.returnQty * (c.price ?? 0)).toStringAsFixed(2),
-      "item_reason": c.itemReason,
+      "original_quantity": (c.quantity ?? 0),
+      "damage_refund_amount": (c.damageQty * (c.price ?? 0)),
+      "return_refund_amount": (c.returnQty * (c.price ?? 0)),
+      "item_reason": c.itemReason ?? "",
       "has_image": hasImage,
+      "cart_id": c.cartId ?? "",
     };
   }).toList();
+  debugPrint('return_items arrayyyy: ${const JsonEncoder.withIndent('  ').convert(returnItems)}');
 
   if (returnItems.isEmpty) {
     Get.snackbar('Warning', 'Add at least one item to return');
@@ -105,118 +110,35 @@ Future<void> submitReturn() async {
   // 3. CALL THE EXTERNAL FUNCTION
   // ---------------------------------------------------------
   try {
+    print('starting to call api function');
     final response = await ApiWorker().submitButtonTap(
       orderId: orderId.value,
       invoiceId: orderData.value!.invoice!.first.invoiceId!,
       returnReason: globalRemarkCtrl.text.trim(),
       returnItems: returnItems,
+      customerId: orderData.value?.customerId ?? "",        // ← ADD THESE
+      cartId: orderData.value?.cartId ?? "",                // ← ADD THESE
+      salesmanId: salesmanInternalId!,        // ← ADD THESE
+      salesmanName: orderData.value?.salesmanName ?? "", 
     );
-
-    // Success
+    debugPrint('Response keys: ${response}');
+// debugPrint('Status value: ${response['status']} (${response['status'].runtimeType})');
+// debugPrint('Status code: ${response['status_code']}');
     if (response['status'] == true) {
       Get.back();
-      Get.snackbar('Success', response['message'] ?? 'Return created');
+      Get.snackbar('Success', response['message'] ?? 'Return created',colorText: Colors.white,duration: Duration(seconds: 3),backgroundColor: Colors.green);
     } else {
       Get.snackbar('Error', response['message'] ?? 'Unknown error');
     }
   } catch (e) {
-    Get.snackbar('Error', e.toString());
-    print('Submit Error: $e');
+    
+    debugPrint('Submit Error: $e'); // Use debugPrint
+  if (e is DioException) {
+    
+  }
+  Get.snackbar('Error', e.toString());
   }
 }
-  
-
- 
-
-
-// Future<void> submitReturn() async {
-//   // ---------------------------------------------------------
-//   // 1. SYNC ALL EXISTING ROW CONTROLLERS (they already exist!)
-//   // ---------------------------------------------------------
-//   if (rowControllers.isEmpty) {
-//     Get.snackbar('Error', 'No items loaded. Please try again.');
-//     return;
-//   }
-
-//   print('=== SYNCING ROWS ===');
-//   for (final ctrl in rowControllers) {
-//     // ctrl.sync(); // <-- This reads the current TextField values!
-
-//     final cart = ctrl.cart;
-//     print('Row | '
-//         'Product: ${cart.productName} | '
-//         'Damage: ${cart.damageQty} | '
-//         'Return: ${cart.returnQty} | '
-//         'Reason: "${cart.itemReason}" | '
-//         'Image: ${cart.image != null ? cart.image!.path.split('/').last : 'null'}');
-//   }
-
-//   // ---------------------------------------------------------
-//   // 2. BUILD return_items ARRAY + PRINT
-//   // ---------------------------------------------------------
-//   final List<Map<String, dynamic>> returnItems = cartItems
-//       .where((c) => c.damageQty > 0 || c.returnQty > 0)
-//       .map((c) {
-//     final hasImage = c.image != null;
-//     final item = {
-//       "product_id": c.productId ?? "",
-//       "variation_id": c.variationId ?? "",
-//       "damage_quantity": c.damageQty,
-//       "return_quantity": c.returnQty,
-//       "original_quantity": c.quantity ?? 0,
-//       "damage_refund_amount": (c.damageQty * (c.price ?? 0)).toStringAsFixed(2),
-//       "return_refund_amount": (c.returnQty * (c.price ?? 0)).toStringAsFixed(2),
-//       "item_reason": c.itemReason,
-//       "has_image": hasImage,
-//     };
-//     print('return_item: ${jsonEncode(item)}');
-//     return item;
-//   }).toList();
-
-//   if (returnItems.isEmpty) {
-//     Get.snackbar('Warning', 'Add at least one item to return');
-//     return;
-//   }
-
-//   // --------------------------------------------------------1. FULL PAYLOAD
-//   // ---------------------------------------------------------
-//   final Map<String, dynamic> payload = {
-//     "order_id": orderId,
-//     "invoice_id": orderData.value!.invoice!.first.invoiceId,
-//     "company_id": "1",
-//     "return_reason": globalRemarkCtrl.text.trim(),
-//     "return_items": jsonEncode(returnItems),
-//   };
-
-//   print('\n=== FINAL PAYLOAD ===');
-//   payload.forEach((k, v) => print('$k: $v'));
-//   print('========================================\n');
-
-//   // ---------------------------------------------------------
-//   // 3. SEND TO SERVER
-//   // ---------------------------------------------------------
-//   try {
-//     final response = await _dio.post(
-//       "https://test.thrivewoo.com/create_sales_return1",
-//       data: payload,
-//       options: Options(contentType: Headers.formUrlEncodedContentType),
-//     );
-
-//     final resp = response.data as Map<String, dynamic>;
-//     print('SERVER RESPONSE: $resp');
-
-//     if (resp['status'] == true) {
-//       Get.back();
-//       Get.snackbar('Success', resp['message'] ?? 'Return created');
-//     } else {
-//       Get.snackbar('Error', resp['message'] ?? 'Unknown error');
-//     }
-//   } on DioException catch (e) {
-//     final msg = e.response?.data?['message'] ?? e.message;
-//     print('DIO ERROR: $msg');
-//     Get.snackbar('Network error', msg);
-//   }
-// }
 @override
   void onClose() {
     cartItems.clear();

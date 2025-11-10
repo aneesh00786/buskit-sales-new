@@ -140,8 +140,10 @@ Widget buildPaymentStatus(GetRecentOrderReturnData paymentStatusData){
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       
-      //  CustomText(content: paymentStatusData.paymentStatus, fontWeight: FontWeight.bold, fontSize: 14,),
-      paymentStatus({ 'paymentType': paymentStatusData.paymentStatus}),
+      
+       paymentStatus({
+        'payment_status': paymentStatusData.paymentStatus, // from API
+      }),
     ],
   );
 }
@@ -166,25 +168,44 @@ Widget buildStatus(GetRecentOrderReturnData statusData){
     ],
   );
 }
+Widget paymentStatus(Map<String, dynamic> order) {
+  final int paymentStatus = order['payment_status'] ?? -1;
 
-  Widget paymentStatus(Map<String, dynamic> order) {
-    final paymentType = order['paymentType']?.toString() ?? '';
-    Color statusColor =
-        paymentType.toLowerCase() == 'paid' ? Colors.green : Colors.red;
-    IconData icon =
-        paymentType.toLowerCase() == 'paid' ? Icons.check : Icons.close;
-    return Center(
-      child: CircleAvatar(
-        backgroundColor: statusColor,
-        radius: 12,
-        child: Icon(
-          icon,
-          size: 20,
-          color: white,
-        ),
-      ),
-    );
+  Color statusColor;
+  IconData icon;
+
+  switch (paymentStatus) {
+    case 1: // Paid
+      statusColor = Colors.green;
+      icon = Icons.check;
+      break;
+    case 0: // Unpaid
+      statusColor = Colors.red;
+      icon = Icons.close;
+      break;
+    case 3: // Pending or Partial
+      statusColor = Colors.yellow;
+      icon = Icons.check;
+      break;
+    default: // Unknown or missing status
+      statusColor = Colors.grey;
+      icon = Icons.help_outline;
   }
+
+  return Center(
+    child: CircleAvatar(
+      backgroundColor: statusColor,
+      radius: 12,
+      child: Icon(
+        icon,
+        size: 20,
+        color: Colors.white,
+      ),
+    ),
+  );
+}
+
+
   Widget buildAction(BuildContext context,GetRecentOrderReturnData salesReturnData){
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,

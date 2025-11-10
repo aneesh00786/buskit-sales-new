@@ -30,7 +30,8 @@ class SIdeBarIcon {
       IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData ic_dashboard =
       IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-
+   static const IconData ic_salesReturn =
+      IconData(0xe810a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData ic_none=
   IconData(0xeff, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 

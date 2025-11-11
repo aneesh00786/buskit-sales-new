@@ -102,7 +102,7 @@ Future<void> submitReturn() async {
         imageList.add({'client_key': i, 'file': item.image});
       }
     }
-
+     print('Imagelistt:$imageList');
     // ── Build returnItems ──
     final List<Map<String, dynamic>> returnItems = [];
     for (var i = 0; i < cartItems.length; i++) {

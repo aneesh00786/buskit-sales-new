@@ -30,42 +30,44 @@ class ProductReturnDialogContent extends StatefulWidget {
 class _ProductReturnDialogContentState
     extends State<ProductReturnDialogContent> {
   File? leadsImage;
-  Future<File?> pickImages({
-  required ImageSource source,
-  required BuildContext context,   // to show SnackBar
-}) async {
+Future<File?> pickImages(ImageSource source) async {
   final picker = ImagePicker();
   final pickedFile = await picker.pickImage(source: source);
 
-  if (pickedFile == null) return null;          // user cancelled
+  if (pickedFile == null) return null;               // Nothing selected
 
   final imageFile = File(pickedFile.path);
-  final int sizeInBytes = await imageFile.length();
-  final int sizeInKB = sizeInBytes ~/ 1024;
+  final sizeInBytes = imageFile.lengthSync();        // File size in bytes
+  const maxSizeInBytes = 500 * 1024;                 // 500 KB
 
-  const int maxSizeKB = 500;
+  if (sizeInBytes <= maxSizeInBytes) {
+    // ✅ Good to go
+    setState(() {
+      leadsImage = imageFile;
+    });
+    return imageFile;
+  } else {
+    // ❌ Too big – inform the user
+    if (!mounted) return null;    
+              Get.snackbar(
+                'Image too large (${(sizeInBytes / 1024).toStringAsFixed(1)} KB). ',
+                 'Please select an image 500 KB or smaller',colorText: Colors.white,
+                 backgroundColor: Colors.red,
+                 snackPosition: SnackPosition.TOP
+                );
 
-  if (sizeInKB > maxSizeKB) {
-    // ---- show warning -------------------------------------------------
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.redAccent,
-        content: Text(
-          'Image is too large ($sizeInKB KB). '
-          'Please choose an image ≤ $maxSizeKB KB.',
-        ),
-        duration: const Duration(seconds: 4),
-      ),
-    );
-    return null;   // reject the file
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(
+    //       'Image too large (${(sizeInBytes / 1024).toStringAsFixed(1)} KB). '
+    //       'Please choose an image ≤ 500 KB.',
+    //     ),
+    //     backgroundColor: Colors.redAccent,
+    //   ),
+    // );
+    return null;
   }
-
-  // ---- optional: keep your old state update -------------------------
-  // setState(() { leadsImage = imageFile; });
-
-  return imageFile;   // file is good
 }
-
   // Future<File?> pickImages(ImageSource source) async {
   //   final picker = ImagePicker();
   //   final pickedFile = await picker.pickImage(source: source);
@@ -619,19 +621,19 @@ class _ProductReturnDialogContentState
                                 width: 80,
                                 
                                 child: 
+//                                 _uploadImageBtn(
+//   context: context,               // <-- make sure you pass the widget's context
+//   onPicked: (File file) {
+//     // file is guaranteed ≤ 50 KB
+//     setState(() => leadsImage = file);
+//   },
+//   currentFile: leadsImage,
+// ),
                                 _uploadImageBtn(
-  context: context,               // <-- make sure you pass the widget's context
-  onPicked: (File file) {
-    // file is guaranteed ≤ 50 KB
-    setState(() => leadsImage = file);
-  },
-  currentFile: leadsImage,
-),
-                                // _uploadImageBtn(
-                                //   onPicked: (File file) =>
-                                //       setState(() => cart.image = file),
-                                //   currentFile: cart.image,
-                                // ),
+                                  onPicked: (File file) =>
+                                      setState(() => cart.image = file),
+                                  currentFile: cart.image,
+                                ),
                               ),
                               //  SizedBox(width:80,child:  _uploadImageBtn()),
                               SizedBox(
@@ -812,7 +814,7 @@ class _ProductReturnDialogContentState
 // }
 
   Widget _uploadImageBtn(
-      {required Function(File file) onPicked, File? currentFile,required BuildContext context,}) {
+      {required Function(File file) onPicked, File? currentFile,}) {
     return InkWell(
       onTap: () {
         showDialog(
@@ -824,7 +826,7 @@ class _ProductReturnDialogContentState
               actions: [
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages(source:  ImageSource.camera,context: context);
+                    final file = await pickImages(  ImageSource.camera,);
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
@@ -832,7 +834,7 @@ class _ProductReturnDialogContentState
                 ),
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages(source:  ImageSource.camera,context: context);
+                    final file = await pickImages( ImageSource.gallery,);
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },

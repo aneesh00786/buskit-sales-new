@@ -3064,10 +3064,10 @@ class ApiWorker with ApiConstants {
   };
     if (imageList != null && imageList.isNotEmpty) {
   for (final imageData in imageList) {
-    final index = imageData['index'];
+    final clientKey = imageData['client_key'] as int;
     final file = imageData['file'] as File?;
     if (file != null) {
-      payload['damage_image_$index'] = await MultipartFile.fromFile(
+      payload['damage_image_$clientKey'] = await MultipartFile.fromFile(
         file.path,
         filename: file.path.split('/').last,
       );

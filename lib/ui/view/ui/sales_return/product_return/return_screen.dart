@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
@@ -29,21 +30,56 @@ class ProductReturnDialogContent extends StatefulWidget {
 class _ProductReturnDialogContentState
     extends State<ProductReturnDialogContent> {
   File? leadsImage;
+  Future<File?> pickImages({
+  required ImageSource source,
+  required BuildContext context,   // to show SnackBar
+}) async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: source);
 
-  Future<File?> pickImages(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
+  if (pickedFile == null) return null;          // user cancelled
 
-    if (pickedFile != null) {
-      final imageFile = File(pickedFile.path);
-      setState(() {
-        leadsImage = imageFile; // keep your state update if you still need it
-      });
-      return imageFile; // ✅ return the selected file
-    }
+  final imageFile = File(pickedFile.path);
+  final int sizeInBytes = await imageFile.length();
+  final int sizeInKB = sizeInBytes ~/ 1024;
 
-    return null; // ✅ explicitly return null if nothing selected
+  const int maxSizeKB = 50;
+
+  if (sizeInKB > maxSizeKB) {
+    // ---- show warning -------------------------------------------------
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.redAccent,
+        content: Text(
+          'Image is too large ($sizeInKB KB). '
+          'Please choose an image ≤ $maxSizeKB KB.',
+        ),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+    return null;   // reject the file
   }
+
+  // ---- optional: keep your old state update -------------------------
+  // setState(() { leadsImage = imageFile; });
+
+  return imageFile;   // file is good
+}
+
+  // Future<File?> pickImages(ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: source);
+
+  //   if (pickedFile != null) {
+  //     final imageFile = File(pickedFile.path);
+  //     setState(() {
+  //       leadsImage = imageFile; // keep your state update if you still need it
+  //     });
+  //     return imageFile; // ✅ return the selected file
+  //   }
+
+  //   return null; // ✅ explicitly return null if nothing selected
+  // }
 
   // Future<void> pickImages(ImageSource source) async {
   //   final picker = ImagePicker();
@@ -240,22 +276,63 @@ class _ProductReturnDialogContentState
                         ),
                       ),
                       SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8.0), // Radius of 8
-                          ),
-                        ),
-                        onPressed: () async {
-                          await _ctrl.submitReturn();
-                        },
-                        child: CustomText(
-                          content: 'Submit Return',
-                          color: Colors.white,
-                        ),
-                      )
+                    ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.red,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+  ),
+  onPressed: _ctrl.isSubmitting.value
+      ? null
+      : () => _ctrl.submitReturn(),
+    
+  child: _ctrl.isSubmitting.value
+      ? const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        )
+      : CustomText(
+          content: 'Submit Return',
+          color: Colors.white,
+        ),
+        
+),
+                      // ElevatedButton(
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: Colors.red,
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius:
+                      //           BorderRadius.circular(8.0), // Radius of 8
+                      //     ),
+                      //   ),
+                      //   onPressed:_ctrl.isSubmitting.value?
+                      //   null:() async => await _ctrl.submitReturn(),
+                      //   child: _ctrl.isSubmitting.value?
+                      //   SizedBox(
+                      //     width: 20,
+                      //     height: 20,
+                      //     child: CircularProgressIndicator(
+                      //       color: Colors.white,
+                      //       strokeWidth: 2,
+                      //     ),
+                      //   ): CustomText(
+                      //     content: 'Submit Return',
+                      //     color: Colors.white,
+                      //   )
+                      //   ,
+                      //   //  () async {
+                      //   //   await _ctrl.submitReturn();
+                      //   // },
+                      //   // child: CustomText(
+                      //   //   content: 'Submit Return',
+                      //   //   color: Colors.white,
+                      //   // ),
+                      // )
                     ],
                   )
                 ],
@@ -334,7 +411,7 @@ class _ProductReturnDialogContentState
               Text('Phone: ${order.mobileno}'),
               const SizedBox(height: 8),
               Text(
-                'Order: ${order.orderId} | Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : 'N/A'}',
+                'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : 'N/A'} | ${NKDateUtils.commonFullDateTimeFormat2(order.invoice!.firstOrNull!.createdAt!)}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -511,24 +588,10 @@ class _ProductReturnDialogContentState
                                       FilteringTextInputFormatter.digitsOnly
                                     ],
                                     decoration: _numberFieldDecoration()
-                                    // copyWith(
-                                    //   // Optional: Visual error if invalid
-                                    //   errorText: _isRowInvalid(cart) ? '' : null,
-
-                                    // ),
+                                    
                                     ),
                               ),
-                              // SizedBox(
-                              //   width: 80,
-                              //   child: TextField(
-                              //     controller:
-                              //         productReturnRowController.damageCtrl,
-                              //     keyboardType: TextInputType.number,
-                              //     textAlign: TextAlign.center,
-                              //     decoration:
-                              //         _numberFieldDecoration(), // reuse your style
-                              //   ),
-                              // ),
+                             
                               SizedBox(
                                 width: 30,
                               ),
@@ -544,14 +607,7 @@ class _ProductReturnDialogContentState
                                       FilteringTextInputFormatter.digitsOnly
                                     ],
                                     decoration: _numberFieldDecoration()
-                                    // copyWith(
-                                    //   errorText: _isRowInvalid(cart) ? '' : null,
-                                    //   // errorBorder: OutlineInputBorder(
-                                    //   //   borderRadius: BorderRadius.circular(8),
-                                    //   //   borderSide: const BorderSide(
-                                    //   //       color: Colors.red, width: 1.5),
-                                    //   // ),
-                                    // ),
+                                    
                                     ),
                               ),
                               // SizedBox(
@@ -561,25 +617,21 @@ class _ProductReturnDialogContentState
                               ),
                               SizedBox(
                                 width: 80,
-                                // child: _uploadImageBtn(),
-                                //                                 child: _uploadImageBtn(
-                                //   currentFile: selectedImage,
-                                //   onPicked: (file) {
-                                //     setState(() {
-                                //       selectedImage = file;
-                                //     });
-                                //   },
-                                //   onDelete: () {
-                                //     setState(() {
-                                //       selectedImage = null;
-                                //     });
-                                //   },
-                                // )
-                                child: _uploadImageBtn(
-                                  onPicked: (File file) =>
-                                      setState(() => cart.image = file),
-                                  currentFile: cart.image,
-                                ),
+                                
+                                child: 
+                                _uploadImageBtn(
+  context: context,               // <-- make sure you pass the widget's context
+  onPicked: (File file) {
+    // file is guaranteed ≤ 50 KB
+    setState(() => leadsImage = file);
+  },
+  currentFile: leadsImage,
+),
+                                // _uploadImageBtn(
+                                //   onPicked: (File file) =>
+                                //       setState(() => cart.image = file),
+                                //   currentFile: cart.image,
+                                // ),
                               ),
                               //  SizedBox(width:80,child:  _uploadImageBtn()),
                               SizedBox(
@@ -760,7 +812,7 @@ class _ProductReturnDialogContentState
 // }
 
   Widget _uploadImageBtn(
-      {required Function(File file) onPicked, File? currentFile}) {
+      {required Function(File file) onPicked, File? currentFile,required BuildContext context,}) {
     return InkWell(
       onTap: () {
         showDialog(
@@ -772,7 +824,7 @@ class _ProductReturnDialogContentState
               actions: [
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages(ImageSource.camera);
+                    final file = await pickImages(source:  ImageSource.camera,context: context);
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
@@ -780,7 +832,7 @@ class _ProductReturnDialogContentState
                 ),
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages(ImageSource.gallery);
+                    final file = await pickImages(source:  ImageSource.camera,context: context);
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },

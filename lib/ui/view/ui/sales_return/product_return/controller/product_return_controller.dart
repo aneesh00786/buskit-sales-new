@@ -1,11 +1,9 @@
 
 import 'dart:convert';
 
-import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
 import 'package:dio/dio.dart';
@@ -57,7 +55,7 @@ class ProductReturnController extends GetxController {
 Future<void> submitReturn() async {
 
   final loginData = SessionHelper.loginSavedData;
-  final salesmanInternalId = loginData?.id?.toString();
+  final salesmanInternalId = loginData?.salesmanId?.toString();
   debugPrint('Sending salesmanId (user ID): $salesmanInternalId');
   // ---------------------------------------------------------
   // 1. SYNC ROW CONTROLLERS (unchanged)
@@ -66,21 +64,22 @@ Future<void> submitReturn() async {
     Get.snackbar('Error', 'No items loaded. Please try again.');
     return;
   }
-  // final invalidRows = cartItems.where((item) =>
-  //     (item.damageQty + item.returnQty) > (item.quantity ?? 0));
+  final List<Map<String, dynamic>> imageList = [];
 
-  // if (invalidRows.isNotEmpty) {
-  //   Get.snackbar(
-  //     "Invalid Input",
-  //     "Damage + Return Qty cannot exceed Available Qty for ${invalidRows.length} item(s)",
-  //     backgroundColor: Colors.red,
-  //     colorText: Colors.white,
-  //     duration: const Duration(seconds: 4),
-  //   );
-  //   return; // Stop submission
-  // }
+for (var i = 0; i < cartItems.length; i++) {
+  final item = cartItems[i];
+  if (item.image != null) {
+    imageList.add({
+      'index': i, // 👈 store the list index
+      'file': item.image, // File object
+    });
+  }
+}
+
+print('image list:$imageList');
 
 
+  
   LoginResponse? loginResponce;
   final List<Map<String, dynamic>> returnItems = cartItems
       .where((c) => c.damageQty > 0 || c.returnQty > 0)
@@ -99,7 +98,7 @@ Future<void> submitReturn() async {
       "cart_id": c.cartId ?? "",
     };
   }).toList();
-  debugPrint('return_items arrayyyy: ${const JsonEncoder.withIndent('  ').convert(returnItems)}');
+  
 
   if (returnItems.isEmpty) {
     Get.snackbar('Warning', 'Add at least one item to return');
@@ -120,8 +119,9 @@ Future<void> submitReturn() async {
       cartId: orderData.value?.cartId ?? "",                // ← ADD THESE
       salesmanId: salesmanInternalId!,        // ← ADD THESE
       salesmanName: orderData.value?.salesmanName ?? "", 
+      imageList: imageList,
     );
-    debugPrint('Response keys: ${response}');
+    
 // debugPrint('Status value: ${response['status']} (${response['status'].runtimeType})');
 // debugPrint('Status code: ${response['status_code']}');
     if (response['status'] == true) {

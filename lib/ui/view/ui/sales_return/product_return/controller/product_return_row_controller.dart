@@ -61,7 +61,7 @@ class ProductReturnRowController {
   void _validateAndSync() {
   final int damage = int.tryParse(damageCtrl.text) ?? 0;
   final int returnQty = int.tryParse(returnCtrl.text) ?? 0;
-  final int available = cart.quantity ?? 0;
+  final int available = cart.suppliedQty ?? 0;
 
   int newDamage = damage;
   int newReturn = returnQty;

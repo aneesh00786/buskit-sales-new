@@ -3031,6 +3031,7 @@ class ApiWorker with ApiConstants {
   required String cartId,
   required String salesmanId,
   required String salesmanName,
+  List<Map<String,dynamic>>? imageList,
 }) async {
   // -------------------------------------------------
   // 1. Validation
@@ -3061,8 +3062,31 @@ class ApiWorker with ApiConstants {
     "created_by_name": salesmanName,
     "return_items": jsonEncode(returnItems),
   };
+    if (imageList != null && imageList.isNotEmpty) {
+  for (final imageData in imageList) {
+    final index = imageData['index'];
+    final file = imageData['file'] as File?;
+    if (file != null) {
+      payload['damage_image_$index'] = await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      );
+    }
+  }
+}
 
-  debugPrint(">>> Sending API payload: ${jsonEncode(payload)}");
+  // if(imageList != null && imageList.isNotEmpty){
+  //   for(final imageData in imageList){
+  //     final cartId = imageData['cart_id'];
+  //     final file = imageData['file'] as File?;
+  //     if(file != null){
+  //       payload['damage_image_$cartId'] = 
+  //       await MultipartFile.fromFile(file.path,filename: file.path.split('/').last);
+  //     }
+  //   }
+  // }
+
+  // debugPrint(">>> Sending API payload: ${jsonEncode(payload)}");
 
   try {
     final formData = FormData.fromMap(payload);

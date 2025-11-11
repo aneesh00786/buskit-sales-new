@@ -275,6 +275,7 @@ class Cart {
   int returnQty = 0;
   File? image;
   String itemReason = '';
+  int? suppliedQty;
 
   Cart({
     this.id,
@@ -307,6 +308,7 @@ class Cart {
     this.returnQty = 0,
     this.image,
     this.itemReason = '',
+    this.suppliedQty,
   });
 
   factory Cart.fromJson(Map<String, dynamic> json) => Cart(
@@ -343,6 +345,7 @@ class Cart {
         returnQty: 0,
         image: null,
         itemReason: '',
+        suppliedQty: json['supplied_qty'] as int?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -371,6 +374,7 @@ class Cart {
         'variation_name': variationName,
         'product_name': productName,
         'catId': catId,
+        'supplied_qty': suppliedQty,
       };
 }
 

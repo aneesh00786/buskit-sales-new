@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
@@ -32,17 +30,32 @@ class _ProductReturnDialogContentState
     extends State<ProductReturnDialogContent> {
   File? leadsImage;
 
-  Future<void> pickImages(ImageSource source) async {
+  Future<File?> pickImages(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
+      final imageFile = File(pickedFile.path);
       setState(() {
-        leadsImage = imageFile;
+        leadsImage = imageFile; // keep your state update if you still need it
       });
+      return imageFile; // ✅ return the selected file
     }
+
+    return null; // ✅ explicitly return null if nothing selected
   }
+
+  // Future<void> pickImages(ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: source);
+
+  //   if (pickedFile != null) {
+  //     File imageFile = File(pickedFile.path);
+  //     setState(() {
+  //       leadsImage = imageFile;
+  //     });
+  //   }
+  // }
 
 // late final ProductReturnController _ctrl;
   late final ProductReturnController _ctrl;
@@ -90,7 +103,7 @@ class _ProductReturnDialogContentState
   }
 
   bool _isRowInvalid(Cart cart) {
-    return (cart.damageQty + cart.returnQty) > (cart.quantity ?? 0);
+    return (cart.damageQty + cart.returnQty) > (cart.suppliedQty ?? 0);
   }
 
   InputDecoration _numberFieldDecoration() => InputDecoration(
@@ -218,7 +231,9 @@ class _ProductReturnDialogContentState
                                 BorderRadius.circular(8.0), // Radius of 8
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Get.back();
+                        },
                         child: CustomText(
                           content: 'Cancel',
                           color: Colors.white,
@@ -277,8 +292,8 @@ class _ProductReturnDialogContentState
                     decoration: BoxDecoration(
                       shape: BoxShape.circle, // makes it round
                       image: DecorationImage(
-                        image:
-                            NetworkImage("https://test.thrivewoo.com/uploads/setting/1739620175980.jpg"), // your network image
+                        image: NetworkImage(
+                            "https://test.thrivewoo.com/uploads/setting/1739620175980.jpg"), // your network image
                         fit: BoxFit.cover, // same as CircleAvatar
                       ),
                     ),
@@ -437,6 +452,8 @@ class _ProductReturnDialogContentState
                         final productReturnRowController =
                             ProductReturnRowController(cart);
                         _ctrl.rowControllers.add(productReturnRowController);
+                        File? selectedImage;
+
                         return Container(
                           height: ProductReturnDialogContent._fixedRowHeight,
                           color: e.key.isEven ? Colors.grey[50] : Colors.white,
@@ -477,7 +494,7 @@ class _ProductReturnDialogContentState
                                 colTotal,
                                 align: TextAlign.right,
                               ),
-                              _col((cart.quantity ?? 0).toString(), colAvail,
+                              _col((cart.suppliedQty ?? 0).toString(), colAvail,
                                   align: TextAlign.center),
                               SizedBox(
                                 width: 10,
@@ -486,23 +503,20 @@ class _ProductReturnDialogContentState
                               SizedBox(
                                 width: 80,
                                 child: TextField(
-                                  controller:
-                                      productReturnRowController.damageCtrl,
-                                  keyboardType: TextInputType.number,
-                                  textAlign: TextAlign.center,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: _numberFieldDecoration().copyWith(
-                                    // Optional: Visual error if invalid
-                                    errorText: _isRowInvalid(cart) ? '' : null,
-                                    errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                          color: Colors.red, width: 1.5),
+                                    controller:
+                                        productReturnRowController.damageCtrl,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: _numberFieldDecoration()
+                                    // copyWith(
+                                    //   // Optional: Visual error if invalid
+                                    //   errorText: _isRowInvalid(cart) ? '' : null,
+
+                                    // ),
                                     ),
-                                  ),
-                                ),
                               ),
                               // SizedBox(
                               //   width: 80,
@@ -522,44 +536,50 @@ class _ProductReturnDialogContentState
                               SizedBox(
                                 width: 80,
                                 child: TextField(
-                                  controller:
-                                      productReturnRowController.returnCtrl,
-                                  keyboardType: TextInputType.number,
-                                  textAlign: TextAlign.center,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: _numberFieldDecoration().copyWith(
-                                    errorText: _isRowInvalid(cart) ? '' : null,
-                                    errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                          color: Colors.red, width: 1.5),
+                                    controller:
+                                        productReturnRowController.returnCtrl,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: _numberFieldDecoration()
+                                    // copyWith(
+                                    //   errorText: _isRowInvalid(cart) ? '' : null,
+                                    //   // errorBorder: OutlineInputBorder(
+                                    //   //   borderRadius: BorderRadius.circular(8),
+                                    //   //   borderSide: const BorderSide(
+                                    //   //       color: Colors.red, width: 1.5),
+                                    //   // ),
+                                    // ),
                                     ),
-                                  ),
-                                ),
                               ),
                               // SizedBox(
-                              //   width: 80,
-                              //   child: TextField(
-                              //     controller:
-                              //         productReturnRowController.returnCtrl,
-                              //     keyboardType: TextInputType.number,
-                              //     textAlign: TextAlign.center,
-                              //     decoration: _numberFieldDecoration(),
-                              //   ),
-                              // ),
+
                               SizedBox(
                                 width: 20,
                               ),
                               SizedBox(
                                 width: 80,
-                                child: _uploadImageBtn(),
-                                //  _uploadImageBtn(
-                                //   onPicked: (File file) =>
-                                //       setState(() => cart.image = file),
-                                //   currentFile: e.value.image,
-                                // ),
+                                // child: _uploadImageBtn(),
+                                //                                 child: _uploadImageBtn(
+                                //   currentFile: selectedImage,
+                                //   onPicked: (file) {
+                                //     setState(() {
+                                //       selectedImage = file;
+                                //     });
+                                //   },
+                                //   onDelete: () {
+                                //     setState(() {
+                                //       selectedImage = null;
+                                //     });
+                                //   },
+                                // )
+                                child: _uploadImageBtn(
+                                  onPicked: (File file) =>
+                                      setState(() => cart.image = file),
+                                  currentFile: cart.image,
+                                ),
                               ),
                               //  SizedBox(width:80,child:  _uploadImageBtn()),
                               SizedBox(
@@ -614,9 +634,9 @@ class _ProductReturnDialogContentState
           _headerCell('Discount', 150),
           _headerCell('Tax', 150),
           _headerCell('Total', 150),
-          _headerCell('Available Qty', 110),
-          _headerCell('Damage Qty', 110),
-          _headerCell('Return Qty', 110),
+          _headerCell('Sup. Qty', 110),
+          _headerCell('Dam. Qty', 110),
+          _headerCell('Ret. Qty', 110),
           _headerCell('Image', 80),
           _headerCell('Reason', 300),
         ],
@@ -651,61 +671,96 @@ class _ProductReturnDialogContentState
       ),
     );
   }
+// Widget _uploadImageBtn({
+//   required Function(File file) onPicked,
+//   required VoidCallback onDelete, // 👈 Add this callback for delete action
+//   File? currentFile,
+// }) {
+//   return InkWell(
+//     onTap: () {
+//       if (currentFile != null) return; // 👈 Prevent reopening dialog when image exists
+//       showDialog(
+//         barrierDismissible: false,
+//         context: context,
+//         builder: (BuildContext context) {
+//           return AlertDialog(
+//             title: const Text('Select Method'),
+//             actions: [
+//               IconButton(
+//                 onPressed: () async {
+//                   final file = await pickImages(ImageSource.camera);
+//                   if (file != null) onPicked(file);
+//                   Navigator.of(context).pop();
+//                 },
+//                 icon: const Icon(EneftyIcons.camera_outline),
+//               ),
+//               IconButton(
+//                 onPressed: () async {
+//                   final file = await pickImages(ImageSource.gallery);
+//                   if (file != null) onPicked(file);
+//                   Navigator.of(context).pop();
+//                 },
+//                 icon: const Icon(EneftyIcons.gallery_bold),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     },
+//     child: Container(
+//       width: 100,
+//       height: 100,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.blue),
+//         borderRadius: BorderRadius.circular(8),
+//         image: currentFile != null
+//             ? DecorationImage(
+//                 image: FileImage(currentFile),
+//                 fit: BoxFit.cover,
+//               )
+//             : null,
+//       ),
+//       child: currentFile == null
+//           ? Center(
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: const [
+//                   Icon(Icons.upload, size: 24, color: Colors.blue),
+//                   SizedBox(height: 4),
+//                   Text(
+//                     "Upload",
+//                     style: TextStyle(fontSize: 12, color: Colors.blue),
+//                   ),
+//                 ],
+//               ),
+//             )
+//           : Align(
+//               alignment: Alignment.topRight,
+//               child: Padding(
+//                 padding: const EdgeInsets.all(4.0),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.end,
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     IconButton(
+//                       icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+//                       padding: EdgeInsets.zero,
+//                       constraints: const BoxConstraints(),
+//                       onPressed: onDelete, // 👈 Calls delete callback
+//                     ),
+//                     const SizedBox(width: 4),
+//                     const Icon(Icons.check_circle,
+//                         color: Colors.green, size: 20),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//     ),
+//   );
+// }
 
-  // Widget _editableNumberField() {
-  //   return TextField(
-  //     keyboardType: TextInputType.number,
-  //     textAlign: TextAlign.center,
-  //     decoration: InputDecoration(
-  //       // Always visible border (when not focused)
-  //       enabledBorder: OutlineInputBorder(
-  //         borderRadius: BorderRadius.circular(8),
-  //         borderSide: const BorderSide(
-  //           color: Colors.blue,
-  //           width: 1.5,
-  //         ),
-  //       ),
-  //       // Border when focused (slightly thicker for better UX)
-  //       focusedBorder: OutlineInputBorder(
-  //         borderRadius: BorderRadius.circular(8),
-  //         borderSide: const BorderSide(
-  //           color: Colors.blue,
-  //           width: 2.0,
-  //         ),
-  //       ),
-  //       // Optional: fallback border
-  //       border: OutlineInputBorder(
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       contentPadding: const EdgeInsets.all(6),
-  //     ),
-  //   );
-  // }
-
-  // Widget _uploadImageBtn(
-  //     {required Function(File) onPicked, File? currentFile}) {
-  //   return InkWell(
-  //     onTap: () async {
-  //       final picker = ImagePicker();
-  //       final picked = await picker.pickImage(source: ImageSource.gallery);
-  //       if (picked != null) onPicked(File(picked.path));
-  //     },
-  //     child: Container(
-  //       height: 40,
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.blue),
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       child: Center(
-  //         child: currentFile == null
-  //             ? const Icon(Icons.camera_alt, size: 20)
-  //             : const Icon(Icons.check, color: Colors.green),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget _uploadImageBtn() {
+  Widget _uploadImageBtn(
+      {required Function(File file) onPicked, File? currentFile}) {
     return InkWell(
       onTap: () {
         showDialog(
@@ -717,16 +772,16 @@ class _ProductReturnDialogContentState
               actions: [
                 IconButton(
                   onPressed: () async {
-                    await pickImages(ImageSource.camera);
-                    // setState(() {});
+                    final file = await pickImages(ImageSource.camera);
+                    if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
                   icon: const Icon(EneftyIcons.camera_outline),
                 ),
                 IconButton(
                   onPressed: () async {
-                    await pickImages(ImageSource.gallery);
-                    // setState(() {});
+                    final file = await pickImages(ImageSource.gallery);
+                    if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
                   icon: const Icon(EneftyIcons.gallery_bold),
@@ -744,42 +799,13 @@ class _ProductReturnDialogContentState
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Icon(Icons.upload, size: 16, color: Colors.blue),
-            SizedBox(width: 4),
-            // Text('Upload Image', style: TextStyle(color: Colors.blue)),
+            const SizedBox(width: 4),
+            if (currentFile != null)
+              const Icon(Icons.check_circle, color: Colors.green, size: 16),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _reasonDropdown() {
-    return TextField(
-      keyboardType: TextInputType.text,
-      textAlign: TextAlign.center,
-      decoration: InputDecoration(
-        // Always visible border (when not focused)
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 1.5,
-          ),
-        ),
-        // Border when focused (slightly thicker for better UX)
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 2.0,
-          ),
-        ),
-        // Optional: fallback border
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        contentPadding: const EdgeInsets.all(6),
       ),
     );
   }
@@ -899,6 +925,3 @@ class _ProductReturnDialogContentState
     );
   }
 }
-
-
-

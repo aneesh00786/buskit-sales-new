@@ -43,7 +43,7 @@ class _ProductReturnDialogContentState
   final int sizeInBytes = await imageFile.length();
   final int sizeInKB = sizeInBytes ~/ 1024;
 
-  const int maxSizeKB = 50;
+  const int maxSizeKB = 500;
 
   if (sizeInKB > maxSizeKB) {
     // ---- show warning -------------------------------------------------

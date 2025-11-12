@@ -30,44 +30,35 @@ class ProductReturnDialogContent extends StatefulWidget {
 class _ProductReturnDialogContentState
     extends State<ProductReturnDialogContent> {
   File? leadsImage;
-Future<File?> pickImages(ImageSource source) async {
-  final picker = ImagePicker();
-  final pickedFile = await picker.pickImage(source: source);
+  Future<File?> pickImages(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
 
-  if (pickedFile == null) return null;               // Nothing selected
+    if (pickedFile == null) return null;
 
-  final imageFile = File(pickedFile.path);
-  final sizeInBytes = imageFile.lengthSync();        // File size in bytes
-  const maxSizeInBytes = 500 * 1024;                 // 500 KB
+    final imageFile = File(pickedFile.path);
+    final sizeInBytes = imageFile.lengthSync();
+    const maxSizeInBytes = 500 * 1024;
 
-  if (sizeInBytes <= maxSizeInBytes) {
-    // ✅ Good to go
-    setState(() {
-      leadsImage = imageFile;
-    });
-    return imageFile;
-  } else {
-    // ❌ Too big – inform the user
-    if (!mounted) return null;    
-              Get.snackbar(
-                'Image too large (${(sizeInBytes / 1024).toStringAsFixed(1)} KB). ',
-                 'Please select an image 500 KB or smaller',colorText: Colors.white,
-                 backgroundColor: Colors.red,
-                 snackPosition: SnackPosition.TOP
-                );
+    if (sizeInBytes <= maxSizeInBytes) {
+      // ✅ Good to go
+      setState(() {
+        leadsImage = imageFile;
+      });
+      return imageFile;
+    } else {
+      // ❌ Too big – inform the user
+      if (!mounted) return null;
+      Get.snackbar(
+          'Image too large (${(sizeInBytes / 1024).toStringAsFixed(1)} KB). ',
+          'Please select an image 500 KB or smaller',
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.TOP);
 
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(
-    //       'Image too large (${(sizeInBytes / 1024).toStringAsFixed(1)} KB). '
-    //       'Please choose an image ≤ 500 KB.',
-    //     ),
-    //     backgroundColor: Colors.redAccent,
-    //   ),
-    // );
-    return null;
+      return null;
+    }
   }
-}
   // Future<File?> pickImages(ImageSource source) async {
   //   final picker = ImagePicker();
   //   final pickedFile = await picker.pickImage(source: source);
@@ -278,32 +269,30 @@ Future<File?> pickImages(ImageSource source) async {
                         ),
                       ),
                       SizedBox(width: 16),
-                    ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.red,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8.0),
-    ),
-  ),
-  onPressed: _ctrl.isSubmitting.value
-      ? null
-      : () => _ctrl.submitReturn(),
-    
-  child: _ctrl.isSubmitting.value
-      ? const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 2,
-          ),
-        )
-      : CustomText(
-          content: 'Submit Return',
-          color: Colors.white,
-        ),
-        
-),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: _ctrl.isSubmitting.value
+                            ? null
+                            : () => _ctrl.submitReturn(),
+                        child: _ctrl.isSubmitting.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : CustomText(
+                                content: 'Submit Return',
+                                color: Colors.white,
+                              ),
+                      ),
                       // ElevatedButton(
                       //   style: ElevatedButton.styleFrom(
                       //     backgroundColor: Colors.red,
@@ -589,11 +578,9 @@ Future<File?> pickImages(ImageSource source) async {
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly
                                     ],
-                                    decoration: _numberFieldDecoration()
-                                    
-                                    ),
+                                    decoration: _numberFieldDecoration()),
                               ),
-                             
+
                               SizedBox(
                                 width: 30,
                               ),
@@ -608,9 +595,7 @@ Future<File?> pickImages(ImageSource source) async {
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly
                                     ],
-                                    decoration: _numberFieldDecoration()
-                                    
-                                    ),
+                                    decoration: _numberFieldDecoration()),
                               ),
                               // SizedBox(
 
@@ -619,8 +604,7 @@ Future<File?> pickImages(ImageSource source) async {
                               ),
                               SizedBox(
                                 width: 80,
-                                
-                                child: 
+                                child:
 //                                 _uploadImageBtn(
 //   context: context,               // <-- make sure you pass the widget's context
 //   onPicked: (File file) {
@@ -629,7 +613,7 @@ Future<File?> pickImages(ImageSource source) async {
 //   },
 //   currentFile: leadsImage,
 // ),
-                                _uploadImageBtn(
+                                    _uploadImageBtn(
                                   onPicked: (File file) =>
                                       setState(() => cart.image = file),
                                   currentFile: cart.image,
@@ -813,8 +797,10 @@ Future<File?> pickImages(ImageSource source) async {
 //   );
 // }
 
-  Widget _uploadImageBtn(
-      {required Function(File file) onPicked, File? currentFile,}) {
+  Widget _uploadImageBtn({
+    required Function(File file) onPicked,
+    File? currentFile,
+  }) {
     return InkWell(
       onTap: () {
         showDialog(
@@ -826,7 +812,9 @@ Future<File?> pickImages(ImageSource source) async {
               actions: [
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages(  ImageSource.camera,);
+                    final file = await pickImages(
+                      ImageSource.camera,
+                    );
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
@@ -834,7 +822,9 @@ Future<File?> pickImages(ImageSource source) async {
                 ),
                 IconButton(
                   onPressed: () async {
-                    final file = await pickImages( ImageSource.gallery,);
+                    final file = await pickImages(
+                      ImageSource.gallery,
+                    );
                     if (file != null) onPicked(file);
                     Navigator.of(context).pop();
                   },
@@ -967,15 +957,61 @@ Future<File?> pickImages(ImageSource source) async {
   /* --------------------------------------------------------------
      PAYMENT INFO
      -------------------------------------------------------------- */
-  Widget _buildPaymentInfo() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text('Payment Status: Paid',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        Text('Payment Method: Cash',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-      ],
-    );
+Widget _buildPaymentInfo() {
+  final order = _ctrl.orderData.value!;
+
+  // ---- 1. Payment Status (unchanged) ----
+  String paymentStatusText;
+  switch (order.paymentStatus) {
+    case 0:
+      paymentStatusText = 'Pending';
+      break;
+    case 1:
+      paymentStatusText = 'Paid';
+      break;
+    case 3:
+      paymentStatusText = 'Partially Paid';
+      break;
+    default:
+      paymentStatusText = 'Unknown';
   }
+
+  // ---- 2. Payment Method (conditional) ----
+  String paymentMethodText;
+
+  if (order.paymentStatus == 0) {
+    // Pending → No payment method
+    paymentMethodText = '';
+  } else {
+    // Paid or Partially Paid → Show actual method
+    switch (order.paymentType) {
+      case 0:
+        paymentMethodText = 'Cash';
+        break;
+      case 1:
+        paymentMethodText = 'Check';
+        break;
+      case 2:
+        paymentMethodText = 'Bank Transfer';
+        break;
+      default:
+        paymentMethodText = 'N/A';
+    }
+  }
+
+  // ---- Final UI ----
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        'Payment Status: $paymentStatusText',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Text(
+        'Payment Method: $paymentMethodText',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    ],
+  );
+}
 }

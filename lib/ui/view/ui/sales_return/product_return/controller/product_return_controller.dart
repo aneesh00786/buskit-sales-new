@@ -1,15 +1,11 @@
 
-import 'dart:convert';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/sales_return/sales_return.dart';
-import 'package:dio/dio.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/return_info_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,15 +15,27 @@ class ProductReturnController extends GetxController {
   var orderId = ''.obs;
   var isLoading = true.obs;
   var cartItems = <Cart>[].obs;
+  var orderDataItems = <ProductReturnData>[].obs;
   var orderData = Rxn<ProductReturnData>();
+  final Rx<ReturnInfo?> returnInfo = Rx<ReturnInfo?>(null);
   final List<ProductReturnRowController> rowControllers = [];
   final TextEditingController globalRemarkCtrl = TextEditingController();
    final RxBool isSubmitting = false.obs;
+
+
+   bool hasPendingReturn(Cart cart) {
+    final info = returnInfo.value;
+    if (info == null || cart.variationId == null) return false;
+
+    // Use the `aggregated` list – it's a summary of pending qty per variation_id
+    return info.aggregated.any((agg) => agg.variationId == cart.variationId);
+  }
   Future<void> fetchProductReturnDetails() async {
     if (orderId.value.isEmpty) return;
     try {
       isLoading(true);
       final response = await ApiWorker().getProductReturnDetails(orderId: orderId.value);
+      
       if (response.data?.isNotEmpty == true) {
         final order = response.data!.first;
         orderData.value = order;
@@ -39,6 +47,7 @@ class ProductReturnController extends GetxController {
           item.itemReason = '';
         }
         cartItems.assignAll(newCartItems);
+        print('orderDatar Response:${cartItems.value}');
       } else {
         Get.snackbar("Error", "No order found",
             colorText: white, backgroundColor: Colors.red);
@@ -51,17 +60,57 @@ class ProductReturnController extends GetxController {
       isLoading(false);
     }
   }
-
-  bool _validateAllRows() {
-    for (final cart in cartItems) {
-      final total = (cart.damageQty ?? 0) + (cart.returnQty ?? 0);
-      final supplied = cart.suppliedQty ?? 0;
-      if (total > supplied) {
-        return false;
-      }
+    bool _validateAllRows() {
+  for (final cart in cartItems) {
+    final currentTotal = (cart.damageQty ?? 0) + (cart.returnQty ?? 0);
+    
+    // Skip items with no return quantity in current request
+    if (currentTotal == 0) continue;
+    
+    final pendingQty = returnInfo.value?.aggregated
+        .firstWhere(
+          (agg) => agg.variationId == cart.variationId,
+          orElse: () => Aggregated(variationId: '', pendingQty: 0),
+        )
+        .pendingQty ?? 0;
+    
+    final supplied = cart.suppliedQty ?? 0;
+    final availableQty = supplied - pendingQty;
+    
+    if (currentTotal > availableQty) {
+      print('Validation failed for ${cart.productName} (${cart.variationName}): '
+          'Trying to return: $currentTotal, '
+          'Supplied: $supplied, '
+          'Already pending: $pendingQty, '
+          'Available: $availableQty');
+      
+      Get.snackbar(
+        'Invalid Quantity',
+        'Cannot return $currentTotal units of ${cart.productName}. '
+        'Only $availableQty units available (Supplied: $supplied, Pending: $pendingQty)',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+      );
+      return false;
     }
-    return true;
   }
+  return true;
+}
+
+
+
+  // bool _validateAllRows() {
+  //   for (final cart in cartItems) {
+  //     final total = (cart.damageQty ?? 0) + (cart.returnQty ?? 0) ;
+  //     final supplied = cart.suppliedQty ?? 0;
+  //     if (total > supplied) {
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // }
 Future<void> submitReturn() async {
   if (isSubmitting.value) return;
   isSubmitting.value = true; // Start loading

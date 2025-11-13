@@ -106,9 +106,8 @@ class _CustomHorizontalScrollbarState extends State<CustomHorizontalScrollbar> {
                     child: Icon(
                       Icons.arrow_left,
                       size: 14,
-                      color: currentScroll > 0
-                          ? widget.thumbColor
-                          : Colors.grey[400],
+                      color: Colors.blue,
+                     
                     ),
                   ),
                 ),
@@ -124,9 +123,8 @@ class _CustomHorizontalScrollbarState extends State<CustomHorizontalScrollbar> {
                     child: Icon(
                       Icons.arrow_right,
                       size: 14,
-                      color: currentScroll < maxScroll
-                          ? widget.thumbColor
-                          : Colors.grey[400],
+                       color: Colors.blue,
+                      
                     ),
                   ),
                 ),

@@ -120,4 +120,7 @@ mixin class ApiConstants {
   static const String getReturnOrderDetails = "order_process_invoice";
   static const String createSalesReturn = "create_sales_return";
   static const String SearchInvoice = "SearchInvoice";
+  static const String imagePath = '/uploads/setting/1739620175980.jpg';
+  static const String imageEndpoint = '$baseUrl$imagePath';
+  static const String GetPendingReturnsForCart = '/get_pending_returns_for_cart';
 }

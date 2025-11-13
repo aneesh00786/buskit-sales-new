@@ -1,9 +1,15 @@
 import 'dart:io';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/return_info_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/return_info_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/return_info_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_scrollbar.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -62,39 +68,100 @@ class _ProductReturnDialogContentState
 
   late final ProductReturnController _ctrl;
   final ScrollController _horizontalScrollController = ScrollController();
-
+  late final PendingReturnsController _returnInfoCtrl;
   @override
-  void initState() {
-    super.initState();
-    _ctrl = Get.find<ProductReturnController>();
-
-    _horizontalScrollController.addListener(() {
-      setState(() {});
-    });
-
-    if (_ctrl.orderId.value != widget.orderId) {
-      _ctrl.orderData.value = null;
-      _ctrl.cartItems.clear();
-
-      _ctrl.orderId.value = widget.orderId;
-
-      _ctrl.fetchProductReturnDetails().then((_) {
-        for (var item in _ctrl.cartItems) {
-          item.damageQty = 0;
-          item.returnQty = 0;
-          item.image = null;
-          item.itemReason = '';
-        }
-      });
-    } else {
+void initState() {
+  super.initState();
+  _ctrl = Get.find<ProductReturnController>();
+  _returnInfoCtrl = Get.find<PendingReturnsController>();
+  _horizontalScrollController.addListener(() {
+    setState(() {});
+  });
+  
+  if (_ctrl.orderId.value != widget.orderId) {
+    _ctrl.orderData.value = null;
+    _ctrl.cartItems.clear();
+    _ctrl.orderId.value = widget.orderId;
+    
+    // First fetch product details
+    _ctrl.fetchProductReturnDetails().then((_) {
+      // Reset cart items
       for (var item in _ctrl.cartItems) {
         item.damageQty = 0;
         item.returnQty = 0;
         item.image = null;
         item.itemReason = '';
       }
+      
+      // Then fetch pending returns (now orderData is available)
+      return _returnInfoCtrl.fetchPendingReturns(
+        cartId: _ctrl.orderData.value?.cartId ?? '',
+        companyId: _ctrl.orderData.value?.companyId?.toString() ?? '',
+      );
+    }).then((_) {
+      // Assign immediately after pending returns completes
+      _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+    });
+    
+  } else {
+    // Reset cart items
+    for (var item in _ctrl.cartItems) {
+      item.damageQty = 0;
+      item.returnQty = 0;
+      item.image = null;
+      item.itemReason = '';
     }
+    
+    // Fetch pending returns and assign immediately
+    _returnInfoCtrl.fetchPendingReturns(
+      cartId: _ctrl.orderData.value!.cartId!,
+      companyId: _ctrl.orderData.value!.companyId!.toString(),
+    ).then((_) {
+      _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+    });
   }
+}
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _ctrl = Get.find<ProductReturnController>();
+  //   _returnInfoCtrl = Get.find<PendingReturnsController>();
+
+  //   _horizontalScrollController.addListener(() {
+  //     setState(() {});
+  //   });
+
+  //   if (_ctrl.orderId.value != widget.orderId) {
+  //     _ctrl.orderData.value = null;
+  //     _ctrl.cartItems.clear();
+
+  //     _ctrl.orderId.value = widget.orderId;
+
+  //     _ctrl.fetchProductReturnDetails().then((_) {
+  //       for (var item in _ctrl.cartItems) {
+  //         item.damageQty = 0;
+  //         item.returnQty = 0;
+  //         item.image = null;
+  //         item.itemReason = '';
+  //       }
+  //       _returnInfoCtrl.fetchPendingReturns(
+  //           cartId: _ctrl.orderData.value!.cartId!,
+  //           companyId: _ctrl.orderData.value!.companyId!.toString());
+  //       _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+  //     });
+  //   } else {
+  //     for (var item in _ctrl.cartItems) {
+  //       item.damageQty = 0;
+  //       item.returnQty = 0;
+  //       item.image = null;
+  //       item.itemReason = '';
+  //     }
+  //     _returnInfoCtrl.fetchPendingReturns(
+  //         cartId: _ctrl.orderData.value!.cartId!,
+  //         companyId: _ctrl.orderData.value!.companyId!.toString());
+  //     _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+  //   }
+  // }
 
   @override
   void didChangeDependencies() {
@@ -294,7 +361,7 @@ class _ProductReturnDialogContentState
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: NetworkImage(
-                            "https://test.thrivewoo.com/uploads/setting/1739620175980.jpg"), // your network image
+                            ApiConstants.imageEndpoint), // your network image
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -303,11 +370,6 @@ class _ProductReturnDialogContentState
                             size: 24, color: Color.fromARGB(255, 244, 8, 8))
                         : null,
                   ),
-
-                  // CircleAvatar(
-                  //     radius: 20,
-                  //     backgroundImage:
-                  //         NetworkImage(order.imageUrl!)),
                   const SizedBox(width: 8),
                   const Text('JRBS',
                       style:
@@ -484,8 +546,16 @@ class _ProductReturnDialogContentState
                                 colTotal,
                                 align: TextAlign.right,
                               ),
-                              _col((cart.suppliedQty ?? 0).toString(), colAvail,
-                                  align: TextAlign.center),
+                              // ---------- SUPPLIED QTY + INFO BUTTON (only if pending return exists) ----------
+// ---------- SUPPLIED QTY + INFO BUTTON ----------
+
+                              _suppQtyCol(
+                                (cart.suppliedQty ?? 0).toString(),
+                                colAvail,
+                                align: TextAlign.center,
+                                cart: cart,
+                              ),
+
                               SizedBox(
                                 width: 10,
                               ),
@@ -630,6 +700,113 @@ class _ProductReturnDialogContentState
       ),
     );
   }
+
+  /// ---------------------------------------------------------------
+  ///  Updated _col – now supports an optional trailing info button
+  /// ---------------------------------------------------------------
+  
+
+
+  Widget _suppQtyCol(
+  String txt,
+  double width, {
+  TextAlign align = TextAlign.left,
+  required Cart cart,
+}) {
+  return SizedBox(
+    width: width,
+    child: Center(
+      child: Obx(() {
+        // --- ALL LOGIC INSIDE Obx → fully reactive ---
+        final info = _ctrl.returnInfo.value;
+        if (info == null) {
+          return _buildQtyText(txt, align);
+        }
+
+        final hasPending = info.aggregated.any((a) => a.variationId == cart.variationId);
+        final pendingQty = info.aggregated
+                .firstWhere(
+                  (a) => a.variationId == cart.variationId,
+                  orElse: () => Aggregated(variationId: '', pendingQty: 0),
+                )
+                .pendingQty ??
+            0;
+
+        // Filter the full data list
+        final filtered = info.data
+            .where((r) => r.variationId == cart.variationId)
+            .toList();
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 1. Supplied Qty
+            Flexible(
+              child: CustomText(
+                content: txt,
+                fontSize: 12,
+                textAlign: align,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            // 2. Info Button
+            if (hasPending) ...[
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.info_outline, color: Colors.blue, size: 16),
+                  tooltip: 'Pending: $pendingQty',
+                  onPressed: () {
+                    
+                    showPendingReturnsDialog(context,cart.productName ?? '',cart.variationName ?? '',filtered);
+                  },
+                ),
+              ),
+            ],
+          ],
+        );
+      }),
+    ),
+  );
+}
+void showPendingReturnsDialog(BuildContext context,String productName,String variationName,List<ReturnInfoData> filtered ) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 10,
+        child:  PendingReturnsPopup(
+           productName: productName,        // Use parameter
+          variationName: variationName,    // Use parameter
+          returnItems: filtered,
+
+        ),
+      );
+    },
+  );
+}
+
+// Helper: just the text part (for when no data)
+Widget _buildQtyText(String txt, TextAlign align) {
+  return Flexible(
+    child: CustomText(
+      content: txt,
+      fontSize: 12,
+      textAlign: align,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+}
+
 // Widget _uploadImageBtn({
 //   required Function(File file) onPicked,
 //   required VoidCallback onDelete, // 👈 Add this callback for delete action
@@ -933,12 +1110,13 @@ class _ProductReturnDialogContentState
 
     // ---- Final UI ----
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           'Payment Status: $paymentStatusText',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        SizedBox(width: 10,),
         Text(
           'Payment Method: $paymentMethodText',
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -947,3 +1125,5 @@ class _ProductReturnDialogContentState
     );
   }
 }
+
+// At the bottom of the file (replace the old function)

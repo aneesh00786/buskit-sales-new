@@ -35,6 +35,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_re
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/return_info_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -3017,6 +3018,7 @@ class ApiWorker with ApiConstants {
   final responseJson = response.data as Map<String, dynamic>;
   await box.put(cacheKey, responseJson);
   final parsed = ProductReturn.fromJson(responseJson);
+  // print('orderDataResponse:${parsed.data}');
  return parsed;
 
  }
@@ -3074,19 +3076,6 @@ class ApiWorker with ApiConstants {
     }
   }
 }
-
-  // if(imageList != null && imageList.isNotEmpty){
-  //   for(final imageData in imageList){
-  //     final cartId = imageData['cart_id'];
-  //     final file = imageData['file'] as File?;
-  //     if(file != null){
-  //       payload['damage_image_$cartId'] = 
-  //       await MultipartFile.fromFile(file.path,filename: file.path.split('/').last);
-  //     }
-  //   }
-  // }
-
-  // debugPrint(">>> Sending API payload: ${jsonEncode(payload)}");
 
   try {
     final formData = FormData.fromMap(payload);
@@ -3156,6 +3145,47 @@ Future<SearchResponse> searchInvoice({
   
   // Return parsed response
   return SearchResponse.fromJson(responseJson);
+}
+
+
+Future<ReturnInfo> fetchInforeturnData({
+  required String cartId,
+  required String companyId,
+}) async {
+  // ------------------- 1. Validation -------------------
+  if (cartId.trim().isEmpty) {
+    throw Exception('cartId is required');
+  }
+  // if (companyId <= 0) {
+  //   throw Exception('companyId must be a positive integer');
+  // }
+
+  // ------------------- 2. Internet check -------------------
+  final bool isConnected = await ConnectivityService().isOnline();
+  if (!isConnected) {
+    throw Exception('No internet connection. Fetching returns requires online access.');
+  }
+
+  // ------------------- 3. Payload -------------------
+  final Map<String, dynamic> payload = {
+    "cart_id": cartId.trim(),
+    "companyId": companyId,               // API expects int (e.g. 1)
+  };
+
+  // ------------------- 4. API Call -------------------
+  final response = await dio.postbycustom(
+    ApiConstants.GetPendingReturnsForCart,   // <-- add this constant
+    data: payload,
+    options: Options(contentType: Headers.jsonContentType),
+  ).onError<DioException>((error, _) {
+    return Future.error(DioExceptionHandler.fromDioError(error));
+  });
+
+  final responseJson = response.data as Map<String, dynamic>;
+  dev.log('Pending returns response: $responseJson');
+
+  // ------------------- 5. Return parsed model -------------------
+  return ReturnInfo.fromJson(responseJson);
 }
   
 }

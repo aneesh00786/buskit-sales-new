@@ -4,7 +4,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/product_return_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_scrollbar.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +20,7 @@ class ProductReturnDialogContent extends StatefulWidget {
     required this.orderId,
   });
 
-  static const double _fixedRowHeight = 70;
+  static const double _fixedRowHeight = 100;
 
   @override
   State<ProductReturnDialogContent> createState() =>
@@ -59,34 +59,7 @@ class _ProductReturnDialogContentState
       return null;
     }
   }
-  // Future<File?> pickImages(ImageSource source) async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: source);
 
-  //   if (pickedFile != null) {
-  //     final imageFile = File(pickedFile.path);
-  //     setState(() {
-  //       leadsImage = imageFile; // keep your state update if you still need it
-  //     });
-  //     return imageFile; // ✅ return the selected file
-  //   }
-
-  //   return null; // ✅ explicitly return null if nothing selected
-  // }
-
-  // Future<void> pickImages(ImageSource source) async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: source);
-
-  //   if (pickedFile != null) {
-  //     File imageFile = File(pickedFile.path);
-  //     setState(() {
-  //       leadsImage = imageFile;
-  //     });
-  //   }
-  // }
-
-// late final ProductReturnController _ctrl;
   late final ProductReturnController _ctrl;
   final ScrollController _horizontalScrollController = ScrollController();
 
@@ -95,16 +68,16 @@ class _ProductReturnDialogContentState
     super.initState();
     _ctrl = Get.find<ProductReturnController>();
 
-    // Only clear and fetch if the orderId is different from current
+    _horizontalScrollController.addListener(() {
+      setState(() {});
+    });
+
     if (_ctrl.orderId.value != widget.orderId) {
-      // Set loading state
-      _ctrl.orderData.value = null; // This will show loading indicator
+      _ctrl.orderData.value = null;
       _ctrl.cartItems.clear();
 
-      // Set new orderId
       _ctrl.orderId.value = widget.orderId;
 
-      // Fetch fresh data
       _ctrl.fetchProductReturnDetails().then((_) {
         for (var item in _ctrl.cartItems) {
           item.damageQty = 0;
@@ -114,7 +87,6 @@ class _ProductReturnDialogContentState
         }
       });
     } else {
-      // Same orderId - just reset the form fields
       for (var item in _ctrl.cartItems) {
         item.damageQty = 0;
         item.returnQty = 0;
@@ -127,12 +99,8 @@ class _ProductReturnDialogContentState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Clear text every time screen is displayed
-    _ctrl.globalRemarkCtrl.clear();
-  }
 
-  bool _isRowInvalid(Cart cart) {
-    return (cart.damageQty + cart.returnQty) > (cart.suppliedQty ?? 0);
+    _ctrl.globalRemarkCtrl.clear();
   }
 
   InputDecoration _numberFieldDecoration() => InputDecoration(
@@ -160,7 +128,6 @@ class _ProductReturnDialogContentState
         contentPadding: const EdgeInsets.all(6),
       );
 
-  // final TextEditingController _globalRemarkCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,7 +183,8 @@ class _ProductReturnDialogContentState
                   // ---------- TOTALS ----------
                   _buildTotals(),
                   const SizedBox(height: 16),
-
+                  _buildTaxTotal(),
+                  const SizedBox(height: 16),
                   // ---------- PAYMENT INFO ----------
                   _buildPaymentInfo(),
                   const SizedBox(height: 16),
@@ -228,21 +196,18 @@ class _ProductReturnDialogContentState
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: 'Additional remarks or notes...',
-                      // Always show the border (even when not focused)
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.grey, // You can change the color
+                          color: Colors.grey,
                           width: 1.0,
                         ),
                       ),
-                      // Optional: Customize focused border (default is blue)
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.blue, // or any color you prefer
+                          color: Colors.blue,
                           width: 2.0,
                         ),
                       ),
-                      // You can also set border for other states if needed
                       disabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey),
                       ),
@@ -293,37 +258,6 @@ class _ProductReturnDialogContentState
                                 color: Colors.white,
                               ),
                       ),
-                      // ElevatedButton(
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: Colors.red,
-                      //     shape: RoundedRectangleBorder(
-                      //       borderRadius:
-                      //           BorderRadius.circular(8.0), // Radius of 8
-                      //     ),
-                      //   ),
-                      //   onPressed:_ctrl.isSubmitting.value?
-                      //   null:() async => await _ctrl.submitReturn(),
-                      //   child: _ctrl.isSubmitting.value?
-                      //   SizedBox(
-                      //     width: 20,
-                      //     height: 20,
-                      //     child: CircularProgressIndicator(
-                      //       color: Colors.white,
-                      //       strokeWidth: 2,
-                      //     ),
-                      //   ): CustomText(
-                      //     content: 'Submit Return',
-                      //     color: Colors.white,
-                      //   )
-                      //   ,
-                      //   //  () async {
-                      //   //   await _ctrl.submitReturn();
-                      //   // },
-                      //   // child: CustomText(
-                      //   //   content: 'Submit Return',
-                      //   //   color: Colors.white,
-                      //   // ),
-                      // )
                     ],
                   )
                 ],
@@ -341,10 +275,9 @@ class _ProductReturnDialogContentState
   Widget _buildCompanyCustomerRow() {
     final order = _ctrl.orderData.value;
     if (order == null) {
-      return const Center(child: SizedBox()); // Handled by parent Obx
+      return const Center(child: SizedBox());
     }
-    // final companyLogoUrl = getCompanyLogo(allCompanySettings);
-// print('image urlll:${order.imageUrl!}');
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -355,17 +288,16 @@ class _ProductReturnDialogContentState
               Row(
                 children: [
                   Container(
-                    width: 50, // radius * 2
+                    width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle, // makes it round
+                      shape: BoxShape.circle,
                       image: DecorationImage(
                         image: NetworkImage(
                             "https://test.thrivewoo.com/uploads/setting/1739620175980.jpg"), // your network image
-                        fit: BoxFit.cover, // same as CircleAvatar
+                        fit: BoxFit.cover,
                       ),
                     ),
-
                     child: order.imageUrl == null
                         ? const Icon(Icons.person,
                             size: 24, color: Color.fromARGB(255, 244, 8, 8))
@@ -493,21 +425,11 @@ class _ProductReturnDialogContentState
         ),
 
         // RIGHT: Scrollable
+
         Expanded(
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              scrollbarTheme: ScrollbarThemeData(
-                // thumbColor: WidgetStatePropertyAll( Color( primaryColor)), // Custom thumb color
-                thumbColor: WidgetStatePropertyAll(Colors.blue),
-                // WidgetStatePropertyAll(Theme.of(context).primaryColor),
-                radius: const Radius.circular(10), // Optional: rounded corners
-                thickness: WidgetStatePropertyAll(6), // Optional: thickness
-              ),
-            ),
-            child: Scrollbar(
-              controller: _horizontalScrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
                 controller: _horizontalScrollController,
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
@@ -604,16 +526,7 @@ class _ProductReturnDialogContentState
                               ),
                               SizedBox(
                                 width: 80,
-                                child:
-//                                 _uploadImageBtn(
-//   context: context,               // <-- make sure you pass the widget's context
-//   onPicked: (File file) {
-//     // file is guaranteed ≤ 50 KB
-//     setState(() => leadsImage = file);
-//   },
-//   currentFile: leadsImage,
-// ),
-                                    _uploadImageBtn(
+                                child: _uploadImageBtn(
                                   onPicked: (File file) =>
                                       setState(() => cart.image = file),
                                   currentFile: cart.image,
@@ -640,7 +553,15 @@ class _ProductReturnDialogContentState
                   ),
                 ),
               ),
-            ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: CustomHorizontalScrollbar(
+                  controller: _horizontalScrollController,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -858,77 +779,87 @@ class _ProductReturnDialogContentState
      TOTALS
      -------------------------------------------------------------- */
 
+  Widget _buildTaxTotal() {
+    final order = _ctrl.orderData.value!;
+
+    if (order.tax == null || order.tax!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    double taxTotal = 0.0;
+    final List<String> taxParts = [];
+
+    for (var t in order.tax!) {
+      final amount = double.tryParse(t.taxAmount.toString()) ?? 0.0;
+      taxTotal += amount;
+
+      final taxName = t.taxName ?? '';
+      final taxRate = t.tax ?? '';
+      final formatted = formatAmount(amount);
+
+      taxParts.add('$taxName - $taxRate% : $formatted');
+    }
+
+    final middle = taxParts.join('   ');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 14, color: Colors.black),
+              children: [
+                const TextSpan(
+                  text: 'TAX : ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: middle),
+                const TextSpan(
+                  text: '  TOTAL : ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: formatAmount(taxTotal)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTotals() {
     final order = _ctrl.orderData.value!;
 
-    // 1. Calculate subtotal (excluding tax)
-    double taxTotal = 0.0;
-    if (order.tax != null) {
-      for (var t in order.tax!) {
-        final amount = double.tryParse(t.taxAmount.toString() ?? '0') ?? 0.0;
-        taxTotal += amount;
-      }
-    }
-
     final double orderTotal =
-        double.tryParse(order.orderTotal.toString() ?? '0') ?? 0.0;
-    final double subtotal = orderTotal - taxTotal; // $2000 - $300 = $1700
-    final double discount = 0.0; // You can get this from cart if needed
+        double.tryParse(order.orderTotal.toString()) ?? 0.0;
+    final double subtotal = double.tryParse(order.subTotal.toString()) ?? 0.0;
+    final double discount = 0.0;
 
     final List<Widget> rows = [];
 
-    // Subtotal
-    rows.add(_totalRow(
-      'Subtotal:',
-      formatAmount(subtotal), // <-- uses currency symbol + Indian format
-    ));
-    // rows.add(_totalRow('Subtotal:', '\$${subtotal.toStringAsFixed(2)}'));
+    // ---------- SUBTOTAL ----------
+    rows.add(_totalRow('Subtotal:', formatAmount(subtotal)));
 
-    // Discount (only if > 0)
-    if (discount > 0) {
-      rows.add(_totalRow(
-        'Discount:',
-        '-${formatAmount(discount)}',
-      ));
-    }
-    // if (discount > 0) {
-    //   rows.add(_totalRow('Discount:', '-\$${discount.toStringAsFixed(2)}'));
-    // }
+    // ---------- DISCOUNT ----------
+    rows.add(_totalRow('Discount:', '${formatAmount(discount)}'));
 
-    // Taxes (only if exist)
-    if (order.tax != null && order.tax!.isNotEmpty) {
-      for (var t in order.tax!) {
-        final amount = double.tryParse(t.taxAmount.toString()) ?? 0.0;
-        rows.add(_totalRow(
-          '${t.taxName ?? ''} - ${t.tax ?? ''}%',
-          formatAmount(amount),
-        ));
-      }
-    }
-    // if (order.tax != null && order.tax!.isNotEmpty) {
-    //   for (var t in order.tax!) {
-    //     final amount = double.tryParse(t.taxAmount.toString() ?? '0') ?? 0.0;
-    //     rows.add(_totalRow(
-    //       '${t.taxName ?? ''} - ${t.tax ?? ''}%',
-    //       '\$${amount.toStringAsFixed(2)}',
-    //     ));
-    //   }
-    // }
+    // ---------- TOTAL (BEFORE TAX) ----------
+    rows.add(
+      Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: _totalRow(
+          'Total:',
+          formatAmount(orderTotal),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
 
-    // Divider before Total
-    rows.add(const Divider(color: Colors.black));
-
-    // Total (bold)
-    rows.add(_totalRow(
-      'Total:',
-      formatAmount(orderTotal),
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    ));
-    // rows.add(_totalRow(
-    //   'Total:',
-    //   '\$${orderTotal.toStringAsFixed(2)}',
-    //   style: const TextStyle(fontWeight: FontWeight.bold),
-    // ));
+    // ---------- TAX (now a separate widget method) ----------
+    // rows.add(_buildTaxTotal());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -957,61 +888,62 @@ class _ProductReturnDialogContentState
   /* --------------------------------------------------------------
      PAYMENT INFO
      -------------------------------------------------------------- */
-Widget _buildPaymentInfo() {
-  final order = _ctrl.orderData.value!;
 
-  // ---- 1. Payment Status (unchanged) ----
-  String paymentStatusText;
-  switch (order.paymentStatus) {
-    case 0:
-      paymentStatusText = 'Pending';
-      break;
-    case 1:
-      paymentStatusText = 'Paid';
-      break;
-    case 3:
-      paymentStatusText = 'Partially Paid';
-      break;
-    default:
-      paymentStatusText = 'Unknown';
-  }
+  Widget _buildPaymentInfo() {
+    final order = _ctrl.orderData.value!;
 
-  // ---- 2. Payment Method (conditional) ----
-  String paymentMethodText;
-
-  if (order.paymentStatus == 0) {
-    // Pending → No payment method
-    paymentMethodText = '';
-  } else {
-    // Paid or Partially Paid → Show actual method
-    switch (order.paymentType) {
+    // ---- 1. Payment Status (unchanged) ----
+    String paymentStatusText;
+    switch (order.paymentStatus) {
       case 0:
-        paymentMethodText = 'Cash';
+        paymentStatusText = 'Pending';
         break;
       case 1:
-        paymentMethodText = 'Check';
+        paymentStatusText = 'Paid';
         break;
-      case 2:
-        paymentMethodText = 'Bank Transfer';
+      case 3:
+        paymentStatusText = 'Partially Paid';
         break;
       default:
-        paymentMethodText = 'N/A';
+        paymentStatusText = 'Unknown';
     }
-  }
 
-  // ---- Final UI ----
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        'Payment Status: $paymentStatusText',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Text(
-        'Payment Method: $paymentMethodText',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ],
-  );
-}
+    // ---- 2. Payment Method (conditional) ----
+    String paymentMethodText;
+
+    if (order.paymentStatus == 0) {
+      // Pending → No payment method
+      paymentMethodText = '';
+    } else {
+      // Paid or Partially Paid → Show actual method
+      switch (order.paymentType) {
+        case 0:
+          paymentMethodText = 'Cash';
+          break;
+        case 1:
+          paymentMethodText = 'Check';
+          break;
+        case 2:
+          paymentMethodText = 'Bank Transfer';
+          break;
+        default:
+          paymentMethodText = 'N/A';
+      }
+    }
+
+    // ---- Final UI ----
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Payment Status: $paymentStatusText',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'Payment Method: $paymentMethodText',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
 }

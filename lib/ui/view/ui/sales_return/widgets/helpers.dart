@@ -128,7 +128,7 @@ Widget buildOrderAmout(GetRecentOrderReturnData orderAmountData){
     crossAxisAlignment: CrossAxisAlignment.center,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      CustomText(content: orderAmountData.orderTotal.toString(), fontWeight: FontWeight.bold, fontSize: 14,),
+      CustomText(content: formatAmount(orderAmountData.orderTotal.toString()), fontWeight: FontWeight.bold, fontSize: 14,),
     ],
   );
 }

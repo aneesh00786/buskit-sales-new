@@ -73,7 +73,7 @@ class ProductReturnData {
   // ---- monetary fields ----------------------------------------------------
   double? orderTotal;      // <-- double
   double? receivedAmount;  // <-- double
-
+  double? subTotal;  
   DateTime? receivedAmountDate;
   DateTime? checkDueDate;
   int? checkNumber;
@@ -115,6 +115,7 @@ class ProductReturnData {
     this.statusChanged,
     this.orderTotal,
     this.receivedAmount,
+    this.subTotal,
     this.receivedAmountDate,
     this.checkDueDate,
     this.checkNumber,
@@ -159,9 +160,11 @@ class ProductReturnData {
       statusChanged: json['status_changed'] as String?,
       orderTotal: _toDouble(json['order_total']),
       receivedAmount: _toDouble(json['received_amount']),
+       subTotal: _toDouble(json['sub_total']),
       receivedAmountDate: json['received_amount_date'] == null
           ? null
           : DateTime.parse(json['received_amount_date'] as String),
+
       checkDueDate: json['check_due_date'] == null
           ? null
           : DateTime.parse(json['check_due_date'] as String),
@@ -213,6 +216,7 @@ class ProductReturnData {
         'status_changed': statusChanged,
         'order_total': orderTotal,
         'received_amount': receivedAmount,
+        'sub_total': subTotal,
         'received_amount_date': receivedAmountDate?.toIso8601String(),
         'check_due_date': checkDueDate?.toIso8601String(),
         'check_number': checkNumber,

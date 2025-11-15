@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/order_invoice.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/product_return_row_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/controller/return_info_controller.dart';
@@ -470,13 +472,27 @@ void initState() {
                     children: [
                       // Product Name - takes available space
                       Expanded(
-                        child: Text(
-                          '${e.value.productName ?? '-'} - ${e.value.variationName ?? '-'}',
-                          // e.value.productName ?? '-',
-                          style: const TextStyle(fontSize: 13),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: ProductNameWithTax(
+                          productName: '${e.value.productName ?? '-'}',
+                          variationName: '${e.value.variationName ?? '-'}', 
+                          isInclTax: e.value.inclTax == "incl_tax" , 
+                          maxWidth: isPhonePortrait(
+                                                        context)
+                                                    ? fullScreenWidth(context) *
+                                                        0.4
+                                                    : fullScreenWidth(context) *
+                                                        0.2, 
+                          style: TextStyle(
+                                                    fontSize: 14),
+                          ),
+
+                        // child: Text(
+                        //   '${e.value.productName ?? '-'} - ${e.value.variationName ?? '-'}',
+                        //   // e.value.productName ?? '-',
+                        //   style: const TextStyle(fontSize: 13),
+                        //   maxLines: 2,
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
                       ),
                     ],
                   ),

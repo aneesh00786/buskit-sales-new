@@ -34,7 +34,7 @@ class PendingReturnsController extends GetxController {
       print('companyId:$companyId');
 
       final response = await ApiWorker().fetchInforeturnData(
-        cartId: cartId,
+        cartId: cartId!,
         companyId: companyId,
       );
 

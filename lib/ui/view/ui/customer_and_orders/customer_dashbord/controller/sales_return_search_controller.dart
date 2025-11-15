@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:developer' as dev;
 
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -28,9 +29,9 @@ class SearchResponse {
 class OrderIdSnackBar {
   
   
-  static void show(BuildContext context, String customerId) {
+  static void show(BuildContext context, String customerId,String salesmanId ) {
     final controller = TextEditingController();
-    final searchCtrl = SalesReturnSearchController(customeId: customerId);
+    final searchCtrl = SalesReturnSearchController(customeId: customerId,salesmanId: salesmanId);
     
     showGeneralDialog(
       context: context,
@@ -43,6 +44,8 @@ class OrderIdSnackBar {
         controller: controller,
         searchCtrl: searchCtrl,
         customerId: customerId,
+        //  salesmanId: salesmanId,
+        
       ),
       transitionBuilder: (_, anim, __, child) =>
           FadeTransition(opacity: anim, child: child),
@@ -58,7 +61,10 @@ class SalesReturnSearchController extends GetxController {
   final RxList<SearchItem> suggestions = <SearchItem>[].obs;
   final Rx<SearchItem?> selectedItem = Rx<SearchItem?>(null); // Track selection
   final String customeId;
-  SalesReturnSearchController({required this.customeId});
+  final String salesmanId;
+  SalesReturnSearchController({required this.customeId,
+  required this.salesmanId,
+  });
 
   void onTextChanged(String value) {
     _timer?.cancel();
@@ -71,8 +77,9 @@ class SalesReturnSearchController extends GetxController {
     clearSuggestions();
     return;
   }
+  dev.log('Searching with salesmanId: $salesmanId');
 
-  final resp = await ApiWorker(). searchInvoice(query: query,customerId: customeId);
+  final resp = await ApiWorker(). searchInvoice(query: query,customerId: customeId,salesmanId: salesmanId);
   if (resp.status && resp.data.isNotEmpty) {
     suggestions.assignAll(resp.data);
     // selectedItem.value = resp.data.first;

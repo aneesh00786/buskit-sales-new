@@ -2931,11 +2931,13 @@ class ApiWorker with ApiConstants {
   }
 
   Future<GetRecentOrderReturn> getRecentOrdersReturns({
+    SearchModel? searchModel,
     String? customerId,
     String? salesmanId,
     String? startDate,
     String? endDate,
-    PaginationModel? paginationModel,
+    // PaginationModel? paginationModel,
+    int? page,
   }) async {
     bool isConnected = await ConnectivityService().isOnline();
     final cacheKey =
@@ -2962,8 +2964,8 @@ class ApiWorker with ApiConstants {
         "start_date": startDate ?? "",
        "end_date": endDate ?? "",
         "order_status": 2,
-        "limit": 1000,
-        "page": 1,
+       "limit": 10,
+        "page": page,
       },
     ).onError((DioException error, _) {
       return Future.error(DioExceptionHandler.fromDioError(error));
@@ -3005,16 +3007,21 @@ class ApiWorker with ApiConstants {
     throw Exception('No offline data available for order $orderId');
   }
  }
+ final payload = {
+    "companyId": 1,
+    "order_id": orderId,
+    "order_status": 2,
+  };
+  print('API Payload: $payload');
   final response = await dio.postbycustom(
+
     ApiConstants.getReturnOrderDetails,
-    data: {
-       "companyId": 1,
-          "order_id": orderId,
-          "order_status": 2,
-    }
+    data: payload
+    
   ).onError((DioException error, _){
     return Future.error(DioExceptionHandler.fromDioError(error));
   });
+  
   final responseJson = response.data as Map<String, dynamic>;
   await box.put(cacheKey, responseJson);
   final parsed = ProductReturn.fromJson(responseJson);
@@ -3113,10 +3120,12 @@ class ApiWorker with ApiConstants {
 Future<SearchResponse> searchInvoice({
   required String query,
   required String customerId,
+  required String salesmanId,
 }) async {
   // Validation
   if (query.trim().isEmpty) throw Exception('Search query is required');
   if (customerId.isEmpty) throw Exception('customerId is required');
+  if (salesmanId.isEmpty) throw Exception('salesmanId is required');
   
   // Check internet
   bool isConnected = await ConnectivityService().isOnline();
@@ -3129,8 +3138,9 @@ Future<SearchResponse> searchInvoice({
     "company_id": 1,
     "search": query.trim(),
     "customer_id": customerId,
+    "salesman_id": salesmanId,
   };
-  
+  dev.log('search invoice payload: $payload');
   // API Call
   final response = await dio.postbycustom(
     ApiConstants.SearchInvoice, // Add this constant to your ApiConstants

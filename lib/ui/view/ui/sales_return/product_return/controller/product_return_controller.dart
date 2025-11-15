@@ -33,6 +33,8 @@ class ProductReturnController extends GetxController {
   Future<void> fetchProductReturnDetails() async {
     if (orderId.value.isEmpty) return;
     try {
+          print('🔍 Fetching details for orderId: ${orderId.value}');
+
       isLoading(true);
       final response = await ApiWorker().getProductReturnDetails(orderId: orderId.value);
       

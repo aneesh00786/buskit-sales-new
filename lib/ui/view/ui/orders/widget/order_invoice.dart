@@ -447,6 +447,7 @@ class ProductNameWithTax extends StatelessWidget {
   final bool isInclTax;
   final double maxWidth;
   final TextStyle style;
+  final Color taxColor;
 
   const ProductNameWithTax({
     super.key,
@@ -455,6 +456,7 @@ class ProductNameWithTax extends StatelessWidget {
     required this.isInclTax,
     required this.maxWidth,
     required this.style,
+    this.taxColor = Colors.green,
   });
 
   @override
@@ -464,7 +466,7 @@ class ProductNameWithTax extends StatelessWidget {
     final fullText = '$productName - $variationName';
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
-      maxLines: 2,
+      maxLines: 1,
       ellipsis: '...',
     );
 
@@ -487,11 +489,12 @@ class ProductNameWithTax extends StatelessWidget {
               if (isInclTax)
                 TextSpan(
                   text: suffix,
-                  style: style.copyWith(fontSize: 12),
+                  style: style.copyWith(fontSize: 12,color: taxColor),
+
                 ),
             ],
           ),
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.clip,
         );
       }

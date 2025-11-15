@@ -80,7 +80,7 @@ class DialogContent extends StatelessWidget {
                       autofocus: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        hintText: 'Enter Invoice / Product',
+                        hintText: 'Invoice No /  Variant name / Item Number (I/N)',
                         hintStyle: TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(),
                         isDense: true,
@@ -217,17 +217,18 @@ class DialogContent extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${item.productName} (${item.variationName} ${item.unitType})',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                // Text(
+                                //   '${item.productName} (${item.variationName} ${item.unitType})',
+                                //   style: const TextStyle(
+                                //     fontSize: 14,
+                                //     color: Colors.black87,
+                                //     fontWeight: FontWeight.w500,
+                                //   ),
+                                // ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Invoice: ${item.invoiceId} | Order: ${item.orderId}',
+                                  'Invoice: ${item.invoiceId} ',
+                                  // | Order: ${item.orderId}',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.black54,

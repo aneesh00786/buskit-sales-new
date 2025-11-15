@@ -46,7 +46,7 @@ class OrderStatusHeadingRow extends StatelessWidget {
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
                         child: const Center(
                           child: Text(
-                            'Customer List',
+                            'Customer Listtt',
                             maxLines: 2,
                           ),
                         ),

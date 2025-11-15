@@ -78,6 +78,7 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
+       
   int selectedYear = DateTime.now().year;
   late TabController _tabController;
   late int _tabIndex;
@@ -318,9 +319,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
     return shouldProceed;
   }
+  
 
   @override
   Widget build(BuildContext context) {
+    final loginData = SessionHelper.loginSavedData;
+    final salesmanInternalId = loginData?.salesmanId?.toString();
     final customerName = widget.isFromCalendar
         ? widget.cusName
         : productsController.selectedCustomerName.value;
@@ -389,7 +393,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
          ElevatedButton(
               onPressed: () {
                 print('customer id: ${widget.cusId}');
-            OrderIdSnackBar.show(context,widget.cusId.toString());
+            OrderIdSnackBar.show(context,widget.cusId.toString(),salesmanInternalId!);
                
               },
               style: ElevatedButton.styleFrom(

@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
@@ -27,7 +28,8 @@ class LeadTopScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-
+            CustomText(content: 'Leads',fontWeight: FontWeight.bold,),
+            SizedBox(width: 10,),
             AddLeadsScreen(
               leadsController: leadsController,
             ),

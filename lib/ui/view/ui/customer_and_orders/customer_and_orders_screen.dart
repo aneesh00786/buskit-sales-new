@@ -128,7 +128,13 @@ class _TableeeState extends State<Tableee> {
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
+          ),
+          SizedBox(width: 10,),
           Expanded(child: calender()),
+          
         ],
       ),
       body: Stack(

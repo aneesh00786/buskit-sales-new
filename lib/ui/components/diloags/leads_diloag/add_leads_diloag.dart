@@ -721,7 +721,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
             },
           );
         },
-        text: 'Leads',
+        text: 'Add New',
       ),
     );
   }

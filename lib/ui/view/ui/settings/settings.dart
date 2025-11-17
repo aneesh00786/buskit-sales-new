@@ -127,6 +127,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 appBar: AppBar(
                   actions: [
                     Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: CustomText(content: 'Settings',fontWeight: FontWeight.bold,),
+                    ),
+                    Spacer(),
+                    Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: _buildChangePasswordButton(),
                     ),

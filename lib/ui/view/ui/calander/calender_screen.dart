@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -41,6 +42,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
         child: Scaffold(
           appBar: AppBar(
             actions: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: CustomText(content: 'Calender',fontWeight: FontWeight.bold,),
+              ),
+              Spacer(),
               const NotificationWidget(
                 startDate: '',
                 endDate: '',

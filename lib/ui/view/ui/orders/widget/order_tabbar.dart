@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/customers_and_orders_dialo_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
@@ -300,6 +301,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
 
       return Column(
         children: [
+         
           SizedBox(
             height: 60,
             child: ScrollbarTheme(
@@ -478,6 +480,45 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               ),
             ),
           ),
+          Padding(
+      padding: const EdgeInsets.fromLTRB(5, 8, 400, 8),
+      child: TextField(
+        // controller: _searchController,
+        // focusNode: _searchFocusNode,
+        decoration: InputDecoration(
+          // hintText: "Search in ${tabs[_selectedTabIndex]}...",
+          hintText: 'Search Order Id / Invoice No.',
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          // suffixIcon: _searchController.text.isNotEmpty
+          //     ? IconButton(
+          //         icon: const Icon(Icons.clear),
+          //         onPressed: () {
+          //           // _searchController.clear();
+          //           // _onSearchChanged('');
+          //         },
+          //       )
+          //     : null,
+          filled: true,
+          fillColor: Colors.grey[100],
+          enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.blue, width: 2),
+    ),
+
+    // Focused state border
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.blue, width: 2.5),
+    ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+        ),
+        // onChanged: _onSearchChanged,
+      ),
+    ),
           if (!_shouldShowUpgradeButton(_selectedTabIndex)) ...[
             Expanded(
               child: Center(

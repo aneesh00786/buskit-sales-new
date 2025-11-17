@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -223,6 +224,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                     child: Row(
                       children: [
                         const SizedBox(width: 5),
+                        CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
+                         const SizedBox(width: 15),
                         _buildFilterDropdown(provider, context),
                         if (provider.selectedFilterTemp ==
                             FilterDateEnum.thisMonth) ...[

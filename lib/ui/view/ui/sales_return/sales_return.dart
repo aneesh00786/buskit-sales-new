@@ -599,7 +599,7 @@ class _SalesReturnState extends State<SalesReturn> {
                           height: fixedRowHeight,
                           child: Center(
                             child: CustomText(
-                              content: "No Sales Return Found",
+                              content: "No delivered orders found",
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

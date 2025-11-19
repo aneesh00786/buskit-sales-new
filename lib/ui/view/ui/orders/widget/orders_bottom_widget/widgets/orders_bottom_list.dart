@@ -10,11 +10,14 @@ class OrdersBottomList extends StatelessWidget {
     required ScrollController scrollController2,
     required this.widget,
     required this.tabIndex,
+    required this.orderList,
+
   }) : _scrollController2 = scrollController2;
 
   final ScrollController _scrollController2;
   final OrderBottomWidget widget;
   final int tabIndex;
+  final List<OrderData> orderList;
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +26,12 @@ class OrdersBottomList extends StatelessWidget {
         scrollDirection: Axis.vertical,
         physics: const ClampingScrollPhysics(),
         controller: _scrollController2,
-        itemCount: widget.orderController.orderDataList.length,
+        // itemCount: widget.orderController.orderDataList.length,
+        itemCount: orderList.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          OrderData orderData = widget.orderController.orderDataList[index];
+          // OrderData orderData = widget.orderController.orderDataList[index];
+            OrderData orderData = orderList[index];
           if (orderData.cart == null) {
             return Container(
               color: index.isEven ? Colors.white : Colors.grey[50],

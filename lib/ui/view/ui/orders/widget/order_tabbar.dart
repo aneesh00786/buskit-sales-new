@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/customers_and_orders_dialo_table.dart';
@@ -36,16 +38,56 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   NotificationController notificationController =
       Get.find<NotificationController>();
   final subscriptionController = Get.find<SubscriptionController>();
+  late TextEditingController _searchController;
+Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
+
     widget.orderController.hasOfflineOrders.value = false;
     _selectedTabIndex = widget.passIndex;
     widget.orderController.loadOrderCountData();
     widget.orderController.updateTabIndex(_selectedTabIndex);
     _setHasOfflineOrdersOnInit();
+    _searchController = widget.orderController.searchTextController;
+    _searchController.addListener(() {
+  final query = _searchController.text.trim();
+  
+  // Update reactive query
+  widget.orderController.searchQuery.value = query;
+
+  // Trigger search IMMEDIATELY — no delay, no debounce
+  _triggerSearch();
+});
+  //   _searchController.addListener(() {
+  //   if (_debounce?.isActive ?? false) _debounce!.cancel();
+  //   _debounce = Timer(const Duration(milliseconds: 600), () {
+  //     final query = _searchController.text;
+  //     widget.orderController.searchQuery.value = query;
+
+  //     if (query.isEmpty) {
+  //       widget.orderController.clearSearch();
+  //     } else {
+  //       _triggerSearch();
+  //     }
+  //   });
+  // });
   }
+  void _triggerSearch() {
+  final hasOffline = widget.orderController.hasOfflineOrders.value;
+  final index = _selectedTabIndex;
+
+  // Don't search on Offline Orders tab
+  if (hasOffline && index == 0) return;
+
+  final status = _getStatusForTab(index, hasOfflineOrders: hasOffline);
+  widget.orderController.performSearch(query: _searchController.text, status: status);
+}
+int _getStatusForTab(int index, {required bool hasOfflineOrders}) {
+  if (hasOfflineOrders) index += 1; // because index 0 is Offline
+  return widget.orderController.selectedStatusCountIndex.value; // or use mapping
+}
 
   void _setHasOfflineOrdersOnInit() async {
     var offlineOrdersBox = await Hive.openBox('offlineOrders');
@@ -483,21 +525,12 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           Padding(
       padding: const EdgeInsets.fromLTRB(5, 8, 400, 8),
       child: TextField(
-        // controller: _searchController,
-        // focusNode: _searchFocusNode,
+        controller: _searchController,
         decoration: InputDecoration(
           // hintText: "Search in ${tabs[_selectedTabIndex]}...",
           hintText: 'Search Order Id / Invoice No.',
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
-          // suffixIcon: _searchController.text.isNotEmpty
-          //     ? IconButton(
-          //         icon: const Icon(Icons.clear),
-          //         onPressed: () {
-          //           // _searchController.clear();
-          //           // _onSearchChanged('');
-          //         },
-          //       )
-          //     : null,
+          
           filled: true,
           fillColor: Colors.grey[100],
           enabledBorder: OutlineInputBorder(
@@ -519,26 +552,81 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
         // onChanged: _onSearchChanged,
       ),
     ),
-          if (!_shouldShowUpgradeButton(_selectedTabIndex)) ...[
-            Expanded(
-              child: Center(
-                child: UpgradePlanButton(),
-              ),
+    if (!_shouldShowUpgradeButton(_selectedTabIndex))
+  const Expanded(child: Center(child: UpgradePlanButton()))
+else
+  Expanded(
+    child: Obx(() {
+      // Offline Orders Tab
+      if (widget.orderController.hasOfflineOrders.value && _selectedTabIndex == 0) {
+        return OfflineOrderBottomWidget(orderController: widget.orderController);
+      }
+
+      // Search Mode
+      if (widget.orderController.isSearching.value) {
+        if (widget.orderController.isSearchLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (widget.orderController.searchResults.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  "No orders found",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+                Text(
+                  "Try searching with Order ID or Invoice No.",
+                  style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                ),
+              ],
             ),
-          ],
-          if (_shouldShowUpgradeButton(_selectedTabIndex))
-            Expanded(
-              child: widget.orderController.hasOfflineOrders.value &&
-                      _selectedTabIndex == 0
-                  ? OfflineOrderBottomWidget(
-                      orderController: widget.orderController)
-                  : OrderBottomWidget(
-                      orderController: widget.orderController,
-                      selectedTabIndex: _selectedTabIndex,
-                      hasOfflineOrders:
-                          widget.orderController.hasOfflineOrders.value,
-                    ),
-            ),
+          );
+        }
+
+        return OrderBottomWidget(
+          orderController: widget.orderController,
+          selectedTabIndex: _selectedTabIndex,
+          hasOfflineOrders: widget.orderController.hasOfflineOrders.value,
+          overrideOrders: widget.orderController.searchResults, // Key!
+          isSearchMode: true,
+        );
+      }
+
+      // Normal Tab Mode
+      return OrderBottomWidget(
+        orderController: widget.orderController,
+        selectedTabIndex: _selectedTabIndex,
+        hasOfflineOrders: widget.orderController.hasOfflineOrders.value,
+      );
+    }),
+  ),
+
+
+          // if (!_shouldShowUpgradeButton(_selectedTabIndex)) ...[
+          //   Expanded(
+          //     child: Center(
+          //       child: UpgradePlanButton(),
+          //     ),
+          //   ),
+          // ],
+          // if (_shouldShowUpgradeButton(_selectedTabIndex))
+          //   Expanded(
+          //     child: widget.orderController.hasOfflineOrders.value &&
+          //             _selectedTabIndex == 0
+          //         ? OfflineOrderBottomWidget(
+          //             orderController: widget.orderController)
+          //         : OrderBottomWidget(
+          //             orderController: widget.orderController,
+          //             selectedTabIndex: _selectedTabIndex,
+          //             hasOfflineOrders:
+          //                 widget.orderController.hasOfflineOrders.value,
+          //           ),
+          //   ),
         ],
       );
     });

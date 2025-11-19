@@ -116,7 +116,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         ? customerOrderController.customerId.value
         : productController.selectedCustomerId.value;
     final subscriptionController = Get.find<SubscriptionController>();
-    bool isRecentOrders = index == 7;
+    bool isRecentOrders = index == 8;
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
     bool isCustomersAndOrders = index == 1;

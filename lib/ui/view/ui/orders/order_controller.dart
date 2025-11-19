@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -37,6 +38,63 @@ class OrderController extends GetxController {
   RxBool isOrderLoading = false.obs;
 
   RxBool hasOfflineOrders = false.obs;
+
+  final TextEditingController searchTextController = TextEditingController();
+RxString searchQuery = ''.obs;
+RxBool isSearching = false.obs;
+RxList<OrderData> searchResults = <OrderData>[].obs;
+RxBool isSearchLoading = false.obs;
+Future<void> performSearch({
+    required String query,
+    required int status,
+    int page = 1,
+  }) async {
+    if (query.trim().isEmpty) {
+      isSearching.value = false;
+      searchResults.clear();
+      return;
+    }
+
+    try {
+      isSearchLoading.value = true;
+      isSearching.value = true;
+
+      final response = await Dio().post(
+        'https://test.thrivewoo.com/search_orders',
+        data: {
+          "companyId": 1,
+          "status": status,
+          "q": query.trim(),
+          "start_date": "",
+          "end_date": "",
+          "limit": 100,
+          "page": page,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final List<dynamic> rawList = response.data['data'];
+        searchResults.assignAll(
+          rawList.map((json) => OrderData.fromJson(json)).toList(),
+        );
+      } else {
+        searchResults.clear();
+      }
+    } catch (e) {
+      print('Search error: $e');
+      searchResults.clear();
+      Get.snackbar('No Internet', 'No Internet Connection. Please check your netwrok.',colorText: Colors.white,backgroundColor: Colors.red);
+    } finally {
+      isSearchLoading.value = false;
+    }
+  }
+
+void clearSearch() {
+  searchTextController.clear();
+  searchQuery.value = '';
+  isSearching.value = false;
+  searchResults.clear();
+}
 
   Future<void> loadOrderCountData() async {
     isCountLoading(true);
@@ -168,6 +226,7 @@ class OrderController extends GetxController {
   void updateTabIndex(int newIndex, {bool hasOfflineOrders = false}) {
     currentPage.value = 1;
     selectedTabIndex.value = newIndex;
+    clearSearch();
     loadOrderCountData();
     loadOrderData(selectedIndex: newIndex, hasOfflineOrders: hasOfflineOrders);
   }

@@ -10,6 +10,8 @@ import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/pending_payment_model.dart';
+import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/verify_response.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
@@ -2739,7 +2741,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<void> customerPayment({
-    required BuildContext context,
+     BuildContext? context,
     required String detail,
     required String orderId,
     required String paymentType,
@@ -2760,7 +2762,8 @@ class ApiWorker with ApiConstants {
       "transation_id": transactionId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
-
+    // print('payment-type in api function:$paymentType');
+  print('transactionId in api function:$transactionId');
     try {
       bool isOnline = await ConnectivityService().isOnline();
 
@@ -2781,14 +2784,14 @@ class ApiWorker with ApiConstants {
 
       if (response.statusCode == 200) {
         showCustomToastDisplay(
-            context, "Payment successful", Colors.green, Icons.check);
+            context!, "Payment successful", Colors.green, Icons.check);
       } else {
         showCustomToastDisplay(
-            context, "Payment failed", Colors.red, Icons.close);
+            context!, "Payment failed", Colors.red, Icons.close);
       }
     } catch (error) {
       showCustomToastDisplay(
-          context, "Error in Payment : $error", Colors.red, Icons.close);
+          context!, "Error in Payment : $error", Colors.red, Icons.close);
       if (error is DioException) {
         handleExceptionMessage(
             apiName: 'Customer Payment', response: error.response);
@@ -2798,6 +2801,8 @@ class ApiWorker with ApiConstants {
       }
     }
   }
+
+
 
   Future<ProductFrequencyResponse> getProductFrequency() async {
     try {
@@ -3197,5 +3202,249 @@ Future<ReturnInfo> fetchInforeturnData({
   // ------------------- 5. Return parsed model -------------------
   return ReturnInfo.fromJson(responseJson);
 }
+
+
+
+Future<OnlinePaymentSession> createOnlinePaymentSession({
+    required double amount,
+
+    required String orderIds,
+    // required String customerId,
+    // required String companyId,
+  }) async {
+    final requestPayload = {
+      "amount": amount,
+      "isCents": false, 
+      "order_id": orderIds,
+      "company_id": "1",
+      
+    };
+
+    try {
+      bool isOnline = await ConnectivityService().isOnline();
+      if (!isOnline) {
+        final box = await Hive.openBox('offlineRequests');
+        await box.add({
+          "url": 'https://test.thrivewoo.com/create-checkout-session-product',
+          "method": "POST",
+          "payload": requestPayload,
+          "timestamp": DateTime.now().toIso8601String(),
+          "type": "online_session_create",
+        });
+        throw Exception("Offline: Session creation queued");
+      }
+
+      final response = await dio1.post(
+        'https://test.thrivewoo.com/create-checkout-session-product',
+        data: requestPayload,
+      );
+
+      print('response:$response');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return OnlinePaymentSession.fromJson(response.data);
+      } else {
+        throw Exception("Session creation failed: ${response.statusMessage}");
+      }
+    } catch (error) {
+      if (error is DioException) {
+        handleExceptionMessage(
+            apiName: 'Create Online Session', response: error.response);
+      }
+      rethrow;
+    }
+  }
+
+
+  Future<OnlinePaymentVerifyResponse> verifyOnlinePaymentSession({
+  required String sessionId,
+  required String companyId,
+}) async {
+  try {
+    print("\n🌐 [API] ========== API CALL START ==========");
+    print("🌐 [API] URL: ${ApiConstants.baseUrl}/verify-checkout-session");
+    print("🌐 [API] session_id: $sessionId");
+    print("🌐 [API] company_id: $companyId");
+
+    final response = await dio1.get(
+      'https://test.thrivewoo.com/verify-checkout-session',
+      queryParameters: {
+        'session_id': sessionId,
+        'company_id': companyId,
+      },
+    );
+
+    print("\n📡 [API] Response Status Code: ${response.statusCode}");
+    print("📦 [API] Raw Response Data Type: ${response.data.runtimeType}");
+    print("📦 [API] Raw Response Data: ${response.data}");
+
+    if (response.statusCode == 200) {
+      try {
+        // Ensure response.data is a Map
+        Map<String, dynamic> jsonData;
+        
+        if (response.data is Map<String, dynamic>) {
+          jsonData = response.data;
+        } else if (response.data is String) {
+          print("⚠️ [API] Response is String, attempting to parse JSON...");
+          jsonData = json.decode(response.data);
+        } else {
+          print("❌ [API] Unexpected response type: ${response.data.runtimeType}");
+          throw Exception("Invalid response format");
+        }
+        
+        final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
+        print("\n✅ [API] Successfully parsed response:");
+        print("   - paid: ${result.paid}");
+        print("   - paymentStatus: ${result.paymentStatus}");
+        print("   - paymentIntentId: ${result.paymentIntentId}");
+        print("🌐 [API] ========== API CALL END ==========\n");
+        return result;
+        
+      } catch (parseError, stackTrace) {
+        print("\n❌ [API] JSON Parsing Error: $parseError");
+        print("📚 [API] Stack Trace: $stackTrace");
+        print("📄 [API] Failed to parse data: ${response.data}");
+        print("🌐 [API] ========== API CALL END (ERROR) ==========\n");
+        
+        // Return pending status on parse error
+        return OnlinePaymentVerifyResponse(
+          paid: false,
+          paymentStatus: 'error',
+          metadata: {},
+        );
+      }
+    } else {
+      print("\n⚠️ [API] Non-200 Status Code: ${response.statusCode}");
+      print("📄 [API] Response body: ${response.data}");
+      print("🌐 [API] ========== API CALL END ==========\n");
+      
+      return OnlinePaymentVerifyResponse(
+        paid: false,
+        paymentStatus: 'pending',
+        metadata: {},
+      );
+    }
+    
+  } on DioException catch (dioError) {
+    print("\n❌ [API] DioException caught:");
+    print("   Type: ${dioError.type}");
+    print("   Message: ${dioError.message}");
+    print("   Response Status: ${dioError.response?.statusCode}");
+    print("   Response Data: ${dioError.response?.data}");
+
+    // CRITICAL: Some APIs return success data even in error responses
+    if (dioError.response?.data != null) {
+      try {
+        print("🔄 [API] Attempting to parse data from error response...");
+        
+        Map<String, dynamic> jsonData;
+        if (dioError.response!.data is Map<String, dynamic>) {
+          jsonData = dioError.response!.data;
+        } else if (dioError.response!.data is String) {
+          jsonData = json.decode(dioError.response!.data);
+        } else {
+          throw Exception("Cannot parse error response");
+        }
+        
+        final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
+        print("✅ [API] Successfully parsed from error response!");
+        print("🌐 [API] ========== API CALL END ==========\n");
+        return result;
+        
+      } catch (e) {
+        print("❌ [API] Failed to parse error response: $e");
+      }
+    }
+
+    print("🌐 [API] ========== API CALL END (DIO ERROR) ==========\n");
+    return OnlinePaymentVerifyResponse(
+      paid: false,
+      paymentStatus: 'pending',
+      metadata: {},
+    );
+    
+  } catch (e, stackTrace) {
+    print("\n❌ [API] Unexpected Error: $e");
+    print("📚 [API] Stack Trace: $stackTrace");
+    print("🌐 [API] ========== API CALL END (UNEXPECTED ERROR) ==========\n");
+    
+    return OnlinePaymentVerifyResponse(
+      paid: false,
+      paymentStatus: 'pending',
+      metadata: {},
+    );
+  }
+}
+//   // In your ApiWorker class
+// Future<OnlinePaymentVerifyResponse> verifyOnlinePaymentSession({
+//   required String sessionId,
+//   required String companyId,
+// }) async {
+//   try {
+//     final response = await dio1.get(
+//       '${ApiConstants.baseUrl}/verify-checkout-session',
+//       queryParameters: {
+//         'session_id': sessionId,
+//         'company_id': companyId,
+//       },
+//     );
+
+//     if (response.statusCode == 200) {
+//       return OnlinePaymentVerifyResponse.fromJson(response.data);
+//     } else {
+//       // 404, 500, etc. → NOT an error → just "not paid yet"
+//       return OnlinePaymentVerifyResponse(
+//         paid: false,
+//         paymentStatus: 'pending',
+//         metadata: {},
+//       );
+//     }
+//   } catch (e) {
+//     // Network error, timeout → also "not paid yet"
+//     return OnlinePaymentVerifyResponse(
+//       paid: false,
+//       paymentStatus: 'pending',
+//       metadata: {},
+//     );
+//   }
+// }
+  // Future<OnlinePaymentVerifyResponse> verifyOnlinePaymentSession({
+  //   required String sessionId,
+  //   required String companyId,
+  // }) async {
+  //   try {
+  //     final response = await dio1.get(
+  //       '${ApiConstants.baseUrl}/verify-checkout-session',
+  //       queryParameters: {
+  //         'session_id': sessionId,
+  //         'company_id': companyId,
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       return OnlinePaymentVerifyResponse.fromJson(response.data);
+  //     } 
+  //     else {
+  //     // For 404, 500, etc. → just return "not paid yet"
+  //     print("Verify returned ${response.statusCode} → assuming not paid yet");
+  //     return OnlinePaymentVerifyResponse(
+  //       paid: false,
+  //       paymentStatus: 'pending',
+  //       metadata: {},
+  //     );
+  //   }
+  
+  //   } catch (error) {
+  //     // Silent fail during polling is okay
+  //    print("Verification poll error (will retry): $error");
+  //   return OnlinePaymentVerifyResponse(
+  //     paid: false,
+  //     paymentStatus: 'pending',
+  //     metadata: {},
+  //   );
+  //   }
+  // }
+// }
   
 }

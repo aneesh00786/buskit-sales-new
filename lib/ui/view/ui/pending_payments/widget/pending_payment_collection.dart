@@ -642,7 +642,14 @@ void pendingPaymentCollectionDialog(
                             showCustomToastDisplay(context, "Payment submitted", Colors.green, Icons.check);
                           }
                         },
-                        child: Obx(() => Text(selectedPaymentMethod.value == 'Online Payment' ? 'Pay' : 'Submit')),
+                         style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                              // primaryColor.withOpacity(0.2),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0)),
+                                        ),
+                        child: Obx(() => Text(selectedPaymentMethod.value == 'Online Payment' ? 'Pay' : 'Submit',style: TextStyle(color: Colors.white),)),
                       ))),
                     ]),
                   ],

@@ -204,7 +204,7 @@ class LocalStorage {
       final castedData = castToStringDynamic(cachedData);
       return PerformanceData.fromJson(castedData);
     } else {
-      errorSnackbar('No perfromance cached data available');
+      // errorSnackbar('No perfromance cached data available');
       return null;
     }
   }

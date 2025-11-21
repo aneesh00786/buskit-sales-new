@@ -1710,9 +1710,9 @@ class ApiWorker with ApiConstants {
           return ScheduleListResponse.fromJson(
               Map<String, dynamic>.from(cachedData));
         } else {
-          NkCommonFunction.showErrorSnakBar(
-            'No offline schedule data available.',
-          );
+          // NkCommonFunction.showErrorSnakBar(
+          //   // 'No offline schedule data available.',
+          // );
         }
       } catch (e) {
         NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
@@ -1725,9 +1725,9 @@ class ApiWorker with ApiConstants {
         return ScheduleListResponse.fromJson(
             Map<String, dynamic>.from(cachedData));
       } else {
-        NkCommonFunction.showErrorSnakBar(
-          'No offline schedule data available.',
-        );
+        // NkCommonFunction.showErrorSnakBar(
+        //   'No offline schedule data available.',
+        // );
       }
     } catch (e) {
       NkCommonFunction.showErrorSnakBar(

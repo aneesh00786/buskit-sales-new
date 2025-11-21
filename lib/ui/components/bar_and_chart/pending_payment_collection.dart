@@ -719,8 +719,8 @@ void pendingPaymentCollectionDialog(
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          primaryColor.withOpacity(0.2),
+                                      backgroundColor:  Colors.blue ,
+                                          // primaryColor.withOpacity(0.2),
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0)),
@@ -731,7 +731,7 @@ void pendingPaymentCollectionDialog(
                                                 'Online Payment'
                                             ? 'Pay'
                                             : 'Submit',
-                                        style: const TextStyle(fontSize: 14),
+                                        style: const TextStyle(fontSize: 14,color: Colors.white),
                                       ),
                                     ),
                                   ),
@@ -998,8 +998,8 @@ void pendingPaymentCollectionDialog(
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              primaryColor.withOpacity(0.2),
+                                          backgroundColor: Colors.blue,
+                                              // primaryColor.withOpacity(0.2),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10.0)),
@@ -1010,7 +1010,7 @@ void pendingPaymentCollectionDialog(
                                                   ? 'Pay'
                                                   : 'Submit',
                                               style:
-                                                  const TextStyle(fontSize: 14),
+                                                  const TextStyle(fontSize: 14,color: Colors.white),
                                             )),
                                       ),
                                     ),

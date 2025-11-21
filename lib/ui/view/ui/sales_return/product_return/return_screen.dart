@@ -123,47 +123,7 @@ void initState() {
     });
   }
 }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _ctrl = Get.find<ProductReturnController>();
-  //   _returnInfoCtrl = Get.find<PendingReturnsController>();
 
-  //   _horizontalScrollController.addListener(() {
-  //     setState(() {});
-  //   });
-
-  //   if (_ctrl.orderId.value != widget.orderId) {
-  //     _ctrl.orderData.value = null;
-  //     _ctrl.cartItems.clear();
-
-  //     _ctrl.orderId.value = widget.orderId;
-
-  //     _ctrl.fetchProductReturnDetails().then((_) {
-  //       for (var item in _ctrl.cartItems) {
-  //         item.damageQty = 0;
-  //         item.returnQty = 0;
-  //         item.image = null;
-  //         item.itemReason = '';
-  //       }
-  //       _returnInfoCtrl.fetchPendingReturns(
-  //           cartId: _ctrl.orderData.value!.cartId!,
-  //           companyId: _ctrl.orderData.value!.companyId!.toString());
-  //       _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
-  //     });
-  //   } else {
-  //     for (var item in _ctrl.cartItems) {
-  //       item.damageQty = 0;
-  //       item.returnQty = 0;
-  //       item.image = null;
-  //       item.itemReason = '';
-  //     }
-  //     _returnInfoCtrl.fetchPendingReturns(
-  //         cartId: _ctrl.orderData.value!.cartId!,
-  //         companyId: _ctrl.orderData.value!.companyId!.toString());
-  //     _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
-  //   }
-  // }
 
   @override
   void didChangeDependencies() {
@@ -486,13 +446,6 @@ void initState() {
                                                     fontSize: 14),
                           ),
 
-                        // child: Text(
-                        //   '${e.value.productName ?? '-'} - ${e.value.variationName ?? '-'}',
-                        //   // e.value.productName ?? '-',
-                        //   style: const TextStyle(fontSize: 13),
-                        //   maxLines: 2,
-                        //   overflow: TextOverflow.ellipsis,
-                        // ),
                       ),
                     ],
                   ),
@@ -527,8 +480,7 @@ void initState() {
                           color: e.key.isEven ? Colors.grey[50] : Colors.white,
                           child: Row(
                             children: [
-                              // _col(cart.price?.toStringAsFixed(2) ?? '0.00',
-                              //     colUnit),
+                             
                               _col(formatAmount(cart.price), colUnit),
                               _col(
                                   '${cart.pieces ?? 0} (${cart.quantity ?? 0} ${cart.packType ?? ''})'
@@ -536,27 +488,24 @@ void initState() {
                                   colQty),
                               _col(
                                 formatAmount(
-                                    cart.totalPrice), // e.g., ₹ 1,500.00
+                                    cart.totalPrice), 
                                 colAmt,
                                 align: TextAlign.right,
                               ),
-                              // _col(cart.discountAmount ?? '0.00', colDisc),
+                             
                               _col(
                                 formatAmount(
                                     cart.discountAmount), // e.g., ₹ 100.00
                                 colDisc,
                                 align: TextAlign.right,
                               ),
-                              // _col(cart.tax?.toStringAsFixed(2) ?? '0.00',
-                              //     colTax),
+                              
                               _col(
                                 formatAmount(cart.tax), // e.g., ₹ 270.00
                                 colTax,
                                 align: TextAlign.right,
                               ),
-                              // _col(
-                              //     cart.totalPrice?.toStringAsFixed(2) ?? '0.00',
-                              //     colTotal),
+                             
                               _col(
                                 formatAmount(cart.totalPrice),
                                 colTotal,
@@ -822,94 +771,6 @@ Widget _buildQtyText(String txt, TextAlign align) {
     ),
   );
 }
-
-// Widget _uploadImageBtn({
-//   required Function(File file) onPicked,
-//   required VoidCallback onDelete, // 👈 Add this callback for delete action
-//   File? currentFile,
-// }) {
-//   return InkWell(
-//     onTap: () {
-//       if (currentFile != null) return; // 👈 Prevent reopening dialog when image exists
-//       showDialog(
-//         barrierDismissible: false,
-//         context: context,
-//         builder: (BuildContext context) {
-//           return AlertDialog(
-//             title: const Text('Select Method'),
-//             actions: [
-//               IconButton(
-//                 onPressed: () async {
-//                   final file = await pickImages(ImageSource.camera);
-//                   if (file != null) onPicked(file);
-//                   Navigator.of(context).pop();
-//                 },
-//                 icon: const Icon(EneftyIcons.camera_outline),
-//               ),
-//               IconButton(
-//                 onPressed: () async {
-//                   final file = await pickImages(ImageSource.gallery);
-//                   if (file != null) onPicked(file);
-//                   Navigator.of(context).pop();
-//                 },
-//                 icon: const Icon(EneftyIcons.gallery_bold),
-//               ),
-//             ],
-//           );
-//         },
-//       );
-//     },
-//     child: Container(
-//       width: 100,
-//       height: 100,
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.blue),
-//         borderRadius: BorderRadius.circular(8),
-//         image: currentFile != null
-//             ? DecorationImage(
-//                 image: FileImage(currentFile),
-//                 fit: BoxFit.cover,
-//               )
-//             : null,
-//       ),
-//       child: currentFile == null
-//           ? Center(
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: const [
-//                   Icon(Icons.upload, size: 24, color: Colors.blue),
-//                   SizedBox(height: 4),
-//                   Text(
-//                     "Upload",
-//                     style: TextStyle(fontSize: 12, color: Colors.blue),
-//                   ),
-//                 ],
-//               ),
-//             )
-//           : Align(
-//               alignment: Alignment.topRight,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(4.0),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.end,
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     IconButton(
-//                       icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-//                       padding: EdgeInsets.zero,
-//                       constraints: const BoxConstraints(),
-//                       onPressed: onDelete, // 👈 Calls delete callback
-//                     ),
-//                     const SizedBox(width: 4),
-//                     const Icon(Icons.check_circle,
-//                         color: Colors.green, size: 20),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//     ),
-//   );
-// }
 
   Widget _uploadImageBtn({
     required Function(File file) onPicked,

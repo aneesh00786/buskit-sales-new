@@ -2,9 +2,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/co
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/return_info_model.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';               // <-- for date formatting
           // <-- your controller file
 
 
@@ -59,14 +56,7 @@ class PendingReturnsPopup extends StatelessWidget {
             '$productName – $variationName – Pending Returns',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
           ),
-          // const Text(
-          //   'Pears Pure & Gentle Bar, Paraben-Free Body For Soft Skin – Pending Returns',
-          //   style: TextStyle(
-          //     fontSize: 16,
-          //     fontWeight: FontWeight.w600,
-          //     color: Colors.black87,
-          //   ),
-          // ),
+          
           const SizedBox(height: 16),
 
           // Table Header
@@ -109,27 +99,7 @@ class PendingReturnsPopup extends StatelessWidget {
             }).toList(),
 
           const SizedBox(height: 24),
-          // const _ReturnRow(
-          //   id: 'RTN002',
-          //   qty: '3',
-          //   reason: '',
-          //   date: '13/11/2025',
-          //   type: 'Damage',
-          //   status: 'pending',
-          // ),
-          // const Divider(height: 1, color: Colors.grey),
-          // const _ReturnRow(
-          //   id: 'RTN001',
-          //   qty: '5',
-          //   reason: '',
-          //   date: '13/11/2025',
-          //   type: 'Damage',
-          //   status: 'pending',
-          // ),
-
-          // const SizedBox(height: 24),
-
-          // Close Button
+         
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(

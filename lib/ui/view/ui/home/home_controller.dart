@@ -166,16 +166,6 @@ class HomeController extends GetxController {
     } 
    
    
-    
-    // else if (settings.name == AppRoutes.salesReturn &&
-    //     sidebarXController.selectedIndex == 8) {
-    //   return GetPageRoute(
-    //     transition: Transition.leftToRightWithFade,
-    //     settings: settings,
-    //     page: () => const SalesReturn(),
-    //     binding: CommonBinding(),
-    //   );
-    // }
     else if (settings.name == AppRoutes.settings &&
         sidebarXController.selectedIndex == 9) {
       return GetPageRoute(
@@ -339,25 +329,7 @@ class HomeController extends GetxController {
           ),
           child: Row(
             children: [
-              // Icon(
-              //   iconData,
-              //   size: 20,
-              //   color: Colors.black.withOpacity(0.7),
-              //   weight: 700,
-              // ),
-  
-//   SvgPicture.asset(
-//   getSidebarIcon(index ?? 0),
-//   height: (index == 8 || index == 9 || index == 10) ? 30 : 24,
-//   width: (index == 8 || index == 9 || index == 10) ? 30 : 24,
-//   color: sidebarXController.selectedIndex == index
-//       ? (index == 8 || index == 9 || index == 10)
-//           ? null
-//           : primaryColor
-//       : (index == 8 || index == 9 || index == 10)
-//           ? null
-//           : Colors.grey,
-// ),
+            
 
 
               SvgPicture.asset(
@@ -470,69 +442,6 @@ class HomeController extends GetxController {
   }
 }
 
-// Future<void> handleLogout(BuildContext context) async {
-//   await SessionManager.clearData();
-//   await SessionHelper().clearSettingsData();
-//   await SessionHelper().clearAll();
-//   await CartDatabaseManager().clearCompleteCart();
-//   if (Hive.isBoxOpen('discounts')) {
-//     await Hive.box<CustomerDiscountModel>('discounts').clear();
-//   }
-
-//   if (Hive.isBoxOpen('cartBox')) {
-//     await Hive.box<CartItem>('cartBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('cartPreorderBox')) {
-//     await Hive.box<CartItem>('cartPreorderBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('draftBox')) {
-//     await Hive.box<CartItem>('draftBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('products')) {
-//     await Hive.box<ProductModel>('products').close();
-//   }
-//   await Hive.deleteBoxFromDisk('products');
-//   final untypedBoxNames = [
-//     'dashboardBox',
-//     'customerdashboardBox',
-//     'customerRevenueBox',
-//     'customerTotalSaleBox',
-//     'weeklyTypeBox',
-//     'customerBox',
-//     'productBox',
-//     'chatBox',
-//     'pendingPaymentBox',
-//     'performanceBox',
-//     'leadsBox',
-//     'leadsRejectBox',
-//     'ordersBox',
-//     'fetchAllOrdersBox',
-//     'settingsBox',
-//     'calendarEventsBox',
-//     'salesmanTargetBox',
-//     'salesmanValueTargetBox',
-//     'subscribtionBox',
-//     'subscribtionPlanDetailsBox',
-//   ];
-
-//   for (final boxName in untypedBoxNames) {
-//     try {
-//       if (Hive.isBoxOpen(boxName)) {
-//         await Hive.box(boxName).clear();
-//       } else {
-//         final box = await Hive.openBox(boxName);
-//         await box.clear();
-//       }
-//     } catch (e) {
-//       log("Error clearing box $boxName: $e");
-//     }
-//   }
-
-//   Get.offAllNamed(AppRoutes.login);
-// }
 
 String getSidebarIcon(int index) {
   switch (index) {

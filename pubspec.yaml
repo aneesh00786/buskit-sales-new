@@ -74,6 +74,7 @@ dependencies:
   pie_chart: ^5.4.0
   printing: ^5.14.2
   provider: ^6.0.5
+  qr_flutter: ^4.1.0
   quickalert: ^1.1.0
   rolling_switch: ^0.0.2
   rounded_loading_button_plus: ^3.0.1

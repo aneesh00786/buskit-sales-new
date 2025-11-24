@@ -57,11 +57,11 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       // Update reactive query
       widget.orderController.searchQuery.value = query;
 
-      // Trigger search IMMEDIATELY — no delay, no debounce
-      _triggerSearch();
-    });
+  // Trigger search IMMEDIATELY — no delay, no debounce
+  _triggerSearch();
+});
+  
   }
-
   void _triggerSearch() {
     final hasOffline = widget.orderController.hasOfflineOrders.value;
     final index = _selectedTabIndex;

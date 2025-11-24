@@ -613,7 +613,7 @@ class _SalesReturnState extends State<SalesReturn> {
                           GetRecentOrderReturnData salesReturnData =
                               entry.value;
                           return Container(
-                            height: fixedRowHeight,
+                            height: 90,
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                             padding: const EdgeInsets.all(8.0),
@@ -673,6 +673,7 @@ class _SalesReturnState extends State<SalesReturn> {
                       );
                     })),
               ),
+              // SizedBox(height: 10),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(3),
@@ -724,7 +725,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                 return buildTableRow(
                                   context,
                                   index,
-                                  fixedRowHeight,
+                                  90,
                                   salesReturnData,
                                 );
                               }).toList(),
@@ -752,6 +753,8 @@ class _SalesReturnState extends State<SalesReturn> {
             ],
           ),
         )
+
+      
       ],
     );
   }

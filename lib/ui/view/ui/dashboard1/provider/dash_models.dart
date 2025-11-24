@@ -1338,9 +1338,9 @@ class PendingAmount {
   final String? businessName;
   final int? orderStatus;
   final num? orderTotal;
-  final num? receivedAmount;
+   num? receivedAmount;
   final num? receivableAmount;
-  final int? paymentStatus;
+   int? paymentStatus;
   final int? creditPeriod;
   final int? count;
   final String? percentage;

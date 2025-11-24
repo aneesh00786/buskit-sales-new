@@ -206,6 +206,7 @@ void showDetailedOrderInvoiceDialog(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
+                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: SingleChildScrollView(
@@ -223,6 +224,11 @@ void showDetailedOrderInvoiceDialog(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),
+                                      columnSpacing: 
+                                      isPhonePortrait(context)
+                                        ? fullScreenWidth(context) * 1000
+                                        : 50,
+                                      
                                       columns: [
                                         DataColumn(
                                           label: SizedBox(
@@ -250,6 +256,13 @@ void showDetailedOrderInvoiceDialog(
                                                 child: Text('QUANTITY')),
                                           ),
                                         ),
+                                         const DataColumn(
+                                              label: Expanded(
+                                                child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text('AMOUNT')),
+                                              ),
+                                            ),
                                         const DataColumn(
                                               label: Expanded(
                                                 child: Align(
@@ -257,6 +270,8 @@ void showDetailedOrderInvoiceDialog(
                                                     child: Text('DISCOUNT')),
                                               ),
                                             ),
+                                           
+
                                         const DataColumn(
                                           label: Expanded(
                                             child: Align(
@@ -337,6 +352,26 @@ void showDetailedOrderInvoiceDialog(
                                               ),
                                             ),
                                           ),
+                                           DataCell(
+                                                Center(
+                                                  child: 
+                                                  Text(
+                                          formatAmount(
+                                            '${(dashBoardController.fetchSpecificOrderData?.cart!.first.totalPrice ?? 0)}',
+                                          ),
+                                          maxLines: 1,
+                                        )
+                                                  ,
+                                                  // Text(
+                                                  //   formatAmount(
+                                                  //     (item. ?? 0) *
+                                                  //         (item.discount! /
+                                                  //             100),
+                                                  //   ),
+                                                  //   maxLines: 1,
+                                                  // ),
+                                                ),
+                                              ),
                                           DataCell(
                                                 Center(
                                                   child: Text(

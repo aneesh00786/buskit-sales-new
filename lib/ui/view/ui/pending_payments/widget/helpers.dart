@@ -466,6 +466,7 @@ Widget _buildPaymentCollectionButton(
     child: InkResponse(
       onTap: () {
         if (subscriptionController.appPaymentCollection.value == "true") {
+          
           pendingPaymentCollectionDialog(context, customerData.customerId);
         } else {
           showUpgradePlanDialog(context);

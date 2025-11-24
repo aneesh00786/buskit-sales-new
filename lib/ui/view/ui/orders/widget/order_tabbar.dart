@@ -60,19 +60,7 @@ Timer? _debounce;
   // Trigger search IMMEDIATELY — no delay, no debounce
   _triggerSearch();
 });
-  //   _searchController.addListener(() {
-  //   if (_debounce?.isActive ?? false) _debounce!.cancel();
-  //   _debounce = Timer(const Duration(milliseconds: 600), () {
-  //     final query = _searchController.text;
-  //     widget.orderController.searchQuery.value = query;
-
-  //     if (query.isEmpty) {
-  //       widget.orderController.clearSearch();
-  //     } else {
-  //       _triggerSearch();
-  //     }
-  //   });
-  // });
+  
   }
   void _triggerSearch() {
   final hasOffline = widget.orderController.hasOfflineOrders.value;

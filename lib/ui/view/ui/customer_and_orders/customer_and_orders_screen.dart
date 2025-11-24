@@ -4128,7 +4128,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                 children: [
                                   Expanded(
                                     child: DataTable(
-                                        dataRowHeight: fontSize * 5.5,
+                                        dataRowHeight: 0,
                                         headingRowHeight:
                                             fullScreenWidth(context) > 740
                                                 ? 45
@@ -4160,6 +4160,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ),
                                           )),
                                           DataColumn(
+                                            //  width: flexWidth * 0.9,
                                               label: Expanded(
                                             child: Padding(
                                               padding: EdgeInsets.only(

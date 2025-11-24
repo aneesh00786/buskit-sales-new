@@ -12,12 +12,15 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 void pendingPaymentCollectionDialog(
@@ -406,6 +409,8 @@ void pendingPaymentCollectionDialog(
   showDialog(
     context: context,
     builder: (BuildContext context) {
+      // PendingPaymentController orderController =
+      // Get.put(PendingPaymentController());
       return Dialog(
         insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -563,6 +568,7 @@ void pendingPaymentCollectionDialog(
                                       };
                                     }
                                   },
+                                  // itemHeight: 10,
                                   hint: const Text('Select'),
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.black),
@@ -706,6 +712,7 @@ void pendingPaymentCollectionDialog(
                                           selectedItemsList,
                                           remarks: remarksController.text,
                                         );
+
                                         print(
                                             'payament_type:${selectedPaymentMethod.value}');
                                       } else {
@@ -716,11 +723,25 @@ void pendingPaymentCollectionDialog(
                                         );
                                         // _resetPaymentForm();
                                         updateSelectedItems();
+                                        final dashboardProvider =
+                                            Provider.of<DashboardProvider>(
+                                                context,
+                                                listen: false);
+                                        await dashboardProvider
+                                            .setTempToFilter();
+
+                                        // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+                                        await dashboardProvider
+                                            .fetchAllOrdersAtOnce();
+
+                                        dashboardProvider.fetchData();
+
+                                        Get.back();
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor:  Colors.blue ,
-                                          // primaryColor.withOpacity(0.2),
+                                      backgroundColor: Colors.blue,
+                                      // primaryColor.withOpacity(0.2),
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0)),
@@ -731,7 +752,8 @@ void pendingPaymentCollectionDialog(
                                                 'Online Payment'
                                             ? 'Pay'
                                             : 'Submit',
-                                        style: const TextStyle(fontSize: 14,color: Colors.white),
+                                        style: const TextStyle(
+                                            fontSize: 14, color: Colors.white),
                                       ),
                                     ),
                                   ),
@@ -775,6 +797,7 @@ void pendingPaymentCollectionDialog(
                                 cells: [
                                   DataCell(
                                     DropdownButtonFormField<String>(
+                                      // itemHeight: 9,
                                       value: selectedPaymentMethod.value,
                                       decoration: InputDecoration(
                                         filled: true,
@@ -982,7 +1005,6 @@ void pendingPaymentCollectionDialog(
                                           // Now decide: Online Payment → QR flow, else → normal payment
                                           if (selectedPaymentMethod.value ==
                                               'Online Payment') {
-                                           
                                             await _startOnlinePayment(
                                               context,
                                               enteredAmount,
@@ -995,11 +1017,25 @@ void pendingPaymentCollectionDialog(
                                                 enteredAmount);
                                             // _resetPaymentForm();
                                             updateSelectedItems();
+                                            final dashboardProvider =
+                                                Provider.of<DashboardProvider>(
+                                                    context,
+                                                    listen: false);
+                                            await dashboardProvider
+                                                .setTempToFilter();
+
+                                            // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+                                            await dashboardProvider
+                                                .fetchAllOrdersAtOnce();
+
+                                            dashboardProvider.fetchData();
+
+                                            Get.back();
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.blue,
-                                              // primaryColor.withOpacity(0.2),
+                                          // primaryColor.withOpacity(0.2),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10.0)),
@@ -1009,8 +1045,9 @@ void pendingPaymentCollectionDialog(
                                                       'Online Payment'
                                                   ? 'Pay'
                                                   : 'Submit',
-                                              style:
-                                                  const TextStyle(fontSize: 14,color: Colors.white),
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.white),
                                             )),
                                       ),
                                     ),
@@ -1097,10 +1134,10 @@ void _showQRPaymentModal({
   int pollCount = 0;
 
 //  String? paymentIntentId;
-  void handleSuccess(String intentId) {
-      PendingPaymentController orderController =
-      Get.put(PendingPaymentController());
-int selectedTabIndex = 0;
+  void handleSuccess(String intentId) async {
+    // PendingPaymentController orderController =
+    // Get.put(PendingPaymentController());
+    int selectedTabIndex = 0;
     if (hasSuccess) return;
     hasSuccess = true;
 
@@ -1121,8 +1158,8 @@ int selectedTabIndex = 0;
           remainingAmount >= itemAmount ? itemAmount : remainingAmount;
       remainingAmount -= appliedAmount;
 
-    //  pendingPaymentCollectionDialog(
-    //                   context, 'Pending Payment',collection);
+      //  pendingPaymentCollectionDialog(
+      //                   context, 'Pending Payment',collection);
       // Call API with payment_type = "3" for Online Payment
       ApiWorker().customerPayment(
         context: context,
@@ -1140,7 +1177,7 @@ int selectedTabIndex = 0;
     // Use a small delay to ensure context is still valid
     Future.delayed(Duration.zero, () {
       if (context.mounted) {
-      // orderController.loadOrderData(chartIndex: selectedTabIndex);
+        // orderController.loadOrderData(chartIndex: selectedTabIndex);
         Navigator.of(context).pop();
 
         showCustomToastDisplay(
@@ -1152,6 +1189,15 @@ int selectedTabIndex = 0;
         Navigator.of(context).pop();
       }
     });
+    final dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
+    await dashboardProvider.setTempToFilter();
+
+    // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+    await dashboardProvider.fetchAllOrdersAtOnce();
+
+    dashboardProvider.fetchData();
+    //  orderController.loadOrderData(chartIndex: 0);
   }
 
   Future<void> checkPayment() async {
@@ -1163,7 +1209,7 @@ int selectedTabIndex = 0;
 
     isChecking = true;
     pollCount++;
-    
+
     try {
       final result = await ApiWorker().verifyOnlinePaymentSession(
         sessionId: session.sessionId,

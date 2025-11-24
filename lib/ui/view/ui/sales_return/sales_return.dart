@@ -613,7 +613,7 @@ class _SalesReturnState extends State<SalesReturn> {
                           GetRecentOrderReturnData salesReturnData =
                               entry.value;
                           return Container(
-                            height: fixedRowHeight,
+                            height: 90,
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                             padding: const EdgeInsets.all(8.0),
@@ -673,6 +673,7 @@ class _SalesReturnState extends State<SalesReturn> {
                       );
                     })),
               ),
+              // SizedBox(height: 10),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(3),
@@ -724,7 +725,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                 return buildTableRow(
                                   context,
                                   index,
-                                  fixedRowHeight,
+                                  90,
                                   salesReturnData,
                                 );
                               }).toList(),
@@ -753,61 +754,7 @@ class _SalesReturnState extends State<SalesReturn> {
           ),
         )
 
-        // Expanded(
-        //   child: Stack(
-        //     children: [
-        //       SingleChildScrollView(
-        //         scrollDirection: Axis.horizontal,
-        //         child: SizedBox(
-        //           width: totalTableWidth,
-        //           child: Obx((){
-        //             final list = salesReturnController.filteredList;
-        //             return Column(
-        //             mainAxisAlignment: MainAxisAlignment.start,
-        //             children: [
-        //               SizedBox(child: buildSalesReturnTableHeader()),
-        //               Expanded(
-        //                 child: SingleChildScrollView(
-        //                     scrollDirection: Axis.vertical,
-        //                       controller: vertical1,
-        //                     // scrollDirection: Axis.vertical,
-        //                     physics: const ClampingScrollPhysics(),
-        //                     // controller: vertical1,
-
-        //                     child: Column(
-        //                       children:
-        //                         //  salesReturnController.salesReturnList
-        //                         list
-        //                           .asMap()
-        //                           .entries
-        //                           .map((entry) {
-        //                         int index = entry.key;
-        //                         GetRecentOrderReturnData salesReturnData = entry.value;
-        //                         return buildTableRow(context,
-        //                             index, fixedRowHeight,salesReturnData);
-        //                       }).toList(),
-        //                     ),
-        //                     ),
-        //               ),
-        //               // if (widget.leadsController.totalPages > 1)
-        //             ],
-        //           );
-        //           })
-        //         ),
-        //       ),
-        //       Positioned(
-        //        top: 30,
-        //         left: 0,
-        //         right: 0,
-        //         child: CustomHorizontalScrollbar(
-        //           thumbColor: Colors.red,
-
-        //           controller: _horizontalScrollController,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
+      
       ],
     );
   }

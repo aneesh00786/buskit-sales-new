@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
@@ -113,6 +114,8 @@ void pendingPaymentCollectionDialog(
     required List<IndividualPendingData> selectedItemsList,
     required String remarks,
   }) {
+    PendingPaymentController orderController =
+      Get.put(PendingPaymentController());
     Timer? pollTimer;
     bool hasSuccess = false;
     bool isChecking = false;
@@ -155,6 +158,8 @@ void pendingPaymentCollectionDialog(
           // controller.loadIndividualPendingPayments(customerId); // Refresh
         }
       });
+      orderController.loadOrderData(chartIndex: 0);
+
     }
 
     Future<void> checkPayment() async {
@@ -225,7 +230,10 @@ void pendingPaymentCollectionDialog(
                 ElevatedButton(
                   onPressed: () {
                     pollTimer?.cancel();
-                    Navigator.of(ctx).pop();
+                    Get.back(closeOverlays: true);
+                    Get.back();
+                    // pollTimer?.cancel();
+                    // Navigator.of(ctx).pop();
                   },
                   child: const Text("Cancel"),
                 ),
@@ -283,6 +291,9 @@ void pendingPaymentCollectionDialog(
   showDialog(
     context: context,
     builder: (BuildContext context) {
+       PendingPaymentController orderController =
+      Get.put(PendingPaymentController());
+      // int 0 = 0;
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: SingleChildScrollView(
@@ -636,11 +647,15 @@ void pendingPaymentCollectionDialog(
                               selectedItemsList,
                               remarks: remarksController.text,
                             );
+                            await orderController.loadOrderData(chartIndex: 0);
                           } else {
                             processPayments(selectedItemsList, enteredAmount);
                             Navigator.pop(context);
                             showCustomToastDisplay(context, "Payment submitted", Colors.green, Icons.check);
+                            await orderController.loadOrderData(chartIndex: 0);
                           }
+                         await orderController.loadOrderData(chartIndex: 0);
+                        
                         },
                          style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.blue,

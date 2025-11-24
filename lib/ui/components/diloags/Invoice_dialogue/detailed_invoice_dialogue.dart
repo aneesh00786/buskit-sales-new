@@ -356,9 +356,12 @@ void showDetailedOrderInvoiceDialog(
                                                 Center(
                                                   child: 
                                                   Text(
-                                          formatAmount(
-                                            '${(dashBoardController.fetchSpecificOrderData?.cart!.first.totalPrice ?? 0)}',
-                                          ),
+                                                    formatAmount(
+                                                      item.totalPrice 
+                                                    ),
+                                          // formatAmount(
+                                          //   '${(dashBoardController.fetchSpecificOrderData?.cart!.first.totalPrice ?? 0)}',
+                                          // ),
                                           maxLines: 1,
                                         )
                                                   ,

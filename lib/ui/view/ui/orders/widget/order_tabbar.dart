@@ -58,7 +58,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       widget.orderController.searchQuery.value = query;
 
   // Trigger search IMMEDIATELY — no delay, no debounce
-  _triggerSearch();
+  _triggerSearch(); 
 });
   
   }

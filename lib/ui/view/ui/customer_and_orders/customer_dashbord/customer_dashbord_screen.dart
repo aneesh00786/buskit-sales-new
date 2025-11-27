@@ -17,9 +17,11 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/sales_return_search_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_option_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/frequently_bought_product.dart';
@@ -78,7 +80,6 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
-       
   int selectedYear = DateTime.now().year;
   late TabController _tabController;
   late int _tabIndex;
@@ -88,9 +89,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   final subscriptionController = Get.find<SubscriptionController>();
   final productsController = Get.find<ProductsController>();
   ApiWorker apiWorker = Get.put(ApiWorker());
+  final CustomerCreditController _customercreditctrl =
+      Get.find<CustomerCreditController>();
   @override
   void initState() {
     super.initState();
+    _fetchCredit();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CustomersProvider>(context, listen: false)
           .fetchCustomerDashboardDataSalseData(widget.cusId.toString());
@@ -105,6 +109,25 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             .setSelectedIndex(_tabController.index);
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(CustomerDachScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Fetch again if cusId changed
+    if (oldWidget.cusId != widget.cusId) {
+      _fetchCredit();
+    }
+  }
+
+  void _fetchCredit() {
+    if (widget.cusId.isNotEmpty) {
+      _customercreditctrl.fetchCustomerCredit(
+        companyId: SessionHelper.loginSavedData?.company_id ?? 1,
+        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? "SALES1",
+        searchedCustomerId: widget.cusId,
+      );
+    }
   }
 
   void _navigateToOrderTaking() {
@@ -211,7 +234,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-
             return AlertDialog(
               title: const Text('Customer Check-Out'),
               content: const Text('Do you want to Check-out?'),
@@ -303,7 +325,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           }
                         }
                       } catch (e) {
-      //
+                        //
                       }
 
                       if (context.mounted) Navigator.of(context).pop();
@@ -319,7 +341,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
     return shouldProceed;
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +370,6 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             padding: const EdgeInsets.all(5.0),
             child: GestureDetector(
               onTap: () async {
-
                 if (widget.isFromGoogle) {
                   bool shouldProceed = await checkCustomerOut();
                   if (shouldProceed) {
@@ -389,15 +409,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ),
           ),
           actions: [
-
-         ElevatedButton(
+            ElevatedButton(
               onPressed: () {
                 print('customer id: ${widget.cusId}');
-            OrderIdSnackBar.show(context,widget.cusId.toString(),salesmanInternalId!);
-               
+                OrderIdSnackBar.show(
+                    context, widget.cusId.toString(), salesmanInternalId!);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:const Color.fromARGB(255, 38, 165, 42),
+                backgroundColor: const Color.fromARGB(255, 38, 165, 42),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.0),
                 ),
@@ -407,8 +426,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 style: TextStyle(color: Colors.white),
               ),
             ),
-  SizedBox(width: 20,),
-
+            SizedBox(
+              width: 20,
+            ),
             ElevatedButton(
               onPressed: () {
                 if (subscriptionController.orderTakingFromDashboard.value !=
@@ -432,6 +452,67 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 'Order Taking',
                 style: TextStyle(color: Colors.white),
               ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            SizedBox(
+              width: 140,
+              child: Obx(() {
+                final credit = _customercreditctrl.customerCredit.value;
+                final isLoading = _customercreditctrl.isLoading.value;
+
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color:
+                        credit > 0 ? Colors.green.shade50 : Colors.grey.shade50,
+                    border: Border.all(
+                      color: credit > 0
+                          ? Colors.green.shade600
+                          : Colors.grey.shade400,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    // mainAxisSize: MainAxisSize.start,
+                    children: [
+                      Text('Credit:'),
+                      SizedBox(width: 7,),
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 15,
+                        color: credit > 0
+                            ? Colors.green.shade700
+                            : Colors.grey.shade600,
+                      ),
+                      SizedBox(width: 5),
+                      // SizedBox(height: 20,),
+                      Text(
+                        credit > 0 ? "${formatAmount(credit)}" : "${formatAmount(0)}",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: credit > 0
+                              ? Colors.green.shade800
+                              : Colors.grey.shade700,
+                        ),
+                      ),
+                      if (isLoading)
+                        Padding(
+                          padding: EdgeInsets.only(left: 6),
+                          child: SizedBox(
+                            width: 12,
+                            height: 10,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
             ),
             SizedBox(
               width: 130,
@@ -1177,4 +1258,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   String formatDate(DateTime dateTime) {
     return DateFormat('dd-MMMM-yyyy').format(dateTime);
   }
+}
+
+void useEffect(VoidCallback callback, List<Object?> dependencies) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    callback();
+  });
 }

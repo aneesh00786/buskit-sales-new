@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/sync_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -99,6 +100,7 @@ void main() async {
   await Hive.openBox('productReturnDetailsBox');
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
+  await Hive.openBox('customerCreditBox');  
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -131,6 +133,7 @@ void main() async {
   Get.put(SalesReturnController());
   Get.put(ProductReturnController());
   Get.put(PendingReturnsController());
+  Get.put(CustomerCreditController());
   // Get.put(SalesReturnListController());
   final subscriptionController = Get.put(SubscriptionController());
 

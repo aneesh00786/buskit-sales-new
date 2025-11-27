@@ -26,6 +26,8 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
@@ -95,6 +97,8 @@ class CartDialogueState extends State<CartDialogue> {
   List<String> filteredOptions = [];
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
+  CustomerCreditController customerCreditController =
+      Get.find<CustomerCreditController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
   final TextEditingController totalQuickController = TextEditingController();
@@ -111,7 +115,8 @@ class CartDialogueState extends State<CartDialogue> {
 
   ScrollController _scrollController3 = ScrollController();
   ScrollController _scrollController4 = ScrollController();
-
+  final CustomerCreditController _customercreditctrl =
+      Get.find<CustomerCreditController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late List<int> localCounts;
   @override
@@ -487,6 +492,7 @@ class CartDialogueState extends State<CartDialogue> {
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
           double rowHeight = availableHeight / 14;
+          var useCredit = false.obs; // Reactive boolean for checkbox
           return ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: availableWidth,
@@ -495,10 +501,70 @@ class CartDialogueState extends State<CartDialogue> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DialogueHedingWidget(
-                    height: height,
-                    width: width,
-                    title: 'My Cart',
+                  GetBuilder<CustomerCreditController>(
+                    builder: (creditCtrl) {
+                      // Auto-fetch credit when dialog opens (only if not already loaded)
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final customerId =
+                            widget.productsController.selectedCustomerId.value;
+
+                        if (customerId.isNotEmpty &&
+                                creditCtrl.allCustomers.isEmpty || // First time
+                            !creditCtrl.allCustomers
+                                .any((c) => c.customerId == customerId)) {
+                          creditCtrl.fetchCustomerCredit(
+                            companyId:
+                                SessionHelper.loginSavedData?.company_id ?? 1,
+                            salesmanId:
+                                SessionHelper.loginSavedData?.salesmanId,
+                            searchedCustomerId: customerId,
+                          );
+                        }
+                      });
+                      // print(
+                      //     'cart customerid:${widget.productsController.selectedCustomerId.value}');
+
+                      final credit = creditCtrl.customerCredit.value;
+                      final isLoading = creditCtrl.isLoading.value;
+
+                      return DialogueHedingWidget(
+                        height: height,
+                        width: width,
+                        title: 'My Cart',
+                        creditWidget: isLoading
+                            ? const Text(
+                                'Credit: Loading...',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600),
+                              )
+                            : RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    fontFamily: fontFamilyName,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Credit: ',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    TextSpan(
+                                      text: formatAmount(
+                                          credit.toStringAsFixed(2)),
+                                      style: TextStyle(
+                                        color: credit > 0
+                                            ? Colors.green.shade700
+                                            : Colors.grey.shade600,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      );
+                    },
                   ),
                   if (widget.productsController.orderItems.isNotEmpty ||
                       widget.productsController.preorderItems.isNotEmpty) ...[
@@ -973,6 +1039,94 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                     ),
+
+                    Obx(() {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      var customerCredit =
+                          _customercreditctrl.customerCredit.value ?? 0.0;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      final double baseAmount = orderSubtotal - flatDisc;
+                      final double finalBeforeCredit =
+                          baseAmount.clamp(0.0, double.infinity);
+
+                      // Amount to be paid after applying credit
+                      final double amountAfterCredit = useCredit.value
+                          ? (finalBeforeCredit - customerCredit)
+                              .clamp(0.0, double.infinity)
+                          : finalBeforeCredit;
+
+                      // Remaining credit after this transaction (only if using credit)
+                      var remainingCredit = useCredit.value
+                          ? (customerCredit - finalBeforeCredit)
+                              .clamp(0.0, double.infinity)
+                          : customerCredit;
+
+                      return Column(
+                        children: [
+                          Container(
+                            height: 50,
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    CustomText(
+                                      content: 'Use Credit',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: black,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Checkbox(
+                                      value:
+                                          useCredit.value && customerCredit > 0,
+                                      onChanged: customerCredit <= 0
+                                          ? null // Disable if no credit
+                                          : (val) {
+                                              useCredit.value = val ?? false;
+                                            },
+                                    ),
+                                  ],
+                                ),
+                                // if (customerCredit > 0)
+                                //   CustomText(
+                                //     content: useCredit.value
+                                //         ? 'Using: ${formatAmount(customerCredit)} → Remaining: ${formatAmount(remainingCredit)}'
+                                //         : 'Available: ${formatAmount(customerCredit)}',
+                                //     fontSize: 14,
+                                //     color: useCredit.value ? Colors.green.shade700 : Colors.grey.shade700,
+                                //     fontWeight: FontWeight.w600,
+                                //   ),
+                              ],
+                            ),
+                          ),
+                          const Divider(),
+                        ],
+                      );
+                    }),
+
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(left: 20),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.start,
+                    //       children: [
+                    //         CustomText(content:
+                    //         'Credit ',fontWeight: FontWeight.bold,fontSize: 16,
+                    //         ),
+                    //         Checkbox(value: useCredit, onChanged: (){})
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     const Divider(),
                     // CartTotalWidget(
                     //   title: 'Final Amount',
@@ -981,22 +1135,51 @@ class CartDialogueState extends State<CartDialogue> {
                     //   fontWeight: FontWeight.w700,
                     //   color2: Colors.green,
                     // ),
-                    Builder(builder: (context) {
+
+                    Obx(() {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
+                      var customerCredit =
+                          _customercreditctrl.customerCredit.value ?? 0.0;
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
                           0.0;
-                      final double finalAmt = (orderSubtotal - flatDisc)
-                          .clamp(0.0, double.infinity);
+                      final double baseAmount = orderSubtotal - flatDisc;
+                      final double finalBeforeCredit =
+                          baseAmount.clamp(0.0, double.infinity);
+
+                      final double payableAmount = useCredit.value
+                          ? (finalBeforeCredit - customerCredit)
+                              .clamp(0.0, double.infinity)
+                          : finalBeforeCredit;
+
                       return CartTotalWidget(
-                        title: 'Final Amount',
-                        content: finalAmt,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color2: Colors.green,
+                        title: 'Final Amountt',
+                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                        content: payableAmount,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color2:
+                            payableAmount <= 0 ? Colors.green : primaryColor,
                       );
                     }),
+
+                    // Builder(builder: (context) {
+                    //   final String cid =
+                    //       widget.productsController.selectedCustomerId.value;
+                    //   final double flatDisc = widget
+                    //           .productsController.flatDiscountByCustomer[cid] ??
+                    //       0.0;
+                    //   final double finalAmt = (orderSubtotal - flatDisc)
+                    //       .clamp(0.0, double.infinity);
+                    //   return CartTotalWidget(
+                    //     title: 'Final Amountt',
+                    //     content: finalAmt,
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.w700,
+                    //     color2: Colors.green,
+                    //   );
+                    // }),
                   ],
                   if (!isOrder) ...[
                     (widget.productsController.preorderItems.isEmpty)
@@ -1368,8 +1551,15 @@ class CartDialogueState extends State<CartDialogue> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: filteredOptions.map((option) {
+// final double subtotal = isOrder ? orderSubtotal : preorderSubtotal;
+// final double discount = widget.productsController
+//     .flatDiscountByCustomer[widget.productsController.selectedCustomerId.value] ?? 0.0;
+
+// final double finalTotal = (subtotal - discount).clamp(0.0, double.infinity);
+
+// totalQuickController.text = '\$${finalTotal.toStringAsFixed(2)}';
                             totalQuickController.text = isOrder
-                                ? '\$${orderSubtotal.toStringAsFixed(2)}'
+                                ? '\$${orderSubtotal.toStringAsFixed(2)} '
                                 : '\$${preorderSubtotal.toStringAsFixed(2)}';
 
                             return Padding(
@@ -1805,6 +1995,61 @@ class CartDialogueState extends State<CartDialogue> {
                               final customerId = widget.customerId ??
                                   widget.productsController.selectedCustomerId
                                       .value;
+
+                              num amountPaidByCredit = 0.0;
+                              if (useCredit.value &&
+                                  _customercreditctrl.customerCredit.value >
+                                      0) {
+                                final String cid = widget.productsController
+                                    .selectedCustomerId.value;
+                                final flatDisc = widget.productsController
+                                        .flatDiscountByCustomer[cid] ??
+                                    0.0;
+                                final baseAmount = (isOrder
+                                        ? orderSubtotal
+                                        : preorderSubtotal) -
+                                    flatDisc;
+                                final finalBeforeCredit =
+                                    baseAmount.clamp(0.0, double.infinity);
+                                final availableCredit =
+                                    _customercreditctrl.customerCredit.value ??
+                                        0.0;
+                                amountPaidByCredit =
+                                    finalBeforeCredit > availableCredit
+                                        ? availableCredit
+                                        : finalBeforeCredit;
+                                final newCreditBalance =
+                                    (availableCredit - amountPaidByCredit)
+                                        .clamp(0.0, double.infinity);
+
+                                // === UPDATE CREDIT IN DATABASE / API ===
+                                try {
+                                  final String currentCustomerId = widget
+                                      .productsController
+                                      .selectedCustomerId
+                                      .value;
+
+                                  await _customercreditctrl
+                                      .updateCustomerCreditLocally(
+                                    customerId: customerId,
+                                    newCreditAmount: newCreditBalance,
+                                  );
+
+                                  Get.snackbar(
+                                    "Credit Updated",
+                                    "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor:
+                                        Colors.green.withOpacity(0.8),
+                                    colorText: Colors.white,
+                                  );
+                                } catch (e) {
+                                  Get.snackbar(
+                                      "Error", "Failed to update credit: $e",
+                                      backgroundColor: Colors.red);
+                                  return; // Stop processing if credit update fails
+                                }
+                              }
 
                               final cartDetails = await CartDatabaseManager()
                                   .getDraftAndCartIdsFromApi(customerId);

@@ -24,6 +24,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
@@ -96,6 +97,8 @@ class LoginController extends GetxController {
       Get.put(SubscriptionController());
   SalesReturnController salesReturnController =
       Get.put(SalesReturnController());
+  CustomerCreditController customerCreditController =
+      Get.put(CustomerCreditController());
   RxBool isPasswordVisible = true.obs;
   PaginationModel paginationModel = PaginationModel();
   final int currentYear = DateTime.now().year;
@@ -657,6 +660,13 @@ class LoginController extends GetxController {
         ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
 
         // ------------------------------------------
+
+        // Customer Credit Data
+        customerCreditController.fetchCustomerCredit(
+          companyId: companyId,
+          salesmanId: SessionHelper.loginSavedData?.salesmanId,
+          searchedCustomerId: '',
+        ),
 
         // ApiWorker().getProductReturnDetails(orderId: orderId),
 

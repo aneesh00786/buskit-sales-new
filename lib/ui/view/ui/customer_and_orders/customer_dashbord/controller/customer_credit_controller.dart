@@ -85,6 +85,7 @@ class CustomerCreditController extends GetxController {
           allCustomers.assignAll(customers);
           // currentCustomerId(searchedCustomerId);
           _updateCreditFromList(searchedCustomerId);
+         
         } else {
           errorMessage('API returned false status');
         }
@@ -104,7 +105,8 @@ class CustomerCreditController extends GetxController {
       (c) => c.customerId == searchedCustomerId,
       orElse: () => Customer(customerId: searchedCustomerId, creditAmt: 0),
     );
-    customerCredit(customer.creditAmt?? 0);;
+    customerCredit(customer.creditAmt?? 0);
+    print('customer credit updated: ${customer.customerId} → ${formatAmount(customer.creditAmt ?? 0)}');
 
   }
  

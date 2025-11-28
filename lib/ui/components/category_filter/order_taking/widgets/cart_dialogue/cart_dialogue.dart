@@ -542,38 +542,73 @@ class CartDialogueState extends State<CartDialogue> {
                         height: height,
                         width: width,
                         title: 'My Cart',
-                        creditWidget: isLoading
-                            ? const Text(
-                                'Credit: Loading...',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600),
-                              )
-                            : RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(
-                                    fontFamily: fontFamilyName,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  children: [
-                                    const TextSpan(
-                                      text: 'Credit: ',
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    TextSpan(
-                                      text: formatAmount(
-                                          credit.toStringAsFixed(2)),
-                                      style: TextStyle(
-                                        color: credit > 0
-                                            ? Colors.green.shade700
-                                            : Colors.grey.shade600,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                        creditWidget: Obx(() {
+  final latestCredit = customerCreditController.customerCredit.value;
+
+  return isLoading
+      ? const Text(
+          'Credit: Loading...',
+          style: TextStyle(
+              color: Colors.black, fontWeight: FontWeight.w600),
+        )
+      : RichText(
+          text: TextSpan(
+            style: const TextStyle(
+              fontFamily: fontFamilyName,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+            children: [
+              const TextSpan(
+                text: 'Credit: ',
+                style: TextStyle(color: Colors.black),
+              ),
+              TextSpan(
+                text: formatAmount(latestCredit.toStringAsFixed(2)),
+                style: TextStyle(
+                  color: latestCredit > 0
+                      ? Colors.green.shade700
+                      : Colors.grey.shade600,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+}),
+
+                        // creditWidget: isLoading
+                        //     ? const Text(
+                        //         'Credit: Loading...',
+                        //         style: TextStyle(
+                        //             color: Colors.black,
+                        //             fontWeight: FontWeight.w600),
+                        //       )
+                        //     : RichText(
+                        //         text: TextSpan(
+                        //           style: const TextStyle(
+                        //             fontFamily: fontFamilyName,
+                        //             fontSize: 16,
+                        //             fontWeight: FontWeight.w600,
+                        //           ),
+                        //           children: [
+                        //             const TextSpan(
+                        //               text: 'Credit: ',
+                        //               style: TextStyle(color: Colors.black),
+                        //             ),
+                        //             TextSpan(
+                        //               text: formatAmount(
+                        //                   credit.toStringAsFixed(2)),
+                        //               style: TextStyle(
+                        //                 color: credit > 0
+                        //                     ? Colors.green.shade700
+                        //                     : Colors.grey.shade600,
+                        //                 fontWeight: FontWeight.bold,
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
                       );
                     },
                   ),
@@ -1109,7 +1144,7 @@ class CartDialogueState extends State<CartDialogue> {
                           : finalBeforeCredit;
 
                       return CartTotalWidget(
-                        title: 'Final Amountt',
+                        title: 'Final Amount',
                         //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         content: payableAmount,
                         fontSize: 22,
@@ -2420,6 +2455,13 @@ class CartDialogueState extends State<CartDialogue> {
               // print(
               //     'statusCodeww: $statusCode, message: $message, response: $response');
               if (statusCode == 200) {
+                if (shouldUseCredit) {
+    // Deduct used credit from controller (immediate UI update)
+   customerCreditCtrl.customerCredit.value =
+    (availableCredit - creditUsed).clamp(0.0, double.infinity).toInt();
+
+  }
+            
                 productController.isCartModified.value = false;
                 // showSuccessFullDialogCtrl(context: context);
                 _clearCartItem(itemList, customerId);

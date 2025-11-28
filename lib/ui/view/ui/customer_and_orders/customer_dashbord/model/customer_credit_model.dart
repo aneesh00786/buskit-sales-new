@@ -25,7 +25,7 @@ class CustomerCredit {
 
 class Customer {
     String? customerId;
-    int? creditAmt;
+    var creditAmt;
 
     Customer({
         this.customerId,

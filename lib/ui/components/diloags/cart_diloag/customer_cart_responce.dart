@@ -366,6 +366,9 @@ class CartOrderModel {
   String? draftId;
   int? selctedItemCount;
   List<String>? varientIds;
+  bool useCredit;
+  var creditAmount;
+
 
   CartOrderModel({
     this.customerId,
@@ -381,6 +384,8 @@ class CartOrderModel {
     this.draftId,
     this.selctedItemCount,
     this.varientIds,
+    this.useCredit = false,
+    this.creditAmount,
   });
 
   factory CartOrderModel.fromJson(Map<String, dynamic> json) {
@@ -398,6 +403,8 @@ class CartOrderModel {
       draftId: json['draft_id'],
       selctedItemCount: json['item_count'],
       varientIds: json['varient_ids'],
+      useCredit: json['use_credit'] == true || json['use_credit'] == '1' || json['use_credit'] == 1,
+      creditAmount: json['credit_amount']?.toDouble(),
     );
   }
 
@@ -420,6 +427,8 @@ class CartOrderModel {
       'draft_id': draftId,
       'item_count': selctedItemCount,
       'varient_ids': varientIds,
+      'use_credit': useCredit,
+      'credit_amount': creditAmount,  
     };
   }
 }

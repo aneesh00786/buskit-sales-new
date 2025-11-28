@@ -613,7 +613,7 @@ class _SalesReturnState extends State<SalesReturn> {
                           GetRecentOrderReturnData salesReturnData =
                               entry.value;
                           return Container(
-                            height: 90,
+                            height: 85,
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                             padding: const EdgeInsets.all(8.0),
@@ -725,7 +725,7 @@ class _SalesReturnState extends State<SalesReturn> {
                                 return buildTableRow(
                                   context,
                                   index,
-                                  90,
+                                  85,
                                   salesReturnData,
                                 );
                               }).toList(),

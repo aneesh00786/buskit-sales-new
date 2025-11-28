@@ -29,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_scrollbar.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -1963,6 +1964,7 @@ class BottomTotalWidget extends StatefulWidget {
 
   final ScrollController _scrollController;
   final CustomersProvider provider;
+  
 
   @override
   State<BottomTotalWidget> createState() => _BottomTotalWidgetState();
@@ -1972,6 +1974,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
   bool isOnline = false;
 
   bool isOfflineAndSearch = false;
+  
 
   void loadOnineAndSearchState() async {
     isOnline = await ConnectivityService().isOnline();
@@ -2062,425 +2065,442 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
             provider.orderTotalList.length < 7) {
           return const LoadingToNoDataWidget();
         }
-        return Row(
+        return Column(
           children: [
-            _buildTableCell(
-              padding: EdgeInsets.zero,
-              Container(
-                width: 260,
-                color: Colors.grey[200],
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Container(
-                          // Remove fixed width
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(3.0),
-                          ),
+            Row(
+              children: [
+                _buildTableCell(
+                  padding: EdgeInsets.zero,
+                  Container(
+                    width: 260,
+                    color: Colors.grey[200],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0, horizontal: 6.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: provider.currentPage > 1
-                                      ? () {
-                                          provider.handlePaginationClick(
-                                              provider.currentPage - 1);
-                                        }
-                                      : null,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: const Icon(
-                                      Icons.keyboard_double_arrow_left,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Wrap(
-                                    alignment: WrapAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 4.0,
-                                    runSpacing: 4.0,
-                                    children: _buildPagination(
-                                            provider.currentPage,
-                                            provider.totalPages)
-                                        .map<Widget>((item) {
-                                      if (item is String &&
-                                          item.endsWith('...')) {
-                                        final int page = int.parse(
-                                            item.replaceAll('...', ''));
-                                        return GestureDetector(
-                                          onTap: () {
-                                            provider
-                                                .handlePaginationClick(page);
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else if (item is String &&
-                                          item.startsWith('...')) {
-                                        final int page = int.parse(
-                                            item.replaceAll('...', ''));
-                                        return GestureDetector(
-                                          onTap: () {
-                                            provider
-                                                .handlePaginationClick(page);
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else if (item is int) {
-                                        final bool isCurrent =
-                                            item == provider.currentPage;
-                                        return GestureDetector(
-                                          onTap: isCurrent
-                                              ? null
-                                              : () {
-                                                  provider
-                                                      .handlePaginationClick(
-                                                          item);
-                                                },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: isCurrent
-                                                  ? Colors.white
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              '$item',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: isCurrent
-                                                    ? primaryColor
-                                                    : Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        return Container();
-                                      }
-                                    }).toList(),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap:
-                                      provider.currentPage < provider.totalPages
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              // Remove fixed width
+                              decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(3.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4.0, horizontal: 6.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: provider.currentPage > 1
                                           ? () {
                                               provider.handlePaginationClick(
-                                                  provider.currentPage + 1);
+                                                  provider.currentPage - 1);
                                             }
                                           : null,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: const Icon(
-                                      Icons.keyboard_double_arrow_right,
-                                      size: 20,
-                                      color: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: const Icon(
+                                          Icons.keyboard_double_arrow_left,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Expanded(
+                                      child: Wrap(
+                                        alignment: WrapAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        spacing: 4.0,
+                                        runSpacing: 4.0,
+                                        children: _buildPagination(
+                                                provider.currentPage,
+                                                provider.totalPages)
+                                            .map<Widget>((item) {
+                                          if (item is String &&
+                                              item.endsWith('...')) {
+                                            final int page = int.parse(
+                                                item.replaceAll('...', ''));
+                                            return GestureDetector(
+                                              onTap: () {
+                                                provider
+                                                    .handlePaginationClick(page);
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else if (item is String &&
+                                              item.startsWith('...')) {
+                                            final int page = int.parse(
+                                                item.replaceAll('...', ''));
+                                            return GestureDetector(
+                                              onTap: () {
+                                                provider
+                                                    .handlePaginationClick(page);
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else if (item is int) {
+                                            final bool isCurrent =
+                                                item == provider.currentPage;
+                                            return GestureDetector(
+                                              onTap: isCurrent
+                                                  ? null
+                                                  : () {
+                                                      provider
+                                                          .handlePaginationClick(
+                                                              item);
+                                                    },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: isCurrent
+                                                      ? Colors.white
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  '$item',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: isCurrent
+                                                        ? primaryColor
+                                                        : Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Container();
+                                          }
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap:
+                                          provider.currentPage < provider.totalPages
+                                              ? () {
+                                                  provider.handlePaginationClick(
+                                                      provider.currentPage + 1);
+                                                }
+                                              : null,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: const Icon(
+                                          Icons.keyboard_double_arrow_right,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    // const Spacer(),
-                    const SizedBox(width: 10),
-                    Container(
-                      color: Colors.grey[200],
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Total',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                ),
-              ),
-              300,
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: widget._scrollController,
-                physics: const ClampingScrollPhysics(),
-                child: Container(
-                  color: Colors.grey[200],
-                  child: Row(
-                    children: [
-                      _buildTableCell(
-                        Center(
-                          child: Text(
-                              formatAmount(isOfflineAndSearch
-                                  ? provider.customers.fold(
-                                      0.0,
-                                      (sum, item) =>
-                                          sum +
-                                          num.parse(item.previousYearSales
-                                              .toString()))
-                                  : provider
-                                      .orderTotalList[7].previousYearSale),
-                              style: const TextStyle(
-                                  fontFamily: "BarlowCondensed",
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                        120,
-                      ),
-                      _buildTableCell(
-                        const SizedBox.shrink(),
-                        20,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.totalSales.toString()))
-                                    : provider.orderTotalList[0].sales),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.deliveryPrice.toString()))
-                                    : provider.orderTotalList[1].delivery),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.paymentPrice.toString()))
-                                    : provider.orderTotalList[2].payment),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                              item.orderData.preOrder
-                                                  .takeLast(
-                                                      item.preOrder.toInt())
-                                                  .fold(
-                                                      0.0,
-                                                      (a, b) =>
-                                                          a + b.orderTotal)
-                                                  .toString(),
-                                            ))
-                                    : provider.orderTotalList[4].preOrder),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.estimatesPrice.toString()))
-                                    : provider.orderTotalList[3].estimate),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                              item.orderData.draft
-                                                  .takeLast(item.drafts.toInt())
-                                                  .fold(
-                                                      0.0,
-                                                      (a, b) =>
-                                                          a + b.orderTotal)
-                                                  .toString(),
-                                            ))
-                                    : provider.orderTotalList[5].draft),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(item.orderData.cancel
-                                                .takeLast(
-                                                    item.cancelled.toInt())
-                                                .fold(0.0,
-                                                    (a, b) => a + b.orderTotal)
-                                                .toString()))
-                                    : provider.orderTotalList[6].cancelled),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        const Text(
-                          '',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                        // const Spacer(),
+                        const SizedBox(width: 10),
+                        Container(
+                          color: Colors.grey[200],
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Total',
+                                  style: TextStyle(
+                                      fontSize: 17, fontWeight: FontWeight.w700)),
+                            ],
                           ),
                         ),
-                        160,
-                      ),
-                      // _buildTableCell(
-                      //   const Text(
-                      //     '',
-                      //     style: TextStyle(
-                      //       fontWeight: FontWeight.w600,
-                      //       fontSize: 16,
-                      //     ),
-                      //   ),
-                      //   120,
-                      // ),
-                    ],
+                        const SizedBox(width: 5),
+                      ],
+                    ),
                   ),
+                  300,
                 ),
-              ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: widget._scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    child: Container(
+                      color:Colors.grey[200],
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              _buildTableCell(
+                                Center(
+                                  child: Text(
+                                      formatAmount(isOfflineAndSearch
+                                          ? provider.customers.fold(
+                                              0.0,
+                                              (sum, item) =>
+                                                  sum +
+                                                  num.parse(item.previousYearSales
+                                                      .toString()))
+                                          : provider
+                                              .orderTotalList[7].previousYearSale),
+                                      style: const TextStyle(
+                                          fontFamily: "BarlowCondensed",
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700)),
+                                ),
+                                120,
+                              ),
+                              _buildTableCell(
+                                const SizedBox.shrink(),
+                                20,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.totalSales.toString()))
+                                            : provider.orderTotalList[0].sales),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.deliveryPrice.toString()))
+                                            : provider.orderTotalList[1].delivery),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.paymentPrice.toString()))
+                                            : provider.orderTotalList[2].payment),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                      item.orderData.preOrder
+                                                          .takeLast(
+                                                              item.preOrder.toInt())
+                                                          .fold(
+                                                              0.0,
+                                                              (a, b) =>
+                                                                  a + b.orderTotal)
+                                                          .toString(),
+                                                    ))
+                                            : provider.orderTotalList[4].preOrder),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.estimatesPrice.toString()))
+                                            : provider.orderTotalList[3].estimate),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                      item.orderData.draft
+                                                          .takeLast(item.drafts.toInt())
+                                                          .fold(
+                                                              0.0,
+                                                              (a, b) =>
+                                                                  a + b.orderTotal)
+                                                          .toString(),
+                                                    ))
+                                            : provider.orderTotalList[5].draft),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(item.orderData.cancel
+                                                        .takeLast(
+                                                            item.cancelled.toInt())
+                                                        .fold(0.0,
+                                                            (a, b) => a + b.orderTotal)
+                                                        .toString()))
+                                            : provider.orderTotalList[6].cancelled),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                const Text(
+                                  '',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                160,
+                              ),
+                              // _buildTableCell(
+                              //   const Text(
+                              //     '',
+                              //     style: TextStyle(
+                              //       fontWeight: FontWeight.w600,
+                              //       fontSize: 16,
+                              //     ),
+                              //   ),
+                              //   120,
+                              // ),
+                            ],
+                          ),
+                         
+                        ],
+                      ),
+                      
+                    ),
+                    
+                  ),
+                  
+                ),
+                
+              ],
             ),
+            CustomHorizontalScrollbar(
+                          controller:  widget._scrollController,
+                          thumbColor: Colors.blue,
+                         )
           ],
         );
       },

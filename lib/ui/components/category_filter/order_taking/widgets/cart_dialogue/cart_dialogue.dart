@@ -75,6 +75,11 @@ class CartDialogue extends StatefulWidget {
 }
 
 class CartDialogueState extends State<CartDialogue> {
+  late RxBool useCredit;           // Reactive checkbox state
+  late var customerCredit;  
+    late var currentCustomerCredit;
+
+    // Current available credit
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
@@ -118,11 +123,15 @@ class CartDialogueState extends State<CartDialogue> {
   final CustomerCreditController _customercreditctrl =
       Get.find<CustomerCreditController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // final customerCreditCtrl = Get.find<CustomerCreditController>();
   late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+    useCredit = false.obs;
+    customerCredit = 0.0;
 
+ currentCustomerCredit = _customercreditctrl.customerCredit.value; 
     _scrollController1 = ScrollController();
     _scrollController2 = ScrollController();
     _scrollController3 = ScrollController();
@@ -461,6 +470,7 @@ class CartDialogueState extends State<CartDialogue> {
 
   @override
   Widget build(BuildContext context) {
+    
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(
@@ -492,7 +502,7 @@ class CartDialogueState extends State<CartDialogue> {
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
           double rowHeight = availableHeight / 14;
-          var useCredit = false.obs; // Reactive boolean for checkbox
+          // var useCredit = false.obs; // Reactive boolean for checkbox
           return ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: availableWidth,
@@ -526,7 +536,7 @@ class CartDialogueState extends State<CartDialogue> {
 
                       final credit = creditCtrl.customerCredit.value;
                       final isLoading = creditCtrl.isLoading.value;
-
+                       customerCredit = credit;
                       return DialogueHedingWidget(
                         height: height,
                         width: width,
@@ -955,32 +965,7 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const SizedBox(height: 5.0),
-                    // Container(
-                    //   height: 40,
-                    //   width: double.infinity,
-                    //   padding: const EdgeInsets.all(10),
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(right: 10, left: 10),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         CustomText(
-                    //           content: 'Discount',
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //         CustomText(
-                    //           content: formatAmount(totalDiscount),
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                    // Flat discount (cart-level)
+
                     Builder(builder: (context) {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
@@ -1043,7 +1028,7 @@ class CartDialogueState extends State<CartDialogue> {
                     Obx(() {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
-                      var customerCredit =
+                       customerCredit =
                           _customercreditctrl.customerCredit.value ?? 0.0;
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
@@ -1090,19 +1075,13 @@ class CartDialogueState extends State<CartDialogue> {
                                           ? null // Disable if no credit
                                           : (val) {
                                               useCredit.value = val ?? false;
+                                              setState(() {
+                                                
+                                              });
                                             },
                                     ),
                                   ],
                                 ),
-                                // if (customerCredit > 0)
-                                //   CustomText(
-                                //     content: useCredit.value
-                                //         ? 'Using: ${formatAmount(customerCredit)} → Remaining: ${formatAmount(remainingCredit)}'
-                                //         : 'Available: ${formatAmount(customerCredit)}',
-                                //     fontSize: 14,
-                                //     color: useCredit.value ? Colors.green.shade700 : Colors.grey.shade700,
-                                //     fontWeight: FontWeight.w600,
-                                //   ),
                               ],
                             ),
                           ),
@@ -1111,30 +1090,7 @@ class CartDialogueState extends State<CartDialogue> {
                       );
                     }),
 
-                    // Container(
-                    //   height: 40,
-                    //   width: double.infinity,
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(left: 20),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.start,
-                    //       children: [
-                    //         CustomText(content:
-                    //         'Credit ',fontWeight: FontWeight.bold,fontSize: 16,
-                    //         ),
-                    //         Checkbox(value: useCredit, onChanged: (){})
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
                     const Divider(),
-                    // CartTotalWidget(
-                    //   title: 'Final Amount',
-                    //   content: orderSubtotal,
-                    //   fontSize: 20,
-                    //   fontWeight: FontWeight.w700,
-                    //   color2: Colors.green,
-                    // ),
 
                     Obx(() {
                       final String cid =
@@ -2416,6 +2372,17 @@ class CartDialogueState extends State<CartDialogue> {
                     : _selectedValue == 'Estimate'
                         ? 7
                         : 14;
+                     
+                     final customerCreditCtrl = Get.find<CustomerCreditController>();
+// final  latestCredit = customerCreditCtrl.customerCredit.value;
+
+final creditAmountToSend = useCredit.value ? currentCustomerCredit : 0.0;
+
+//  print('  latest credit: $latestCredit');
+final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
+    && useCredit.value == true;
+    
+    print('should use credit: $shouldUseCredit');
 
             CartOrderModel order = CartOrderModel(
               customerId: customerId,
@@ -2431,7 +2398,10 @@ class CartDialogueState extends State<CartDialogue> {
               transactionDate: dateController.text.trim(),
               draftId: draftId.isNotEmpty ? draftId : '',
               varientIds: variantIdsPass,
+              useCredit: shouldUseCredit,
+              creditAmount: shouldUseCredit ? creditAmountToSend :0,
             );
+           print('Cart Order: ${order.toJson()}');
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
@@ -2528,42 +2498,6 @@ class CartDialogueState extends State<CartDialogue> {
                                   .fetchCustomerDashboardCountData(customerId);
                             }
 
-                            // if (cartItemCount != 0) {
-                            //   // final cartItems = await CartDatabaseManager()
-                            //   //     .getCartItems(customerId);
-
-                            //   // bool hasRelevantItems;
-                            //   // if (isOrder) {
-                            //   //   hasRelevantItems = cartItems.any(
-                            //   //       (item) => (item.detail.stock ?? 0) > 0);
-                            //   // } else {
-                            //   //   hasRelevantItems = cartItems.any(
-                            //   //       (item) => (item.detail.stock ?? 0) == 0);
-                            //   // }
-
-                            //   // if (!hasRelevantItems) {
-                            //   //   setState(() {
-                            //   //     isOrder = !isOrder;
-                            //   //   });
-                            //   // }
-                            //   bool isOnline =
-                            //       await ConnectivityService().isOnline();
-                            //   if (isOnline) {
-                            //     Navigator.of(context, rootNavigator: true)
-                            //         .pop();
-                            //     if (Navigator.canPop(context)) {
-                            //       Navigator.pop(context);
-                            //     }
-                            //     widget.onDraftUpdated;
-                            //   }
-                            // }
-
-                            // if (cartItemCount == 0) {
-                            //   Navigator.of(context, rootNavigator: true).pop();
-                            //   if (Navigator.canPop(context)) {
-                            //     Navigator.pop(context);
-                            //   }
-                            // }
                             setState(() {
                               Navigator.pop(context);
                               Navigator.of(context, rootNavigator: true).pop();
@@ -2608,7 +2542,10 @@ class CartDialogueState extends State<CartDialogue> {
                   },
                 );
               }
-            });
+            }
+            
+            );
+            
           }
         }
       } catch (e) {

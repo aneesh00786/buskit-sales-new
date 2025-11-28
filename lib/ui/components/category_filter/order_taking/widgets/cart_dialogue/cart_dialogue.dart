@@ -1991,14 +1991,14 @@ class CartDialogueState extends State<CartDialogue> {
                                     newCreditAmount: newCreditBalance,
                                   );
 
-                                  Get.snackbar(
-                                    "Credit Updated",
-                                    "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor:
-                                        Colors.green.withOpacity(0.8),
-                                    colorText: Colors.white,
-                                  );
+                                  // Get.snackbar(
+                                  //   "Credit Updated",
+                                  //   "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
+                                  //   snackPosition: SnackPosition.BOTTOM,
+                                  //   backgroundColor:
+                                  //       Colors.green.withOpacity(0.8),
+                                  //   colorText: Colors.white,
+                                  // );
                                 } catch (e) {
                                   Get.snackbar(
                                       "Error", "Failed to update credit: $e",

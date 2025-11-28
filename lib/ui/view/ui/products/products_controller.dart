@@ -101,7 +101,10 @@ class ProductsController extends GetxController {
     required HomeController homeController,
   }) async {
     final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
-
+    // print('cart items while back${CartDatabaseManager().cartItems}');
+    // print('draft box while back${CartDatabaseManager().draftBox.isNotEmpty}');
+    // print('customerId$customerId');
+    // print('isCartModified${isCartModified.value}');
     if ((CartDatabaseManager().cartItems.isNotEmpty ||
             CartDatabaseManager().draftBox.isNotEmpty) &&
         customerId.isNotEmpty &&
@@ -332,6 +335,7 @@ class ProductsController extends GetxController {
         );
 
         await ApiWorker().placeOrder(order, (statusCode, message, response) {
+          // print('statuscode from backbuttton: $statusCode');
           if (statusCode == 200) {
             showSuccessFullDialogCtrl(context: context);
           } else {

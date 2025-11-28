@@ -76,11 +76,11 @@ class CartDialogue extends StatefulWidget {
 }
 
 class CartDialogueState extends State<CartDialogue> {
-  late RxBool useCredit;           // Reactive checkbox state
-  late var customerCredit;  
-    late var currentCustomerCredit;
+  late RxBool useCredit; // Reactive checkbox state
+  late var customerCredit;
+  late var currentCustomerCredit;
 
-    // Current available credit
+  // Current available credit
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
@@ -103,6 +103,7 @@ class CartDialogueState extends State<CartDialogue> {
   List<String> filteredOptions = [];
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
+  ProductsController productController = Get.find<ProductsController>();
   CustomerCreditController customerCreditController =
       Get.find<CustomerCreditController>();
   final subscriptionController = Get.find<SubscriptionController>();
@@ -132,7 +133,7 @@ class CartDialogueState extends State<CartDialogue> {
     useCredit = false.obs;
     customerCredit = 0.0;
 
- currentCustomerCredit = _customercreditctrl.customerCredit.value; 
+    currentCustomerCredit = _customercreditctrl.customerCredit.value;
     _scrollController1 = ScrollController();
     _scrollController2 = ScrollController();
     _scrollController3 = ScrollController();
@@ -471,7 +472,6 @@ class CartDialogueState extends State<CartDialogue> {
 
   @override
   Widget build(BuildContext context) {
-    
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(
@@ -537,7 +537,7 @@ class CartDialogueState extends State<CartDialogue> {
 
                       final credit = creditCtrl.customerCredit.value;
                       final isLoading = creditCtrl.isLoading.value;
-                       customerCredit = credit;
+                      customerCredit = credit;
                       return DialogueHedingWidget(
                         height: height,
                         width: width,
@@ -1029,7 +1029,7 @@ class CartDialogueState extends State<CartDialogue> {
                     Obx(() {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
-                       customerCredit =
+                      customerCredit =
                           _customercreditctrl.customerCredit.value ?? 0.0;
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
@@ -1076,9 +1076,7 @@ class CartDialogueState extends State<CartDialogue> {
                                           ? null // Disable if no credit
                                           : (val) {
                                               useCredit.value = val ?? false;
-                                              setState(() {
-                                                
-                                              });
+                                              setState(() {});
                                             },
                                     ),
                                   ],
@@ -2373,39 +2371,29 @@ class CartDialogueState extends State<CartDialogue> {
                     : _selectedValue == 'Estimate'
                         ? 7
                         : 14;
-                     
-//                      final customerCreditCtrl = Get.find<CustomerCreditController>();
-// // final  latestCredit = customerCreditCtrl.customerCredit.value;
-// // final  originalTotal = finalAmount;
 
-// final creditAmountToSend = useCredit.value ? currentCustomerCredit : 0.0;
+//
+            final customerCreditCtrl = Get.find<CustomerCreditController>();
+            final availableCredit =
+                customerCreditCtrl.customerCredit.value; // fresh value
+            final originalTotal = finalAmount; // total before any credit
 
-// //  print('  latest credit: $latestCredit');
-// final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
-//     && useCredit.value == true;
-    
-//     print('should use credit: $shouldUseCredit');
+            final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
+                    _selectedValue == 'Quick Sale') &&
+                useCredit.value == true &&
+                availableCredit > 0;
 
+            final creditUsed = shouldUseCredit
+                ? (originalTotal > availableCredit
+                    ? availableCredit
+                    : originalTotal)
+                : 0.0;
 
-   // 1. Get latest values
-final customerCreditCtrl = Get.find<CustomerCreditController>();
-final  availableCredit = customerCreditCtrl.customerCredit.value; // fresh value
-final  originalTotal = finalAmount; // total before any credit
+            final amountToPay =
+                (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-// 2. Decide if we use credit at all
-final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
-    && useCredit.value == true
-    && availableCredit > 0;
-
-// 3. How much credit do we ACTUALLY use? → MIN(order total, available credit)
-final  creditUsed = shouldUseCredit
-    ? (originalTotal > availableCredit ? availableCredit : originalTotal)
-    : 0.0;
-
-// 4. Final amount customer has to pay after credit
-final  amountToPay = (originalTotal - creditUsed).clamp(0.0, double.infinity);
-
-print("Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
+            print(
+                "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
 
             CartOrderModel order = CartOrderModel(
               customerId: customerId,
@@ -2422,15 +2410,17 @@ print("Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: 
               draftId: draftId.isNotEmpty ? draftId : '',
               varientIds: variantIdsPass,
               useCredit: shouldUseCredit,
-              creditAmount: shouldUseCredit ? creditUsed :0,
+              creditAmount: shouldUseCredit ? creditUsed : 0,
             );
-           print('Cart Order: ${order.toJson()}');
+            // print('Cart Order: ${order.toJson()}');
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
               Navigator.pop(context);
-              print('statusCodeww: $statusCode, message: $message, response: $response');
+              // print(
+              //     'statusCodeww: $statusCode, message: $message, response: $response');
               if (statusCode == 200) {
+                productController.isCartModified.value = false;
                 // showSuccessFullDialogCtrl(context: context);
                 _clearCartItem(itemList, customerId);
 
@@ -2567,10 +2557,7 @@ print("Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: 
                   },
                 );
               }
-            }
-            
-            );
-            
+            });
           }
         }
       } catch (e) {

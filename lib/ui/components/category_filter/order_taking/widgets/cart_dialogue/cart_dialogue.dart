@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_rowcontent.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -2373,16 +2374,38 @@ class CartDialogueState extends State<CartDialogue> {
                         ? 7
                         : 14;
                      
-                     final customerCreditCtrl = Get.find<CustomerCreditController>();
-// final  latestCredit = customerCreditCtrl.customerCredit.value;
+//                      final customerCreditCtrl = Get.find<CustomerCreditController>();
+// // final  latestCredit = customerCreditCtrl.customerCredit.value;
+// // final  originalTotal = finalAmount;
 
-final creditAmountToSend = useCredit.value ? currentCustomerCredit : 0.0;
+// final creditAmountToSend = useCredit.value ? currentCustomerCredit : 0.0;
 
-//  print('  latest credit: $latestCredit');
-final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
-    && useCredit.value == true;
+// //  print('  latest credit: $latestCredit');
+// final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
+//     && useCredit.value == true;
     
-    print('should use credit: $shouldUseCredit');
+//     print('should use credit: $shouldUseCredit');
+
+
+   // 1. Get latest values
+final customerCreditCtrl = Get.find<CustomerCreditController>();
+final  availableCredit = customerCreditCtrl.customerCredit.value; // fresh value
+final  originalTotal = finalAmount; // total before any credit
+
+// 2. Decide if we use credit at all
+final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue == 'Quick Sale')
+    && useCredit.value == true
+    && availableCredit > 0;
+
+// 3. How much credit do we ACTUALLY use? → MIN(order total, available credit)
+final  creditUsed = shouldUseCredit
+    ? (originalTotal > availableCredit ? availableCredit : originalTotal)
+    : 0.0;
+
+// 4. Final amount customer has to pay after credit
+final  amountToPay = (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+print("Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
 
             CartOrderModel order = CartOrderModel(
               customerId: customerId,
@@ -2399,14 +2422,16 @@ final bool shouldUseCredit = (_selectedValue == 'Sale Order' || _selectedValue =
               draftId: draftId.isNotEmpty ? draftId : '',
               varientIds: variantIdsPass,
               useCredit: shouldUseCredit,
-              creditAmount: shouldUseCredit ? creditAmountToSend :0,
+              creditAmount: shouldUseCredit ? creditUsed :0,
             );
            print('Cart Order: ${order.toJson()}');
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
               Navigator.pop(context);
+              print('statusCodeww: $statusCode, message: $message, response: $response');
               if (statusCode == 200) {
+                // showSuccessFullDialogCtrl(context: context);
                 _clearCartItem(itemList, customerId);
 
                 // Update cached drafts after successful order placement

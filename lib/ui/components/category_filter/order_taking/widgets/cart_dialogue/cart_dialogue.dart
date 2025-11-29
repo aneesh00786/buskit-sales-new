@@ -1061,68 +1061,68 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
 
-                    Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      customerCredit =
-                          _customercreditctrl.customerCredit.value ?? 0.0;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      final double baseAmount = orderSubtotal - flatDisc;
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
+                    // Obx(() {
+                    //   final String cid =
+                    //       widget.productsController.selectedCustomerId.value;
+                    //   customerCredit =
+                    //       _customercreditctrl.customerCredit.value ?? 0.0;
+                    //   final double flatDisc = widget
+                    //           .productsController.flatDiscountByCustomer[cid] ??
+                    //       0.0;
+                    //   final double baseAmount = orderSubtotal - flatDisc;
+                    //   final double finalBeforeCredit =
+                    //       baseAmount.clamp(0.0, double.infinity);
 
-                      // Amount to be paid after applying credit
-                      final double amountAfterCredit = useCredit.value
-                          ? (finalBeforeCredit - customerCredit)
-                              .clamp(0.0, double.infinity)
-                          : finalBeforeCredit;
+                    //   // Amount to be paid after applying credit
+                    //   final double amountAfterCredit = useCredit.value
+                    //       ? (finalBeforeCredit - customerCredit)
+                    //           .clamp(0.0, double.infinity)
+                    //       : finalBeforeCredit;
 
-                      // Remaining credit after this transaction (only if using credit)
-                      var remainingCredit = useCredit.value
-                          ? (customerCredit - finalBeforeCredit)
-                              .clamp(0.0, double.infinity)
-                          : customerCredit;
+                    //   // Remaining credit after this transaction (only if using credit)
+                    //   var remainingCredit = useCredit.value
+                    //       ? (customerCredit - finalBeforeCredit)
+                    //           .clamp(0.0, double.infinity)
+                    //       : customerCredit;
 
-                      return Column(
-                        children: [
-                          Container(
-                            height: 50,
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CustomText(
-                                      content: 'Use Credit',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: black,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Checkbox(
-                                      value:
-                                          useCredit.value && customerCredit > 0,
-                                      onChanged: customerCredit <= 0
-                                          ? null // Disable if no credit
-                                          : (val) {
-                                              useCredit.value = val ?? false;
-                                              setState(() {});
-                                            },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(),
-                        ],
-                      );
-                    }),
+                    //   return Column(
+                    //     children: [
+                    //       Container(
+                    //         height: 50,
+                    //         width: double.infinity,
+                    //         padding: const EdgeInsets.symmetric(
+                    //             horizontal: 20, vertical: 8),
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //           children: [
+                    //             Row(
+                    //               children: [
+                    //                 CustomText(
+                    //                   content: 'Use Credit',
+                    //                   fontWeight: FontWeight.bold,
+                    //                   fontSize: 16,
+                    //                   color: black,
+                    //                 ),
+                    //                 const SizedBox(width: 10),
+                    //                 Checkbox(
+                    //                   value:
+                    //                       useCredit.value && customerCredit > 0,
+                    //                   onChanged: customerCredit <= 0
+                    //                       ? null // Disable if no credit
+                    //                       : (val) {
+                    //                           useCredit.value = val ?? false;
+                    //                           setState(() {});
+                    //                         },
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       const Divider(),
+                    //     ],
+                    //   );
+                    // }),
 
                     const Divider(),
 
@@ -1955,166 +1955,257 @@ class CartDialogueState extends State<CartDialogue> {
                           text: 'Save & Send',
                           size: width > 1200 ? 14 : 10,
                           color: const Color(0xff5bc0de),
-                          onTap: () async {
-                            final cartProvider = Provider.of<CustomersProvider>(
-                                context,
-                                listen: false);
-                            final hasCheckInOutPermission =
-                                subscriptionController
-                                        .customerCheckInOut.value ==
-                                    "true";
-                            final isCheckedIn = widget.active == true;
+                          
+//                           
 
-                            if (isCheckedIn ||
-                                (!isCheckedIn && !hasCheckInOutPermission)) {
-                              final sanitizedText = totalQuickController.text
-                                  .replaceAll(RegExp(r'[^\d.]'), '')
-                                  .trim();
-                              if (sanitizedText.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: Colors.red,
-                                    content: Text('Invalid amount entered'),
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                                return;
-                              }
+onTap: () async {
+  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+  final hasCheckInOutPermission = subscriptionController.customerCheckInOut.value == "true";
+  final isCheckedIn = widget.active == true;
 
-                              final finalAmount = double.parse(sanitizedText);
-                              final customerId = widget.customerId ??
-                                  widget.productsController.selectedCustomerId
-                                      .value;
+  if (!(isCheckedIn || !hasCheckInOutPermission)) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 60),
+        content: const Text('Please check-in before processing the order'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
 
-                              num amountPaidByCredit = 0.0;
-                              if (useCredit.value &&
-                                  _customercreditctrl.customerCredit.value >
-                                      0) {
-                                final String cid = widget.productsController
-                                    .selectedCustomerId.value;
-                                final flatDisc = widget.productsController
-                                        .flatDiscountByCustomer[cid] ??
-                                    0.0;
-                                final baseAmount = (isOrder
-                                        ? orderSubtotal
-                                        : preorderSubtotal) -
-                                    flatDisc;
-                                final finalBeforeCredit =
-                                    baseAmount.clamp(0.0, double.infinity);
-                                final availableCredit =
-                                    _customercreditctrl.customerCredit.value ??
-                                        0.0;
-                                amountPaidByCredit =
-                                    finalBeforeCredit > availableCredit
-                                        ? availableCredit
-                                        : finalBeforeCredit;
-                                final newCreditBalance =
-                                    (availableCredit - amountPaidByCredit)
-                                        .clamp(0.0, double.infinity);
+  final sanitizedText = totalQuickController.text.replaceAll(RegExp(r'[^\d.]'), '').trim();
+  if (sanitizedText.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invalid amount entered'), backgroundColor: Colors.red),
+    );
+    return;
+  }
 
-                                // === UPDATE CREDIT IN DATABASE / API ===
-                                try {
-                                  final String currentCustomerId = widget
-                                      .productsController
-                                      .selectedCustomerId
-                                      .value;
+  final double userEnteredAmount = double.parse(sanitizedText);
+  final String customerId = widget.customerId ?? widget.productsController.selectedCustomerId.value;
 
-                                  await _customercreditctrl
-                                      .updateCustomerCreditLocally(
-                                    customerId: customerId,
-                                    newCreditAmount: newCreditBalance,
-                                  );
+  // Calculate base amount after flat discount
+  final String cid = widget.productsController.selectedCustomerId.value;
+  final double flatDisc = widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+  final double subtotal = isOrder ? orderSubtotal : preorderSubtotal;
+  final double baseAmount = (subtotal - flatDisc).clamp(0.0, double.infinity);
 
-                                  // Get.snackbar(
-                                  //   "Credit Updated",
-                                  //   "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
-                                  //   snackPosition: SnackPosition.BOTTOM,
-                                  //   backgroundColor:
-                                  //       Colors.green.withOpacity(0.8),
-                                  //   colorText: Colors.white,
-                                  // );
-                                } catch (e) {
-                                  Get.snackbar(
-                                      "Error", "Failed to update credit: $e",
-                                      backgroundColor: Colors.red);
-                                  return; // Stop processing if credit update fails
-                                }
-                              }
+  // Use the correct total: prefer calculated baseAmount, but allow manual override in Quick Sale
+  final double originalTotal = _selectedValue == "Quick Sale" ? userEnteredAmount : baseAmount;
 
-                              final cartDetails = await CartDatabaseManager()
-                                  .getDraftAndCartIdsFromApi(customerId);
-                              await Future.delayed(const Duration(seconds: 1));
-                              final firstOrder = cartDetails.isNotEmpty
-                                  ? cartDetails.last
-                                  : {'cart_id': '', 'draft_id': ''};
-                              final cartIdPrefs = firstOrder['cart_id'] ?? '';
-                              final draftIdPrefs = firstOrder['draft_id'] ?? '';
-                              // log('Existing cart ID $existingCartId');
-                              // log('Existing Draft ID $existingDraftId');
-                              if (_selectedValue == "Quick Sale") {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  await processSaveAndSend(
-                                    finalAmount: finalAmount,
-                                    paymentType: paymentType,
-                                    context: context,
-                                    cartId: cartIdPrefs,
-                                    draftId: draftIdPrefs,
-                                  );
-                                  cartProvider.getCartItemCounts(customerId);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text(
-                                          'Please fill all required fields'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                await processSaveAndSend(
-                                  finalAmount: finalAmount,
-                                  context: context,
-                                  cartId: cartIdPrefs,
-                                  draftId: draftIdPrefs,
-                                );
-                                cartProvider.getCartItemCounts(customerId);
-                              }
-                            } else {
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Center(
-                                      child: Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Colors.red,
-                                        size: 60,
-                                      ),
-                                    ),
-                                    content: CustomText(
-                                      content:
-                                          'Please check-in before processing the order',
-                                      fontSize: 18,
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.of(context,
-                                                  rootNavigator: true)
-                                              .pop();
-                                        },
-                                        child: const Text('OK'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                          },
+  final  availableCredit = _customercreditctrl.customerCredit.value ?? 0.0;
+
+  // Show Credit Popup Only If Needed
+  bool? useCreditResult = false;
+  if (availableCredit > 0 && originalTotal > 0) {
+    useCreditResult = await showCreditUsageDialog(
+      context: context,
+      availableCredit: availableCredit,
+      amountToPayBeforeCredit: originalTotal,
+    );
+
+    if (useCreditResult == null) return; // User closed dialog → cancel order
+    // useCreditConfirmed = result;
+  }
+
+  // Get cart & draft IDs
+  final cartDetails = await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+  await Future.delayed(const Duration(milliseconds: 500));
+  final firstOrder = cartDetails.isNotEmpty ? cartDetails.last : {'cart_id': '', 'draft_id': ''};
+  final cartIdPrefs = firstOrder['cart_id'] ?? '';
+  final draftIdPrefs = firstOrder['draft_id'] ?? '';
+
+  // Quick Sale form validation
+  if (_selectedValue == "Quick Sale") {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+  }
+
+  // Call processSaveAndSend with:
+  // - ORIGINAL total (before credit)
+  // - useCreditConfirmed from popup
+  await processSaveAndSend(
+    context: context,
+    finalAmount: originalTotal,           // ← Important: send original amount
+    useCreditConfirmed: useCreditResult ?? false, // ← Decision from popup
+    paymentType: paymentType,
+    cartId: cartIdPrefs,
+    draftId: draftIdPrefs,
+  );
+
+  cartProvider.getCartItemCounts(customerId);
+},
+                          // onTap: () async {
+                          //   final cartProvider = Provider.of<CustomersProvider>(
+                          //       context,
+                          //       listen: false);
+                          //   final hasCheckInOutPermission =
+                          //       subscriptionController
+                          //               .customerCheckInOut.value ==
+                          //           "true";
+                          //   final isCheckedIn = widget.active == true;
+
+                          //   if (isCheckedIn ||
+                          //       (!isCheckedIn && !hasCheckInOutPermission)) {
+                          //     final sanitizedText = totalQuickController.text
+                          //         .replaceAll(RegExp(r'[^\d.]'), '')
+                          //         .trim();
+                          //     if (sanitizedText.isEmpty) {
+                          //       ScaffoldMessenger.of(context).showSnackBar(
+                          //         const SnackBar(
+                          //           backgroundColor: Colors.red,
+                          //           content: Text('Invalid amount entered'),
+                          //           duration: Duration(seconds: 3),
+                          //         ),
+                          //       );
+                          //       return;
+                          //     }
+
+                          //     final finalAmount = double.parse(sanitizedText);
+                          //     final customerId = widget.customerId ??
+                          //         widget.productsController.selectedCustomerId
+                          //             .value;
+
+                          //     num amountPaidByCredit = 0.0;
+                          //     if (useCredit.value &&
+                          //         _customercreditctrl.customerCredit.value >
+                          //             0) {
+                          //       final String cid = widget.productsController
+                          //           .selectedCustomerId.value;
+                          //       final flatDisc = widget.productsController
+                          //               .flatDiscountByCustomer[cid] ??
+                          //           0.0;
+                          //       final baseAmount = (isOrder
+                          //               ? orderSubtotal
+                          //               : preorderSubtotal) -
+                          //           flatDisc;
+                          //       final finalBeforeCredit =
+                          //           baseAmount.clamp(0.0, double.infinity);
+                          //       final availableCredit =
+                          //           _customercreditctrl.customerCredit.value ??
+                          //               0.0;
+                          //       amountPaidByCredit =
+                          //           finalBeforeCredit > availableCredit
+                          //               ? availableCredit
+                          //               : finalBeforeCredit;
+                          //       final newCreditBalance =
+                          //           (availableCredit - amountPaidByCredit)
+                          //               .clamp(0.0, double.infinity);
+
+                          //       // === UPDATE CREDIT IN DATABASE / API ===
+                          //       try {
+                          //         final String currentCustomerId = widget
+                          //             .productsController
+                          //             .selectedCustomerId
+                          //             .value;
+
+                          //         await _customercreditctrl
+                          //             .updateCustomerCreditLocally(
+                          //           customerId: customerId,
+                          //           newCreditAmount: newCreditBalance,
+                          //         );
+
+                          //         // Get.snackbar(
+                          //         //   "Credit Updated",
+                          //         //   "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
+                          //         //   snackPosition: SnackPosition.BOTTOM,
+                          //         //   backgroundColor:
+                          //         //       Colors.green.withOpacity(0.8),
+                          //         //   colorText: Colors.white,
+                          //         // );
+                          //       } catch (e) {
+                          //         Get.snackbar(
+                          //             "Error", "Failed to update credit: $e",
+                          //             backgroundColor: Colors.red);
+                          //         return; // Stop processing if credit update fails
+                          //       }
+                          //     }
+
+                          //     final cartDetails = await CartDatabaseManager()
+                          //         .getDraftAndCartIdsFromApi(customerId);
+                          //     await Future.delayed(const Duration(seconds: 1));
+                          //     final firstOrder = cartDetails.isNotEmpty
+                          //         ? cartDetails.last
+                          //         : {'cart_id': '', 'draft_id': ''};
+                          //     final cartIdPrefs = firstOrder['cart_id'] ?? '';
+                          //     final draftIdPrefs = firstOrder['draft_id'] ?? '';
+                          //     // log('Existing cart ID $existingCartId');
+                          //     // log('Existing Draft ID $existingDraftId');
+                          //     if (_selectedValue == "Quick Sale") {
+                          //       if (_formKey.currentState?.validate() ??
+                          //           false) {
+                          //         await processSaveAndSend(
+                          //           finalAmount: finalAmount,
+                          //           paymentType: paymentType,
+                          //           context: context,
+                          //           cartId: cartIdPrefs,
+                          //           draftId: draftIdPrefs,
+                          //         );
+                          //         cartProvider.getCartItemCounts(customerId);
+                          //       } else {
+                          //         ScaffoldMessenger.of(context).showSnackBar(
+                          //           const SnackBar(
+                          //             backgroundColor: Colors.red,
+                          //             content: Text(
+                          //                 'Please fill all required fields'),
+                          //             duration: Duration(seconds: 3),
+                          //           ),
+                          //         );
+                          //       }
+                          //     } else {
+                          //       await processSaveAndSend(
+                          //         finalAmount: finalAmount,
+                          //         context: context,
+                          //         cartId: cartIdPrefs,
+                          //         draftId: draftIdPrefs,
+                          //       );
+                          //       cartProvider.getCartItemCounts(customerId);
+                          //     }
+                          //   } else {
+                          //     showDialog(
+                          //       context: context,
+                          //       barrierDismissible: false,
+                          //       builder: (BuildContext context) {
+                          //         return AlertDialog(
+                          //           title: const Center(
+                          //             child: Icon(
+                          //               Icons.warning_amber_rounded,
+                          //               color: Colors.red,
+                          //               size: 60,
+                          //             ),
+                          //           ),
+                          //           content: CustomText(
+                          //             content:
+                          //                 'Please check-in before processing the order',
+                          //             fontSize: 18,
+                          //           ),
+                          //           actions: [
+                          //             TextButton(
+                          //               onPressed: () {
+                          //                 Navigator.pop(context);
+                          //                 Navigator.of(context,
+                          //                         rootNavigator: true)
+                          //                     .pop();
+                          //               },
+                          //               child: const Text('OK'),
+                          //             ),
+                          //           ],
+                          //         );
+                          //       },
+                          //     );
+                          //   }
+                          // },
                         ),
                       ],
                     ),
@@ -2222,6 +2313,7 @@ class CartDialogueState extends State<CartDialogue> {
   Future<void> processSaveAndSend({
     required BuildContext context,
     required double finalAmount,
+    required bool useCreditConfirmed,
     int? paymentType,
     required String cartId,
     required String draftId,
@@ -2408,27 +2500,51 @@ class CartDialogueState extends State<CartDialogue> {
                         : 14;
 
 //
-            final customerCreditCtrl = Get.find<CustomerCreditController>();
-            final availableCredit =
-                customerCreditCtrl.customerCredit.value; // fresh value
-            final originalTotal = finalAmount; // total before any credit
+            // final customerCreditCtrl = Get.find<CustomerCreditController>();
+            // final availableCredit =
+            //     customerCreditCtrl.customerCredit.value; // fresh value
+            // final originalTotal = finalAmount; // total before any credit
 
-            final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
-                    _selectedValue == 'Quick Sale') &&
-                useCredit.value == true &&
-                availableCredit > 0;
+            // final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
+            //         _selectedValue == 'Quick Sale') &&
+            //     useCredit.value == true &&
+            //     availableCredit > 0;
 
-            final creditUsed = shouldUseCredit
-                ? (originalTotal > availableCredit
-                    ? availableCredit
-                    : originalTotal)
-                : 0.0;
+            // final creditUsed = shouldUseCredit
+            //     ? (originalTotal > availableCredit
+            //         ? availableCredit
+            //         : originalTotal)
+            //     : 0.0;
 
-            final amountToPay =
-                (originalTotal - creditUsed).clamp(0.0, double.infinity);
+            // final amountToPay =
+            //     (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-            print(
-                "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
+            // print(
+            //     "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
+
+ 
+ final customerCreditCtrl = Get.find<CustomerCreditController>();
+    final  availableCredit = customerCreditCtrl.customerCredit.value ?? 0.0;
+    final double originalTotal = finalAmount; // Before credit
+
+    final bool shouldUseCredit = useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
+    final  creditUsed = shouldUseCredit
+        ? (originalTotal > availableCredit ? availableCredit : originalTotal)
+        : 0.0;
+
+    final double amountToPayAfterCredit = (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+    print("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
+
+    // === FINAL ORDER ===
+    int orderStatuses = _selectedValue == 'Sale Order'
+        ? 11
+        : _selectedValue == 'Booking'
+            ? 0
+            : _selectedValue == 'Estimate'
+                ? 7
+                : 14;
+
 
             CartOrderModel order = CartOrderModel(
               customerId: customerId,
@@ -3282,6 +3398,311 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 }
+
+
+
+Future<bool?> showCreditUsageDialog({
+  required BuildContext context,
+  required  availableCredit,
+  required double amountToPayBeforeCredit,
+}) async {
+  // Calculate how much credit would be used if applied
+  final double creditToBeUsed = amountToPayBeforeCredit > availableCredit
+      ? availableCredit
+      : amountToPayBeforeCredit;
+
+  final double amountAfterCredit = (amountToPayBeforeCredit - creditToBeUsed).clamp(0.0, double.infinity);
+
+  return await showDialog<bool?>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          "Apply Customer Credit?",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Available Credit
+            Row(
+              children: [
+                const Text("Available Credit: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  formatAmount(availableCredit),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 19,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Order Total
+            Row(
+              children: [
+                const Text("Order Total: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  formatAmount(amountToPayBeforeCredit),
+                  style: const TextStyle(fontSize: 17),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Visual Summary Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //  Text(
+                  //   "If you apply credit:",
+                  //   style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green),
+                  // ),
+                  // const SizedBox(height: 8),
+                  // Text(
+                  //   "• Deduct: ${formatAmount(creditToBeUsed)}",
+                  //   style: const TextStyle(fontSize: 16),
+                  // ),
+                  Text(
+                     "After applying the credit, your total payable amount will be: ${formatAmount(amountAfterCredit)}",
+                    // "You pay: ${formatAmount(amountAfterCredit)}",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: amountAfterCredit == 0 ? Colors.green[800] : Colors.blue[800],
+                    ),
+                  ),
+                  // if (amountAfterCredit == 0)
+                    // const Padding(
+                    //   padding: EdgeInsets.only(top: 8),
+                    //   child: Row(
+                    //     children: [
+                    //       Icon(Icons.celebration, color: Colors.green, size: 20),
+                    //       SizedBox(width: 6),
+                    //       Text(
+                    //         "Full amount covered!",
+                    //         style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          // Cancel Button
+          TextButton(
+            onPressed: () => Navigator.pop(context, null), // null means cancelled
+            child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.grey[200],
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+
+          // Skip Credit Button
+          OutlinedButton(
+            onPressed: () => Navigator.pop(context, false),
+             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text("Pay without Credit", style: TextStyle(fontSize: 16)),
+          ),
+
+          // Pay with Credit Button
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.check_circle, size: 20),
+            label: Text(
+              amountAfterCredit == 0 ? "Pay with Credit" : "Apply Credit",
+              style: const TextStyle(fontSize: 16),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Future<bool> showCreditUsageDialog({
+//   required BuildContext context,
+//   required  availableCredit,
+//   required double amountToPayBeforeCredit,
+// }) async {
+//   // Default: auto-check if credit can fully or partially cover the amount
+//   bool useCredit = availableCredit > 0 && amountToPayBeforeCredit > 0;
+
+//   final bool? result = await showDialog<bool>(
+//     context: context,
+//     barrierDismissible: false, // User must choose
+//     builder: (BuildContext dialogContext) {
+//       return StatefulBuilder(
+//         builder: (context, StateSetter setState) {
+//           // Calculate how much credit will actually be used
+//           final double creditToBeUsed = useCredit
+//               ? (amountToPayBeforeCredit > availableCredit
+//                   ? availableCredit
+//                   : amountToPayBeforeCredit)
+//               : 0.0;
+
+//           final double amountAfterCredit = (amountToPayBeforeCredit - creditToBeUsed).clamp(0.0, double.infinity);
+
+//           return AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(16),
+//             ),
+//             title: const Text(
+//               "Apply Customer Credit?",
+//               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+//             ),
+//             content: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // Available Credit
+//                 Row(
+//                   children: [
+//                     const Text("Available Credit: ", style: TextStyle(fontWeight: FontWeight.w600)),
+//                     Text(
+//                       formatAmount(availableCredit),
+//                       style: const TextStyle(
+//                         fontWeight: FontWeight.bold,
+//                         color: Colors.green,
+//                         fontSize: 18,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 8),
+
+//                 // Order Amount Before Credit
+//                 Row(
+//                   children: [
+//                     const Text("Order Amount: ", style: TextStyle(fontWeight: FontWeight.w600)),
+//                     Text(
+//                       formatAmount(amountToPayBeforeCredit),
+//                       style: const TextStyle(fontSize: 16),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 16),
+
+//                 // Checkbox with live preview
+//                 Container(
+//                   padding: const EdgeInsets.all(12),
+//                   decoration: BoxDecoration(
+//                     color: Colors.grey[50],
+//                     borderRadius: BorderRadius.circular(12),
+//                     border: Border.all(color: Colors.grey.shade300),
+//                   ),
+//                   child: Column(
+//                     children: [
+//                       CheckboxListTile(
+//                         dense: true,
+//                         contentPadding: EdgeInsets.zero,
+//                         controlAffinity: ListTileControlAffinity.leading,
+//                         title: Text(
+//                           useCredit
+//                               ? "Use Credit – Deduct ${formatAmount(creditToBeUsed)}"
+//                               : "Do not use credit",
+//                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+//                         ),
+//                         subtitle: useCredit
+//                             ? Text(
+//                                 "You will pay: ${formatAmount(amountAfterCredit)}",
+//                                 style: TextStyle(
+//                                   fontSize: 15,
+//                                   color: amountAfterCredit == 0 ? Colors.green : Colors.blue[700],
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               )
+//                             : null,
+//                         value: useCredit,
+//                         activeColor: Colors.green,
+//                         onChanged: availableCredit <= 0
+//                             ? null
+//                             : (bool? value) {
+//                                 setState(() {
+//                                   useCredit = value ?? false;
+//                                 });
+//                               },
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+
+//                 if (amountAfterCredit == 0 && useCredit)
+//                   Padding(
+//                     padding: const EdgeInsets.only(top: 12),
+//                     child: Row(
+//                       children: [
+//                         Icon(Icons.celebration, color: Colors.green),
+//                         const SizedBox(width: 8),
+//                         Text(
+//                           "Full amount covered by credit!",
+//                           style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//               ],
+//             ),
+//             actionsAlignment: MainAxisAlignment.spaceBetween,
+//             actions: [
+//               TextButton(
+//                 style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
+//                 onPressed: () => Navigator.pop(dialogContext, false),
+//                 child: const Text("Skip Credit", style: TextStyle(fontSize: 16)),
+//               ),
+//               ElevatedButton(
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: useCredit ? Colors.green : Colors.blue,
+//                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                 ),
+//                 onPressed: () => Navigator.pop(dialogContext, useCredit),
+//                 child: Text(
+//                   useCredit
+//                       ? (amountAfterCredit == 0 ? "Pay with Credit" : "Apply & Pay ${formatAmount(amountAfterCredit)}")
+//                       : "Pay Full ${formatAmount(amountToPayBeforeCredit)}",
+//                   style: const TextStyle(fontSize: 16, color: Colors.white),
+//                 ),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     },
+//   );
+
+//   // Return true/false based on user choice
+//   return result ?? false;
+// }
 
 class CartTextFields extends StatelessWidget {
   const CartTextFields({

@@ -59,3 +59,13 @@ double salesReturncardWidth(BuildContext context) {
     return fullW > 640 ? fullW * 1 : fullW * 1.1;
   }
 }
+// double salesReturnCardHeight(BuildContext context) {
+//   if (isTablet(context)) {
+//     return fullScreenHeight(context) * 0.10; // Tablet → slightly bigger
+//   } else if (isPhoneLandscape(context)) {
+//     return fullScreenHeight(context) * 0.8; // Phone landscape
+//   } else {
+//     return fullScreenHeight(context) * 0.8; // Phone portrait (default)
+//   }
+// }
+

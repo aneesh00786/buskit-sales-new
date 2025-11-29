@@ -613,7 +613,13 @@ class _SalesReturnState extends State<SalesReturn> {
                           GetRecentOrderReturnData salesReturnData =
                               entry.value;
                           return Container(
-                            height: 85,
+                            height: isPhonePortrait(context)
+                ? fullScreenWidth(context) * 1.9
+                : fullScreenWidth(context) > 640
+                    ? fullScreenWidth(context) * 0.1
+                    : fullScreenWidth(context) * 1.1,
+                            // salesReturnCardHeight(context),
+                            // height: 85,
                             color:
                                 index.isEven ? Colors.grey[50] : Colors.white,
                             padding: const EdgeInsets.all(8.0),
@@ -725,7 +731,12 @@ class _SalesReturnState extends State<SalesReturn> {
                                 return buildTableRow(
                                   context,
                                   index,
-                                  85,
+                                  isPhonePortrait(context)
+                ? fullScreenWidth(context) * 2
+                : fullScreenWidth(context) > 640
+                    ? fullScreenWidth(context) * 0.1
+                    : fullScreenWidth(context) * 1.1,
+                            // salesReturnCardHeight(co,
                                   salesReturnData,
                                 );
                               }).toList(),

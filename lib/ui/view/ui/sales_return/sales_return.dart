@@ -69,13 +69,34 @@ class _SalesReturnState extends State<SalesReturn> {
   void initializeData() async {
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
-      showCustomToastDisplay(
-          context, "You are Offline!", Colors.red, Icons.close);
+      if (mounted) {
+        showCustomToastDisplay(
+            context, "You are Offline!", Colors.red, Icons.close);
+      }
       return;
     }
+
+    // Ensure UI is ready before triggering update
+    if (mounted) {
+      setState(() {}); // Optional: trigger rebuild if needed
+    }
+
+    // This will now use FilterDateEnum.thisMonth
     await salesReturnController.updateSalesReturnList();
-    log("Sales Return Response: ${salesReturnController.salesReturnList}");
+
+    log("Sales Return Response: ${salesReturnController.salesReturnList.length} items loaded");
   }
+
+  // void initializeData() async {
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline) {
+  //     showCustomToastDisplay(
+  //         context, "You are Offline!", Colors.red, Icons.close);
+  //     return;
+  //   }
+  //   await salesReturnController.updateSalesReturnList();
+  //   log("Sales Return Response: ${salesReturnController.salesReturnList}");
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -549,223 +570,198 @@ class _SalesReturnState extends State<SalesReturn> {
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     final ScrollController _horizontalScrollController = ScrollController();
-    return Row(
+
+    return Column(
       children: [
-        SizedBox(
-          width: 300,
-          child: Column(
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  buildSalesReturnTableHeader1(
-                    Center(
-                      child: CustomText(
-                        content: "Sl.No.",
-                        textAlign: TextAlign.center,
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    60,
-                  ),
-                  buildSalesReturnTableHeader1(
+              SizedBox(
+                width: 300,
+                child: Column(
+                  children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(width: 40),
-                        CustomText(
-                          content: "Customer Details",
-                          textAlign: TextAlign.center,
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ],
-                    ),
-                    240,
-                  ),
-                ],
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    controller: vertical,
-                    physics: const ClampingScrollPhysics(),
-                    child: Obx(() {
-                      final list = salesReturnController.filteredList;
-                      if (list.isEmpty) {
-                        return SizedBox(
-                          height: fixedRowHeight,
-                          child: Center(
+                        buildSalesReturnTableHeader1(
+                          Center(
                             child: CustomText(
-                              content: "No delivered orders found",
-                              fontSize: 16,
+                              content: "Sl.No.",
+                              textAlign: TextAlign.center,
+                              fontSize: 14,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        );
-                      }
+                          60,
+                        ),
+                        buildSalesReturnTableHeader1(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(width: 40),
+                              CustomText(
+                                content: "Customer Details",
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ],
+                          ),
+                          240,
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        controller: vertical,
+                        physics: const ClampingScrollPhysics(),
+                        child: Obx(() {
+                          final list = salesReturnController.filteredList;
+                          if (list.isEmpty) {
+                            return SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              child: Center(
+                                child: CustomText(
+                                  content: "No sales return found",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
 
-                      return Column(
-                        children: list.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          GetRecentOrderReturnData salesReturnData =
-                              entry.value;
-                          return Container(
-                            height: isPhonePortrait(context)
-                ? fullScreenWidth(context) * 1.9
-                : fullScreenWidth(context) > 640
-                    ? fullScreenWidth(context) * 0.1
-                    : fullScreenWidth(context) * 1.1,
-                            // salesReturnCardHeight(context),
-                            // height: 85,
-                            color:
-                                index.isEven ? Colors.grey[50] : Colors.white,
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 60,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 20),
-                                    child: CustomText(
-                                      content: "${index + 1}",
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.grey[200],
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            CustomText(
-                                              content: salesReturnData
-                                                  .customer?.first.businessName,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            CustomText(
-                                              content: '1234567891000000',
-                                              fontSize: 12,
-                                            ),
-                                            CustomText(
-                                              content:
-                                                  'emailllkkjxhsjxkhdaehihujhgvyh',
-                                              overflow: TextOverflow.ellipsis,
-                                              fontSize: 12,
-                                            )
-                                          ],
+                          return Column(
+                            children: list.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              var data = entry.value;
+                              return Container(
+                                height: 90,
+                                color: index.isEven
+                                    ? Colors.grey[50]
+                                    : Colors.white,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 60,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 20),
+                                        child: CustomText(
+                                          content: "${index + 1}",
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                      )
-                                    ],
-                                  ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Colors.grey[200],
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                CustomText(
+                                                  content: data.customer?.first
+                                                          .businessName ??
+                                                      '-',
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                CustomText(
+                                                    content: '1234567891000000',
+                                                    fontSize: 12),
+                                                CustomText(
+                                                  content: data.customer?.first
+                                                          .email ??
+                                                      '',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontSize: 12,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              );
+                            }).toList(),
                           );
-                        }).toList(),
-                      );
-                    })),
-              ),
-              // SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(3),
-                height: 50,
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    SalesReturnPagination(
-                        salesReturnController: salesReturnController),
-                    const Spacer()
+                        }),
+                      ),
+                    ),
                   ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: _horizontalScrollController,
+                  child: SizedBox(
+                    width: totalTableWidth,
+                    child: Obx(() {
+                      final list = salesReturnController.filteredList;
+                      return Column(
+                        children: [
+                          buildSalesReturnTableHeader(),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: vertical1,
+                              physics: const ClampingScrollPhysics(),
+                              child: Column(
+                                children: list.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  var data = entry.value;
+                                  return buildTableRow(
+                                      context, index, 90, data);
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        Expanded(
-          child: Stack(
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Column(
             children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller:
-                    _horizontalScrollController, // << Add controller here
-                child: SizedBox(
-                  width: totalTableWidth,
-                  child: Obx(() {
-                    final list = salesReturnController.filteredList;
-
-                    return Column(
-                      children: [
-                        // ---------------- HEADER -----------------
-                        SizedBox(
-                          child: buildSalesReturnTableHeader(
-                              // controller: _horizontalScrollController, // << pass controller
-                              ),
-                        ),
-
-                        // ---------------- BODY -----------------
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: vertical1,
-                            physics: const ClampingScrollPhysics(),
-                            child: Column(
-                              children: list.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                final salesReturnData = entry.value;
-
-                                return buildTableRow(
-                                  context,
-                                  index,
-                                  isPhonePortrait(context)
-                ? fullScreenWidth(context) * 2
-                : fullScreenWidth(context) > 640
-                    ? fullScreenWidth(context) * 0.1
-                    : fullScreenWidth(context) * 1.1,
-                            // salesReturnCardHeight(co,
-                                  salesReturnData,
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
+              // 1. Pagination Row
+              Row(
+                children: [
+                  SalesReturnPagination(
+                      salesReturnController: salesReturnController),
+                  // const Spacer(),
+                ],
               ),
 
-              // Custom Scrollbar overlay
-              Positioned(
-                // top: 40,
-                bottom: 10,
-                left: 0,
-                right: 0,
-                child: CustomHorizontalScrollbar(
-                  thumbColor: Colors.blue,
-                  controller:
-                      _horizontalScrollController, // must be same controller
-                ),
+              const SizedBox(height: 8),
+
+              CustomHorizontalScrollbar(
+                thumbColor: Colors.blue,
+                controller: _horizontalScrollController,
               ),
             ],
           ),
-        )
-
-      
+        ),
       ],
     );
   }

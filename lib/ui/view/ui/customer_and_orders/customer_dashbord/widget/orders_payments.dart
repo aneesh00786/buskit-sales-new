@@ -214,7 +214,7 @@ MyCommnonContainer OrdersPayments(
                                     Expanded(
                                       child: Center(
                                         child: Text(
-                                          formatAmount(order.orderTotal),
+                                          formatAmount(order.receivedAmount),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(

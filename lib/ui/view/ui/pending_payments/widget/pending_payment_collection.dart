@@ -544,7 +544,7 @@ void pendingPaymentCollectionDialog(
                           'Cash',
                           'Cheque',
                           'Bank Transfer',
-                          'Online Payment', // Added
+                          'QR Payment', // Added
                         ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                         onChanged: (val) {
                           if (val != null) selectedPaymentMethod.value = val;
@@ -641,7 +641,7 @@ void pendingPaymentCollectionDialog(
                             return;
                           }
 
-                          if (selectedPaymentMethod.value == 'Online Payment') {
+                          if (selectedPaymentMethod.value == 'QR Payment') {
                             await _startOnlinePayment(
                               enteredAmount,
                               selectedItemsList,
@@ -664,7 +664,7 @@ void pendingPaymentCollectionDialog(
                                               borderRadius:
                                                   BorderRadius.circular(10.0)),
                                         ),
-                        child: Obx(() => Text(selectedPaymentMethod.value == 'Online Payment' ? 'Pay' : 'Submit',style: TextStyle(color: Colors.white),)),
+                        child: Obx(() => Text(selectedPaymentMethod.value == 'QR Payment' ? 'Pay' : 'Submit',style: TextStyle(color: Colors.white),)),
                       ))),
                     ]),
                   ],

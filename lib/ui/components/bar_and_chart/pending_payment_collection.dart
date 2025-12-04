@@ -136,7 +136,7 @@ void pendingPaymentCollectionDialog(
                   ? "1"
                   : selectedPaymentMethod.value == 'Bank Transfer'
                       ? "2"
-                      : selectedPaymentMethod.value == 'Online Payment'
+                      : selectedPaymentMethod.value == 'QR Payment'
                           ? "3"
                           : "0",
           // paymentType: selectedPaymentMethod.value == 'Cash'
@@ -550,8 +550,8 @@ void pendingPaymentCollectionDialog(
                                         value: 'Bank Transfer',
                                         child: Text('Bank Transfer')),
                                     DropdownMenuItem(
-                                        value: 'Online Payment',
-                                        child: Text('Online Payment')),
+                                        value: 'QR Payment',
+                                        child: Text('QR Payment')),
                                   ],
                                   onChanged: (value) {
                                     if (value != null) {
@@ -563,7 +563,7 @@ void pendingPaymentCollectionDialog(
                                         'Cash' => 0,
                                         'Cheque' => 1,
                                         'Bank Transfer' => 2,
-                                        'Online Payment' => 3,
+                                        'QR Payment' => 3,
                                         _ => 0,
                                       };
                                     }
@@ -699,7 +699,7 @@ void pendingPaymentCollectionDialog(
 
                                       // Now decide: Online Payment → QR flow, else → normal payment
                                       if (selectedPaymentMethod.value ==
-                                          'Online Payment') {
+                                          'QR Payment') {
                                         // await _startOnlinePayment(
                                         //   context,
                                         //   enteredAmount,
@@ -749,7 +749,7 @@ void pendingPaymentCollectionDialog(
                                     child: Obx(
                                       () => Text(
                                         selectedPaymentMethod.value ==
-                                                'Online Payment'
+                                                'QR Payment'
                                             ? 'Pay'
                                             : 'Submit',
                                         style: const TextStyle(
@@ -823,8 +823,8 @@ void pendingPaymentCollectionDialog(
                                             value: 'Bank Transfer',
                                             child: Text('Bank Transfer')),
                                         DropdownMenuItem(
-                                            value: 'Online Payment',
-                                            child: Text('Online Payment')),
+                                            value: 'QR Payment',
+                                            child: Text('QR Payment')),
                                       ],
                                       onChanged: (value) {
                                         if (value != null) {
@@ -836,7 +836,7 @@ void pendingPaymentCollectionDialog(
                                             'Cash' => 0,
                                             'Cheque' => 1,
                                             'Bank Transfer' => 2,
-                                            'Online Payment' => 3,
+                                            'QR Payment' => 3,
                                             _ => 0,
                                           };
                                         }
@@ -1004,7 +1004,7 @@ void pendingPaymentCollectionDialog(
 
                                           // Now decide: Online Payment → QR flow, else → normal payment
                                           if (selectedPaymentMethod.value ==
-                                              'Online Payment') {
+                                              'QR Payment') {
                                             await _startOnlinePayment(
                                               context,
                                               enteredAmount,
@@ -1042,7 +1042,7 @@ void pendingPaymentCollectionDialog(
                                         ),
                                         child: Obx(() => Text(
                                               selectedPaymentMethod.value ==
-                                                      'Online Payment'
+                                                      'QR Payment'
                                                   ? 'Pay'
                                                   : 'Submit',
                                               style: const TextStyle(

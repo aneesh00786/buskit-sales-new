@@ -43,6 +43,7 @@ Widget Frequently(
                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                 child: InkWell(
                   onTap: () {
+                    // print('frequently on tapped');
                     if (frequentProductLists.isNotEmpty) {
                       return showProductListDialog<FrequantliyProductList>(
                         context: context,

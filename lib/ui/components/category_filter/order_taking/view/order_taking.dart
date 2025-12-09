@@ -595,7 +595,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Promotions",
+                                    "Promotions  ",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,

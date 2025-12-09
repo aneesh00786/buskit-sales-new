@@ -553,17 +553,19 @@ class CartDatabaseManager {
       discountData: null,
       localCount: localCount,
     );
+    print('effective selling price:$effectiveSellingPrice');
 
     double discountPercentage =
         double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
     double discountedTax = detail.tax != null
         ? detail.tax! - (detail.tax! * discountPercentage / 100)
         : 0.0;
-
+  print('discount percentage:$discountPercentage');
     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId);
+        print('existingDraftItemIndex:$existingDraftItemIndex');
 
     if (existingDraftItemIndex != -1) {
       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
@@ -574,18 +576,22 @@ class CartDatabaseManager {
                   effectiveSellingPrice)
               .toDouble()
           : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
+          
+          print(' existingDraftItem.totalPrice:${ existingDraftItem.totalPrice}');
       await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
     } else {
       final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
           item.detail.variationName == detail.variationName &&
           item.detail.sellPrice == detail.sellPrice &&
           item.customerId == customerId);
+          print('existingCartItemIndex:$existingCartItemIndex');
 
       if (existingCartItemIndex != -1) {
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
         final double priceWithTax = inclTax != "incl_tax"
-            ? effectiveSellingPrice + discountedTax
+            ? effectiveSellingPrice + discountedTax 
             : effectiveSellingPrice;
+            print('price with tax:$priceWithTax');
 
         existingCartItem.detail.count += localCount.toDouble();
         existingCartItem.totalPrice = existingCartItem.isPack!
@@ -594,15 +600,23 @@ class CartDatabaseManager {
                     priceWithTax)
                 .toDouble()
             : (existingCartItem.detail.count * priceWithTax).toDouble();
-
+print('existingCartItem.totalPrice :${existingCartItem.totalPrice }');
         await cartBox.putAt(existingCartItemIndex, existingCartItem);
       } else {
         final double priceWithTax = inclTax != "incl_tax"
             ? effectiveSellingPrice + discountedTax
             : effectiveSellingPrice;
+            print('detail.tax${detail.tax!}');
+            print('discounttax:$discountedTax');
+            print('inclusive tax:$inclTax');
+            print('price with tax :$priceWithTax');
+            print('pak:$isPack');
+            print('localcount:$localCount');
+            print('pieces:${detail.pieces}');
         final computedTotalAmount = isPack
             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
             : (localCount * priceWithTax);
+            print('calculated amount:$computedTotalAmount');
 
         final newDetail = Detail.fromJson(detail.toJson());
         newDetail.count = localCount.toDouble();

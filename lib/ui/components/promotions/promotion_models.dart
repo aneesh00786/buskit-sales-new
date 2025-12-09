@@ -773,7 +773,7 @@ class Variant {
   int? status;
   int? vStatus;
   String? productName;
-
+  String? inclTax;
   Variant({
     this.id,
     this.productId,
@@ -793,6 +793,8 @@ class Variant {
     this.status,
     this.vStatus,
     this.productName,
+    this.inclTax
+    
   });
 
   factory Variant.fromJson(Map<String, dynamic> json) => Variant(
@@ -814,6 +816,7 @@ class Variant {
         status: json["status"],
         vStatus: json["v_status"],
         productName: json["product_name"],
+        inclTax: json["incl_tax"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -835,6 +838,7 @@ class Variant {
         "status": status,
         "v_status": vStatus,
         "product_name": productName,
+        "incl_tax": inclTax,
       };
 }
 

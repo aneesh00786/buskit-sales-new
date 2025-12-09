@@ -225,6 +225,7 @@ class PromotionDetails extends StatelessWidget {
                                 const SizedBox(height: 12),
                                 InkWell(
                                   onTap: () async {
+                                    print('bundle to cart tapped');
                                     if ((customerAndOrderController
                                             .customerId.value.isNotEmpty) ||
                                         (productController.selectedCustomerName
@@ -299,8 +300,10 @@ class PromotionDetails extends StatelessWidget {
                                                             ?.toString() ??
                                                         '0') ??
                                                 0;
+                                                print('unit   Price:$unitPrice');
                                             final totalPrice = unitPrice *
                                                 (bundleItem.quantity ?? 1);
+                                                print('total priceee:$totalPrice');
 
                                             bundleDetailsMsg +=
                                                 "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
@@ -317,6 +320,7 @@ class PromotionDetails extends StatelessWidget {
                                         bundleDetailsMsg +=
                                             "Bundle Price: ${formatAmount(promo.bundlePrice)}";
                                       }
+                                      print('bundleprice:${promo.bundlePrice}');
 
                                       await CartDatabaseManager()
                                           .addToCartPromo(
@@ -778,8 +782,8 @@ class PromotionDetails extends StatelessWidget {
                                         if (!allowed) return;
 
                                         for (final v in allVariants) {
-                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-                                              "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+                                          // log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
+                                          //     "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
 
                                           // Map each variant into your Detail model
                                           final detail = Detail(
@@ -822,7 +826,7 @@ class PromotionDetails extends StatelessWidget {
                                             promoCode: promo.promoCode,
                                             promoMsg: promo.discountText,
                                           );
-
+                                          print('vtax:${v.tax}');
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -914,6 +918,7 @@ class PromotionDetails extends StatelessWidget {
                                                         ?.toString() ??
                                                     '0') ??
                                                 0;
+                                                print('flat amount:$flatAmount');
                                         if (flatAmount > 0) {
                                           productController
                                                   .flatDiscountByCustomer[
@@ -981,14 +986,19 @@ class PromotionDetails extends StatelessWidget {
                                                             ?.toString() ??
                                                         '0') ??
                                                 0;
+                                                
                                           } else {
                                             // For other promotions, calculate based on quantity
                                             tieredDiscount =
                                                 _calculateTieredDiscount(
                                                     promo, qty.value, true);
                                           }
+                                          // print('tiredDiscount:$tieredDiscount');
 
                                           // Map each variant into your Detail model
+print(v.toJson());
+
+                                         
                                           final detail = Detail(
                                             variationId: v.id,
                                             productId: v.productId,
@@ -1008,14 +1018,16 @@ class PromotionDetails extends StatelessWidget {
                                             imageUrl: v.imageUrl,
                                             productName: v.productName,
                                             discount: tieredDiscount,
+                                             inclTax: v.inclTax ?? '',
                                           );
 
-                                          log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-                                              "productId: ${detail.productId}, name: ${detail.productName}");
-
+                                          // log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
+                                          //     "productId: ${detail.productId}, name: ${detail.productName}");
+                                         
+                                          // print('details:${detail.toString()}');
                                           final catId = extractCategoryId(
                                               v.productId.toString());
-
+                                              
                                           await CartDatabaseManager()
                                               .addToCartPromo(
                                             customerId: customerId,
@@ -1023,7 +1035,7 @@ class PromotionDetails extends StatelessWidget {
                                             detail: detail,
                                             isPack: true,
                                             productName: v.productName ?? '',
-                                            inclTax: v.tax ?? '',
+                                            inclTax: detail.inclTax ?? '',
                                             isChcked: true,
                                             catId: catId,
                                             promoCode: promo.promoCode,
@@ -1297,6 +1309,7 @@ class PromotionDetails extends StatelessWidget {
 
                                         // 1) Add PAID items: quantity = selectedQty (user-chosen)
                                         final int paidToAdd = qty.value;
+                                        print('paid to add:$paidToAdd');
                                         for (final v in paidVariants) {
                                           final paidDetail = Detail(
                                             variationId: v.id,
@@ -1320,6 +1333,7 @@ class PromotionDetails extends StatelessWidget {
 
                                           final catId = extractCategoryId(
                                               v.productId.toString());
+                                           
 
                                           await CartDatabaseManager()
                                               .addToCartPromo(
@@ -1334,10 +1348,12 @@ class PromotionDetails extends StatelessWidget {
                                             promoCode: promo.promoCode,
                                             promoMsg: promo.discountText,
                                           );
-
+                                          
+                                         
                                           productController
                                               .isCartModified.value = true;
                                         }
+                                        
 
                                         // 2) Add FREE items from get variant
                                         // Prefer deal.getVariantId when present; fallback to first variant in promo.getProducts
@@ -1423,7 +1439,7 @@ class PromotionDetails extends StatelessWidget {
                                             // promoCode: promo.promoCode,
                                             // promoMsg: promo.discountText,
                                           );
-
+                                         
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -1484,7 +1500,7 @@ class PromotionDetails extends StatelessWidget {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "Add to Cart",
+                                        "Add to Carttt",
                                         style: TextStyle(
                                           color: white,
                                           fontSize: 20,

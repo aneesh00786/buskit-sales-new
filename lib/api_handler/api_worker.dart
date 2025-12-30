@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/pending_payment_model.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/verify_response.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
@@ -3446,5 +3447,52 @@ Future<OnlinePaymentSession> createOnlinePaymentSession({
   //   }
   // }
 // }
+Future<Bulk> getBulkVolumes() async {
+  try {
+    print('get bulk api called');
+
+    final isConnected = await ConnectivityService().isOnline();
+    final cacheKey = "${SessionHelper.loginSavedData?.company_id ?? 0}_bulk_volumes";
+
+    // You can keep offline caching later — for now let's focus on making the request work
+
+    // ONLINE MODE - POST with body
+    final response = await dio.postbycustom(
+      ApiConstants.getVolumes, // "get-volumes"
+      data: {  // ← Send as JSON body
+        "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+      },
+      // queryParameters: null,  // ← remove or leave empty
+    );
+
+    print('response status code in bulk: ${response.statusCode}');
+    print('response data: ${response.data}'); // ← very useful for debugging
+
+    final bulk = Bulk.fromJson(response.data);
+    print('bulk volumes fetched successfully');
+
+    // Cache the response (uncomment when ready)
+    // final box = await Hive.openBox('bulkVolumesBox');
+    // await box.put(cacheKey, bulk.toJson());
+
+    return bulk;
+
+  } catch (error) {
+    handleExceptionMessage(
+      apiName: 'Fetch Bulk Volumes',
+      response: error is DioException ? error.response : null,
+    );
+
+    // Optional: print more details about the error
+    if (error is DioException) {
+      print('Dio error details:');
+      print('Status: ${error.response?.statusCode}');
+      print('Response data: ${error.response?.data}');
+      print('Message: ${error.message}');
+    }
+
+    throw Exception('Failed to fetch bulk volumes: $error');
+  }
+}
   
 }

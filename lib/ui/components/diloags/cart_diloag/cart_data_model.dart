@@ -82,6 +82,21 @@ class SendCartData extends HiveObject {
   @HiveField(13)
   String? bundleDetails;
 
+  @HiveField(14)
+  double? customerDiscount;
+
+
+  @HiveField(15)
+  num? promoDiscount;
+
+
+  @HiveField(16)
+  bool? isBulk;
+
+
+  @HiveField(17)
+  String? bulkId;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -97,6 +112,10 @@ class SendCartData extends HiveObject {
     this.promoMsg,
     this.isBundle,
     this.bundleDetails,
+    this.customerDiscount,
+    this.promoDiscount,
+    this.isBulk,
+    this.bulkId,
   });
 
   Map<String, dynamic> toJson() {
@@ -113,6 +132,10 @@ class SendCartData extends HiveObject {
       'is_promo': isPromo ?? false,
       'promo_code': promoCode ?? "",
       'promo_msg': promoMsg,
+       'customer_discount': customerDiscount,
+      'promo_discount': promoDiscount,
+      'is_bulk': isBulk,
+      'bulk_id': bulkId,
     };
 
     if (isBundle == true) {

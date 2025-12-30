@@ -261,6 +261,8 @@ class ProductsController extends GetxController {
                 promoMsg: "Bundle: ${e.variationName}",
                 isBundle: isBundle,
                 bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
+                 customerDiscount: item.CustomerDiscount,
+                promoDiscount: item.tieredDiscount,
               );
             } else {
               return SendCartData(
@@ -269,26 +271,44 @@ class ProductsController extends GetxController {
                 pack: packValue,
                 price: e.sellPrice.toString(),
                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-                discount: e.discount ?? 0,
+                discount: (item.totalDiscountAmount ?? 0).toDouble(),
+                // discount: e.discount ?? 0,
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '',
                 maxDiscount: e.maxDiscount?.toInt(),
                 isPromo: true,
                 promoCode: item.promoCode ?? '',
                 promoMsg: item.promoMsg ?? '',
+                 customerDiscount: item.CustomerDiscount,
+                promoDiscount: item.tieredDiscount,
               );
             }
           } else {
             // ✅ Normal items
+            bool isBulkItem = false;
+  String? bulkId;
+  if (e.variationName?.contains('[BULK_ID:') == true) {
+    isBulkItem = true;
+    final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+    final match = regex.firstMatch(e.variationName!);
+    if (match != null) {
+      bulkId = match.group(1);
+    }
+  }
             return SendCartData(
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
               price: e.sellPrice.toString(),
               packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-              discount: e.discount ?? 0,
+              // discount: e.discount ?? 0,
+               discount: (item.totalDiscountAmount ?? 0).toDouble(),
               quantity: e.count.toInt(),
               variantName: e.variationName ?? '',
+               customerDiscount: item.CustomerDiscount,
+              promoDiscount: item.tieredDiscount,
+              isBulk: isBulkItem,
+              bulkId: bulkId,
             );
           }
         }).toList()),

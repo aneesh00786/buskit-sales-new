@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_screen.dart';
@@ -27,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 class PromotionDetails extends StatelessWidget {
@@ -998,6 +1000,69 @@ class PromotionDetails extends StatelessWidget {
                                           // Map each variant into your Detail model
 print(v.toJson());
 
+ final catId = extractCategoryId(
+                                              v.productId.toString());
+                                          final discountBox = await Hive
+                                              .openBox<CustomerDiscountModel>(
+                                                  'discounts');
+
+// print("---- HIVE DISCOUNT LIST ----");
+
+// for (var item in discountBox.values) {
+//   print("Customer: ${item.customerId}");
+//   print("Discounts:");
+//   for (var d in item.discounts ?? []) {
+//     print("  → ${d.toJson()}");
+//   }
+//   print("---------------------------");
+// }
+// print("---- PRODUCT FULL JSON ----");
+// print(v.toJson());
+// print("---------------------------");
+// print("Extracted category from productId → $catId");
+
+                                          CustomerDiscountModel? discountData =
+                                              discountBox.values.firstWhere(
+                                            (item) =>
+                                                item.customerId == customerId,
+                                            orElse: () =>
+                                                CustomerDiscountModel(),
+                                          );
+
+                                          double userDiscountPercent = 0.0;
+
+                                          if (discountData.discounts != null &&
+                                              discountData
+                                                  .discounts!.isNotEmpty) {
+                                            final matchedDiscount = discountData
+                                                .discounts!
+                                                .firstWhere(
+                                              (d) {
+                                                final dCat = int.tryParse(
+                                                    d.categoriesId?.trim() ??
+                                                        "");
+                                                return dCat == catId ||
+                                                    dCat ==
+                                                        114; // Apply 114 discount to 115
+                                              },
+                                              orElse: () => DiscountModel(),
+                                            );
+
+                                            // final matchedDiscount = discountData.discounts!.firstWhere(
+                                            //   (d) {
+                                            //     final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
+                                            //     return dCat == catId;   // <-- matching correctly
+                                            //   },
+                                            //   orElse: () => DiscountModel(),
+                                            // );
+
+                                            userDiscountPercent =
+                                                double.tryParse(matchedDiscount
+                                                            .discount
+                                                            ?.trim() ??
+                                                        "0") ??
+                                                    0.0;
+                                          }
                                          
                                           final detail = Detail(
                                             variationId: v.id,
@@ -1025,8 +1090,8 @@ print(v.toJson());
                                           //     "productId: ${detail.productId}, name: ${detail.productName}");
                                          
                                           // print('details:${detail.toString()}');
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
+                                          // final catId = extractCategoryId(
+                                          //     v.productId.toString());
                                               
                                           await CartDatabaseManager()
                                               .addToCartPromo(
@@ -1040,6 +1105,11 @@ print(v.toJson());
                                             catId: catId,
                                             promoCode: promo.promoCode,
                                             promoMsg: promo.discountText,
+                                               CustomerDiscount: detail
+                                                      .discount!
+                                                      .toDouble(),
+                                                  tieredDiscount:
+                                                      tieredDiscount
                                           );
 
                                           productController
@@ -1500,7 +1570,7 @@ print(v.toJson());
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "Add to Carttt",
+                                        "Add to Cart",
                                         style: TextStyle(
                                           color: white,
                                           fontSize: 20,

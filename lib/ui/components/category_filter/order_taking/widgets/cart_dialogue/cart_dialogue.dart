@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/calculate_discount.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_rowcontent.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -200,6 +201,7 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
+
   void _loadCartItems() async {
     try {
       final isOnline = await ConnectivityService().isOnline();
@@ -265,6 +267,10 @@ class CartDialogueState extends State<CartDialogue> {
 
       widget.productsController.cartItems = await CartDatabaseManager()
           .getCartItems(customerId, draftsOnly: isDraftView);
+      for (final item in widget.productsController.cartItems) {
+        calculateItemDiscounts(item);
+        // print('calculate discount called:${calculateItemDiscounts(item)}');
+      }
 
       await setCartToOrderAndPreorder();
 
@@ -290,6 +296,11 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
       for (var item in widget.productsController.preorderItems) {
+        for (final item in widget.productsController.preorderItems) {
+          calculateItemDiscounts(item);
+          // print('calculate discount called in second');
+        }
+
         item.isChecked = true;
         final count = item.detail.count;
         final pieces = item.detail.pieces ?? 1;
@@ -350,40 +361,40 @@ class CartDialogueState extends State<CartDialogue> {
           }
         },
       );
-      totalDiscount = widget.productsController.orderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked != true) return sum;
+      // totalDiscount = widget.productsController.orderItems.fold(
+      //   0.0,
+      //   (sum, item) {
+      //     if (item.isChecked != true) return sum;
 
-          final double sellPrice =
-              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final double discountPercentage =
-              double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
-          final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+      //     final double sellPrice =
+      //         double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      //     final double discountPercentage =
+      //         double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+      //     final double? maxDiscount = item.detail.maxDiscount?.toDouble();
 
-          // Calculate total quantity
-          final double totalQuantity =
-              (item.isPack == true || item.detail.packtype == 'Pack')
-                  ? (item.detail.pieces?.toDouble() ?? 1) *
-                      item.detail.count.toDouble()
-                  : item.detail.count.toDouble();
+      //     // Calculate total quantity
+      //     final double totalQuantity =
+      //         (item.isPack == true || item.detail.packtype == 'Pack')
+      //             ? (item.detail.pieces?.toDouble() ?? 1) *
+      //                 item.detail.count.toDouble()
+      //             : item.detail.count.toDouble();
 
-          // Calculate total price before discount
-          final double totalPrice = sellPrice * totalQuantity;
+      //     // Calculate total price before discount
+      //     final double totalPrice = sellPrice * totalQuantity;
 
-          // Calculate discount amount
-          double discountAmount = totalPrice * (discountPercentage / 100);
+      //     // Calculate discount amount
+      //     double discountAmount = totalPrice * (discountPercentage / 100);
 
-          // Apply max discount cap if applicable
-          if (maxDiscount != null &&
-              maxDiscount > 0 &&
-              discountAmount > maxDiscount) {
-            discountAmount = maxDiscount;
-          }
+      //     // Apply max discount cap if applicable
+      //     if (maxDiscount != null &&
+      //         maxDiscount > 0 &&
+      //         discountAmount > maxDiscount) {
+      //       discountAmount = maxDiscount;
+      //     }
 
-          return sum + discountAmount;
-        },
-      );
+      //     return sum + discountAmount;
+      //   },
+      // );
       totalDiscountPreorder = widget.productsController.preorderItems.fold(
         0.0,
         (sum, item) {
@@ -426,8 +437,8 @@ class CartDialogueState extends State<CartDialogue> {
             widget.productsController.orderItems;
         widget.productsController.preorderItems =
             widget.productsController.preorderItems;
-        orderSubtotal =
-            Utils().calculateSubtotal(widget.productsController.orderItems);
+        // orderSubtotal =
+        //     Utils().calculateSubtotal(widget.productsController.orderItems);
         orderTax =
             Utils().calculateTotalTax(widget.productsController.orderItems);
         preorderSubtotal =
@@ -449,6 +460,257 @@ class CartDialogueState extends State<CartDialogue> {
       });
     }
   }
+
+
+  // void _loadCartItems() async {
+  //   try {
+  //     final isOnline = await ConnectivityService().isOnline();
+
+  //     final customerId = widget.customerId ??
+  //         widget.productsController.selectedCustomerId.value;
+  //     final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
+
+  //     if (isDraftView) {
+  //       if (!isOnline) {
+  //         var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+  //         List<dynamic> drafts =
+  //             offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+  //         final draft = drafts.firstWhere(
+  //           (d) => d['customer_id'] == customerId,
+  //           orElse: () => null,
+  //         );
+
+  //         if (draft != null && draft['details'] != null) {
+  //           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //           final List details = draft['details'];
+  //           final draftBox = Hive.box<CartItem>('draftBox');
+
+  //           final keysToRemove = draftBox.keys.where((key) {
+  //             final item = draftBox.get(key);
+  //             return item != null && item.customerId == customerId;
+  //           }).toList();
+
+  //           for (var key in keysToRemove) {
+  //             draftBox.get(key);
+  //             await draftBox.delete(key);
+  //           }
+
+  //           for (var detail in details) {
+  //             final cartItem = CartItem(
+  //               detail: Detail(
+  //                 productId: detail['product_id'],
+  //                 variationId: detail['variant_id'],
+  //                 sellPrice: detail['price'],
+  //                 discount: detail['discount'],
+  //                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+  //                 pieces: int.tryParse(detail['pack'] ?? '0'),
+  //                 variationName: detail['variant_name'],
+  //                 saleBy: detail['packType'],
+  //                 stock: detail['stock'] ?? 0,
+  //                 unitType: detail['unitType'],
+  //               ),
+  //               productName: detail['variant_name'] ?? '',
+  //               totalPrice:
+  //                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+  //               isPack: detail['packType'] == 'Pack',
+  //               customerId: customerId,
+  //               salesmanId: salesmanId,
+  //               catId: 0,
+  //             );
+  //             await draftBox.add(cartItem);
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     // --- End offline draft loading ---
+
+  //     widget.productsController.cartItems = await CartDatabaseManager()
+  //         .getCartItems(customerId, draftsOnly: isDraftView);
+
+  //     await setCartToOrderAndPreorder();
+
+  //     for (var item in widget.productsController.cartItems) {
+  //       item.isChecked = true;
+  //       final count = item.detail.count;
+  //       final pieces = item.detail.pieces ?? 1;
+  //       final sellPrice =
+  //           double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+  //       final tax = item.detail.tax?.toDouble() ?? 0.0;
+  //       final inclTax = item.detail.inclTax;
+  //       if (item.isPack == true || item.detail.packtype == 'Pack') {
+  //         item.totalPrice = (count * pieces * sellPrice);
+  //       } else {
+  //         item.totalPrice = (count * sellPrice);
+  //       }
+  //       if (inclTax != 'incl_tax') {
+  //         if (item.isPack == true || item.detail.packtype == 'Pack') {
+  //           item.totalPrice += (count * pieces * tax);
+  //         } else {
+  //           item.totalPrice += (count * tax);
+  //         }
+  //       }
+  //     }
+  //     for (var item in widget.productsController.preorderItems) {
+  //       item.isChecked = true;
+  //       final count = item.detail.count;
+  //       final pieces = item.detail.pieces ?? 1;
+  //       final sellPrice =
+  //           double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+  //       final tax = item.detail.tax?.toDouble() ?? 0.0;
+  //       final inclTax = item.detail.inclTax;
+  //       if (item.isPack == true || item.detail.packtype == 'Pack') {
+  //         item.totalPrice = (count * pieces * sellPrice);
+  //       } else {
+  //         item.totalPrice = (count * sellPrice);
+  //       }
+  //       if (inclTax != 'incl_tax') {
+  //         if (item.isPack == true || item.detail.packtype == 'Pack') {
+  //           item.totalPrice += (count * pieces * tax);
+  //         } else {
+  //           item.totalPrice += (count * tax);
+  //         }
+  //       }
+  //     }
+  //     orderSubtotal =
+  //         widget.productsController.orderItems.fold(0.0, (sum, item) {
+  //       return item.isChecked! ? sum + (item.totalPrice) : sum;
+  //     });
+  //     preorderSubtotal =
+  //         widget.productsController.preorderItems.fold(0.0, (sum, item) {
+  //       return item.isChecked! ? sum + (item.totalPrice) : sum;
+  //     });
+  //     orderTax = widget.productsController.orderItems.fold(
+  //       0.0,
+  //       (sum, item) {
+  //         if (item.isChecked == true) {
+  //           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+  //           if (item.isPack == true || item.detail.packtype == "Pack") {
+  //             return sum +
+  //                 (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+  //           } else {
+  //             return sum + (itemTax * (item.detail.count));
+  //           }
+  //         } else {
+  //           return 0;
+  //         }
+  //       },
+  //     );
+  //     preorderTax = widget.productsController.preorderItems.fold(
+  //       0.0,
+  //       (sum, item) {
+  //         if (item.isChecked == true) {
+  //           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+  //           if (item.isPack == true || item.detail.packtype == "Pack") {
+  //             return sum +
+  //                 (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+  //           } else {
+  //             return sum + (itemTax * (item.detail.count));
+  //           }
+  //         } else {
+  //           return 0;
+  //         }
+  //       },
+  //     );
+  //     totalDiscount = widget.productsController.orderItems.fold(
+  //       0.0,
+  //       (sum, item) {
+  //         if (item.isChecked != true) return sum;
+
+  //         final double sellPrice =
+  //             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+  //         final double discountPercentage =
+  //             double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+  //         final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+  //         // Calculate total quantity
+  //         final double totalQuantity =
+  //             (item.isPack == true || item.detail.packtype == 'Pack')
+  //                 ? (item.detail.pieces?.toDouble() ?? 1) *
+  //                     item.detail.count.toDouble()
+  //                 : item.detail.count.toDouble();
+
+  //         // Calculate total price before discount
+  //         final double totalPrice = sellPrice * totalQuantity;
+
+  //         // Calculate discount amount
+  //         double discountAmount = totalPrice * (discountPercentage / 100);
+
+  //         // Apply max discount cap if applicable
+  //         if (maxDiscount != null &&
+  //             maxDiscount > 0 &&
+  //             discountAmount > maxDiscount) {
+  //           discountAmount = maxDiscount;
+  //         }
+
+  //         return sum + discountAmount;
+  //       },
+  //     );
+  //     totalDiscountPreorder = widget.productsController.preorderItems.fold(
+  //       0.0,
+  //       (sum, item) {
+  //         if (item.isChecked != true) return sum;
+
+  //         final double sellPrice =
+  //             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+  //         final double discountPercentage =
+  //             double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+  //         final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+  //         // Calculate total quantity
+  //         final double totalQuantity =
+  //             (item.isPack == true || item.detail.packtype == 'Pack')
+  //                 ? (item.detail.pieces?.toDouble() ?? 1) *
+  //                     item.detail.count.toDouble()
+  //                 : item.detail.count.toDouble();
+
+  //         // Calculate total price before discount
+  //         final double totalPrice = sellPrice * totalQuantity;
+
+  //         // Calculate discount amount
+  //         double discountAmount = totalPrice * (discountPercentage / 100);
+
+  //         // Apply max discount cap if applicable
+  //         if (maxDiscount != null &&
+  //             maxDiscount > 0 &&
+  //             discountAmount > maxDiscount) {
+  //           discountAmount = maxDiscount;
+  //         }
+
+  //         return sum + discountAmount;
+  //       },
+  //     );
+  //     setState(() {
+  //       quantities = List.generate(
+  //           widget.productsController.cartItems.length, (index) => 1);
+  //       _isLoading = false;
+  //       widget.productsController.orderItems =
+  //           widget.productsController.orderItems;
+  //       widget.productsController.preorderItems =
+  //           widget.productsController.preorderItems;
+  //       orderSubtotal =
+  //           Utils().calculateSubtotal(widget.productsController.orderItems);
+  //       orderTax =
+  //           Utils().calculateTotalTax(widget.productsController.orderItems);
+  //       preorderSubtotal =
+  //           Utils().calculateSubtotal(widget.productsController.preorderItems);
+  //       preorderTax =
+  //           Utils().calculateTotalTax(widget.productsController.preorderItems);
+  //     });
+  //     if (widget.productsController.orderItems.isNotEmpty) {
+  //       isOrder = true;
+  //       _selectedValue = _options[0];
+  //     } else if (widget.productsController.preorderItems.isNotEmpty) {
+  //       isOrder = false;
+  //       _selectedValue = _options[2];
+  //     }
+  //     setOptions();
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
   Future<void> setCartToOrderAndPreorder() async {
     List<CartItem> orderItems = [];
@@ -2441,6 +2703,8 @@ onTap: () async {
                     isPromo: true,
                     promoCode: item.promoCode ?? '',
                     promoMsg: item.promoMsg ?? '',
+                    customerDiscount: item.CustomerDiscount,
+                    promoDiscount: item.tieredDiscount,
                   );
                 }
               } else {
@@ -2456,6 +2720,8 @@ onTap: () async {
                   variantName: e.variationName ?? '',
                   isPromo: false,
                   promoCode: "",
+                  customerDiscount: item.CustomerDiscount,
+                  promoDiscount: item.tieredDiscount,
                 );
               }
             }).toList()),
@@ -3195,6 +3461,31 @@ onTap: () async {
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
     double padding = availableWidth > 400 ? 6 : 3;
+    ProductsController productsController = Get.find<ProductsController>();
+    // final promo = productsController.selectedPromotion.value;
+    // final bool isTieredDiscount = promo?.promoType == "tiered_discount";
+    final bool isTieredDiscount =
+        productsController.selectedPromotion.value?.promoType ==
+            "tiered_discount";
+
+// Initial quantity becomes the tier step
+    final tierStep = cartItem.detail.initialCount;
+    print('tieredstep:$tierStep');
+// final  minTierQty = tierStep;
+
+    // void showTieredDiscountWarning() {
+    //   Get.snackbar(
+    //     "Quantity Locked",
+    //     "Unable to add quantity",
+    //     snackPosition: SnackPosition.TOP,
+    //     backgroundColor: Colors.red,
+    //     colorText: Colors.white,
+    //     margin: const EdgeInsets.all(10),
+    //     duration: const Duration(seconds: 3),
+    //     icon: const Icon(Icons.lock_outline, color: Colors.yellow),
+    //   );
+    // }
+
     return Container(
       width: availableWidth > 400 ? 80 : 50,
       decoration: BoxDecoration(
@@ -3214,22 +3505,53 @@ onTap: () async {
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    if (cartItem.detail.count > 1) {
-                      cartItem.detail.count--;
-                      cartItem.totalPrice = Utils().calculateTotalPrice(
-                          cartItem, cartItem.detail.count.toInt());
-                      calculateAmounts();
-                      CartDatabaseManager().updateCart(cartItem);
-                      CartDatabaseManager()
-                          .getCartItems(cartItem.customerId ?? '');
-                      widget.productsController.isCartModified.value = true;
+                    if (isTieredDiscount) {
+                      // Do not allow decrement below initial tier quantity
+                      // if (cartItem.detail.count <= minTierQty) {
+                      //   // showTieredDiscountWarning();
+                      //   return;
+                      // }
+
+                      cartItem.detail.count -= tierStep!;
+                      print('tierstep ontap:${cartItem.detail.count}');
+                      // if (cartItem.detail.count < minTierQty) {
+                      //   cartItem.detail.count = minTierQty;
+                      // }
+                    } else {
+                      if (cartItem.detail.count > 1) {
+                        cartItem.detail.count--;
+                      }
                     }
+
+                    cartItem.totalPrice = Utils().calculateTotalPrice(
+                        cartItem, cartItem.detail.count.toInt());
+
+                    calculateAmounts();
+                    CartDatabaseManager().updateCart(cartItem);
+                    widget.productsController.isCartModified.value = true;
                   });
                 },
+
+                // onTap:  () {
+                //         setState(() {
+                //           if (cartItem.detail.count > 1) {
+                //             cartItem.detail.count--;
+                //             cartItem.totalPrice = Utils().calculateTotalPrice(
+                //                 cartItem, cartItem.detail.count.toInt());
+                //             calculateAmounts();
+                //             CartDatabaseManager().updateCart(cartItem);
+                //             CartDatabaseManager()
+                //                 .getCartItems(cartItem.customerId ?? '');
+                //             widget.productsController.isCartModified.value =
+                //                 true;
+                //           }
+                //         });
+                //       },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
                   child: CustomText(
-                    color: white,
+                    color: Colors.white,
+                    // color: isTieredDiscount ? Colors.grey : white,
                     content: '-',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -3254,18 +3576,36 @@ onTap: () async {
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem.detail.count++;
+                    if (isTieredDiscount) {
+                      cartItem.detail.count += tierStep!;
+                    } else {
+                      cartItem.detail.count++;
+                    }
+
                     cartItem.totalPrice = Utils().calculateTotalPrice(
                         cartItem, cartItem.detail.count.toInt());
+
                     calculateAmounts();
                     CartDatabaseManager().updateCart(cartItem);
                     widget.productsController.isCartModified.value = true;
                   });
                 },
+
+                // onTap: () {
+                //         setState(() {
+                //           cartItem.detail.count++;
+                //           cartItem.totalPrice = Utils().calculateTotalPrice(
+                //               cartItem, cartItem.detail.count.toInt());
+                //           calculateAmounts();
+                //           CartDatabaseManager().updateCart(cartItem);
+                //           widget.productsController.isCartModified.value = true;
+                //         });
+                //       },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
                   child: CustomText(
-                    color: white,
+                    color: Colors.white,
+                    // color: isTieredDiscount ? Colors.grey : white,
                     content: '+',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -3279,6 +3619,95 @@ onTap: () async {
       ),
     );
   }
+
+
+  // Container productQuantityManager(CartItem cartItem, String sellPrice,
+  //     double fontSize, double availableWidth) {
+  //   double padding = availableWidth > 400 ? 6 : 3;
+  //   return Container(
+  //     width: availableWidth > 400 ? 80 : 50,
+  //     decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(5),
+  //         color: const Color.fromARGB(255, 241, 240, 240)),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //               color: primaryColor,
+  //               borderRadius: BorderRadius.only(
+  //                   topLeft: Radius.circular(5),
+  //                   bottomLeft: Radius.circular(5))),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   if (cartItem.detail.count > 1) {
+  //                     cartItem.detail.count--;
+  //                     cartItem.totalPrice = Utils().calculateTotalPrice(
+  //                         cartItem, cartItem.detail.count.toInt());
+  //                     calculateAmounts();
+  //                     CartDatabaseManager().updateCart(cartItem);
+  //                     CartDatabaseManager()
+  //                         .getCartItems(cartItem.customerId ?? '');
+  //                     widget.productsController.isCartModified.value = true;
+  //                   }
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: EdgeInsets.symmetric(horizontal: padding),
+  //                 child: CustomText(
+  //                   color: white,
+  //                   content: '-',
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.bold,
+  //                   textAlign: TextAlign.center,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         CustomText(
+  //           content: cartItem.detail.count.toStringAsFixed(0),
+  //           fontSize: fontSize,
+  //         ),
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //               color: primaryColor,
+  //               borderRadius: BorderRadius.only(
+  //                   topRight: Radius.circular(5),
+  //                   bottomRight: Radius.circular(5))),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem.detail.count++;
+  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
+  //                       cartItem, cartItem.detail.count.toInt());
+  //                   calculateAmounts();
+  //                   CartDatabaseManager().updateCart(cartItem);
+  //                   widget.productsController.isCartModified.value = true;
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: EdgeInsets.symmetric(horizontal: padding),
+  //                 child: CustomText(
+  //                   color: white,
+  //                   content: '+',
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.bold,
+  //                   textAlign: TextAlign.center,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void calculateAmounts() {
     setState(() {

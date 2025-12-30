@@ -20,46 +20,117 @@ class GroupedItemDataRows {
   }) {
     return groupedItems.map((groupedItem) {
       // Calculate base price and total quantity
-      final double basePrice =
-          double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
-              0.0;
+      // final double basePrice =
+      //     double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
+      //         0.0;
+      final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
+          ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+              ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+                  groupedItem.detail.count.toDouble()
+              : groupedItem.detail.count.toDouble()) *
+          ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
+                  0.0) /
+              100));
       final double totalQuantity =
           (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
               ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
                   groupedItem.detail.count.toDouble()
               : groupedItem.detail.count.toDouble();
 
-      // Calculate total base price before discount
-      final double totalBasePrice = basePrice * totalQuantity;
 
-      // Get discount percentage and max discount if available
-      final double discountPercentage =
-          double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
-              0.0;
-      final double? maxDiscount = groupedItem.detail.maxDiscount?.toDouble();
+double totalPrice = groupedItem.totalPrice;
 
-      // Calculate uncapped discount amount
-      double uncappedDiscountAmount =
-          totalBasePrice * (discountPercentage / 100);
+// ✅ Use backend values if available, don't overwrite
+double CustomerDiscount;
+if (groupedItem.CustomerDiscount != null && groupedItem.CustomerDiscount! > 0) {
+  // Already set from backend
+  CustomerDiscount = groupedItem.CustomerDiscount!;
+  print('Using backend customer discount: $CustomerDiscount');
+} else {
+  // Not set, use 0
+  CustomerDiscount = 0.0;
+}
 
-      // Apply max discount cap if available
-      double actualDiscountAmount = uncappedDiscountAmount;
-      if (maxDiscount != null &&
-          maxDiscount > 0 &&
-          uncappedDiscountAmount > maxDiscount) {
-        actualDiscountAmount = maxDiscount;
-      }
+num tieredDiscount;
+if (groupedItem.tieredDiscount != null && groupedItem.tieredDiscount! > 0) {
+  // Already set from backend
+  tieredDiscount = groupedItem.tieredDiscount!;
+  print('Using backend tiered discount: $tieredDiscount');
+} else {
+  // Not set, use 0
+  tieredDiscount = 0;
+}
 
-      // Calculate tax discount based on actual discount percentage
-      final double effectiveDiscountPercentage = totalBasePrice > 0
-          ? (actualDiscountAmount / totalBasePrice) * 100
-          : 0;
-      final taxDiscountAmount = (groupedItem.detail.tax ?? 0.0) *
-          totalQuantity *
-          (effectiveDiscountPercentage / 100);
+print('tiered discount in calculations: $tieredDiscount');
 
-      // Set the discount price for display
-      final discountPrice = actualDiscountAmount;
+// Calculate total discount percentage (or use backend value if available)
+double totalDiscountPercent = CustomerDiscount + tieredDiscount;
+
+// ✅ Use existing discount amount if available, otherwise calculate
+double totalDiscountAmount;
+if (groupedItem.totalDiscountAmount != null && groupedItem.totalDiscountAmount! > 0) {
+  // Already set from backend - don't recalculate
+  totalDiscountAmount = groupedItem.totalDiscountAmount!;
+  print('Using backend discount amount: $totalDiscountAmount');
+} else {
+  // Calculate for new items
+  totalDiscountAmount = totalPrice * (totalDiscountPercent / 100.0);
+  groupedItem.totalDiscountAmount = totalDiscountAmount;
+  print('Calculated discount amount: $totalDiscountAmount');
+}
+
+// Calculate final price
+double finalPrice = totalPrice - totalDiscountAmount;
+groupedItem.finalPrice = finalPrice;
+
+
+
+//       double totalPrice = groupedItem.totalPrice;
+//       final double CustomerDiscount = groupedItem.CustomerDiscount ?? 0.0;
+//       print('customerdiscountttt:$CustomerDiscount');
+//       var tieredDiscount = groupedItem.tieredDiscount ?? 0;
+//       double totalDiscountPercent = CustomerDiscount + tieredDiscount;
+
+// // // Calculate total discount amount (in currency, not percent)
+//       double totalDiscountAmount = totalPrice * (totalDiscountPercent / 100.0);
+
+// // // Optional: Calculate final price after discount
+//       double finalPrice = totalPrice - totalDiscountAmount;
+
+//       groupedItem.totalDiscountAmount = totalDiscountAmount;
+      groupedItem.finalPrice = finalPrice;
+
+      // // Calculate total base price before discount
+      // final double totalBasePrice = basePrice * totalQuantity;
+
+      // // Get discount percentage and max discount if available
+      // final double discountPercentage =
+      //     double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
+      //         0.0;
+      // final double? maxDiscount = groupedItem.detail.maxDiscount?.toDouble();
+
+      // // Calculate uncapped discount amount
+      // double uncappedDiscountAmount =
+      //     totalBasePrice * (discountPercentage / 100);
+
+      // // Apply max discount cap if available
+      // double actualDiscountAmount = uncappedDiscountAmount;
+      // if (maxDiscount != null &&
+      //     maxDiscount > 0 &&
+      //     uncappedDiscountAmount > maxDiscount) {
+      //   actualDiscountAmount = maxDiscount;
+      // }
+
+      // // Calculate tax discount based on actual discount percentage
+      // final double effectiveDiscountPercentage = totalBasePrice > 0
+      //     ? (actualDiscountAmount / totalBasePrice) * 100
+      //     : 0;
+      // final taxDiscountAmount = (groupedItem.detail.tax ?? 0.0) *
+      //     totalQuantity *
+      //     (effectiveDiscountPercentage / 100);
+
+      // // Set the discount price for display
+      // final discountPrice = actualDiscountAmount;
       final tax = (groupedItem.detail.tax ?? 0) *
           (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
               ? (groupedItem.detail.pieces ?? 0) * groupedItem.detail.count
@@ -558,13 +629,25 @@ class GroupedItemDataRows {
               fontSize: fontSize,
               maxLines: 1,
               content: formatAmount(groupedItem.detail.sellPrice ?? '0'))),
-          DataCell(TableContent(
-              fontSize: fontSize,
-              maxLines: 2,
-              content: (groupedItem.detail.packtype == 'Pack' ||
-                      groupedItem.isPack == true)
-                  ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
-                  : 'Pcs')),
+               DataCell(
+  TableContent(
+    fontSize: fontSize,
+    maxLines: 2,
+    content: (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
+        // If it is a pack, show Pack and Pcs. 
+        // If packtype itself is null but isPack is true, it fallbacks to 'Bulk'
+        ? '${groupedItem.detail.packtype ?? 'Bulk'} \n(${groupedItem.detail.pieces ?? 0} Pcs)'
+        // If it's not a pack, check if packtype is null. If so, show 'Bulk', otherwise 'Pcs'
+        : (groupedItem.detail.packtype == null ? 'Bulk' : 'Pcs'),
+  ),
+),
+          // DataCell(TableContent(
+          //     fontSize: fontSize,
+          //     maxLines: 2,
+          //     content: (groupedItem.detail.packtype == 'Pack' ||
+          //             groupedItem.isPack == true)
+          //         ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
+          //         : 'Pcs')),
           DataCell(
             TableContent(
                 fontSize: fontSize,
@@ -579,27 +662,257 @@ class GroupedItemDataRows {
                           : 1),
                 )),
           ),
-          DataCell(
-            TableContent(
-              maxLines: 1,
-              fontSize: fontSize,
-              content: formatAmount(discountPrice),
-              // Add visual indicator for max discount cap
-              suffix: maxDiscount != null &&
-                      maxDiscount > 0 &&
-                      uncappedDiscountAmount > maxDiscount
-                  ? " (max)"
-                  : null,
-              suffixStyle: maxDiscount != null &&
-                      maxDiscount > 0 &&
-                      uncappedDiscountAmount > maxDiscount
-                  ? const TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10)
-                  : null,
+            DataCell(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TableContent(
+                    maxLines: 1,
+                    fontSize: fontSize,
+                    content: formatAmount(totalDiscountAmount),
+                  ),
+                ),
+                 if (totalDiscountAmount > 0)
+                InkWell(
+                  child: const Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
+                  onTap: () {
+                    // Original selling price per unit
+                    final double basePricePerUnit = double.tryParse(
+                            groupedItem.detail.sellPrice?.toString() ?? '0') ??
+                        0.0;
+
+                    // Price per sellable unit (pack = whole pack price, else per piece)
+                    final double pricePerSellableUnit =
+                        (groupedItem.isPack == true ||
+                                groupedItem.detail.packtype == 'Pack')
+                            ? basePricePerUnit
+                            : basePricePerUnit;
+
+                    // Total original price before any discount
+                    final double originalTotalPrice =
+                        pricePerSellableUnit * totalQuantity;
+
+                    // Discounts
+                    final double userFlatDiscountPerUnit =
+                        CustomerDiscount; // flat amount per unit
+                    final promoDiscountPercents = tieredDiscount;
+                    final double promoDiscountAmountPerUnit =
+                        (pricePerSellableUnit * tieredDiscount) / 100;
+
+                    // Total discount per unit and overall
+                    final double totalDiscountPerUnit =
+                        userFlatDiscountPerUnit + promoDiscountAmountPerUnit;
+                    final double totalDiscountApplied =
+                        totalDiscountPercent; // already quantity × per unit discount
+
+                    // Effective percentage calculations
+                    final double userDiscountPercent = pricePerSellableUnit > 0
+                        ? (userFlatDiscountPerUnit / pricePerSellableUnit) * 100
+                        : 0.0;
+
+                    final double totalEffectiveDiscountPercent =
+                        originalTotalPrice > 0
+                            ? (totalDiscountApplied / originalTotalPrice) * 100
+                            : 0.0;
+
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)),
+                        elevation: 12,
+                        title: const Row(
+                          children: [
+                            Icon(Icons.discount_outlined,
+                                color: Colors.deepPurple, size: 28),
+                            SizedBox(width: 12),
+                            Text(
+                              "Discount Details",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
+                          ],
+                        ),
+                        content: Container(
+                          width: 340,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFF3E8FF), Color(0xFFE0E7FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Item name and quantity
+                              Center(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      groupedItem.detail.productName ?? "Item",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 17),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "${totalQuantity.toInt()} × ${groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack' ? 'Pack' : 'Piece'}",
+                                      style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+
+                              // Original Price
+                              // _buildPriceRow(
+                              //   label: "Original Price",
+                              //   amount: originalTotalPrice,
+                              //   isTotal: true,
+                              // ),
+                              const SizedBox(height: 16),
+
+                              // User Discount (as %)
+                              if (CustomerDiscount > 0) ...[
+                                _buildDiscountRow(
+                                  icon: Icons.card_giftcard_rounded,
+                                  label: "Customer Discount",
+                                  percent: CustomerDiscount,
+                                  amount: CustomerDiscount * totalQuantity,
+                                  color: Colors.orange.shade700,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+
+                              // Promo Discount
+                              if (tieredDiscount > 0) ...[
+                                _buildDiscountRow(
+                                  icon: Icons.local_offer_outlined,
+                                  label: "Promo Offer",
+                                  percent: tieredDiscount,
+                                  amount: promoDiscountAmountPerUnit * totalQuantity,
+                                  color: Colors.green.shade700,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+
+                              if (CustomerDiscount == 0 && tieredDiscount == 0)
+                                const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    "No discount applied",
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 16),
+                                  ),
+                                ),
+
+                              const Divider(thickness: 1.5, height: 32),
+
+                              // Total Savings Highlight
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple.shade600,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "You Saved",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      "${totalDiscountPercent.toStringAsFixed(1)}%",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 12),
+                              // Center(
+                              //   child: Text(
+                              //     "₹${formatAmount(totalDiscountApplied)} off",
+                              //     style: TextStyle(
+                              //       fontSize: 17,
+                              //       fontWeight: FontWeight.w700,
+                              //       color: Colors.deepPurple.shade700,
+                              //     ),
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          Center(
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.check, size: 20),
+                              label: const Text("Got it",
+                                  style: TextStyle(fontSize: 16)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepPurple.shade600,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 36, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                              ),
+                            ),
+                          ),
+                        ],
+                        actionsPadding: const EdgeInsets.only(bottom: 16),
+                      ),
+                    );
+                  },
+//
+                ),
+              ],
             ),
           ),
+          // DataCell(
+          //   TableContent(
+          //     maxLines: 1,
+          //     fontSize: fontSize,
+          //     content: formatAmount(discountPrice),
+          //     // Add visual indicator for max discount cap
+          //     suffix: maxDiscount != null &&
+          //             maxDiscount > 0 &&
+          //             uncappedDiscountAmount > maxDiscount
+          //         ? " (max)"
+          //         : null,
+          //     suffixStyle: maxDiscount != null &&
+          //             maxDiscount > 0 &&
+          //             uncappedDiscountAmount > maxDiscount
+          //         ? const TextStyle(
+          //             color: Colors.red,
+          //             fontWeight: FontWeight.bold,
+          //             fontSize: 10)
+          //         : null,
+          //   ),
+          // ),
           DataCell(
             TableContent(
                 maxLines: 1,
@@ -622,16 +935,10 @@ class GroupedItemDataRows {
               ),
             ),
           ),
-          DataCell(
+           DataCell(
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-                // child: CustomText(
-                //   content: formatAmount(groupedItem.totalPrice),
-                //   textAlign: TextAlign.right,
-                //   fontSize: fontSize,
-                //   maxLine: 1,
-                // ),
                 child: Builder(builder: (context) {
                   // Recalculate total price for promo items to ensure it's always up-to-date
                   double displayTotal = groupedItem.totalPrice;
@@ -681,7 +988,7 @@ class GroupedItemDataRows {
                   }
 
                   return CustomText(
-                    content: formatAmount(displayTotal),
+                    content: formatAmount(finalPrice),
                     textAlign: TextAlign.right,
                     fontSize: fontSize,
                     maxLine: 1,
@@ -690,6 +997,74 @@ class GroupedItemDataRows {
               ),
             ),
           ),
+          // DataCell(
+          //   Center(
+          //     child: ConstrainedBox(
+          //       constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
+          //       // child: CustomText(
+          //       //   content: formatAmount(groupedItem.totalPrice),
+          //       //   textAlign: TextAlign.right,
+          //       //   fontSize: fontSize,
+          //       //   maxLine: 1,
+          //       // ),
+          //       child: Builder(builder: (context) {
+          //         // Recalculate total price for promo items to ensure it's always up-to-date
+          //         double displayTotal = groupedItem.totalPrice;
+
+          //         if (groupedItem.isPromo ?? false) {
+          //           double basePrice =
+          //               double.tryParse(groupedItem.detail.sellPrice ?? '0') ??
+          //                   0;
+          //           int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
+          //           num count = groupedItem.detail.count;
+          //           num tax = groupedItem.detail.tax ?? 0;
+          //           double discountPercentage =
+          //               groupedItem.detail.discount?.toDouble() ?? 0;
+          //           double? maxDiscount =
+          //               groupedItem.detail.maxDiscount?.toDouble();
+
+          //           // Calculate total quantity and base price
+          //           num totalCount =
+          //               groupedItem.isPack == true ? count * pieces : count;
+          //           double totalBasePrice = basePrice * totalCount;
+
+          //           // Calculate discount with max discount cap
+          //           double uncappedDiscountAmount =
+          //               totalBasePrice * (discountPercentage / 100);
+          //           double actualDiscountAmount = uncappedDiscountAmount;
+
+          //           if (maxDiscount != null &&
+          //               maxDiscount > 0 &&
+          //               uncappedDiscountAmount > maxDiscount) {
+          //             actualDiscountAmount = maxDiscount;
+          //           }
+
+          //           // Calculate effective discount percentage and apply to price and tax
+          //           double effectiveDiscountPercentage = totalBasePrice > 0
+          //               ? (actualDiscountAmount / totalBasePrice) * 100
+          //               : 0;
+          //           double effectiveSellingPrice =
+          //               basePrice * (1 - effectiveDiscountPercentage / 100);
+          //           tax = tax * (1 - effectiveDiscountPercentage / 100);
+
+          //           double priceWithTax =
+          //               groupedItem.detail.inclTax == "incl_tax"
+          //                   ? effectiveSellingPrice
+          //                   : effectiveSellingPrice + tax;
+
+          //           displayTotal = priceWithTax * totalCount;
+          //         }
+
+          //         return CustomText(
+          //           content: formatAmount(displayTotal),
+          //           textAlign: TextAlign.right,
+          //           fontSize: fontSize,
+          //           maxLine: 1,
+          //         );
+          //       }),
+          //     ),
+          //   ),
+          // ),
           DataCell(
             Center(
               child: SizedBox(
@@ -714,6 +1089,59 @@ class GroupedItemDataRows {
   }
 }
 
+Widget _buildDiscountRow({
+  required IconData icon,
+  required String label,
+  required percent,
+  required double amount,
+  required Color color,
+}) {
+  return Row(
+    children: [
+      Icon(icon, color: color, size: 28),
+      const SizedBox(width: 14),
+      Expanded(
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "-${percent.toStringAsFixed(1)}%",
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
+            // const SizedBox(width: 8),
+            // Text(
+            //   "(₹${formatAmount(amount)})",
+            //   style: TextStyle(
+            //     // color: color.white. shade700,
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.w600,
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
 // ignore: must_be_immutable
 class TableContent extends StatelessWidget {
   double fontSize;

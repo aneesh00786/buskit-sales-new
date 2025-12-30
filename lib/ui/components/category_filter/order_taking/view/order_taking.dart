@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/view/bulk_screen.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search_warning_dialog.dart';
@@ -288,7 +289,8 @@ class _OrderTakingState extends State<OrderTaking>
     // log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      appBar: 
+       AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         shadowColor: Colors.transparent,
@@ -302,17 +304,20 @@ class _OrderTakingState extends State<OrderTaking>
         leading: homeController.selectedIndex.value == 2
             ? SizedBox.shrink()
             : SingleChildScrollView(
-                child: IconButton(
-                  onPressed: () async {
-                    widget.productsController.handleBackNavigation(
+                child: 
+                IconButton(
+                   onPressed: () async {
+                     widget.productsController.handleBackNavigation(
                       context: context,
                       isDirectDialogue: widget.isDirectDialogue,
-                      isFromOrder: widget.isFromOrder,
+                       isFromOrder: widget.isFromOrder,
                       isFromCalender: widget.isFromCalender,
+                      // isFromProducts: widget.isFromProducts,
                       customerId:
                           widget.productsController.selectedCustomerId.value,
                       homeController: homeController,
                     );
+                   
                     await Provider.of<CustomersProvider>(context, listen: false)
                         .fetchOrdersForCustomDash(
                       OrderStatus.draft,
@@ -327,6 +332,29 @@ class _OrderTakingState extends State<OrderTaking>
                         .fetchCustomerDashboardCountData(
                             widget.productsController.selectedCustomerId.value);
                   },
+                  // onPressed: () async {
+                  //   widget.productsController.handleBackNavigation(
+                  //     context: context,
+                  //     isDirectDialogue: widget.isDirectDialogue,
+                  //     isFromProducts: widget.isFromProducts,
+                  //     customerId:
+                  //         widget.productsController.selectedCustomerId.value,
+                  //     homeController: homeController,
+                  //   );
+                  //   await Provider.of<CustomersProvider>(context, listen: false)
+                  //       .fetchOrdersForCustomDash(
+                  //     OrderStatus.draft,
+                  //     widget.productsController.selectedCustomerId.value,
+                  //   );
+                  //   await Provider.of<DashboardProvider>(context, listen: false)
+                  //       .fetchData();
+                  //   await Provider.of<DashboardProvider>(context, listen: false)
+                  //       .fetchOrdersData(OrderStatus.draft);
+                  //   await CartDatabaseManager().getDraftItems();
+                  //   Provider.of<CustomersProvider>(context, listen: false)
+                  //       .fetchCustomerDashboardCountData(
+                  //           widget.productsController.selectedCustomerId.value);
+                  // },
                   icon: const Icon(Icons.arrow_back_ios),
                 ),
               ),
@@ -419,14 +447,14 @@ class _OrderTakingState extends State<OrderTaking>
                             ),
                           ),
                           const NotificationWidget(startDate: '', endDate: ''),
-                          profiloe(),
+                          // profiloe(),
                         ],
                       ),
                       SizedBox(height: 10),
                       Row(
                         children: [
                           Container(
-                            width: fullScreenWidth(context) * 0.4,
+                            width: fullScreenWidth(context) * 0.6,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
@@ -509,6 +537,45 @@ class _OrderTakingState extends State<OrderTaking>
                                     ),
                                   ),
                                 ),
+
+                                Expanded(
+                            child: InkWell(
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(10),
+                                bottomRight: Radius.circular(10),
+                              ),
+                              onTap: () {
+                                setState(() => selectedIndex = 2);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: selectedIndex == 2
+                                      ? skyBlueColor
+                                      : Colors.white,
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                    bottomRight: Radius.circular(10),
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  "Bulk",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: selectedIndex == 2
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                                
+
+                                
                               ],
                             ),
                           ),
@@ -525,7 +592,7 @@ class _OrderTakingState extends State<OrderTaking>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        width: fullScreenWidth(context) * 0.4,
+                        width: fullScreenWidth(context) * 0.6,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           border:
@@ -595,7 +662,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Promotions  ",
+                                    "Promotions",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -606,7 +673,44 @@ class _OrderTakingState extends State<OrderTaking>
                                   ),
                                 ),
                               ),
+                              
                             ),
+
+                            Expanded(
+                        child: InkWell(
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                          onTap: () {
+                            setState(() => selectedIndex = 2);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: selectedIndex == 2
+                                  ? skyBlueColor
+                                  : Colors.white,
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(10),
+                                bottomRight: Radius.circular(10),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              "Bulk",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: selectedIndex == 2
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                           ],
                         ),
                       ),
@@ -688,678 +792,1610 @@ class _OrderTakingState extends State<OrderTaking>
                         ),
                       ),
                       const NotificationWidget(startDate: '', endDate: ''),
-                      profiloe(),
+                      // profiloe(),
                     ],
                   ),
                 )
               ],
       ),
-      body: Obx(() {
-        final FocusNode customerFocusNode = FocusNode();
-        if (selectedIndex == 0) {
-          if (widget.productsController.categoryData.value.data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              Column(
+      // AppBar(
+      //   backgroundColor: Colors.white,
+      //   surfaceTintColor: Colors.white,
+      //   shadowColor: Colors.transparent,
+      //   centerTitle: true,
+      //   elevation: 0,
+      //   title: const Text(
+      //     'Products',
+      //     style: TextStyle(fontWeight: FontWeight.bold),
+      //   ),
+      //   toolbarHeight: isPhonePortrait(context) ? 120 : null,
+      //   leading: homeController.selectedIndex.value == 2
+      //       ? SizedBox.shrink()
+      //       : SingleChildScrollView(
+      //           child: IconButton(
+      //             onPressed: () async {
+      //               widget.productsController.handleBackNavigation(
+      //                 context: context,
+      //                 isDirectDialogue: widget.isDirectDialogue,
+      //                 isFromOrder: widget.isFromOrder,
+      //                 isFromCalender: widget.isFromCalender,
+      //                 customerId:
+      //                     widget.productsController.selectedCustomerId.value,
+      //                 homeController: homeController,
+      //               );
+      //               await Provider.of<CustomersProvider>(context, listen: false)
+      //                   .fetchOrdersForCustomDash(
+      //                 OrderStatus.draft,
+      //                 widget.productsController.selectedCustomerId.value,
+      //               );
+      //               await Provider.of<DashboardProvider>(context, listen: false)
+      //                   .fetchData();
+      //               await Provider.of<DashboardProvider>(context, listen: false)
+      //                   .fetchOrdersData(OrderStatus.draft);
+      //               await CartDatabaseManager().getDraftItems();
+      //               Provider.of<CustomersProvider>(context, listen: false)
+      //                   .fetchCustomerDashboardCountData(
+      //                       widget.productsController.selectedCustomerId.value);
+      //             },
+      //             icon: const Icon(Icons.arrow_back_ios),
+      //           ),
+      //         ),
+      //   actions: isPhonePortrait(context)
+      //       ? [
+      //           SizedBox(
+      //             width: MediaQuery.of(context).size.width * 0.8,
+      //             child: Column(
+      //               mainAxisSize: MainAxisSize.min,
+      //               children: [
+      //                 Row(
+      //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                   children: [
+      //                     SizedBox(
+      //                       width: 30,
+      //                     ),
+      //                     Flexible(
+      //                       child: Obx(
+      //                         () => Row(
+      //                           mainAxisAlignment: MainAxisAlignment.start,
+      //                           children: [
+      //                             if (widget.productsController
+      //                                 .selectedCustomerName.isNotEmpty)
+      //                               CircleAvatar(
+      //                                 radius: 20,
+      //                                 backgroundColor: widget.productsController
+      //                                         .selectedCustomerImageUrl.isEmpty
+      //                                     ? Colors.blueGrey
+      //                                     : const Color.fromARGB(
+      //                                         123, 194, 192, 192),
+      //                                 child: widget.productsController
+      //                                         .selectedCustomerImageUrl.isEmpty
+      //                                     ? const Icon(Icons.person,
+      //                                         color: Colors.white)
+      //                                     : CachedNetworkImage(
+      //                                         imageUrl:
+      //                                             '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
+      //                                         imageBuilder:
+      //                                             (context, imageProvider) =>
+      //                                                 CircleAvatar(
+      //                                           radius: 20,
+      //                                           backgroundImage: imageProvider,
+      //                                         ),
+      //                                         placeholder: (context, url) =>
+      //                                             CircleAvatar(
+      //                                           radius: 20,
+      //                                           backgroundColor:
+      //                                               Colors.grey[300],
+      //                                           child:
+      //                                               const CircularProgressIndicator(
+      //                                             strokeWidth: 2,
+      //                                             color: Colors.grey,
+      //                                           ),
+      //                                         ),
+      //                                         errorWidget:
+      //                                             (context, url, error) {
+      //                                           return const CircleAvatar(
+      //                                             radius: 20,
+      //                                             backgroundColor:
+      //                                                 Colors.blueGrey,
+      //                                             child: Icon(Icons.person,
+      //                                                 color: Colors.white),
+      //                                           );
+      //                                         },
+      //                                       ),
+      //                               ),
+      //                             const SizedBox(width: 8),
+      //                             widget.productsController.selectedCustomerName
+      //                                     .isEmpty
+      //                                 ? Container()
+      //                                 : Column(
+      //                                     mainAxisAlignment:
+      //                                         MainAxisAlignment.center,
+      //                                     crossAxisAlignment:
+      //                                         CrossAxisAlignment.start,
+      //                                     children: [
+      //                                       Text(
+      //                                         widget.productsController
+      //                                             .selectedCustomerName.value,
+      //                                       ),
+      //                                       const MyRegularText(
+      //                                         label: "Customer",
+      //                                         fontSize: 9,
+      //                                       ),
+      //                                     ],
+      //                                   ),
+      //                             const SizedBox(width: 10),
+      //                           ],
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     const NotificationWidget(startDate: '', endDate: ''),
+      //                     profiloe(),
+      //                   ],
+      //                 ),
+      //                 SizedBox(height: 10),
+      //                 Row(
+      //                   children: [
+      //                     Container(
+      //                       width: fullScreenWidth(context) * 0.4,
+      //                       decoration: BoxDecoration(
+      //                         borderRadius: BorderRadius.circular(10),
+      //                         border: Border.all(
+      //                             color: Colors.grey.shade400, width: 1),
+      //                       ),
+      //                       child: Row(
+      //                         children: [
+      //                           // Products tab
+      //                           Expanded(
+      //                             child: InkWell(
+      //                               borderRadius: const BorderRadius.only(
+      //                                 topLeft: Radius.circular(10),
+      //                                 bottomLeft: Radius.circular(10),
+      //                               ),
+      //                               onTap: () {
+      //                                 setState(() => selectedIndex = 0);
+      //                               },
+      //                               child: Container(
+      //                                 decoration: BoxDecoration(
+      //                                   color: selectedIndex == 0
+      //                                       ? skyBlueColor
+      //                                       : Colors.white,
+      //                                   borderRadius: const BorderRadius.only(
+      //                                     topLeft: Radius.circular(10),
+      //                                     bottomLeft: Radius.circular(10),
+      //                                   ),
+      //                                 ),
+      //                                 alignment: Alignment.center,
+      //                                 padding: const EdgeInsets.symmetric(
+      //                                     vertical: 10),
+      //                                 child: Text(
+      //                                   "Products",
+      //                                   style: TextStyle(
+      //                                     fontSize: 16,
+      //                                     fontWeight: FontWeight.w600,
+      //                                     color: selectedIndex == 0
+      //                                         ? Colors.white
+      //                                         : Colors.black87,
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+
+      //                           // Promotions tab
+      //                           Expanded(
+      //                             child: InkWell(
+      //                               borderRadius: const BorderRadius.only(
+      //                                 topRight: Radius.circular(10),
+      //                                 bottomRight: Radius.circular(10),
+      //                               ),
+      //                               onTap: () async {
+      //                                 widget.productsController
+      //                                     .fetchPromotions();
+      //                                 setState(() => selectedIndex = 1);
+      //                               },
+      //                               child: Container(
+      //                                 decoration: BoxDecoration(
+      //                                   color: selectedIndex == 1
+      //                                       ? skyBlueColor
+      //                                       : Colors.white,
+      //                                   borderRadius: const BorderRadius.only(
+      //                                     topRight: Radius.circular(10),
+      //                                     bottomRight: Radius.circular(10),
+      //                                   ),
+      //                                 ),
+      //                                 alignment: Alignment.center,
+      //                                 padding: const EdgeInsets.symmetric(
+      //                                     vertical: 10),
+      //                                 child: Text(
+      //                                   "Promotions",
+      //                                   style: TextStyle(
+      //                                     fontSize: 16,
+      //                                     fontWeight: FontWeight.w600,
+      //                                     color: selectedIndex == 1
+      //                                         ? Colors.white
+      //                                         : Colors.black87,
+      //                                   ),
+      //                                 ),
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ],
+      //                 )
+      //               ],
+      //             ),
+      //           )
+      //         ]
+      //       : [
+      //           SizedBox(
+      //             width: MediaQuery.of(context).size.width * 0.85,
+      //             child: Row(
+      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //               children: [
+      //                 Container(
+      //                   width: fullScreenWidth(context) * 0.4,
+      //                   decoration: BoxDecoration(
+      //                     borderRadius: BorderRadius.circular(10),
+      //                     border:
+      //                         Border.all(color: Colors.grey.shade400, width: 1),
+      //                   ),
+      //                   child: Row(
+      //                     children: [
+      //                       // Products tab
+      //                       Expanded(
+      //                         child: InkWell(
+      //                           borderRadius: const BorderRadius.only(
+      //                             topLeft: Radius.circular(10),
+      //                             bottomLeft: Radius.circular(10),
+      //                           ),
+      //                           onTap: () {
+      //                             setState(() => selectedIndex = 0);
+      //                           },
+      //                           child: Container(
+      //                             decoration: BoxDecoration(
+      //                               color: selectedIndex == 0
+      //                                   ? skyBlueColor
+      //                                   : Colors.white,
+      //                               borderRadius: const BorderRadius.only(
+      //                                 topLeft: Radius.circular(10),
+      //                                 bottomLeft: Radius.circular(10),
+      //                               ),
+      //                             ),
+      //                             alignment: Alignment.center,
+      //                             padding:
+      //                                 const EdgeInsets.symmetric(vertical: 10),
+      //                             child: Text(
+      //                               "Products",
+      //                               style: TextStyle(
+      //                                 fontSize: 16,
+      //                                 fontWeight: FontWeight.w600,
+      //                                 color: selectedIndex == 0
+      //                                     ? Colors.white
+      //                                     : Colors.black87,
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+
+      //                       // Promotions tab
+      //                       Expanded(
+      //                         child: InkWell(
+      //                           borderRadius: const BorderRadius.only(
+      //                             topRight: Radius.circular(10),
+      //                             bottomRight: Radius.circular(10),
+      //                           ),
+      //                           onTap: () async {
+      //                             widget.productsController.fetchPromotions();
+      //                             setState(() => selectedIndex = 1);
+      //                           },
+      //                           child: Container(
+      //                             decoration: BoxDecoration(
+      //                               color: selectedIndex == 1
+      //                                   ? skyBlueColor
+      //                                   : Colors.white,
+      //                               borderRadius: const BorderRadius.only(
+      //                                 topRight: Radius.circular(10),
+      //                                 bottomRight: Radius.circular(10),
+      //                               ),
+      //                             ),
+      //                             alignment: Alignment.center,
+      //                             padding:
+      //                                 const EdgeInsets.symmetric(vertical: 10),
+      //                             child: Text(
+      //                               "Promotions  ",
+      //                               style: TextStyle(
+      //                                 fontSize: 16,
+      //                                 fontWeight: FontWeight.w600,
+      //                                 color: selectedIndex == 1
+      //                                     ? Colors.white
+      //                                     : Colors.black87,
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ],
+      //                   ),
+      //                 ),
+      //                 SizedBox(width: 20),
+      //                 Flexible(
+      //                   child: Obx(
+      //                     () => Row(
+      //                       mainAxisAlignment: MainAxisAlignment.start,
+      //                       children: [
+      //                         if (widget.productsController.selectedCustomerName
+      //                             .isNotEmpty)
+      //                           CircleAvatar(
+      //                             radius: 20,
+      //                             backgroundColor: widget.productsController
+      //                                     .selectedCustomerImageUrl.isEmpty
+      //                                 ? Colors.blueGrey
+      //                                 : const Color.fromARGB(
+      //                                     123, 194, 192, 192),
+      //                             child: widget.productsController
+      //                                     .selectedCustomerImageUrl.isEmpty
+      //                                 ? const Icon(Icons.person,
+      //                                     color: Colors.white)
+      //                                 : CachedNetworkImage(
+      //                                     imageUrl:
+      //                                         '${ApiConstants.imageBaseUrl}/${widget.productsController.selectedCustomerImageUrl.value}',
+      //                                     imageBuilder:
+      //                                         (context, imageProvider) =>
+      //                                             CircleAvatar(
+      //                                       radius: 20,
+      //                                       backgroundImage: imageProvider,
+      //                                     ),
+      //                                     placeholder: (context, url) =>
+      //                                         CircleAvatar(
+      //                                       radius: 20,
+      //                                       backgroundColor: Colors.grey[300],
+      //                                       child:
+      //                                           const CircularProgressIndicator(
+      //                                         strokeWidth: 2,
+      //                                         color: Colors.grey,
+      //                                       ),
+      //                                     ),
+      //                                     errorWidget: (context, url, error) {
+      //                                       return const CircleAvatar(
+      //                                         radius: 20,
+      //                                         backgroundColor: Colors.blueGrey,
+      //                                         child: Icon(Icons.person,
+      //                                             color: Colors.white),
+      //                                       );
+      //                                     },
+      //                                   ),
+      //                           ),
+      //                         const SizedBox(width: 8),
+      //                         widget.productsController.selectedCustomerName
+      //                                 .isEmpty
+      //                             ? Container()
+      //                             : Expanded(
+      //                                 child: Column(
+      //                                   mainAxisAlignment:
+      //                                       MainAxisAlignment.center,
+      //                                   crossAxisAlignment:
+      //                                       CrossAxisAlignment.start,
+      //                                   children: [
+      //                                     Text(
+      //                                       widget.productsController
+      //                                           .selectedCustomerName.value,
+      //                                       maxLines: 1,
+      //                                       overflow: TextOverflow.ellipsis,
+      //                                     ),
+      //                                     const MyRegularText(
+      //                                       label: "Customer",
+      //                                       fontSize: 9,
+      //                                     ),
+      //                                   ],
+      //                                 ),
+      //                               ),
+      //                         const SizedBox(width: 10),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                 ),
+      //                 const NotificationWidget(startDate: '', endDate: ''),
+      //                 profiloe(),
+      //               ],
+      //             ),
+      //           )
+      //         ],
+      // ),
+      body: 
+      Obx(() {
+  if (selectedIndex == 0) {
+    if (widget.productsController.categoryData.value.data == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 76),
+            Expanded(
+              child: Stack(
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(width: 60),
+                      Expanded(
+                        child: ProductGrid(
+                          optionName: _selectedOption,
+                          productsController: widget.productsController,
+                          id: _id,
+                          playAddToCartAnimation: playAddToCartAnimation,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Obx(
+          () => Padding(
+            padding: EdgeInsets.only(
+              left: widget.productsController.selectedCustomerName.isEmpty ? 45 : 0,
+              top: 10,
+            ),
+            child: Consumer<CustomersProvider>(
+              builder: (context, provider, child) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 76),
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(
-                              width: 60,
-                            ),
-                            Expanded(
-                              child: ProductGrid(
-                                optionName: _selectedOption,
-                                productsController: widget.productsController,
-                                id: _id,
-                                playAddToCartAnimation: playAddToCartAnimation,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Obx(
-                () => Padding(
-                  padding: EdgeInsets.only(
-                    left: widget.productsController.selectedCustomerName.isEmpty
-                        ? 40
-                        : 0,
-                    top: 10,
-                  ),
-                  child: Consumer<CustomersProvider>(
-                    builder: (context, provider, child) => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  SizedBox(
+                    width: isTabletOrPhoneLandscape(context)
+                        ? MediaQuery.of(context).size.width * 0.40
+                        : MediaQuery.of(context).size.width * 0.3,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: isTabletOrPhoneLandscape(context)
-                              ? MediaQuery.of(context).size.width * 0.40
-                              : MediaQuery.of(context).size.width * 0.25,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomSearchBar(
-                                text: "Search customer...",
-                                controller: customerSearchController,
-                                focusNode: customerFocusNode, // <-- attach here
-                                onChange: (value) {
-                                  filterCustomers(value);
-                                },
-                                icon: EneftyIcons.profile_outline,
-                              ),
-                              Expanded(
-                                child: isLoading
-                                    ? const Center(
-                                        child: CircularProgressIndicator())
-                                    : customerSearchController.text.isNotEmpty
-                                        ? filteredCustomers.isEmpty
-                                            ? Align(
-                                                alignment: Alignment.topCenter,
-                                                child: Material(
-                                                  child: Container(
-                                                    width: 300,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Colors.white,
-                                                    ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 20),
-                                                    child: const Text(
-                                                      'No customers found.',
-                                                      style: TextStyle(
-                                                          fontSize: 16),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            : ListView.builder(
-                                                shrinkWrap: true,
-                                                itemCount:
-                                                    filteredCustomers.length,
-                                                itemBuilder: (context, index) {
-                                                  CustomerAndOrderData
-                                                      customer =
-                                                      filteredCustomers[index];
-                                                  return Container(
-                                                    color: Colors.white,
-                                                    child: ListTile(
-                                                      leading: CircleAvatar(
-                                                        backgroundImage:
-                                                            NetworkImage(
-                                                          '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
-                                                        ),
-                                                      ),
-                                                      title: Text(customer
-                                                              .businessName ??
-                                                          ''),
-                                                      subtitle: Text(
-                                                          customer.customerId ??
-                                                              ''),
-                                                      onTap: () async {
-                                                        customerFocusNode
-                                                            .unfocus();
-                                                        await provider
-                                                            .updateCartCount(
-                                                                customer.customerId ??
-                                                                    '');
-                                                        if (customerAndOrderController
-                                                                .isActive
-                                                                .value ==
-                                                            true) {
-                                                          _showWarningDialog(
-                                                            context,
-                                                            'Please check out from the current customer',
-                                                            const Center(
-                                                              child: Icon(
-                                                                Icons
-                                                                    .warning_amber_outlined,
-                                                                size: 40,
-                                                                color: Colors
-                                                                    .orange,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          customerAndOrderController
-                                                              .setCustomerId(
-                                                                  customer.customerId ??
-                                                                      '');
-                                                          widget
-                                                              .productsController
-                                                              .updateSelectedCustomer(
-                                                                  id: customer
-                                                                          .customerId ??
-                                                                      '',
-                                                                  imageUrl:
-                                                                      customer.imageUrl ??
-                                                                          '',
-                                                                  name: customer
-                                                                          .businessName ??
-                                                                      '');
-                                                          widget
-                                                              .productsController
-                                                              .selectedCustomerId
-                                                              .value = customer
-                                                                  .customerId ??
-                                                              '';
-                                                          customerSearchController
-                                                              .clear();
-                                                        }
-                                                      },
-                                                    ),
-                                                  );
-                                                },
-                                              )
-                                        : const SizedBox.shrink(),
-                              ),
-                              if (widget.productsController.showDialog.value)
-                                AlertDialog(
-                                  title: const Text('Warning'),
-                                  content: Text(_dialogMessage),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          widget.productsController.closeDialog,
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
+                        CustomSearchBar(
+                          text: "Search customer...",
+                          controller: customerSearchController,
+                          onChange: (value) {
+                            filterCustomers(value);
+                          },
+                          icon: EneftyIcons.profile_outline,
                         ),
-                        IntrinsicWidth(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Hero(
-                              tag: 'product_image',
-                              child: AnimatedBuilder(
-                                animation: animationController,
-                                builder: (context, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, animation.value),
-                                    child: child,
-                                  );
-                                },
-                                child: Consumer<CustomersProvider>(
-                                  builder: (context, provider, child) =>
-                                      IconButton(
-                                    onPressed: () {
-                                      _showCartDialog(cartDialogKey);
-                                    },
-                                    icon: Stack(
-                                      children: [
-                                        const Icon(
-                                          Icons.shopping_cart_outlined,
-                                          size: 30,
-                                        ),
-                                        if (isCartCountLoading)
-                                          const Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: SizedBox(
-                                              width: 16,
-                                              height: 16,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.red),
-                                              ),
-                                            ),
-                                          )
-                                        else if (provider.cartItemCount > 0)
-                                          Positioned(
-                                            right: 0,
-                                            top: 0,
+                        Expanded(
+                          child: isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : customerSearchController.text.isNotEmpty
+                                  ? filteredCustomers.isEmpty
+                                      ? Align(
+                                          alignment: Alignment.topCenter,
+                                          child: Material(
                                             child: Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              constraints: const BoxConstraints(
-                                                minWidth: 16,
-                                                minHeight: 16,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  '${provider.cartItemCount}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                              width: 300,
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                              child: const Text(
+                                                'No customers found.',
+                                                style: TextStyle(fontSize: 16),
+                                                textAlign: TextAlign.center,
                                               ),
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                        )
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: filteredCustomers.length,
+                                          itemBuilder: (context, index) {
+                                            CustomerAndOrderData customer = filteredCustomers[index];
+                                            return Container(
+                                              color: Colors.white,
+                                              child: ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                  ),
+                                                ),
+                                                title: Text(customer.businessName ?? ''),
+                                                subtitle: Text(customer.customerId ?? ''),
+                                                onTap: () async {
+                                                  await provider.updateCartCount(customer.customerId ?? '');
+                                                  if (customerAndOrderController.isActive.value == true) {
+                                                    _showWarningDialog(
+                                                      context,
+                                                      'Please check out from the current customer',
+                                                      const Center(
+                                                        child: Icon(
+                                                          Icons.warning_amber_outlined,
+                                                          size: 40,
+                                                          color: Colors.orange,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    customerAndOrderController.setCustomerId(customer.customerId ?? '');
+                                                    widget.productsController.updateSelectedCustomer(
+                                                      id: customer.customerId ?? '',
+                                                      imageUrl: customer.imageUrl ?? '',
+                                                      name: customer.businessName ?? '',
+                                                    );
+                                                    widget.productsController.selectedCustomerId.value = customer.customerId ?? '';
+                                                    customerSearchController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        )
+                                  : const SizedBox.shrink(),
+                        ),
+                        if (widget.productsController.showDialog.value)
+                          AlertDialog(
+                            title: const Text('Warning'),
+                            content: Text(_dialogMessage),
+                            actions: [
+                              TextButton(
+                                onPressed: widget.productsController.closeDialog,
+                                child: const Text('OK'),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            IntrinsicWidth(
-                              child: CustomSwitch(
-                                initialValue:
-                                    customerAndOrderController.isActive.value,
-                                onChanged: (value) {
-                                  customerAndOrderController.isActive.value =
-                                      value;
-                                },
-                                active:
-                                    customerAndOrderController.isActive.value,
-                                selectedName: widget.productsController
-                                    .selectedCustomerName.value,
-                                customerId: widget
-                                    .productsController.selectedCustomerId.value
-                                    .toString(),
-                              ),
-                            )
-                          ],
-                        ))
+                            ],
+                          ),
                       ],
                     ),
                   ),
-                ),
-              ),
-              Positioned(
-                left: 0,
-                top: 10,
-                bottom: 0,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 60),
-                  child: Container(
-                    width: 50,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    color: primaryColor.withOpacity(0.2),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                  IntrinsicWidth(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.menu,
-                            size: 20,
-                            color: primaryColor,
-                          ),
-                          onPressed: _toggleDrawer,
-                        ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: ListView.builder(
-                              itemCount: widget.productsController.categoryData
-                                      .value.data?.length ??
-                                  0,
-                              itemBuilder: (context, index) {
-                                List<CategoryData> categories = widget
-                                        .productsController
-                                        .categoryData
-                                        .value
-                                        .data ??
-                                    [];
-                                String categoryName =
-                                    categories[index].categoryName ?? '';
-                                String initial = categoryName.isNotEmpty
-                                    ? categoryName[0].toUpperCase()
-                                    : '';
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: IconButton(
-                                      icon: Text(
-                                        initial,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: primaryColor,
-                                          fontWeight: FontWeight.bold,
+                        Hero(
+                          tag: 'product_image',
+                          child: AnimatedBuilder(
+                            animation: animationController,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, animation.value),
+                                child: child,
+                              );
+                            },
+                            child: Consumer<CustomersProvider>(
+                              builder: (context, provider, child) => IconButton(
+                                onPressed: () {
+                                  _showCartDialog(cartDialogKey);
+                                },
+                                icon: Stack(
+                                  children: [
+                                    const Icon(Icons.shopping_cart_outlined, size: 30),
+                                    if (isCartCountLoading)
+                                      const Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                          ),
+                                        ),
+                                      )
+                                    else if (provider.cartItemCount > 0)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                          child: Center(
+                                            child: Text(
+                                              '${provider.cartItemCount}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                      onPressed: () {
-                                        _selectCategory(categoryName);
-                                      }),
-                                );
-                              },
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 10),
+                        IntrinsicWidth(
+                          child: CustomSwitch(
+                            initialValue: customerAndOrderController.isActive.value,
+                            onChanged: (value) {
+                              customerAndOrderController.isActive.value = value;
+                            },
+                            active: customerAndOrderController.isActive.value,
+                            selectedName: widget.productsController.selectedCustomerName.value,
+                            customerId: widget.selectedCustId.toString(),
+                          ),
+                        )
                       ],
                     ),
-                  ),
-                ),
+                  )
+                ],
               ),
-              if (_isDrawerOpen)
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isDrawerOpen = false;
-                      });
-                      _drawerTimer?.cancel();
-                    },
-                    child: Container(
-                      color: Colors.transparent,
-                    ),
-                  ),
-                ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                top: 10,
-                bottom: 0,
-                left: _isDrawerOpen ? 50 : -_drawerWidth,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 60),
-                  child: Container(
-                    width: _drawerWidth,
-                    color: Colors.white,
-                    child: CategoryList(
-                      productsController: widget.productsController,
-                      categories: widget
-                          .productsController.categoryData.value.data!
-                          .map((entry) {
-                        return CategoryItem(
-                          title: entry.categoryName ?? '',
-                          options: entry.subCategoryItem ?? [],
-                        );
-                      }).toList(),
-                      onOptionSelected: (selectedSubcategoryId) {
-                        _fetchProductsByCategory(selectedSubcategoryId);
-                      },
-                      onDrawerToggle: _toggleDrawer,
-                      selectedCategory: _selectedCategory,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        } else {
-          return Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              Column(
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 60),
+            child: Container(
+              width: 50,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              color: primaryColor.withOpacity(0.2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 76),
+                  IconButton(
+                    icon: const Icon(Icons.menu, size: 20, color: primaryColor),
+                    onPressed: _toggleDrawer,
+                  ),
+                  const SizedBox(height: 20),
                   Expanded(
-                    child: PromotionScreen(
-                      controller: widget.productsController,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ListView.builder(
+                        itemCount: widget.productsController.categoryData.value.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          List<CategoryData> categories = widget.productsController.categoryData.value.data ?? [];
+                          String categoryName = categories[index].categoryName ?? '';
+                          String initial = categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '';
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: IconButton(
+                              icon: Text(
+                                initial,
+                                style: const TextStyle(fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: () {
+                                _selectCategory(categoryName);
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
-              Obx(
-                () => Padding(
-                  padding: EdgeInsets.only(
-                    left: widget.productsController.selectedCustomerName.isEmpty
-                        ? 40
-                        : 0,
-                    top: 10,
-                  ),
-                  child: Consumer<CustomersProvider>(
-                    builder: (context, provider, child) => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            ),
+          ),
+        ),
+        if (_isDrawerOpen)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDrawerOpen = false;
+                });
+                _drawerTimer?.cancel();
+              },
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 300),
+          top: 0,
+          bottom: 0,
+          left: _isDrawerOpen ? 50 : -_drawerWidth,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 60),
+            child: Container(
+              width: _drawerWidth,
+              color: Colors.white,
+              child: CategoryList(
+                productsController: widget.productsController,
+                categories: widget.productsController.categoryData.value.data!
+                    .map((entry) {
+                  return CategoryItem(
+                    title: entry.categoryName ?? '',
+                    options: entry.subCategoryItem ?? [],
+                  );
+                }).toList(),
+                onOptionSelected: (selectedSubcategoryId) {
+                  _fetchProductsByCategory(selectedSubcategoryId);
+                },
+                onDrawerToggle: _toggleDrawer,
+                selectedCategory: _selectedCategory,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  } else {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Column(
+          children: [
+            SizedBox(height: 76),
+            Expanded(
+              child: selectedIndex == 1
+                  ? PromotionScreen(controller: widget.productsController)
+                  : selectedIndex == 2
+                      ? BulkScreen()
+                      : SizedBox.shrink(),
+            ),
+          ],
+        ),
+        Obx(
+          () => Padding(
+            padding: EdgeInsets.only(
+              left: widget.productsController.selectedCustomerName.isEmpty ? 40 : 0,
+              top: 10,
+            ),
+            child: Consumer<CustomersProvider>(
+              builder: (context, provider, child) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: isTabletOrPhoneLandscape(context)
+                        ? MediaQuery.of(context).size.width * 0.40
+                        : MediaQuery.of(context).size.width * 0.25,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: isTabletOrPhoneLandscape(context)
-                              ? MediaQuery.of(context).size.width * 0.40
-                              : MediaQuery.of(context).size.width * 0.25,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomSearchBar(
-                                text: "Search customer...",
-                                controller: customerSearchController,
-                                focusNode: customerFocusNode, // <-- attach here
-                                onChange: (value) {
-                                  filterCustomers(value);
-                                },
-                                icon: EneftyIcons.profile_outline,
-                              ),
-                              Expanded(
-                                child: isLoading
-                                    ? const Center(
-                                        child: CircularProgressIndicator())
-                                    : customerSearchController.text.isNotEmpty
-                                        ? filteredCustomers.isEmpty
-                                            ? Align(
-                                                alignment: Alignment.topCenter,
-                                                child: Material(
-                                                  child: Container(
-                                                    width: 300,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Colors.white,
-                                                    ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 10,
-                                                        horizontal: 20),
-                                                    child: const Text(
-                                                      'No customers found.',
-                                                      style: TextStyle(
-                                                          fontSize: 16),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            : ListView.builder(
-                                                shrinkWrap: true,
-                                                itemCount:
-                                                    filteredCustomers.length,
-                                                itemBuilder: (context, index) {
-                                                  CustomerAndOrderData
-                                                      customer =
-                                                      filteredCustomers[index];
-                                                  return Container(
-                                                    color: Colors.white,
-                                                    child: ListTile(
-                                                      leading: CircleAvatar(
-                                                        backgroundImage:
-                                                            NetworkImage(
-                                                          '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
-                                                        ),
-                                                      ),
-                                                      title: Text(customer
-                                                              .businessName ??
-                                                          ''),
-                                                      subtitle: Text(
-                                                          customer.customerId ??
-                                                              ''),
-                                                      onTap: () async {
-                                                        await provider
-                                                            .updateCartCount(
-                                                                customer.customerId ??
-                                                                    '');
-                                                        if (customerAndOrderController
-                                                                .isActive
-                                                                .value ==
-                                                            true) {
-                                                          _showWarningDialog(
-                                                            context,
-                                                            'Please check out from the current customer',
-                                                            const Center(
-                                                              child: Icon(
-                                                                Icons
-                                                                    .warning_amber_outlined,
-                                                                size: 40,
-                                                                color: Colors
-                                                                    .orange,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          customerAndOrderController
-                                                              .setCustomerId(
-                                                                  customer.customerId ??
-                                                                      '');
-                                                          widget
-                                                              .productsController
-                                                              .updateSelectedCustomer(
-                                                                  id: customer
-                                                                          .customerId ??
-                                                                      '',
-                                                                  imageUrl:
-                                                                      customer.imageUrl ??
-                                                                          '',
-                                                                  name: customer
-                                                                          .businessName ??
-                                                                      '');
-                                                          widget
-                                                              .productsController
-                                                              .selectedCustomerId
-                                                              .value = customer
-                                                                  .customerId ??
-                                                              '';
-                                                          customerSearchController
-                                                              .clear();
-                                                        }
-                                                      },
-                                                    ),
-                                                  );
-                                                },
-                                              )
-                                        : const SizedBox.shrink(),
-                              ),
-                              if (widget.productsController.showDialog.value)
-                                AlertDialog(
-                                  title: const Text('Warning'),
-                                  content: Text(_dialogMessage),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          widget.productsController.closeDialog,
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
+                        CustomSearchBar(
+                          text: "Search customer...",
+                          controller: customerSearchController,
+                          onChange: (value) {
+                            filterCustomers(value);
+                          },
+                          icon: EneftyIcons.profile_outline,
                         ),
-                        IntrinsicWidth(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Hero(
-                              tag: 'product_image',
-                              child: AnimatedBuilder(
-                                animation: animationController,
-                                builder: (context, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, animation.value),
-                                    child: child,
-                                  );
-                                },
-                                child: Consumer<CustomersProvider>(
-                                  builder: (context, provider, child) =>
-                                      IconButton(
-                                    onPressed: () {
-                                      _showCartDialog(cartDialogKey);
-                                    },
-                                    icon: Stack(
-                                      children: [
-                                        const Icon(
-                                          Icons.shopping_cart_outlined,
-                                          size: 30,
-                                        ),
-                                        if (isCartCountLoading)
-                                          const Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: SizedBox(
-                                              width: 16,
-                                              height: 16,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.red),
-                                              ),
-                                            ),
-                                          )
-                                        else if (provider.cartItemCount > 0)
-                                          Positioned(
-                                            right: 0,
-                                            top: 0,
+                        Expanded(
+                          child: isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : customerSearchController.text.isNotEmpty
+                                  ? filteredCustomers.isEmpty
+                                      ? Align(
+                                          alignment: Alignment.topCenter,
+                                          child: Material(
                                             child: Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              constraints: const BoxConstraints(
-                                                minWidth: 16,
-                                                minHeight: 16,
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  '${provider.cartItemCount}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                              width: 300,
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                              child: const Text(
+                                                'No customers found.',
+                                                style: TextStyle(fontSize: 16),
+                                                textAlign: TextAlign.center,
                                               ),
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                        )
+                                      : ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: filteredCustomers.length,
+                                          itemBuilder: (context, index) {
+                                            CustomerAndOrderData customer = filteredCustomers[index];
+                                            return Container(
+                                              color: Colors.white,
+                                              child: ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                  ),
+                                                ),
+                                                title: Text(customer.businessName ?? ''),
+                                                subtitle: Text(customer.customerId ?? ''),
+                                                onTap: () async {
+                                                  await provider.updateCartCount(customer.customerId ?? '');
+                                                  if (customerAndOrderController.isActive.value == true) {
+                                                    _showWarningDialog(
+                                                      context,
+                                                      'Please check out from the current customer',
+                                                      const Center(
+                                                        child: Icon(
+                                                          Icons.warning_amber_outlined,
+                                                          size: 40,
+                                                          color: Colors.orange,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    customerAndOrderController.setCustomerId(customer.customerId ?? '');
+                                                    widget.productsController.updateSelectedCustomer(
+                                                      id: customer.customerId ?? '',
+                                                      imageUrl: customer.imageUrl ?? '',
+                                                      name: customer.businessName ?? '',
+                                                    );
+                                                    widget.productsController.selectedCustomerId.value = customer.customerId ?? '';
+                                                    customerSearchController.clear();
+                                                  }
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        )
+                                  : const SizedBox.shrink(),
+                        ),
+                        if (widget.productsController.showDialog.value)
+                          AlertDialog(
+                            title: const Text('Warning'),
+                            content: Text(_dialogMessage),
+                            actions: [
+                              TextButton(
+                                onPressed: widget.productsController.closeDialog,
+                                child: const Text('OK'),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            IntrinsicWidth(
-                              child: CustomSwitch(
-                                initialValue:
-                                    customerAndOrderController.isActive.value,
-                                onChanged: (value) {
-                                  customerAndOrderController.isActive.value =
-                                      value;
-                                },
-                                active:
-                                    customerAndOrderController.isActive.value,
-                                selectedName: widget.productsController
-                                    .selectedCustomerName.value,
-                                customerId: widget
-                                    .productsController.selectedCustomerId.value
-                                    .toString(),
-                              ),
-                            )
-                          ],
-                        ))
+                            ],
+                          ),
                       ],
                     ),
                   ),
-                ),
+                  IntrinsicWidth(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Hero(
+                          tag: 'product_image',
+                          child: AnimatedBuilder(
+                            animation: animationController,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, animation.value),
+                                child: child,
+                              );
+                            },
+                            child: Consumer<CustomersProvider>(
+                              builder: (context, provider, child) => IconButton(
+                                onPressed: () {
+                                  _showCartDialog(cartDialogKey);
+                                },
+                                icon: Stack(
+                                  children: [
+                                    const Icon(Icons.shopping_cart_outlined, size: 30),
+                                    if (isCartCountLoading)
+                                      const Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                          ),
+                                        ),
+                                      )
+                                    else if (provider.cartItemCount > 0)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                          child: Center(
+                                            child: Text(
+                                              '${provider.cartItemCount}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        IntrinsicWidth(
+                          child: CustomSwitch(
+                            initialValue: customerAndOrderController.isActive.value,
+                            onChanged: (value) {
+                              customerAndOrderController.isActive.value = value;
+                            },
+                            active: customerAndOrderController.isActive.value,
+                            selectedName: widget.productsController.selectedCustomerName.value,
+                            customerId: widget.productsController.selectedCustomerId.value.toString(),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
               ),
-            ],
-          );
-        }
-      }),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}),
+      // Obx(() {
+      //   final FocusNode customerFocusNode = FocusNode();
+      //   if (selectedIndex == 0) {
+      //     if (widget.productsController.categoryData.value.data == null) {
+      //       return const Center(child: CircularProgressIndicator());
+      //     }
+      //     return Stack(
+      //       alignment: Alignment.topCenter,
+      //       children: [
+      //         Column(
+      //           crossAxisAlignment: CrossAxisAlignment.start,
+      //           children: [
+      //             const SizedBox(height: 76),
+      //             Expanded(
+      //               child: Stack(
+      //                 children: [
+      //                   Row(
+      //                     children: [
+      //                       const SizedBox(
+      //                         width: 60,
+      //                       ),
+      //                       Expanded(
+      //                         child: ProductGrid(
+      //                           optionName: _selectedOption,
+      //                           productsController: widget.productsController,
+      //                           id: _id,
+      //                           playAddToCartAnimation: playAddToCartAnimation,
+      //                         ),
+      //                       ),
+      //                       const SizedBox(width: 10),
+      //                     ],
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //         Obx(
+      //           () => Padding(
+      //             padding: EdgeInsets.only(
+      //               left: widget.productsController.selectedCustomerName.isEmpty
+      //                   ? 40
+      //                   : 0,
+      //               top: 10,
+      //             ),
+      //             child: Consumer<CustomersProvider>(
+      //               builder: (context, provider, child) => Row(
+      //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //                 crossAxisAlignment: CrossAxisAlignment.start,
+      //                 children: [
+      //                   SizedBox(
+      //                     width: isTabletOrPhoneLandscape(context)
+      //                         ? MediaQuery.of(context).size.width * 0.40
+      //                         : MediaQuery.of(context).size.width * 0.25,
+      //                     child: Column(
+      //                       crossAxisAlignment: CrossAxisAlignment.start,
+      //                       children: [
+      //                         CustomSearchBar(
+      //                           text: "Search customer...",
+      //                           controller: customerSearchController,
+      //                           focusNode: customerFocusNode, // <-- attach here
+      //                           onChange: (value) {
+      //                             filterCustomers(value);
+      //                           },
+      //                           icon: EneftyIcons.profile_outline,
+      //                         ),
+      //                         Expanded(
+      //                           child: isLoading
+      //                               ? const Center(
+      //                                   child: CircularProgressIndicator())
+      //                               : customerSearchController.text.isNotEmpty
+      //                                   ? filteredCustomers.isEmpty
+      //                                       ? Align(
+      //                                           alignment: Alignment.topCenter,
+      //                                           child: Material(
+      //                                             child: Container(
+      //                                               width: 300,
+      //                                               decoration:
+      //                                                   const BoxDecoration(
+      //                                                 color: Colors.white,
+      //                                               ),
+      //                                               padding: const EdgeInsets
+      //                                                   .symmetric(
+      //                                                   vertical: 10,
+      //                                                   horizontal: 20),
+      //                                               child: const Text(
+      //                                                 'No customers found.',
+      //                                                 style: TextStyle(
+      //                                                     fontSize: 16),
+      //                                                 textAlign:
+      //                                                     TextAlign.center,
+      //                                               ),
+      //                                             ),
+      //                                           ),
+      //                                         )
+      //                                       : ListView.builder(
+      //                                           shrinkWrap: true,
+      //                                           itemCount:
+      //                                               filteredCustomers.length,
+      //                                           itemBuilder: (context, index) {
+      //                                             CustomerAndOrderData
+      //                                                 customer =
+      //                                                 filteredCustomers[index];
+      //                                             return Container(
+      //                                               color: Colors.white,
+      //                                               child: ListTile(
+      //                                                 leading: CircleAvatar(
+      //                                                   backgroundImage:
+      //                                                       NetworkImage(
+      //                                                     '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+      //                                                   ),
+      //                                                 ),
+      //                                                 title: Text(customer
+      //                                                         .businessName ??
+      //                                                     ''),
+      //                                                 subtitle: Text(
+      //                                                     customer.customerId ??
+      //                                                         ''),
+      //                                                 onTap: () async {
+      //                                                   customerFocusNode
+      //                                                       .unfocus();
+      //                                                   await provider
+      //                                                       .updateCartCount(
+      //                                                           customer.customerId ??
+      //                                                               '');
+      //                                                   if (customerAndOrderController
+      //                                                           .isActive
+      //                                                           .value ==
+      //                                                       true) {
+      //                                                     _showWarningDialog(
+      //                                                       context,
+      //                                                       'Please check out from the current customer',
+      //                                                       const Center(
+      //                                                         child: Icon(
+      //                                                           Icons
+      //                                                               .warning_amber_outlined,
+      //                                                           size: 40,
+      //                                                           color: Colors
+      //                                                               .orange,
+      //                                                         ),
+      //                                                       ),
+      //                                                     );
+      //                                                   } else {
+      //                                                     customerAndOrderController
+      //                                                         .setCustomerId(
+      //                                                             customer.customerId ??
+      //                                                                 '');
+      //                                                     widget
+      //                                                         .productsController
+      //                                                         .updateSelectedCustomer(
+      //                                                             id: customer
+      //                                                                     .customerId ??
+      //                                                                 '',
+      //                                                             imageUrl:
+      //                                                                 customer.imageUrl ??
+      //                                                                     '',
+      //                                                             name: customer
+      //                                                                     .businessName ??
+      //                                                                 '');
+      //                                                     widget
+      //                                                         .productsController
+      //                                                         .selectedCustomerId
+      //                                                         .value = customer
+      //                                                             .customerId ??
+      //                                                         '';
+      //                                                     customerSearchController
+      //                                                         .clear();
+      //                                                   }
+      //                                                 },
+      //                                               ),
+      //                                             );
+      //                                           },
+      //                                         )
+      //                                   : const SizedBox.shrink(),
+      //                         ),
+      //                         if (widget.productsController.showDialog.value)
+      //                           AlertDialog(
+      //                             title: const Text('Warning'),
+      //                             content: Text(_dialogMessage),
+      //                             actions: [
+      //                               TextButton(
+      //                                 onPressed:
+      //                                     widget.productsController.closeDialog,
+      //                                 child: const Text('OK'),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                   IntrinsicWidth(
+      //                       child: Row(
+      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //                     children: [
+      //                       Hero(
+      //                         tag: 'product_image',
+      //                         child: AnimatedBuilder(
+      //                           animation: animationController,
+      //                           builder: (context, child) {
+      //                             return Transform.translate(
+      //                               offset: Offset(0, animation.value),
+      //                               child: child,
+      //                             );
+      //                           },
+      //                           child: Consumer<CustomersProvider>(
+      //                             builder: (context, provider, child) =>
+      //                                 IconButton(
+      //                               onPressed: () {
+      //                                 _showCartDialog(cartDialogKey);
+      //                               },
+      //                               icon: Stack(
+      //                                 children: [
+      //                                   const Icon(
+      //                                     Icons.shopping_cart_outlined,
+      //                                     size: 30,
+      //                                   ),
+      //                                   if (isCartCountLoading)
+      //                                     const Positioned(
+      //                                       right: 0,
+      //                                       top: 0,
+      //                                       child: SizedBox(
+      //                                         width: 16,
+      //                                         height: 16,
+      //                                         child: CircularProgressIndicator(
+      //                                           strokeWidth: 2,
+      //                                           valueColor:
+      //                                               AlwaysStoppedAnimation<
+      //                                                   Color>(Colors.red),
+      //                                         ),
+      //                                       ),
+      //                                     )
+      //                                   else if (provider.cartItemCount > 0)
+      //                                     Positioned(
+      //                                       right: 0,
+      //                                       top: 0,
+      //                                       child: Container(
+      //                                         padding: const EdgeInsets.all(2),
+      //                                         decoration: const BoxDecoration(
+      //                                           color: Colors.red,
+      //                                           shape: BoxShape.circle,
+      //                                         ),
+      //                                         constraints: const BoxConstraints(
+      //                                           minWidth: 16,
+      //                                           minHeight: 16,
+      //                                         ),
+      //                                         child: Center(
+      //                                           child: Text(
+      //                                             '${provider.cartItemCount}',
+      //                                             style: const TextStyle(
+      //                                               color: Colors.white,
+      //                                               fontSize: 10,
+      //                                               fontWeight: FontWeight.bold,
+      //                                             ),
+      //                                           ),
+      //                                         ),
+      //                                       ),
+      //                                     ),
+      //                                 ],
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                       const SizedBox(width: 10),
+      //                       IntrinsicWidth(
+      //                         child: CustomSwitch(
+      //                           initialValue:
+      //                               customerAndOrderController.isActive.value,
+      //                           onChanged: (value) {
+      //                             customerAndOrderController.isActive.value =
+      //                                 value;
+      //                           },
+      //                           active:
+      //                               customerAndOrderController.isActive.value,
+      //                           selectedName: widget.productsController
+      //                               .selectedCustomerName.value,
+      //                           customerId: widget
+      //                               .productsController.selectedCustomerId.value
+      //                               .toString(),
+      //                         ),
+      //                       )
+      //                     ],
+      //                   ))
+      //                 ],
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //         Positioned(
+      //           left: 0,
+      //           top: 10,
+      //           bottom: 0,
+      //           child: Padding(
+      //             padding: const EdgeInsets.only(top: 60),
+      //             child: Container(
+      //               width: 50,
+      //               padding: const EdgeInsets.symmetric(vertical: 10),
+      //               color: primaryColor.withOpacity(0.2),
+      //               child: Column(
+      //                 crossAxisAlignment: CrossAxisAlignment.center,
+      //                 mainAxisAlignment: MainAxisAlignment.start,
+      //                 children: [
+      //                   IconButton(
+      //                     icon: const Icon(
+      //                       Icons.menu,
+      //                       size: 20,
+      //                       color: primaryColor,
+      //                     ),
+      //                     onPressed: _toggleDrawer,
+      //                   ),
+      //                   const SizedBox(height: 20),
+      //                   Expanded(
+      //                     child: Padding(
+      //                       padding: const EdgeInsets.only(bottom: 12),
+      //                       child: ListView.builder(
+      //                         itemCount: widget.productsController.categoryData
+      //                                 .value.data?.length ??
+      //                             0,
+      //                         itemBuilder: (context, index) {
+      //                           List<CategoryData> categories = widget
+      //                                   .productsController
+      //                                   .categoryData
+      //                                   .value
+      //                                   .data ??
+      //                               [];
+      //                           String categoryName =
+      //                               categories[index].categoryName ?? '';
+      //                           String initial = categoryName.isNotEmpty
+      //                               ? categoryName[0].toUpperCase()
+      //                               : '';
+      //                           return Padding(
+      //                             padding: const EdgeInsets.only(bottom: 12),
+      //                             child: IconButton(
+      //                                 icon: Text(
+      //                                   initial,
+      //                                   style: const TextStyle(
+      //                                     fontSize: 16,
+      //                                     color: primaryColor,
+      //                                     fontWeight: FontWeight.bold,
+      //                                   ),
+      //                                 ),
+      //                                 onPressed: () {
+      //                                   _selectCategory(categoryName);
+      //                                 }),
+      //                           );
+      //                         },
+      //                       ),
+      //                     ),
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //         if (_isDrawerOpen)
+      //           Positioned.fill(
+      //             child: GestureDetector(
+      //               onTap: () {
+      //                 setState(() {
+      //                   _isDrawerOpen = false;
+      //                 });
+      //                 _drawerTimer?.cancel();
+      //               },
+      //               child: Container(
+      //                 color: Colors.transparent,
+      //               ),
+      //             ),
+      //           ),
+      //         AnimatedPositioned(
+      //           duration: const Duration(milliseconds: 300),
+      //           top: 10,
+      //           bottom: 0,
+      //           left: _isDrawerOpen ? 50 : -_drawerWidth,
+      //           child: Padding(
+      //             padding: const EdgeInsets.only(top: 60),
+      //             child: Container(
+      //               width: _drawerWidth,
+      //               color: Colors.white,
+      //               child: CategoryList(
+      //                 productsController: widget.productsController,
+      //                 categories: widget
+      //                     .productsController.categoryData.value.data!
+      //                     .map((entry) {
+      //                   return CategoryItem(
+      //                     title: entry.categoryName ?? '',
+      //                     options: entry.subCategoryItem ?? [],
+      //                   );
+      //                 }).toList(),
+      //                 onOptionSelected: (selectedSubcategoryId) {
+      //                   _fetchProductsByCategory(selectedSubcategoryId);
+      //                 },
+      //                 onDrawerToggle: _toggleDrawer,
+      //                 selectedCategory: _selectedCategory,
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     );
+      //   } else {
+      //     return Stack(
+      //       alignment: Alignment.topCenter,
+      //       children: [
+      //         Column(
+      //           children: [
+      //             SizedBox(height: 76),
+      //             Expanded(
+      //               child: PromotionScreen(
+      //                 controller: widget.productsController,
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //         Obx(
+      //           () => Padding(
+      //             padding: EdgeInsets.only(
+      //               left: widget.productsController.selectedCustomerName.isEmpty
+      //                   ? 40
+      //                   : 0,
+      //               top: 10,
+      //             ),
+      //             child: Consumer<CustomersProvider>(
+      //               builder: (context, provider, child) => Row(
+      //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //                 crossAxisAlignment: CrossAxisAlignment.start,
+      //                 children: [
+      //                   SizedBox(
+      //                     width: isTabletOrPhoneLandscape(context)
+      //                         ? MediaQuery.of(context).size.width * 0.40
+      //                         : MediaQuery.of(context).size.width * 0.25,
+      //                     child: Column(
+      //                       crossAxisAlignment: CrossAxisAlignment.start,
+      //                       children: [
+      //                         CustomSearchBar(
+      //                           text: "Search customer...",
+      //                           controller: customerSearchController,
+      //                           focusNode: customerFocusNode, // <-- attach here
+      //                           onChange: (value) {
+      //                             filterCustomers(value);
+      //                           },
+      //                           icon: EneftyIcons.profile_outline,
+      //                         ),
+      //                         Expanded(
+      //                           child: isLoading
+      //                               ? const Center(
+      //                                   child: CircularProgressIndicator())
+      //                               : customerSearchController.text.isNotEmpty
+      //                                   ? filteredCustomers.isEmpty
+      //                                       ? Align(
+      //                                           alignment: Alignment.topCenter,
+      //                                           child: Material(
+      //                                             child: Container(
+      //                                               width: 300,
+      //                                               decoration:
+      //                                                   const BoxDecoration(
+      //                                                 color: Colors.white,
+      //                                               ),
+      //                                               padding: const EdgeInsets
+      //                                                   .symmetric(
+      //                                                   vertical: 10,
+      //                                                   horizontal: 20),
+      //                                               child: const Text(
+      //                                                 'No customers found.',
+      //                                                 style: TextStyle(
+      //                                                     fontSize: 16),
+      //                                                 textAlign:
+      //                                                     TextAlign.center,
+      //                                               ),
+      //                                             ),
+      //                                           ),
+      //                                         )
+      //                                       : ListView.builder(
+      //                                           shrinkWrap: true,
+      //                                           itemCount:
+      //                                               filteredCustomers.length,
+      //                                           itemBuilder: (context, index) {
+      //                                             CustomerAndOrderData
+      //                                                 customer =
+      //                                                 filteredCustomers[index];
+      //                                             return Container(
+      //                                               color: Colors.white,
+      //                                               child: ListTile(
+      //                                                 leading: CircleAvatar(
+      //                                                   backgroundImage:
+      //                                                       NetworkImage(
+      //                                                     '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+      //                                                   ),
+      //                                                 ),
+      //                                                 title: Text(customer
+      //                                                         .businessName ??
+      //                                                     ''),
+      //                                                 subtitle: Text(
+      //                                                     customer.customerId ??
+      //                                                         ''),
+      //                                                 onTap: () async {
+      //                                                   await provider
+      //                                                       .updateCartCount(
+      //                                                           customer.customerId ??
+      //                                                               '');
+      //                                                   if (customerAndOrderController
+      //                                                           .isActive
+      //                                                           .value ==
+      //                                                       true) {
+      //                                                     _showWarningDialog(
+      //                                                       context,
+      //                                                       'Please check out from the current customer',
+      //                                                       const Center(
+      //                                                         child: Icon(
+      //                                                           Icons
+      //                                                               .warning_amber_outlined,
+      //                                                           size: 40,
+      //                                                           color: Colors
+      //                                                               .orange,
+      //                                                         ),
+      //                                                       ),
+      //                                                     );
+      //                                                   } else {
+      //                                                     customerAndOrderController
+      //                                                         .setCustomerId(
+      //                                                             customer.customerId ??
+      //                                                                 '');
+      //                                                     widget
+      //                                                         .productsController
+      //                                                         .updateSelectedCustomer(
+      //                                                             id: customer
+      //                                                                     .customerId ??
+      //                                                                 '',
+      //                                                             imageUrl:
+      //                                                                 customer.imageUrl ??
+      //                                                                     '',
+      //                                                             name: customer
+      //                                                                     .businessName ??
+      //                                                                 '');
+      //                                                     widget
+      //                                                         .productsController
+      //                                                         .selectedCustomerId
+      //                                                         .value = customer
+      //                                                             .customerId ??
+      //                                                         '';
+      //                                                     customerSearchController
+      //                                                         .clear();
+      //                                                   }
+      //                                                 },
+      //                                               ),
+      //                                             );
+      //                                           },
+      //                                         )
+      //                                   : const SizedBox.shrink(),
+      //                         ),
+      //                         if (widget.productsController.showDialog.value)
+      //                           AlertDialog(
+      //                             title: const Text('Warning'),
+      //                             content: Text(_dialogMessage),
+      //                             actions: [
+      //                               TextButton(
+      //                                 onPressed:
+      //                                     widget.productsController.closeDialog,
+      //                                 child: const Text('OK'),
+      //                               ),
+      //                             ],
+      //                           ),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                   IntrinsicWidth(
+      //                       child: Row(
+      //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //                     children: [
+      //                       Hero(
+      //                         tag: 'product_image',
+      //                         child: AnimatedBuilder(
+      //                           animation: animationController,
+      //                           builder: (context, child) {
+      //                             return Transform.translate(
+      //                               offset: Offset(0, animation.value),
+      //                               child: child,
+      //                             );
+      //                           },
+      //                           child: Consumer<CustomersProvider>(
+      //                             builder: (context, provider, child) =>
+      //                                 IconButton(
+      //                               onPressed: () {
+      //                                 _showCartDialog(cartDialogKey);
+      //                               },
+      //                               icon: Stack(
+      //                                 children: [
+      //                                   const Icon(
+      //                                     Icons.shopping_cart_outlined,
+      //                                     size: 30,
+      //                                   ),
+      //                                   if (isCartCountLoading)
+      //                                     const Positioned(
+      //                                       right: 0,
+      //                                       top: 0,
+      //                                       child: SizedBox(
+      //                                         width: 16,
+      //                                         height: 16,
+      //                                         child: CircularProgressIndicator(
+      //                                           strokeWidth: 2,
+      //                                           valueColor:
+      //                                               AlwaysStoppedAnimation<
+      //                                                   Color>(Colors.red),
+      //                                         ),
+      //                                       ),
+      //                                     )
+      //                                   else if (provider.cartItemCount > 0)
+      //                                     Positioned(
+      //                                       right: 0,
+      //                                       top: 0,
+      //                                       child: Container(
+      //                                         padding: const EdgeInsets.all(2),
+      //                                         decoration: const BoxDecoration(
+      //                                           color: Colors.red,
+      //                                           shape: BoxShape.circle,
+      //                                         ),
+      //                                         constraints: const BoxConstraints(
+      //                                           minWidth: 16,
+      //                                           minHeight: 16,
+      //                                         ),
+      //                                         child: Center(
+      //                                           child: Text(
+      //                                             '${provider.cartItemCount}',
+      //                                             style: const TextStyle(
+      //                                               color: Colors.white,
+      //                                               fontSize: 10,
+      //                                               fontWeight: FontWeight.bold,
+      //                                             ),
+      //                                           ),
+      //                                         ),
+      //                                       ),
+      //                                     ),
+      //                                 ],
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ),
+      //                       ),
+      //                       const SizedBox(width: 10),
+      //                       IntrinsicWidth(
+      //                         child: CustomSwitch(
+      //                           initialValue:
+      //                               customerAndOrderController.isActive.value,
+      //                           onChanged: (value) {
+      //                             customerAndOrderController.isActive.value =
+      //                                 value;
+      //                           },
+      //                           active:
+      //                               customerAndOrderController.isActive.value,
+      //                           selectedName: widget.productsController
+      //                               .selectedCustomerName.value,
+      //                           customerId: widget
+      //                               .productsController.selectedCustomerId.value
+      //                               .toString(),
+      //                         ),
+      //                       )
+      //                     ],
+      //                   ))
+      //                 ],
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     );
+      //   }
+      // }),
     );
   }
 

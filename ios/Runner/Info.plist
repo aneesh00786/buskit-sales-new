@@ -61,5 +61,21 @@
 	<string>This app requires camera access to take photos or scan QR codes.</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This app requires access to your media library to play music or audio content.</string>
+
+	 <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs access to your location to display your current position on the map.</string>
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs access to your location in the background to track movement even when the app is closed.</string>
+    
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app needs access to your location in the background.</string>
+
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+		<string>processing</string>
+        <string>fetch</string>
+    </array>
 </dict>
 </plist>

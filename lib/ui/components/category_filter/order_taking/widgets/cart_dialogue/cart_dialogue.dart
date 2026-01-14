@@ -3714,8 +3714,8 @@ onTap: () async {
       if (isOrder) {
         orderSubtotal =
             Utils().calculateSubtotal(widget.productsController.orderItems);
-        orderTax =
-            Utils().calculateTotalTax(widget.productsController.orderItems);
+        // orderTax =
+        //     Utils().calculateTotalTax(widget.productsController.orderItems);
         totalDiscount = Utils()
             .calculateTotalDiscount(widget.productsController.orderItems);
       } else {

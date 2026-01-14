@@ -465,13 +465,13 @@ class LoginController extends GetxController {
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: provider.selectedFilter == FilterDateEnum.range
+        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
             ? [
                 provider.selectedFilter.name,
                 provider.selectedStartDate,
                 provider.selectedEndDate
               ]
-            : provider.selectedFilter.name,
+            : provider.selectedFilter.name).toString(),
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -491,13 +491,13 @@ class LoginController extends GetxController {
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw: provider.selectedFilter == FilterDateEnum.range
+          valueFromDw: (provider.selectedFilter == FilterDateEnum.range
               ? [
                   provider.selectedFilter.name,
                   provider.selectedStartDate,
                   provider.selectedEndDate
                 ]
-              : provider.selectedFilter.name,
+              : provider.selectedFilter.name).toString(),
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);

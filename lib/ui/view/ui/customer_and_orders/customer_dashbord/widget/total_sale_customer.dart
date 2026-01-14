@@ -28,130 +28,132 @@ Widget totalSalseCustomers(BuildContext context) {
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: double.infinity,
                   padding: nkRegularPadding(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final List<Color> textColors = [
-                            Colors.red,
-                            Colors.orange,
-                            Colors.red,
-                            Colors.black,
-                          ];
-                          double availableWidth = constraints.maxWidth;
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: availableWidth,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final List<Color> textColors = [
+                              Colors.red,
+                              Colors.orange,
+                              Colors.red,
+                              Colors.black,
+                            ];
+                            double availableWidth = constraints.maxWidth;
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: availableWidth,
+                                ),
+                                child: DataTable(
+                                  headingRowColor:
+                                      WidgetStateProperty.all(Colors.grey[100]),
+                                  dataRowHeight: 40,
+                                  headingRowHeight: 45,
+                                  columnSpacing: 10,
+                                  horizontalMargin: 10,
+                                  columns: [
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: MyRegularText(
+                                            label: "Category",
+                                            fontWeight:
+                                                NkGeneralSize.nkBoldFontWeight(),
+                                            color: primaryTextColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: MyRegularText(
+                                            label: "Order Value",
+                                            fontWeight:
+                                                NkGeneralSize.nkBoldFontWeight(),
+                                            color: primaryTextColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Expanded(
+                                        child: Center(
+                                          child: MyRegularText(
+                                            label: "Discount(%)",
+                                            fontWeight:
+                                                NkGeneralSize.nkBoldFontWeight(),
+                                            color: primaryTextColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: discountDataList
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    int index = entry.key;
+                                    DiscountData discountData = entry.value;
+                    
+                                    Color textColor =
+                                        textColors[index % textColors.length];
+                                    Color rowColor = index % 2 == 0
+                                        ? Colors.white
+                                        : Colors.grey[100]!;
+                    
+                                    return DataRow(
+                                      color:
+                                          WidgetStateProperty.resolveWith<Color>(
+                                        (Set<WidgetState> states) {
+                                          return rowColor;
+                                        },
+                                      ),
+                                      cells: [
+                                        DataCell(
+                                          Center(
+                                            child: MyRegularText(
+                                              label: discountData.category,
+                                              color: textColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: MyRegularText(
+                                              label: discountData.value,
+                                              color: textColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Center(
+                                            child: MyRegularText(
+                                              label: discountData.discount,
+                                              color: textColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                              child: DataTable(
-                                headingRowColor:
-                                    WidgetStateProperty.all(Colors.grey[100]),
-                                dataRowHeight: 40,
-                                headingRowHeight: 45,
-                                columnSpacing: 10,
-                                horizontalMargin: 10,
-                                columns: [
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Category",
-                                          fontWeight:
-                                              NkGeneralSize.nkBoldFontWeight(),
-                                          color: primaryTextColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Order Value",
-                                          fontWeight:
-                                              NkGeneralSize.nkBoldFontWeight(),
-                                          color: primaryTextColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Center(
-                                        child: MyRegularText(
-                                          label: "Discount(%)",
-                                          fontWeight:
-                                              NkGeneralSize.nkBoldFontWeight(),
-                                          color: primaryTextColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                rows: discountDataList
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int index = entry.key;
-                                  DiscountData discountData = entry.value;
-
-                                  Color textColor =
-                                      textColors[index % textColors.length];
-                                  Color rowColor = index % 2 == 0
-                                      ? Colors.white
-                                      : Colors.grey[100]!;
-
-                                  return DataRow(
-                                    color:
-                                        WidgetStateProperty.resolveWith<Color>(
-                                      (Set<WidgetState> states) {
-                                        return rowColor;
-                                      },
-                                    ),
-                                    cells: [
-                                      DataCell(
-                                        Center(
-                                          child: MyRegularText(
-                                            label: discountData.category,
-                                            color: textColor,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: MyRegularText(
-                                            label: discountData.value,
-                                            color: textColor,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Center(
-                                          child: MyRegularText(
-                                            label: discountData.discount,
-                                            color: textColor,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               } else {

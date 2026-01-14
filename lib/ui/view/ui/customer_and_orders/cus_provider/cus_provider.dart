@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 import '../csord_model/customers_orders_model.dart';
 
@@ -106,6 +108,10 @@ class CustomersProvider with ChangeNotifier {
   Future<OrderResponse>? get orderResponse => _orderResponse;
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
+
+
+  int _selectedDashboardYear = DateTime.now().year;
+  int get selectedDashboardYear => _selectedDashboardYear;
 
   void resetFilters() {
     _selectedFilter = FilterDateEnum.thisMonth;
@@ -220,6 +226,10 @@ class CustomersProvider with ChangeNotifier {
       return 0;
     }
   }
+  void updateDashboardYear(int year) {
+    _selectedDashboardYear = year;
+    notifyListeners();
+  }
 
   Future<void> updateCartCount(String customerId) async {
     try {
@@ -231,28 +241,64 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchChartCategoryPerformance(
+Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
-    //comeback
-    final now = DateTime.now();
-    final dateFormat = DateFormat('yyyy-MM-dd');
-
-    final firstDayOfYear = DateTime(now.year, 1, 1);
-    final lastDayOfYear = DateTime(now.year, 12, 31);
-
     try {
+      // Debouncing network requests
+
+      // OLD CODE (Problem):
+      // final now = DateTime.now();
+      // final firstDayOfYear = DateTime(now.year, 1, 1);
+
+      // NEW CODE (Fix):
+      // Use the class-level variable 'selectedDashboardYear'
+      int year = selectedDashboardYear; 
+      
+      final dateFormat = DateFormat('yyyy-MM-dd');
+
+      final firstDayOfYear = DateTime(year, 1, 1);
+      final lastDayOfYear = DateTime(year, 12, 31);
+
       _productResponse = _apiService.fetchCustomerDashboardCartData(
         customerId: customerId,
         catId: catId,
         selectedYearCategory: selectedYearCategory,
+        // startDate: selectedStartDate,
+        // endDate: selectedEndDate,
         startDate: dateFormat.format(firstDayOfYear),
         endDate: dateFormat.format(lastDayOfYear),
       );
+
+      // notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;
     }
   }
+
+
+  // Future<void> fetchChartCategoryPerformance(
+  //     dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
+  //   //comeback
+  //   final now = DateTime.now();
+  //   final dateFormat = DateFormat('yyyy-MM-dd');
+
+  //   final firstDayOfYear = DateTime(now.year, 1, 1);
+  //   final lastDayOfYear = DateTime(now.year, 12, 31);
+
+  //   try {
+  //     _productResponse = _apiService.fetchCustomerDashboardCartData(
+  //       customerId: customerId,
+  //       catId: catId,
+  //       selectedYearCategory: selectedYearCategory,
+  //       startDate: dateFormat.format(firstDayOfYear),
+  //       endDate: dateFormat.format(lastDayOfYear),
+  //     );
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
@@ -458,26 +504,54 @@ class CustomersProvider with ChangeNotifier {
     _yearsListOfAllList = yearsListOfAll;
   }
 
-  Future<void> fetchCustomerDashboardCountData(
-    String customerId,
-  ) async {
-    final now = DateTime.now();
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    final firstDayOfYear = DateTime(now.year, 1, 1);
-    final lastDayOfYear = DateTime(now.year, 12, 31);
-    try {
-      _countFuture = _apiService.fetchOrderCount(
-        customerId,
-        dateFormat.format(firstDayOfYear),
-        dateFormat.format(lastDayOfYear),
-      );
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching customer dashboard data',
-          error: e, stackTrace: stackTrace);
-      rethrow;
-    }
+
+ Future<void> fetchCustomerDashboardCountData(String customerId) async {
+  // ERROR WAS HERE: 
+  // final now = DateTime.now(); <-- This was forcing it to be the current real-world year
+  
+  // FIX: Use the variable you updated in step 2 of your dropdown logic
+  final int yearToUse = _selectedDashboardYear; // or selectedDashboardYear (depending on your variable name)
+
+  final dateFormat = DateFormat('yyyy-MM-dd');
+  
+  // Create dates based on the SELECTED year
+  final firstDayOfYear = DateTime(yearToUse, 1, 1);
+  final lastDayOfYear = DateTime(yearToUse, 12, 31);
+
+  try {
+    _countFuture = _apiService.fetchOrderCount(
+      customerId,
+      dateFormat.format(firstDayOfYear),
+      dateFormat.format(lastDayOfYear),
+    );
+    notifyListeners();
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching customer dashboard data',
+        error: e, stackTrace: stackTrace);
+    rethrow;
   }
+}
+
+  // Future<void> fetchCustomerDashboardCountData(
+  //   String customerId,
+  // ) async {
+  //   final now = DateTime.now();
+  //   final dateFormat = DateFormat('yyyy-MM-dd');
+  //   final firstDayOfYear = DateTime(now.year, 1, 1);
+  //   final lastDayOfYear = DateTime(now.year, 12, 31);
+  //   try {
+  //     _countFuture = _apiService.fetchOrderCount(
+  //       customerId,
+  //       dateFormat.format(firstDayOfYear),
+  //       dateFormat.format(lastDayOfYear),
+  //     );
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> pickImage(gallery) async {
     final pickedFile = await _picker.pickImage(source: gallery);
@@ -536,16 +610,25 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
+   Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
       {bool checkDate = false}) async {
+    // this is for customer dashboard
     try {
-      final now = DateTime.now();
-      final startDate = DateTime(now.year, 1, 1);
-      final endDate = DateTime(now.year, 12 + 1, 0);
+      // OLD CODE (Problem):
+      // final now = DateTime.now();
+      // final startDate = DateTime(now.year, 1, 1);
+      // final endDate = DateTime(now.year, 12 + 1, 0);
+
+      // NEW CODE (Fix):
+      // Use the class-level variable 'selectedDashboardYear'
+      int year = selectedDashboardYear;
+
+      final startDate = DateTime(year, 1, 1);
+      final endDate = DateTime(year, 12, 31);
 
       final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
       final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
-
+      
       dynamic orderType;
 
       switch (s) {
@@ -562,11 +645,11 @@ class CustomersProvider with ChangeNotifier {
         default:
           orderType = '';
       }
+
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
-        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         return _apiService.fetchCustomerDashOrders(
           cusId: custId,
-          salesmanId: salesmanId,
+          salesmanId: "",
           orderType: orderType,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
@@ -581,8 +664,55 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
+
+  // Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
+  //     {bool checkDate = false}) async {
+  //   try {
+  //     final now = DateTime.now();
+  //     final startDate = DateTime(now.year, 1, 1);
+  //     final endDate = DateTime(now.year, 12 + 1, 0);
+
+  //     final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+  //     final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
+
+  //     dynamic orderType;
+
+  //     switch (s) {
+  //       case OrderStatus.delivered:
+  //         orderType = '';
+  //       case OrderStatus.estimates:
+  //         orderType = 7;
+  //       case OrderStatus.preOrder:
+  //         orderType = 0;
+  //       case OrderStatus.draft:
+  //         orderType = 4;
+  //       case OrderStatus.cancelled:
+  //         orderType = 3;
+  //       default:
+  //         orderType = '';
+  //     }
+  //     _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
+  //       final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //       return _apiService.fetchCustomerDashOrders(
+  //         cusId: custId,
+  //         salesmanId: salesmanId,
+  //         orderType: orderType,
+  //         startDate: formattedStartDate,
+  //         endDate: formattedEndDate,
+  //         orderStatus: s,
+  //         checkDate: checkDate,
+  //       );
+  //     });
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
   List<YearList> _yearList = [];
   int? _selectedYear;
+
   Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
     final now = DateTime.now();
     int currentYear = now.year;
@@ -596,37 +726,85 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+  // Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
+  //   final now = DateTime.now();
+  //   int currentYear = now.year;
+  //   try {
+  //     _customerTotalSaleResponseFuture =
+  //         _apiService.fetchCustomerTotalSale(customerId, currentYear);
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
-    final now = DateTime.now();
-    final startDate1 = DateTime(now.year, 1, 1);
-    final endDate1 = DateTime(now.year, 12, 31);
+    // OLD (Problematic):
+    // final now = DateTime.now();
+    // final startDate = DateTime(now.year, 1, 1);
+    
+    // NEW (Fix): 
+    // Use the variable 'selectedDashboardYear' from your provider state
+    int year = selectedDashboardYear; 
 
-    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
-    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
-    int currentYear = now.year;
+    // Construct dates based on the selected year
+    final startDate = DateTime(year, 1, 1);
+    final endDate = DateTime(year, 12, 31);
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
 
     try {
       _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
-          customerId, currentYear, formattedStartDate, formattedEndDate);
+          customerId, 
+          year, 
+          formattedStartDate, 
+          formattedEndDate
+      );
       notifyListeners();
     } catch (e, stackTrace) {
-      _logger.e('Error fetching customer dashboard data',
+      _logger.e('Error fetching customer revenue dashboard data',
           error: e, stackTrace: stackTrace);
       rethrow;
     }
   }
 
-  Future<void> fetchCustomerDashboardData(String customerId) async {
-    final now = DateTime.now();
-    final startDate1 = DateTime(now.year, 1, 1);
-    final endDate1 = DateTime(now.year, 12, 31);
 
-    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
-    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
-    int currentYear = now.year;
+  // Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
+  //   final now = DateTime.now();
+  //   final startDate1 = DateTime(now.year, 1, 1);
+  //   final endDate1 = DateTime(now.year, 12, 31);
+
+  //   final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
+  //   final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
+  //   int currentYear = now.year;
+
+  //   try {
+  //     _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
+  //         customerId, currentYear, formattedStartDate, formattedEndDate);
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
+ Future<void> fetchCustomerDashboardData(String customerId) async {
+    // USE THE SELECTED YEAR HERE
+    int currentYear = _selectedDashboardYear; 
+    
+    final startDate = DateTime(currentYear, 1, 1);
+    // Note: DateTime(year, 13, 0) gives Dec 31st of that year
+    final endDate = DateTime(currentYear, 13, 0); 
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
 
     try {
+      // Pass the selected year and calculated dates to API
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
               customerId, currentYear, formattedStartDate, formattedEndDate)
@@ -641,6 +819,31 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  // Future<void> fetchCustomerDashboardData(String customerId) async {
+  //   final now = DateTime.now();
+  //   final startDate1 = DateTime(now.year, 1, 1);
+  //   final endDate1 = DateTime(now.year, 12, 31);
+
+  //   final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
+  //   final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
+  //   int currentYear = now.year;
+
+  //   try {
+  //     _customersDashFuture = _apiService
+  //         .fetchCustomerDashboardDataa(
+  //             customerId, currentYear, formattedStartDate, formattedEndDate)
+  //         .then((response) {
+  //       _yearList = response.data.yearList;
+  //       notifyListeners();
+  //       return response;
+  //     });
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   void toggleOrderSelection(RecentOrder order) {
     if (_selectedOrders.contains(order)) {
@@ -657,23 +860,20 @@ class CustomersProvider with ChangeNotifier {
 
   Future<void> fetchCustomerData({int page = 1}) async {
     _errorMessage = '';
-    Get.find<NotificationController>();
+    NotificationController notificationController =
+        Get.find<NotificationController>();
+        final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final customerBox = Hive.box('customerBox');
     final cacheKey = '${companyId}_customer_list_$page';
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
-      if (_searchCustomerName.isNotEmpty) {
-        await performOfflineSearch(_searchCustomerName);
-        return;
-      }
-
       final cachedData = customerBox.get(cacheKey);
       if (cachedData != null) {
         try {
-          final safeMap =
-              jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+          // Ensure all keys are strings before passing to fromJson
+          final safeMap = ensureStringKeyedMap(cachedData);
 
           final response = CustomerResponseModelxx.fromJson(safeMap);
           setCustomers(response.data, response.pagination.totalPages);
@@ -703,33 +903,115 @@ class CustomersProvider with ChangeNotifier {
         _selectedFilter == FilterDateEnum.thisWeek ||
         _selectedFilter == FilterDateEnum.thisYear ||
         _selectedFilter == FilterDateEnum.range) {
-      try {
-        _isLoading = true;
-        final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
-            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-            : _selectedFilter.name;
 
-        _customersFuture = _apiService.fetchCustomer(
-          salesmanId: '',
-          customerName: _searchCustomerName,
-          startDate: "",
-          endDate: "",
-          limit: 10,
-          page: page,
-          valueFromDw: valueFromDw,
-        );
-        _customersFuture!.then((value) {
-          setCustomers(value.data, value.pagination.totalPages);
-          setOrderTotal(value.orderTotal);
-          setYearList(value.yearsListOfAll);
-          _isLoading = false;
-          notifyListeners();
-        }).catchError((error) {
-          _isLoading = false;
-          _errorMessage = 'Failed to fetch customer data 3: $error';
-          notifyListeners();
-        });
-      } catch (e, stackTrace) {
+          try {
+      _isLoading = true;
+      
+      String apiValueFromDw = "";
+      List<String> apiSelectedRange = [];
+      String apiStartDate = "";
+      String apiEndDate = "";
+
+      // Logic to determine payload based on Filter Enum
+      switch (_selectedFilter) {
+        case FilterDateEnum.thisMonth:
+          apiValueFromDw = "Month";
+          // TODO: Replace '_selectedMonthsList' with the variable connected to your MonthDropdown()
+          // Example: apiSelectedRange = ["January", "March"]; 
+          apiSelectedRange = dashboardProvider.selectedFilterMonths; 
+          break;
+
+        case FilterDateEnum.thisWeek:
+          apiValueFromDw = "Week";
+          // TODO: Replace '_selectedWeeksList' with the variable connected to your WeekDropdown()
+          // Example: apiSelectedRange = ["week1", "week2"];
+          apiSelectedRange = dashboardProvider.selectedFilterWeeks; 
+          break;
+
+        case FilterDateEnum.thisYear:
+          apiValueFromDw = "Year";
+          // TODO: Replace '_selectedYearsList' with the variable connected to your YearDropdown()
+          // Example: apiSelectedRange = ["2025", "2026"];
+          apiSelectedRange = [dashboardProvider.selectedYear.toString()]; 
+          break;
+
+        case FilterDateEnum.range:
+          apiValueFromDw = "Range";
+          // For Range, usually we send start/end date, but if backend wants it in selected_range:
+          apiSelectedRange = [_selectedStartDate, _selectedEndDate];
+          // Or if backend still wants specific start/end keys:
+          apiStartDate = _selectedStartDate;
+          apiEndDate = _selectedEndDate;
+          break;
+
+        case FilterDateEnum.today:
+           apiValueFromDw = "Day"; // Or "Today" depending on backend expectation
+           apiSelectedRange = [dashboardProvider.selectedDate]; // Assuming selectedStartDate holds today's date
+           break;
+           
+        default:
+          apiValueFromDw = "All"; // Default fallback
+      }
+
+      _customersFuture = _apiService.fetchCustomer(
+        salesmanId: '',
+        customerName: _searchCustomerName,
+        limit: 10,
+        page: page,
+        valueFromDw: apiValueFromDw,
+        selectedRange: apiSelectedRange,
+        startDate: apiStartDate,
+        endDate: apiEndDate,
+      );
+
+      _customersFuture!.then((value) {
+        setCustomers(value.data, value.pagination.totalPages);
+        setOrderTotal(value.orderTotal);
+        setYearList(value.yearsListOfAll);
+        
+        // If the API returns the arrays for dropdowns (as seen in your json), 
+        // you might want to update your dropdown lists here:
+        // setMonthArray(value.monthArray); // if you add this to model
+        
+        notificationController.loadNotificationData();
+        _isLoading = false;
+        notifyListeners();
+      }).catchError((error) {
+        _isLoading = false;
+        _errorMessage = 'Failed to fetch customer data: $error';
+        notifyListeners();
+      });
+
+    }
+      // try {
+      //   _isLoading = true;
+      //   final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
+      //       ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+      //       : _selectedFilter.name;
+
+      //   _customersFuture = _apiService.fetchCustomer(
+      //     salesmanId: '',
+      //     customerName: _searchCustomerName,
+      //     startDate: "",
+      //     endDate: "",
+      //     limit: 10,
+      //     page: page,
+      //     valueFromDw: valueFromDw,
+      //   );
+      //   _customersFuture!.then((value) {
+      //     setCustomers(value.data, value.pagination.totalPages);
+      //     setOrderTotal(value.orderTotal);
+      //     setYearList(value.yearsListOfAll);
+      //     notificationController.loadNotificationData();
+      //     _isLoading = false;
+      //     notifyListeners();
+      //   }).catchError((error) {
+      //     _isLoading = false;
+      //     _errorMessage = 'Failed to fetch customer data 3: $error';
+      //     notifyListeners();
+      //   });
+      // }
+       catch (e, stackTrace) {
         _isLoading = false;
         _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
         rethrow;
@@ -738,6 +1020,89 @@ class CustomersProvider with ChangeNotifier {
       await fetchCustomerData();
     }
   }
+  // Future<void> fetchCustomerData({int page = 1}) async {
+  //   _errorMessage = '';
+  //   Get.find<NotificationController>();
+
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final customerBox = Hive.box('customerBox');
+  //   final cacheKey = '${companyId}_customer_list_$page';
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline) {
+  //     if (_searchCustomerName.isNotEmpty) {
+  //       await performOfflineSearch(_searchCustomerName);
+  //       return;
+  //     }
+
+  //     final cachedData = customerBox.get(cacheKey);
+  //     if (cachedData != null) {
+  //       try {
+  //         final safeMap =
+  //             jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+
+  //         final response = CustomerResponseModelxx.fromJson(safeMap);
+  //         setCustomers(response.data, response.pagination.totalPages);
+  //         setOrderTotal(response.orderTotal);
+  //         setYearList(response.yearsListOfAll);
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       } catch (e) {
+  //         _filteredCustomers = [];
+  //         _errorMessage = 'Corrupted offline data for this page.';
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       }
+  //     } else {
+  //       _filteredCustomers = [];
+  //       _errorMessage = 'No offline data for this page.';
+  //       _isLoading = false;
+  //       notifyListeners();
+  //       return;
+  //     }
+  //   }
+
+  //   if (_selectedFilter == FilterDateEnum.thisMonth ||
+  //       _selectedFilter == FilterDateEnum.today ||
+  //       _selectedFilter == FilterDateEnum.thisWeek ||
+  //       _selectedFilter == FilterDateEnum.thisYear ||
+  //       _selectedFilter == FilterDateEnum.range) {
+  //     try {
+  //       _isLoading = true;
+  //       final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
+  //           ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
+  //           : _selectedFilter.name;
+
+  //       _customersFuture = _apiService.fetchCustomer(
+  //         salesmanId: '',
+  //         customerName: _searchCustomerName,
+  //         startDate: "",
+  //         endDate: "",
+  //         limit: 10,
+  //         page: page,
+  //         valueFromDw: valueFromDw,
+  //       );
+  //       _customersFuture!.then((value) {
+  //         setCustomers(value.data, value.pagination.totalPages);
+  //         setOrderTotal(value.orderTotal);
+  //         setYearList(value.yearsListOfAll);
+  //         _isLoading = false;
+  //         notifyListeners();
+  //       }).catchError((error) {
+  //         _isLoading = false;
+  //         _errorMessage = 'Failed to fetch customer data 3: $error';
+  //         notifyListeners();
+  //       });
+  //     } catch (e, stackTrace) {
+  //       _isLoading = false;
+  //       _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
+  //       rethrow;
+  //     }
+  //   } else {
+  //     await fetchCustomerData();
+  //   }
+  // }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(

@@ -134,6 +134,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       _targetControllers = _targetControllers.sublist(0, count);
     }
   }
+ 
+  List<String> get years => List.generate(5, (index) => (currentYear - index).toString());
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +175,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
                     child: DropdownButton<String>(
                       value: selectedValue,
-                      items: ['2025', '2024', '2023'].map((String year) {
+                      items: years.map((String year) {
                         return DropdownMenuItem<String>(
                           value: year,
                           child: Text(

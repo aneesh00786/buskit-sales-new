@@ -1,8 +1,11 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
+import 'package:busskit_salesexecutive/location_services/location_services.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -22,6 +25,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -410,70 +414,253 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   }
 
   void _handleSwitchToggle(BuildContext context) async {
-    bool newState = !_onSwitchSelected;
-    bool? confirmAction = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
-          content: Text(
-              'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            ElevatedButton(
-              child: const Text('Confirm'),
-              onPressed: () => Navigator.of(context).pop(true),
-            ),
-          ],
-        );
-      },
+  bool newState = !_onSwitchSelected;
+
+  // Initial Confirmation
+  bool? confirmAction = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
+        content: Text('Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            child: const Text('Confirm'),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmAction != true) return;
+
+  setState(() => _isLoading = true);
+
+  try {
+    // Basic Check
+    if (!await handleLocationPermission(context)) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    // Get Position for API
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
     );
 
-    if (confirmAction == true) {
-      if (!await handleLocationPermission(context)) {
-        return;
+    if (newState) {
+      // === CHECK IN LOGIC ===
+
+      // 1. Check if we already have Always
+      var alwaysStatus = await Permission.locationAlways.status;
+
+      // 2. If NOT granted, try to request it (System Popup)
+      if (!alwaysStatus.isGranted) {
+        alwaysStatus = await Permission.locationAlways.request();
       }
 
-      setState(() {
-        _isLoading = true;
-      });
+      // 3. If STILL not granted (User denied or iOS blocked the popup),
+      //    Show our CUSTOM DIALOG
+      if (!alwaysStatus.isGranted) {
+        bool goToSettings = await _showAlwaysPermissionDialog(context);
+        
+        if (goToSettings) {
+          // User wants to change it -> Open Settings
+          await openAppSettings();
+          setState(() => _isLoading = false);
+          return; // Stop here, let them fix it and come back
+        } 
+        // Else: User clicked "Use Foreground Only", proceed to fallback below
+      }
 
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: newState ? "in" : "out",
-          lat: position.latitude.toString(),
-          long: position.longitude.toString(),
-        );
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(newState);
+      // 4. Re-check status one last time to decide service
+      alwaysStatus = await Permission.locationAlways.status;
 
-          if (mounted) {
-            setState(() {
-              _onSwitchSelected = newState;
-            });
-          }
+      if (alwaysStatus.isGranted) {
+        // Option A: Background Service
+        await initializeService();
+        final service = FlutterBackgroundService();
+        if (!await service.isRunning()) service.startService();
+        print("✅ Background Service Started");
+      } else {
+        // Option B: Foreground Fallback (User explicitly chose this)
+        var whenInUse = await Permission.locationWhenInUse.status;
+        if (whenInUse.isGranted) {
+          _startForegroundTracking();
+          print("⚠️ Foreground Stream Started");
+        } else {
+          setState(() => _isLoading = false);
+          return;
         }
-      } catch (e) {
-      //
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+      }
+
+    } else {
+      // === CHECK OUT LOGIC ===
+      final service = FlutterBackgroundService();
+      if (await service.isRunning()) service.invoke('stopService');
+      _stopForegroundTracking();
+    }
+
+    // 5. Send API
+    final response = await ApiWorker().updateAdminCheckInOut(
+      date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      time: DateFormat('HH:mm').format(DateTime.now()),
+      direction: newState ? "in" : "out",
+      lat: position.latitude.toString(),
+      long: position.longitude.toString(),
+    );
+
+    if (response.statusCode == 200) {
+      await ApiWorker().saveSwitchState(newState);
+      if (mounted) {
+        setState(() {
+          _onSwitchSelected = newState;
+        });
       }
     }
+  } catch (e) {
+    print("Error: $e");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
   }
 }
 
+  // void _handleSwitchToggle(BuildContext context) async {
+  //   bool newState = !_onSwitchSelected;
+  //   bool? confirmAction = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
+  //         content: Text(
+  //             'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+  //         actions: [
+  //           TextButton(
+  //             child: const Text('Cancel'),
+  //             onPressed: () => Navigator.of(context).pop(false),
+  //           ),
+  //           ElevatedButton(
+  //             child: const Text('Confirm'),
+  //             onPressed: () => Navigator.of(context).pop(true),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (confirmAction == true) {
+  //     if (!await handleLocationPermission(context)) {
+  //       return;
+  //     }
+
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
+
+  //     try {
+  //       Position position = await Geolocator.getCurrentPosition(
+  //         desiredAccuracy: LocationAccuracy.high,
+  //       );
+  //       final response = await ApiWorker().updateAdminCheckInOut(
+  //         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+  //         time: DateFormat('HH:mm').format(DateTime.now()),
+  //         direction: newState ? "in" : "out",
+  //         lat: position.latitude.toString(),
+  //         long: position.longitude.toString(),
+  //       );
+  //       if (response.statusCode == 200) {
+  //         await ApiWorker().saveSwitchState(newState);
+
+  //         if (mounted) {
+  //           setState(() {
+  //             _onSwitchSelected = newState;
+  //           });
+  //         }
+  //       }
+  //     } catch (e) {
+  //     //
+  //     } finally {
+  //       if (mounted) {
+  //         setState(() {
+  //           _isLoading = false;
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
+}
+
+Timer? _foregroundTimer;
+void _startForegroundTracking() {
+    print("Starting foreground tracking (Timer Mode: Every 10s)...");
+
+    // 1. Run immediately so user doesn't wait 10s for the first hit
+    _performForegroundUpdate();
+
+    // 2. Start the 10-second periodic timer
+    _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _performForegroundUpdate();
+    });
+  }
+
+  void _stopForegroundTracking() {
+    if (_foregroundTimer != null) {
+      _foregroundTimer!.cancel();
+      _foregroundTimer = null;
+      print("Stopped foreground tracking.");
+    }
+  }
+
+  Future<void> _performForegroundUpdate() async {
+    try {
+      // 1. Get current position
+      // We use getCurrentPosition because we just want the 'current' spot right now
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // 2. Call your existing server function
+      // This replaces the "ApiWorker()..." line you asked about
+     initializeService();
+    
+
+      print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
+
+    } catch (e) {
+      print("Error in foreground update: $e");
+    }
+  }
+Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Background Location Recommended"),
+      content: const Text(
+        "You currently have 'While Using' permission selected.\n\n"
+        "To allow automatic check-in tracking even when the app is closed, please select 'Always' in Settings.\n\n"
+        "Or continue with 'While Using' (app must stay open)."
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false), // User chose "No"
+          child: const Text("Use Foreground Only"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true), // User chose "Settings"
+          child: const Text("Open Settings"),
+        ),
+      ],
+    ),
+  ) ?? false;
+}
 Future<bool> handleLocationPermission(BuildContext context) async {
   PermissionStatus status = await Permission.locationWhenInUse.status;
 

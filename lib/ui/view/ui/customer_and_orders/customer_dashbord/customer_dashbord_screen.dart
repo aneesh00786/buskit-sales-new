@@ -29,6 +29,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/orders_payments.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sale_customer.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/year_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
@@ -95,10 +96,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   void initState() {
     super.initState();
     _fetchCredit();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CustomersProvider>(context, listen: false)
-          .fetchCustomerDashboardDataSalseData(widget.cusId.toString());
-    });
+    final customerProvider =
+        Provider.of<CustomersProvider>(context, listen: false);
+    final currentYear = DateTime.now().year;
+
+    customerProvider.updateDashboardYear(currentYear);
+
+    // Fetch fresh data for current year
+    _loadDashboardData(customerProvider);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<CustomersProvider>(context, listen: false)
+    //       .fetchCustomerDashboardDataSalseData(widget.cusId.toString());
+    // });
     _tabIndex = 0;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.index = 0;
@@ -110,6 +119,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
   }
+  void _loadDashboardData(CustomersProvider provider) {
+    provider.fetchCustomerDashboardData(widget.cusId);
+    provider.fetchCustomerDashboardRevenueData(widget.cusId);
+    provider.fetchCustomerDashboardDataSalseData(widget.cusId);
+    provider.fetchCustomersDataDash(widget.cusId);
+    provider.fetchCustomerDashboardCountData(widget.cusId);
+  }
+
 
   @override
   void didUpdateWidget(CustomerDachScreen oldWidget) {
@@ -409,6 +426,41 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ),
           ),
           actions: [
+             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               children: [
+                 SizedBox(
+                      width: 110, // Adjusted width
+                      child: YearCustomerAndOrdersDropdown(
+                        onYearSelected: (int year) {
+                          // 1. Get Provider
+                          final customerProvider = Provider.of<CustomersProvider>(
+                              context,
+                              listen: false);
+                 
+                          // 2. Update the Year in Provider State
+                          customerProvider.updateDashboardYear(year);
+                 
+                          // 3. Fetch Data (it will now use the year we just set)
+                          customerProvider.fetchCustomerDashboardData(widget.cusId);
+                          customerProvider
+                              .fetchCustomerDashboardRevenueData(widget.cusId);
+                          customerProvider
+                              .fetchCustomerDashboardDataSalseData(widget.cusId);
+                          customerProvider.fetchCustomersDataDash(widget.cusId);
+                          customerProvider
+                              .fetchCustomerDashboardCountData(widget.cusId);
+                          // _fetchCredit ();
+                          // If revenue/sales data also depends on year, call them here too:
+                          // customerProvider.fetchCustomerDashboardRevenueData(widget.cusId);
+                        },
+                      ),
+                    ),
+               ],
+             ),
+                const SizedBox(
+                  width: 10,
+                ),
             ElevatedButton(
               onPressed: () {
                 print('customer id: ${widget.cusId}');
@@ -819,51 +871,51 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 Row(
                   children: [
                     dashboardContainerHeader('Category Sales'),
-                    const SizedBox(width: 14),
-                    Container(
-                      height: MediaQuery.of(context).orientation ==
-                              Orientation.portrait
-                          ? ResponsiveInfo.isMobileDimension(context)
-                              ? 20
-                              : 26
-                          : ResponsiveInfo.isMobileDimension(context)
-                              ? 17
-                              : 22,
-                      padding: const EdgeInsets.only(left: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xffeef2f7),
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: DropdownButton<int>(
-                        iconSize: 12,
-                        value: selectedYear,
-                        underline: Container(),
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            selectedYear = newValue!;
-                            // Fetch data for the selected year
-                            Provider.of<CustomersProvider>(context,
-                                    listen: false)
-                                .fetchCustomerDashboardData(
-                              widget.cusId,
-                            );
-                            Provider.of<CustomersProvider>(context,
-                                    listen: false)
-                                .fetchCustomerDashboardRevenueData(
-                                    widget.cusId);
-                          });
-                        },
-                        items: provider.yearList
-                            .map((item) => DropdownMenuItem<int>(
-                                  value: item.year,
-                                  child: Text(
-                                    item.year.toString(),
-                                    style: cardHeadingTextStyle,
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ),
+                    // const SizedBox(width: 14),
+                    // Container(
+                    //   height: MediaQuery.of(context).orientation ==
+                    //           Orientation.portrait
+                    //       ? ResponsiveInfo.isMobileDimension(context)
+                    //           ? 20
+                    //           : 26
+                    //       : ResponsiveInfo.isMobileDimension(context)
+                    //           ? 17
+                    //           : 22,
+                    //   padding: const EdgeInsets.only(left: 6),
+                    //   decoration: BoxDecoration(
+                    //     color: const Color(0xffeef2f7),
+                    //     borderRadius: BorderRadius.circular(4.0),
+                    //   ),
+                    //   child: DropdownButton<int>(
+                    //     iconSize: 12,
+                    //     value: selectedYear,
+                    //     underline: Container(),
+                    //     onChanged: (int? newValue) {
+                    //       setState(() {
+                    //         selectedYear = newValue!;
+                    //         // Fetch data for the selected year
+                    //         Provider.of<CustomersProvider>(context,
+                    //                 listen: false)
+                    //             .fetchCustomerDashboardData(
+                    //           widget.cusId,
+                    //         );
+                    //         Provider.of<CustomersProvider>(context,
+                    //                 listen: false)
+                    //             .fetchCustomerDashboardRevenueData(
+                    //                 widget.cusId);
+                    //       });
+                    //     },
+                    //     items: provider.yearList
+                    //         .map((item) => DropdownMenuItem<int>(
+                    //               value: item.year,
+                    //               child: Text(
+                    //                 item.year.toString(),
+                    //                 style: cardHeadingTextStyle,
+                    //               ),
+                    //             ))
+                    //         .toList(),
+                    //   ),
+                    // ),
                     const Spacer(),
                     Padding(
                       padding: EdgeInsets.only(
@@ -1061,44 +1113,44 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               ),
                             ],
                           ),
-                          Positioned(
-                            top: fullScreenWidth(context) > 680 ? 2 : 32,
-                            right: 10,
-                            child: Padding(
-                              padding: const EdgeInsets.all(0.0),
-                              child: Container(
-                                height: 26,
-                                padding: const EdgeInsets.only(left: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffeef2f7),
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: DropdownButton<int>(
-                                  iconSize: 18,
-                                  value: selectedYear,
-                                  underline: Container(),
-                                  onChanged: (int? newValue) {
-                                    setState(() {
-                                      selectedYear = newValue!;
-                                      Provider.of<CustomersProvider>(context,
-                                              listen: false)
-                                          .fetchCustomerDashboardDataSalseData(
-                                              widget.cusId);
-                                    });
-                                  },
-                                  items: provider.yearList
-                                      .map((item) => DropdownMenuItem<int>(
-                                            value: item.year,
-                                            child: Text(
-                                              item.year.toString(),
-                                              style: cardHeadingTextStyle,
-                                            ),
-                                          ))
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          )
+                          // Positioned(
+                          //   top: fullScreenWidth(context) > 680 ? 2 : 32,
+                          //   right: 10,
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(0.0),
+                          //     child: Container(
+                          //       height: 26,
+                          //       padding: const EdgeInsets.only(left: 6),
+                          //       decoration: BoxDecoration(
+                          //         color: const Color(0xffeef2f7),
+                          //         borderRadius: BorderRadius.circular(4.0),
+                          //       ),
+                          //       child: DropdownButton<int>(
+                          //         iconSize: 18,
+                          //         value: selectedYear,
+                          //         underline: Container(),
+                          //         onChanged: (int? newValue) {
+                          //           setState(() {
+                          //             selectedYear = newValue!;
+                          //             Provider.of<CustomersProvider>(context,
+                          //                     listen: false)
+                          //                 .fetchCustomerDashboardDataSalseData(
+                          //                     widget.cusId);
+                          //           });
+                          //         },
+                          //         items: provider.yearList
+                          //             .map((item) => DropdownMenuItem<int>(
+                          //                   value: item.year,
+                          //                   child: Text(
+                          //                     item.year.toString(),
+                          //                     style: cardHeadingTextStyle,
+                          //                   ),
+                          //                 ))
+                          //             .toList(),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // )
                         ],
                       ),
                       SizedBox(
@@ -1196,44 +1248,44 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                               ),
                             ],
                           ),
-                          Positioned(
-                            top: fullScreenWidth(context) > 680 ? 2 : 32,
-                            right: 10,
-                            child: Padding(
-                              padding: const EdgeInsets.all(0.0),
-                              child: Container(
-                                height: 26,
-                                padding: const EdgeInsets.only(left: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xffeef2f7),
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: DropdownButton<int>(
-                                  iconSize: 18,
-                                  value: selectedYear,
-                                  underline: Container(),
-                                  onChanged: (int? newValue) {
-                                    setState(() {
-                                      selectedYear = newValue!;
-                                      Provider.of<CustomersProvider>(context,
-                                              listen: false)
-                                          .fetchCustomerDashboardDataSalseData(
-                                              widget.cusId);
-                                    });
-                                  },
-                                  items: provider.yearList
-                                      .map((item) => DropdownMenuItem<int>(
-                                            value: item.year,
-                                            child: Text(
-                                              item.year.toString(),
-                                              style: cardHeadingTextStyle,
-                                            ),
-                                          ))
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          )
+                          // Positioned(
+                          //   top: fullScreenWidth(context) > 680 ? 2 : 32,
+                          //   right: 10,
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(0.0),
+                          //     child: Container(
+                          //       height: 26,
+                          //       padding: const EdgeInsets.only(left: 6),
+                          //       decoration: BoxDecoration(
+                          //         color: const Color(0xffeef2f7),
+                          //         borderRadius: BorderRadius.circular(4.0),
+                          //       ),
+                          //       child: DropdownButton<int>(
+                          //         iconSize: 18,
+                          //         value: selectedYear,
+                          //         underline: Container(),
+                          //         onChanged: (int? newValue) {
+                          //           setState(() {
+                          //             selectedYear = newValue!;
+                          //             Provider.of<CustomersProvider>(context,
+                          //                     listen: false)
+                          //                 .fetchCustomerDashboardDataSalseData(
+                          //                     widget.cusId);
+                          //           });
+                          //         },
+                          //         items: provider.yearList
+                          //             .map((item) => DropdownMenuItem<int>(
+                          //                   value: item.year,
+                          //                   child: Text(
+                          //                     item.year.toString(),
+                          //                     style: cardHeadingTextStyle,
+                          //                   ),
+                          //                 ))
+                          //             .toList(),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // )
                         ],
                       ),
                       SizedBox(

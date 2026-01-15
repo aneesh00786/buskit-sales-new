@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -9,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/custom_dialog_heading.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -141,14 +143,17 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                 child: Row(
                                   children: [
                                     Expanded(
+                                        flex: 1,
                                         child: Center(
                                             child: Text(
                                                 getFormattedOrderCreatAt(
                                                     order.orderCreatAt)))),
                                     Expanded(
+                                        flex: 1,
                                         child:
                                             Center(child: Text(order.orderId))),
                                     Expanded(
+                                      flex: 1,
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Container(
@@ -176,11 +181,60 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                         ),
                                       ),
                                     ),
+
                                     Expanded(
-                                        child: Center(
-                                            child: Text(formatAmount(
-                                                order.orderTotal)))),
+                                      flex: 2,
+                                      child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            // Change Flexible to Expanded so it calculates available space for FittedBox
+                                            Expanded(
+                                              child: FittedBox(
+                                                fit: BoxFit
+                                                    .scaleDown, // Only shrinks, never grows larger than fontSize
+                                                child: MyRegularText(
+                                                  label:
+                                                      '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
+                                                      '${formatAmount((order.receivableAmount ?? order.orderTotal).toStringAsFixed(2))} / '
+                                                      '${formatAmount(order.receivedAmount.toStringAsFixed(2))}',
+                                                  maxlines: 1,
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ),
+                                            if (order.paymentStatus == 3) ...[
+                                              PaymentHistoryButton(
+                                                orderId: order.orderId,
+                                                iconSize: 11 + 2,
+                                              )
+                                              // const SizedBox(width: 4),
+                                              //  IconButton(
+                                              //       padding: EdgeInsets.zero,
+                                              //       constraints: const BoxConstraints(),
+                                              //       icon: const Icon(
+                                              //         Icons.info_outline,
+                                              //         size: 13, // 11 + 2
+                                              //         color: Colors.blue,
+                                              //       ),
+                                              //       onPressed: () {
+
+                                              //         // Your button logic
+                                              //       },
+                                              //     ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Expanded(
+                                    //     child: Center(
+                                    //         child: Text(formatAmount(
+                                    //             order.orderTotal)))),
                                     Expanded(
+                                      flex: 1,
                                       child: Center(
                                         child: Text(
                                           order.duedate!.isNotEmpty
@@ -201,6 +255,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                       ),
                                     ),
                                     Expanded(
+                                      flex: 1,
                                       child: Center(
                                         child: Consumer<CustomersProvider>(
                                           builder: (context, provider, child) {

@@ -225,7 +225,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                       children: [
                         const SizedBox(width: 5),
                         CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
-                         const SizedBox(width: 15),
+                         const SizedBox(width: 10),
                         _buildFilterDropdown(provider, context),
                         if (provider.selectedFilterTemp ==
                             FilterDateEnum.thisMonth) ...[
@@ -263,7 +263,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 15),
                   // Obx(() => loginController.isSyncing.value
                   //     ? SizedBox(
                   //         width: 100,
@@ -291,12 +291,12 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   //         ),
                   //       )
                   //     : const SizedBox.shrink()),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 15),
                   NotificationWidget(
                     startDate: provider.selectedStartDate,
                     endDate: provider.selectedEndDate,
                   ),
-                  SizedBox(width: 120, child: profiloe()),
+                  SizedBox(width: 110, child: profiloe()),
                 ],
               );
             }

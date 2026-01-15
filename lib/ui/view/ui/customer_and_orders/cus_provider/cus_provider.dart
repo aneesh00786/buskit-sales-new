@@ -125,6 +125,10 @@ class CustomersProvider with ChangeNotifier {
     _customers = [];
     searchController.clear();
   }
+  void updateFilterSelection(FilterDateEnum newFilter) {
+  _selectedFilter = newFilter;
+  notifyListeners(); 
+}
 
   void setCurrentMonthDates() {
     final now = DateTime.now();

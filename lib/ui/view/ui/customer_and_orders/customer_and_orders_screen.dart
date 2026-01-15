@@ -137,7 +137,7 @@ class _TableeeState extends State<Tableee> {
             padding: const EdgeInsets.only(top: 8),
             child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
           ),
-          SizedBox(width: 10,),
+          SizedBox(width: 5,),
           Expanded(child: calender()),
           
         ],
@@ -189,11 +189,11 @@ class _TableeeState extends State<Tableee> {
                       Flexible(
                         child: Row(
                           children: [
-                            const SizedBox(width: 5),
+                            // const SizedBox(width: 5),
                             buildFilterDropdown(provider, context),
                             if (provider.selectedFilter ==
                                 FilterDateEnum.thisMonth) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 5),
                               MonthDropdown(
                                 onApplyTap: () => provider.fetchCustomerData(),
                               ),
@@ -202,7 +202,7 @@ class _TableeeState extends State<Tableee> {
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.thisWeek) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 5),
                               WeekDropdown(
                                 onApplyTap: () {
                                   provider
@@ -212,7 +212,7 @@ class _TableeeState extends State<Tableee> {
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.thisYear) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 5),
                               YearDropdown(
                                 onApplyTap: () {
                                   provider.fetchCustomerData();
@@ -221,7 +221,7 @@ class _TableeeState extends State<Tableee> {
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.today) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 5),
                               DatePickerWidget(
                                 onApplyTap: () {
                                   provider.fetchCustomerData();
@@ -230,7 +230,7 @@ class _TableeeState extends State<Tableee> {
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.range) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 5),
                               Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
@@ -465,7 +465,7 @@ class _TableeeState extends State<Tableee> {
   Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
     return SizedBox(
       height: 45,
-      width: 120,
+      width: 110,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -484,17 +484,24 @@ class _TableeeState extends State<Tableee> {
               left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilter,
-            onChanged: (newValue) async {
-              bool isOnline = await ConnectivityService().isOnline();
-              if (!isOnline) {
-                showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
-                return;
-              }
-              if (newValue != null) {
-                provider.onFilterChanged(newValue);
-              }
-            },
+            onChanged: (newValue) {
+            if (newValue != null) {
+              // This should ONLY update the variable `selectedFilter` 
+              // and call notifyListeners(). Do not fetch API data here.
+              provider.updateFilterSelection(newValue); 
+            }
+          },
+            // onChanged: (newValue) async {
+            //   bool isOnline = await ConnectivityService().isOnline();
+            //   if (!isOnline) {
+            //     showCustomToastDisplay(
+            //         context, "You are Offline!", red, Icons.close);
+            //     return;
+            //   }
+            //   if (newValue != null) {
+            //     provider.onFilterChanged(newValue);
+            //   }
+            // },
             items: const [
               DropdownMenuItem(
                   value: FilterDateEnum.thisMonth,
@@ -552,591 +559,6 @@ class _TableeeState extends State<Tableee> {
   }
 
 
-  // Widget calender() {
-  //   return Consumer<DashboardProvider>(builder: (context, provider, child) {
-  //     ResponsiveInfo.isMobileDimension(context);
-  //     if (isTabletOrPhoneLandscape(context)) {
-  //       return Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         children: [
-  //           Flexible(
-  //             child: Consumer<CustomersProvider>(
-  //               builder: (context, provider, child) {
-  //                 return Row(
-  //                   children: [
-  //                     const SizedBox(width: 5),
-  //                     SizedBox(
-  //                       height: 45,
-  //                       width: 120,
-  //                       child: Container(
-  //                         decoration: BoxDecoration(
-  //                           color: Colors.white,
-  //                           borderRadius: BorderRadius.circular(8),
-  //                           border: Border.all(
-  //                               color: Colors.grey.shade300, width: 1),
-  //                           boxShadow: [
-  //                             BoxShadow(
-  //                               color: Colors.grey.shade50,
-  //                               blurRadius: 8,
-  //                               offset: const Offset(2, 4),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         child: Padding(
-  //                           padding: const EdgeInsets.only(
-  //                               left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
-  //                           child: DropdownButton<FilterDateEnum>(
-  //                             value: provider.selectedFilter,
-  //                             onChanged: (newValue) async {
-  //                               bool isOnline =
-  //                                   await ConnectivityService().isOnline();
-  //                               if (!isOnline) {
-  //                                 showCustomToastDisplay(context,
-  //                                     "You are Offline!", red, Icons.close);
-  //                                 return;
-  //                               }
-  //                               if (newValue != null) {
-  //                                 provider.onFilterChanged(newValue);
-  //                               }
-  //                             },
-  //                             items: const [
-  //                               DropdownMenuItem(
-  //                                 value: FilterDateEnum.thisMonth,
-  //                                 child: Text(
-  //                                   'Month',
-  //                                   style: TextStyle(
-  //                                     fontWeight: FontWeight.w400,
-  //                                     fontFamily: 'Poppins_Regular',
-  //                                     fontSize: 9.8,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               DropdownMenuItem(
-  //                                 value: FilterDateEnum.today,
-  //                                 child: Text(
-  //                                   'Day',
-  //                                   style: TextStyle(
-  //                                     fontWeight: FontWeight.w400,
-  //                                     fontFamily: 'Poppins_Regular',
-  //                                     fontSize: 10.5,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               DropdownMenuItem(
-  //                                 value: FilterDateEnum.thisWeek,
-  //                                 child: Text(
-  //                                   'Week',
-  //                                   style: TextStyle(
-  //                                     fontWeight: FontWeight.w400,
-  //                                     fontFamily: 'Poppins_Regular',
-  //                                     fontSize: 10.5,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               DropdownMenuItem(
-  //                                 value: FilterDateEnum.thisYear,
-  //                                 child: Text(
-  //                                   'Year',
-  //                                   style: TextStyle(
-  //                                     fontWeight: FontWeight.w400,
-  //                                     fontFamily: 'Poppins_Regular',
-  //                                     fontSize: 10.5,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               DropdownMenuItem(
-  //                                 value: FilterDateEnum.range,
-  //                                 child: Text(
-  //                                   'Range',
-  //                                   style: TextStyle(
-  //                                     fontWeight: FontWeight.w400,
-  //                                     fontFamily: 'Poppins_Regular',
-  //                                     fontSize: 10.5,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                             ],
-  //                             isExpanded: true,
-  //                             borderRadius: BorderRadius.circular(10),
-  //                             underline: Container(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     Expanded(
-  //                       child: SingleChildScrollView(
-  //                         scrollDirection: Axis.horizontal,
-  //                         physics: const ClampingScrollPhysics(),
-  //                         child: Row(
-  //                           children: [
-  //                             if (provider.selectedFilter ==
-  //                                 FilterDateEnum.range)
-  //                               Row(
-  //                                 mainAxisAlignment:
-  //                                     MainAxisAlignment.spaceEvenly,
-  //                                 crossAxisAlignment: CrossAxisAlignment.center,
-  //                                 children: [
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.symmetric(
-  //                                         horizontal: 4.0),
-  //                                     child: GestureDetector(
-  //                                       onTap: () =>
-  //                                           provider.selectDate(context, true),
-  //                                       child: Container(
-  //                                         height: 38,
-  //                                         width: 90,
-  //                                         decoration: BoxDecoration(
-  //                                           color: const Color(0xfff9f9fb),
-  //                                           border: Border.all(
-  //                                               color: const Color(0xffd1d1d1),
-  //                                               width: 1.0),
-  //                                           borderRadius:
-  //                                               BorderRadius.circular(4),
-  //                                           boxShadow: [
-  //                                             BoxShadow(
-  //                                               color: Colors.grey
-  //                                                   .withOpacity(0.2),
-  //                                               blurRadius: 2,
-  //                                               offset: const Offset(0, 1),
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                         alignment: Alignment.centerLeft,
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             vertical: 4, horizontal: 8),
-  //                                         child: Row(
-  //                                           mainAxisAlignment:
-  //                                               MainAxisAlignment.spaceBetween,
-  //                                           children: [
-  //                                             Text(
-  //                                               provider.selectedStartDate
-  //                                                       .isEmpty
-  //                                                   ? 'DD-MM-YYYY'
-  //                                                   : DateFormat('dd-MM-yyyy')
-  //                                                       .format(DateTime.parse(
-  //                                                           provider
-  //                                                               .selectedStartDate)),
-  //                                               style: TextStyle(
-  //                                                   fontSize: 10.5,
-  //                                                   color: Colors.grey[800]),
-  //                                             ),
-  //                                             Icon(
-  //                                               Icons.calendar_today,
-  //                                               size: 14,
-  //                                               color: Colors.grey[700],
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.symmetric(
-  //                                         horizontal: 4.0),
-  //                                     child: GestureDetector(
-  //                                       onTap: () =>
-  //                                           provider.selectDate(context, false),
-  //                                       child: Container(
-  //                                         height: 38,
-  //                                         width: 90,
-  //                                         decoration: BoxDecoration(
-  //                                           color: const Color(0xfff9f9fb),
-  //                                           border: Border.all(
-  //                                               color: const Color(0xffd1d1d1),
-  //                                               width: 1.0),
-  //                                           borderRadius:
-  //                                               BorderRadius.circular(4),
-  //                                           boxShadow: [
-  //                                             BoxShadow(
-  //                                               color: Colors.grey
-  //                                                   .withOpacity(0.2),
-  //                                               blurRadius: 2,
-  //                                               offset: const Offset(0, 1),
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                         alignment: Alignment.centerLeft,
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             vertical: 4, horizontal: 8),
-  //                                         child: Row(
-  //                                           mainAxisAlignment:
-  //                                               MainAxisAlignment.spaceBetween,
-  //                                           children: [
-  //                                             Text(
-  //                                               provider.selectedEndDate.isEmpty
-  //                                                   ? 'DD-MM-YYYY'
-  //                                                   : DateFormat('dd-MM-yyyy')
-  //                                                       .format(DateTime.parse(
-  //                                                           provider
-  //                                                               .selectedEndDate)),
-  //                                               style: TextStyle(
-  //                                                   fontSize: 10.5,
-  //                                                   color: Colors.grey[800]),
-  //                                             ),
-  //                                             Icon(
-  //                                               Icons.calendar_today,
-  //                                               size: 14,
-  //                                               color: Colors.grey[700],
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   Padding(
-  //                                     padding: const EdgeInsets.symmetric(
-  //                                         horizontal: 4.0),
-  //                                     child: SizedBox(
-  //                                       height: 36.4,
-  //                                       width: 68,
-  //                                       child: ElevatedButton(
-  //                                         onPressed: () {
-  //                                           provider.fetchCustomerData();
-  //                                         },
-  //                                         style: ElevatedButton.styleFrom(
-  //                                           backgroundColor: primaryColor,
-  //                                           shape: RoundedRectangleBorder(
-  //                                             borderRadius:
-  //                                                 BorderRadius.circular(4.0),
-  //                                           ),
-  //                                         ),
-  //                                         child: const Text(
-  //                                           'Go',
-  //                                           style:
-  //                                               TextStyle(color: Colors.white),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                 ],
-  //                               ),
-  //                             const SizedBox(width: 15),
-  //                             addCustomer(context),
-  //                             const SizedBox(width: 5),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //           NotificationWidget(
-  //             startDate: provider.selectedStartDate,
-  //             endDate: provider.selectedEndDate,
-  //           ),
-  //           SizedBox(width: 120, child: profiloe()),
-  //         ],
-  //       );
-  //     } else {
-  //       return Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           Row(
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               const SizedBox(width: 5),
-  //               addCustomer(context),
-  //               Spacer(),
-  //               NotificationWidget(
-  //                 startDate: provider.selectedStartDate,
-  //                 endDate: provider.selectedEndDate,
-  //               ),
-  //               SizedBox(width: 120, child: profiloe()),
-  //             ],
-  //           ),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               Flexible(
-  //                 child: Consumer<CustomersProvider>(
-  //                   builder: (context, provider, child) {
-  //                     return Row(
-  //                       children: [
-  //                         const SizedBox(width: 5),
-  //                         SizedBox(
-  //                           height: 45,
-  //                           width: 120,
-  //                           child: Container(
-  //                             decoration: BoxDecoration(
-  //                               color: Colors.white,
-  //                               borderRadius: BorderRadius.circular(8),
-  //                               border: Border.all(
-  //                                   color: Colors.grey.shade300, width: 1),
-  //                               boxShadow: [
-  //                                 BoxShadow(
-  //                                   color: Colors.grey.shade50,
-  //                                   blurRadius: 8,
-  //                                   offset: const Offset(2, 4),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                             child: Padding(
-  //                               padding: const EdgeInsets.only(
-  //                                   left: 10.0,
-  //                                   right: 4.0,
-  //                                   top: 4.0,
-  //                                   bottom: 1.0),
-  //                               child: DropdownButton<FilterDateEnum>(
-  //                                 value: provider.selectedFilter,
-  //                                 onChanged: (newValue) async {
-  //                                   bool isOnline =
-  //                                       await ConnectivityService().isOnline();
-  //                                   if (!isOnline) {
-  //                                     showCustomToastDisplay(context,
-  //                                         "You are Offline!", red, Icons.close);
-  //                                     return;
-  //                                   }
-  //                                   if (newValue != null) {
-  //                                     provider.onFilterChanged(newValue);
-  //                                   }
-  //                                 },
-  //                                 items: const [
-  //                                   DropdownMenuItem(
-  //                                     value: FilterDateEnum.thisMonth,
-  //                                     child: Text(
-  //                                       'Month',
-  //                                       style: TextStyle(
-  //                                         fontWeight: FontWeight.w400,
-  //                                         fontFamily: 'Poppins_Regular',
-  //                                         fontSize: 9.8,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   DropdownMenuItem(
-  //                                     value: FilterDateEnum.today,
-  //                                     child: Text(
-  //                                       'Day',
-  //                                       style: TextStyle(
-  //                                         fontWeight: FontWeight.w400,
-  //                                         fontFamily: 'Poppins_Regular',
-  //                                         fontSize: 10.5,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   DropdownMenuItem(
-  //                                     value: FilterDateEnum.thisWeek,
-  //                                     child: Text(
-  //                                       'Week',
-  //                                       style: TextStyle(
-  //                                         fontWeight: FontWeight.w400,
-  //                                         fontFamily: 'Poppins_Regular',
-  //                                         fontSize: 10.5,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   DropdownMenuItem(
-  //                                     value: FilterDateEnum.thisYear,
-  //                                     child: Text(
-  //                                       'Year',
-  //                                       style: TextStyle(
-  //                                         fontWeight: FontWeight.w400,
-  //                                         fontFamily: 'Poppins_Regular',
-  //                                         fontSize: 10.5,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   DropdownMenuItem(
-  //                                     value: FilterDateEnum.range,
-  //                                     child: Text(
-  //                                       'Range',
-  //                                       style: TextStyle(
-  //                                         fontWeight: FontWeight.w400,
-  //                                         fontFamily: 'Poppins_Regular',
-  //                                         fontSize: 10.5,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                 ],
-  //                                 isExpanded: true,
-  //                                 borderRadius: BorderRadius.circular(10),
-  //                                 underline: Container(),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                         Expanded(
-  //                           child: SingleChildScrollView(
-  //                             scrollDirection: Axis.horizontal,
-  //                             physics: const ClampingScrollPhysics(),
-  //                             child: Row(
-  //                               children: [
-  //                                 if (provider.selectedFilter ==
-  //                                     FilterDateEnum.range)
-  //                                   Row(
-  //                                     mainAxisAlignment:
-  //                                         MainAxisAlignment.spaceEvenly,
-  //                                     crossAxisAlignment:
-  //                                         CrossAxisAlignment.center,
-  //                                     children: [
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             horizontal: 4.0),
-  //                                         child: GestureDetector(
-  //                                           onTap: () => provider.selectDate(
-  //                                               context, true),
-  //                                           child: Container(
-  //                                             height: 38,
-  //                                             width: 90,
-  //                                             decoration: BoxDecoration(
-  //                                               color: const Color(0xfff9f9fb),
-  //                                               border: Border.all(
-  //                                                   color:
-  //                                                       const Color(0xffd1d1d1),
-  //                                                   width: 1.0),
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4),
-  //                                               boxShadow: [
-  //                                                 BoxShadow(
-  //                                                   color: Colors.grey
-  //                                                       .withOpacity(0.2),
-  //                                                   blurRadius: 2,
-  //                                                   offset: const Offset(0, 1),
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                             alignment: Alignment.centerLeft,
-  //                                             padding:
-  //                                                 const EdgeInsets.symmetric(
-  //                                                     vertical: 4,
-  //                                                     horizontal: 8),
-  //                                             child: Row(
-  //                                               mainAxisAlignment:
-  //                                                   MainAxisAlignment
-  //                                                       .spaceBetween,
-  //                                               children: [
-  //                                                 Text(
-  //                                                   provider.selectedStartDate
-  //                                                           .isEmpty
-  //                                                       ? 'DD-MM-YYYY'
-  //                                                       : DateFormat(
-  //                                                               'dd-MM-yyyy')
-  //                                                           .format(DateTime
-  //                                                               .parse(provider
-  //                                                                   .selectedStartDate)),
-  //                                                   style: TextStyle(
-  //                                                       fontSize: 10.5,
-  //                                                       color:
-  //                                                           Colors.grey[800]),
-  //                                                 ),
-  //                                                 Icon(
-  //                                                   Icons.calendar_today,
-  //                                                   size: 14,
-  //                                                   color: Colors.grey[700],
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             horizontal: 4.0),
-  //                                         child: GestureDetector(
-  //                                           onTap: () => provider.selectDate(
-  //                                               context, false),
-  //                                           child: Container(
-  //                                             height: 38,
-  //                                             width: 90,
-  //                                             decoration: BoxDecoration(
-  //                                               color: const Color(0xfff9f9fb),
-  //                                               border: Border.all(
-  //                                                   color:
-  //                                                       const Color(0xffd1d1d1),
-  //                                                   width: 1.0),
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(4),
-  //                                               boxShadow: [
-  //                                                 BoxShadow(
-  //                                                   color: Colors.grey
-  //                                                       .withOpacity(0.2),
-  //                                                   blurRadius: 2,
-  //                                                   offset: const Offset(0, 1),
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                             alignment: Alignment.centerLeft,
-  //                                             padding:
-  //                                                 const EdgeInsets.symmetric(
-  //                                                     vertical: 4,
-  //                                                     horizontal: 8),
-  //                                             child: Row(
-  //                                               mainAxisAlignment:
-  //                                                   MainAxisAlignment
-  //                                                       .spaceBetween,
-  //                                               children: [
-  //                                                 Text(
-  //                                                   provider.selectedEndDate
-  //                                                           .isEmpty
-  //                                                       ? 'DD-MM-YYYY'
-  //                                                       : DateFormat(
-  //                                                               'dd-MM-yyyy')
-  //                                                           .format(DateTime
-  //                                                               .parse(provider
-  //                                                                   .selectedEndDate)),
-  //                                                   style: TextStyle(
-  //                                                       fontSize: 10.5,
-  //                                                       color:
-  //                                                           Colors.grey[800]),
-  //                                                 ),
-  //                                                 Icon(
-  //                                                   Icons.calendar_today,
-  //                                                   size: 14,
-  //                                                   color: Colors.grey[700],
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             horizontal: 4.0),
-  //                                         child: SizedBox(
-  //                                           height: 36.4,
-  //                                           width: 68,
-  //                                           child: ElevatedButton(
-  //                                             onPressed: () {
-  //                                               provider.fetchCustomerData();
-  //                                             },
-  //                                             style: ElevatedButton.styleFrom(
-  //                                               backgroundColor: primaryColor,
-  //                                               shape: RoundedRectangleBorder(
-  //                                                 borderRadius:
-  //                                                     BorderRadius.circular(
-  //                                                         4.0),
-  //                                               ),
-  //                                             ),
-  //                                             child: const Text(
-  //                                               'Go',
-  //                                               style: TextStyle(
-  //                                                   color: Colors.white),
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                 const SizedBox(width: 15),
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     );
-  //                   },
-  //                 ),
-  //               ),
-  //             ],
-  //           )
-  //         ],
-  //       );
-  //     }
-  //   });
-  // }
 
   Consumer<CustomersProvider> addCustomer(BuildContext context) {
     ResponsiveInfo.isMobileDimension(context);

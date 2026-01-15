@@ -776,6 +776,7 @@ class RecentOrder {
   final String customerId;
   final String invoiceId;
   List<dynamic>? duedate;
+ final int? receivableAmount;
 
   RecentOrder({
     required this.paymentType,
@@ -790,6 +791,7 @@ class RecentOrder {
     required this.customerId,
     required this.invoiceId,
     this.duedate,
+    this.receivableAmount,
   });
 
   factory RecentOrder.fromJson(Map<String, dynamic> json) {
@@ -806,6 +808,7 @@ class RecentOrder {
       customerId: json['customer_id'] as String,
       invoiceId: json['invoice_id'] ?? '',
       duedate: List<dynamic>.from(json["duedate"].map((x) => x)),
+      receivableAmount: json['receivable_amount'] as int?,
     );
   }
 
@@ -823,6 +826,7 @@ class RecentOrder {
       'customer_id': customerId,
       'invoice_id': invoiceId,
       "duedate": List<dynamic>.from(duedate!.map((x) => x)),
+      'receivable_amount': receivableAmount,
     };
   }
 }

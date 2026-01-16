@@ -372,14 +372,14 @@ class _TableeeState extends State<Tableee> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 10),
                       addCustomer(context),
                       const SizedBox(width: 20),
                       NotificationWidget(
                         startDate: provider.selectedStartDate,
                         endDate: provider.selectedEndDate,
                       ),
-                       SizedBox(width: 120, child: profiloe()),
+                       SizedBox(width: 95, child: profiloe()),
                     ],
                   );
                 }
@@ -596,7 +596,7 @@ class _TableeeState extends State<Tableee> {
 
           return SizedBox(
             height: 38,
-            width: 100,
+            width: 98,
             child: CustomButton(
               onPressed: () {
                 showDialog(

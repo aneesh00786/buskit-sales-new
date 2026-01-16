@@ -133,7 +133,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
         children: [
           SizedBox(
             height: 45,
-            width: 180,
+            width: 140,
             child: Container(
               key: _dropdownKey,
               decoration: BoxDecoration(

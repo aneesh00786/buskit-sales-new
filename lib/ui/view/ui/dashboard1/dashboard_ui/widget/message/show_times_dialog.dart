@@ -175,7 +175,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                   height: headerHeight,
                   width: isPhonePortrait(context)
                       ? fullScreenWidth(context) * 2
-                      : fullScreenWidth(context) * 0.7,
+                      : fullScreenWidth(context) * 0.9,
                   child: Row(
                     children: [
                       if (widget.isDash) ...[
@@ -211,7 +211,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                     height: contentHeight,
                     width: isPhonePortrait(context)
                         ? fullScreenWidth(context) * 2
-                        : fullScreenWidth(context) * 0.7,
+                        : fullScreenWidth(context) * 0.9,
                     child: ScrollbarTheme(
                       data: const ScrollbarThemeData(
                         thickness: WidgetStatePropertyAll(5),
@@ -343,7 +343,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                 child: Container(
                   width: isPhonePortrait(context)
                       ? fullScreenWidth(context) * 2
-                      : fullScreenWidth(context) * 0.7,
+                      : fullScreenWidth(context) * 0.9,
                   decoration: const BoxDecoration(
                     border: Border(
                       top: BorderSide(

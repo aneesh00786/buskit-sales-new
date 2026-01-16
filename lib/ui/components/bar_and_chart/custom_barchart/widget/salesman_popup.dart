@@ -15,12 +15,14 @@ void showSalesmanPopupMonthly({
   required String targetType,
   required bool isDayOrRange,
 }) {
+   final provider = Provider.of<DashboardProvider>(context, listen: false);
+    provider.fetchchartValuePerformance(month, "year");
   showDialog(
     context: context,
     builder: (context) {
       return Consumer<DashboardProvider>(
         builder: (context, provider, child) {
-          provider.fetchchartValuePerformance(cid, "Month");
+          // provider.fetchchartValuePerformance(cid, "Month");
           return FutureBuilder<ResponseModelCp>(
             future: provider.responseModelNewCp,
             builder: (context, snapshot) {
@@ -36,8 +38,9 @@ void showSalesmanPopupMonthly({
                     child: noDataTable(staffProjection));
               } else if (snapshot.hasData) {
                 final categories = snapshot.data!.data;
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pop();
                   showBarchartDialog(context, cid, categories ?? [],
                       targetType, staffProjection, provider, 0,
                       isDayOrRange: isDayOrRange);

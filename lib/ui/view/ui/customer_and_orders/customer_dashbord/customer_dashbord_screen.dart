@@ -479,7 +479,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ),
             ),
             SizedBox(
-              width: 20,
+              width: 10,
             ),
             ElevatedButton(
               onPressed: () {
@@ -509,7 +509,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               width: 10,
             ),
             SizedBox(
-              width: 140,
+              width: 120,
               child: Obx(() {
                 final credit = _customercreditctrl.customerCredit.value;
                 final isLoading = _customercreditctrl.isLoading.value;

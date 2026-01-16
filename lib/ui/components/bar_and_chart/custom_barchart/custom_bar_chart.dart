@@ -176,14 +176,17 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 
+
   void _showSalesmanPopupMonthly(String cid, String month) {
+    final provider = Provider.of<DashboardProvider>(context, listen: false);
+    provider.fetchchartValuePerformance(month, "year");
+
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
-            provider.fetchchartValuePerformance(cid, "Month");
             return FutureBuilder<ResponseModelCp>(
               future: provider.responseModelNewCp,
               builder: (context, snapshot) {
@@ -199,11 +202,18 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     content: Center(
                       child: Text('Error: ${snapshot.error}'),
                     ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Close"),
+                      )
+                    ],
                   );
                 } else if (snapshot.hasData) {
                   final categories = snapshot.data!.data;
-                  Navigator.of(context).pop();
+
                   WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.of(context).pop();
                     showBarchartDialog(
                         context,
                         cid,
@@ -216,14 +226,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   });
                   return const SizedBox.shrink();
                 } else {
-                  return const AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    content: Center(
-                      child: Text('No data available'),
-                    ),
-                  );
+                  return const SizedBox.shrink();
                 }
               },
             );
@@ -232,6 +235,63 @@ class _CustomBarChartState extends State<CustomBarChart> {
       },
     );
   }
+
+  // void _showSalesmanPopupMonthly(String cid, String month) {
+  //   showDialog(
+  //     barrierDismissible: false,
+  //     context: context,
+  //     builder: (context) {
+  //       return Consumer<DashboardProvider>(
+  //         builder: (context, provider, child) {
+  //           provider.fetchchartValuePerformance(cid, "Month");
+  //           return FutureBuilder<ResponseModelCp>(
+  //             future: provider.responseModelNewCp,
+  //             builder: (context, snapshot) {
+  //               if (snapshot.connectionState == ConnectionState.waiting) {
+  //                 return const Center(
+  //                   child: CircularProgressIndicator(),
+  //                 );
+  //               } else if (snapshot.hasError) {
+  //                 return AlertDialog(
+  //                   shape: const RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10)),
+  //                   ),
+  //                   content: Center(
+  //                     child: Text('Error: ${snapshot.error}'),
+  //                   ),
+  //                 );
+  //               } else if (snapshot.hasData) {
+  //                 final categories = snapshot.data!.data;
+  //                 Navigator.of(context).pop();
+  //                 WidgetsBinding.instance.addPostFrameCallback((_) {
+  //                   showBarchartDialog(
+  //                       context,
+  //                       cid,
+  //                       categories ?? [],
+  //                       widget.categoryTarget,
+  //                       widget.staffProjection,
+  //                       provider,
+  //                       0,
+  //                       isDayOrRange: widget.isDayOrRange);
+  //                 });
+  //                 return const SizedBox.shrink();
+  //               } else {
+  //                 return const AlertDialog(
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10)),
+  //                   ),
+  //                   content: Center(
+  //                     child: Text('No data available'),
+  //                   ),
+  //                 );
+  //               }
+  //             },
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget getBottomTitles(double value, TitleMeta meta) {
     int index = value.toInt();

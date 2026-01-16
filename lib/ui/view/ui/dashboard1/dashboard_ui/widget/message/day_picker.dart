@@ -69,7 +69,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
           children: [
             SizedBox(
               height: 45,
-              width: 160,
+              width: 140,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,

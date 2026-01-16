@@ -39,97 +39,71 @@ class ApiService {
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
 
   Future<ResponseModell> fetchDashboardData({
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-  }) async {
-    final String jsonString =
-        await SessionManager.getStringValue(SpString.spLogin);
-    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    final String createdToken = jsonMap['createdToken'];
+  String? fetchType,
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+  int? year,
+}) async {
+  final String jsonString = await SessionManager.getStringValue(SpString.spLogin);
+  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  final String createdToken = jsonMap['createdToken'];
 
-    dynamic sendData;
+  // 1. Prepare dynamic variable for selected_range (can be List or String)
+  dynamic sendData;
+  // 2. Prepare time_range variable to handle the lowercase "year" case
+  String timeRangePayload = fetchType ?? "Month"; 
 
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths;
-        break;
-      case "Week":
-        sendData = selectedWeeks;
-        break;
-      case "Day":
-        sendData = [selectedDay];
-        break;
-      case "Year":
-        sendData = year.toString();
-        break;
-      case "Range":
-        sendData = [startDate, endDate];
-        break;
-      default:
-        sendData = selectedMonths;
-    }
-    final url = Uri.parse('$_baseUrl/Get_dashboard_list');
-    final Map<String, dynamic> requestBody = {
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "selected_range": sendData,
-      "time_range": fetchType == "Year" ? "year" : fetchType,
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "year": fetchType == "Year" ? year : DateTime.now().year,
-    };
-    final dashboardBox = await getHiveBoxSafely('dashboardBox');
-    try {
-      final bool isOnline = await ConnectivityService().isOnline();
-      if (!isOnline) {
-        NkCommonFunction.showErrorSnakBar(
-            'No Internet Connection. Please check your network');
+  switch (fetchType) {
+    case "Month":
+      sendData = selectedMonths; // List<String>
+      break;
+    case "Week":
+      sendData = selectedWeeks; // List<String>
+      break;
+    case "Day":
+      // Payload requires List: ["2026-01-14"]
+      sendData = selectedDay != null ? [selectedDay] : []; 
+      break;
+    case "Year":
+    case "year":
+      // Payload requires String: "2026" AND time_range must be lowercase "year"
+      timeRangePayload = "year"; 
+      sendData = year.toString(); 
+      break;
+    case "Range":
+      sendData = [startDate, endDate]; // List<String>
+      break;
+    default:
+      sendData = selectedMonths;
+  }
 
-        final cachedData = dashboardBox.get('dashboardData');
-        if (cachedData != null) {
-          try {
-            final safeMap = ensureStringKeyedMap(cachedData);
-            return _mapJsonToResponseModel(safeMap);
-          } catch (e) {
-            throw Exception(
-                'Failed to process cached data due to type mismatch.');
-          }
-        } else {
-          throw Exception('No cached data available.');
-        }
-      }
-      final response = await Dio().post(
-        url.toString(),
-        options: Options(
-          headers: {'Authorization': 'Bearer $createdToken'},
-        ),
-        data: jsonEncode(requestBody),
-      );
-      if (response.statusCode == 200) {
-        final jsonResponse = response.data;
-        await dashboardBox.put(
-            'dashboardData', Map<String, dynamic>.from(jsonResponse));
-        return _mapJsonToResponseModel(ensureStringKeyedMap(jsonResponse));
-      } else if (response.statusCode == 400 || response.statusCode == 401) {
-        _handleTokenExpiration();
-        throw Exception('Session expired');
-      } else {
-        throw Exception(
-            'Failed to load data with status code:  [${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      handleHttpResponseError(
-          statusCode: e.response?.statusCode ?? 0,
-          showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-          message: 'Dashboard');
+  // 3. Construct the Body
+  final url = Uri.parse('$_baseUrl/Get_dashboard_list');
+  final Map<String, dynamic> requestBody = {
+    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "selected_range": sendData,
+    "time_range": timeRangePayload,
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    // Ensure we send the selected year, or fallback to current year
+    "year": year ?? DateTime.now().year, 
+  };
+print('dashboard list body:$requestBody');
+  final dashboardBox = await getHiveBoxSafely('dashboardBox');
+  
+  try {
+    final bool isOnline = await ConnectivityService().isOnline();
+    if (!isOnline) {
+      NkCommonFunction.showErrorSnakBar(
+          'No Internet Connection. Please check your network');
+
       final cachedData = dashboardBox.get('dashboardData');
       if (cachedData != null) {
         try {
-          final safeCachedData = ensureStringKeyedMap(cachedData);
-          return _mapJsonToResponseModel(safeCachedData);
+          final safeMap = ensureStringKeyedMap(cachedData);
+          return _mapJsonToResponseModel(safeMap);
         } catch (e) {
           throw Exception(
               'Failed to process cached data due to type mismatch.');
@@ -138,7 +112,148 @@ class ApiService {
         throw Exception('No cached data available.');
       }
     }
+    
+    final response = await Dio().post(
+      url.toString(),
+      options: Options(
+        headers: {'Authorization': 'Bearer $createdToken'},
+      ),
+      data: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = response.data;
+      await dashboardBox.put(
+          'dashboardData', Map<String, dynamic>.from(jsonResponse));
+      return _mapJsonToResponseModel(ensureStringKeyedMap(jsonResponse));
+    } else if (response.statusCode == 400 || response.statusCode == 401) {
+      _handleTokenExpiration();
+      throw Exception('Session expired');
+    } else {
+      throw Exception(
+          'Failed to load data with status code:  [${response.statusCode}');
+    }
+  } on DioError catch (e) {
+    handleHttpResponseError(
+        statusCode: e.response?.statusCode ?? 0,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: 'Dashboard');
+    final cachedData = dashboardBox.get('dashboardData');
+    if (cachedData != null) {
+      try {
+        final safeCachedData = ensureStringKeyedMap(cachedData);
+        return _mapJsonToResponseModel(safeCachedData);
+      } catch (e) {
+        throw Exception(
+            'Failed to process cached data due to type mismatch.');
+      }
+    } else {
+      throw Exception('No cached data available.');
+    }
   }
+}
+
+  // Future<ResponseModell> fetchDashboardData({
+  //   String? fetchType,
+  //   String? startDate,
+  //   String? endDate,
+  //   String? selectedDay,
+  //   List<String>? selectedMonths,
+  //   List<String>? selectedWeeks,
+  //   int? year,
+  // }) async {
+  //   final String jsonString =
+  //       await SessionManager.getStringValue(SpString.spLogin);
+  //   final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  //   final String createdToken = jsonMap['createdToken'];
+
+  //   dynamic sendData;
+
+  //   switch (fetchType) {
+  //     case "Month":
+  //       sendData = selectedMonths;
+  //       break;
+  //     case "Week":
+  //       sendData = selectedWeeks;
+  //       break;
+  //     case "Day":
+  //       sendData = [selectedDay];
+  //       break;
+  //     case "Year":
+  //       sendData = year.toString();
+  //       break;
+  //     case "Range":
+  //       sendData = [startDate, endDate];
+  //       break;
+  //     default:
+  //       sendData = selectedMonths;
+  //   }
+  //   final url = Uri.parse('$_baseUrl/Get_dashboard_list');
+  //   final Map<String, dynamic> requestBody = {
+  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     "selected_range": sendData,
+  //     "time_range": fetchType == "Year" ? "year" : fetchType,
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //     "year": fetchType == "Year" ? year : DateTime.now().year,
+  //   };
+  //   final dashboardBox = await getHiveBoxSafely('dashboardBox');
+  //   try {
+  //     final bool isOnline = await ConnectivityService().isOnline();
+  //     if (!isOnline) {
+  //       NkCommonFunction.showErrorSnakBar(
+  //           'No Internet Connection. Please check your network');
+
+  //       final cachedData = dashboardBox.get('dashboardData');
+  //       if (cachedData != null) {
+  //         try {
+  //           final safeMap = ensureStringKeyedMap(cachedData);
+  //           return _mapJsonToResponseModel(safeMap);
+  //         } catch (e) {
+  //           throw Exception(
+  //               'Failed to process cached data due to type mismatch.');
+  //         }
+  //       } else {
+  //         throw Exception('No cached data available.');
+  //       }
+  //     }
+  //     final response = await Dio().post(
+  //       url.toString(),
+  //       options: Options(
+  //         headers: {'Authorization': 'Bearer $createdToken'},
+  //       ),
+  //       data: jsonEncode(requestBody),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       final jsonResponse = response.data;
+  //       await dashboardBox.put(
+  //           'dashboardData', Map<String, dynamic>.from(jsonResponse));
+  //       return _mapJsonToResponseModel(ensureStringKeyedMap(jsonResponse));
+  //     } else if (response.statusCode == 400 || response.statusCode == 401) {
+  //       _handleTokenExpiration();
+  //       throw Exception('Session expired');
+  //     } else {
+  //       throw Exception(
+  //           'Failed to load data with status code:  [${response.statusCode}');
+  //     }
+  //   } on DioException catch (e) {
+  //     handleHttpResponseError(
+  //         statusCode: e.response?.statusCode ?? 0,
+  //         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+  //         message: 'Dashboard');
+  //     final cachedData = dashboardBox.get('dashboardData');
+  //     if (cachedData != null) {
+  //       try {
+  //         final safeCachedData = ensureStringKeyedMap(cachedData);
+  //         return _mapJsonToResponseModel(safeCachedData);
+  //       } catch (e) {
+  //         throw Exception(
+  //             'Failed to process cached data due to type mismatch.');
+  //       }
+  //     } else {
+  //       throw Exception('No cached data available.');
+  //     }
+  //   }
+  // }
 
   ResponseModell _mapJsonToResponseModel(Map<String, dynamic> jsonResponse) {
     var allCategoryList = jsonResponse['data']['all_category'] as List;
@@ -211,121 +326,244 @@ class ApiService {
     }
   }
 
+
+
   Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
-    required int catId,
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-  }) async {
-    Object? sendData;
+  required int catId,
+  required String fetchType, // e.g., "Month", "Week", "Day", "year", "Range"
+  required int year,         // The integer year (e.g., 2026)
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+}) async {
+  dynamic selectedRangeData;
 
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths;
-        break;
-      case "Week":
-        sendData = selectedWeeks;
-        break;
-      case "Day":
-        sendData = [selectedDay];
-        break;
-      case "Year":
-        sendData = year;
-        break;
-      case "Range":
-        sendData = [startDate, endDate];
-        break;
-      default:
-        sendData = selectedMonths;
-    }
-    final requestBody = {
-      "catId": catId,
-      "time_range": fetchType,
-      "selected_range": sendData,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "year": DateTime.now().year,
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-    };
-
-    try {
-      final response = await responsePostMethod(
-        requestData: requestBody,
-        endPoint: "fetchCategoryPerformance",
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
-      if (response.statusCode == 200) {
-        var jsonResponse = response.data;
-        var allCategoryList = jsonResponse['data'] as List;
-        List<Salesmanvn> allCategory =
-            allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-        return ResponseModelCp(
-            statusCode: jsonResponse['status_code'] ?? 0,
-            status: jsonResponse['status'] ?? false,
-            message: jsonResponse['message'] ?? '',
-            data: allCategory);
-      } else {
-        throw Exception('Failed to load data');
-      }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response,
-          apiName: "category perfromance",
-          error: error);
-      throw Exception('Failed to fetch data: $error');
-    }
+  // Logic to determine what goes into 'selected_range' based on your payloads
+  switch (fetchType) {
+    case "Month":
+      selectedRangeData = selectedMonths; // ["January"]
+      break;
+    case "Week":
+      selectedRangeData = selectedWeeks; // ["week3"]
+      break;
+    case "Day":
+      // Payload requires a List for Day: ["2026-01-14"]
+      selectedRangeData = selectedDay != null ? [selectedDay] : [];
+      break;
+    case "year": // Note: Lowercase 'year' based on your payload example
+      // Payload requires a String for Year: "2026"
+      selectedRangeData = year.toString(); 
+      break;
+    case "Range":
+      // Payload requires List: ["2026-01-07", "2026-01-14"]
+      selectedRangeData = [startDate, endDate];
+      break;
+    default:
+      selectedRangeData = [];
   }
+
+  final requestBody = {
+    "catId": catId,
+    "time_range": fetchType, // "Month", "Week", "Day", "year", "Range"
+    "selected_range": selectedRangeData,
+    "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? '',
+    "year": year, // Dynamic year, not hardcoded 2025
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  };
+
+  try {
+    final response = await responsePostMethod(
+      endPoint: ApiConstants.fetchCategoryPerformance,
+      requestData: requestBody,
+    );
+
+    final jsonResponse =
+        response.data is String ? jsonDecode(response.data) : response.data;
+
+    if (response.statusCode == 200) {
+      var allCategoryList = jsonResponse['data'] as List;
+      List<Salesmanvn> allCategory =
+          allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+
+      return ResponseModelCp(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: allCategory,
+      );
+    } else {
+      throw Exception('Failed to load data');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch data: $e');
+  }
+}
+
+
+  // Future<ResponseModelCp> fetchDashboardCategoruPerformenceData({
+  //   required int catId,
+  //   String? fetchType,
+  //   String? startDate,
+  //   String? endDate,
+  //   String? selectedDay,
+  //   List<String>? selectedMonths,
+  //   List<String>? selectedWeeks,
+  //   int? year,
+  // }) async {
+  //   Object? sendData;
+
+  //   switch (fetchType) {
+  //     case "Month":
+  //       sendData = selectedMonths;
+  //       break;
+  //     case "Week":
+  //       sendData = selectedWeeks;
+  //       break;
+  //     case "Day":
+  //       sendData = [selectedDay];
+  //       break;
+  //     case "Year":
+  //       sendData = year;
+  //       break;
+  //     case "Range":
+  //       sendData = [startDate, endDate];
+  //       break;
+  //     default:
+  //       sendData = selectedMonths;
+  //   }
+  //   final requestBody = {
+  //     "catId": catId,
+  //     "time_range": fetchType,
+  //     "selected_range": sendData,
+  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     "year": DateTime.now().year,
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //   };
+
+  //   try {
+  //     final response = await responsePostMethod(
+  //       requestData: requestBody,
+  //       endPoint: "fetchCategoryPerformance",
+  //       options: Options(
+  //         headers: {'Content-Type': 'application/json'},
+  //       ),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = response.data;
+  //       var allCategoryList = jsonResponse['data'] as List;
+  //       List<Salesmanvn> allCategory =
+  //           allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+  //       return ResponseModelCp(
+  //           statusCode: jsonResponse['status_code'] ?? 0,
+  //           status: jsonResponse['status'] ?? false,
+  //           message: jsonResponse['message'] ?? '',
+  //           data: allCategory);
+  //     } else {
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response,
+  //         apiName: "category perfromance",
+  //         error: error);
+  //     throw Exception('Failed to fetch data: $error');
+  //   }
+  // }
 
   Future<ResponseModelCp> fetchDashboardValuePerformanceData({
-    required String catId,
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-  }) async {
-    final requestBody = {
-      "month": catId,
-      "time_range": "Month",
-      "year": DateTime.now().year,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-    };
-    try {
-      final response = await responsePostMethod(
-          requestData: requestBody,
-          endPoint: ApiConstants.fetchValuePerformance,
-          options: Options(
-            headers: {'Content-Type': 'application/json'},
-          ));
-      if (response.statusCode == 200) {
-        var jsonResponse = response.data;
-        var allCategoryList = jsonResponse['data'] as List;
-        List<Salesmanvn> allCategory =
-            allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-        return ResponseModelCp(
-            statusCode: jsonResponse['status_code'] ?? 0,
-            status: jsonResponse['status'] ?? false,
-            message: jsonResponse['message'] ?? '',
-            data: allCategory);
-      } else {
-        handleExceptionMessage(
-            response: response, apiName: "value perfromance");
-        throw Exception('Failed to load data');
-      }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "value perfromance", error: error);
-      throw Exception('Failed to fetch data: $error');
+  required String month,
+  required String timeRange,
+  required String selectedRange,
+  required int year,
+  String salesmanId = "",
+}) async {
+  
+  // New Payload Structure
+  final requestBody = {
+    "month": month,            // e.g., "February"
+    "time_range": timeRange,   // e.g., "year"
+    "selected_range": selectedRange, // e.g., "2025" (Filter Year)
+    "year": year,              // e.g., 2026 (Current Year)
+    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  };
+
+  try {
+    final response = await responsePostMethod(
+      endPoint: ApiConstants.fetchValuePerformance,
+      requestData: requestBody,
+    );
+
+    final jsonResponse =
+        response.data is String ? jsonDecode(response.data) : response.data;
+
+    if (response.statusCode == 200) {
+      var allCategoryList = jsonResponse['data'] as List;
+      List<Salesmanvn> allCategory =
+          allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+
+      return ResponseModelCp(
+        statusCode: jsonResponse['status_code'] ?? 0,
+        status: jsonResponse['status'] ?? false,
+        message: jsonResponse['message'] ?? '',
+        data: allCategory,
+      );
+    } else {
+      throw Exception('Failed to load data');
     }
+  } catch (e) {
+    throw Exception('Failed to fetch data: $e');
   }
+}
+
+
+  // Future<ResponseModelCp> fetchDashboardValuePerformanceData({
+  //   required String catId,
+  //   String? fetchType,
+  //   String? startDate,
+  //   String? endDate,
+  //   String? selectedDay,
+  //   List<String>? selectedMonths,
+  //   List<String>? selectedWeeks,
+  //   int? year,
+  // }) async {
+  //   final requestBody = {
+  //     "month": catId,
+  //     "time_range": "Month",
+  //     "year": DateTime.now().year,
+  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //   };
+  //   try {
+  //     final response = await responsePostMethod(
+  //         requestData: requestBody,
+  //         endPoint: ApiConstants.fetchValuePerformance,
+  //         options: Options(
+  //           headers: {'Content-Type': 'application/json'},
+  //         ));
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = response.data;
+  //       var allCategoryList = jsonResponse['data'] as List;
+  //       List<Salesmanvn> allCategory =
+  //           allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
+  //       return ResponseModelCp(
+  //           statusCode: jsonResponse['status_code'] ?? 0,
+  //           status: jsonResponse['status'] ?? false,
+  //           message: jsonResponse['message'] ?? '',
+  //           data: allCategory);
+  //     } else {
+  //       handleExceptionMessage(
+  //           response: response, apiName: "value perfromance");
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response, apiName: "value perfromance", error: error);
+  //     throw Exception('Failed to fetch data: $error');
+  //   }
+  // }
 
   Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
     required dynamic catId,

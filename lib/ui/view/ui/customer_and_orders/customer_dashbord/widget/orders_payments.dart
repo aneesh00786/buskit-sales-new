@@ -61,9 +61,10 @@ MyCommnonContainer OrdersPayments(
                     softWrap: false,
                   ),
                 ),
-                nkSmallSizeBox(),
+                SizedBox(width: 7,),
                 SizedBox(
                   height: 25,
+                  width: 95,
                   child: ElevatedButton(
                     onPressed: () {
                       if (subscriptionController

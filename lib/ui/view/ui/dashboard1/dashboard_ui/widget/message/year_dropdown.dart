@@ -66,7 +66,7 @@ class _YearDropdownState extends State<YearDropdown> {
           children: [
             SizedBox(
               height: 45,
-              width: 160,
+              width: 140,
               child: Container(
                 key: _dropdownKey,
                 decoration: BoxDecoration(

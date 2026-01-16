@@ -10,7 +10,7 @@ class OrdersPaymentHeading extends StatelessWidget {
     return const Row(
       children: [
         Expanded(
-          flex: 1,
+        
           child: Center(
             child: Text(
               "Date",
@@ -23,7 +23,7 @@ class OrdersPaymentHeading extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 1,
+       
           child: Center(
             child: Text(
               "Invoice",
@@ -62,7 +62,7 @@ class OrdersPaymentHeading extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 1,
+        
           child: Center(
             child: Text(
               "Due By",
@@ -76,7 +76,7 @@ class OrdersPaymentHeading extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 1,
+        
           child: Center(
             child: Text(
               "Select",

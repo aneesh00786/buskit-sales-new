@@ -94,6 +94,172 @@ Widget middleTopRightComponet({
                         num bookingRevenue = 0.0;
                         num orderRevenue = 0.0;
                         var categoryPerformance = snapshot.data?.revenue;
+                         if (snapshot.hasData) {
+                        final categoryPerformance = snapshot.data!.revenue;
+                        if (categoryPerformance!.orderRevenueData!.isEmpty) {
+                          return FutureBuilder(
+                            future: Future.delayed(const Duration(seconds: 3)),
+                            builder: (context, delaySnapshot) {
+                              if (delaySnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                );
+                              } 
+                              else {
+                                 return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            
+                            // This Spacer pushes everything following it to the bottom
+                            const Spacer(),
+                            
+                            // The Data Items
+                            Container(
+                              width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
+                                  // Booking Item
+                                  InkWell(
+                                    onTap: () {
+                                      if (bookingRevenue == 0) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "No Record Found",
+                                          red,
+                                          Icons.close,
+                                        );
+                                      } else {
+                                        if (categoryPerformance != null) {
+                                          showValueDialog(
+                                            context,
+                                            categoryPerformance,
+                                            'Booking',
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: buildLegendItem(
+                                      const Color(0xff1d3d63),
+                                      'Bookings : ${formatAmount(bookingRevenue)}',
+                                    ),
+                                  ),
+                              
+                                  // Order Item
+                                  InkWell(
+                                    onTap: () {
+                                      if (orderRevenue == 0) {
+                                        showCustomToastDisplay(
+                                          context,
+                                          "No Record Found",
+                                          red,
+                                          Icons.close,
+                                        );
+                                      } else {
+                                        if (categoryPerformance != null) {
+                                          showValueDialog(
+                                            context,
+                                            categoryPerformance,
+                                            'Order',
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: buildLegendItem(
+                                      Colors.blue,
+                                      'Orders : ${formatAmount(orderRevenue)}',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            // Add a little bottom padding so it's not glued to the container edge
+                            const SizedBox(height: 20), 
+                          ],
+                        );
+                              }
+                            },
+                          );
+                        }
+                        final bookingRevenueLength =
+                            categoryPerformance.bookingRevenueData!.isNotEmpty
+                                ? categoryPerformance.bookingRevenueData!
+                                    .map((e) => e.orderTotal ?? 0.0)
+                                    .reduce((a, b) => a + b)
+                                : 0.0;
+                        final orderRevenueLast =
+                            categoryPerformance.orderRevenueData!.isNotEmpty
+                                ? categoryPerformance
+                                    .orderRevenueData!.last.totalOrderRevenue
+                                : 0.0;
+                        return Center(
+                          child: DoughnutDefault(
+                            categoryData: categoryPerformance,
+                            booking: "Booking : 3",
+                            order: "Order : 3",
+                            aColor: Colors.blue,
+                            bColor: const Color(0xff1d3d63),
+                            legend1: const SizedBox.shrink(),
+                            legend2: Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        if (bookingRevenueLength != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Booking');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        const Color(0xff1d3d63),
+                                        'Bookings : ${formatAmount(bookingRevenueLength)}',
+                                      ),
+                                    ),
+                                    nkSmallSizeBox(),
+                                    InkWell(
+                                      onTap: () {
+                                        if (orderRevenueLast != 0) {
+                                          showValueDialog(context,
+                                              categoryPerformance, 'Order');
+                                        } else {
+                                          showCustomToastDisplay(
+                                              context,
+                                              "No Record Found",
+                                              red,
+                                              Icons.close);
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        Colors.blue,
+                                        'Orders : ${formatAmount(orderRevenueLast)}',
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      }
 
                         if (snapshot.hasData && categoryPerformance != null) {
                           if (categoryPerformance.bookingRevenueData?.isNotEmpty == true) {

@@ -509,7 +509,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               width: 10,
             ),
             SizedBox(
-              width: 120,
+              width: 130,
               child: Obx(() {
                 final credit = _customercreditctrl.customerCredit.value;
                 final isLoading = _customercreditctrl.isLoading.value;

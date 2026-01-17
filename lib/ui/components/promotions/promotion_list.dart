@@ -117,54 +117,117 @@ class PromotionList extends StatelessWidget {
   }
 
   /// Promotion Card Item
+  
   Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      height: 100,
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 100,
-            width: 8,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF667eea),
-                  Color(0xFF764ba2),
-                ],
-              ),
-            ),
+    return Obx(
+       () {
+        final isSelected = controller.selectedPromotion.value?.id == promo.id;
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          height: 100,
+          width: double.maxFinite,
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.deepPurple.shade50 : white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
+              width: isSelected ? 2 :2,
+              )
+              ,
           ),
-          Expanded(
-            child: ListTile(
-              title: Text(promo.title ?? "Untitled"),
-              subtitle: Text(
-                (promo.description == null || promo.description!.isEmpty)
-                    ? "No description"
-                    : promo.description!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              Container(
+                height: 100,
+                width: 8,
+                decoration:  BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: isSelected
+                    ?  [Color(0xFF764ba2), Color(0xFF667eea)]
+                    : const [Color(0xFF667eea), Color(0xFF764ba2)],
+                    // colors: [
+                    //   Color(0xFF667eea),
+                    //   Color(0xFF764ba2),
+                    // ],
+                  ),
+                ),
               ),
-              trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-              onTap: () {
-                controller.selectPromotion(promo);
-                // Close drawer if in drawer mode
-                if (isDrawer) {
-                  Navigator.of(context).pop();
-                }
-              }, // 👈 important
-            ),
+              Expanded(
+                child: ListTile(
+                  title: Text(promo.title ?? "Untitled"),
+                  subtitle: Text(
+                    (promo.description == null || promo.description!.isEmpty)
+                        ? "No description"
+                        : promo.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                  onTap: () {
+                    controller.selectPromotion(promo);
+                    // Close drawer if in drawer mode
+                    if (isDrawer) {
+                      Navigator.of(context).pop();
+                    }
+                  }, // 👈 important
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
+  // Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
+  //   return Container(
+  //     clipBehavior: Clip.antiAlias,
+  //     height: 100,
+  //     width: double.maxFinite,
+  //     decoration: BoxDecoration(
+  //       color: white,
+  //       borderRadius: BorderRadius.circular(10),
+  //       border: Border.all(color: Colors.grey.shade400),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           height: 100,
+  //           width: 8,
+  //           decoration: const BoxDecoration(
+  //             gradient: LinearGradient(
+  //               begin: Alignment.topCenter,
+  //               end: Alignment.bottomCenter,
+  //               colors: [
+  //                 Color(0xFF667eea),
+  //                 Color(0xFF764ba2),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: ListTile(
+  //             title: Text(promo.title ?? "Untitled"),
+  //             subtitle: Text(
+  //               (promo.description == null || promo.description!.isEmpty)
+  //                   ? "No description"
+  //                   : promo.description!,
+  //               maxLines: 2,
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //             trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+  //             onTap: () {
+  //               controller.selectPromotion(promo);
+  //               // Close drawer if in drawer mode
+  //               if (isDrawer) {
+  //                 Navigator.of(context).pop();
+  //               }
+  //             }, // 👈 important
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

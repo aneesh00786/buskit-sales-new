@@ -439,8 +439,8 @@ class CartDialogueState extends State<CartDialogue> {
             widget.productsController.preorderItems;
         // orderSubtotal =
         //     Utils().calculateSubtotal(widget.productsController.orderItems);
-        orderTax =
-            Utils().calculateTotalTax(widget.productsController.orderItems);
+        // orderTax =
+        //     Utils().calculateTotalTax(widget.productsController.orderItems);
         preorderSubtotal =
             Utils().calculateSubtotal(widget.productsController.preorderItems);
         preorderTax =
@@ -1236,32 +1236,73 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      color: lightPrimaryColor,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Subtotal',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(orderSubtotal),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                     Obx(() {
+                        final String cid =
+                            widget.productsController.selectedCustomerId.value;
+                        var customerCredit =
+                            _customercreditctrl.customerCredit.value ?? 0.0;
+                        print('customer credit in my cart:$customerCredit');
+                        final double flatDisc = widget.productsController
+                                .flatDiscountByCustomer[cid] ??
+                            0.0;
+                        print('flat discount:$flatDisc');
+                        // final double baseAmount = orderSubtotal - flatDisc;
+                        double baseAmount =
+                            widget.productsController.orderItems.fold(
+                          0.0,
+                          (sum, item) {
+                            if (!item.isChecked!) return sum;
+                            return sum + (item.finalPrice ?? item.totalPrice);
+                          },
+                        );
+
+                        print('base amount:$baseAmount');
+                        final double finalBeforeCredit =
+                            baseAmount.clamp(0.0, double.infinity);
+
+                        print('final before credit:$finalBeforeCredit');
+                        final double payableAmount = useCredit.value
+                            ? (finalBeforeCredit - customerCredit)
+                                .clamp(0.0, double.infinity)
+                            : finalBeforeCredit;
+                        print('payble amount:$payableAmount');
+                        //thi is the portion of orders//
+                        return CartTotalWidget(
+                          title: 'Subtotal',
+                          //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                          content: payableAmount,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color2:
+                              payableAmount <= 0 ? Colors.green : primaryColor,
+                        );
+                      }),
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   color: lightPrimaryColor,
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Subtotal',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(orderSubtotal),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 5.0),
 
                     Builder(builder: (context) {
@@ -1287,7 +1328,7 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(totalDiscount + flatDisc),
+                                content: formatAmount(flatDisc),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -1388,50 +1429,77 @@ class CartDialogueState extends State<CartDialogue> {
 
                     const Divider(),
 
-                    Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      var customerCredit =
-                          _customercreditctrl.customerCredit.value ?? 0.0;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      final double baseAmount = orderSubtotal - flatDisc;
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
+                      Obx(() {
+                        final String cid =
+                            widget.productsController.selectedCustomerId.value;
+                        var customerCredit =
+                            _customercreditctrl.customerCredit.value ?? 0.0;
+                        print('customer credit in my cart:$customerCredit');
+                        final double flatDisc = widget.productsController
+                                .flatDiscountByCustomer[cid] ??
+                            0.0;
+                        print('flat discount:$flatDisc');
+                        // final double baseAmount = orderSubtotal - flatDisc;
+                        double baseAmount =
+                            widget.productsController.orderItems.fold(
+                          0.0,
+                          (sum, item) {
+                            if (!item.isChecked!) return sum;
+                            return sum + (item.finalPrice ?? item.totalPrice);
+                          },
+                        );
 
-                      final double payableAmount = useCredit.value
-                          ? (finalBeforeCredit - customerCredit)
-                              .clamp(0.0, double.infinity)
-                          : finalBeforeCredit;
+                        print('base amount:$baseAmount');
+                        final double finalBeforeCredit =
+                            baseAmount.clamp(0.0, double.infinity);
 
-                      return CartTotalWidget(
-                        title: 'Final Amount',
-                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
-                        content: payableAmount,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color2:
-                            payableAmount <= 0 ? Colors.green : primaryColor,
-                      );
-                    }),
+                        print('final before credit:$finalBeforeCredit');
+                        final double payableAmount = useCredit.value
+                            ? (finalBeforeCredit - customerCredit)
+                                .clamp(0.0, double.infinity)
+                            : finalBeforeCredit;
+                        print('payble amount:$payableAmount');
+                        //thi is the portion of orders//
+                        return CartTotalWidget(
+                          title: 'Final Amount',
+                          //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                          content: payableAmount,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color2:
+                              payableAmount <= 0 ? Colors.green : primaryColor,
+                        );
+                      }),
 
-                    // Builder(builder: (context) {
+                    // Obx(() {
                     //   final String cid =
                     //       widget.productsController.selectedCustomerId.value;
+                    //   var customerCredit =
+                    //       _customercreditctrl.customerCredit.value ?? 0.0;
                     //   final double flatDisc = widget
                     //           .productsController.flatDiscountByCustomer[cid] ??
                     //       0.0;
-                    //   final double finalAmt = (orderSubtotal - flatDisc)
-                    //       .clamp(0.0, double.infinity);
+                    //   final double baseAmount = orderSubtotal - flatDisc;
+                    //   final double finalBeforeCredit =
+                    //       baseAmount.clamp(0.0, double.infinity);
+
+                    //   final double payableAmount = useCredit.value
+                    //       ? (finalBeforeCredit - customerCredit)
+                    //           .clamp(0.0, double.infinity)
+                    //       : finalBeforeCredit;
+
                     //   return CartTotalWidget(
-                    //     title: 'Final Amountt',
-                    //     content: finalAmt,
-                    //     fontSize: 20,
-                    //     fontWeight: FontWeight.w700,
-                    //     color2: Colors.green,
+                    //     title: 'Final Amount',
+                    //     //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                    //     content: payableAmount,
+                    //     fontSize: 22,
+                    //     fontWeight: FontWeight.w800,
+                    //     color2:
+                    //         payableAmount <= 0 ? Colors.green : primaryColor,
                     //   );
                     // }),
+
+                   
                   ],
                   if (!isOrder) ...[
                     (widget.productsController.preorderItems.isEmpty)
@@ -1726,7 +1794,7 @@ class CartDialogueState extends State<CartDialogue> {
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
-                                content: formatAmount(totalDiscount + flatDisc),
+                                content: formatAmount(flatDisc),
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -1762,29 +1830,64 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const Divider(),
-                    // CartTotalWidget(
-                    //   title: 'Final Amount',
-                    //   content: preorderSubtotal,
-                    //   fontSize: 20,
-                    //   fontWeight: FontWeight.w700,
-                    //   color2: Colors.green,
-                    // ),
-                    Builder(builder: (context) {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      final double finalAmt = (preorderSubtotal - flatDisc)
-                          .clamp(0.0, double.infinity);
-                      return CartTotalWidget(
-                        title: 'Final Amount',
-                        content: finalAmt,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color2: Colors.green,
-                      );
-                    }),
+                     Obx(() {
+                        final String cid =
+                            widget.productsController.selectedCustomerId.value;
+                        var customerCredit =
+                            _customercreditctrl.customerCredit.value ?? 0.0;
+                        print('customer credit in my cart:$customerCredit');
+                        final double flatDisc = widget.productsController
+                                .flatDiscountByCustomer[cid] ??
+                            0.0;
+                        print('flat discount:$flatDisc');
+                        // final double baseAmount = orderSubtotal - flatDisc;
+                        double baseAmount =
+                            widget.productsController.orderItems.fold(
+                          0.0,
+                          (sum, item) {
+                            if (!item.isChecked!) return sum;
+                            return sum + (item.finalPrice ?? item.totalPrice);
+                          },
+                        );
+
+                        print('base amount:$baseAmount');
+                        final double finalBeforeCredit =
+                            baseAmount.clamp(0.0, double.infinity);
+
+                        print('final before credit:$finalBeforeCredit');
+                        final double payableAmount = useCredit.value
+                            ? (finalBeforeCredit - customerCredit)
+                                .clamp(0.0, double.infinity)
+                            : finalBeforeCredit;
+                        print('payble amount:$payableAmount');
+                        return CartTotalWidget(
+                          title: 'Final Amount',
+
+                          //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                          // this is the portion of preorder//
+                          content: preorderSubtotal,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color2:
+                              payableAmount <= 0 ? Colors.green : primaryColor,
+                        );
+                      }),
+                    // Builder(builder: (context) {
+                    //   final String cid =
+                    //       widget.productsController.selectedCustomerId.value;
+                    //   final double flatDisc = widget
+                    //           .productsController.flatDiscountByCustomer[cid] ??
+                    //       0.0;
+                    //   final double finalAmt = (preorderSubtotal - flatDisc)
+                    //       .clamp(0.0, double.infinity);
+                    //   return CartTotalWidget(
+                    //     title: 'Final Amount',
+                    //     content: finalAmt,
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.w700,
+                    //     color2: Colors.green,
+                    //   );
+                    // }),
                   ],
                   SizedBox(
                     height: _selectedValue == "Quick Sale"
@@ -2580,7 +2683,6 @@ onTap: () async {
     required String cartId,
     required String draftId,
   }) async {
-    // Determine which items to process based on the active tab (_selectedValue)
     List<CartItem> itemList;
     String customerId = (widget.customerId != null && widget.customerId != '')
         ? widget.customerId ??
@@ -2601,8 +2703,9 @@ onTap: () async {
     } else {
       itemList = [];
     }
-    // Debug logging
+
     final connectivityService = ConnectivityService();
+
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
@@ -2624,6 +2727,7 @@ onTap: () async {
                   : _selectedValue == 'Estimate'
                       ? 7
                       : 14;
+
           await saveOrderOffline(finalAmount, paymentType, status);
           Navigator.pop(context);
           showDialog(
@@ -2641,7 +2745,6 @@ onTap: () async {
                       Navigator.of(context, rootNavigator: true).pop();
                       _clearCartItem(itemList, customerId);
                     });
-                    // Call the callback to refresh the draft list
                     if (widget.onDraftUpdated != null) {
                       widget.onDraftUpdated!();
                     }
@@ -2657,103 +2760,156 @@ onTap: () async {
           }
           return;
         } else {
+          List<Detail> detail = itemList.map((e) => e.detail).toList();
           final productBYData = AddToCartModel(
-            customerId: customerId,
-            salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-            cartId: '',
-            cartList: await Future.wait(itemList.map((item) async {
-              final e = item.detail; // for easier reference
+  customerId: customerId,
+  salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  cartId: '',
+  cartList: await Future.wait(itemList.map((item) async {
+    final e = item.detail;
 
-              String packValue =
-                  e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+    // Calculate Pack Value
+    String packValue =
+        e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+    print('bundle promo msg: ${item.promoMsg}');
+    // 1. Check if it is a Promo Item
+    if (item.isPromo == true) {
+      bool isBundle =
+          item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
 
-              if (item.isPromo == true) {
-                bool isBundle = item.promoMsg != null &&
-                    item.promoMsg!.startsWith("Bundle");
+      if (isBundle) {
+        // --- Bundle Logic ---
+        return SendCartData(
+          productId: e.productId ?? '',
+          variantId: e.variationId ?? '',
+          pack: packValue,
+          price: e.sellPrice.toString(),
+          packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+          discount: e.discount ?? 0,
+          quantity: e.count.toInt(),
+          variantName: e.variationName ?? '',
+          
+          // Specific Bundle Flags
+          isPromo: true,
+          isBundle: true,
+          promoCode: item.promoCode ?? '',
+          promoMsg: "Bundle: ${e.variationName}",
+          bundleDetails: "Bundle: ${e.variationName}",
+          
+          customerDiscount: item.CustomerDiscount,
+          promoDiscount: item.tieredDiscount,
+        );
+      } else {
+        // --- Standard Promo Logic ---
+        return SendCartData(
+          productId: e.productId ?? '',
+          variantId: e.variationId ?? '',
+          pack: packValue,
+          price: e.sellPrice.toString(),
+          packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+          discount: e.discount ?? 0,
+          quantity: e.count.toInt(),
+          variantName: e.variationName ?? '',
+          
+          // Standard Promo Flags
+          isPromo: true,
+          isBundle: false, // Not a bundle
+          promoCode: item.promoCode ?? '',
+          promoMsg: item.promoMsg ?? '',
+          
+          customerDiscount: item.CustomerDiscount,
+          promoDiscount: item.tieredDiscount,
+        );
+      }
+    } else {
+      // 2. Normal Item Logic (Check for Bulk)
+      bool isBulkItem = false;
+      String? bulkId;
+      
+      if (e.variationName?.contains('[BULK_ID:') == true) {
+        isBulkItem = true;
+        final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+        final match = regex.firstMatch(e.variationName!);
+        if (match != null) {
+          bulkId = match.group(1);
+        }
+      }
 
-                if (isBundle) {
-                  return SendCartData(
-                    productId: e.productId ?? '',
-                    variantId: e.variationId ?? '',
-                    pack: packValue,
-                    price: e.sellPrice.toString(),
-                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                    discount: e.discount ?? 0,
-                    quantity: e.count.toInt(),
-                    variantName: e.variationName ?? '',
-                    maxDiscount: e.maxDiscount?.toInt(),
-                    isPromo: true,
-                    promoCode: item.promoCode ?? '',
-                    promoMsg: "Bundle: ${e.variationName}",
-                    isBundle: isBundle,
-                    bundleDetails:
-                        isBundle ? "Bundle: ${e.variationName}" : null,
-                  );
-                } else {
-                  return SendCartData(
-                    productId: e.productId ?? '',
-                    variantId: e.variationId ?? '',
-                    pack: packValue,
-                    price: e.sellPrice.toString(),
-                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                    discount: e.discount ?? 0,
-                    quantity: e.count.toInt(),
-                    variantName: e.variationName ?? '',
-                    maxDiscount: e.maxDiscount?.toInt(),
-                    isPromo: true,
-                    promoCode: item.promoCode ?? '',
-                    promoMsg: item.promoMsg ?? '',
-                    customerDiscount: item.CustomerDiscount,
-                    promoDiscount: item.tieredDiscount,
-                  );
-                }
-              } else {
-                // ✅ Normal items
-                return SendCartData(
-                  productId: e.productId ?? '',
-                  variantId: e.variationId ?? '',
-                  pack: packValue,
-                  price: e.sellPrice.toString(),
-                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                  discount: e.discount ?? 0,
-                  quantity: e.count.toInt(),
-                  variantName: e.variationName ?? '',
-                  isPromo: false,
-                  promoCode: "",
-                  customerDiscount: item.CustomerDiscount,
-                  promoDiscount: item.tieredDiscount,
-                );
-              }
-            }).toList()),
-            total: finalAmount.toStringAsFixed(0),
-          );
+      return SendCartData(
+        productId: e.productId ?? '',
+        variantId: e.variationId ?? '',
+        pack: packValue,
+        price: e.sellPrice.toString(),
+        packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+        // packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+        discount: e.discount ?? 0,
+        quantity: e.count.toInt(),
+        variantName: e.variationName ?? '',
+        
+        // Normal/Bulk Flags
+        isPromo: false, 
+        isBundle: false,
+        isBulk: isBulkItem,
+        bulkId: bulkId,
+        
+        customerDiscount: item.CustomerDiscount,
+        promoDiscount: item.tieredDiscount,
+      );
+    }
+  }).toList()),
+  total: finalAmount.toStringAsFixed(0),
+);
+  //         final productBYData = AddToCartModel(
+  //           customerId: customerId,
+  //           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //           cartId: '',
+  //           cartList: await Future.wait(itemList.map((item) async {
+  //             final e = item.detail;
+  //             String packValue =
+  //                 e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+  //                 bool isBulkItem = false;
+  // String? bulkId;
+  // if (e.variationName?.contains('[BULK_ID:') == true) {
+  //   isBulkItem = true;
+  //   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+  //   final match = regex.firstMatch(e.variationName!);
+  //   if (match != null) {
+  //     bulkId = match.group(1);
+  //   }
+  // }
+  
+  //             return SendCartData(
+  //               productId: e.productId ?? '',
+  //               variantId: e.variationId ?? '',
+  //               pack: packValue,
+  //               price: e.sellPrice.toString(),
+  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //               discount: e.discount ?? 0,
+  //               quantity: e.count.toInt(),
+  //               variantName: e.variationName ?? '',
+  //               isPromo: true,
+  //               promoCode: item.promoCode ?? '',
+  //               promoMsg: item.promoMsg ?? '',
+  //               customerDiscount: item.CustomerDiscount,
+  //               promoDiscount: item.tieredDiscount,
+  //               isBulk: isBulkItem,
+  //               bulkId: bulkId,
+  //               isBundle: true,
+  //             );
+  //           }).toList()),
+  //           total: finalAmount.toStringAsFixed(0),
+  //         );
 
-          List<String> variantIdsPass = [];
-
-          final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
-
-          for (var item in itemList) {
-            final variantId = item.detail.variationId ?? '';
-            if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
-              variantIdsPass.add(variantId);
-            }
-
-            if (item.isPromo == true &&
-                (item.promoMsg?.startsWith('Bundle') ?? false)) {
-              final promoMsg = item.promoMsg ?? '';
-              for (final m in variantIdRegex.allMatches(promoMsg)) {
-                final extracted = m.group(1);
-                if (extracted != null && extracted.isNotEmpty) {
-                  variantIdsPass.add(extracted);
-                }
-              }
-            }
+          List<String> varientIdsPass = [];
+          for (var item in detail) {
+            varientIdsPass.add(item.variationId ?? '');
           }
-
-          variantIdsPass = variantIdsPass.toSet().toList();
 
           CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
+          print(
+              'addtocartttt productBYData to json: ${productBYData.toJson()}');
+              
 
           if (cartOrder != null) {
             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -2765,52 +2921,33 @@ onTap: () async {
                         ? 7
                         : 14;
 
-//
-            // final customerCreditCtrl = Get.find<CustomerCreditController>();
-            // final availableCredit =
-            //     customerCreditCtrl.customerCredit.value; // fresh value
-            // final originalTotal = finalAmount; // total before any credit
+            final customerCreditCtrl = Get.find<CustomerCreditController>();
+            final availableCredit =
+                customerCreditCtrl.customerCredit.value ?? 0.0;
+            final double originalTotal = finalAmount; // Before credit
 
-            // final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
-            //         _selectedValue == 'Quick Sale') &&
-            //     useCredit.value == true &&
-            //     availableCredit > 0;
+            final bool shouldUseCredit =
+                useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
+            final creditUsed = shouldUseCredit
+                ? (originalTotal > availableCredit
+                    ? availableCredit
+                    : originalTotal)
+                : 0.0;
 
-            // final creditUsed = shouldUseCredit
-            //     ? (originalTotal > availableCredit
-            //         ? availableCredit
-            //         : originalTotal)
-            //     : 0.0;
+            final double amountToPayAfterCredit =
+                (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-            // final amountToPay =
-            //     (originalTotal - creditUsed).clamp(0.0, double.infinity);
+            print(
+                "Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
 
-            // print(
-            //     "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
-
- 
- final customerCreditCtrl = Get.find<CustomerCreditController>();
-    final  availableCredit = customerCreditCtrl.customerCredit.value ?? 0.0;
-    final double originalTotal = finalAmount; // Before credit
-
-    final bool shouldUseCredit = useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
-    final  creditUsed = shouldUseCredit
-        ? (originalTotal > availableCredit ? availableCredit : originalTotal)
-        : 0.0;
-
-    final double amountToPayAfterCredit = (originalTotal - creditUsed).clamp(0.0, double.infinity);
-
-    print("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
-
-    // === FINAL ORDER ===
-    int orderStatuses = _selectedValue == 'Sale Order'
-        ? 11
-        : _selectedValue == 'Booking'
-            ? 0
-            : _selectedValue == 'Estimate'
-                ? 7
-                : 14;
-
+            // === FINAL ORDER ===
+            int orderStatuses = _selectedValue == 'Sale Order'
+                ? 11
+                : _selectedValue == 'Booking'
+                    ? 0
+                    : _selectedValue == 'Estimate'
+                        ? 7
+                        : 14;
 
             CartOrderModel order = CartOrderModel(
               customerId: customerId,
@@ -2825,30 +2962,27 @@ onTap: () async {
                   chequeOrTransactionNumberController.text.trim(),
               transactionDate: dateController.text.trim(),
               draftId: draftId.isNotEmpty ? draftId : '',
-              varientIds: variantIdsPass,
-              useCredit: shouldUseCredit,
+              varientIds: varientIdsPass,
               creditAmount: shouldUseCredit ? creditUsed : 0,
             );
-            // print('Cart Order: ${order.toJson()}');
+            print('place order data: ${order.toJson()}');
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
               Navigator.pop(context);
-              // print(
-              //     'statusCodeww: $statusCode, message: $message, response: $response');
               if (statusCode == 200) {
                 if (shouldUseCredit) {
-    // Deduct used credit from controller (immediate UI update)
-   customerCreditCtrl.customerCredit.value =
-    (availableCredit - creditUsed).clamp(0.0, double.infinity).toInt();
+                  // Deduct used credit from controller (immediate UI update)
+                  customerCreditCtrl.customerCredit.value =
+                      (availableCredit - creditUsed)
+                          .clamp(0.0, double.infinity)
+                          .toInt();
+                }
 
-  }
-            
                 productController.isCartModified.value = false;
-                // showSuccessFullDialogCtrl(context: context);
+
                 _clearCartItem(itemList, customerId);
 
-                // Update cached drafts after successful order placement
                 try {
                   final apiService = ApiService();
                   final salesmanId =
@@ -2863,7 +2997,6 @@ onTap: () async {
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
 
-                  // Determine order type based on _selectedValue
                   String orderType;
                   switch (_selectedValue) {
                     case 'Sale Order':
@@ -2890,14 +3023,10 @@ onTap: () async {
                     startDate: formattedStartDate,
                     endDate: formattedEndDate,
                     orderType: orderType,
-                    sentCartIds: [
-                      cartOrder.cartId
-                    ], // The cart ID that was just sent
+                    sentCartIds: [cartOrder.cartId],
                     sentAmount: finalAmount,
                   );
-                } catch (e) {
-                  // Don't show error to user as this is a background operation
-                }
+                } catch (e) {}
 
                 showDialog(
                   barrierDismissible: false,
@@ -2919,7 +3048,6 @@ onTap: () async {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            // Navigator.pop(context);
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
@@ -2990,10 +3118,7 @@ onTap: () async {
       }
     } else {
       Navigator.pop(context);
-      if (
-          // customeController.customerId.value.isEmpty ||
-          //   widget.productsController.selectedCustomerId.value.isEmpty
-          widget.customerId == '') {
+      if (widget.customerId == '') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
@@ -3012,6 +3137,447 @@ onTap: () async {
       }
     }
   }
+
+//   Future<void> processSaveAndSend({
+//     required BuildContext context,
+//     required double finalAmount,
+//     required bool useCreditConfirmed,
+//     int? paymentType,
+//     required String cartId,
+//     required String draftId,
+//   }) async {
+//     // Determine which items to process based on the active tab (_selectedValue)
+//     List<CartItem> itemList;
+//     String customerId = (widget.customerId != null && widget.customerId != '')
+//         ? widget.customerId ??
+//             widget.productsController.selectedCustomerId.value
+//         : widget.productsController.selectedCustomerId.value;
+//     if (_selectedValue == 'Sale Order' ||
+//         _selectedValue == 'Quick Sale' ||
+//         _selectedValue == 'Estimate') {
+//       itemList = [
+//         ...widget.productsController.orderItems
+//             .where((item) => item.isChecked == true)
+//       ];
+//     } else if (_selectedValue == 'Booking') {
+//       itemList = [
+//         ...widget.productsController.preorderItems
+//             .where((item) => item.isChecked == true)
+//       ];
+//     } else {
+//       itemList = [];
+//     }
+//     // Debug logging
+//     final connectivityService = ConnectivityService();
+//     if (itemList.isNotEmpty &&
+//         (customeController.customerId.value.isNotEmpty ||
+//             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+//       showDialog(
+//         barrierDismissible: false,
+//         context: context,
+//         builder: (BuildContext context) {
+//           return const Center(child: CircularProgressIndicator());
+//         },
+//       );
+//       try {
+//         bool isOnline = await connectivityService.isOnline();
+
+//         if (!isOnline) {
+//           int status = _selectedValue == 'Sale Order'
+//               ? 11
+//               : _selectedValue == 'Booking'
+//                   ? 0
+//                   : _selectedValue == 'Estimate'
+//                       ? 7
+//                       : 14;
+//           await saveOrderOffline(finalAmount, paymentType, status);
+//           Navigator.pop(context);
+//           showDialog(
+//             barrierDismissible: false,
+//             context: context,
+//             builder: (context) => AlertDialog(
+//               title: const Text('Offline Mode'),
+//               content: const Text(
+//                   'The order will be placed automatically when connected to the internet.'),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () {
+//                     setState(() {
+//                       Navigator.pop(context);
+//                       Navigator.of(context, rootNavigator: true).pop();
+//                       _clearCartItem(itemList, customerId);
+//                     });
+//                     // Call the callback to refresh the draft list
+//                     if (widget.onDraftUpdated != null) {
+//                       widget.onDraftUpdated!();
+//                     }
+//                   },
+//                   child: const Text('OK'),
+//                 ),
+//               ],
+//             ),
+//           );
+//           if (widget.productsController.orderItems.isEmpty &&
+//               widget.productsController.preorderItems.isEmpty) {
+//             clearEntireCartForCustomer();
+//           }
+//           return;
+//         } else {
+//           final productBYData = AddToCartModel(
+//             customerId: customerId,
+//             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+//             cartId: '',
+//             cartList: await Future.wait(itemList.map((item) async {
+//               final e = item.detail; // for easier reference
+
+//               String packValue =
+//                   e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+
+//               if (item.isPromo == true) {
+//                 bool isBundle = item.promoMsg != null &&
+//                     item.promoMsg!.startsWith("Bundle");
+
+//                 if (isBundle) {
+//                   return SendCartData(
+//                     productId: e.productId ?? '',
+//                     variantId: e.variationId ?? '',
+//                     pack: packValue,
+//                     price: e.sellPrice.toString(),
+//                     packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                     discount: e.discount ?? 0,
+//                     quantity: e.count.toInt(),
+//                     variantName: e.variationName ?? '',
+//                     maxDiscount: e.maxDiscount?.toInt(),
+//                     isPromo: true,
+//                     promoCode: item.promoCode ?? '',
+//                     promoMsg: "Bundle: ${e.variationName}",
+//                     isBundle: true,
+//                     bundleDetails:
+//                         isBundle ? "Bundle: ${e.variationName}" : null,
+//                   );
+//                 } else {
+//                   return SendCartData(
+//                     productId: e.productId ?? '',
+//                     variantId: e.variationId ?? '',
+//                     pack: packValue,
+//                     price: e.sellPrice.toString(),
+//                     packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                     discount: e.discount ?? 0,
+//                     quantity: e.count.toInt(),
+//                     variantName: e.variationName ?? '',
+//                     maxDiscount: e.maxDiscount?.toInt(),
+//                     isPromo: true,
+//                     promoCode: item.promoCode ?? '',
+//                     promoMsg: item.promoMsg ?? '',
+//                     customerDiscount: item.CustomerDiscount,
+//                     promoDiscount: item.tieredDiscount,
+//                   );
+//                 }
+//               } else {
+//                 // ✅ Normal items
+//                 return SendCartData(
+//                   productId: e.productId ?? '',
+//                   variantId: e.variationId ?? '',
+//                   pack: packValue,
+//                   price: e.sellPrice.toString(),
+//                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                   discount: e.discount ?? 0,
+//                   quantity: e.count.toInt(),
+//                   variantName: e.variationName ?? '',
+//                   isPromo: false,
+//                   promoCode: "",
+//                   customerDiscount: item.CustomerDiscount,
+//                   promoDiscount: item.tieredDiscount,
+//                 );
+//               }
+//             }).toList()),
+//             total: finalAmount.toStringAsFixed(0),
+//           );
+
+//           List<String> variantIdsPass = [];
+
+//           final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
+//           for (var item in itemList) {
+//             final variantId = item.detail.variationId ?? '';
+//             if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+//               variantIdsPass.add(variantId);
+//             }
+
+//             if (item.isPromo == true &&
+//                 (item.promoMsg?.startsWith('Bundle') ?? false)) {
+//               final promoMsg = item.promoMsg ?? '';
+//               for (final m in variantIdRegex.allMatches(promoMsg)) {
+//                 final extracted = m.group(1);
+//                 if (extracted != null && extracted.isNotEmpty) {
+//                   variantIdsPass.add(extracted);
+//                 }
+//               }
+//             }
+//           }
+
+//           variantIdsPass = variantIdsPass.toSet().toList();
+
+//           CartOrderModel? cartOrder =
+//               await ApiWorker().addToCart(productBYData.toJson());
+
+//           if (cartOrder != null) {
+//             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+//             int orderStatus = _selectedValue == 'Sale Order'
+//                 ? 11
+//                 : _selectedValue == 'Booking'
+//                     ? 0
+//                     : _selectedValue == 'Estimate'
+//                         ? 7
+//                         : 14;
+
+// //
+//             // final customerCreditCtrl = Get.find<CustomerCreditController>();
+//             // final availableCredit =
+//             //     customerCreditCtrl.customerCredit.value; // fresh value
+//             // final originalTotal = finalAmount; // total before any credit
+
+//             // final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
+//             //         _selectedValue == 'Quick Sale') &&
+//             //     useCredit.value == true &&
+//             //     availableCredit > 0;
+
+//             // final creditUsed = shouldUseCredit
+//             //     ? (originalTotal > availableCredit
+//             //         ? availableCredit
+//             //         : originalTotal)
+//             //     : 0.0;
+
+//             // final amountToPay =
+//             //     (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+//             // print(
+//             //     "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
+
+ 
+//  final customerCreditCtrl = Get.find<CustomerCreditController>();
+//     final  availableCredit = customerCreditCtrl.customerCredit.value ?? 0.0;
+//     final double originalTotal = finalAmount; // Before credit
+
+//     final bool shouldUseCredit = useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
+//     final  creditUsed = shouldUseCredit
+//         ? (originalTotal > availableCredit ? availableCredit : originalTotal)
+//         : 0.0;
+
+//     final double amountToPayAfterCredit = (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+//     print("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
+
+//     // === FINAL ORDER ===
+//     int orderStatuses = _selectedValue == 'Sale Order'
+//         ? 11
+//         : _selectedValue == 'Booking'
+//             ? 0
+//             : _selectedValue == 'Estimate'
+//                 ? 7
+//                 : 14;
+
+
+//             CartOrderModel order = CartOrderModel(
+//               customerId: customerId,
+//               salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+//               cartId: cartOrder.cartId,
+//               orderStatus: orderStatus,
+//               orderPrice: finalAmount,
+//               paymentType: paymentType.toString(),
+//               companyId: companyId,
+//               paymentDetail: remarkController.text.trim(),
+//               transactionNumber:
+//                   chequeOrTransactionNumberController.text.trim(),
+//               transactionDate: dateController.text.trim(),
+//               draftId: draftId.isNotEmpty ? draftId : '',
+//               varientIds: variantIdsPass,
+//               useCredit: shouldUseCredit,
+//               creditAmount: shouldUseCredit ? creditUsed : 0,
+//             );
+//             // print('Cart Order: ${order.toJson()}');
+
+//             await ApiWorker().placeOrder(order,
+//                 (statusCode, message, response) async {
+//               Navigator.pop(context);
+//               // print(
+//               //     'statusCodeww: $statusCode, message: $message, response: $response');
+//               if (statusCode == 200) {
+//                 if (shouldUseCredit) {
+//     // Deduct used credit from controller (immediate UI update)
+//    customerCreditCtrl.customerCredit.value =
+//     (availableCredit - creditUsed).clamp(0.0, double.infinity).toInt();
+
+//   }
+            
+//                 productController.isCartModified.value = false;
+//                 // showSuccessFullDialogCtrl(context: context);
+//                 _clearCartItem(itemList, customerId);
+
+//                 // Update cached drafts after successful order placement
+//                 try {
+//                   final apiService = ApiService();
+//                   final salesmanId =
+//                       SessionHelper.loginSavedData?.salesmanId ?? '';
+
+//                   final now = DateTime.now();
+//                   final startDate = DateTime(now.year, 1, 1);
+//                   final endDate = DateTime(now.year, 12 + 1, 0);
+
+//                   final formattedStartDate =
+//                       DateFormat('yyyy-MM-dd').format(startDate);
+//                   final formattedEndDate =
+//                       DateFormat('yyyy-MM-dd').format(endDate);
+
+//                   // Determine order type based on _selectedValue
+//                   String orderType;
+//                   switch (_selectedValue) {
+//                     case 'Sale Order':
+//                       orderType = 'sale_order';
+//                       break;
+//                     case 'Quick Sale':
+//                       orderType = 'quick_sale';
+//                       break;
+//                     case 'Booking':
+//                       orderType = 'booking';
+//                       break;
+//                     case 'Estimate':
+//                       orderType = 'estimate';
+//                       break;
+//                     default:
+//                       orderType = 'draft';
+//                   }
+
+//                   await apiService.updateCachedDraftsAfterSaveAndSend(
+//                     context,
+//                     customerId: customerId,
+//                     draftId: draftId.isNotEmpty ? draftId : '',
+//                     salesmanId: salesmanId,
+//                     startDate: formattedStartDate,
+//                     endDate: formattedEndDate,
+//                     orderType: orderType,
+//                     sentCartIds: [
+//                       cartOrder.cartId
+//                     ], // The cart ID that was just sent
+//                     sentAmount: finalAmount,
+//                   );
+//                 } catch (e) {
+//                   // Don't show error to user as this is a background operation
+//                 }
+
+//                 showDialog(
+//                   barrierDismissible: false,
+//                   context: context,
+//                   builder: (BuildContext context) {
+//                     return AlertDialog(
+//                       title: Center(
+//                         child: SizedBox(
+//                           height: 100,
+//                           width: 100,
+//                           child: Lottie.asset(
+//                               'assets/images/Animation - 1726906882515.json'),
+//                         ),
+//                       ),
+//                       content: CustomText(
+//                         content: message,
+//                         fontSize: 18,
+//                       ),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () async {
+//                             // Navigator.pop(context);
+//                             final cartProvider = Provider.of<CustomersProvider>(
+//                                 context,
+//                                 listen: false);
+
+//                             CartDatabaseManager().addListener(() {
+//                               cartProvider.updateCartCount(customerId);
+//                             });
+//                             if (widget.isDashboard == true) {
+//                               Provider.of<DashboardProvider>(context,
+//                                       listen: false)
+//                                   .fetchData();
+//                             } else {
+//                               Provider.of<CustomersProvider>(context,
+//                                       listen: false)
+//                                   .fetchCustomerDashboardCountData(customerId);
+//                             }
+
+//                             setState(() {
+//                               Navigator.pop(context);
+//                               Navigator.of(context, rootNavigator: true).pop();
+//                             });
+//                             if (widget.onDraftUpdated != null) {
+//                               widget.onDraftUpdated!();
+//                             }
+//                           },
+//                           child: const Text('OK'),
+//                         ),
+//                       ],
+//                     );
+//                   },
+//                 );
+//               } else {
+//                 showDialog(
+//                   barrierDismissible: false,
+//                   context: context,
+//                   builder: (BuildContext context) {
+//                     return AlertDialog(
+//                       title: Center(
+//                         child: SizedBox(
+//                           height: 200,
+//                           width: 200,
+//                           child: Lottie.asset(
+//                               'assets/images/Warning_animation.json'),
+//                         ),
+//                       ),
+//                       content: CustomText(
+//                         content: message,
+//                         fontSize: 18,
+//                       ),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () {
+//                             Navigator.pop(context);
+//                           },
+//                           child: const Text('OK'),
+//                         ),
+//                       ],
+//                     );
+//                   },
+//                 );
+//               }
+//             });
+//           }
+//         }
+//       } catch (e) {
+//         Navigator.pop(context);
+//         showFailureDialog(context, 'An unexpected error occurred.');
+//       }
+//     } else {
+//       Navigator.pop(context);
+//       if (
+//           // customeController.customerId.value.isEmpty ||
+//           //   widget.productsController.selectedCustomerId.value.isEmpty
+//           widget.customerId == '') {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             backgroundColor: Colors.red,
+//             content: Text('No Customer Selected'),
+//             duration: Duration(seconds: 3),
+//           ),
+//         );
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             backgroundColor: Colors.red,
+//             content: Text('Your cart is empty.'),
+//             duration: Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     }
+//   }
 
   Future<void> clearEntireCartForCustomer() async {
     String customerId = customeController.customerId.isNotEmpty
@@ -3458,54 +4024,63 @@ onTap: () async {
     _maybeClearFlatDiscountForCustomer(customerId);
   }
 
-  Container productQuantityManager(CartItem cartItem, String sellPrice,
-      double fontSize, double availableWidth) {
-    double padding = availableWidth > 400 ? 6 : 3;
-    ProductsController productsController = Get.find<ProductsController>();
-    // final promo = productsController.selectedPromotion.value;
-    // final bool isTieredDiscount = promo?.promoType == "tiered_discount";
-    final bool isTieredDiscount =
-        productsController.selectedPromotion.value?.promoType ==
-            "tiered_discount";
 
-// Initial quantity becomes the tier step
-    final tierStep = cartItem.detail.initialCount;
-    print('tieredstep:$tierStep');
-// final  minTierQty = tierStep;
+Container productQuantityManager(CartItem cartItem, String sellPrice,
+    double fontSize, double availableWidth) {
+  double padding = availableWidth > 400 ? 6 : 3;
+  ProductsController productsController = Get.find<ProductsController>();
 
-    // void showTieredDiscountWarning() {
-    //   Get.snackbar(
-    //     "Quantity Locked",
-    //     "Unable to add quantity",
-    //     snackPosition: SnackPosition.TOP,
-    //     backgroundColor: Colors.red,
-    //     colorText: Colors.white,
-    //     margin: const EdgeInsets.all(10),
-    //     duration: const Duration(seconds: 3),
-    //     icon: const Icon(Icons.lock_outline, color: Colors.yellow),
-    //   );
-    // }
+  // Determine if this is a tiered discount item based on SAVED item properties
+  // (not global selectedPromotion, which isn't reliable for loaded items)
+  // final bool isTieredDiscount = (cartItem.tieredDiscount ?? 0) > 0 &&
+  //     cartItem.detail.initialCount != null &&
+  //     cartItem.detail.initialCount! > 1;
 
-    return Container(
-      width: availableWidth > 400 ? 80 : 50,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 241, 240, 240)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    if (isTieredDiscount) {
+
+
+final bool isTieredDiscount = cartItem.detail.initialCount != null &&
+                               cartItem.detail.initialCount! > 1;
+  // Use initialCount as the tier step (persisted in the item)
+  final int tierStep = cartItem.detail.initialCount?.toInt() ?? 1;
+
+  // Optional: Define min qty as the initial tier step to prevent going below
+  final int minTierQty = tierStep;
+  print('tieredstep in uiiiiii:$tierStep');
+
+  void showWarning() {
+    Get.snackbar(
+      "Tier Quantity",
+      "Minimum quantity for this offer is $minTierQty",
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.orange.shade700,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  return Container(
+    width: availableWidth > 400 ? 80 : 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(5),
+      color: const Color.fromARGB(255, 241, 240, 240),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: primaryColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(5),
+              bottomLeft: Radius.circular(5),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(2),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  if (isTieredDiscount) {
                       // Do not allow decrement below initial tier quantity
                       // if (cartItem.detail.count <= minTierQty) {
                       //   // showTieredDiscountWarning();
@@ -3520,194 +4095,263 @@ onTap: () async {
                     } else {
                       if (cartItem.detail.count > 1) {
                         cartItem.detail.count--;
-                      }
-                    }
+                      }}
+                  // if (isTieredDiscount) {
+                  //   if (cartItem.detail.count <= minTierQty) {
+                  //     showWarning();
+                  //     return;
+                  //   }
+                  //   cartItem.detail.count -= tierStep;
+                  //   print('tierstep ontap minus: ${cartItem.detail.count}');
+                  // } else {
+                  //   if (cartItem.detail.count > 1) {
+                  //     cartItem.detail.count--;
+                  //   }
+                  // }
 
-                    cartItem.totalPrice = Utils().calculateTotalPrice(
-                        cartItem, cartItem.detail.count.toInt());
+                  cartItem.totalPrice = Utils().calculateTotalPrice(
+                    cartItem,
+                    cartItem.detail.count.toInt(),
+                  );
 
-                    calculateAmounts();
-                    CartDatabaseManager().updateCart(cartItem);
-                    widget.productsController.isCartModified.value = true;
-                  });
-                },
-
-                // onTap:  () {
-                //         setState(() {
-                //           if (cartItem.detail.count > 1) {
-                //             cartItem.detail.count--;
-                //             cartItem.totalPrice = Utils().calculateTotalPrice(
-                //                 cartItem, cartItem.detail.count.toInt());
-                //             calculateAmounts();
-                //             CartDatabaseManager().updateCart(cartItem);
-                //             CartDatabaseManager()
-                //                 .getCartItems(cartItem.customerId ?? '');
-                //             widget.productsController.isCartModified.value =
-                //                 true;
-                //           }
-                //         });
-                //       },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: CustomText(
-                    color: Colors.white,
-                    // color: isTieredDiscount ? Colors.grey : white,
-                    content: '-',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
+                  calculateAmounts();
+                  CartDatabaseManager().updateCart(cartItem);
+                  CartDatabaseManager().getCartItems(cartItem.customerId ?? '');
+                  widget.productsController.isCartModified.value = true;
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                child: CustomText(
+                  color: Colors.white,
+                  content: '-',
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-          CustomText(
-            content: cartItem.detail.count.toStringAsFixed(0),
-            fontSize: fontSize,
+        ),
+        CustomText(
+          content: cartItem.detail.count.toStringAsFixed(0),
+          fontSize: fontSize,
+        ),
+        Container(
+          decoration: const BoxDecoration(
+            color: primaryColor,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(5),
+              bottomRight: Radius.circular(5),
+            ),
           ),
-          Container(
-            decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    if (isTieredDiscount) {
+          child: Padding(
+            padding: const EdgeInsets.all(2),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                     if (isTieredDiscount) {
                       cartItem.detail.count += tierStep!;
                     } else {
                       cartItem.detail.count++;
                     }
+                  // if (isTieredDiscount) {
+                  //   cartItem.detail.count += tierStep;
+                  // } else {
+                  //   cartItem.detail.count++;
+                  // }
 
-                    cartItem.totalPrice = Utils().calculateTotalPrice(
-                        cartItem, cartItem.detail.count.toInt());
+                  cartItem.totalPrice = Utils().calculateTotalPrice(
+                    cartItem,
+                    cartItem.detail.count.toInt(),
+                  );
 
-                    calculateAmounts();
-                    CartDatabaseManager().updateCart(cartItem);
-                    widget.productsController.isCartModified.value = true;
-                  });
-                },
-
-                // onTap: () {
-                //         setState(() {
-                //           cartItem.detail.count++;
-                //           cartItem.totalPrice = Utils().calculateTotalPrice(
-                //               cartItem, cartItem.detail.count.toInt());
-                //           calculateAmounts();
-                //           CartDatabaseManager().updateCart(cartItem);
-                //           widget.productsController.isCartModified.value = true;
-                //         });
-                //       },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: CustomText(
-                    color: Colors.white,
-                    // color: isTieredDiscount ? Colors.grey : white,
-                    content: '+',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
+                  calculateAmounts();
+                  CartDatabaseManager().updateCart(cartItem);
+                  widget.productsController.isCartModified.value = true;
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                child: CustomText(
+                  color: Colors.white,
+                  content: '+',
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+//   Container productQuantityManager(CartItem cartItem, String sellPrice,
+//       double fontSize, double availableWidth) {
+//     double padding = availableWidth > 400 ? 6 : 3;
+//     ProductsController productsController = Get.find<ProductsController>();
+//     // final promo = productsController.selectedPromotion.value;
+//     // final bool isTieredDiscount = promo?.promoType == "tiered_discount";
+//     final bool isTieredDiscount =
+//         productsController.selectedPromotion.value?.promoType ==
+//             "tiered_discount";
+
+// // Initial quantity becomes the tier step
+//     final tierStep = cartItem.detail.initialCount;
+//     print('tieredstep:$tierStep');
+// // final  minTierQty = tierStep;
+
+//     // void showTieredDiscountWarning() {
+//     //   Get.snackbar(
+//     //     "Quantity Locked",
+//     //     "Unable to add quantity",
+//     //     snackPosition: SnackPosition.TOP,
+//     //     backgroundColor: Colors.red,
+//     //     colorText: Colors.white,
+//     //     margin: const EdgeInsets.all(10),
+//     //     duration: const Duration(seconds: 3),
+//     //     icon: const Icon(Icons.lock_outline, color: Colors.yellow),
+//     //   );
+//     // }
+
+//     return Container(
+//       width: availableWidth > 400 ? 80 : 50,
+//       decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(5),
+//           color: const Color.fromARGB(255, 241, 240, 240)),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           Container(
+//             decoration: const BoxDecoration(
+//                 color: primaryColor,
+//                 borderRadius: BorderRadius.only(
+//                     topLeft: Radius.circular(5),
+//                     bottomLeft: Radius.circular(5))),
+//             child: Padding(
+//               padding: const EdgeInsets.all(2),
+//               child: InkWell(
+//                 onTap: () {
+//                   setState(() {
+//                     if (isTieredDiscount) {
+//                       // Do not allow decrement below initial tier quantity
+//                       // if (cartItem.detail.count <= minTierQty) {
+//                       //   // showTieredDiscountWarning();
+//                       //   return;
+//                       // }
+
+//                       cartItem.detail.count -= tierStep!;
+//                       print('tierstep ontap:${cartItem.detail.count}');
+//                       // if (cartItem.detail.count < minTierQty) {
+//                       //   cartItem.detail.count = minTierQty;
+//                       // }
+//                     } else {
+//                       if (cartItem.detail.count > 1) {
+//                         cartItem.detail.count--;
+//                       }
+//                     }
+
+//                     cartItem.totalPrice = Utils().calculateTotalPrice(
+//                         cartItem, cartItem.detail.count.toInt());
+
+//                     calculateAmounts();
+//                     CartDatabaseManager().updateCart(cartItem);
+//                     widget.productsController.isCartModified.value = true;
+//                   });
+//                 },
+
+//                 // onTap:  () {
+//                 //         setState(() {
+//                 //           if (cartItem.detail.count > 1) {
+//                 //             cartItem.detail.count--;
+//                 //             cartItem.totalPrice = Utils().calculateTotalPrice(
+//                 //                 cartItem, cartItem.detail.count.toInt());
+//                 //             calculateAmounts();
+//                 //             CartDatabaseManager().updateCart(cartItem);
+//                 //             CartDatabaseManager()
+//                 //                 .getCartItems(cartItem.customerId ?? '');
+//                 //             widget.productsController.isCartModified.value =
+//                 //                 true;
+//                 //           }
+//                 //         });
+//                 //       },
+//                 child: Padding(
+//                   padding: EdgeInsets.symmetric(horizontal: padding),
+//                   child: CustomText(
+//                     color: Colors.white,
+//                     // color: isTieredDiscount ? Colors.grey : white,
+//                     content: '-',
+//                     fontSize: fontSize,
+//                     fontWeight: FontWeight.bold,
+//                     textAlign: TextAlign.center,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           CustomText(
+//             content: cartItem.detail.count.toStringAsFixed(0),
+//             fontSize: fontSize,
+//           ),
+//           Container(
+//             decoration: const BoxDecoration(
+//                 color: primaryColor,
+//                 borderRadius: BorderRadius.only(
+//                     topRight: Radius.circular(5),
+//                     bottomRight: Radius.circular(5))),
+//             child: Padding(
+//               padding: const EdgeInsets.all(2),
+//               child: InkWell(
+//                 onTap: () {
+//                   setState(() {
+//                     if (isTieredDiscount) {
+//                       cartItem.detail.count += tierStep!;
+//                     } else {
+//                       cartItem.detail.count++;
+//                     }
+
+//                     cartItem.totalPrice = Utils().calculateTotalPrice(
+//                         cartItem, cartItem.detail.count.toInt());
+
+//                     calculateAmounts();
+//                     CartDatabaseManager().updateCart(cartItem);
+//                     widget.productsController.isCartModified.value = true;
+//                   });
+//                 },
+
+//                 // onTap: () {
+//                 //         setState(() {
+//                 //           cartItem.detail.count++;
+//                 //           cartItem.totalPrice = Utils().calculateTotalPrice(
+//                 //               cartItem, cartItem.detail.count.toInt());
+//                 //           calculateAmounts();
+//                 //           CartDatabaseManager().updateCart(cartItem);
+//                 //           widget.productsController.isCartModified.value = true;
+//                 //         });
+//                 //       },
+//                 child: Padding(
+//                   padding: EdgeInsets.symmetric(horizontal: padding),
+//                   child: CustomText(
+//                     color: Colors.white,
+//                     // color: isTieredDiscount ? Colors.grey : white,
+//                     content: '+',
+//                     fontSize: fontSize,
+//                     fontWeight: FontWeight.bold,
+//                     textAlign: TextAlign.center,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
 
-  // Container productQuantityManager(CartItem cartItem, String sellPrice,
-  //     double fontSize, double availableWidth) {
-  //   double padding = availableWidth > 400 ? 6 : 3;
-  //   return Container(
-  //     width: availableWidth > 400 ? 80 : 50,
-  //     decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(5),
-  //         color: const Color.fromARGB(255, 241, 240, 240)),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //               color: primaryColor,
-  //               borderRadius: BorderRadius.only(
-  //                   topLeft: Radius.circular(5),
-  //                   bottomLeft: Radius.circular(5))),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   if (cartItem.detail.count > 1) {
-  //                     cartItem.detail.count--;
-  //                     cartItem.totalPrice = Utils().calculateTotalPrice(
-  //                         cartItem, cartItem.detail.count.toInt());
-  //                     calculateAmounts();
-  //                     CartDatabaseManager().updateCart(cartItem);
-  //                     CartDatabaseManager()
-  //                         .getCartItems(cartItem.customerId ?? '');
-  //                     widget.productsController.isCartModified.value = true;
-  //                   }
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: EdgeInsets.symmetric(horizontal: padding),
-  //                 child: CustomText(
-  //                   color: white,
-  //                   content: '-',
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.bold,
-  //                   textAlign: TextAlign.center,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         CustomText(
-  //           content: cartItem.detail.count.toStringAsFixed(0),
-  //           fontSize: fontSize,
-  //         ),
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //               color: primaryColor,
-  //               borderRadius: BorderRadius.only(
-  //                   topRight: Radius.circular(5),
-  //                   bottomRight: Radius.circular(5))),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem.detail.count++;
-  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
-  //                       cartItem, cartItem.detail.count.toInt());
-  //                   calculateAmounts();
-  //                   CartDatabaseManager().updateCart(cartItem);
-  //                   widget.productsController.isCartModified.value = true;
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: EdgeInsets.symmetric(horizontal: padding),
-  //                 child: CustomText(
-  //                   color: white,
-  //                   content: '+',
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.bold,
-  //                   textAlign: TextAlign.center,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   void calculateAmounts() {
     setState(() {

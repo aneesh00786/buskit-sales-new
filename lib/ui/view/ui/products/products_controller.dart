@@ -153,10 +153,13 @@ class ProductsController extends GetxController {
     isCartModified.value = false;
   }
 
+
+
   Future<bool> processCartBeforeNavigation({
     required BuildContext context,
     required String customerId,
   }) async {
+    print('process navigation started');
 
     final connectivityService = ConnectivityService();
     final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -174,12 +177,14 @@ class ProductsController extends GetxController {
         .toList();
 
     for (var item in draftItems) {
-      final key = item.detail.variationId ?? '';
+      final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+      // final key = item.detail.variationId ?? '';
       itemMap[key] = item;
     }
 
     for (var item in cartItems) {
-      final key = item.detail.variationId ?? '';
+      final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+      // final key = item.detail.variationId ?? '';
       if (!itemMap.containsKey(key)) {
         itemMap[key] = item;
       }
@@ -191,20 +196,21 @@ class ProductsController extends GetxController {
 
     final Map<String, Detail> dedupedDetails = {};
 
-    for (final item in allItems) {
-      final key = item.detail.variationId ?? '';
-      if (dedupedDetails.containsKey(key)) {
-        dedupedDetails[key]!.count += item.detail.count;
-      } else {
-        dedupedDetails[key] = item.detail;
-      }
-    }
+    // for (final item in allItems) {
+    //   final key = item.detail.variationId ?? '';
+    //   if (dedupedDetails.containsKey(key)) {
+    //     dedupedDetails[key]!.count += item.detail.count;
+    //   } else {
+    //     dedupedDetails[key] = item.detail;
+    //   }
+    // }
 
-    final detail = dedupedDetails.values.toList();
+    // final detail = dedupedDetails.values.toList();
 
     final isOnline = await connectivityService.isOnline();
 
     if (!isOnline) {
+      final List<Detail> detail = allItems.map((e) => e.detail).toList();
       await CartDatabaseManager().saveDraftOffline(
         customerId: customerId,
         salesmanId: currentSalesmanId,
@@ -230,6 +236,9 @@ class ProductsController extends GetxController {
 
       final existingCartId = firstOrder['cart_id'] ?? '';
       final existingDraftId = firstOrder['draft_id'] ?? '';
+      
+      
+      
 
       final productBYData = AddToCartModel(
         customerId: customerId,
@@ -246,13 +255,16 @@ class ProductsController extends GetxController {
                 item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
 
             if (isBundle) {
+              print('isbundle');
               return SendCartData(
                 productId: e.productId ?? '',
                 variantId: e.variationId ?? '',
                 pack: packValue,
                 price: e.sellPrice.toString(),
                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                discount: e.discount ?? 0,
+                discount: (item.totalDiscountAmount ?? 0).toDouble(),
+
+                // discount: item.totalDiscountAmount!.toDouble(),
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '',
                 maxDiscount: e.maxDiscount?.toInt(),
@@ -261,8 +273,10 @@ class ProductsController extends GetxController {
                 promoMsg: "Bundle: ${e.variationName}",
                 isBundle: isBundle,
                 bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
-                 customerDiscount: item.CustomerDiscount,
+                customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
+                initialCount: e.initialCount,
+                // taxAmount: item.taxAmount ?? 0.0,
               );
             } else {
               return SendCartData(
@@ -272,15 +286,18 @@ class ProductsController extends GetxController {
                 price: e.sellPrice.toString(),
                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
-                // discount: e.discount ?? 0,
+
+                // discount: item.totalDiscountAmount!.toDouble(),
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '',
                 maxDiscount: e.maxDiscount?.toInt(),
                 isPromo: true,
                 promoCode: item.promoCode ?? '',
                 promoMsg: item.promoMsg ?? '',
-                 customerDiscount: item.CustomerDiscount,
+                customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
+                initialCount: e.initialCount,
+                //  taxAmount: item.taxAmount ?? 0.0,
               );
             }
           } else {
@@ -300,15 +317,21 @@ class ProductsController extends GetxController {
               variantId: e.variationId ?? '',
               pack: packValue,
               price: e.sellPrice.toString(),
-              packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-              // discount: e.discount ?? 0,
-               discount: (item.totalDiscountAmount ?? 0).toDouble(),
+               packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+              // packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+              // discount: item.totalDiscountAmount!.toDouble(),
+              discount: (item.totalDiscountAmount ?? 0).toDouble(),
+
+// promoCode: item.promoCode ?? '',
+//                 promoMsg: item.promoMsg ?? '',
               quantity: e.count.toInt(),
               variantName: e.variationName ?? '',
-               customerDiscount: item.CustomerDiscount,
+              customerDiscount: item.CustomerDiscount,
               promoDiscount: item.tieredDiscount,
               isBulk: isBulkItem,
               bulkId: bulkId,
+              initialCount: e.initialCount,
+              // taxAmount: item.taxAmount ?? 0.0,
             );
           }
         }).toList()),
@@ -341,6 +364,7 @@ class ProductsController extends GetxController {
 
       variantIdsPass = variantIdsPass.toSet().toList();
 
+
       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
 
       if (cartOrder != null) {
@@ -369,6 +393,223 @@ class ProductsController extends GetxController {
       return true;
     }
   }
+
+//   Future<bool> processCartBeforeNavigation({
+//     required BuildContext context,
+//     required String customerId,
+//   }) async {
+
+//     final connectivityService = ConnectivityService();
+//     final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
+//     final Map<String, CartItem> itemMap = {};
+
+//     final draftItems = CartDatabaseManager()
+//         .draftBox
+//         .values
+//         .where((e) => e.customerId == customerId)
+//         .toList();
+//     final cartItems = CartDatabaseManager()
+//         .cartItems
+//         .where((e) => e.customerId == customerId)
+//         .toList();
+
+//     for (var item in draftItems) {
+//       final key = item.detail.variationId ?? '';
+//       itemMap[key] = item;
+//     }
+
+//     for (var item in cartItems) {
+//       final key = item.detail.variationId ?? '';
+//       if (!itemMap.containsKey(key)) {
+//         itemMap[key] = item;
+//       }
+//     }
+
+//     final allItems = itemMap.values.toList();
+
+//     allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
+
+//     final Map<String, Detail> dedupedDetails = {};
+
+//     for (final item in allItems) {
+//       final key = item.detail.variationId ?? '';
+//       if (dedupedDetails.containsKey(key)) {
+//         dedupedDetails[key]!.count += item.detail.count;
+//       } else {
+//         dedupedDetails[key] = item.detail;
+//       }
+//     }
+
+//     final detail = dedupedDetails.values.toList();
+
+//     final isOnline = await connectivityService.isOnline();
+
+//     if (!isOnline) {
+//       await CartDatabaseManager().saveDraftOffline(
+//         customerId: customerId,
+//         salesmanId: currentSalesmanId,
+//         totalAmount: finalAmount.value,
+//         details: detail,
+//         customerName: selectedCustomerName.value,
+//         customerMobile: selectedCustomerMobileNo.value,
+//         customerEmail: selectedCustomerEmail.value,
+//         customerImageUrl: selectedCustomerImageUrl.value,
+//         allItemsTotal: allItemsTotalSave.value,
+//       );
+
+//       CartDatabaseManager().clearCart(customerId: customerId);
+//       return false;
+//     } else {
+//       final cartDetails =
+//           await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+//       await Future.delayed(const Duration(seconds: 1));
+
+//       final firstOrder = cartDetails.isNotEmpty
+//           ? cartDetails.last
+//           : {'cart_id': '', 'draft_id': ''};
+
+//       final existingCartId = firstOrder['cart_id'] ?? '';
+//       final existingDraftId = firstOrder['draft_id'] ?? '';
+
+//       final productBYData = AddToCartModel(
+//         customerId: customerId,
+//         salesmanId: currentSalesmanId,
+//         cartId: existingCartId,
+//         cartList: await Future.wait(allItems.map((item) async {
+//           final e = item.detail;
+
+//           final packValue =
+//               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+
+//           if (item.isPromo == true) {
+//             bool isBundle =
+//                 item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
+
+//             if (isBundle) {
+//               return SendCartData(
+//                 productId: e.productId ?? '',
+//                 variantId: e.variationId ?? '',
+//                 pack: packValue,
+//                 price: e.sellPrice.toString(),
+//                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                 discount: e.discount ?? 0,
+//                 quantity: e.count.toInt(),
+//                 variantName: e.variationName ?? '',
+//                 maxDiscount: e.maxDiscount?.toInt(),
+//                 isPromo: true,
+//                 promoCode: item.promoCode ?? '',
+//                 promoMsg: "Bundle: ${e.variationName}",
+//                 isBundle: isBundle,
+//                 bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
+//                  customerDiscount: item.CustomerDiscount,
+//                 promoDiscount: item.tieredDiscount,
+//               );
+//             } else {
+//               return SendCartData(
+//                 productId: e.productId ?? '',
+//                 variantId: e.variationId ?? '',
+//                 pack: packValue,
+//                 price: e.sellPrice.toString(),
+//                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+//                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
+//                 // discount: e.discount ?? 0,
+//                 quantity: e.count.toInt(),
+//                 variantName: e.variationName ?? '',
+//                 maxDiscount: e.maxDiscount?.toInt(),
+//                 isPromo: true,
+//                 promoCode: item.promoCode ?? '',
+//                 promoMsg: item.promoMsg ?? '',
+//                  customerDiscount: item.CustomerDiscount,
+//                 promoDiscount: item.tieredDiscount,
+//               );
+//             }
+//           } else {
+//             // ✅ Normal items
+//             bool isBulkItem = false;
+//   String? bulkId;
+//   if (e.variationName?.contains('[BULK_ID:') == true) {
+//     isBulkItem = true;
+//     final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+//     final match = regex.firstMatch(e.variationName!);
+//     if (match != null) {
+//       bulkId = match.group(1);
+//     }
+//   }
+//             return SendCartData(
+//               productId: e.productId ?? '',
+//               variantId: e.variationId ?? '',
+//               pack: packValue,
+//               price: e.sellPrice.toString(),
+//               packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+//               // discount: e.discount ?? 0,
+//                discount: (item.totalDiscountAmount ?? 0).toDouble(),
+//               quantity: e.count.toInt(),
+//               variantName: e.variationName ?? '',
+//                customerDiscount: item.CustomerDiscount,
+//               promoDiscount: item.tieredDiscount,
+//               isBulk: isBulkItem,
+//               bulkId: bulkId,
+//             );
+//           }
+//         }).toList()),
+//         total: finalAmount.value.toStringAsFixed(0),
+//       );
+
+//       List<String> variantIdsPass = [];
+
+// // pattern to catch lines like “Variant Id: VARIATION31”
+//       final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
+//       for (var item in allItems) {
+//         final variantId = item.detail.variationId ?? '';
+//         if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+//           variantIdsPass.add(variantId);
+//         }
+
+//         // also add any ids listed inside a bundle promoMsg
+//         if (item.isPromo == true &&
+//             (item.promoMsg?.startsWith('Bundle') ?? false)) {
+//           final promoMsg = item.promoMsg ?? '';
+//           for (final m in variantIdRegex.allMatches(promoMsg)) {
+//             final extracted = m.group(1);
+//             if (extracted != null && extracted.isNotEmpty) {
+//               variantIdsPass.add(extracted);
+//             }
+//           }
+//         }
+//       }
+
+//       variantIdsPass = variantIdsPass.toSet().toList();
+
+//       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+
+//       if (cartOrder != null) {
+//         final order = CartOrderModel(
+//           customerId: customerId,
+//           salesmanId: currentSalesmanId,
+//           cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+//           orderStatus: 4,
+//           draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+//           selctedItemCount: 1,
+//           varientIds: variantIdsPass,
+//         );
+
+//         await ApiWorker().placeOrder(order, (statusCode, message, response) {
+//           // print('statuscode from backbuttton: $statusCode');
+//           if (statusCode == 200) {
+//             showSuccessFullDialogCtrl(context: context);
+//           } else {
+//             showFaledDialogCtrl(context: context, customerId: customerId);
+//           }
+//         });
+//       }
+
+//       CartDatabaseManager().cartItems.clear();
+//       CartDatabaseManager().clearCart(customerId: customerId);
+//       return true;
+//     }
+//   }
 
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {

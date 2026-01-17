@@ -20,24 +20,24 @@ class _PromotionScreenState extends State<PromotionScreen> {
   @override
   void initState() {
     super.initState();
-    setFirstPromoActive();
+    // setFirstPromoActive();
   }
 
-  void setFirstPromoActive() {
-    if (widget.controller.promotions.isNotEmpty) {
-      widget.controller.selectedPromotion.value =
-          widget.controller.promotions.first;
-    }
-  }
+  // void setFirstPromoActive() {
+  //   if (widget.controller.promotions.isNotEmpty) {
+  //     widget.controller.selectedPromotion.value =
+  //         widget.controller.promotions.first;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     final bool portrait = isPhonePortrait(context);
 
-    if (widget.controller.promotions.isNotEmpty) {
-      widget.controller.selectedPromotion.value =
-          widget.controller.promotions.first;
-    }
+    // if (widget.controller.promotions.isNotEmpty) {
+    //   widget.controller.selectedPromotion.value =
+    //       widget.controller.promotions.first;
+    // }
 
     return Scaffold(
       appBar: isPhonePortrait(context)

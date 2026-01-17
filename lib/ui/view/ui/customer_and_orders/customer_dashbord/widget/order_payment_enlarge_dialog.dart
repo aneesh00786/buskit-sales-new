@@ -143,17 +143,17 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      
+                                        flex: 1,
                                         child: Center(
                                             child: Text(
                                                 getFormattedOrderCreatAt(
                                                     order.orderCreatAt)))),
                                     Expanded(
-                                       
+                                        flex: 1,
                                         child:
                                             Center(child: Text(order.orderId))),
                                     Expanded(
-                                    
+                                      flex: 1,
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Container(
@@ -181,9 +181,8 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                         ),
                                       ),
                                     ),
-
                                     Expanded(
-                                    
+                                      flex: 2,
                                       child: Center(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -191,9 +190,10 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                           children: [
                                             // Change Flexible to Expanded so it calculates available space for FittedBox
                                             Expanded(
-                                              child: FittedBox(
-                                                fit: BoxFit
-                                                    .scaleDown, // Only shrinks, never grows larger than fontSize
+                                              child: Tooltip(
+                                                message:  '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
+                                                      '${formatAmount((order.receivableAmount ?? order.orderTotal).toStringAsFixed(2))} / '
+                                                      '${formatAmount(order.receivedAmount.toStringAsFixed(2))}',
                                                 child: MyRegularText(
                                                   label:
                                                       '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
@@ -209,20 +209,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                                 orderId: order.orderId,
                                                 iconSize: 11 + 2,
                                               )
-                                              // const SizedBox(width: 4),
-                                              //  IconButton(
-                                              //       padding: EdgeInsets.zero,
-                                              //       constraints: const BoxConstraints(),
-                                              //       icon: const Icon(
-                                              //         Icons.info_outline,
-                                              //         size: 13, // 11 + 2
-                                              //         color: Colors.blue,
-                                              //       ),
-                                              //       onPressed: () {
-
-                                              //         // Your button logic
-                                              //       },
-                                              //     ),
+                                             
                                             ],
                                           ],
                                         ),
@@ -234,7 +221,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                     //         child: Text(formatAmount(
                                     //             order.orderTotal)))),
                                     Expanded(
-                                 
+                                      flex: 1,
                                       child: Center(
                                         child: Text(
                                           order.duedate!.isNotEmpty
@@ -255,7 +242,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                       ),
                                     ),
                                     Expanded(
-                                     
+                                      flex: 1,
                                       child: Center(
                                         child: Consumer<CustomersProvider>(
                                           builder: (context, provider, child) {

@@ -958,7 +958,7 @@ Future<void> fetchChartCategoryPerformance(
       }
 
       _customersFuture = _apiService.fetchCustomer(
-        salesmanId: '',
+        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
         customerName: _searchCustomerName,
         limit: 10,
         page: page,

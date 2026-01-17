@@ -1387,7 +1387,7 @@ class _TableeeState extends State<Tableee> {
     try {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
-        salesmanId: '',
+        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
         customerName: provider.searchCustomerName,
         startDate: '',
         endDate: '',

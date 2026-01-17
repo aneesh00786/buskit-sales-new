@@ -21,11 +21,11 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:provider/provider.dart';
 
-const double colDateWidth = 60;
-const double colInvoiceWidth = 65;
-const double colStatusWidth = 80;
-const double colAmountWidth = 140;
-const double colDueWidth = 70;
+const double colDateWidth = 70;
+const double colInvoiceWidth = 57;
+const double colStatusWidth = 70;
+const double colAmountWidth = 120;
+const double colDueWidth = 65;
 const double colSelectWidth = 40;
 
 const double totalTableWidth = colDateWidth + colInvoiceWidth + colStatusWidth + 
@@ -178,8 +178,10 @@ MyCommnonContainer OrdersPayments(
                             physics: const BouncingScrollPhysics(),
                             child: Column(
                               children: recentOrders.map((order) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 0.0),
+                                return SizedBox(
+                                  height: 35.0, 
+
+                                  // padding: const EdgeInsets.symmetric(vertical: 0.0),
                                   child: Row(
                                     children: [
                                       SizedBox(

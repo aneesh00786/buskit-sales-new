@@ -83,44 +83,98 @@ class _YearDropdownState extends State<YearDropdown> {
                 ),
                 child: GestureDetector(
                   onTap: () async {
-                    await checkOnline();
-                    if (!isOnline) {
-                      showCustomToastDisplay(
-                          context, "You are Offline!", red, Icons.close);
-                      return;
-                    }
+  await checkOnline();
+  if (!isOnline) {
+    showCustomToastDisplay(
+        context, "You are Offline!", red, Icons.close);
+    return;
+  }
 
-                    final RenderBox renderBox = _dropdownKey.currentContext!
-                        .findRenderObject() as RenderBox;
-                    final Offset position =
-                        renderBox.localToGlobal(Offset.zero);
-                    final Size size = renderBox.size;
+  // 1. Get the RenderBox of the button
+  final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+  
+  // 2. Get the RenderBox of the Overlay (The screen area)
+  // This ensures coordinates are accurate even if you are scrolled down
+  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
-                    await showMenu<int>(
-                      context: context,
-                      position: RelativeRect.fromLTRB(
-                        position.dx - 30,
-                        position.dy + size.height,
-                        position.dx + size.width,
-                        position.dy,
-                      ),
-                      items: years.map((year) {
-                        return PopupMenuItem<int>(
-                          value: year,
-                          child: ListTile(
-                            title: Text(year.toString()),
-                            trailing: provider.selectedYear == year
-                                ? const Icon(Icons.check, color: Colors.blue)
-                                : null,
-                            onTap: () {
-                              Navigator.pop(context); // Close menu
-                              _selectYear(context, year);
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
+  // 3. Calculate position exactly relative to the Overlay
+  final RelativeRect position = RelativeRect.fromRect(
+    Rect.fromPoints(
+      // Top-Left of the menu = Bottom-Left of the button
+      renderBox.localToGlobal(renderBox.size.bottomLeft(Offset.zero), ancestor: overlay),
+      // Bottom-Right of the anchor
+      renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero), ancestor: overlay),
+    ),
+    Offset.zero & overlay.size, // The size of the full screen/overlay
+  );
+
+  await showMenu<int>(
+    context: context,
+    position: position,
+    // Optional: Forces the menu to match the width of your button (140px)
+    // Remove constraints if you want the menu width to be automatic.
+    constraints: BoxConstraints(
+      minWidth: renderBox.size.width,
+      maxWidth: renderBox.size.width,
+    ),
+    items: years.map((year) {
+      return PopupMenuItem<int>(
+        value: year,
+        child: ListTile(
+          // Reduce padding to make it look cleaner in a small dropdown
+          contentPadding: EdgeInsets.zero, 
+          title: Text(year.toString()),
+          trailing: provider.selectedYear == year
+              ? const Icon(Icons.check, color: Colors.blue, size: 18)
+              : null,
+          onTap: () {
+            Navigator.pop(context); // Close menu
+            _selectYear(context, year);
+          },
+        ),
+      );
+    }).toList(),
+  );
+},
+                  // onTap: () async {
+                  //   await checkOnline();
+                  //   if (!isOnline) {
+                  //     showCustomToastDisplay(
+                  //         context, "You are Offline!", red, Icons.close);
+                  //     return;
+                  //   }
+
+                  //   final RenderBox renderBox = _dropdownKey.currentContext!
+                  //       .findRenderObject() as RenderBox;
+                  //   final Offset position =
+                  //       renderBox.localToGlobal(Offset.zero);
+                  //   final Size size = renderBox.size;
+
+                  //   await showMenu<int>(
+                  //     context: context,
+                  //     position: RelativeRect.fromLTRB(
+                  //       position.dx - 30,
+                  //       position.dy + size.height,
+                  //       position.dx + size.width,
+                  //       position.dy,
+                  //     ),
+                  //     items: years.map((year) {
+                  //       return PopupMenuItem<int>(
+                  //         value: year,
+                  //         child: ListTile(
+                  //           title: Text(year.toString()),
+                  //           trailing: provider.selectedYear == year
+                  //               ? const Icon(Icons.check, color: Colors.blue)
+                  //               : null,
+                  //           onTap: () {
+                  //             Navigator.pop(context); // Close menu
+                  //             _selectYear(context, year);
+                  //           },
+                  //         ),
+                  //       );
+                  //     }).toList(),
+                  //   );
+                  // },
                   child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

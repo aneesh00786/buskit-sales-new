@@ -47,39 +47,85 @@ class _YearCustomerAndOrdersDropdownState extends State<YearCustomerAndOrdersDro
             ),
             child: InkWell(
               onTap: () async {
-                // 1. Calculate Menu Position
-                final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
-                final Offset position = renderBox.localToGlobal(Offset.zero);
-                final Size size = renderBox.size;
+  // 1. Get the RenderBox of the button
+  final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+  
+  // 2. Get the RenderBox of the Overlay
+  // This helps calculate the position correctly even if the screen is scrolled or nested
+  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
-                // 2. Show Menu
-                await showMenu<int>(
-                  context: context,
-                  position: RelativeRect.fromLTRB(
-                    position.dx,
-                    position.dy + size.height,
-                    position.dx + size.width,
-                    position.dy + size.height + 200,
-                  ),
-                  items: years.map((year) {
-                    return PopupMenuItem<int>(
-                      value: year,
-                      child: ListTile(
-                        title: Text(year.toString()),
-                        // Highlights the currently selected year from CustomersProvider
-                        trailing: provider.selectedDashboardYear == year
-                            ? const Icon(Icons.check, color: Colors.blue, size: 18)
-                            : null,
-                        onTap: () {
-                          Navigator.pop(context); // Close the menu
-                          // 3. Trigger the callback immediately
-                          widget.onYearSelected(year); 
-                        },
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
+  // 3. Calculate position relative to the Overlay
+  final RelativeRect position = RelativeRect.fromRect(
+    Rect.fromPoints(
+      // Top-Left point of the anchor (Button's bottom-left)
+      renderBox.localToGlobal(renderBox.size.bottomLeft(Offset.zero), ancestor: overlay),
+      // Bottom-Right point of the anchor (Button's bottom-right)
+      renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero), ancestor: overlay),
+    ),
+    Offset.zero & overlay.size, // Size of the overlay
+  );
+
+  // 4. Show Menu
+  await showMenu<int>(
+    context: context,
+    position: position,
+    // Optional: constraints allows you to force the menu width to match the button
+    constraints: BoxConstraints(
+       minWidth: renderBox.size.width,
+       maxWidth: renderBox.size.width, 
+    ),
+    items: years.map((year) {
+      return PopupMenuItem<int>(
+        value: year,
+        child: ListTile(
+          title: Text(year.toString()),
+          contentPadding: EdgeInsets.zero, // Clean up padding
+          trailing: provider.selectedDashboardYear == year
+              ? const Icon(Icons.check, color: Colors.blue, size: 18)
+              : null,
+          onTap: () {
+            Navigator.pop(context);
+            widget.onYearSelected(year);
+          },
+        ),
+      );
+    }).toList(),
+  );
+},
+              // onTap: () async {
+              //   // 1. Calculate Menu Position
+              //   final RenderBox renderBox = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+              //   final Offset position = renderBox.localToGlobal(Offset.zero);
+              //   final Size size = renderBox.size;
+
+              //   // 2. Show Menu
+              //   await showMenu<int>(
+              //     context: context,
+              //     position: RelativeRect.fromLTRB(
+              //       position.dx,
+              //       position.dy + size.height,
+              //       position.dx + size.width,
+              //       position.dy + size.height + 200,
+              //     ),
+              //     items: years.map((year) {
+              //       return PopupMenuItem<int>(
+              //         value: year,
+              //         child: ListTile(
+              //           title: Text(year.toString()),
+              //           // Highlights the currently selected year from CustomersProvider
+              //           trailing: provider.selectedDashboardYear == year
+              //               ? const Icon(Icons.check, color: Colors.blue, size: 18)
+              //               : null,
+              //           onTap: () {
+              //             Navigator.pop(context); // Close the menu
+              //             // 3. Trigger the callback immediately
+              //             widget.onYearSelected(year); 
+              //           },
+              //         ),
+              //       );
+              //     }).toList(),
+              //   );
+              // },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(

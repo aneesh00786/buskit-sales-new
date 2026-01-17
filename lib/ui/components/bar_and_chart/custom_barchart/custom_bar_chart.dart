@@ -722,9 +722,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     // 2. Logic: If we are interacting with Target, 
                     // automatically HIDE Actuals to see the small values clearly.
                     // (Unless we just hid Target, then it doesn't matter).
-                    if (!hideTarget) {
-                       hideActuals = true; 
-                    }
+                    // if (!hideTarget) {
+                    //    hideActuals = true; 
+                    // }
                     
                     _createBarGroups();
                   });
@@ -743,9 +743,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
                       hideProjection = !hideProjection;
 
                       // 2. Logic: If we show Projection, HIDE Actuals to Zoom in
-                      if (!hideProjection) {
-                         hideActuals = true;
-                      }
+                      // if (!hideProjection) {
+                      //    hideActuals = true;
+                      // }
 
                       _createBarGroups();
                     });

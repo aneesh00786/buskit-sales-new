@@ -21,7 +21,15 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:provider/provider.dart';
 
+const double colDateWidth = 60;
+const double colInvoiceWidth = 65;
+const double colStatusWidth = 80;
+const double colAmountWidth = 140;
+const double colDueWidth = 70;
+const double colSelectWidth = 40;
 
+const double totalTableWidth = colDateWidth + colInvoiceWidth + colStatusWidth + 
+                               colAmountWidth + colDueWidth + colSelectWidth;
 
 
 MyCommnonContainer OrdersPayments(
@@ -56,8 +64,9 @@ MyCommnonContainer OrdersPayments(
                       bottomRight: Radius.circular(25),
                     ),
                   ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
+                  // padding: const EdgeInsets.only(
+                  //     right: 20, left: 20, top: 5, bottom: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   child: const Text(
                     'Orders & Payment/s',
                     style: cardHeadingTextStyle,
@@ -144,7 +153,9 @@ MyCommnonContainer OrdersPayments(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       // minWidth: effectiveWidth, 
-                      maxWidth: effectiveWidth
+                      // maxWidth: effectiveWidth
+                      minWidth: totalTableWidth, 
+                      maxWidth: totalTableWidth
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -171,8 +182,9 @@ MyCommnonContainer OrdersPayments(
                                   padding: const EdgeInsets.symmetric(vertical: 0.0),
                                   child: Row(
                                     children: [
-                                      Expanded(
-                                        flex: 1,
+                                      SizedBox(
+                                        width: colDateWidth,
+                                        
                                         child: Center(
                                           child: Text(
                                             getFormattedOrderCreatAt(order.orderCreatAt),
@@ -180,8 +192,9 @@ MyCommnonContainer OrdersPayments(
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 1,
+                                      SizedBox(
+                                        width: colInvoiceWidth,
+                                      
                                         child: Center(
                                           child: InkWell(
                                             onTap: () {
@@ -197,8 +210,9 @@ MyCommnonContainer OrdersPayments(
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 1,
+                                      SizedBox(
+                                        width: colStatusWidth,
+                                 
                                         child: Center(
                                           child: Container(
                                             decoration: const BoxDecoration(
@@ -223,8 +237,8 @@ MyCommnonContainer OrdersPayments(
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 2,
+                                      SizedBox(
+                                  width: colAmountWidth,
                                         child: Center(
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -258,8 +272,8 @@ MyCommnonContainer OrdersPayments(
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 1,
+                                      SizedBox(
+width: colDueWidth,
                                         child: Center(
                                           child: Text(
                                             order.duedate!.isNotEmpty
@@ -278,8 +292,8 @@ MyCommnonContainer OrdersPayments(
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 1,
+                                      SizedBox(
+                                      width: colSelectWidth,
                                         child: Center(
                                           child: Consumer<CustomersProvider>(
                                             builder: (context, provider, child) {

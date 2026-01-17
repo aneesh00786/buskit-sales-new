@@ -83,7 +83,7 @@ class ApiService {
   // 3. Construct the Body
   final url = Uri.parse('$_baseUrl/Get_dashboard_list');
   final Map<String, dynamic> requestBody = {
-    "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    "salesman_id": '',
     "selected_range": sendData,
     "time_range": timeRangePayload,
     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,

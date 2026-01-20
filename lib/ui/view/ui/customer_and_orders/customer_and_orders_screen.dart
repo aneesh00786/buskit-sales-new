@@ -24,6 +24,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/day_picker.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/month_dropdown.dart';
@@ -3549,21 +3550,51 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       ),
                                                     ),
                                                   ),
-                                                  DataCell(
+                                                   DataCell(
                                                     SizedBox(
-                                                      width: flexWidth * 1,
-                                                      child: Center(
-                                                        child: Text(
-                                                          formatAmount(
-                                                              order.orderTotal),
-                                                          maxLines: 1,
-                                                          style: TextStyle(
-                                                            fontSize: fontSize,
+                                                      // width:1,
+                                                      // width: flexWidth * 1.1,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center, 
+                                                        children: [
+                                                          Text(
+                                                            formatAmount(order
+                                                                .orderTotal),
+                                                            maxLines: 1,
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  fontSize,
+                                                            ),
                                                           ),
-                                                        ),
+                                                         
+                                                          if (order
+                                                                  .paymentStatus !=
+                                                              0) ...[
+                                                            PaymentHistoryButton(
+                                                                orderId: order
+                                                                    .orderId)
+                                                          ],
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
+                                                  // DataCell(
+                                                  //   SizedBox(
+                                                  //     width: flexWidth * 1,
+                                                  //     child: Center(
+                                                  //       child: Text(
+                                                  //         formatAmount(
+                                                  //             order.orderTotal),
+                                                  //         maxLines: 1,
+                                                  //         style: TextStyle(
+                                                  //           fontSize: fontSize,
+                                                  //         ),
+                                                  //       ),
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
                                                   DataCell(
                                                     SizedBox(
                                                       width: flexWidth * 0.9,
@@ -4227,13 +4258,17 @@ Widget _buildDataCell(String count, String amount, Color color, bool isCenter) {
             fontSize: 11,
             color: Colors.white,
             fontWeight: FontWeight.bold,
+          
           ),
         ),
       ),
       const SizedBox(width: 4),
-      CustomText(
-        content: formatAmount(amount),
-        fontSize: 12,
+      Flexible(
+        child: CustomText(
+          content: formatAmount(amount),
+          fontSize: 12,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     ],
   );

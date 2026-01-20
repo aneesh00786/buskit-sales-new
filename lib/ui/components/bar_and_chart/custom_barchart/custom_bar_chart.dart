@@ -349,7 +349,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           }
         }
       },
-      child: customUnderlinedText(categoryName ?? ''),
+      child: Expanded(child: customUnderlinedText(categoryName ?? '')),
     );
 
     return Container(
@@ -857,31 +857,76 @@ class _CustomBarChartState extends State<CustomBarChart> {
 }
 
 Widget customUnderlinedText(String text) {
+  // --- 1. LOGIC TO TRUNCATE TEXT ---
+  // Define your character limit
+  const int maxLength = 20; 
+  
+  String displayText = text;
+  
+  // Check if text is longer than the limit
+  if (text.length > maxLength) {
+    // Take the first 8 characters and add "..."
+    displayText = '${text.substring(0, maxLength)}...';
+  }
+  // ---------------------------------
+
   return Stack(
     alignment: Alignment.centerLeft,
     children: [
       Padding(
-        padding: const EdgeInsets.only(bottom: 0),
+        padding: const EdgeInsets.only(bottom: 2.0),
         child: MyRegularText(
-          label: text,
+          // Use the modified 'displayText' instead of the original 'text'
+          label: displayText, 
           style: const TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 13,
             color: Colors.black,
+            // You can keep this as a failsafe, but the manual truncation handles it now
+            overflow: TextOverflow.ellipsis, 
           ),
         ),
       ),
       Positioned(
-        bottom: 6,
+        bottom: 0,
+        left: 0,
+        right: 0,
         child: Container(
           height: 1.5,
-          width: text.length * 8.0,
           color: primaryColor,
         ),
       ),
     ],
   );
 }
+
+// Widget customUnderlinedText(String text) {
+//   return Stack(
+//     alignment: Alignment.centerLeft,
+//     children: [
+//       Padding(
+//         padding: const EdgeInsets.only(bottom: 0),
+//         child: MyRegularText(
+//           label: text,
+//           style: const TextStyle(
+//             fontWeight: FontWeight.w500,
+//             fontSize: 13,
+//             color: Colors.black,
+//             overflow: TextOverflow.ellipsis
+//           ),
+//         ),
+//       ),
+//       Positioned(
+//         bottom: 6,
+//         child: Container(
+//           height: 1.5,
+//           width: text.length * 9.0,
+//           color: primaryColor,
+//         ),
+//       ),
+//     ],
+//   );
+// }
 
 class CustomBarChartCustomerDash extends StatefulWidget {
   final List<FullCategory> allCategory;
@@ -1256,7 +1301,7 @@ class _CustomBarChartCustomerDashState
           }
         }
       },
-      child: customUnderlinedText(categoryName),
+      child: Expanded(child: customUnderlinedText(categoryName)),
     );
 
     return Container(

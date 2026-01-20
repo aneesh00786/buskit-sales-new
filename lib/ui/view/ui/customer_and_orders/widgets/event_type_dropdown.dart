@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -130,169 +131,719 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                   child: DropdownButton<EventType>(
                     iconSize: 17.5,
                     value: selectedValue,
-                    onChanged: (EventType? newValue) async {
-                      if (newValue != null) {
-                        final previousValue = selectedValue;
 
-                        if (newValue == EventType.daily) {
-                          setState(() {
-                            selectedValue = newValue;
-                          });
 
-                          // Show confirmation dialog
-                          bool? confirmed = await showDialog<bool>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) {
-                              bool isDialogLoading = false;
+// Make sure to import dio at the top: import 'package:dio/dio.dart';
 
-                              return StatefulBuilder(
-                                builder: (context, setStateDialog) {
-                                  return AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    contentPadding: const EdgeInsets.all(20),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Row(
-                                          children: [
-                                            Icon(Icons.warning_amber_rounded,
-                                                color: Colors.orange),
-                                            SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                "Are you sure you want to add this event!",
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 20),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            if (isDialogLoading)
-                                              const CircularProgressIndicator()
-                                            else ...[
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(false);
-                                                },
-                                                child: const Text(
-                                                  "Cancel",
-                                                  style: TextStyle(
-                                                      color: Colors.orange),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              ElevatedButton(
-                                                onPressed: () async {
-                                                  setStateDialog(() {
-                                                    isDialogLoading = true;
-                                                  });
+onChanged: (EventType? newValue) async {
+  if (newValue != null) {
+    // 0. Guard: Prevent action if selecting the same value
+    if (newValue == selectedValue) {
+      return;
+    }
 
-                                                  try {
-                                                    final response =
-                                                        await widget.provider
-                                                            .addEvent(
-                                                      widget.customerId,
-                                                      5,
-                                                      [],
-                                                      "",
-                                                      context,
-                                                    );
+    // ==========================================================
+    // CASE A: User selected "-Select-" (DELETE EVENT)
+    // ==========================================================
+    if (newValue == EventType.select) {
+      // Show "Cancel Visit" Dialog
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          bool isDialogLoading = false;
 
-                                                    if (response.statusCode !=
-                                                        200) {
-                                                      showCustomToastDisplay(
-                                                          context,
-                                                          response.message,
-                                                          red,
-                                                          Icons.close);
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.all(20),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            color: Colors.redAccent),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Cancel Visit",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Are you sure you want to cancel the existing ${selectedValue.displayName} visit?",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (isDialogLoading)
+                          const CircularProgressIndicator()
+                        else ...[
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text("No, Keep it",
+                                style: TextStyle(color: Colors.grey)),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                            ),
+                            onPressed: () async {
+                              setStateDialog(() {
+                                isDialogLoading = true;
+                              });
 
-                                                      await Future.delayed(
-                                                          const Duration(
-                                                              seconds: 2));
-
-                                                      Navigator.of(context)
-                                                          .pop(false);
-                                                      return;
-                                                    }
-
-                                                    await widget.provider
-                                                        .fetchCustomerData(
-                                                      page: widget
-                                                          .provider.currentPage,
-                                                    );
-                                                    widget.onChanged(newValue);
-
-                                                    Navigator.of(context)
-                                                        .pop(true);
-                                                  } catch (e) {
-                                                    Navigator.of(context)
-                                                        .pop(false);
-                                                  } finally {
-                                                    setStateDialog(() {
-                                                      isDialogLoading = false;
-                                                    });
-                                                  }
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.orange,
-                                                ),
-                                                child: const Text("Continue"),
-                                              ),
-                                            ]
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                              try {
+                            
+                                Dio dio = Dio();
+                                final response = await dio.post(
+                                  'https://test.thrivewoo.com/delete_future_events',
+                                  data: {"customer_id": widget.customerId},
+                                );
+                             print('cancel button response:${response.statusCode}');
+                                if (response.statusCode == 200) {
+                             
+                                  await widget.provider.fetchCustomerData(
+                                    page: widget.provider.currentPage,
                                   );
-                                },
-                              );
+                                  
+                                
+                                  setState(() {
+                                    selectedValue = newValue;
+                                  });
+                                  widget.onChanged(newValue);
+                                  
+                                  Navigator.of(context).pop(); 
+                                } else {
+                                 
+                                  Navigator.of(context).pop();
+                                }
+                              
+                                
+                              } catch (e) {
+                        
+                                Navigator.of(context).pop();
+                              } finally {
+                                if (mounted) {
+                                  setStateDialog(() {
+                                    isDialogLoading = false;
+                                  });
+                                }
+                              }
                             },
-                          );
+                            child: const Text("Yes, Cancel",
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+      return; // Stop here for "Select" case
+    }
 
-                          if (confirmed != true) {
-                            // Revert if user canceled
-                            setState(() {
-                              selectedValue = previousValue;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            selectedValue = newValue;
-                          });
+    // ==========================================================
+    // CASE B: User selected a new Event Type (CHANGE EVENT)
+    // ==========================================================
 
-                          widget.onChanged(newValue);
-
-                          bool confirmed = await showDaysOfWeekPopup(
-                            context,
-                            widget.defaultEventDays,
-                            widget.eventPeriod,
-                            widget.customerId,
-                            newValue.value,
-                            widget.provider,
-                            mode: newValue,
-                          );
-
-                          if (!confirmed) {
-                            setState(() {
-                              selectedValue = previousValue;
-                            });
-                            widget.onChanged(previousValue);
-                          }
-                        }
-                      }
+    // 1. Confirmation Dialog for Changing Value
+    bool? confirmChange = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.all(20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Change Visit Type",
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Are you sure you want to change the visit from ${selectedValue.displayName} to ${newValue.displayName}?",
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
                     },
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.orange),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                    ),
+                    child: const Text("Confirm"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    // If cancelled, stop
+    if (confirmChange != true) {
+      return;
+    }
+
+    // 2. Proceed with Logic (Daily vs Others)
+    final previousValue = selectedValue;
+
+    if (newValue == EventType.daily) {
+      setState(() {
+        selectedValue = newValue;
+      });
+
+      // Show confirmation dialog (Existing Daily Logic)
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          bool isDialogLoading = false;
+
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.all(20),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            color: Colors.orange),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Are you sure you want to add this event!",
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (isDialogLoading)
+                          const CircularProgressIndicator()
+                        else ...[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(color: Colors.orange),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () async {
+                              setStateDialog(() {
+                                isDialogLoading = true;
+                              });
+
+                              try {
+                                final response = await widget.provider.addEvent(
+                                  widget.customerId,
+                                  5,
+                                  [],
+                                  "",
+                                  context,
+                                );
+
+                                if (response.statusCode != 200) {
+                                  showCustomToastDisplay(context,
+                                      response.message, red, Icons.close);
+                                  await Future.delayed(
+                                      const Duration(seconds: 2));
+                                  Navigator.of(context).pop(false);
+                                  return;
+                                }
+
+                                await widget.provider.fetchCustomerData(
+                                  page: widget.provider.currentPage,
+                                );
+                                widget.onChanged(newValue);
+
+                                Navigator.of(context).pop(true);
+                              } catch (e) {
+                                Navigator.of(context).pop(false);
+                              } finally {
+                                setStateDialog(() {
+                                  isDialogLoading = false;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                            ),
+                            child: const Text("Continue"),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+
+      if (confirmed != true) {
+        setState(() {
+          selectedValue = previousValue;
+        });
+      }
+    } else {
+      // Existing "Other days" logic
+      setState(() {
+        selectedValue = newValue;
+      });
+
+      widget.onChanged(newValue);
+
+      bool confirmed = await showDaysOfWeekPopup(
+        context,
+        widget.defaultEventDays,
+        widget.eventPeriod,
+        widget.customerId,
+        newValue.value,
+        widget.provider,
+        mode: newValue,
+      );
+
+      if (!confirmed) {
+        setState(() {
+          selectedValue = previousValue;
+        });
+        widget.onChanged(previousValue);
+      }
+    }
+  }
+},
+
+//                     onChanged: (EventType? newValue) async {
+//   if (newValue != null) {
+//     // 1. Guard: Prevent popup if selecting the same value
+//     if (newValue == selectedValue) {
+//       return;
+//     }
+
+//     // 2. NEW: Confirmation Dialog before changing value
+//     bool? confirmChange = await showDialog<bool>(
+//       context: context,
+//       builder: (context) {
+//         return AlertDialog(
+//           shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(10)),
+//           contentPadding: const EdgeInsets.all(20),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               const Text(
+//                 "Change Visit Type",
+//                 style: TextStyle(
+//                     fontSize: 16, fontWeight: FontWeight.bold),
+//               ),
+//               const SizedBox(height: 10),
+//               Text(
+//                 "Are you sure you want to change the visit from ${selectedValue.displayName} to ${newValue.displayName}?",
+//                 style: const TextStyle(fontSize: 14),
+//               ),
+//               const SizedBox(height: 20),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.end,
+//                 children: [
+//                   TextButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop(false);
+//                     },
+//                     child: const Text(
+//                       "Cancel",
+//                       style: TextStyle(color: Colors.orange),
+//                     ),
+//                   ),
+//                   const SizedBox(width: 10),
+//                   ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop(true);
+//                     },
+//                     style: ElevatedButton.styleFrom(
+//                       backgroundColor: Colors.orange,
+//                     ),
+//                     child: const Text("Confirm"),
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+
+//     // 3. If user cancelled the first dialog, stop everything here.
+//     if (confirmChange != true) {
+//       return;
+//     }
+
+//     // --- EXISTING LOGIC STARTS HERE ---
+//     // If we reach here, the user clicked "Confirm"
+
+//     final previousValue = selectedValue;
+
+//     if (newValue == EventType.daily) {
+//       setState(() {
+//         selectedValue = newValue;
+//       });
+
+//       // Show confirmation dialog (Existing Daily Logic)
+//       bool? confirmed = await showDialog<bool>(
+//         context: context,
+//         barrierDismissible: false,
+//         builder: (context) {
+//           bool isDialogLoading = false;
+
+//           return StatefulBuilder(
+//             builder: (context, setStateDialog) {
+//               return AlertDialog(
+//                 shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(10)),
+//                 contentPadding: const EdgeInsets.all(20),
+//                 content: Column(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     const Row(
+//                       children: [
+//                         Icon(Icons.warning_amber_rounded,
+//                             color: Colors.orange),
+//                         SizedBox(width: 8),
+//                         Expanded(
+//                           child: Text(
+//                             "Are you sure you want to add this event!",
+//                             style: TextStyle(
+//                                 fontSize: 15,
+//                                 fontWeight: FontWeight.w500),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 20),
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.end,
+//                       children: [
+//                         if (isDialogLoading)
+//                           const CircularProgressIndicator()
+//                         else ...[
+//                           TextButton(
+//                             onPressed: () {
+//                               Navigator.of(context).pop(false);
+//                             },
+//                             child: const Text(
+//                               "Cancel",
+//                               style: TextStyle(color: Colors.orange),
+//                             ),
+//                           ),
+//                           const SizedBox(width: 10),
+//                           ElevatedButton(
+//                             onPressed: () async {
+//                               setStateDialog(() {
+//                                 isDialogLoading = true;
+//                               });
+
+//                               try {
+//                                 final response = await widget.provider
+//                                     .addEvent(
+//                                   widget.customerId,
+//                                   5,
+//                                   [],
+//                                   "",
+//                                   context,
+//                                 );
+
+//                                 if (response.statusCode != 200) {
+//                                   showCustomToastDisplay(
+//                                       context,
+//                                       response.message,
+//                                       red,
+//                                       Icons.close);
+
+//                                   await Future.delayed(
+//                                       const Duration(seconds: 2));
+
+//                                   Navigator.of(context).pop(false);
+//                                   return;
+//                                 }
+
+//                                 await widget.provider
+//                                     .fetchCustomerData(
+//                                   page: widget.provider.currentPage,
+//                                 );
+//                                 widget.onChanged(newValue);
+
+//                                 Navigator.of(context).pop(true);
+//                               } catch (e) {
+//                                 Navigator.of(context).pop(false);
+//                               } finally {
+//                                 setStateDialog(() {
+//                                   isDialogLoading = false;
+//                                 });
+//                               }
+//                             },
+//                             style: ElevatedButton.styleFrom(
+//                               backgroundColor: Colors.orange,
+//                             ),
+//                             child: const Text("Continue"),
+//                           ),
+//                         ]
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       );
+
+//       if (confirmed != true) {
+//         // Revert if user canceled
+//         setState(() {
+//           selectedValue = previousValue;
+//         });
+//       }
+//     } else {
+//       // Existing "Other days" logic
+//       setState(() {
+//         selectedValue = newValue;
+//       });
+
+//       widget.onChanged(newValue);
+
+//       bool confirmed = await showDaysOfWeekPopup(
+//         context,
+//         widget.defaultEventDays,
+//         widget.eventPeriod,
+//         widget.customerId,
+//         newValue.value,
+//         widget.provider,
+//         mode: newValue,
+//       );
+
+//       if (!confirmed) {
+//         setState(() {
+//           selectedValue = previousValue;
+//         });
+//         widget.onChanged(previousValue);
+//       }
+//     }
+//   }
+// },      //               onChanged: (EventType? newValue) async {
+      //                 if (newValue != null) {
+      //                   if (newValue == selectedValue) {
+      //   return;
+      // }
+      //                   final previousValue = selectedValue;
+
+      //                   if (newValue == EventType.daily) {
+      //                     setState(() {
+      //                       selectedValue = newValue;
+      //                     });
+
+      //                     // Show confirmation dialog
+      //                     bool? confirmed = await showDialog<bool>(
+      //                       context: context,
+      //                       barrierDismissible: false,
+      //                       builder: (context) {
+      //                         bool isDialogLoading = false;
+
+      //                         return StatefulBuilder(
+      //                           builder: (context, setStateDialog) {
+      //                             return AlertDialog(
+      //                               shape: RoundedRectangleBorder(
+      //                                   borderRadius:
+      //                                       BorderRadius.circular(10)),
+      //                               contentPadding: const EdgeInsets.all(20),
+      //                               content: Column(
+      //                                 mainAxisSize: MainAxisSize.min,
+      //                                 children: [
+      //                                   const Row(
+      //                                     children: [
+      //                                       Icon(Icons.warning_amber_rounded,
+      //                                           color: Colors.orange),
+      //                                       SizedBox(width: 8),
+      //                                       Expanded(
+      //                                         child: Text(
+      //                                           "Are you sure you want to add this event!",
+      //                                           style: TextStyle(
+      //                                               fontSize: 15,
+      //                                               fontWeight:
+      //                                                   FontWeight.w500),
+      //                                         ),
+      //                                       ),
+      //                                     ],
+      //                                   ),
+      //                                   const SizedBox(height: 20),
+      //                                   Row(
+      //                                     mainAxisAlignment:
+      //                                         MainAxisAlignment.end,
+      //                                     children: [
+      //                                       if (isDialogLoading)
+      //                                         const CircularProgressIndicator()
+      //                                       else ...[
+      //                                         TextButton(
+      //                                           onPressed: () {
+      //                                             Navigator.of(context)
+      //                                                 .pop(false);
+      //                                           },
+      //                                           child: const Text(
+      //                                             "Cancel",
+      //                                             style: TextStyle(
+      //                                                 color: Colors.orange),
+      //                                           ),
+      //                                         ),
+      //                                         const SizedBox(width: 10),
+      //                                         ElevatedButton(
+      //                                           onPressed: () async {
+      //                                             setStateDialog(() {
+      //                                               isDialogLoading = true;
+      //                                             });
+
+      //                                             try {
+      //                                               final response =
+      //                                                   await widget.provider
+      //                                                       .addEvent(
+      //                                                 widget.customerId,
+      //                                                 5,
+      //                                                 [],
+      //                                                 "",
+      //                                                 context,
+      //                                               );
+
+      //                                               if (response.statusCode !=
+      //                                                   200) {
+      //                                                 showCustomToastDisplay(
+      //                                                     context,
+      //                                                     response.message,
+      //                                                     red,
+      //                                                     Icons.close);
+
+      //                                                 await Future.delayed(
+      //                                                     const Duration(
+      //                                                         seconds: 2));
+
+      //                                                 Navigator.of(context)
+      //                                                     .pop(false);
+      //                                                 return;
+      //                                               }
+
+      //                                               await widget.provider
+      //                                                   .fetchCustomerData(
+      //                                                 page: widget
+      //                                                     .provider.currentPage,
+      //                                               );
+      //                                               widget.onChanged(newValue);
+
+      //                                               Navigator.of(context)
+      //                                                   .pop(true);
+      //                                             } catch (e) {
+      //                                               Navigator.of(context)
+      //                                                   .pop(false);
+      //                                             } finally {
+      //                                               setStateDialog(() {
+      //                                                 isDialogLoading = false;
+      //                                               });
+      //                                             }
+      //                                           },
+      //                                           style: ElevatedButton.styleFrom(
+      //                                             backgroundColor:
+      //                                                 Colors.orange,
+      //                                           ),
+      //                                           child: const Text("Continue"),
+      //                                         ),
+      //                                       ]
+      //                                     ],
+      //                                   ),
+      //                                 ],
+      //                               ),
+      //                             );
+      //                           },
+      //                         );
+      //                       },
+      //                     );
+
+      //                     if (confirmed != true) {
+      //                       // Revert if user canceled
+      //                       setState(() {
+      //                         selectedValue = previousValue;
+      //                       });
+      //                     }
+      //                   } else {
+      //                     setState(() {
+      //                       selectedValue = newValue;
+      //                     });
+
+      //                     widget.onChanged(newValue);
+
+      //                     bool confirmed = await showDaysOfWeekPopup(
+      //                       context,
+      //                       widget.defaultEventDays,
+      //                       widget.eventPeriod,
+      //                       widget.customerId,
+      //                       newValue.value,
+      //                       widget.provider,
+      //                       mode: newValue,
+      //                     );
+
+      //                     if (!confirmed) {
+      //                       setState(() {
+      //                         selectedValue = previousValue;
+      //                       });
+      //                       widget.onChanged(previousValue);
+      //                     }
+      //                   }
+      //                 }
+      //               },
                     items: EventType.values
                         .map<DropdownMenuItem<EventType>>((value) {
                       return DropdownMenuItem<EventType>(

@@ -564,7 +564,6 @@ print('dashboard list body:$requestBody');
   //     throw Exception('Failed to fetch data: $error');
   //   }
   // }
-
   Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
     required dynamic catId,
     String? salesmanId,
@@ -577,37 +576,46 @@ print('dashboard list body:$requestBody');
     int? year,
   }) async {
     Object? sendData;
+    
+    // 1. Updated Logic: Year is a single value, others are lists
     switch (fetchType) {
       case "Month":
-        sendData = selectedMonths;
+        sendData = selectedMonths; // List
         break;
       case "Week":
-        sendData = selectedWeeks;
+        sendData = selectedWeeks; // List
         break;
       case "Day":
-        sendData = [selectedDay];
+        sendData = selectedDay != null ? [selectedDay] : null; // List
         break;
       case "Year":
-        sendData = year;
+      case "year":
+        // ✅ CHANGE: Send as single value (String), not inside a list
+        sendData = year?.toString(); 
         break;
       case "Range":
-        sendData = [startDate, endDate];
+        sendData = (startDate != null && endDate != null) 
+            ? [startDate, endDate] // List
+            : null;
         break;
       default:
         sendData = selectedMonths;
     }
+
     final requestBody = {
       "categories_id": catId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": "",
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+      // Use parameter salesmanId if provided, otherwise session
+      "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
       "bar_type": fetchType,
       "range_type": fetchType,
-      "selected_range": sendData,
-      "year": fetchType == "Year" ? year : DateTime.now().year.toString(),
+      "selected_range": sendData, // String for Year, List for others
+      "year": year?.toString() ?? DateTime.now().year.toString(),
       "limit": 1000,
       "page": 1
     };
+    
     try {
       final response = await responsePostMethod(
           requestData: requestBody,
@@ -637,76 +645,223 @@ print('dashboard list body:$requestBody');
     }
   }
 
-  Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
-    required int catId,
-    String? salesmanId,
-    String? fetchType,
-    String? startDate,
-    String? endDate,
-    String? selectedDay,
-    List<String>? selectedMonths,
-    List<String>? selectedWeeks,
-    int? year,
-  }) async {
-    dynamic sendData;
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths;
-        break;
-      case "Week":
-        sendData = selectedWeeks;
-        break;
-      case "Day":
-        sendData = selectedDay != null ? [selectedDay] : null;
-        break;
-      case "Year":
-        sendData = year != null ? [year.toString()] : null;
-        break;
-      case "Range":
-        sendData = (startDate != null && endDate != null)
-            ? [startDate, endDate]
-            : null;
-        break;
-      default:
-        sendData = null;
-    }
+  // Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
+  //   required dynamic catId,
+  //   String? salesmanId,
+  //   String? fetchType,
+  //   String? startDate,
+  //   String? endDate,
+  //   String? selectedDay,
+  //   List<String>? selectedMonths,
+  //   List<String>? selectedWeeks,
+  //   int? year,
+  // }) async {
+  //   Object? sendData;
+  //   switch (fetchType) {
+  //     case "Month":
+  //       sendData = selectedMonths;
+  //       break;
+  //     case "Week":
+  //       sendData = selectedWeeks;
+  //       break;
+  //     case "Day":
+  //       sendData = [selectedDay];
+  //       break;
+  //     case "Year":
+  //       sendData = year;
+  //       break;
+  //     case "Range":
+  //       sendData = [startDate, endDate];
+  //       break;
+  //     default:
+  //       sendData = selectedMonths;
+  //   }
+  //   final requestBody = {
+  //     "categories_id": catId,
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //     "customer_id": "",
+  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     "bar_type": fetchType,
+  //     "range_type": fetchType,
+  //     "selected_range": sendData,
+  //     "year": fetchType == "Year" ? year : DateTime.now().year.toString(),
+  //     "limit": 1000,
+  //     "page": 1
+  //   };
+  //   try {
+  //     final response = await responsePostMethod(
+  //         requestData: requestBody,
+  //         endPoint: ApiConstants.fetchOrderByRange,
+  //         options: Options(
+  //           headers: {'Content-Type': 'application/json'},
+  //         ));
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = response.data;
+  //       var returnResponse = jsonResponse['data'] as List;
+  //       List<orderResponseModel.OrderData> orderData = returnResponse
+  //           .map((e) => orderResponseModel.OrderData.fromJson(e))
+  //           .toList();
 
-    final requestBody = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-      "bar_type": "Month",
-      "time_range": fetchType,
-      "selected_range": sendData,
-      "CatId": catId.toString(),
-      "year": fetchType == "Year"
-          ? year?.toString()
-          : DateTime.now().year.toString(),
-    };
-    try {
-      final response = await responsePostMethod(
-        requestData: requestBody,
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-        endPoint: ApiConstants.fetchSalesmanTargetByCategory,
-      );
-      if (response.statusCode == 200) {
-        var jsonResponse = response.data;
-        var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
-        return parsedData.targetData ?? [];
-      } else {
-        handleExceptionMessage(
-            response: response, apiName: "salesman terget by category");
-        throw Exception('Failed to load data');
-      }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response,
-          apiName: "salesman terget by category",
-          error: error);
-      throw Exception('Failed to fetch data: $error');
-    }
+  //       return orderData;
+  //     } else {
+  //       handleExceptionMessage(
+  //           response: response, apiName: "chart salesman order data");
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response,
+  //         apiName: "chart salesman order data",
+  //         error: error);
+  //     throw Exception('Failed to fetch data: $error');
+  //   }
+  // }
+  Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
+  required int catId,
+  String? salesmanId,
+  String? fetchType,
+  String? startDate,
+  String? endDate,
+  String? selectedDay,
+  List<String>? selectedMonths,
+  List<String>? selectedWeeks,
+  int? year,
+}) async {
+  dynamic sendData;
+
+  // 1. Updated Logic: Handle "Year" as String, others as List
+  switch (fetchType) {
+    case "Month":
+      sendData = selectedMonths; // List
+      break;
+    case "Week":
+      sendData = selectedWeeks; // List
+      break;
+    case "Day":
+      sendData = selectedDay != null ? [selectedDay] : null; // List
+      break;
+    case "Year":
+    case "year": // Added lowercase check just in case
+      // ✅ CHANGE HERE: Pass as String, not List
+      sendData = year?.toString(); 
+      break;
+    case "Range":
+      sendData = (startDate != null && endDate != null)
+          ? [startDate, endDate] // List
+          : null;
+      break;
+    default:
+      sendData = null;
   }
+
+  // 2. Updated Request Body
+  final requestBody = {
+    "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+    // Use the passed salesmanId if it exists, otherwise fallback to session
+    "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
+    "bar_type": "Month", 
+    "time_range": fetchType, // "Week", "Year", etc.
+    "selected_range": sendData, // Dynamic: String for Year, List for others
+    "CatId": catId.toString(), // Kept as CatId based on your first payload
+    "year": year?.toString() ?? DateTime.now().year.toString(),
+  };
+
+  try {
+    final response = await responsePostMethod(
+      requestData: requestBody,
+      options: Options(
+        headers: {'Content-Type': 'application/json'},
+      ),
+      endPoint: ApiConstants.fetchSalesmanTargetByCategory,
+    );
+    if (response.statusCode == 200) {
+      var jsonResponse = response.data;
+      var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
+      return parsedData.targetData ?? [];
+    } else {
+      handleExceptionMessage(
+          response: response, apiName: "salesman target by category");
+      throw Exception('Failed to load data');
+    }
+  } on DioException catch (error) {
+    handleExceptionMessage(
+        response: error.response,
+        apiName: "salesman target by category",
+        error: error);
+    throw Exception('Failed to fetch data: $error');
+  }
+}
+
+  // Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
+  //   required int catId,
+  //   String? salesmanId,
+  //   String? fetchType,
+  //   String? startDate,
+  //   String? endDate,
+  //   String? selectedDay,
+  //   List<String>? selectedMonths,
+  //   List<String>? selectedWeeks,
+  //   int? year,
+  // }) async {
+  //   dynamic sendData;
+  //   switch (fetchType) {
+  //     case "Month":
+  //       sendData = selectedMonths;
+  //       break;
+  //     case "Week":
+  //       sendData = selectedWeeks;
+  //       break;
+  //     case "Day":
+  //       sendData = selectedDay != null ? [selectedDay] : null;
+  //       break;
+  //     case "Year":
+  //       sendData = year != null ? [year.toString()] : null;
+  //       break;
+  //     case "Range":
+  //       sendData = (startDate != null && endDate != null)
+  //           ? [startDate, endDate]
+  //           : null;
+  //       break;
+  //     default:
+  //       sendData = null;
+  //   }
+
+  //   final requestBody = {
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     "bar_type": "Month",
+  //     "time_range": fetchType,
+  //     "selected_range": sendData,
+  //     "CatId": catId.toString(),
+  //     "year": fetchType == "Year"
+  //         ? year?.toString()
+  //         : DateTime.now().year.toString(),
+  //   };
+  //   try {
+  //     final response = await responsePostMethod(
+  //       requestData: requestBody,
+  //       options: Options(
+  //         headers: {'Content-Type': 'application/json'},
+  //       ),
+  //       endPoint: ApiConstants.fetchSalesmanTargetByCategory,
+  //     );
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = response.data;
+  //       var parsedData = SalesmanTargetByCatId.fromJson(jsonResponse);
+  //       return parsedData.targetData ?? [];
+  //     } else {
+  //       handleExceptionMessage(
+  //           response: response, apiName: "salesman terget by category");
+  //       throw Exception('Failed to load data');
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response,
+  //         apiName: "salesman terget by category",
+  //         error: error);
+  //     throw Exception('Failed to fetch data: $error');
+  //   }
+  // }
 
   Future<ProductResponse> fetchCustomerDashboardCartData({
     required dynamic customerId,

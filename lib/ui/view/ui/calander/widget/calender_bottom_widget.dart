@@ -80,7 +80,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
     return MonthView(
       cellAspectRatio:
           AppDimensions.instance.orientation == Orientation.landscape
-              ? 1.7
+              ? 1.8
               : isTablet(context)
                   ? 0.85
                   : 0.5,

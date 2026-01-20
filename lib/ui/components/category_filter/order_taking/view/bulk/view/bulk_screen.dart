@@ -176,29 +176,7 @@ class DynamicBulkCard extends StatelessWidget {
     );
   }
 
-  // Widget _buildQtyDisplay(int qty) {
-  //   return Container(
-  //     width: 200,
-  //     height: 50,
-  //     decoration: BoxDecoration(
-  //       border: Border.all(color: Colors.blue.shade300),
-  //       borderRadius: BorderRadius.circular(8),
-  //       color: Colors.white,
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         const Padding(padding: EdgeInsets.all(10.0), child: Icon(Icons.remove, size: 25, color: Colors.grey)),
-  //         Container(
-  //           width: 100,
-  //           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-  //           color: const Color(0xFFE8F1FF),
-  //           child: Center(child: Text("$qty", style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20))),
-  //         ),
-  //         const Padding(padding: EdgeInsets.only(left: 20), child: Icon(Icons.add, size: 25, color: Colors.grey)),
-  //       ],
-  //     ),
-  //   );
-  // }
+  
 
   Widget _buildPriceInfo(String label, String price) {
     return Column(

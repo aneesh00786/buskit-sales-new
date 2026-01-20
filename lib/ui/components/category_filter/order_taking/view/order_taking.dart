@@ -1479,6 +1479,7 @@ class _OrderTakingState extends State<OrderTaking>
           ),
         ),
         if (_isDrawerOpen)
+          
           Positioned.fill(
             child: GestureDetector(
               onTap: () {
@@ -1490,6 +1491,7 @@ class _OrderTakingState extends State<OrderTaking>
               child: Container(color: Colors.transparent),
             ),
           ),
+      
         AnimatedPositioned(
           duration: const Duration(milliseconds: 300),
           top: 0,
@@ -1501,6 +1503,7 @@ class _OrderTakingState extends State<OrderTaking>
               width: _drawerWidth,
               color: Colors.white,
               child: CategoryList(
+                
                 productsController: widget.productsController,
                 categories: widget.productsController.categoryData.value.data!
                     .map((entry) {
@@ -1515,9 +1518,11 @@ class _OrderTakingState extends State<OrderTaking>
                 onDrawerToggle: _toggleDrawer,
                 selectedCategory: _selectedCategory,
               ),
+              
             ),
           ),
         ),
+      
       ],
     );
   } else {

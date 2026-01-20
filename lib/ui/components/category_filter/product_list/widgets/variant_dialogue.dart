@@ -798,6 +798,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
+                          print('on pressed tappedttt');
                           final customerId = customerAndOrderController
                                   .customerId.value.isNotEmpty
                               ? customerAndOrderController.customerId.value
@@ -840,7 +841,9 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   inclTax: widget.product.inclTax ?? '',
                                   isChcked: true,
                                   catId: widget.product.catId ?? 0,
+                                  catTax: (widget.product.catTax ?? 0).toDouble(),
                                 );
+                                print('cattaxxxxxxx:${widget.product.catTax}');
                                 widget.productController.isCartModified.value =
                                     true;
                               } else {

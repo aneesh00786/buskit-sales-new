@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -71,7 +72,7 @@ class ProductsController extends GetxController {
 
   RxBool isCartModified = false.obs;
   RxDouble allItemsTotalSave = 0.0.obs;
-
+List<BulkData> storedBulkList = [];
   // Fixed flat discount per customer (cart-level), applied at display time in cart UI
   final Map<String, double> flatDiscountByCustomer = {};
 
@@ -91,7 +92,21 @@ class ProductsController extends GetxController {
     orderItems.clear();
     preorderItems.clear();
   }
-
+  Future<void> fetchBulkData() async {
+    try {
+      // Call your API function here
+      final bulkResponse = await ApiWorker().getBulkVolumes();
+      
+      // Save the data to the controller variable
+      if (bulkResponse.data != null) {
+        storedBulkList = bulkResponse.data!;
+        
+        print('Bulk data stored in Controller: ${storedBulkList.length} items');
+      }
+    } catch (e) {
+      print("Error fetching bulk data: $e");
+    }
+  }
   Future<void> handleBackNavigation({
     required BuildContext context,
     required bool isDirectDialogue,
@@ -101,20 +116,31 @@ class ProductsController extends GetxController {
     required HomeController homeController,
   }) async {
     final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
-    // print('cart items while back${CartDatabaseManager().cartItems}');
-    // print('draft box while back${CartDatabaseManager().draftBox.isNotEmpty}');
-    // print('customerId$customerId');
-    // print('isCartModified${isCartModified.value}');
+
     if ((CartDatabaseManager().cartItems.isNotEmpty ||
             CartDatabaseManager().draftBox.isNotEmpty) &&
         customerId.isNotEmpty &&
         isCartModified.value) {
+      
       Get.dialog(const Center(child: CircularProgressIndicator()));
+
+      // -------------------------------------------------------------
+      // 1. ADD THIS CHECK: Auto-fetch if the list is empty
+      // -------------------------------------------------------------
+      if (storedBulkList.isEmpty) {
+        print('handleBackNavigation: Bulk list is empty. Fetching API now...');
+        await fetchBulkData(); // Ensure this function is defined in your controller
+      }
+
+      print('Processing navigation with ${storedBulkList.length} bulk items.');
+      // -------------------------------------------------------------
 
       final wasOnline = await processCartBeforeNavigation(
         context: context,
         customerId: customerId,
+        bulkDataList: storedBulkList, // Now this list is guaranteed to have data
       );
+
       if (toDash) {
         await Future.delayed(const Duration(milliseconds: 300));
 
@@ -144,6 +170,7 @@ class ProductsController extends GetxController {
       CartDatabaseManager().cartItems.clear();
       Navigator.pop(context);
     }
+    
     await Provider.of<CustomersProvider>(context, listen: false)
         .fetchOrdersForCustomDash(
       OrderStatus.draft,
@@ -153,11 +180,74 @@ class ProductsController extends GetxController {
     isCartModified.value = false;
   }
 
+  // Future<void> handleBackNavigation({
+  //   required BuildContext context,
+  //   required bool isDirectDialogue,
+  //   required bool isFromOrder,
+  //   required bool isFromCalender,
+  //   required String customerId,
+  //   required HomeController homeController,
+  // }) async {
+  //   final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
+  //   // print('cart items while back${CartDatabaseManager().cartItems}');
+  //   // print('draft box while back${CartDatabaseManager().draftBox.isNotEmpty}');
+  //   // print('customerId$customerId');
+  //   // print('isCartModified${isCartModified.value}');
+  //   if ((CartDatabaseManager().cartItems.isNotEmpty ||
+  //           CartDatabaseManager().draftBox.isNotEmpty) &&
+  //       customerId.isNotEmpty &&
+  //       isCartModified.value) {
+  //     Get.dialog(const Center(child: CircularProgressIndicator()));
+
+  //     final wasOnline = await processCartBeforeNavigation(
+  //       context: context,
+  //       customerId: customerId,
+  //       bulkDataList: storedBulkList
+       
+  //     );
+  //     if (toDash) {
+  //       await Future.delayed(const Duration(milliseconds: 300));
+
+  //       if (wasOnline) {
+  //         showSuccessFullDialog(
+  //           context: context,
+  //           imagePath: 'assets/images/Animation - 1726906882515.json',
+  //           message: 'Your order has been successfully saved as Draft',
+  //         );
+  //       } else {
+  //         offlineDialog(context);
+  //       }
+
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //       Navigator.pop(context);
+  //     } else {
+  //       if (!wasOnline) {
+  //         offlineMode1(context);
+  //       }
+  //       Navigator.pop(context);
+  //     }
+  //   } else if (toDash) {
+  //     CartDatabaseManager().cartItems.clear();
+  //     CartDatabaseManager().clearCart(customerId: customerId);
+  //     Navigator.pop(context);
+  //   } else {
+  //     CartDatabaseManager().cartItems.clear();
+  //     Navigator.pop(context);
+  //   }
+  //   await Provider.of<CustomersProvider>(context, listen: false)
+  //       .fetchOrdersForCustomDash(
+  //     OrderStatus.draft,
+  //     customerId,
+  //   );
+  //   CartDatabaseManager().getDraftItems();
+  //   isCartModified.value = false;
+  // }
 
 
   Future<bool> processCartBeforeNavigation({
     required BuildContext context,
     required String customerId,
+    List<BulkData>? bulkDataList, // <--- 1. Pass your BulkData list here
   }) async {
     print('process navigation started');
 
@@ -178,13 +268,11 @@ class ProductsController extends GetxController {
 
     for (var item in draftItems) {
       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
-      // final key = item.detail.variationId ?? '';
       itemMap[key] = item;
     }
 
     for (var item in cartItems) {
       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
-      // final key = item.detail.variationId ?? '';
       if (!itemMap.containsKey(key)) {
         itemMap[key] = item;
       }
@@ -193,19 +281,6 @@ class ProductsController extends GetxController {
     final allItems = itemMap.values.toList();
 
     allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
-
-    final Map<String, Detail> dedupedDetails = {};
-
-    // for (final item in allItems) {
-    //   final key = item.detail.variationId ?? '';
-    //   if (dedupedDetails.containsKey(key)) {
-    //     dedupedDetails[key]!.count += item.detail.count;
-    //   } else {
-    //     dedupedDetails[key] = item.detail;
-    //   }
-    // }
-
-    // final detail = dedupedDetails.values.toList();
 
     final isOnline = await connectivityService.isOnline();
 
@@ -236,9 +311,6 @@ class ProductsController extends GetxController {
 
       final existingCartId = firstOrder['cart_id'] ?? '';
       final existingDraftId = firstOrder['draft_id'] ?? '';
-      
-      
-      
 
       final productBYData = AddToCartModel(
         customerId: customerId,
@@ -246,6 +318,7 @@ class ProductsController extends GetxController {
         cartId: existingCartId,
         cartList: await Future.wait(allItems.map((item) async {
           final e = item.detail;
+          print('full detailssssss:${e.toJson()}');
 
           final packValue =
               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
@@ -263,8 +336,6 @@ class ProductsController extends GetxController {
                 price: e.sellPrice.toString(),
                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
-
-                // discount: item.totalDiscountAmount!.toDouble(),
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '',
                 maxDiscount: e.maxDiscount?.toInt(),
@@ -276,7 +347,6 @@ class ProductsController extends GetxController {
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
-                // taxAmount: item.taxAmount ?? 0.0,
               );
             } else {
               return SendCartData(
@@ -286,8 +356,6 @@ class ProductsController extends GetxController {
                 price: e.sellPrice.toString(),
                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
-
-                // discount: item.totalDiscountAmount!.toDouble(),
                 quantity: e.count.toInt(),
                 variantName: e.variationName ?? '',
                 maxDiscount: e.maxDiscount?.toInt(),
@@ -297,33 +365,53 @@ class ProductsController extends GetxController {
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
-                //  taxAmount: item.taxAmount ?? 0.0,
               );
             }
           } else {
+
+            print('bulk parttttttt caledddddddddddddddd');
             // ✅ Normal items
             bool isBulkItem = false;
-  String? bulkId;
-  if (e.variationName?.contains('[BULK_ID:') == true) {
-    isBulkItem = true;
-    final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-    final match = regex.firstMatch(e.variationName!);
-    if (match != null) {
-      bulkId = match.group(1);
-    }
-  }
+            String? bulkId;
+            String finalPrice = e.sellPrice.toString(); // Default price
+
+            if (e.variationName?.contains('[BULK_ID:') == true) {
+              isBulkItem = true;
+              final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+              final match = regex.firstMatch(e.variationName!);
+              
+              if (match != null) {
+                bulkId = match.group(1);
+                
+                // --- 2. NEW BULK PRICE LOGIC START ---
+                // We check if we have the list and the ID, then try to find the matching volumePrice
+                if (bulkDataList != null && bulkId != null) {
+                  try {
+                    final matchingBulk = bulkDataList.firstWhere(
+                      (element) => element!.id.toString() == bulkId,
+                    );
+                    
+                    if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
+                      finalPrice = matchingBulk.volumePrice!;
+                      print('Bulk Price Applied for ID $bulkId: $finalPrice');
+                    }
+                  } catch (err) {
+                    print('Bulk ID $bulkId found in name but not found in provided BulkData list.');
+                  }
+                }
+                // --- NEW BULK PRICE LOGIC END ---
+              }
+            }
+
             return SendCartData(
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: e.sellPrice.toString(),
-               packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-              // packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-              // discount: item.totalDiscountAmount!.toDouble(),
+              price: finalPrice, // <--- 3. Using the calculated price
+              packType: isBulkItem
+                  ? 'Bulk'
+                  : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
               discount: (item.totalDiscountAmount ?? 0).toDouble(),
-
-// promoCode: item.promoCode ?? '',
-//                 promoMsg: item.promoMsg ?? '',
               quantity: e.count.toInt(),
               variantName: e.variationName ?? '',
               customerDiscount: item.CustomerDiscount,
@@ -331,7 +419,6 @@ class ProductsController extends GetxController {
               isBulk: isBulkItem,
               bulkId: bulkId,
               initialCount: e.initialCount,
-              // taxAmount: item.taxAmount ?? 0.0,
             );
           }
         }).toList()),
@@ -340,7 +427,7 @@ class ProductsController extends GetxController {
 
       List<String> variantIdsPass = [];
 
-// pattern to catch lines like “Variant Id: VARIATION31”
+      // pattern to catch lines like “Variant Id: VARIATION31”
       final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
 
       for (var item in allItems) {
@@ -349,7 +436,6 @@ class ProductsController extends GetxController {
           variantIdsPass.add(variantId);
         }
 
-        // also add any ids listed inside a bundle promoMsg
         if (item.isPromo == true &&
             (item.promoMsg?.startsWith('Bundle') ?? false)) {
           final promoMsg = item.promoMsg ?? '';
@@ -364,8 +450,8 @@ class ProductsController extends GetxController {
 
       variantIdsPass = variantIdsPass.toSet().toList();
 
-
       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+      print('add to draft datasssss:${productBYData.toJson()}');
 
       if (cartOrder != null) {
         final order = CartOrderModel(
@@ -379,7 +465,6 @@ class ProductsController extends GetxController {
         );
 
         await ApiWorker().placeOrder(order, (statusCode, message, response) {
-          // print('statuscode from backbuttton: $statusCode');
           if (statusCode == 200) {
             showSuccessFullDialogCtrl(context: context);
           } else {
@@ -394,10 +479,13 @@ class ProductsController extends GetxController {
     }
   }
 
+
+
 //   Future<bool> processCartBeforeNavigation({
 //     required BuildContext context,
 //     required String customerId,
 //   }) async {
+//     print('process navigation started');
 
 //     final connectivityService = ConnectivityService();
 //     final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -415,12 +503,14 @@ class ProductsController extends GetxController {
 //         .toList();
 
 //     for (var item in draftItems) {
-//       final key = item.detail.variationId ?? '';
+//       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+//       // final key = item.detail.variationId ?? '';
 //       itemMap[key] = item;
 //     }
 
 //     for (var item in cartItems) {
-//       final key = item.detail.variationId ?? '';
+//       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+//       // final key = item.detail.variationId ?? '';
 //       if (!itemMap.containsKey(key)) {
 //         itemMap[key] = item;
 //       }
@@ -432,20 +522,21 @@ class ProductsController extends GetxController {
 
 //     final Map<String, Detail> dedupedDetails = {};
 
-//     for (final item in allItems) {
-//       final key = item.detail.variationId ?? '';
-//       if (dedupedDetails.containsKey(key)) {
-//         dedupedDetails[key]!.count += item.detail.count;
-//       } else {
-//         dedupedDetails[key] = item.detail;
-//       }
-//     }
+//     // for (final item in allItems) {
+//     //   final key = item.detail.variationId ?? '';
+//     //   if (dedupedDetails.containsKey(key)) {
+//     //     dedupedDetails[key]!.count += item.detail.count;
+//     //   } else {
+//     //     dedupedDetails[key] = item.detail;
+//     //   }
+//     // }
 
-//     final detail = dedupedDetails.values.toList();
+//     // final detail = dedupedDetails.values.toList();
 
 //     final isOnline = await connectivityService.isOnline();
 
 //     if (!isOnline) {
+//       final List<Detail> detail = allItems.map((e) => e.detail).toList();
 //       await CartDatabaseManager().saveDraftOffline(
 //         customerId: customerId,
 //         salesmanId: currentSalesmanId,
@@ -471,6 +562,9 @@ class ProductsController extends GetxController {
 
 //       final existingCartId = firstOrder['cart_id'] ?? '';
 //       final existingDraftId = firstOrder['draft_id'] ?? '';
+      
+      
+      
 
 //       final productBYData = AddToCartModel(
 //         customerId: customerId,
@@ -478,6 +572,7 @@ class ProductsController extends GetxController {
 //         cartId: existingCartId,
 //         cartList: await Future.wait(allItems.map((item) async {
 //           final e = item.detail;
+//           print('full detailssssss:${e.toJson()}');
 
 //           final packValue =
 //               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
@@ -487,13 +582,16 @@ class ProductsController extends GetxController {
 //                 item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
 
 //             if (isBundle) {
+//               print('isbundle');
 //               return SendCartData(
 //                 productId: e.productId ?? '',
 //                 variantId: e.variationId ?? '',
 //                 pack: packValue,
 //                 price: e.sellPrice.toString(),
 //                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-//                 discount: e.discount ?? 0,
+//                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
+
+//                 // discount: item.totalDiscountAmount!.toDouble(),
 //                 quantity: e.count.toInt(),
 //                 variantName: e.variationName ?? '',
 //                 maxDiscount: e.maxDiscount?.toInt(),
@@ -502,8 +600,10 @@ class ProductsController extends GetxController {
 //                 promoMsg: "Bundle: ${e.variationName}",
 //                 isBundle: isBundle,
 //                 bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
-//                  customerDiscount: item.CustomerDiscount,
+//                 customerDiscount: item.CustomerDiscount,
 //                 promoDiscount: item.tieredDiscount,
+//                 initialCount: e.initialCount,
+//                 // taxAmount: item.taxAmount ?? 0.0,
 //               );
 //             } else {
 //               return SendCartData(
@@ -513,15 +613,18 @@ class ProductsController extends GetxController {
 //                 price: e.sellPrice.toString(),
 //                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
 //                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
-//                 // discount: e.discount ?? 0,
+
+//                 // discount: item.totalDiscountAmount!.toDouble(),
 //                 quantity: e.count.toInt(),
 //                 variantName: e.variationName ?? '',
 //                 maxDiscount: e.maxDiscount?.toInt(),
 //                 isPromo: true,
 //                 promoCode: item.promoCode ?? '',
 //                 promoMsg: item.promoMsg ?? '',
-//                  customerDiscount: item.CustomerDiscount,
+//                 customerDiscount: item.CustomerDiscount,
 //                 promoDiscount: item.tieredDiscount,
+//                 initialCount: e.initialCount,
+//                 //  taxAmount: item.taxAmount ?? 0.0,
 //               );
 //             }
 //           } else {
@@ -541,15 +644,21 @@ class ProductsController extends GetxController {
 //               variantId: e.variationId ?? '',
 //               pack: packValue,
 //               price: e.sellPrice.toString(),
-//               packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-//               // discount: e.discount ?? 0,
-//                discount: (item.totalDiscountAmount ?? 0).toDouble(),
+//                packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+//               // packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+//               // discount: item.totalDiscountAmount!.toDouble(),
+//               discount: (item.totalDiscountAmount ?? 0).toDouble(),
+
+// // promoCode: item.promoCode ?? '',
+// //                 promoMsg: item.promoMsg ?? '',
 //               quantity: e.count.toInt(),
 //               variantName: e.variationName ?? '',
-//                customerDiscount: item.CustomerDiscount,
+//               customerDiscount: item.CustomerDiscount,
 //               promoDiscount: item.tieredDiscount,
 //               isBulk: isBulkItem,
 //               bulkId: bulkId,
+//               initialCount: e.initialCount,
+//               // taxAmount: item.taxAmount ?? 0.0,
 //             );
 //           }
 //         }).toList()),
@@ -581,8 +690,10 @@ class ProductsController extends GetxController {
 //       }
 
 //       variantIdsPass = variantIdsPass.toSet().toList();
+ 
 
 //       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+//       print('add to draft datasssss:${productBYData.toJson()}');
 
 //       if (cartOrder != null) {
 //         final order = CartOrderModel(
@@ -610,6 +721,8 @@ class ProductsController extends GetxController {
 //       return true;
 //     }
 //   }
+
+
 
   void updateSelectedCustomer(
       {required String name, required String imageUrl, required String id}) {

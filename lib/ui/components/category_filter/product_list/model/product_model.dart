@@ -121,6 +121,9 @@ class ProductModel {
   @HiveField(14)
   String? productCode;
 
+  @HiveField(15)
+  num? catTax;
+
   ProductModel({
     this.id,
     this.productId,
@@ -137,6 +140,7 @@ class ProductModel {
     this.stock,
     this.detail,
     this.productCode,
+    this.catTax,
   });
 
   ProductModel.fromJson(Map<String, dynamic> json) {
@@ -154,6 +158,7 @@ class ProductModel {
     companyId = json['company_id'];
     stock = json['stock'];
     productCode = json['product_code'];
+    catTax = json['cat_tax'];
     if (json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -178,6 +183,7 @@ class ProductModel {
     data['company_id'] = companyId;
     data['stock'] = stock;
     data['product_code'] = productCode;
+    data['cat_tax'] = catTax;
     if (detail != null) {
       data['detail'] = detail!.map((v) => v.toJson()).toList();
     }

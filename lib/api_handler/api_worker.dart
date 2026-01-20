@@ -572,6 +572,7 @@ class ApiWorker with ApiConstants {
   Future<CartOrderModel?> addToDraft(Map<String, dynamic> sendData) async {
     sendData['companyId'] = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
+      print('add to draft called');
       final response = await dio1
           .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToDraft}",
@@ -678,6 +679,7 @@ class ApiWorker with ApiConstants {
 
     if (isConnected) {
       try {
+        print('api called correctlyyyyyy');
         final queryParams = {
           "company_id": companyid,
           "sub_catid": subCatId,
@@ -692,7 +694,7 @@ class ApiWorker with ApiConstants {
 
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
-
+           log('category data from backend in order taking screen:${productApiResponse.toJson()}');
           List<ProductModel> productsForSubCategory = [];
           ScidProductGroup? targetScidGroup;
 
@@ -786,7 +788,7 @@ class ApiWorker with ApiConstants {
         if (response.statusCode == 200) {
           final responseData = response.data;
           // log('[getAllProducts] API Response Data: $responseData');
-
+log('category data from backend in order taking screen:${responseData.toJson()}');
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
 
@@ -3469,6 +3471,7 @@ Future<Bulk> getBulkVolumes() async {
     print('response data: ${response.data}'); // ← very useful for debugging
 
     final bulk = Bulk.fromJson(response.data);
+     
     print('bulk volumes fetched successfully');
 
     // Cache the response (uncomment when ready)

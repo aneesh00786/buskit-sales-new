@@ -84,62 +84,20 @@ double finalPrice = totalPrice - totalDiscountAmount;
 groupedItem.finalPrice = finalPrice;
 
 
-
-//       double totalPrice = groupedItem.totalPrice;
-//       final double CustomerDiscount = groupedItem.CustomerDiscount ?? 0.0;
-//       print('customerdiscountttt:$CustomerDiscount');
-//       var tieredDiscount = groupedItem.tieredDiscount ?? 0;
-//       double totalDiscountPercent = CustomerDiscount + tieredDiscount;
-
-// // // Calculate total discount amount (in currency, not percent)
-//       double totalDiscountAmount = totalPrice * (totalDiscountPercent / 100.0);
-
-// // // Optional: Calculate final price after discount
-//       double finalPrice = totalPrice - totalDiscountAmount;
-
-//       groupedItem.totalDiscountAmount = totalDiscountAmount;
       groupedItem.finalPrice = finalPrice;
+double taxPercentage = (groupedItem.catTax ?? 0).toDouble(); 
+print('tax perecentageeeee:$taxPercentage');
+double tax = finalPrice * (taxPercentage / 100);
+      
 
-      // // Calculate total base price before discount
-      // final double totalBasePrice = basePrice * totalQuantity;
+      // final tax = (groupedItem.detail.tax ?? 0) *
+      //     (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
+      //         ? (groupedItem.detail.pieces ?? 0) * groupedItem.detail.count
+      //         : 1);
 
-      // // Get discount percentage and max discount if available
-      // final double discountPercentage =
-      //     double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
-      //         0.0;
-      // final double? maxDiscount = groupedItem.detail.maxDiscount?.toDouble();
-
-      // // Calculate uncapped discount amount
-      // double uncappedDiscountAmount =
-      //     totalBasePrice * (discountPercentage / 100);
-
-      // // Apply max discount cap if available
-      // double actualDiscountAmount = uncappedDiscountAmount;
-      // if (maxDiscount != null &&
-      //     maxDiscount > 0 &&
-      //     uncappedDiscountAmount > maxDiscount) {
-      //   actualDiscountAmount = maxDiscount;
-      // }
-
-      // // Calculate tax discount based on actual discount percentage
-      // final double effectiveDiscountPercentage = totalBasePrice > 0
-      //     ? (actualDiscountAmount / totalBasePrice) * 100
-      //     : 0;
-      // final taxDiscountAmount = (groupedItem.detail.tax ?? 0.0) *
-      //     totalQuantity *
-      //     (effectiveDiscountPercentage / 100);
-
-      // // Set the discount price for display
-      // final discountPrice = actualDiscountAmount;
-      final tax = (groupedItem.detail.tax ?? 0) *
-          (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack'
-              ? (groupedItem.detail.pieces ?? 0) * groupedItem.detail.count
-              : 1);
-      // log('Tax Discount Row Item : $discountPrice');
-      // log('Tax Discount Row Item : $taxDiscountAmount');
-      // log('Draft id is Contains or not? == ${groupedItem.draftId}');
-      // log('Incl Tax  == ${groupedItem.detail.inclTax}');
-      // log('Discount Amount on Get Rows : ${groupedItem.detail.discount}');
+              print('taxx in the column table scetion$tax ');
+              print('tax in the cart item model class${groupedItem.detail.tax }');
+    
       return DataRow(
         cells: [
           DataCell(

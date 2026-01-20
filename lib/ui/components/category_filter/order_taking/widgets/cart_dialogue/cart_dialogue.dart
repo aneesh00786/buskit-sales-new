@@ -334,6 +334,8 @@ class CartDialogueState extends State<CartDialogue> {
         (sum, item) {
           if (item.isChecked == true) {
             final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+            print('itemmmmmmmmmmmmm taxxxxx:$itemTax');
+            print('iteemmmmmmmm:${item.detail.toJson()}');
             if (item.isPack == true || item.detail.packtype == "Pack") {
               return sum +
                   (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
@@ -345,6 +347,7 @@ class CartDialogueState extends State<CartDialogue> {
           }
         },
       );
+      print('order taxxxxxx:$orderTax');
       preorderTax = widget.productsController.preorderItems.fold(
         0.0,
         (sum, item) {

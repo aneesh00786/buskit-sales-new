@@ -178,6 +178,7 @@ class _CategoryListState extends State<CategoryList> {
                             children: category.subCategoryItem!.map((option) {
                               return GestureDetector(
                                 onTap: () {
+                                 
                                   if (option.id == null || option.id!.isEmpty) {
                                     return;
                                   }

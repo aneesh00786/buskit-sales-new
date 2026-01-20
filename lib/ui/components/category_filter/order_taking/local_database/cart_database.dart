@@ -167,18 +167,12 @@ class CartDatabaseManager {
                               cart['discount_amount']?.toString() ?? '0') ??
                           0)
                       .toDouble(),
-                      // finalPrice: (num.tryParse(cart['total_amount']?.toString() ?? '0') ?? 0)
-                      //     .toDouble(),
-                  // add promodiscount here... first add from backend.....///
+                     
                   tieredDiscount: (num.tryParse(
                               cart['promo_discount']?.toString() ?? '0') ??
                           0)
                       .toDouble(),
-                  // (cart['is_promo'] == 1 &&
-                  //         cart['promo_type'] == 'tiered_discount')
-                  //     ? (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0)
-                  //         .toDouble()
-                  //     : null,
+                  
                 );
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
@@ -737,6 +731,7 @@ class CartDatabaseManager {
     required String inclTax,
     required bool isChcked,
     required int catId,
+    double? catTax,
   }) async {
     print('add to cart called');
     if (localCount <= 0) {
@@ -792,13 +787,7 @@ class CartDatabaseManager {
             ),
           );
 
-      // final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
-      //     item.detail.variationName == detail.variationName &&
-      //     item.detail.sellPrice == detail.sellPrice &&
-      //     item.customerId == customerId
-      //      &&
-      //     (item.isPromo == false || item.isPromo == null)
-      //     );
+    
       if (existingCartItemIndex != -1) {
         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
         final previousCount = existingCartItem.detail.count;
@@ -843,7 +832,9 @@ class CartDatabaseManager {
             isChecked: isChcked,
             catId: catId,
             isPromo: false,
-            CustomerDiscount: discountPercentage);
+            CustomerDiscount: discountPercentage,
+            catTax: catTax
+            );
         await cartBox.add(newCartItem);
         print('new item added to the cart');
       }

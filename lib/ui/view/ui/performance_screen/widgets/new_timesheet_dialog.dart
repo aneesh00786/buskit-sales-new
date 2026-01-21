@@ -34,12 +34,9 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
           widget.staffController.tabController.index + 1, 1),
     );
     final int year = DateTime.now().year;
-    final int month = widget.staffController.tabController.index + 1;
-    final int lastDay = DateTime(year, month + 1, 0).day;
-    final String endDate = DateFormat('yyyy-MM-dd').format(
-      DateTime(year, month, lastDay),
-    );
-    await widget.staffController.loadTimesheetData(startDate, endDate);
+    
+    
+    await widget.staffController.loadTimesheetData(year.toString());
   }
 
   @override

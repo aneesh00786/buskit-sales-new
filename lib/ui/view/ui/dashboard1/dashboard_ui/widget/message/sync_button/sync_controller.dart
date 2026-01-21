@@ -189,9 +189,12 @@ class SyncController extends GetxController {
           DateTime.now().year.toString(),
         ),
         ApiWorker().getTimeSheetData(
-          startDate: startDate,
-          endDate: endDate,
-        ),
+      year: now.year.toString(), 
+    ),
+        // ApiWorker().getTimeSheetData(
+        //   startDate: startDate,
+        //   endDate: endDate,
+        // ),
         ApiWorker().fetchSchedule(
           endDate,
           startDate,

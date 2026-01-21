@@ -1995,43 +1995,85 @@ class ApiWorker with ApiConstants {
   }
 
   Future<StaffTimesheetResponse> getTimeSheetData({
-    String? startDate,
-    String? endDate,
-  }) async {
-    final id = SessionHelper.loginSavedData?.id ?? '';
-    final cacheKey = 'timesheet_${id}_${startDate ?? ''}_${endDate ?? ''}';
-    final timesheetBox = await Hive.openBox('timesheetBox');
+  required String year, // Changed parameters to accept Year
+}) async {
+  final id = SessionHelper.loginSavedData?.id ?? '';
+  
+  // Update cache key to be unique by ID and Year
+  final cacheKey = 'timesheet_${id}_$year'; 
+  final timesheetBox = await Hive.openBox('timesheetBox');
 
-    bool isOnline = await ConnectivityService().isOnline();
+  bool isOnline = await ConnectivityService().isOnline();
 
-    final requestData = {
-      "startdate": startDate,
-      "enddate": endDate,
-      "id": id,
-    };
+  // New Payload Structure
+  final requestData = {
+    "id": id,
+    "valueFromDw": "Year",     // Hardcoded as requested
+    "selected_range": [year]   // Passed as a list of string
+  };
 
-    if (isOnline) {
-      try {
-        final response = await responsePostMethod(
-          requestData: requestData,
-          endPoint: ApiConstants.getStaffTimeSheet,
-        );
+  if (isOnline) {
+    try {
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.getStaffTimeSheet,
+      );
 
-        if (response.statusCode == 200) {
-          await timesheetBox.put(cacheKey, response.data);
-          return StaffTimesheetResponse.fromJson(response.data);
-        } else {
-          return _getFromCache(timesheetBox, cacheKey);
-        }
-      } on DioException {
-        return _getFromCache(timesheetBox, cacheKey);
-      } catch (e) {
+      if (response.statusCode == 200) {
+        // Cache the fresh data
+        await timesheetBox.put(cacheKey, response.data);
+        return StaffTimesheetResponse.fromJson(response.data);
+      } else {
         return _getFromCache(timesheetBox, cacheKey);
       }
-    } else {
+    } on DioException {
+      return _getFromCache(timesheetBox, cacheKey);
+    } catch (e) {
       return _getFromCache(timesheetBox, cacheKey);
     }
+  } else {
+    return _getFromCache(timesheetBox, cacheKey);
   }
+}
+
+  // Future<StaffTimesheetResponse> getTimeSheetData({
+  //   String? startDate,
+  //   String? endDate,
+  // }) async {
+  //   final id = SessionHelper.loginSavedData?.id ?? '';
+  //   final cacheKey = 'timesheet_${id}_${startDate ?? ''}_${endDate ?? ''}';
+  //   final timesheetBox = await Hive.openBox('timesheetBox');
+
+  //   bool isOnline = await ConnectivityService().isOnline();
+
+  //   final requestData = {
+  //     "startdate": startDate,
+  //     "enddate": endDate,
+  //     "id": id,
+  //   };
+
+  //   if (isOnline) {
+  //     try {
+  //       final response = await responsePostMethod(
+  //         requestData: requestData,
+  //         endPoint: ApiConstants.getStaffTimeSheet,
+  //       );
+
+  //       if (response.statusCode == 200) {
+  //         await timesheetBox.put(cacheKey, response.data);
+  //         return StaffTimesheetResponse.fromJson(response.data);
+  //       } else {
+  //         return _getFromCache(timesheetBox, cacheKey);
+  //       }
+  //     } on DioException {
+  //       return _getFromCache(timesheetBox, cacheKey);
+  //     } catch (e) {
+  //       return _getFromCache(timesheetBox, cacheKey);
+  //     }
+  //   } else {
+  //     return _getFromCache(timesheetBox, cacheKey);
+  //   }
+  // }
 
   StaffTimesheetResponse _getFromCache(Box timesheetBox, String cacheKey) {
     final cachedData = timesheetBox.get(cacheKey);

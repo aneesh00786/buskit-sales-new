@@ -754,11 +754,13 @@ class LoginController extends GetxController {
           currentMonth,
           DateTime.now().year.toString(),
         ),
-
-        ApiWorker().getTimeSheetData(
-          startDate: startDate,
-          endDate: endDate,
-        ),
+ApiWorker().getTimeSheetData(
+      year: now.year.toString(), 
+    ),
+        // ApiWorker().getTimeSheetData(
+        //   startDate: startDate,
+        //   endDate: endDate,
+        // ),
 
         ApiWorker().fetchSchedule(
           endDate,

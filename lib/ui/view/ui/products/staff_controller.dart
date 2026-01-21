@@ -282,34 +282,60 @@ class StaffController extends GetxController {
   RxMap<String, StaffTimesheetData> staffTimesheetData =
       <String, StaffTimesheetData>{}.obs;
 
-  Future<Map<String, StaffTimesheetData>> loadTimesheetData(
-    String? startDate,
-    String? endDate,
-  ) async {
-    try {
-      isTimesheetLoading.value = true;
-      staffTimesheetData.clear();
 
-      var response = await ApiWorker()
-          .getTimeSheetData(startDate: startDate, endDate: endDate);
+      Future<Map<String, StaffTimesheetData>> loadTimesheetData(String year) async {
+  try {
+    isTimesheetLoading.value = true;
+    staffTimesheetData.clear();
 
-      if (response.data != null && response.data!.isNotEmpty) {
-        staffTimesheetData.assignAll(response.data!);
-        return response.data!;
-      } else {
-        staffTimesheetData.clear();
-        return {};
-      }
-    } catch (e) {
+    // specific parameter: year
+    var response = await ApiWorker().getTimeSheetData(year: year);
 
+    if (response.data != null && response.data!.isNotEmpty) {
+      staffTimesheetData.assignAll(response.data!);
+      return response.data!;
+    } else {
       staffTimesheetData.clear();
       return {};
-    } finally {
-      Future.delayed(const Duration(milliseconds: 50), () {
-        isTimesheetLoading.value = false;
-      });
     }
+  } catch (e) {
+    staffTimesheetData.clear();
+    return {};
+  } finally {
+    Future.delayed(const Duration(milliseconds: 50), () {
+      isTimesheetLoading.value = false;
+    });
   }
+}
+
+  // Future<Map<String, StaffTimesheetData>> loadTimesheetData(
+  //   String? startDate,
+  //   String? endDate,
+  // ) async {
+  //   try {
+  //     isTimesheetLoading.value = true;
+  //     staffTimesheetData.clear();
+
+  //     var response = await ApiWorker()
+  //         .getTimeSheetData(startDate: startDate, endDate: endDate);
+
+  //     if (response.data != null && response.data!.isNotEmpty) {
+  //       staffTimesheetData.assignAll(response.data!);
+  //       return response.data!;
+  //     } else {
+  //       staffTimesheetData.clear();
+  //       return {};
+  //     }
+  //   } catch (e) {
+
+  //     staffTimesheetData.clear();
+  //     return {};
+  //   } finally {
+  //     Future.delayed(const Duration(milliseconds: 50), () {
+  //       isTimesheetLoading.value = false;
+  //     });
+  //   }
+  // }
 
   Future<void> updateValueBasedTarget(
     String salesmanId,

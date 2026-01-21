@@ -158,7 +158,22 @@ class ProductModel {
     companyId = json['company_id'];
     stock = json['stock'];
     productCode = json['product_code'];
-    catTax = json['cat_tax'];
+
+    // --- FIX START ---
+    // 1. Try to get tax from the main product level
+    var rawTax = json['cat_tax'];
+
+    // 2. If it's missing there, check inside the first item of the 'detail' list
+    if (rawTax == null &&
+        json['detail'] != null &&
+        (json['detail'] as List).isNotEmpty) {
+      rawTax = json['detail'][0]['cat_tax'];
+    }
+
+    // 3. Safely parse whatever we found into a number
+    catTax = rawTax != null ? num.tryParse(rawTax.toString()) : 0;
+    // --- FIX END ---
+
     if (json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -166,6 +181,34 @@ class ProductModel {
       });
     }
   }
+
+  // ProductModel.fromJson(Map<String, dynamic> json) {
+  //   id = json['id'];
+  //   productId = json['product_id'];
+  //   brandname = json['brandname'];
+  //   productName = json['product_name'];
+  //   description = json['description'];
+  //   reasonBySalesman = json['reason_by_salesman'];
+  //   imageUrl = json['image_url'];
+  //   inclTax = json['incl_tax'];
+  //   status = json['status'];
+  //   scid = json['scid'];
+  //   catId = json['catId'];
+  //   companyId = json['company_id'];
+  //   stock = json['stock'];
+  //   productCode = json['product_code'];
+  //  if (json['cat_tax'] != null) {
+  //     catTax = num.tryParse(json['cat_tax'].toString());
+  //   } else {
+  //     catTax = 0; // Or null, depending on your preference
+  //   }
+  //   if (json['detail'] != null) {
+  //     detail = <Detail>[];
+  //     json['detail'].forEach((v) {
+  //       detail!.add(Detail.fromJson(v));
+  //     });
+  //   }
+  // }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};

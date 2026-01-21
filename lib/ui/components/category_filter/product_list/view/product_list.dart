@@ -320,6 +320,7 @@ class _ProductGridState extends State<ProductGrid> {
 
                               return GestureDetector(
                                 onTap: () {
+                                  print('before show dialogiue:${product.toJson()}');
                                   _showProductVariantDialog(
                                       product.detail ?? [],
                                       index,
@@ -630,6 +631,7 @@ class _ProductGridState extends State<ProductGrid> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        print('dialoge open prouct details:${product.toJson()}');
         return ProductVariantDialogue(
           index: index,
           product: product,

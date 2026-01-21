@@ -672,42 +672,41 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch category Promo data: $error');
     }
   }
-
   Future<List<ProductModel>> getTempProduct(String subCatId,
       {required int companyid}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
-        print('api called correctlyyyyyy');
-        final queryParams = {
-          "company_id": companyid,
-          "sub_catid": subCatId,
-        };
+        print('api called correctlyyyyyy get temp product');
 
-        final response = await dio.getbycustom(ApiConstants.fetchProduct,
-            queryParameters: queryParams);
+    // 1. Construct the URL manually to match your required format
+    late String requestUrl =
+        "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
+        
+    print('Requesting URL: $requestUrl');
+
+   
+    // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
+    final response = await dio.getbycustom(requestUrl);
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log('API Response Data: $responseData');
-
-          // Parse the new response structure
+          log('category data from backend in order taking screen:${responseData}');
+          
           final productApiResponse = ProductApiResponse.fromJson(responseData);
-           log('category data from backend in order taking screen:${productApiResponse.toJson()}');
+
           List<ProductModel> productsForSubCategory = [];
           ScidProductGroup? targetScidGroup;
 
-          // Find products for the specific subcategory
           for (var scidGroup in productApiResponse.data) {
             if (scidGroup.scid == subCatId) {
               productsForSubCategory.addAll(scidGroup.products);
               targetScidGroup = scidGroup;
-              break; // Found the specific subcategory, no need to continue
+              break; 
             }
           }
 
-          // Cache only the specific subcategory data, not all data
           if (targetScidGroup != null) {
             await _cacheSingleScidGroup(targetScidGroup);
           } else {}
@@ -724,11 +723,68 @@ class ApiWorker with ApiConstants {
         return [];
       }
     } else {
-      // Load from cached data when offline
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
       return cachedProducts;
     }
   }
+
+  // Future<List<ProductModel>> getTempProduct(String subCatId,
+  //     {required int companyid}) async {
+  //   final isConnected = await ConnectivityService().isOnline();
+
+  //   if (isConnected) {
+  //     try {
+  //       print('api called correctlyyyyyy get temp product');
+  //       final queryParams = {
+  //         "company_id": companyid,
+  //         "sub_catid": subCatId,
+  //       };
+  //       print('query parametr:$queryParams');
+
+  //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
+  //           queryParameters: queryParams);
+
+  //       if (response.statusCode == 200) {
+  //         final responseData = response.data;
+  //         // log('API Response Data: $responseData');
+  // log('category data from backend in order taking screen:${responseData}');
+  //         // Parse the new response structure
+  //         final productApiResponse = ProductApiResponse.fromJson(responseData);
+         
+  //         List<ProductModel> productsForSubCategory = [];
+  //         ScidProductGroup? targetScidGroup;
+
+  //         // Find products for the specific subcategory
+  //         for (var scidGroup in productApiResponse.data) {
+  //           if (scidGroup.scid == subCatId) {
+  //             productsForSubCategory.addAll(scidGroup.products);
+  //             targetScidGroup = scidGroup;
+  //             break; // Found the specific subcategory, no need to continue
+  //           }
+  //         }
+
+  //         // Cache only the specific subcategory data, not all data
+  //         if (targetScidGroup != null) {
+  //           await _cacheSingleScidGroup(targetScidGroup);
+  //         } else {}
+
+  //         return productsForSubCategory;
+  //       } else {
+  //         return [];
+  //       }
+  //     } catch (e) {
+  //       handleExceptionMessage(
+  //         apiName: 'Get Temp Product',
+  //         response: e is DioException ? e.response : null,
+  //       );
+  //       return [];
+  //     }
+  //   } else {
+  //     // Load from cached data when offline
+  //     final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+  //     return cachedProducts;
+  //   }
+  // }
 
   // Helper method to load cached products for a specific subcategory
   Future<List<ProductModel>> _loadCachedProductsBySubCategory(
@@ -780,7 +836,9 @@ class ApiWorker with ApiConstants {
 
     if (isConnected) {
       try {
+        // print('get all product api called');
         final queryParams = {"company_id": companyId};
+        // print('query paerametyer in the get all product:$queryParams');
 
         final response = await dio.getbycustom(ApiConstants.fetchProduct,
             queryParameters: queryParams);
@@ -788,7 +846,7 @@ class ApiWorker with ApiConstants {
         if (response.statusCode == 200) {
           final responseData = response.data;
           // log('[getAllProducts] API Response Data: $responseData');
-log('category data from backend in order taking screen:${responseData.toJson()}');
+// log('category data from backend in order taking screen get all producrt:${responseData}');
           // Parse the new response structure
           final productApiResponse = ProductApiResponse.fromJson(responseData);
 
@@ -809,11 +867,30 @@ log('category data from backend in order taking screen:${responseData.toJson()}'
         } else {
           return [];
         }
-      } catch (e) {
-        handleExceptionMessage(
-          apiName: 'Get All Product',
-          response: e is DioException ? e.response : null,
-        );
+      } catch (e, stackTrace) {
+        print('┌───────────────────────────────');
+  print('│ ERROR in getAllProducts()');
+  print('├───────────────────────────────');
+  print('│ Type:     ${e.runtimeType}');
+  print('│ Message:  $e');
+  if (e is DioException) {
+    print('│ Status:   ${e.response?.statusCode}');
+    print('│ Endpoint: ${e.requestOptions.path}');
+    print('│ Response: ${e.response?.data}');
+  }
+  print('│');
+  print('│ Stack trace (first few lines):');
+  print('│ ${stackTrace.toString().split('\n').take(6).join('\n│ ')}');
+  print('└───────────────────────────────');
+
+  handleExceptionMessage(
+    apiName: 'Get All Product',
+    response: e is DioException ? e.response : null,
+  );
+        // handleExceptionMessage(
+        //   apiName: 'Get All Product',
+        //   response: e is DioException ? e.response : null,
+        // );
         return [];
       }
     } else {

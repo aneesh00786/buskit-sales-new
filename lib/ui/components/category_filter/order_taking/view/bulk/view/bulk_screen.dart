@@ -217,7 +217,7 @@ class DynamicBulkCard extends StatelessWidget {
       isChcked: true,
       catId: int.tryParse(data.categoryId ?? '0') ?? 0,
       inclTax: "true", 
-      
+      catTax: productController.products.first.catTax!.toDouble(),
       detail: Detail(
         id: int.tryParse(data.productVariantId ?? '0'),
         productId: data.productId,                        
@@ -229,6 +229,7 @@ class DynamicBulkCard extends StatelessWidget {
         stock: 1
       ),
     );
+    print('cat tax in the bulk screen:${productController.products.first.catTax}');
 
     // 5. Update the UI state
     productController.isCartModified.value = true;

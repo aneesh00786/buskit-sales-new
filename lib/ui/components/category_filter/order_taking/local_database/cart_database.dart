@@ -968,6 +968,7 @@ class CartDatabaseManager {
   String? promoMsg,
   double? CustomerDiscount,
   double? tieredDiscount,
+  double? catTax,
 }) async {
   if (localCount <= 0) {
     throw ArgumentError("[PROMO] Error: Count must be greater than zero.");
@@ -1101,6 +1102,7 @@ class CartDatabaseManager {
         promoMsg: promoMsg,
         CustomerDiscount: CustomerDiscount,
         tieredDiscount: tieredDiscount,
+        catTax: catTax
       );
 
       await cartBox.add(newCartItem);

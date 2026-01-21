@@ -733,7 +733,7 @@ List<BulkData> storedBulkList = [];
 
   Future<List<ProductModel>> fetchProducts(String subCatId) async {
     try {
-
+  print('fetch product called');
       if (subCatId.isEmpty) {
         isLoading.value = false;
         products.clear();

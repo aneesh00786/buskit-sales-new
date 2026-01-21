@@ -13,6 +13,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
@@ -43,6 +44,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late List<int> localCounts;
+
   @override
   void initState() {
     super.initState();
@@ -798,6 +800,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
+
+                          double finalCatTax = (widget.product.catTax ?? 0).toDouble();
+
+  // 2. If screen data is missing tax, fetch it from the Hive Cache (Login Data)
+  if (finalCatTax == 0) {
+     finalCatTax = getStoredTaxFromCache(widget.product.productId!);
+  }
                           print('on pressed tappedttt');
                           final customerId = customerAndOrderController
                                   .customerId.value.isNotEmpty
@@ -841,9 +850,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                   inclTax: widget.product.inclTax ?? '',
                                   isChcked: true,
                                   catId: widget.product.catId ?? 0,
-                                  catTax: (widget.product.catTax ?? 0).toDouble(),
+                                  catTax: (widget.productList.first.catTax ?? 0).toDouble(),
                                 );
-                                print('cattaxxxxxxx:${widget.product.catTax}');
+                                print('product name :${ widget.product.productName}');
+                                print('cattaxxxxxxx:${widget.productList.first.catTax}');
+                                print('productttt:${widget.product.toJson()}');
                                 widget.productController.isCartModified.value =
                                     true;
                               } else {
@@ -943,4 +954,52 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       }
     });
   }
+}
+
+double getStoredTaxFromCache(String targetProductId) {
+  // 1. Search in the SCID Groups Box (Primary Cache)
+  if (Hive.isBoxOpen('scidProductGroups')) {
+    final scidBox = Hive.box<ScidProductGroup>('scidProductGroups');
+    
+    // Iterate through every group (subcategory)
+    for (var group in scidBox.values) {
+      try {
+        // Try to find the product in this group
+        final product = group.products.firstWhere(
+          (p) => p.productId == targetProductId,
+        );
+        
+        // If found and has tax, return it immediately
+        if (product.catTax != null) {
+          print('Found tax in ScidCache: ${product.catTax}');
+          return product.catTax!.toDouble();
+        }
+      } catch (e) {
+        // Product not found in this group, continue to next group
+        continue;
+      }
+    }
+  }
+
+  // 2. Search in the Products Box (Legacy/Fallback Cache)
+  if (Hive.isBoxOpen('products')) {
+    final productBox = Hive.box<ProductModel>('products');
+    
+    // Find product by matching productId directly
+    try {
+      final product = productBox.values.firstWhere(
+        (p) => p.productId == targetProductId,
+      );
+      
+      if (product.catTax != null) {
+        print('Found tax in ProductBox: ${product.catTax}');
+        return product.catTax!.toDouble();
+      }
+    } catch (e) {
+      // Not found in legacy box either
+    }
+  }
+
+  print('Tax not found in any cache. Returning 0.0');
+  return 0.0;
 }

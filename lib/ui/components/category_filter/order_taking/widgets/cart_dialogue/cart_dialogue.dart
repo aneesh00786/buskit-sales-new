@@ -325,29 +325,43 @@ class CartDialogueState extends State<CartDialogue> {
           widget.productsController.orderItems.fold(0.0, (sum, item) {
         return item.isChecked! ? sum + (item.totalPrice) : sum;
       });
+      print('subTotalll:$orderSubtotal');
       preorderSubtotal =
           widget.productsController.preorderItems.fold(0.0, (sum, item) {
         return item.isChecked! ? sum + (item.totalPrice) : sum;
       });
-      orderTax = widget.productsController.orderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked == true) {
-            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-            print('itemmmmmmmmmmmmm taxxxxx:$itemTax');
-            print('iteemmmmmmmm:${item.detail.toJson()}');
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum +
-                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-            } else {
-              return sum + (itemTax * (item.detail.count));
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
-      print('order taxxxxxx:$orderTax');
+     double orderTaxx = widget.productsController.orderItems.fold(
+  0.0,
+  (sum, item) {
+    // 1. If the item is not checked, keep the sum as is (don't add, don't reset)
+    if (item.isChecked != true) return sum;
+
+    // 2. Simply add the category tax
+    // We use (?? 0.0) to ensure the app doesn't crash if cattax is null
+    return sum + (item.catTax ?? 0.0);
+  },
+);
+      // orderTax = widget.productsController.orderItems.fold(
+      //   0.0,
+      //   (sum, item) {
+      //     if (item.isChecked == true) {
+      //       final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+      //       print('itemmmmmmmmmmmmm taxxxxx:$itemTax');
+      //      print('summmmmm:$sum');
+      //       print('item detail pieces:${item.detail.pieces}');
+      //       print('item detail count:${item.detail.count}');
+      //       if (item.isPack == true || item.detail.packtype == "Pack") {
+      //         return sum +
+      //             (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+      //       } else {
+      //         return sum + (itemTax * (item.detail.count));
+      //       }
+      //     } else {
+      //       return 0;
+      //     }
+      //   },
+      // );
+      print('order taxxxxxx:$orderTaxx');
       preorderTax = widget.productsController.preorderItems.fold(
         0.0,
         (sum, item) {
@@ -1258,6 +1272,8 @@ class CartDialogueState extends State<CartDialogue> {
                             return sum + (item.finalPrice ?? item.totalPrice);
                           },
                         );
+                      
+                         
 
                         print('base amount:$baseAmount');
                         final double finalBeforeCredit =

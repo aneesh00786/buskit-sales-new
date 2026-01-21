@@ -672,6 +672,8 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch category Promo data: $error');
     }
   }
+
+  
   Future<List<ProductModel>> getTempProduct(String subCatId,
       {required int companyid}) async {
     final isConnected = await ConnectivityService().isOnline();

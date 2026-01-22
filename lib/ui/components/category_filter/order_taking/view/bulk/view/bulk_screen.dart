@@ -222,10 +222,10 @@ class DynamicBulkCard extends StatelessWidget {
         id: int.tryParse(data.productVariantId ?? '0'),
         productId: data.productId,                        
         variationId: data.productVariantId,
-        variationName: "${data.volumeName ?? ''} [BULK_ID:${data.id}]",
+        variationName: "${data.volumeName ?? ''} ",
         sellPrice:calculatedSellPrice.toString(), 
         pieces: data.itemNumbers,
-        unitType: "Pack",
+        unitType: "",
         stock: 1
       ),
     );

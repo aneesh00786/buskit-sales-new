@@ -965,7 +965,7 @@ bool _needsRefresh = true;
                           widget.productsController.selectedCustomerId.value;
                       var customerCredit =
                           _customercreditctrl.customerCredit.value ?? 0.0;
-                      print('customer credit in my cart:$customerCredit');
+                  
                       final double flatDisc = widget
                               .productsController.flatDiscountByCustomer[cid] ??
                           0.0;
@@ -980,16 +980,16 @@ bool _needsRefresh = true;
                         },
                       );
 
-                      print('base amount:$baseAmount');
+                      // print('base amount:$baseAmount');
                       final double finalBeforeCredit =
                           baseAmount.clamp(0.0, double.infinity);
 
-                      print('final before credit:$finalBeforeCredit');
+                      // print('final before credit:$finalBeforeCredit');
                       final double payableAmount = useCredit.value
                           ? (finalBeforeCredit - customerCredit)
                               .clamp(0.0, double.infinity)
                           : finalBeforeCredit;
-                      print('payble amount:$payableAmount');
+                      // print('payble amount:$payableAmount');
                       //thi is the portion of orders//
                       return CartTotalWidget(
                         title: 'Subtotal',
@@ -1003,40 +1003,92 @@ bool _needsRefresh = true;
                     }),
 
                     const SizedBox(height: 5.0),
+                    Obx(() {
+  // 1. Get the flat discount (if you still want to include it)
+  final String cid = widget.productsController.selectedCustomerId.value;
+  final double flatDisc =
+      widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
 
-                    Builder(builder: (context) {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      // if (flatDisc <= 0) return const SizedBox.shrink();
-                      return Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Discount',
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(flatDisc),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+  // 2. Calculate the sum of item-level discounts
+  double itemLevelDiscount = widget.productsController.orderItems.fold(
+    0.0,
+    (sum, item) {
+      // Skip unchecked items to match your subtotal logic
+      if (item.isChecked != true) return sum;
+      
+      // Add the item's total discount amount (handling nulls)
+      return sum + (item.totalDiscountAmount ?? 0.0);
+    },
+  );
+
+  // 3. Combine them for the total discount to display
+  final double totalDiscount = flatDisc + itemLevelDiscount;
+
+  // Optional: If you want to hide the widget when there is no discount
+  // if (totalDiscount <= 0) return const SizedBox.shrink();
+
+  return Container(
+    height: 40,
+    width: double.infinity,
+    padding: const EdgeInsets.all(10),
+    child: Padding(
+      padding: const EdgeInsets.only(right: 10, left: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomText(
+            content: 'Discount',
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
+          CustomText(
+            // Display the calculated total discount
+            content: formatAmount(totalDiscount),
+            fontSize: 16,
+            color: Colors.black, // You might want Colors.red or green for discount
+            fontWeight: FontWeight.w600,
+          ),
+        ],
+      ),
+    ),
+  );
+}),
+
+                    // Builder(builder: (context) {
+                    //   final String cid =
+                    //       widget.productsController.selectedCustomerId.value;
+                    //   final double flatDisc = widget
+                    //           .productsController.flatDiscountByCustomer[cid] ??
+                    //       0.0;
+                    //       print('discounttt:$flatDisc');
+                    //   // if (flatDisc <= 0) return const SizedBox.shrink();
+                    //   return Container(
+                    //     height: 40,
+                    //     width: double.infinity,
+                    //     padding: const EdgeInsets.all(10),
+                    //     child: Padding(
+                    //       padding: const EdgeInsets.only(right: 10, left: 10),
+                    //       child: Row(
+                    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //         children: [
+                    //           CustomText(
+                    //             content: 'Discount',
+                    //             fontSize: 16,
+                    //             color: Colors.black,
+                    //             fontWeight: FontWeight.w600,
+                    //           ),
+                    //           CustomText(
+                    //             content: formatAmount(flatDisc),
+                    //             fontSize: 16,
+                    //             color: Colors.black,
+                    //             fontWeight: FontWeight.w600,
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   );
+                    // }),
                     Container(
                       height: 40,
                       width: double.infinity,

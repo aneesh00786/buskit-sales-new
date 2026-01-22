@@ -694,7 +694,7 @@ class ApiWorker with ApiConstants {
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          log('category data from backend in order taking screen:${responseData}');
+          // log('category data from backend in order taking screen:${responseData}');
           
           final productApiResponse = ProductApiResponse.fromJson(responseData);
 

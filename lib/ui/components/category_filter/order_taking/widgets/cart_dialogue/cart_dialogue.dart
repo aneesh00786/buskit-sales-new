@@ -87,6 +87,7 @@ class CartDialogueState extends State<CartDialogue> {
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
   double orderTax = 0.0;
+  double orderTaxx = 0.0;
   double totalDiscount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
@@ -330,37 +331,46 @@ class CartDialogueState extends State<CartDialogue> {
           widget.productsController.preorderItems.fold(0.0, (sum, item) {
         return item.isChecked! ? sum + (item.totalPrice) : sum;
       });
-     double orderTaxx = widget.productsController.orderItems.fold(
+      orderTaxx = widget.productsController.orderItems.fold(
   0.0,
   (sum, item) {
-    // 1. If the item is not checked, keep the sum as is (don't add, don't reset)
+    // 1. If unchecked, skip
     if (item.isChecked != true) return sum;
 
-    // 2. Simply add the category tax
-    // We use (?? 0.0) to ensure the app doesn't crash if cattax is null
-    return sum + (item.catTax ?? 0.0);
+    // 2. Get the base Total Price
+    double totalPrice = item.totalPrice ?? 0.0;
+
+    // 3. Determine Discount Amount (Replicating your logic)
+    double totalDiscountAmount;
+    
+    // Check if backend value exists first
+    if (item.totalDiscountAmount != null && item.totalDiscountAmount! > 0) {
+      totalDiscountAmount = item.totalDiscountAmount!;
+    } else {
+      // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+      double customerDisc = item.CustomerDiscount ?? 0.0;
+      num tieredDisc = item.tieredDiscount ?? 0;
+      double totalDiscPercent = customerDisc + tieredDisc;
+      
+      totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+    }
+
+    // 4. Calculate Final Price (Price - Discount)
+    double finalPrice = totalPrice - totalDiscountAmount;
+    
+    // Safety check: ensure price isn't negative
+    if (finalPrice < 0) finalPrice = 0;
+
+    // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+    double taxPercentage = (item.catTax ?? 0).toDouble();
+    double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+    return sum + itemTaxAmount;
   },
 );
-      // orderTax = widget.productsController.orderItems.fold(
-      //   0.0,
-      //   (sum, item) {
-      //     if (item.isChecked == true) {
-      //       final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-      //       print('itemmmmmmmmmmmmm taxxxxx:$itemTax');
-      //      print('summmmmm:$sum');
-      //       print('item detail pieces:${item.detail.pieces}');
-      //       print('item detail count:${item.detail.count}');
-      //       if (item.isPack == true || item.detail.packtype == "Pack") {
-      //         return sum +
-      //             (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-      //       } else {
-      //         return sum + (itemTax * (item.detail.count));
-      //       }
-      //     } else {
-      //       return 0;
-      //     }
-      //   },
-      // );
+widget.productsController.totalOrderTax.value = orderTaxx;
+
+//    
       print('order taxxxxxx:$orderTaxx');
       preorderTax = widget.productsController.preorderItems.fold(
         0.0,
@@ -378,40 +388,7 @@ class CartDialogueState extends State<CartDialogue> {
           }
         },
       );
-      // totalDiscount = widget.productsController.orderItems.fold(
-      //   0.0,
-      //   (sum, item) {
-      //     if (item.isChecked != true) return sum;
-
-      //     final double sellPrice =
-      //         double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-      //     final double discountPercentage =
-      //         double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
-      //     final double? maxDiscount = item.detail.maxDiscount?.toDouble();
-
-      //     // Calculate total quantity
-      //     final double totalQuantity =
-      //         (item.isPack == true || item.detail.packtype == 'Pack')
-      //             ? (item.detail.pieces?.toDouble() ?? 1) *
-      //                 item.detail.count.toDouble()
-      //             : item.detail.count.toDouble();
-
-      //     // Calculate total price before discount
-      //     final double totalPrice = sellPrice * totalQuantity;
-
-      //     // Calculate discount amount
-      //     double discountAmount = totalPrice * (discountPercentage / 100);
-
-      //     // Apply max discount cap if applicable
-      //     if (maxDiscount != null &&
-      //         maxDiscount > 0 &&
-      //         discountAmount > maxDiscount) {
-      //       discountAmount = maxDiscount;
-      //     }
-
-      //     return sum + discountAmount;
-      //   },
-      // );
+    
       totalDiscountPreorder = widget.productsController.preorderItems.fold(
         0.0,
         (sum, item) {
@@ -423,20 +400,20 @@ class CartDialogueState extends State<CartDialogue> {
               double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
           final double? maxDiscount = item.detail.maxDiscount?.toDouble();
 
-          // Calculate total quantity
+          
           final double totalQuantity =
               (item.isPack == true || item.detail.packtype == 'Pack')
                   ? (item.detail.pieces?.toDouble() ?? 1) *
                       item.detail.count.toDouble()
                   : item.detail.count.toDouble();
 
-          // Calculate total price before discount
+        
           final double totalPrice = sellPrice * totalQuantity;
 
-          // Calculate discount amount
+       
           double discountAmount = totalPrice * (discountPercentage / 100);
 
-          // Apply max discount cap if applicable
+       
           if (maxDiscount != null &&
               maxDiscount > 0 &&
               discountAmount > maxDiscount) {
@@ -454,10 +431,7 @@ class CartDialogueState extends State<CartDialogue> {
             widget.productsController.orderItems;
         widget.productsController.preorderItems =
             widget.productsController.preorderItems;
-        // orderSubtotal =
-        //     Utils().calculateSubtotal(widget.productsController.orderItems);
-        // orderTax =
-        //     Utils().calculateTotalTax(widget.productsController.orderItems);
+        orderTaxx =   Utils().calculateTotalTax(widget.productsController.orderItems);
         preorderSubtotal =
             Utils().calculateSubtotal(widget.productsController.preorderItems);
         preorderTax =
@@ -479,256 +453,6 @@ class CartDialogueState extends State<CartDialogue> {
   }
 
 
-  // void _loadCartItems() async {
-  //   try {
-  //     final isOnline = await ConnectivityService().isOnline();
-
-  //     final customerId = widget.customerId ??
-  //         widget.productsController.selectedCustomerId.value;
-  //     final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
-
-  //     if (isDraftView) {
-  //       if (!isOnline) {
-  //         var offlineDraftsBox = await Hive.openBox('offlineDrafts');
-  //         List<dynamic> drafts =
-  //             offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
-  //         final draft = drafts.firstWhere(
-  //           (d) => d['customer_id'] == customerId,
-  //           orElse: () => null,
-  //         );
-
-  //         if (draft != null && draft['details'] != null) {
-  //           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-  //           final List details = draft['details'];
-  //           final draftBox = Hive.box<CartItem>('draftBox');
-
-  //           final keysToRemove = draftBox.keys.where((key) {
-  //             final item = draftBox.get(key);
-  //             return item != null && item.customerId == customerId;
-  //           }).toList();
-
-  //           for (var key in keysToRemove) {
-  //             draftBox.get(key);
-  //             await draftBox.delete(key);
-  //           }
-
-  //           for (var detail in details) {
-  //             final cartItem = CartItem(
-  //               detail: Detail(
-  //                 productId: detail['product_id'],
-  //                 variationId: detail['variant_id'],
-  //                 sellPrice: detail['price'],
-  //                 discount: detail['discount'],
-  //                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
-  //                 pieces: int.tryParse(detail['pack'] ?? '0'),
-  //                 variationName: detail['variant_name'],
-  //                 saleBy: detail['packType'],
-  //                 stock: detail['stock'] ?? 0,
-  //                 unitType: detail['unitType'],
-  //               ),
-  //               productName: detail['variant_name'] ?? '',
-  //               totalPrice:
-  //                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
-  //               isPack: detail['packType'] == 'Pack',
-  //               customerId: customerId,
-  //               salesmanId: salesmanId,
-  //               catId: 0,
-  //             );
-  //             await draftBox.add(cartItem);
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     // --- End offline draft loading ---
-
-  //     widget.productsController.cartItems = await CartDatabaseManager()
-  //         .getCartItems(customerId, draftsOnly: isDraftView);
-
-  //     await setCartToOrderAndPreorder();
-
-  //     for (var item in widget.productsController.cartItems) {
-  //       item.isChecked = true;
-  //       final count = item.detail.count;
-  //       final pieces = item.detail.pieces ?? 1;
-  //       final sellPrice =
-  //           double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-  //       final tax = item.detail.tax?.toDouble() ?? 0.0;
-  //       final inclTax = item.detail.inclTax;
-  //       if (item.isPack == true || item.detail.packtype == 'Pack') {
-  //         item.totalPrice = (count * pieces * sellPrice);
-  //       } else {
-  //         item.totalPrice = (count * sellPrice);
-  //       }
-  //       if (inclTax != 'incl_tax') {
-  //         if (item.isPack == true || item.detail.packtype == 'Pack') {
-  //           item.totalPrice += (count * pieces * tax);
-  //         } else {
-  //           item.totalPrice += (count * tax);
-  //         }
-  //       }
-  //     }
-  //     for (var item in widget.productsController.preorderItems) {
-  //       item.isChecked = true;
-  //       final count = item.detail.count;
-  //       final pieces = item.detail.pieces ?? 1;
-  //       final sellPrice =
-  //           double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-  //       final tax = item.detail.tax?.toDouble() ?? 0.0;
-  //       final inclTax = item.detail.inclTax;
-  //       if (item.isPack == true || item.detail.packtype == 'Pack') {
-  //         item.totalPrice = (count * pieces * sellPrice);
-  //       } else {
-  //         item.totalPrice = (count * sellPrice);
-  //       }
-  //       if (inclTax != 'incl_tax') {
-  //         if (item.isPack == true || item.detail.packtype == 'Pack') {
-  //           item.totalPrice += (count * pieces * tax);
-  //         } else {
-  //           item.totalPrice += (count * tax);
-  //         }
-  //       }
-  //     }
-  //     orderSubtotal =
-  //         widget.productsController.orderItems.fold(0.0, (sum, item) {
-  //       return item.isChecked! ? sum + (item.totalPrice) : sum;
-  //     });
-  //     preorderSubtotal =
-  //         widget.productsController.preorderItems.fold(0.0, (sum, item) {
-  //       return item.isChecked! ? sum + (item.totalPrice) : sum;
-  //     });
-  //     orderTax = widget.productsController.orderItems.fold(
-  //       0.0,
-  //       (sum, item) {
-  //         if (item.isChecked == true) {
-  //           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-  //           if (item.isPack == true || item.detail.packtype == "Pack") {
-  //             return sum +
-  //                 (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-  //           } else {
-  //             return sum + (itemTax * (item.detail.count));
-  //           }
-  //         } else {
-  //           return 0;
-  //         }
-  //       },
-  //     );
-  //     preorderTax = widget.productsController.preorderItems.fold(
-  //       0.0,
-  //       (sum, item) {
-  //         if (item.isChecked == true) {
-  //           final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-  //           if (item.isPack == true || item.detail.packtype == "Pack") {
-  //             return sum +
-  //                 (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-  //           } else {
-  //             return sum + (itemTax * (item.detail.count));
-  //           }
-  //         } else {
-  //           return 0;
-  //         }
-  //       },
-  //     );
-  //     totalDiscount = widget.productsController.orderItems.fold(
-  //       0.0,
-  //       (sum, item) {
-  //         if (item.isChecked != true) return sum;
-
-  //         final double sellPrice =
-  //             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-  //         final double discountPercentage =
-  //             double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
-  //         final double? maxDiscount = item.detail.maxDiscount?.toDouble();
-
-  //         // Calculate total quantity
-  //         final double totalQuantity =
-  //             (item.isPack == true || item.detail.packtype == 'Pack')
-  //                 ? (item.detail.pieces?.toDouble() ?? 1) *
-  //                     item.detail.count.toDouble()
-  //                 : item.detail.count.toDouble();
-
-  //         // Calculate total price before discount
-  //         final double totalPrice = sellPrice * totalQuantity;
-
-  //         // Calculate discount amount
-  //         double discountAmount = totalPrice * (discountPercentage / 100);
-
-  //         // Apply max discount cap if applicable
-  //         if (maxDiscount != null &&
-  //             maxDiscount > 0 &&
-  //             discountAmount > maxDiscount) {
-  //           discountAmount = maxDiscount;
-  //         }
-
-  //         return sum + discountAmount;
-  //       },
-  //     );
-  //     totalDiscountPreorder = widget.productsController.preorderItems.fold(
-  //       0.0,
-  //       (sum, item) {
-  //         if (item.isChecked != true) return sum;
-
-  //         final double sellPrice =
-  //             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-  //         final double discountPercentage =
-  //             double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
-  //         final double? maxDiscount = item.detail.maxDiscount?.toDouble();
-
-  //         // Calculate total quantity
-  //         final double totalQuantity =
-  //             (item.isPack == true || item.detail.packtype == 'Pack')
-  //                 ? (item.detail.pieces?.toDouble() ?? 1) *
-  //                     item.detail.count.toDouble()
-  //                 : item.detail.count.toDouble();
-
-  //         // Calculate total price before discount
-  //         final double totalPrice = sellPrice * totalQuantity;
-
-  //         // Calculate discount amount
-  //         double discountAmount = totalPrice * (discountPercentage / 100);
-
-  //         // Apply max discount cap if applicable
-  //         if (maxDiscount != null &&
-  //             maxDiscount > 0 &&
-  //             discountAmount > maxDiscount) {
-  //           discountAmount = maxDiscount;
-  //         }
-
-  //         return sum + discountAmount;
-  //       },
-  //     );
-  //     setState(() {
-  //       quantities = List.generate(
-  //           widget.productsController.cartItems.length, (index) => 1);
-  //       _isLoading = false;
-  //       widget.productsController.orderItems =
-  //           widget.productsController.orderItems;
-  //       widget.productsController.preorderItems =
-  //           widget.productsController.preorderItems;
-  //       orderSubtotal =
-  //           Utils().calculateSubtotal(widget.productsController.orderItems);
-  //       orderTax =
-  //           Utils().calculateTotalTax(widget.productsController.orderItems);
-  //       preorderSubtotal =
-  //           Utils().calculateSubtotal(widget.productsController.preorderItems);
-  //       preorderTax =
-  //           Utils().calculateTotalTax(widget.productsController.preorderItems);
-  //     });
-  //     if (widget.productsController.orderItems.isNotEmpty) {
-  //       isOrder = true;
-  //       _selectedValue = _options[0];
-  //     } else if (widget.productsController.preorderItems.isNotEmpty) {
-  //       isOrder = false;
-  //       _selectedValue = _options[2];
-  //     }
-  //     setOptions();
-  //   } catch (e) {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
-
   Future<void> setCartToOrderAndPreorder() async {
     List<CartItem> orderItems = [];
     List<CartItem> preorderItems = [];
@@ -746,7 +470,7 @@ class CartDialogueState extends State<CartDialogue> {
       widget.productsController.preorderItems = preorderItems;
     });
 
-    // log("[setCartToOrderAndPreorder] controller preorderItems : ${preorderItems.map((e) => e.toJson()).toList()}");
+   
   }
 
   @override
@@ -1296,32 +1020,7 @@ class CartDialogueState extends State<CartDialogue> {
                               payableAmount <= 0 ? Colors.green : primaryColor,
                         );
                       }),
-                    // Container(
-                    //   height: 40,
-                    //   width: double.infinity,
-                    //   padding: const EdgeInsets.all(10),
-                    //   color: lightPrimaryColor,
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(right: 10, left: 10),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         CustomText(
-                    //           content: 'Subtotal',
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //         CustomText(
-                    //           content: formatAmount(orderSubtotal),
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
+                   
                     const SizedBox(height: 5.0),
 
                     Builder(builder: (context) {
@@ -1357,31 +1056,31 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       );
                     }),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Tax',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(orderTax),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
+                  Container(
+                    height: 40,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10, left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            content: 'Tax',
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          CustomText(
+                            content: formatAmount(orderTaxx),
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
                     // Obx(() {
                     //   final String cid =
@@ -1891,22 +1590,7 @@ class CartDialogueState extends State<CartDialogue> {
                               payableAmount <= 0 ? Colors.green : primaryColor,
                         );
                       }),
-                    // Builder(builder: (context) {
-                    //   final String cid =
-                    //       widget.productsController.selectedCustomerId.value;
-                    //   final double flatDisc = widget
-                    //           .productsController.flatDiscountByCustomer[cid] ??
-                    //       0.0;
-                    //   final double finalAmt = (preorderSubtotal - flatDisc)
-                    //       .clamp(0.0, double.infinity);
-                    //   return CartTotalWidget(
-                    //     title: 'Final Amount',
-                    //     content: finalAmt,
-                    //     fontSize: 20,
-                    //     fontWeight: FontWeight.w700,
-                    //     color2: Colors.green,
-                    //   );
-                    // }),
+                
                   ],
                   SizedBox(
                     height: _selectedValue == "Quick Sale"
@@ -1925,13 +1609,7 @@ class CartDialogueState extends State<CartDialogue> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: filteredOptions.map((option) {
-// final double subtotal = isOrder ? orderSubtotal : preorderSubtotal;
-// final double discount = widget.productsController
-//     .flatDiscountByCustomer[widget.productsController.selectedCustomerId.value] ?? 0.0;
 
-// final double finalTotal = (subtotal - discount).clamp(0.0, double.infinity);
-
-// totalQuickController.text = '\$${finalTotal.toStringAsFixed(2)}';
                             totalQuickController.text = isOrder
                                 ? '\$${orderSubtotal.toStringAsFixed(2)} '
                                 : '\$${preorderSubtotal.toStringAsFixed(2)}';

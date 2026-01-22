@@ -65,6 +65,7 @@ class ProductsController extends GetxController {
   RxString selectedCustomerMobileNo = "".obs;
   RxString selectedCustomerId = "".obs;
   var finalAmount = 0.0.obs;
+  RxDouble totalOrderTax = 0.0.obs;
   var showDialog = false.obs;
   void closeDialog() {
     showDialog.value = false;
@@ -347,6 +348,7 @@ List<BulkData> storedBulkList = [];
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
+                catTax:item.taxAmount
               );
             } else {
               return SendCartData(
@@ -365,6 +367,7 @@ List<BulkData> storedBulkList = [];
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
+                catTax:item.taxAmount
               );
             }
           } else {
@@ -419,6 +422,7 @@ List<BulkData> storedBulkList = [];
               isBulk: isBulkItem,
               bulkId: bulkId,
               initialCount: e.initialCount,
+              catTax:item.taxAmount
             );
           }
         }).toList()),

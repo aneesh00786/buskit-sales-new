@@ -61,82 +61,31 @@ class Utils {
       return sum;
     });
   }
-
   double calculateTotalTax(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) {
-      if (item.isChecked == true) {
-        double tax = item.detail.tax?.toDouble() ?? 0.0;
-        int multiplier =
-            (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
-        return sum + (tax * multiplier * item.detail.count.toDouble());
-      }
-      return sum;
-    });
-  }
+  return items.fold(0.0, (sum, item) {
+    // Only add tax if the item is selected/checked
+    if (item.isChecked == true) {
+      // Use the pre-calculated taxAmount, defaulting to 0.0 if null
+      return sum + (item.taxAmount?.toDouble() ?? 0.0);
+    }
+    return sum;
+  });
+}
 
-  // double calculateTotalPrice(CartItem cartItem, int localCount) {
-  //   log('Calculating total price for cart item');
-  //   final discountBox = Hive.box<CustomerDiscountModel>('discounts');
-  //   CustomerDiscountModel? discountData;
-  //   discountData = discountBox.values.firstWhere(
-  //     (discount) => discount.customerId == cartItem.customerId,
-  //     orElse: () => CustomerDiscountModel(),
-  //   );
-  //   if (cartItem.isChecked == true) {
-  //     double effectiveSellingPrice =
-  //         double.tryParse(cartItem.detail.sellPrice ?? '0') ?? 0;
-  //     int pieces = cartItem.detail.pieces?.toInt() ?? 1;
-  //     num count = cartItem.detail.count;
-  //     num tax = cartItem.detail.tax ?? 0;
-  //     log('Initial Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
-  //     double calculatedSellPrice = cartItem.isPack == true
-  //         ? effectiveSellingPrice * pieces
-  //         : effectiveSellingPrice;
-  //     final double totalPriceForComparison = cartItem.isPack == true
-  //         ? calculatedSellPrice * localCount
-  //         : calculatedSellPrice * localCount;
-  //     log('Calculated Selling Price for Discount Check: $totalPriceForComparison');
-  //     double appliedDiscountPercentage = 0.0;
-  //     if (discountData.customerId == cartItem.customerId) {
-  //       final applicableDiscount = discountData.discounts?.firstWhere(
-  //         (discount) =>
-  //             discount.categoriesId == cartItem.catId.toString() &&
-  //             totalPriceForComparison >
-  //                 (double.tryParse(discount.value ?? '0') ?? 0),
-  //         orElse: () => DiscountModel(),
-  //       );
-  //       if (applicableDiscount != null &&
-  //           applicableDiscount.discount != null &&
-  //           applicableDiscount.discount!.isNotEmpty) {
-  //         appliedDiscountPercentage =
-  //             double.tryParse(applicableDiscount.discount ?? '0') ?? 0;
-  //         effectiveSellingPrice -=
-  //             (effectiveSellingPrice * appliedDiscountPercentage / 100);
-  //         tax -= (tax * appliedDiscountPercentage / 100);
-
-  //         log('Applied discount of $appliedDiscountPercentage%. '
-  //             'Updated Effective Selling Price: $effectiveSellingPrice, Tax: $tax');
-  //       } else {
-  //         log('No applicable discount found.');
-  //       }
-  //     } else {
-  //       log('No discount data found for customer ID: ${cartItem.customerId}');
+  // double calculateTotalTax(List<CartItem> items) {
+  //   return items.fold(0.0, (sum, item) {
+  //     if (item.isChecked == true) {
+  //       double tax = item.detail.tax?.toDouble() ?? 0.0;
+  //       print('item deatail taxxxx:$tax');
+  //       int multiplier =
+  //           (item.isPack == true ? (item.detail.pieces!.toInt()) : 1);
+  //       return sum + (tax * multiplier * item.detail.count.toDouble());
   //     }
-  //     cartItem.detail.discount = appliedDiscountPercentage;
-  //     num totalCount = cartItem.isPack == true ? count * pieces : count;
-  //     double priceWithTax = cartItem.detail.inclTax == "incl_tax"
-  //         ? effectiveSellingPrice
-  //         : effectiveSellingPrice + tax;
-  //     log('Price with Tax: $priceWithTax');
-  //     double totalPrice = priceWithTax * totalCount;
-  //     log('Final Total Price (after tax and discount): $totalPrice');
-
-  //     return totalPrice;
-  //   } else {
-  //     log('Item is not checked; returning price as 0.0');
-  //     return 0.0;
-  //   }
+  //     return sum;
+  //   });
   // }
+
+   
 
   double calculateTotalPrice(CartItem cartItem, int localCount) {
     final discountBox = Hive.box<CustomerDiscountModel>('discounts');

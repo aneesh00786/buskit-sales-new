@@ -2,6 +2,8 @@
 
 // ignore_for_file: avoid_print
 
+import 'dart:developer';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -76,7 +78,7 @@ class CartDatabaseManager {
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             // await draftBox.clear();
-            print('response from fetch all orders:$orders');
+            log('response from fetch all orders:$orders');
             await draftBox.clear();
             // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {
@@ -170,6 +172,10 @@ class CartDatabaseManager {
                      
                   tieredDiscount: (num.tryParse(
                               cart['promo_discount']?.toString() ?? '0') ??
+                          0)
+                      .toDouble(),
+                      taxAmount:   (num.tryParse(
+                              cart['total_tax']?.toString() ?? '0') ??
                           0)
                       .toDouble(),
                   

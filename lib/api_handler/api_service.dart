@@ -1059,7 +1059,7 @@ print('dashboard list body:$requestBody');
           "order_type": orderType,
           "categories_id": "",
           "customer_id": "",
-          "salesman_id": "",
+          "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
           "time_range": "Month",
           "selected_range": [DateFormat('MMMM').format(DateTime.now())],
           "payment_type": "",
@@ -1073,7 +1073,7 @@ print('dashboard list body:$requestBody');
           "order_type": orderType,
           "categories_id": "",
           "customer_id": "",
-          "salesman_id": "",
+          "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
           
           // Use the calculated payload variables
           "time_range": timeRangePayload, 

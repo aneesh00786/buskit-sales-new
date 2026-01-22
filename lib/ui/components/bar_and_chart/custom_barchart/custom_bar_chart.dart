@@ -490,6 +490,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                 minThumbLength: 50,
               ),
               child: Stack(
+                clipBehavior:Clip.none,
                 children: [
                   Scrollbar(
                     controller:
@@ -662,6 +663,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                       padding: const EdgeInsets.only(top: 6, bottom: 53),
                       child: BarChart(
                         BarChartData(
+                          backgroundColor: Colors.transparent,
                           minY: 0,
                           maxY: dynamicMaxY.toDouble(),
                           titlesData: FlTitlesData(
@@ -792,49 +794,83 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 }
-
 Widget customUnderlinedText(String text) {
- 
   const int maxLength = 20; 
   
   String displayText = text;
   
   // Check if text is longer than the limit
   if (text.length > maxLength) {
-    // Take the first 8 characters and add "..."
+    // Take the first 20 characters and add "..."
     displayText = '${text.substring(0, maxLength)}...';
   }
-  // ---------------------------------
 
-  return Stack(
-    alignment: Alignment.centerLeft,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(bottom: 2.0),
-        child: MyRegularText(
-          // Use the modified 'displayText' instead of the original 'text'
-          label: displayText, 
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-            color: Colors.black,
-            // You can keep this as a failsafe, but the manual truncation handles it now
-            overflow: TextOverflow.ellipsis, 
-          ),
+  return Container(
+    decoration: const BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          color: primaryColor,  // Make sure primaryColor is imported
+          width: 1.5,
         ),
       ),
-      Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: Container(
-          height: 1.5,
-          color: primaryColor,
+    ),
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 2.0),
+      child: MyRegularText(
+        label: displayText, 
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          color: Colors.black,
+          overflow: TextOverflow.ellipsis, 
         ),
       ),
-    ],
+    ),
   );
 }
+
+// Widget customUnderlinedText(String text) {
+ 
+//   const int maxLength = 20; 
+  
+//   String displayText = text;
+  
+//   // Check if text is longer than the limit
+//   if (text.length > maxLength) {
+//     // Take the first 8 characters and add "..."
+//     displayText = '${text.substring(0, maxLength)}...';
+//   }
+//   // ---------------------------------
+
+//   return Stack(
+//     alignment: Alignment.centerLeft,
+//     children: [
+//       Padding(
+//         padding: const EdgeInsets.only(bottom: 2.0),
+//         child: MyRegularText(
+//           // Use the modified 'displayText' instead of the original 'text'
+//           label: displayText, 
+//           style: const TextStyle(
+//             fontWeight: FontWeight.w500,
+//             fontSize: 13,
+//             color: Colors.black,
+//             // You can keep this as a failsafe, but the manual truncation handles it now
+//             overflow: TextOverflow.ellipsis, 
+//           ),
+//         ),
+//       ),
+//       Positioned(
+//         bottom: 0,
+//         left: 0,
+//         right: 0,
+//         child: Container(
+//           height: 1.5,
+//           color: primaryColor,
+//         ),
+//       ),
+//     ],
+//   );
+// }
 
 
 

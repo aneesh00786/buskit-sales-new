@@ -349,7 +349,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
           }
         }
       },
-      child: Expanded(child: customUnderlinedText(categoryName ?? '')),
+      child: customUnderlinedText(categoryName ?? ''),
     );
 
     return Container(
@@ -864,7 +864,7 @@ Widget customUnderlinedText(String text) {
         left: 0,
         right: 0,
         child: Container(
-          height: 1.5,
+          height: 1,
           color: primaryColor,
         ),
       ),
@@ -1247,7 +1247,7 @@ class _CustomBarChartCustomerDashState
           }
         }
       },
-      child: Expanded(child: customUnderlinedText(categoryName)),
+      child: customUnderlinedText(categoryName),
     );
 
     return Container(

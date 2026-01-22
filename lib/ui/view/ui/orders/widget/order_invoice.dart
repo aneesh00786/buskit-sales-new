@@ -99,7 +99,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              ("Name :   ${widget.invoiceData?.fullname}"),
+                              ("Name :   ${widget.invoiceData?.businessName}"),
                             ),
                             Text(
                               ("Email :   ${widget.invoiceData?.email}"),

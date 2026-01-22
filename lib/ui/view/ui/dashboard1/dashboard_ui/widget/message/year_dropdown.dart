@@ -136,45 +136,7 @@ class _YearDropdownState extends State<YearDropdown> {
     }).toList(),
   );
 },
-                  // onTap: () async {
-                  //   await checkOnline();
-                  //   if (!isOnline) {
-                  //     showCustomToastDisplay(
-                  //         context, "You are Offline!", red, Icons.close);
-                  //     return;
-                  //   }
-
-                  //   final RenderBox renderBox = _dropdownKey.currentContext!
-                  //       .findRenderObject() as RenderBox;
-                  //   final Offset position =
-                  //       renderBox.localToGlobal(Offset.zero);
-                  //   final Size size = renderBox.size;
-
-                  //   await showMenu<int>(
-                  //     context: context,
-                  //     position: RelativeRect.fromLTRB(
-                  //       position.dx - 30,
-                  //       position.dy + size.height,
-                  //       position.dx + size.width,
-                  //       position.dy,
-                  //     ),
-                  //     items: years.map((year) {
-                  //       return PopupMenuItem<int>(
-                  //         value: year,
-                  //         child: ListTile(
-                  //           title: Text(year.toString()),
-                  //           trailing: provider.selectedYear == year
-                  //               ? const Icon(Icons.check, color: Colors.blue)
-                  //               : null,
-                  //           onTap: () {
-                  //             Navigator.pop(context); // Close menu
-                  //             _selectYear(context, year);
-                  //           },
-                  //         ),
-                  //       );
-                  //     }).toList(),
-                  //   );
-                  // },
+                 
                   child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

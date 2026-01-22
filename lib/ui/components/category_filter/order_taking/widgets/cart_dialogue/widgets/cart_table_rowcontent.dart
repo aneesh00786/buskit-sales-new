@@ -66,6 +66,7 @@ class GroupedItemDataRows {
         totalDiscountAmount = totalPrice * (totalDiscountPercent / 100.0);
         groupedItem.totalDiscountAmount = totalDiscountAmount;
       }
+      print('totalDiscountAmounttttttt:$totalDiscountAmount');
 
 // Calculate final price
       double finalPrice = totalPrice - totalDiscountAmount;

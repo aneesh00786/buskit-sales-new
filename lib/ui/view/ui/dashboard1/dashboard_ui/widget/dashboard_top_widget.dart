@@ -104,6 +104,28 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Dashboard',
+                style: TextStyle(
+                    fontSize: NkFontSize.largeFont(largeFont: 20),
+                    fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Consumer<DashboardProvider>(
+                  builder: (context, provider, child) {
+                    return NotificationWidget(
+                      startDate: provider.selectedStartDate,
+                      endDate: provider.selectedEndDate,
+                    );
+                  },
+                ),
+                SizedBox(width: 120, child: profiloe())
+              ],
+            ),
+          ],
+        ),
         calender(),
         nkSmallSizeBox(),
         Obx(() {
@@ -223,9 +245,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   Flexible(
                     child: Row(
                       children: [
-                        const SizedBox(width: 5),
-                        CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
-                         const SizedBox(width: 10),
+                        // CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
+
                         _buildFilterDropdown(provider, context),
                         if (provider.selectedFilterTemp ==
                             FilterDateEnum.thisMonth) ...[
@@ -296,7 +317,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                     startDate: provider.selectedStartDate,
                     endDate: provider.selectedEndDate,
                   ),
-                  SizedBox(width: 110, child: profiloe()),
+                  // SizedBox(width: 110, child: profiloe()),
                 ],
               );
             }

@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class CustomerAndOrderController extends GetxController {
    RxString customerId = ''.obs;
@@ -16,6 +17,14 @@ class CustomerAndOrderController extends GetxController {
   RxString customerVisitScheduleSet = "".obs;
 
   SearchModel searchData = SearchModel();
+   final String _visitedBoxName = 'visited_customers_box';
+
+    @override
+  void onInit() {
+    super.onInit();
+   
+    _loadVisitedCustomers();
+  }
 
   RxList<String> coustomerTabelsHeadersList = [
     "Customer",
@@ -126,5 +135,35 @@ Future<List<CustomerAndOrderData>> loadCustomer() async {
     refresh();
   }
 
+
+Future<void> _loadVisitedCustomers() async {
+    // Open the box (if not already open)
+    var box = await Hive.openBox(_visitedBoxName);
+    
+    // Get the list (default to empty list if null)
+    List<dynamic>? savedList = box.get('ids');
+    
+    if (savedList != null) {
+      // Convert to Set<String> and update the observable
+      visitedCustomerIds.value = savedList.map((e) => e.toString()).toSet();
+    }
+  }
+   Future<void> markAsVisited(String customerId) async {
+    if (!visitedCustomerIds.contains(customerId)) {
+      visitedCustomerIds.add(customerId);
+      
+      // Save the updated list to Hive
+      var box = await Hive.openBox(_visitedBoxName);
+      await box.put('ids', visitedCustomerIds.toList());
+    }
+  }
+   Future<void> clearVisitedData() async {
+    visitedCustomerIds.clear();
+    var box = await Hive.openBox(_visitedBoxName);
+    await box.delete('ids');
+  }
+
   RxBool isActive = false.obs;
+
+  get visitedCustomerIds => null;
 }

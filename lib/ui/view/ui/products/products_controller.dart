@@ -108,6 +108,11 @@ List<BulkData> storedBulkList = [];
       print("Error fetching bulk data: $e");
     }
   }
+
+  bool onReached(bool reached) {
+    isReached.value = reached;
+    return isReached.value;
+  }
   Future<void> handleBackNavigation({
     required BuildContext context,
     required bool isDirectDialogue,

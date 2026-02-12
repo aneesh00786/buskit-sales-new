@@ -1,17 +1,24 @@
 import 'dart:developer';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
+import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/controller/sales_return_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_scrollbar.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/helpers.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_retrun_daypicker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_month_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_pagination.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_rangepicker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_year_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -42,10 +49,11 @@ class _SalesReturnState extends State<SalesReturn> {
   @override
   void initState() {
     super.initState();
-    initializeData();
 
     _controllers = LinkedScrollControllerGroup();
-    salesReturnController.selectedFilter = FilterDateEnum.thisMonth;
+    salesReturnController.selectedFilter.value = FilterDateEnum.thisMonth;
+    initializeData();
+
     // SET 1
     _scrollController1 = _controllers.addAndGet();
     _scrollController2 = _controllers.addAndGet();
@@ -119,15 +127,39 @@ class _SalesReturnState extends State<SalesReturn> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            child: ListTile(
-              title: CustomText(
-                content: 'Sales Return',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Text(
+                "Sales Return",
+                style: TextStyle(
+                    fontSize: NkFontSize.largeFont(largeFont: 20),
+                    fontWeight: FontWeight.bold),
               ),
-            ),
+              const Spacer(),
+              const NotificationWidget(
+                startDate: '',
+                endDate: '',
+              ),
+               SizedBox(width: 120, child: profiloe())
+            ],
           ),
+          // ListTile(
+          //   leading:    Text(
+          //       "Sales Return",
+          //         style: TextStyle(
+          //     fontSize: NkFontSize.extraLargeFont(),
+          //     fontWeight: FontWeight.bold),
+          //     ),
+          //     trailing: Row(
+          //       children: [
+          //         const NotificationWidget(
+          //           startDate: '',
+          //           endDate: '',
+          //         ),
+          //         const SizedBox(width: 120, child: UpdateAdminBt())
+          //       ],
+          //     ),
+          // ),
           SizedBox(
             width: isPhonePortrait(context)
                 ? fullScreenWidth(context) * 2.3
@@ -172,212 +204,153 @@ class _SalesReturnState extends State<SalesReturn> {
     double fieldWidth,
     bool isMobile,
   ) {
-    // Controllers for date fields (only used when Range is selected)
-    final TextEditingController _startDateCtrl = TextEditingController();
-    final TextEditingController _endDateCtrl = TextEditingController();
+    // Note: We don't need the manual _startDateCtrl/_endDateCtrl here anymore
+    // if we are using the Dashboard's RangePickerWidget.
 
     const double fieldHeight = 55.0;
-    final double cardWidth = salesReturncardWidth(context); // <-- SAME AS CARD
-    final double fieldWidth = isMobile
-        ? cardWidth // mobile → full card width
-        : (cardWidth * 0.22).clamp(186.0, 280.0);
 
-    // Helper: Date picker field
-    Widget _dateField(String hint, TextEditingController controller) {
-      return SizedBox(
-        // width: fieldWidth,
-        // width: isMobile ? double.infinity : 150,
-        // height: 55,
-        width: fieldWidth,
-        height: fieldHeight,
-        child: TextField(
-          controller: controller,
-          readOnly: true,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(color: Colors.grey),
-            filled: true,
-            fillColor: Colors.grey.shade200,
-            border: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.grey),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.grey),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-          ),
-          onTap: () async {
-            final DateTime? picked = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (picked != null) {
-              controller.text =
-                  "${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}";
-            }
-          },
-        ),
-      );
-    }
+    // Adjusted width for the dropdown to match Dashboard style
+    final double dropdownWidth = 120.0;
 
-    // Build the dropdown (always visible)
+    // Build the dropdown (Matched to DashboardTopWidget)
     Widget timePeriodDropdown() {
-      return Container(
-        width: fieldWidth,
-        height: fieldHeight,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: DropdownButton<FilterDateEnum>(
-          alignment: Alignment.center,
-          value: salesReturnController.selectedFilter,
-          onChanged: (newValue) async {
-            bool isOnline = await ConnectivityService().isOnline();
-            if (!isOnline) {
-              showCustomToastDisplay(
-                  context, "You are Offline!", Colors.red, Icons.close);
-              return;
-            }
-            if (newValue != null) {
-              setState(() {
-                salesReturnController.selectedFilter = newValue;
-                if (newValue == FilterDateEnum.range) {
-                  salesReturnController.salesReturnList.clear();
-                  salesReturnController.filteredList.clear();
-                  // Clear previous range dates
-                }
-              });
+      return SizedBox(
+        height: 45,
+        width: dropdownWidth,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade50,
+                blurRadius: 8,
+                offset: const Offset(2, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(
+                left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+            child: Obx(
+              () => DropdownButton<FilterDateEnum>(
+                value: salesReturnController.selectedFilter.value,
+                onChanged: (newValue) async {
+                  bool isOnline = await ConnectivityService().isOnline();
+                  if (!isOnline) {
+                    showCustomToastDisplay(
+                        context, "You are Offline!", Colors.red, Icons.close);
+                    return;
+                  }
 
-              // Only auto-refresh if NOT range
-              // if (newValue != FilterDateEnum.range) {
-              //   await salesReturnController.updateSalesReturnList();
-              // }
-            }
-          },
-          items: [
-            DropdownMenuItem(
-              // alignment: Alignment.center,
-              value: FilterDateEnum.today,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CustomText(
-                    content: 'Today',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
+                  if (newValue != null) {
+                    setState(() {
+                      salesReturnController.selectedFilter.value = newValue;
+                      if (newValue == FilterDateEnum.range) {
+                        salesReturnController.salesReturnList.clear();
+                        salesReturnController.filteredList.clear();
+                      }
+                    });
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: FilterDateEnum.thisMonth,
+                    child: Text('Month', style: TextStyle(fontSize: 12)),
+                  ),
+                  // DropdownMenuItem(
+                  //   value: FilterDateEnum.thisWeek,
+                  //   child: Text('Week', style: TextStyle(fontSize: 12)),
+                  // ),
+                  DropdownMenuItem(
+                    value: FilterDateEnum.today,
+                    child: Text('Day', style: TextStyle(fontSize: 12)),
+                  ),
+                  DropdownMenuItem(
+                    value: FilterDateEnum.thisYear,
+                    child: Text('Year', style: TextStyle(fontSize: 12)),
+                  ),
+                  DropdownMenuItem(
+                    value: FilterDateEnum.range,
+                    child: Text('Range', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+                isExpanded: true,
+                borderRadius: BorderRadius.circular(10),
+                underline: Container(),
               ),
             ),
-            DropdownMenuItem(
-              // alignment: Alignment.center,
-              value: FilterDateEnum.thisWeek,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CustomText(
-                    content: 'This Week',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            DropdownMenuItem(
-              // alignment: Alignment.center,
-              value: FilterDateEnum.thisMonth,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CustomText(
-                    content: 'This Month',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            DropdownMenuItem(
-              // alignment: Alignment.center,
-              value: FilterDateEnum.thisYear,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CustomText(
-                    content: 'This Year',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            DropdownMenuItem(
-              // alignment: Alignment.center,
-              value: FilterDateEnum.range,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CustomText(
-                    content: 'Range',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-          isExpanded: true,
-          underline: Container(),
-          borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
 
-    // Build the range date fields (only shown when Range is selected)
-    Widget _rangeDateFields() {
-      if (salesReturnController.selectedFilter != FilterDateEnum.range) {
-        return const SizedBox.shrink();
-      }
+    // This widget Row holds the dropdown AND the dynamic pickers
+    // Inside _buildFilters in sales_return.dart
 
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 19,
-          ),
-          _dateField('mm/dd/yyyy', _startDateCtrl),
-          const SizedBox(width: 12),
-          _dateField('mm/dd/yyyy', _endDateCtrl),
-          // const SizedBox(width: 10),
-        ],
-      );
+    Widget buildTimeFilterRow() {
+      return Obx(() => Row(
+            // Wrap in Obx to listen to selectedFilter changes
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              timePeriodDropdown(), // The main dropdown
+
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.thisMonth) ...[
+                const SizedBox(width: 10),
+                const SalesReturnMonthDropdown() // <-- NEW WIDGET
+              ],
+
+              // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+              //   const SizedBox(width: 10),
+              //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
+              // ],
+
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.thisYear) ...[
+                const SizedBox(width: 10),
+                // You can create SalesReturnYearDropdown similarly or use logic here
+                const SalesReturnYearDropdown()
+              ],
+
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.today) ...[
+                const SizedBox(width: 10),
+                const SalesReturnDayPicker() // <-- NEW WIDGET
+              ],
+
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.range) ...[
+                const SizedBox(width: 10),
+                const SalesReturnRangePicker() // <-- NEW WIDGET
+              ],
+            ],
+          ));
     }
 
     return [
+      // 1. Time Period (Dropdown + Conditional Widgets)
       _buildFilterColumn(
         title: CustomText(content: 'Time Period', fontWeight: FontWeight.bold),
         spacing: 10,
-        child: timePeriodDropdown(),
+        child: buildTimeFilterRow(), // <--- New logic here
       ),
 
-      if (!isMobile) ...[
-        _rangeDateFields(),
-      ] else ...[
-        _rangeDateFields(),
-      ],
-
-      // 3. Search Customer
+      // 2. Search Customer
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
 
       _buildFilterColumn(
         title:
             CustomText(content: 'Search Customer', fontWeight: FontWeight.bold),
         child: SizedBox(
-          // width: fieldWidth,
-          // width: isMobile ? double.infinity : 186,
-          // width:  isMobile
-          // ? double.infinity
-          // : (MediaQuery.of(context).size.width * 0.15).clamp(186.0, 280.0),
           width: fieldWidth,
           height: fieldHeight,
           child: TextField(
             onChanged: (value) {
               salesReturnController.setCustomerSearch(value.trim());
             },
-            controller: _customerSearchCtrl, // <-- bind controller
+            controller: _customerSearchCtrl,
             decoration: InputDecoration(
               hintText: 'Search by name...',
               hintStyle: const TextStyle(color: Colors.grey),
@@ -396,31 +369,18 @@ class _SalesReturnState extends State<SalesReturn> {
         ),
       ),
 
-      // _buildFilterColumn(
-      //   title: CustomText(content: 'Search Customer', fontWeight: FontWeight.bold),
-      //   child: SizedBox(
-      //     width: fieldWidth,
-      //     child: _buildTextField('Search by name...'),
-      //   ),
-      // ),
-
-      // 4. Search Order/Invoice
+      // 3. Search Order/Invoice
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
       _buildFilterColumn(
         title: CustomText(
             content: 'Search Order/Invoice', fontWeight: FontWeight.bold),
         child: SizedBox(
-          // width: isMobile ? double.infinity : 186,
-          // width:  isMobile
-          //   ? double.infinity
-          //   : (MediaQuery.of(context).size.width * 0.15).clamp(186.0, 280.0),
           width: fieldWidth,
           height: fieldHeight,
           child: TextField(
-            controller: _orderORIdSearchCtrl, // <-- bind
+            controller: _orderORIdSearchCtrl,
             onChanged: (value) {
-              salesReturnController
-                  .setOrderORIdSearch(value); // <-- call setter
+              salesReturnController.setOrderORIdSearch(value);
             },
             decoration: InputDecoration(
               hintText: 'Search by Order ID or Invoice ID...',
@@ -439,25 +399,13 @@ class _SalesReturnState extends State<SalesReturn> {
           ),
         ),
       ),
-      // _buildFilterColumn(
-      //   title: CustomText(content: 'Search Order/Invoice', fontWeight: FontWeight.bold),
-      //   child: SizedBox(
-      //     width: isMobile ? double.infinity : 230,
-      //     child: _buildTextField('Search by Order ID or Invoice ID...'),
-      //   ),
-      // ),
 
-      // 5. Go Button (unchanged)
+      // 4. Go Button
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 50 : 50),
       Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          //      final  double goButtonWidth  = 80.0, // <-- YOUR DESIRED WIDTH
-          // final double goButtonHeight = 55.0;
-          // const SizedBox(height: 20),
           SizedBox(
-            // height: 55,
-            // width: fieldWidth,
             width: isPhonePortrait(context)
                 ? 50.0
                 : fullScreenWidth(context) > 640
@@ -474,33 +422,13 @@ class _SalesReturnState extends State<SalesReturn> {
                 }
                 salesReturnController.currentPage.value = 1;
 
-                // Pass range dates only if Range is selected
-                if (salesReturnController.selectedFilter ==
-                    FilterDateEnum.range) {
-                  final s = _parse(_startDateCtrl.text);
-                  final e = _parse(_endDateCtrl.text);
-                  if (s == null || e == null) {
-                    showCustomToastDisplay(
-                        context,
-                        "Please select valid date range!",
-                        Colors.red,
-                        Icons.close);
-                    return;
-                  }
-                  if (e.isBefore(s)) {
-                    showCustomToastDisplay(
-                        context,
-                        "End date cannot be before start date",
-                        Colors.red,
-                        Icons.close);
-                    return;
-                  }
-                  await salesReturnController.setDateRange(s, e);
-                  // startDate: _startDateCtrl.text.isEmpty ? null : _startDateCtrl.text,
-                  // endDate: _endDateCtrl.text.isEmpty ? null : _endDateCtrl.text,
-                } else {
-                  await salesReturnController.updateSalesReturnList();
-                }
+                // NOTE: If using RangePickerWidget from dashboard, ensure
+                // it updates the controller or the provider correctly.
+                // If using the original logic, you might need to hook up
+                // data from those widgets here.
+
+                await salesReturnController.updateSalesReturnList();
+
                 final searchTerm = _customerSearchCtrl.text.trim();
                 final orderOrIdTerm = _orderORIdSearchCtrl.text.trim();
 
@@ -517,9 +445,7 @@ class _SalesReturnState extends State<SalesReturn> {
               child: const Text('Go'),
             ),
           ),
-          SizedBox(
-            height: 2,
-          )
+          const SizedBox(height: 2)
         ],
       ),
     ];
@@ -570,6 +496,9 @@ class _SalesReturnState extends State<SalesReturn> {
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     final ScrollController _horizontalScrollController = ScrollController();
+    
+    // DEFINE ITEMS PER PAGE (Set this to whatever your pagination expects, e.g., 10)
+    const int itemsPerPage = 10; 
 
     return Column(
       children: [
@@ -577,6 +506,9 @@ class _SalesReturnState extends State<SalesReturn> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ---------------------------------------------
+              // LEFT SIDE (Fixed Columns: Sl.No & Customer)
+              // ---------------------------------------------
               SizedBox(
                 width: 300,
                 child: Column(
@@ -619,12 +551,13 @@ class _SalesReturnState extends State<SalesReturn> {
                         physics: const ClampingScrollPhysics(),
                         child: Obx(() {
                           final list = salesReturnController.filteredList;
+                          
                           if (list.isEmpty) {
                             return SizedBox(
                               height: MediaQuery.of(context).size.height * 0.1,
                               child: Center(
                                 child: CustomText(
-                                  content: "No sales return found",
+                                  content: "No delivered orders found",
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -632,10 +565,36 @@ class _SalesReturnState extends State<SalesReturn> {
                             );
                           }
 
+                          // --- PAGINATION LOGIC START ---
+                          // 1. Calculate Start Index based on Current Page
+                          int currentPage = salesReturnController.currentPage.value;
+                          int startIndex = (currentPage - 1) * itemsPerPage;
+
+                          // 2. Safely slice the list (Get only 10 items for this page)
+                          // If the list has ALL data, this slices it. 
+                          // If the list has ONLY page data, this logic handles it gracefully.
+                          var displayList = list.length > itemsPerPage
+                              ? list.skip(startIndex).take(itemsPerPage).toList()
+                              : list; 
+
+                          // If displayList is empty (e.g. page out of range), fallback
+                          if (displayList.isEmpty && list.isNotEmpty) {
+                             displayList = list.take(itemsPerPage).toList();
+                             startIndex = 0;
+                          }
+                          // --- PAGINATION LOGIC END ---
+
                           return Column(
-                            children: list.asMap().entries.map((entry) {
+                            children: displayList.asMap().entries.map((entry) {
                               int index = entry.key;
                               var data = entry.value;
+
+                              // Calculate correct Serial Number (Sl.No)
+                              // If on Page 2 (index 0), Sl.No should be 11, not 1.
+                              int serialNumber = (list.length > itemsPerPage) 
+                                  ? startIndex + index + 1 
+                                  : index + 1;
+
                               return Container(
                                 height: 90,
                                 color: index.isEven
@@ -647,10 +606,9 @@ class _SalesReturnState extends State<SalesReturn> {
                                     SizedBox(
                                       width: 60,
                                       child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 20),
+                                        padding: const EdgeInsets.only(left: 20),
                                         child: CustomText(
-                                          content: "${index + 1}",
+                                          content: "$serialNumber", // Use calculated Sl.No
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -661,30 +619,39 @@ class _SalesReturnState extends State<SalesReturn> {
                                           CircleAvatar(
                                             radius: 30,
                                             backgroundColor: Colors.grey[200],
+                                            backgroundImage:
+                                                (data.imageUrl != null &&
+                                                        data.imageUrl!.trim().isNotEmpty)
+                                                    ? NetworkImage(
+                                                        "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
+                                                      )
+                                                    : null,
+                                            child: (data.imageUrl == null ||
+                                                    data.imageUrl!.trim().isEmpty)
+                                                ? const Icon(
+                                                    Icons.person,
+                                                    color: Colors.blue,
+                                                    size: 30,
+                                                  )
+                                                : null,
                                           ),
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
                                                 CustomText(
-                                                  content: data.customer?.first
-                                                          .businessName ??
-                                                      '-',
+                                                  content: data.businessName ?? '-',
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                                 CustomText(
-                                                    content: '1234567891000000',
-                                                    fontSize: 12),
+                                                  content: data.mobileno ?? '',
+                                                  fontSize: 12,
+                                                ),
                                                 CustomText(
-                                                  content: data.customer?.first
-                                                          .email ??
-                                                      '',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  content: data.email ?? '',
+                                                  overflow: TextOverflow.ellipsis,
                                                   fontSize: 12,
                                                 ),
                                               ],
@@ -704,57 +671,78 @@ class _SalesReturnState extends State<SalesReturn> {
                   ],
                 ),
               ),
+
+              // ---------------------------------------------
+              // RIGHT SIDE (Scrollable Data Columns)
+              // ---------------------------------------------
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   controller: _horizontalScrollController,
                   child: SizedBox(
                     width: totalTableWidth,
-                    child: Obx(() {
-                      final list = salesReturnController.filteredList;
-                      return Column(
-                        children: [
-                          buildSalesReturnTableHeader(),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              controller: vertical1,
-                              physics: const ClampingScrollPhysics(),
-                              child: Column(
-                                children: list.asMap().entries.map((entry) {
+                    child: Column(
+                      children: [
+                        buildSalesReturnTableHeader(),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: vertical1,
+                            physics: const ClampingScrollPhysics(),
+                            child: Obx(() {
+                              final list = salesReturnController.filteredList;
+
+                              // --- APPLY SAME PAGINATION LOGIC HERE ---
+                              int currentPage = salesReturnController.currentPage.value;
+                              int startIndex = (currentPage - 1) * itemsPerPage;
+
+                              var displayList = list.length > itemsPerPage
+                                  ? list.skip(startIndex).take(itemsPerPage).toList()
+                                  : list;
+                              
+                              if (displayList.isEmpty && list.isNotEmpty) {
+                                 displayList = list.take(itemsPerPage).toList();
+                                 startIndex = 0;
+                              }
+                              // ----------------------------------------
+
+                              return Column(
+                                children: displayList.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   var data = entry.value;
-                                  return buildTableRow(
-                                      context, index, 90, data);
+                                  
+                                  // Pass the correct Serial Number/Index logic if your buildTableRow needs it
+                                  // Note: buildTableRow usually just needs the data. 
+                                  // The 'index' here is 0-9 for the current page.
+                                  return buildTableRow(context, index, 90, data);
                                 }).toList(),
-                              ),
-                            ),
+                              );
+                            }),
                           ),
-                        ],
-                      );
-                    }),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+        
+        // FOOTER
         Container(
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Fix for footer visibility
             children: [
-              // 1. Pagination Row
               Row(
                 children: [
                   SalesReturnPagination(
                       salesReturnController: salesReturnController),
-                  // const Spacer(),
                 ],
               ),
-
               const SizedBox(height: 8),
-
               CustomHorizontalScrollbar(
                 thumbColor: Colors.blue,
                 controller: _horizontalScrollController,
@@ -765,4 +753,225 @@ class _SalesReturnState extends State<SalesReturn> {
       ],
     );
   }
+
+  // Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+  //   double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
+  //   final ScrollController _horizontalScrollController = ScrollController();
+
+  //   return Column(
+  //     children: [
+  //       Expanded(
+  //         child: Row(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             SizedBox(
+  //               width: 300,
+  //               child: Column(
+  //                 children: [
+  //                   Row(
+  //                     children: [
+  //                       buildSalesReturnTableHeader1(
+  //                         Center(
+  //                           child: CustomText(
+  //                             content: "Sl.No.",
+  //                             textAlign: TextAlign.center,
+  //                             fontSize: 14,
+  //                             color: Colors.white,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                         ),
+  //                         60,
+  //                       ),
+  //                       buildSalesReturnTableHeader1(
+  //                         Row(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           children: [
+  //                             const SizedBox(width: 40),
+  //                             CustomText(
+  //                               content: "Customer Details",
+  //                               fontSize: 14,
+  //                               color: Colors.white,
+  //                               fontWeight: FontWeight.bold,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         240,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   Expanded(
+  //                     child: SingleChildScrollView(
+  //                       scrollDirection: Axis.vertical,
+  //                       controller: vertical,
+  //                       physics: const ClampingScrollPhysics(),
+  //                       child: Obx(() {
+  //                         final list = salesReturnController.filteredList;
+  //                         if (list.isEmpty) {
+  //                           return SizedBox(
+  //                             height: MediaQuery.of(context).size.height * 0.1,
+  //                             child: Center(
+  //                               child: CustomText(
+  //                                 content: "No delivered orders found",
+  //                                 fontSize: 16,
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           );
+  //                         }
+
+  //                         return Column(
+  //                           children: list.asMap().entries.map((entry) {
+  //                             int index = entry.key;
+  //                             var data = entry.value;
+
+  //                             // ✅ REMOVED: Don't try to access customer array
+  //                             // Use flat fields directly from data
+
+  //                             return Container(
+  //                               height: 90,
+  //                               color: index.isEven
+  //                                   ? Colors.grey[50]
+  //                                   : Colors.white,
+  //                               padding: const EdgeInsets.all(8.0),
+  //                               child: Row(
+  //                                 children: [
+  //                                   SizedBox(
+  //                                     width: 60,
+  //                                     child: Padding(
+  //                                       padding:
+  //                                           const EdgeInsets.only(left: 20),
+  //                                       child: CustomText(
+  //                                         content: "${index + 1}",
+  //                                         fontWeight: FontWeight.bold,
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                   Expanded(
+  //                                     child: Row(
+  //                                       children: [
+  //                                         CircleAvatar(
+  //                                           radius: 30,
+  //                                           backgroundColor: Colors.grey[200],
+  //                                           backgroundImage:
+  //                                               (data.imageUrl != null &&
+  //                                                       data.imageUrl!
+  //                                                           .trim()
+  //                                                           .isNotEmpty)
+  //                                                   ? NetworkImage(
+  //                                                       "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
+  //                                                     )
+  //                                                   : null,
+  //                                           child: (data.imageUrl == null ||
+  //                                                   data.imageUrl!
+  //                                                       .trim()
+  //                                                       .isEmpty)
+  //                                               ? const Icon(
+  //                                                   Icons.person,
+  //                                                   color: Colors.blue,
+  //                                                   size: 30,
+  //                                                 )
+  //                                               : null,
+  //                                         ),
+
+                                       
+  //                                         const SizedBox(width: 10),
+  //                                         Expanded(
+  //                                           child: Column(
+  //                                             crossAxisAlignment:
+  //                                                 CrossAxisAlignment.start,
+  //                                             mainAxisAlignment:
+  //                                                 MainAxisAlignment.center,
+  //                                             children: [
+  //                                               CustomText(
+  //                                                 content: data.businessName ??
+  //                                                     '-', // ✅ Use data.businessName
+  //                                                 fontWeight: FontWeight.bold,
+  //                                               ),
+  //                                               CustomText(
+  //                                                 content: data.mobileno ??
+  //                                                     '', // ✅ Use data.mobileno
+  //                                                 fontSize: 12,
+  //                                               ),
+  //                                               CustomText(
+  //                                                 content: data.email ??
+  //                                                     '', // ✅ Use data.email
+  //                                                 overflow:
+  //                                                     TextOverflow.ellipsis,
+  //                                                 fontSize: 12,
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //                                       ],
+  //                                     ),
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                             );
+  //                           }).toList(),
+  //                         );
+  //                       }),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             Expanded(
+  //               child: SingleChildScrollView(
+  //                 scrollDirection: Axis.horizontal,
+  //                 controller: _horizontalScrollController,
+  //                 child: SizedBox(
+  //                   width: totalTableWidth,
+  //                   child: Obx(() {
+  //                     final list = salesReturnController.filteredList;
+  //                     return Column(
+  //                       children: [
+  //                         buildSalesReturnTableHeader(),
+  //                         Expanded(
+  //                           child: SingleChildScrollView(
+  //                             scrollDirection: Axis.vertical,
+  //                             controller: vertical1,
+  //                             physics: const ClampingScrollPhysics(),
+  //                             child: Column(
+  //                               children: list.asMap().entries.map((entry) {
+  //                                 int index = entry.key;
+  //                                 var data = entry.value;
+  //                                 return buildTableRow(
+  //                                     context, index, 90, data);
+  //                               }).toList(),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     );
+  //                   }),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       Container(
+  //         color: Colors.white,
+  //         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 SalesReturnPagination(
+  //                     salesReturnController: salesReturnController),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 8),
+  //             CustomHorizontalScrollbar(
+  //               thumbColor: Colors.blue,
+  //               controller: _horizontalScrollController,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }

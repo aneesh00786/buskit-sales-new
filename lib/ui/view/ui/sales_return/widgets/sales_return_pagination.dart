@@ -1,7 +1,7 @@
+
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/controller/sales_return_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -70,7 +70,8 @@ class SalesReturnPagination extends StatelessWidget {
                 if (!isOnline) {
                   showCustomToastDisplay(
                       context, 'You are offline!', red, Icons.close,
-                      duration: 3);
+                      // duration: 3
+                      );
                   return;
                 }
                 if (salesReturnController.currentPage.value > 1) {
@@ -104,7 +105,8 @@ class SalesReturnPagination extends StatelessWidget {
                               if (!isOnline) {
                                 showCustomToastDisplay(context,
                                     'You are offline!', red, Icons.close,
-                                    duration: 3);
+                                    // duration: 3
+                                    );
                                 return;
                               }
                               salesReturnController.goToPage(item);
@@ -140,7 +142,8 @@ class SalesReturnPagination extends StatelessWidget {
                         if (!isOnline) {
                           showCustomToastDisplay(
                               context, 'You are offline!', red, Icons.close,
-                              duration: 3);
+                              // duration: 3
+                              );
                           return;
                         }
                         salesReturnController.goToPage(page);
@@ -175,7 +178,8 @@ class SalesReturnPagination extends StatelessWidget {
                         if (!isOnline) {
                           showCustomToastDisplay(
                               context, 'You are offline!', red, Icons.close,
-                              duration: 3);
+                              // duration: 3
+                              );
                           return;
                         }
                         salesReturnController.goToPage(page);
@@ -214,7 +218,8 @@ class SalesReturnPagination extends StatelessWidget {
                 if (!isOnline) {
                   showCustomToastDisplay(
                       context, 'You are offline!', red, Icons.close,
-                      duration: 3);
+                      // duration: 3
+                      );
                   return;
                 }
                 if (salesReturnController.currentPage.value <

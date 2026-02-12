@@ -29,153 +29,176 @@ class GetRecentOrderReturn {
         "pagination": pagination?.toJson(),
     };
 }
-
 class GetRecentOrderReturnData {
-    int? id;
-    String? orderId;
-    String? customerId;
-    String? salesmanId;
-    int? paymentStatus;
-    int? paymentType;
-    String? paymentDetail;
-    int? orderStatus;
-    String? cartId;
-    DateTime? generatedDate;
-    DateTime? orderCreatAt;
-    String? statusChanged;
-    double? orderTotal;
-    String? receivedAmount;
-    DateTime? receivedAmountDate;
-    DateTime? checkDueDate;
-    int? checkNumber;
-    DateTime? transactionDate;
-    String? transactionDetails;
-    String? rejectionReason;
-    dynamic rejectedDate;
-    int? receivableAmount;
-    DateTime? deliveryDatetime;
-    int? notificationStatus;
-    dynamic orderCreatedStored;
-    int? companyId;
-    String? fullname;
-    String? lastname;
-    String? editedFullname;
-    String? editedLastname;
-    int? totalCount;
-    List<Cart>? cart;
-    List<Customer>? customer;
-    Invoice? invoice;
+  int? id;
+  String? orderId;
+  String? customerId;
+  String? salesmanId;
+  int? paymentStatus;
+  int? paymentType;
+  String? paymentDetail;
+  int? orderStatus;
+  String? cartId;
+  DateTime? generatedDate;
+  DateTime? orderCreatAt;
+  String? statusChanged;
+  double? orderTotal;        // Keep as double
+  String? receivedAmount;    // You defined this as String, so I kept it String
+  DateTime? receivedAmountDate;
+  DateTime? checkDueDate;
+  int? checkNumber;
+  DateTime? transactionDate;
+  String? transactionDetails;
+  String? rejectionReason;
+  dynamic rejectedDate;
+  int? receivableAmount;   
+  DateTime? deliveryDatetime;
+  int? notificationStatus;
+  dynamic orderCreatedStored;
+  int? companyId;
+  String? fullname;
+  String? lastname;
+  String? editedFullname;
+  String? editedLastname;
+  int? totalCount;
+  List<Cart>? cart;
+  List<Customer>? customer;
+  Invoice? invoice;
+  String? businessName;  
+  String? mobileno;      
+  String? email;         
+  String? imageUrl;      
+  String? invoiceId;
 
-    GetRecentOrderReturnData({
-        this.id,
-        this.orderId,
-        this.customerId,
-        this.salesmanId,
-        this.paymentStatus,
-        this.paymentType,
-        this.paymentDetail,
-        this.orderStatus,
-        this.cartId,
-        this.generatedDate,
-        this.orderCreatAt,
-        this.statusChanged,
-        this.orderTotal,
-        this.receivedAmount,
-        this.receivedAmountDate,
-        this.checkDueDate,
-        this.checkNumber,
-        this.transactionDate,
-        this.transactionDetails,
-        this.rejectionReason,
-        this.rejectedDate,
-        this.receivableAmount,
-        this.deliveryDatetime,
-        this.notificationStatus,
-        this.orderCreatedStored,
-        this.companyId,
-        this.fullname,
-        this.lastname,
-        this.editedFullname,
-        this.editedLastname,
-        this.totalCount,
-        this.cart,
-        this.customer,
-        this.invoice,
-    });
+  GetRecentOrderReturnData({
+    this.id,
+    this.orderId,
+    this.customerId,
+    this.salesmanId,
+    this.paymentStatus,
+    this.paymentType,
+    this.paymentDetail,
+    this.orderStatus,
+    this.cartId,
+    this.generatedDate,
+    this.orderCreatAt,
+    this.statusChanged,
+    this.orderTotal,
+    this.receivedAmount,
+    this.receivedAmountDate,
+    this.checkDueDate,
+    this.checkNumber,
+    this.transactionDate,
+    this.transactionDetails,
+    this.rejectionReason,
+    this.rejectedDate,
+    this.receivableAmount,
+    this.deliveryDatetime,
+    this.notificationStatus,
+    this.orderCreatedStored,
+    this.companyId,
+    this.fullname,
+    this.lastname,
+    this.editedFullname,
+    this.editedLastname,
+    this.totalCount,
+    this.cart,
+    this.customer,
+    this.invoice,
+    this.businessName,
+    this.mobileno,
+    this.email,
+    this.imageUrl,
+    this.invoiceId,
+  
+  });
 
-    factory GetRecentOrderReturnData.fromJson(Map<String, dynamic> json) => GetRecentOrderReturnData(
-        id: json["id"],
-        orderId: json["order_id"],
-        customerId: json["customer_id"],
-        salesmanId: json["salesman_id"],
-        paymentStatus: json["payment_status"],
-        paymentType: json["payment_type"],
-        paymentDetail: json["payment_detail"],
-        orderStatus: json["order_status"],
-        cartId: json["cart_id"],
-        generatedDate: json["generated_date"] == null ? null : DateTime.parse(json["generated_date"]),
-        orderCreatAt: json["order_creat_at"] == null ? null : DateTime.parse(json["order_creat_at"]),
-        statusChanged: json["status_changed"],
-        orderTotal: json["order_total"]?.toDouble(),
-        receivedAmount: json["received_amount"],
-        receivedAmountDate: json["received_amount_date"] == null ? null : DateTime.parse(json["received_amount_date"]),
-        checkDueDate: json["check_due_date"] == null ? null : DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"],
-        transactionDate: json["transaction_date"] == null ? null : DateTime.parse(json["transaction_date"]),
-        transactionDetails: json["transaction_details"],
-        rejectionReason: json["rejection_reason"],
-        rejectedDate: json["rejected_date"],
-        receivableAmount: json["receivable_amount"],
-        deliveryDatetime: json["delivery_datetime"] == null ? null : DateTime.parse(json["delivery_datetime"]),
-        notificationStatus: json["notification_status"],
-        orderCreatedStored: json["order_created_stored"],
-        companyId: json["company_id"],
-        fullname: json["fullname"],
-        lastname: json["lastname"],
-        editedFullname: json["edited_fullname"],
-        editedLastname: json["edited_lastname"],
-        totalCount: json["total_count"],
-        cart: json["cart"] == null ? [] : List<Cart>.from(json["cart"]!.map((x) => Cart.fromJson(x))),
-        customer: json["customer"] == null ? [] : List<Customer>.from(json["customer"]!.map((x) => Customer.fromJson(x))),
-        invoice: json["invoice"] == null ? null : Invoice.fromJson(json["invoice"]),
-    );
+  factory GetRecentOrderReturnData.fromJson(Map<String, dynamic> json) => GetRecentOrderReturnData(
+    id: json["id"],
+    orderId: json["order_id"],
+    customerId: json["customer_id"],
+    salesmanId: json["salesman_id"],
+    paymentStatus: json["payment_status"],
+    paymentType: json["payment_type"],
+    paymentDetail: json["payment_detail"],
+    orderStatus: json["order_status"],
+    cartId: json["cart_id"],
+    generatedDate: json["generated_date"] == null ? null : DateTime.parse(json["generated_date"]),
+    orderCreatAt: json["order_creat_at"] == null ? null : DateTime.parse(json["order_creat_at"]),
+    statusChanged: json["status_changed"],
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "order_id": orderId,
-        "customer_id": customerId,
-        "salesman_id": salesmanId,
-        "payment_status": paymentStatus,
-        "payment_type": paymentType,
-        "payment_detail": paymentDetail,
-        "order_status": orderStatus,
-        "cart_id": cartId,
-        "generated_date": generatedDate?.toIso8601String(),
-        "order_creat_at": orderCreatAt?.toIso8601String(),
-        "status_changed": statusChanged,
-        "order_total": orderTotal,
-        "received_amount": receivedAmount,
-        "received_amount_date": receivedAmountDate?.toIso8601String(),
-        "check_due_date": checkDueDate?.toIso8601String(),
-        "check_number": checkNumber,
-        "transaction_date": transactionDate?.toIso8601String(),
-        "transaction_details": transactionDetails,
-        "rejection_reason": rejectionReason,
-        "rejected_date": rejectedDate,
-        "receivable_amount": receivableAmount,
-        "delivery_datetime": deliveryDatetime?.toIso8601String(),
-        "notification_status": notificationStatus,
-        "order_created_stored": orderCreatedStored,
-        "company_id": companyId,
-        "fullname": fullname,
-        "lastname": lastname,
-        "edited_fullname": editedFullname,
-        "edited_lastname": editedLastname,
-        "total_count": totalCount,
-        "cart": cart == null ? [] : List<dynamic>.from(cart!.map((x) => x.toJson())),
-        "customer": customer == null ? [] : List<dynamic>.from(customer!.map((x) => x.toJson())),
-        "invoice": invoice?.toJson(),
-    };
+    // ✅ FIXED: Safely convert String to double
+    orderTotal: double.tryParse(json["order_total"]?.toString() ?? "0"),
+
+    // ✅ OPTIONAL: Convert number/string to String safely
+    receivedAmount: json["received_amount"]?.toString(), 
+
+    receivedAmountDate: json["received_amount_date"] == null ? null : DateTime.parse(json["received_amount_date"]),
+    checkDueDate: json["check_due_date"] == null ? null : DateTime.parse(json["check_due_date"]),
+    checkNumber: json["check_number"],
+    transactionDate: json["transaction_date"] == null ? null : DateTime.parse(json["transaction_date"]),
+    transactionDetails: json["transaction_details"],
+    rejectionReason: json["rejection_reason"],
+    rejectedDate: json["rejected_date"],
+
+    // ✅ FIXED: Safely convert String/Double to int
+    receivableAmount: int.tryParse(json["receivable_amount"]?.toString() ?? "0"),
+
+    deliveryDatetime: json["delivery_datetime"] == null ? null : DateTime.parse(json["delivery_datetime"]),
+    notificationStatus: json["notification_status"],
+    orderCreatedStored: json["order_created_stored"],
+    companyId: json["company_id"],
+    fullname: json["fullname"],
+    lastname: json["lastname"],
+    editedFullname: json["edited_fullname"],
+    editedLastname: json["edited_lastname"],
+    totalCount: json["total_count"],
+    cart: json["cart"] == null ? [] : List<Cart>.from(json["cart"]!.map((x) => Cart.fromJson(x))),
+    customer: json["customer"] == null ? [] : List<Customer>.from(json["customer"]!.map((x) => Customer.fromJson(x))),
+    invoice: json["invoice"] == null ? null : Invoice.fromJson(json["invoice"]),
+    businessName: json["business_name"],  
+    mobileno: json["mobileno"],            
+    email: json["email"],                  
+    imageUrl: json["image_url"],           
+    invoiceId: json["invoice_id"], 
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "order_id": orderId,
+    "customer_id": customerId,
+    "salesman_id": salesmanId,
+    "payment_status": paymentStatus,
+    "payment_type": paymentType,
+    "payment_detail": paymentDetail,
+    "order_status": orderStatus,
+    "cart_id": cartId,
+    "generated_date": generatedDate?.toIso8601String(),
+    "order_creat_at": orderCreatAt?.toIso8601String(),
+    "status_changed": statusChanged,
+    "order_total": orderTotal,
+    "received_amount": receivedAmount,
+    "received_amount_date": receivedAmountDate?.toIso8601String(),
+    "check_due_date": checkDueDate?.toIso8601String(),
+    "check_number": checkNumber,
+    "transaction_date": transactionDate?.toIso8601String(),
+    "transaction_details": transactionDetails,
+    "rejection_reason": rejectionReason,
+    "rejected_date": rejectedDate,
+    "receivable_amount": receivableAmount,
+    "delivery_datetime": deliveryDatetime?.toIso8601String(),
+    "notification_status": notificationStatus,
+    "order_created_stored": orderCreatedStored,
+    "company_id": companyId,
+    "fullname": fullname,
+    "lastname": lastname,
+    "edited_fullname": editedFullname,
+    "edited_lastname": editedLastname,
+    "total_count": totalCount,
+    "cart": cart == null ? [] : List<dynamic>.from(cart!.map((x) => x.toJson())),
+    "customer": customer == null ? [] : List<dynamic>.from(customer!.map((x) => x.toJson())),
+    "invoice": invoice?.toJson(),
+  };
 }
 
 class Cart {

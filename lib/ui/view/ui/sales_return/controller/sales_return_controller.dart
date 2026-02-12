@@ -5,16 +5,19 @@ import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class SalesReturnController extends GetxController {
-  FilterDateEnum selectedFilter = FilterDateEnum.thisMonth;
+  // FilterDateEnum selectedFilter = FilterDateEnum.thisMonth;
+  Rx<FilterDateEnum> selectedFilter = FilterDateEnum.thisMonth.obs;
   String startDate = "";
   String endDate = "";
   String _searchNameTerm = '';
   String _searchOrderORIdTerm = '';
   DateTime? customStartDate;
   DateTime? customEndDate;
-
+  
+  
   var totalPages = 0.obs;
   var currentPage = 1.obs;
   RxBool isOrderLoading = false.obs;
@@ -23,9 +26,20 @@ class SalesReturnController extends GetxController {
   RxBool hasOfflineOrders = false.obs;
   RxInt selectedTabIndex = 0.obs;
 
-  @override
+@override
   void onInit() {
     super.onInit();
+    // Initialize defaults
+    String currentMonth = DateFormat('MMMM').format(DateTime.now());
+    selectedMonths.add(currentMonth);
+    
+    // Initialize current week
+    int dayOfYear = int.parse(DateFormat("D").format(DateTime.now()));
+    int weekNum = ((dayOfYear - DateTime(DateTime.now().year, 1, 1).weekday + 10) / 7).floor();
+    selectedWeeks.add("week$weekNum");
+
+    selectedDayDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    
     updateSalesReturnList();
   }
 
@@ -33,6 +47,13 @@ class SalesReturnController extends GetxController {
       <GetRecentOrderReturnData>[].obs;
   final RxList<GetRecentOrderReturnData> filteredList =
       <GetRecentOrderReturnData>[].obs;
+
+      RxList<String> selectedMonths = <String>[].obs;
+  RxList<String> selectedWeeks = <String>[].obs;
+  RxInt selectedYear = DateTime.now().year.obs;
+  RxString selectedDayDate = "".obs; 
+  RxString rangeStartDate = "".obs; 
+  RxString rangeEndDate = "".obs;
 
   void goToPreviousPage() {
     if (currentPage.value > 1) {
@@ -68,14 +89,14 @@ class SalesReturnController extends GetxController {
   void _applyFilters() {
     final List<GetRecentOrderReturnData> temp = salesReturnList.where((item) {
       final bool nameMatch = _searchNameTerm.isEmpty ||
-          (item.customer?.first.businessName ?? '')
+          (item.businessName ?? '')
               .toLowerCase()
               .contains(_searchNameTerm);
 
       final bool orderMatch = _searchOrderORIdTerm.isEmpty ||
           (item.orderId?.toLowerCase().contains(_searchOrderORIdTerm) ??
               false) ||
-          (item.invoice?.invoiceId
+          (item.invoiceId
                   ?.toString()
                   .toLowerCase()
                   .contains(_searchOrderORIdTerm) ??
@@ -86,63 +107,85 @@ class SalesReturnController extends GetxController {
 
     filteredList.assignAll(temp);
   }
-
+  void setSelectedMonths(List<String> months) => selectedMonths.assignAll(months);
+  void setSelectedWeeks(List<String> weeks) => selectedWeeks.assignAll(weeks);
+  void setSelectedYear(int year) => selectedYear.value = year;
+  void setSelectedDay(String date) => selectedDayDate.value = date;
+  void setRange(String start, String end) {
+    rangeStartDate.value = start;
+    rangeEndDate.value = end;
+  }
   Future updateSalesReturnList() async {
     isOrderLoading.value = true;
+    
+    String valueFromDw = "Month";
+    List<String> selectedRange = [];
+    
+    // Default start/end to today (backend requires them even if ignored by logic)
+    String todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    String reqStartDate = todayStr;
+    String reqEndDate = todayStr;
 
-    DateTime today = DateTime.now();
-
-    switch (selectedFilter) {
-      case FilterDateEnum.today:
-        startDate =
-            "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-        endDate = startDate;
-        break;
-      case FilterDateEnum.thisWeek:
-        DateTime firstDayOfWeek =
-            today.subtract(Duration(days: today.weekday - 1));
-        DateTime lastDayOfWeek = firstDayOfWeek.add(Duration(days: 6));
-        startDate =
-            "${firstDayOfWeek.year}-${firstDayOfWeek.month.toString().padLeft(2, '0')}-${firstDayOfWeek.day.toString().padLeft(2, '0')}";
-        endDate =
-            "${lastDayOfWeek.year}-${lastDayOfWeek.month.toString().padLeft(2, '0')}-${lastDayOfWeek.day.toString().padLeft(2, '0')}";
-        break;
+    // Logic to build the payload based on selectedFilter
+    switch (selectedFilter.value) {
       case FilterDateEnum.thisMonth:
-        startDate =
-            "${today.year}-${today.month.toString().padLeft(2, '0')}-01";
-        endDate =
-            "${today.year}-${today.month.toString().padLeft(2, '0')}-${DateTime(today.year, today.month + 1, 0).day.toString().padLeft(2, '0')}";
+        valueFromDw = "Month";
+        // If nothing selected, default to current month
+        if (selectedMonths.isEmpty) {
+           selectedMonths.add(DateFormat('MMMM').format(DateTime.now()));
+        }
+        selectedRange = selectedMonths.toList();
         break;
+
+      // case FilterDateEnum.thisWeek:
+      //   valueFromDw = "Week";
+      //   if (selectedWeeks.isEmpty) {
+      //      // Default logic if needed
+      //   }
+      //   selectedRange = selectedWeeks.toList();
+      //   break;
+
       case FilterDateEnum.thisYear:
-        startDate = "${today.year}-01-01";
-        endDate = "${today.year}-12-31";
+        valueFromDw = "year";
+        selectedRange = ["${selectedYear.value}"];
         break;
+case FilterDateEnum.today: // UI says "Day"
+        valueFromDw = "Day";
+        // Ensure we have a date
+        if (selectedDayDate.value.isEmpty) {
+          selectedDayDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        }
+        selectedRange = [selectedDayDate.value];
+        break;
+
       case FilterDateEnum.range:
-        if (customStartDate != null && customEndDate != null) {
-          if (customEndDate!.isBefore(customStartDate!)) {
-            Get.snackbar(
-                "Invalid Date Range", "End date cannot be before start date");
-            isOrderLoading.value = false;
-            return;
-          }
-          startDate =
-              "${customStartDate!.year}-${customStartDate!.month.toString().padLeft(2, '0')}-${customStartDate!.day.toString().padLeft(2, '0')}";
-          endDate =
-              "${customEndDate!.year}-${customEndDate!.month.toString().padLeft(2, '0')}-${customEndDate!.day.toString().padLeft(2, '0')}";
-        } else {
-          salesReturnList.clear();
-          filteredList.clear();
-          isOrderLoading.value = false;
+        valueFromDw = "Range";
+        // Validation
+        if (rangeStartDate.value.isEmpty || rangeEndDate.value.isEmpty) {
+          isOrderLoading.value = false; 
+          Get.snackbar("Error", "Please select valid date range");
           return;
         }
+        selectedRange = [rangeStartDate.value, rangeEndDate.value];
+        // reqStartDate = rangeStartDate.value;
+        // reqEndDate = rangeEndDate.value;
+        break;
+        case FilterDateEnum.thisWeek:
+        // This case is unreachable from UI, but required by Dart.
+        // We can just break, or default to Month logic if somehow reached.
+        valueFromDw = "Month"; 
+        if (selectedMonths.isEmpty) {
+           selectedMonths.add(DateFormat('MMMM').format(DateTime.now()));
+        }
+        selectedRange = selectedMonths.toList();
         break;
     }
 
     try {
       final response = await ApiWorker().getRecentOrdersReturns(
-        startDate: startDate,
-        endDate: endDate,
         page: currentPage.value,
+        valueFromDw: valueFromDw,
+        selectedRange: selectedRange,
       );
 
       if (response.data == null || response.data!.isEmpty) {
@@ -150,33 +193,29 @@ class SalesReturnController extends GetxController {
         totalPages.value = 0;
       } else {
         salesReturnList.assignAll(response.data!);
-
-        if (response.pagination != null &&
-            response.pagination!.totalPages != null) {
+        if (response.pagination != null && response.pagination!.totalPages != null) {
           totalPages.value = response.pagination!.totalPages!.toInt();
         } else {
           totalPages.value = 1;
         }
       }
-
-      _applyFilters();
-      log("Updated Sales Return List: ${salesReturnList.length} items, Page: ${currentPage.value}/${totalPages.value}");
+      _applyFilters(); // Re-run local search filters if any
     } catch (e) {
-      log("Error updating sales return list: $e");
       salesReturnList.clear();
       filteredList.clear();
       totalPages.value = 0;
+      log("Error: $e");
     } finally {
       isOrderLoading.value = false;
     }
-
     update();
   }
+
 
   Future<void> setDateRange(DateTime start, DateTime end) async {
     customStartDate = start;
     customEndDate = end;
-    selectedFilter = FilterDateEnum.range;
+    selectedFilter.value = FilterDateEnum.range;
     currentPage.value = 1;
     await updateSalesReturnList();
   }

@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
@@ -134,12 +135,33 @@ class _TableeeState extends State<Tableee> {
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
-          ),
-          SizedBox(width: 5,),
-          Expanded(child: calender()),
+             Expanded(
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Customers & Orders',
+                  style: TextStyle(
+                      fontSize: NkFontSize.largeFont(largeFont: 20),
+                      fontWeight: FontWeight.bold)),
+              Row(
+                children: [
+                  addCustomer(context),
+                  const SizedBox(width: 20),
+                  NotificationWidget(
+                    startDate: provider.selectedStartDate,
+                    endDate: provider.selectedEndDate,
+                  ),
+                   SizedBox(width: 120, child: profiloe()),
+                ],
+              ),
+            ],
+          )),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 8),
+          //   child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
+          // ),
+          // SizedBox(width: 5,),
+          // Expanded(child: calender()),
           
         ],
       ),
@@ -149,17 +171,26 @@ class _TableeeState extends State<Tableee> {
             left: 0,
             right: 0,
             top: 0,
-            child: TopTotalWidget(
-                scrollController: _scrollController3, provider: provider),
+            child: Column(
+              children: [
+                calender(),
+                SizedBox(
+                  height: 5,
+                ),
+
+                TopTotalWidget(
+                    scrollController: _scrollController3, provider: provider),
+              ],
+            ),
           ),
           Column(
             children: [
-              const SizedBox(height: 58),
+              const SizedBox(height: 120),
               Expanded(
                   child: FrozenHeaderTable(
                 scrollController: _scrollController1,
               )),
-              // const SizedBox(height: 58),
+              const SizedBox(height: 20),
             ],
           ),
           Positioned(
@@ -373,14 +404,14 @@ class _TableeeState extends State<Tableee> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      addCustomer(context),
-                      const SizedBox(width: 20),
-                      NotificationWidget(
-                        startDate: provider.selectedStartDate,
-                        endDate: provider.selectedEndDate,
-                      ),
-                       SizedBox(width: 95, child: profiloe()),
+                      // const SizedBox(width: 10),
+                      // addCustomer(context),
+                      // const SizedBox(width: 20),
+                      // NotificationWidget(
+                      //   startDate: provider.selectedStartDate,
+                      //   endDate: provider.selectedEndDate,
+                      // ),
+                      //  SizedBox(width: 95, child: profiloe()),
                     ],
                   );
                 }
@@ -2427,7 +2458,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             : fullScreenHeight(context) / 9.05
         : isPhonePortrait(context)
             ? (fullScreenHeight(context) - (66 * 3)) / 11.1
-            : (fullScreenHeight(context) - (66 * 3)) / 10;
+            : (fullScreenHeight(context) - (66 * 3)) / 11.5;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
       if (provider.isLoading) {

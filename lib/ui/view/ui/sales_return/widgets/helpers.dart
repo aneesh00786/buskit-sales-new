@@ -1,14 +1,15 @@
 import 'dart:math';
 
+
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/return_screen.dart'
-    hide CustomText;
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/return_screen.dart';
 import 'package:flutter/material.dart';
+
 
 Widget buildSalesReturnTableHeader1(Widget child, double width) {
   return Container(
@@ -104,22 +105,43 @@ Widget buildOrderDetails(GetRecentOrderReturnData data) {
 }
 
 Widget buildInvoice(GetRecentOrderReturnData buildInvoiceData) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      CustomText(
-        content: buildInvoiceData.invoice!.invoiceId,
-        fontWeight: FontWeight.bold,
-      ),
-      SizedBox(height: 4),
-      CustomText(
-        content: NKDateUtils.commonFullDateTimeFormat2(
-            buildInvoiceData.invoice!.createdAt!),
-      )
-    ],
+  // ✅ Simply use the flat invoiceId field
+  final String invoiceIdValue = buildInvoiceData.invoiceId ?? "-";
+  
+  if (invoiceIdValue == "-") {
+    return const Center(child: Text("-"));
+  }
+  
+  return Center(
+    child: CustomText(
+      content: invoiceIdValue,
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    ),
   );
 }
+
+// Widget buildInvoice(GetRecentOrderReturnData buildInvoiceData) {
+//   if (buildInvoiceData.invoice == null) {
+//     return const Center(child: Text("-")); // Or "No Invoice"
+//   }
+//   return Column(
+//     crossAxisAlignment: CrossAxisAlignment.center,
+//     mainAxisAlignment: MainAxisAlignment.center,
+//     children: [
+//       CustomText(
+//        content: buildInvoiceData.invoice?.invoiceId ?? "-",
+//         fontWeight: FontWeight.bold,
+//       ),
+//       SizedBox(height: 4),
+//       CustomText(
+//         content: buildInvoiceData.invoice?.createdAt != null
+//             ? NKDateUtils.commonFullDateTimeFormat2(buildInvoiceData.invoice!.createdAt!)
+//             : "-",
+//       )
+//     ],
+//   );
+// }
 
 Widget buildDeleveredDate(GetRecentOrderReturnData DeliveredDateData) {
   return Column(

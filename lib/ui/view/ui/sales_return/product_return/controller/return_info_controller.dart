@@ -1,7 +1,7 @@
 // controllers/pending_returns_controller.dart
 // assuming your dio + fetchInforeturnData lives here
 
-import 'package:busskit_salesexecutive/api_handler/api_service.dart';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/model/return_info_model.dart';
@@ -41,8 +41,8 @@ class PendingReturnsController extends GetxController {
       returnsResponse.value = response;
       // print('info api response:${returnsResponse.value.toString() }');
     } catch (e) {
-      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
-      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      // errorMessage.value = e.toString().replaceFirst('Exception: ', '');
+      // Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }

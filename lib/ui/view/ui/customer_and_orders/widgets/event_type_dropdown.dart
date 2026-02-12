@@ -269,11 +269,6 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                           return;
                         }
 
-                        // ==========================================================
-                        // CASE B: User selected a new Event Type (CHANGE EVENT)
-                        // ==========================================================
-
-                        // 1. Show Change Confirmation (Only if NOT coming from Select)
                         if (selectedValue != EventType.select) {
                           bool? confirmChange = await showDialog<bool>(
                             context: context,
@@ -313,8 +308,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                           onPressed: () => Navigator.of(context)
                                               .pop(true),
                                           style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.orange),
-                                          child: const Text("Confirm"),
+                                              backgroundColor: Colors.red),
+                                          child: const Text("Confirm",style: TextStyle(color: Colors.white),),
                                         ),
                                       ],
                                     ),

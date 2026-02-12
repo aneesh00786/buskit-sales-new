@@ -57,6 +57,8 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromOrder;
   final bool isFromGoogle;
   final ProductsController? productsController;
+  final List<String> eventIds;    // <--- Add this
+  final List<String> customerIds;
 
   const CustomerDachScreen({
     super.key,
@@ -73,6 +75,8 @@ class CustomerDachScreen extends StatefulWidget {
     this.isFromOrder = false,
     this.productsController,
     this.isFromGoogle = false,
+    this.eventIds = const [], // <--- Initialize here
+    this.customerIds = const [],
   });
 
   @override

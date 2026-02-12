@@ -24,6 +24,10 @@ class EventData {
   String? address;
   String? latitude;
   String? longitude;
+  String? salesmanFirstname;
+  String? salesmanLastname;
+  String? salesmanMobileno;
+  String? salesmanEmail;
 
   EventData(
       {this.id,
@@ -50,7 +54,12 @@ class EventData {
       this.mobileNo,
       this.address,
       this.latitude,
-      this.longitude});
+      this.longitude,
+      this.salesmanFirstname,
+      this.salesmanLastname,
+      this.salesmanMobileno,
+      this.salesmanEmail,
+      });
   EventData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     eventId = json['event_id'];
@@ -82,6 +91,10 @@ class EventData {
     address = json["address"];
     latitude = json["latitude"];
     longitude = json["longitude"];
+    salesmanFirstname = json["salesman_firstname"];
+    salesmanLastname = json["salesman_lastname"];
+    salesmanMobileno = json["salesman_mobileno"];
+    salesmanEmail = json["salesman_email"];
   }
 
   Map<String, dynamic> toJson() {
@@ -111,6 +124,10 @@ class EventData {
     data['address'] = address;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
+    data['salesman_firstname'] = salesmanFirstname;
+    data['salesman_lastname'] = salesmanLastname;
+    data['salesman_mobileno'] = salesmanMobileno;
+    data['salesman_email'] = salesmanEmail;
     return data;
   }
 }

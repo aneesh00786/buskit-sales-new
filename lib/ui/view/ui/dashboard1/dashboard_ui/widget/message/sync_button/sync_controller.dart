@@ -115,7 +115,7 @@ class SyncController extends GetxController {
         leadsRejectedController.loadRejectedLeadsData,
         orderController.loadOrderCountData(),
 
-        ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
+        // ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
 
         ApiWorker().getAllProducts(),
         calenderMapController.getRouteCredit(),

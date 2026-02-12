@@ -30,10 +30,11 @@ class LeadTopScreen extends StatelessWidget {
           children: [
             CustomText(content: 'Leads',fontWeight: FontWeight.bold,),
             SizedBox(width: 10,),
-            AddLeadsScreen(
+         
+            const Spacer(),
+               AddLeadsScreen(
               leadsController: leadsController,
             ),
-            const Spacer(),
             const NotificationWidget(
               startDate: '',
               endDate: '',

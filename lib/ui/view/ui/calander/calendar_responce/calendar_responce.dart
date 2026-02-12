@@ -137,6 +137,8 @@ class FetchOnlyCustomerData {
   String email;
   String businessName;
   String imageUrl;
+  String? latitude;  
+  String? longitude;
 
   FetchOnlyCustomerData({
     required this.eventId,
@@ -149,6 +151,8 @@ class FetchOnlyCustomerData {
     required this.email,
     required this.businessName,
     required this.imageUrl,
+    this.latitude,        
+    this.longitude
   });
 
   factory FetchOnlyCustomerData.fromJson(Map<String, dynamic> json) =>
@@ -164,6 +168,8 @@ class FetchOnlyCustomerData {
         email: json["email"],
         businessName: json["business_name"],
         imageUrl: json["image_url"],
+        latitude: json['latitude']?.toString() ?? '0.0',  
+        longitude: json['longitude']?.toString() ?? '0.0',
       );
 
   Map<String, dynamic> toJson() => {

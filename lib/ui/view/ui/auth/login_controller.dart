@@ -657,7 +657,7 @@ class LoginController extends GetxController {
 
         // NEWLY ADDED
 
-        ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
+        // ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
 
         // ------------------------------------------
 

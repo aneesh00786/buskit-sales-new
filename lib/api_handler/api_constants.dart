@@ -89,7 +89,7 @@ mixin class ApiConstants {
   static const String distanceMatrix = "distancematrix/json";
   static const String recentOrderCount = "recent_order_count";
   static const String ordersCountGet = "orders_count_get";
-  static const String getRecentOrder = "get_recent_orders";
+  static const String getRecentOrder = "get_delivered_orders";
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
   static const String localHost = baseUrl;
@@ -123,5 +123,7 @@ mixin class ApiConstants {
   static const String imagePath = '/uploads/setting/1739620175980.jpg';
   static const String imageEndpoint = '$baseUrl$imagePath';
   static const String GetPendingReturnsForCart = '/get_pending_returns_for_cart';
-   static const String getVolumes = "get-volumes";
+  static const String getVolumes = "get-volumes";
+  static const String fetchSalesmanOfCustomer = "fetch_salesman_of_customer";
+  static const String getRecentOrdersData = "get_recent_orders";
 }

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class OrderController extends GetxController {
   RxBool isOrderLoading = false.obs;
 
   RxBool hasOfflineOrders = false.obs;
+   RxBool isButtonActionLoading = false.obs;
 
   final TextEditingController searchTextController = TextEditingController();
 RxString searchQuery = ''.obs;
@@ -351,4 +353,165 @@ void clearSearch() {
     await box.delete(orderId);
     await loadOfflineOrders();
   }
+
+  Future<ButtonActionData?> acceptButtonAction({
+    required BuildContext context,
+    required String orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderAccept(
+        orderId: orderId,
+        updatedOrders: updatedOrders,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order Accepted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to accept order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+   Future<void> sendForCustomerApprovalButtonAction({
+    required BuildContext context,
+    required String orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order sent for approval successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to send for approval: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+  Future<ButtonActionData?> rejectButtonAction({
+    required BuildContext context,
+    required String orderId,
+    required String reason,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderReject(
+        orderId: orderId,
+        rejectReason: reason,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order rejected successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to reject order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+    Future<void> addToPackedAndReady({
+    required BuildContext context,
+    required String orderId,
+    required String cartid,
+  }) async {
+    try {
+      await ApiWorker().packedAndReadyAdd(cartId: cartid, orderId: orderId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Added to Packed and Ready successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add to Packed and Ready: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+
+  Future<ButtonActionData?> deliverButtonAction({
+    required BuildContext context,
+    required String orderId,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderDeliver(
+        orderId: orderId,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order delivered successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to deliver order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+
 }

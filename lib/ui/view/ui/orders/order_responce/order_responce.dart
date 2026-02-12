@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -98,9 +99,13 @@ class OrderData {
     editedLastname = json['edited_lastname'] as String?;
 
     generatedDate = json['generated_date'] as String?;
-    invoice = (json['invoice'] as List?)
-        ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
-        .toList();
+     invoice = json['invoice'] != null
+        ? [
+            OrderInvoice.fromJson(
+              ensureStringKeyedMap(json['invoice']),
+            )
+          ]
+        : [];
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
             setOptionOrderData: OptionOrderData(
@@ -306,6 +311,7 @@ class OrderProcessInvoiceData {
   List<CustomerCart>? cart;
   List<OrderInvoice>? invoice;
   List<SpecificTax>? tax;
+  String? imageUrl;
 
   OrderProcessInvoiceData({
     this.id,
@@ -338,6 +344,7 @@ class OrderProcessInvoiceData {
     this.cart,
     this.invoice,
     this.tax,
+    this.imageUrl,
   });
 
   factory OrderProcessInvoiceData.fromJson(Map<String, dynamic> json) =>
@@ -391,6 +398,7 @@ class OrderProcessInvoiceData {
             ? List<SpecificTax>.from(
                 json["tax"].map((x) => SpecificTax.fromJson(x)))
             : null,
+         imageUrl: json["image_url"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -430,6 +438,7 @@ class OrderProcessInvoiceData {
         "tax": tax != null
             ? List<dynamic>.from(tax!.map((x) => x.toJson()))
             : null,
+        "image_url": imageUrl,
       };
 }class SalesmanTargetByCatId {
   int statusCode;

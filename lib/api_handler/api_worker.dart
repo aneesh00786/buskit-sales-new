@@ -30,6 +30,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_a
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/sales_return_search_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
@@ -439,43 +440,63 @@ class ApiWorker with ApiConstants {
       return null;
     }
   }
-
-  Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
+    Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
     try {
-      final bool isOnline = await ConnectivityService().isOnline();
-      final requestData = {
-        "order_id": orderId,
-        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      };
-      if (!isOnline) {
-        return Future.error('No internet connection');
-      } else {
-        final response = await responsePostMethod(
-          requestData: requestData,
-          endPoint: ApiConstants.fetchSpecificOrder,
-          options: Options(
-            validateStatus: (status) {
-              return true;
-            },
-          ),
-        );
-        if (response.statusCode == 200) {
-          return FetchSpecificOrderInvoice.fromJson(response.data);
-        } else {
-          handleExceptionMessage(
-              response: response, apiName: "specific order invoice");
-          return Future.error('API Error: ${response.statusCode}');
-        }
-      }
-    } on DioException catch (error) {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.fetchSpecificOrder,
+        requestData: {
+          "order_id": orderId,
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        },
+      );
+
+      return FetchSpecificOrderInvoice.fromJson(response.data);
+    } catch (error) {
       handleExceptionMessage(
-          response: error.response,
-          apiName: "specific order invoice,",
-          error: error);
-      return Future.error(error);
+        apiName: 'Fetch Specific Order Invoice',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch specific order invoice: $error');
     }
   }
+
+  // Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
+  //     String orderId) async {
+  //   try {
+  //     final bool isOnline = await ConnectivityService().isOnline();
+  //     final requestData = {
+  //       "order_id": orderId,
+  //       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //     };
+  //     if (!isOnline) {
+  //       return Future.error('No internet connection');
+  //     } else {
+  //       final response = await responsePostMethod(
+  //         requestData: requestData,
+  //         endPoint: ApiConstants.fetchSpecificOrder,
+  //         options: Options(
+  //           validateStatus: (status) {
+  //             return true;
+  //           },
+  //         ),
+  //       );
+  //       if (response.statusCode == 200) {
+  //         return FetchSpecificOrderInvoice.fromJson(response.data);
+  //       } else {
+  //         handleExceptionMessage(
+  //             response: response, apiName: "specific order invoice");
+  //         return Future.error('API Error: ${response.statusCode}');
+  //       }
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response,
+  //         apiName: "specific order invoice,",
+  //         error: error);
+  //     return Future.error(error);
+  //   }
+  // }
 
   Future<CustomerAndOrderResponce> getCustomer() async {
     try {
@@ -1674,6 +1695,7 @@ class ApiWorker with ApiConstants {
         "limit": 10,
         "page": page,
         "companyId": companyId,
+        // "salesmanid":SessionHelper.loginSavedData?.salesmanId ?? '',
       };
 
       final response = await responsePostMethod(
@@ -3768,5 +3790,113 @@ Future<Bulk> getBulkVolumes() async {
     }
   }
 
-  
+
+  Future<ButtonAction> orderAccept({
+    String? orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.orderAcceptDirect,
+        requestData: {
+          "order_id": orderId,
+          "updatedOrders": updatedOrders,
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          },
+        ),
+      );
+
+      return ButtonAction.fromJson(response.data);
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          apiName: 'Order Accept Direct', response: error.response);
+
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (e) {
+      return Future.error(Exception("Unexpected error: $e"));
+    }
+  }
+   Future<ButtonAction> orderReject({
+    String? orderId,
+    String? rejectReason,
+  }) async {
+    final request = {
+      "order_id": orderId,
+      "rejection_reason": rejectReason,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    };
+
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.orderReject,
+        requestData: request,
+      );
+
+      return ButtonAction.fromJson(response.data);
+    } on DioException catch (error) {
+      handleExceptionMessage(apiName: 'Order Reject', response: error.response);
+
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (e) {
+      return Future.error(Exception("Unexpected error: $e"));
+    }
+  }
+    Future<Response> packedAndReadyAdd({
+    String? cartId,
+    String? orderId,
+  }) async {
+    final requestData = {
+      "cart_id": cartId,
+      "order_id": orderId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    };
+
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.addInvoice,
+        requestData: requestData,
+      );
+
+      return response;
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          apiName: 'Packed and Ready Add', response: error.response);
+
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (e) {
+      return Future.error(Exception("Unexpected error: $e"));
+    }
+  }
+    Future<ButtonAction> orderDeliver({
+    String? orderId,
+  }) async {
+    final requestData = {
+      "order_id": orderId,
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+    };
+
+    try {
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.orderDelivered,
+        requestData: requestData,
+      );
+
+      return ButtonAction.fromJson(response.data);
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          apiName: 'Order Deliver', response: error.response);
+
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    } catch (e) {
+      return Future.error(Exception("Unexpected error: $e"));
+    }
+  }
 }

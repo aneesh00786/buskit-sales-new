@@ -313,10 +313,10 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   //       )
                   //     : const SizedBox.shrink()),
                   const SizedBox(width: 15),
-                  NotificationWidget(
-                    startDate: provider.selectedStartDate,
-                    endDate: provider.selectedEndDate,
-                  ),
+                  // NotificationWidget(
+                  //   startDate: provider.selectedStartDate,
+                  //   endDate: provider.selectedEndDate,
+                  // ),
                   // SizedBox(width: 110, child: profiloe()),
                 ],
               );

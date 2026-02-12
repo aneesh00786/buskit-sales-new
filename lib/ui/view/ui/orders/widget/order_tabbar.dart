@@ -143,8 +143,11 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           return notificationController.recentOrderCountData.mainNotification
                   ?.packedAndReadyForDelivery ??
               0.toInt();
-        case 6:
-          return 0;
+       case 6:
+        return notificationController.recentOrderCountData.mainNotification
+                  ?.delivered ??
+              0.toInt();
+          
         case 7:
           return 0;
         default:
@@ -174,7 +177,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                   ?.packedAndReadyForDelivery ??
               0.toInt();
         case 5:
-          return 0;
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.delivered ??
+              0.toInt();
         case 6:
           return 0;
         default:

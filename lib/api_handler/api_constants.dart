@@ -126,4 +126,8 @@ mixin class ApiConstants {
   static const String getVolumes = "get-volumes";
   static const String fetchSalesmanOfCustomer = "fetch_salesman_of_customer";
   static const String getRecentOrdersData = "get_recent_orders";
+  static const String orderAcceptDirect = "order_accept_direct";
+  static const String orderReject = "order_reject";
+  static const String addInvoice = "add_invoice";
+  static const String orderDelivered = "order_delivered";
 }

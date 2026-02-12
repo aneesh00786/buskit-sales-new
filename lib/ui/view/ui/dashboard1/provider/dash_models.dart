@@ -2740,7 +2740,7 @@ class SpecificOrderData {
         deliveryState: json["delivery_state"]?.toString() ?? '',
         deliveryZipcode: json["delivery_zipcode"] as int?,
         remark: json["remark"]?.toString() ?? '',
-        imageUrl: json["image_url"]?.toString() ?? '',
+        imageUrl: json["image_url"]?.toString(),
         salesmanId: json["salesman_id"]?.toString() ?? '',
         status: json["status"] as int?,
         createAt: json["create_at"] != null

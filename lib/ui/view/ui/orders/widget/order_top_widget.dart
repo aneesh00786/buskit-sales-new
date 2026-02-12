@@ -25,7 +25,7 @@ class OrderTopWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 20),
-          child: CustomText(content: 'Orders',fontWeight: FontWeight.bold,),
+          child: CustomText(content: 'Recent Orders',fontWeight: FontWeight.bold,),
         ),
         const Spacer(),
         profiloe(),

@@ -1695,13 +1695,14 @@ class ApiWorker with ApiConstants {
         "limit": 10,
         "page": page,
         "companyId": companyId,
-        // "salesmanid":SessionHelper.loginSavedData?.salesmanId ?? '',
+        "salesmanid":SessionHelper.loginSavedData?.salesmanId ?? '',
       };
 
       final response = await responsePostMethod(
         endPoint: ApiConstants.getRecentOrdersData,
         requestData: requestData,
       );
+      print('request data of ger recent orders:$requestData');
     
      print("api called for recent orders ${response.data['status_code']}");
       if (response.data['status'] == true &&

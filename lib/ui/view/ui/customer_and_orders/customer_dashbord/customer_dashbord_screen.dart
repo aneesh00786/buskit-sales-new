@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -34,6 +35,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -387,133 +389,68 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               : screenHeight * 1.55,
       child: Scaffold(
         appBar: AppBar(
+            leadingWidth: 200,
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
-            child: GestureDetector(
-              onTap: () async {
-                if (widget.isFromGoogle) {
-                  bool shouldProceed = await checkCustomerOut();
-                  if (shouldProceed) {
-                    homeController.sidebarXController.selectIndex(5);
-                    homeController.selectedIndex.value = 5;
-                  }
-                } else if (widget.isDirectDialogue) {
-                  bool shouldProceed = await checkCustomerOut();
-                  if (shouldProceed) {
-                    homeController.sidebarXController.selectIndex(5);
-                    homeController.selectedIndex.value = 5;
-                    customerOrderController.isActive.value = false;
-                    Get.toNamed(AppRoutes.calender, id: 2);
-                  }
-                } else {
-                  bool shouldProceed = await checkCustomerOut();
-                  if (shouldProceed) {
-                    customerOrderController.isActive.value = false;
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xffdcdefc),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: primaryColor,
-                    size: 16,
+          
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    if (widget.isFromGoogle) {
+                      bool shouldProceed = await checkCustomerOut();
+                      if (shouldProceed) {
+                        homeController.sidebarXController.selectIndex(5);
+                        homeController.selectedIndex.value = 5;
+                      }
+                    } else if (widget.isDirectDialogue) {
+                      bool shouldProceed = await checkCustomerOut();
+                      if (shouldProceed) {
+                        homeController.sidebarXController.selectIndex(5);
+                        homeController.selectedIndex.value = 5;
+                        customerOrderController.isActive.value = false;
+                        Get.toNamed(AppRoutes.calender, id: 2);
+                      }
+                    } else {
+                      bool shouldProceed = await checkCustomerOut();
+                      if (shouldProceed) {
+                        customerOrderController.isActive.value = false;
+                        Navigator.pop(context);
+                      }
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xffdcdefc),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        color: primaryColor,
+                        size: 16,
+                      ),
+                    ),
                   ),
                 ),
+                  SizedBox(
+                width: 10,
               ),
+              Text(
+                "Order Taking",
+                style: TextStyle(
+                    fontSize: NkFontSize.largeFont(largeFont: 20),
+                    fontWeight: FontWeight.bold),
+              ),
+              ],
             ),
           ),
           actions: [
-             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-               children: [
-                 SizedBox(
-                      width: 110, // Adjusted width
-                      child: YearCustomerAndOrdersDropdown(
-                        onYearSelected: (int year) {
-                          // 1. Get Provider
-                          final customerProvider = Provider.of<CustomersProvider>(
-                              context,
-                              listen: false);
-                 
-                          // 2. Update the Year in Provider State
-                          customerProvider.updateDashboardYear(year);
-                 
-                          // 3. Fetch Data (it will now use the year we just set)
-                          customerProvider.fetchCustomerDashboardData(widget.cusId);
-                          customerProvider
-                              .fetchCustomerDashboardRevenueData(widget.cusId);
-                          customerProvider
-                              .fetchCustomerDashboardDataSalseData(widget.cusId);
-                          customerProvider.fetchCustomersDataDash(widget.cusId);
-                          customerProvider
-                              .fetchCustomerDashboardCountData(widget.cusId);
-                          // _fetchCredit ();
-                          // If revenue/sales data also depends on year, call them here too:
-                          // customerProvider.fetchCustomerDashboardRevenueData(widget.cusId);
-                        },
-                      ),
-                    ),
-               ],
-             ),
-                const SizedBox(
-                  width: 10,
-                ),
-            ElevatedButton(
-              onPressed: () {
-                print('customer id: ${widget.cusId}');
-                OrderIdSnackBar.show(
-                    context, widget.cusId.toString(), salesmanInternalId!);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 38, 165, 42),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-              ),
-              child: const Text(
-                'Sales Return',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+           
+         
             SizedBox(
-              width: 10,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (subscriptionController.orderTakingFromDashboard.value !=
-                    "true") {
-                  showUpgradePlanDialog(context);
-                }
-                if (subscriptionController.orderTakingFromDashboard.value ==
-                    "true") {
-                  _navigateToOrderTaking();
-                }
-                CartDatabaseManager()
-                    .getCartItems(productsController.selectedCustomerId.value);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-              ),
-              child: const Text(
-                'Order Taking',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            SizedBox(
-              width: 130,
+              width: 120,
               child: Obx(() {
                 final credit = _customercreditctrl.customerCredit.value;
                 final isLoading = _customercreditctrl.isLoading.value;
@@ -558,9 +495,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       ),
                       if (isLoading)
                         Padding(
-                          padding: EdgeInsets.only(left: 6),
+                          padding: EdgeInsets.only(left: 4),
                           child: SizedBox(
-                            width: 12,
+                            width: 10,
                             height: 10,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
@@ -761,6 +698,126 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     padding: const EdgeInsets.all(5.0),
                     child: Column(
                       children: [
+
+   Row(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 110, // Adjusted width
+                                  child: YearCustomerAndOrdersDropdown(
+                                    onYearSelected: (int year) {
+                                      // 1. Get Provider
+                                      final customerProvider =
+                                          Provider.of<CustomersProvider>(
+                                              context,
+                                              listen: false);
+
+                                      // 2. Update the Year in Provider State
+                                      customerProvider
+                                          .updateDashboardYear(year);
+
+                                      // 3. Fetch Data (it will now use the year we just set)
+                                      customerProvider
+                                          .fetchCustomerDashboardData(
+                                              widget.cusId);
+                                      customerProvider
+                                          .fetchCustomerDashboardRevenueData(
+                                              widget.cusId);
+                                      customerProvider
+                                          .fetchCustomerDashboardDataSalseData(
+                                              widget.cusId);
+                                      customerProvider
+                                          .fetchCustomersDataDash(widget.cusId);
+                                      customerProvider
+                                          .fetchCustomerDashboardCountData(
+                                              widget.cusId);
+                                      // _fetchCredit ();
+                                      // If revenue/sales data also depends on year, call them here too:
+                                      // customerProvider.fetchCustomerDashboardRevenueData(widget.cusId);
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 290,
+                                ),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        print('customer id: ${widget.cusId}');
+                                        OrderIdSnackBar.show(
+                                            context,
+                                            widget.cusId.toString(),
+                                            salesmanInternalId!);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 38, 165, 42),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Sales Return',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  width: 145,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (subscriptionController
+                                              .orderTakingFromDashboard.value !=
+                                          "true") {
+                                        showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (context) {
+                                            return const UpgradePlanScreen();
+                                          },
+                                        );
+                                      }
+                                      if (subscriptionController
+                                              .orderTakingFromDashboard.value ==
+                                          "true") {
+                                        _navigateToOrderTaking();
+                                      }
+                                      CartDatabaseManager().getCartItems(
+                                          productsController
+                                              .selectedCustomerId.value);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColor,
+                                      shadowColor: WidgetStateColor.transparent,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4.0),
+                                          side: const BorderSide(
+                                              color: primaryColor)),
+                                    ),
+                                    child: const Text(
+                                      'Order Taking',
+                                      style: TextStyle(
+                                          color: white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.3,
+                                          fontFamily: fontFamilyName),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                         OptionWidgetCustomerDash(
                           customerId: widget.cusId,
                           customType: "",

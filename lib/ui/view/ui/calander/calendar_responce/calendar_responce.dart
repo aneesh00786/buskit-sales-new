@@ -243,9 +243,9 @@ class Result {
   int zipcode;
   String imageUrl;
   String scheduleTime;
-  double latitude;
-  double longitude;
-  String formattedAddress;
+  double? latitude;
+  double? longitude;
+  String? formattedAddress;
 
   Result({
     required this.businessName,
@@ -263,25 +263,23 @@ class Result {
     required this.formattedAddress,
   });
 
-  factory Result.fromJson(Map<String, dynamic> json) => Result(
-        businessName: json["business_name"],
-        email: json["email"],
-        mobileno: json["mobileno"],
-        customerId: json["customer_id"],
-        address: json["address"],
-        town: json["town"],
-        state: json["state"],
-        zipcode: json["zipcode"],
-        imageUrl: json["image_url"],
-        scheduleTime: json["schedule_time"],
-        latitude: json["latitude"] != "error"
-            ? json["latitude"]?.toDouble()
-            : "error",
-        longitude: json["longitude"] != "error"
-            ? json["longitude"]?.toDouble()
-            : "error",
-        formattedAddress: json["formatted_address"],
-      );
+ factory Result.fromJson(Map<String, dynamic> json) => Result(
+    businessName: json["business_name"]?.toString() ?? '',
+    email: json["email"]?.toString() ?? '',
+    mobileno: json["mobileno"]?.toString() ?? '',
+    customerId: json["customer_id"]?.toString() ?? '',
+    address: json["address"]?.toString() ?? '',
+    town: json["town"]?.toString() ?? '',
+    state: json["state"]?.toString() ?? '',
+    // Handle zipcode safely as int
+    zipcode: json["zipcode"] is int ? json["zipcode"] : 0,
+    imageUrl: json["image_url"]?.toString() ?? '',
+    // This was likely the culprit for the "type 'Null' is not a subtype of 'String'" error
+    scheduleTime: json["schedule_time"]?.toString() ?? '', 
+    latitude: (json["latitude"] is num) ? (json["latitude"] as num).toDouble() : null,
+    longitude: (json["longitude"] is num) ? (json["longitude"] as num).toDouble() : null,
+    formattedAddress: json["formatted_address"]?.toString() ?? '',
+);
 
   Map<String, dynamic> toJson() => {
         "business_name": businessName,

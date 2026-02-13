@@ -93,30 +93,6 @@ RxBool isLoading = false.obs;
   }
 
 
-  // void initializeCheckedList(
-  //     int length, List<CalendarEventData<EventData>> eventData) {
-  //   initChecklistLoading.value = true;
-  //   checkedList.value = List<bool>.filled(length, true).toList();
-  //   for (int i = 0; i < eventData.length; i++) {
-  //     if (checkedList[i]) {
-  //       final event = eventData[i];
-  //       Customer customer = Customer(
-  //         customerId: event.event?.customerId ?? '',
-  //         businessName: event.event?.businessName ?? '',
-  //         address: event.event?.address ?? '',
-  //         email: event.event?.email ?? '',
-  //         imageUrl: event.event?.imageUrl ?? '',
-  //         latitude: event.event?.latitude ?? '',
-  //         longitude: event.event?.longitude ?? '',
-  //         mobileno: event.event?.mobileNo ?? '',
-  //       );
-  //       selectedCustomers.addIf(
-  //           !selectedCustomers.contains(customer), customer);
-  //     }
-  //   }
-  //   initChecklistLoading.value = false;
-  // }
-
   void clearSelections() {
     selectedCustomers.clear();
     checkedList.clear();
@@ -149,36 +125,6 @@ RxBool isLoading = false.obs;
     }
   }
 
-  // void toggleCustomerSelection(
-  //     int index, bool value, List<CalendarEventData<EventData>> eventData) {
-  //   checkedList[index] = value;
-  //   final CalendarEventData<EventData> event = eventData[index];
-  //   Customer customer = Customer(
-  //       customerId: event.event?.customerId ?? '',
-  //       businessName: event.event?.businessName ?? '',
-  //       address: event.event?.address ?? '',
-  //       email: event.event?.email ?? '',
-  //       imageUrl: event.event?.imageUrl ?? '',
-  //       latitude: event.event?.latitude ?? '',
-  //       longitude: event.event?.longitude ?? '',
-  //       mobileno: event.event?.mobileNo ?? '');
-  //   if (value) {
-  //     selectedCustomers.addIf(!selectedCustomers.contains(customer), customer);
-  //   } else {
-  //     selectedCustomers.remove(customer);
-  //   }
-  // }
-
-  // void showSelectedCustomerRoute(BuildContext context) {
-  //   if (selectedCustomers.isNotEmpty) {
-  //     log('$selectedCustomers');
-  //     Get.to(() => const CustomerMapScreen());
-  //   } else {
-  //     log('No customers selected');
-  //     Get.snackbar(
-  //         'No Route Available', 'Please select at least one customer.');
-  //   }
-  // }
 
  void showSelectedCustomerRoute(
     BuildContext context,
@@ -209,19 +155,6 @@ RxBool isLoading = false.obs;
     }
   }
 
-  // void showSelectedCustomerRoute(
-  //   BuildContext context,
-  //   List<String> customerIds,
-  //   List<String> eventIds,
-  // ) {
-  //   if (selectedCustomers.isNotEmpty) {
-  //     Get.to(() => CustomerMapScreen(
-  //           customerIds: customerIds,
-  //           eventIds: eventIds,
-  //         ));
-  //   } else {
-  //   }
-  // }
 
   Future<void> requestLocationPermission() async {
     final status = await Permission.location.request();
@@ -234,31 +167,6 @@ RxBool isLoading = false.obs;
     }
   }
 
-  // Future<void> getCurrentLocation() async {
-  //   try {
-  //     double latitude = -37.81996700;
-  //     double longitude = 144.98344900;
-  //     List<Placemark> placemarks =
-  //         await placemarkFromCoordinates(latitude, longitude);
-  //     if (placemarks.isNotEmpty) {
-  //       Placemark place = placemarks[0];
-  //       String address =
-  //           "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-  //       currentLatLng.value = LatLng(latitude, longitude);
-  //       currentLocationText.value = address;
-  //       if (mapController != null) {
-  //         mapController!.animateCamera(
-  //           CameraUpdate.newLatLng(currentLatLng.value!),
-  //         );
-  //       }
-  //       print('Address: $address');
-  //     } else {
-  //       print('No address found for the provided coordinates.');
-  //     }
-  //   } catch (e) {
-  //     print('Error getting location: $e');
-  //   }
-  // }
   Future<void> getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -577,44 +485,6 @@ Future<void> getDirections() async {
   }
 }
 
-  // Future<void> getDirections() async {
-  //   var lastCustomer = selectedCustomers.last;
-  //   if (currentLatLng.value == null) return;
-  //   final origin =
-  //       "${currentLatLng.value!.latitude},${currentLatLng.value!.longitude}";
-  //   final destination = searchedLatLng.value != null
-  //       ? "${searchedLatLng.value!.latitude},${searchedLatLng.value!.longitude}"
-  //       : "${lastCustomer.latitude},${lastCustomer.longitude}";
-  //   String waypoints = selectedCustomers
-  //       .where((customer) =>
-  //           customer.latitude != null && customer.longitude != null)
-  //       .map((customer) => "${customer.latitude},${customer.longitude}")
-  //       .join('|');
-
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse(
-  //           "https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&waypoints=$waypoints&key=${ApiConstants.kGoogleApiKey}"),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-  //       if (data['routes'].isNotEmpty) {
-  //         final points = data['routes'][0]['overview_polyline']['points'];
-  //         List<LatLng> polylineCoordinates = decodePolyline(points);
-  //         addPolyline(polylineCoordinates);
-  //         createMarkers();
-  //       } else {
-  //       }
-  //     } else {
-  //     }
-  //   } catch (e) {
-  //     if (e is http.ClientException) {
-  //     } else if (e is http.Response) {
-  //     } else {
-  //     }
-  //   }
-  // }
 
 
 
@@ -675,63 +545,6 @@ Future<void> getDirections() async {
   mapMarkers.value = markers;
 }
 
-
-
-//   Future<void> updateMarkers() async {
-//   Set<Marker> markers = {};
-
-//   // 1. START MARKER
-//   if (currentLatLng.value != null) {
-//     // Generate custom icon for Start (No index number, just text)
-//     final BitmapDescriptor startIcon = await createCustomMarkerBitmap(
-//       "Start", 
-//       null, // No index for start
-//       Colors.blue
-//     );
-
-//     markers.add(Marker(
-//       markerId: const MarkerId('Current Location'),
-//       position: currentLatLng.value!,
-//       icon: startIcon,
-//     ));
-//   }
-
-//   // 2. CUSTOMER MARKERS
-//   for (int i = 0; i < selectedCustomers.length; i++) {
-//     var customer = selectedCustomers[i];
-
-//     if (customer.latitude != null && customer.longitude != null) {
-//       bool isLast = (i == selectedCustomers.length - 1);
-      
-//       String businessName = isLast 
-//           ? "${customer.businessName} (End)" 
-//           : (customer.businessName ?? 'Unknown');
-      
-//       Color color = isLast ? Colors.green : Colors.black;
-      
-//       // Pass the index string ("1", "2", etc.)
-//       String indexString = (i + 1).toString(); 
-
-//       // Generate custom icon with Index
-//       final BitmapDescriptor customIcon = await createCustomMarkerBitmap(
-//         businessName, 
-//         indexString, 
-//         color
-//       );
-
-//       markers.add(Marker(
-//         markerId: MarkerId(customer.customerId!),
-//         position: LatLng(
-//           double.parse(customer.latitude!),
-//           double.parse(customer.longitude!),
-//         ),
-//         icon: customIcon,
-//       ));
-//     }
-//   }
-
-//   mapMarkers.value = markers;
-// }
 
 
 Future<BitmapDescriptor> createCustomMarkerBitmap(String text, String? index, Color color) async {
@@ -871,45 +684,6 @@ Future<BitmapDescriptor> createCustomMarkerBitmap(String text, String? index, Co
      polylines.refresh();
   }
 
-  // Set<Marker> createMarkers() {
-  //   Set<Marker> markers = {};
-  //   if (currentLatLng.value != null) {
-  //     markers.add(
-  //       Marker(
-  //         markerId: const MarkerId('Current Location'),
-  //         position: currentLatLng.value!,
-  //         infoWindow: const InfoWindow(title: 'Current Location'),
-  //       ),
-  //     );
-  //   }
-  //   if (searchedLatLng.value != null) {
-  //     markers.add(
-  //       Marker(
-  //         markerId: const MarkerId('Searched Location'),
-  //         position: searchedLatLng.value!,
-  //         infoWindow: const InfoWindow(title: 'Destination'),
-  //       ),
-  //     );
-  //   }
-  //   for (var customer in selectedCustomers) {
-  //     if (customer.latitude != null && customer.longitude != null) {
-  //       markers.add(
-  //         Marker(
-  //           markerId: MarkerId(customer.businessName ?? ''),
-  //           position: LatLng(double.parse(customer.latitude!),
-  //               double.parse(customer.longitude!)),
-  //           infoWindow: InfoWindow(
-  //             title: customer.businessName,
-  //             snippet: '${customer.mobileno}\n${customer.email}',
-  //           ),
-  //         ),
-  //       );
-  //     } else {
-  //     }
-  //   }
-
-  //   return markers;
-  // }
    Widget buildGoogleMap() {
     return Obx(() => GoogleMap(
           mapType: MapType.normal,
@@ -926,23 +700,6 @@ Future<BitmapDescriptor> createCustomMarkerBitmap(String text, String? index, Co
         ));
   }
 
-  // Widget buildGoogleMap() {
-  //   return GoogleMap(
-  //     mapType: MapType.normal,
-  //     initialCameraPosition: CameraPosition(
-  //       target: currentLatLng.value ?? LatLng(defaultLat, defaultLng),
-  //       zoom: 13,
-  //     ),
-  //     onMapCreated: (GoogleMapController controller) {
-  //       mapController = controller;
-  //       if (locationPermissionGranted.value) {
-  //         getCurrentLocation();
-  //       }
-  //     },
-  //     markers: createMarkers(),
-  //     polylines: Set<Polyline>.of(polylines),
-  //   );
-  // }
 
   void showPermissionDeniedDialog() {
     Get.dialog(
@@ -1020,21 +777,6 @@ Future<BitmapDescriptor> createCustomMarkerBitmap(String text, String? index, Co
     loadCalenderEventV1(response);
   }
 
-  // Future<void> fetchCalenderEvents(
-  //   DateTime initialDay,
-  // ) async {
-  //   var salesmanId = SessionHelper.loginSavedData?.salesmanId;
-  //   final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-  //   Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-  //   int companyId = jsonMap['company_id'];
-  //   var sendData = {
-  //     "salesman_id": salesmanId,
-  //     "initialDay": initialDay,
-  //     "companyId": companyId,
-  //   };
-  //   List<EventData> response = await ApiWorker().getCalendarEvents(sendData);
-  //   loadCalenderEventV1(response);
-  // }
 
   List<CustomerDetails> splitEventToCustomerData(
       List<SalesManVisitEvents> events) {
@@ -1146,23 +888,6 @@ Future<void> loadShowRoute(List<String> eventIds) async {
     }
   }
 
-  // Future<void> loadShowRoute(List<String> eventIds) async {
-  //   try {
-  //     isShowRouteLoading.value = true;
-
-  //     var response = await ApiWorker().showRoutes(eventList: eventIds);
-
-  //     showRouteResultList.clear();
-  //     if (response.results.isNotEmpty) {
-  //       showRouteResultList.addAll(response.results);
-  //     }
-
-  //   } catch (error) {
-  //     showRouteResultList.clear();
-  //   } finally {
-  //     isShowRouteLoading.value = false;
-  //   }
-  // }
   Future<List<Map<String, dynamic>>> fetchAutoCompletePlaces(String query) async {
     if (query.isEmpty) return [];
     try {

@@ -12,8 +12,8 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/salesman_list_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:intl/intl.dart';
+
+
 
 
 
@@ -103,11 +105,9 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
             red,
             Icons.close,
           );
-          // Force rebuild to keep calendar on previous month
           setState(() {});
           return;
         }
-        // Allow month change
         final startOfSelectedMonth = DateTime(date.year, date.month, 1);
         setState(() {
           _currentMonth = startOfSelectedMonth;
@@ -126,14 +126,36 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
         return GestureDetector(
           onTap: () {
             if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
-              if (subscriptionController.appViewDaySchedulesVisits.value ==
-                  "true") {
+              if (subscriptionController.appViewDaySchedulesVisits.value == "true") {
                 widget.calenderController.clearSelections();
-                Get.dialog(SalesmanListDialog(
+
+                // --- MODIFIED LOGIC START ---
+                
+                // 1. Extract the Salesman ID
+                // Since we are skipping the list, we assume we take the ID from the first event 
+                // or handle the case where there might be mixed IDs. 
+                String salesmanId = event.first.event?.salesmanId ?? "Unknown";
+
+                // 2. Extract Customer IDs from the event list
+                // This logic replaces the loop that was previously in SalesmanListDialog
+                List<String> customerIds = event
+                    .map((e) => e.event?.customerId)
+                    .where((id) => id != null && id != "Unknown") // Filter invalid IDs
+                    .cast<String>() // Ensure they are strings
+                    .toSet() // Remove duplicates
+                    .toList();
+
+                // 3. Navigate directly to SelectCustomerDiloag
+                Get.dialog(SelectCustomerDiloag(
                   dateTime: date,
                   calenderMapController: widget.calenderController,
                   eventData: event,
+                  customerIds: customerIds,
+                  salesmanId: salesmanId, 
                 ));
+                
+                // --- MODIFIED LOGIC END ---
+
               } else {
                 showDialog(
                   barrierDismissible: false,
@@ -175,8 +197,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 : !isInMonth
                                     ? secondaryTextColor.withOpacity(0.5)
                                     : null,
-                            fontSize:
-                                (isTabletOrPhoneLandscape(context)) ? 22 : 18,
+                            fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                           const SizedBox(height: 5),
@@ -192,9 +213,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 label: eventCount.toString(),
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: (isTabletOrPhoneLandscape(context))
-                                    ? 14
-                                    : 12,
+                                fontSize: (isTabletOrPhoneLandscape(context)) ? 14 : 12,
                               ),
                             ),
                         ],
@@ -210,8 +229,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 : !isInMonth
                                     ? secondaryTextColor.withOpacity(0.5)
                                     : null,
-                            fontSize:
-                                (isTabletOrPhoneLandscape(context)) ? 22 : 18,
+                            fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                           const SizedBox(width: 10),
@@ -255,11 +273,242 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
   }
 }
 
-extension DateTimeExtension on DateTime {
-  bool isSameDate(DateTime other) {
-    return year == other.year && month == other.month && day == other.day;
-  }
-}
+
+// class CalenderBottomWidget extends StatefulWidget {
+//   final CalenderMapController calenderController;
+
+//   const CalenderBottomWidget({super.key, required this.calenderController});
+
+//   @override
+//   State<CalenderBottomWidget> createState() => _CalenderBottomWidgetState();
+// }
+
+// class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
+//   final subscriptionController = Get.find<SubscriptionController>();
+//   DateTime _currentMonth = DateTime.now();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MyCommnonContainer(
+//       color: white,
+//       child: calenderWidget(),
+//     );
+//   }
+
+//   Widget calenderWidget() {
+//     final rawDayList = SessionHelper.settingsData
+//             ?.firstWhere(
+//               (setting) => setting.key == 'day_list',
+//               orElse: () => AllCompanySettingsData(
+//                 key: 'day_list',
+//                 value: '',
+//               ),
+//             )
+//             .value ??
+//         '';
+
+//     List<String> dayList =
+//         rawDayList.split(',').map((day) => day.trim()).toList();
+
+//     const Map<String, int> dayNameToInt = {
+//       'Monday': DateTime.monday,
+//       'Tuesday': DateTime.tuesday,
+//       'Wednesday': DateTime.wednesday,
+//       'Thursday': DateTime.thursday,
+//       'Friday': DateTime.friday,
+//       'Saturday': DateTime.saturday,
+//       'Sunday': DateTime.sunday,
+//     };
+
+//     List<int> parsedDays = dayList
+//         .map((day) => dayNameToInt[day] ?? -1)
+//         .where((day) => day != -1)
+//         .toList();
+
+//     return MonthView(
+//       cellAspectRatio:
+//           AppDimensions.instance!.orientation == Orientation.landscape
+//               ? 1.7
+//               : isTablet(context)
+//                   ? 0.85
+//                   : 0.5,
+//       headerStyle: HeaderStyle(
+//         decoration: BoxDecoration(
+//           color: primaryColor.withOpacity(0.4),
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//         headerTextStyle: const TextStyle(
+//           color: black,
+//           fontSize: 20,
+//           fontWeight: FontWeight.w700,
+//         ),
+//       ),
+//       onPageChange: (date, page) async {
+//         final isOnline = await ConnectivityService().isOnline();
+//         if (!isOnline) {
+//           showCustomToastDisplay(
+//             context,
+//             'You are offline. Month change is disabled.',
+//             red,
+//             Icons.close,
+//           );
+//           // Force rebuild to keep calendar on previous month
+//           setState(() {});
+//           return;
+//         }
+//         // Allow month change
+//         final startOfSelectedMonth = DateTime(date.year, date.month, 1);
+//         setState(() {
+//           _currentMonth = startOfSelectedMonth;
+//         });
+//         widget.calenderController.fetchCalenderEvents(startOfSelectedMonth);
+//         widget.calenderController.loadCalenderEventV1;
+//       },
+//       pageTransitionCurve: Curves.easeInOutCubicEmphasized,
+//       borderColor: white,
+//       cellBuilder: (date, event, isToday, isInMonth, hideDaysNotInMonth) {
+//         int eventCount = event.length;
+
+//         bool isWorkingDay = parsedDays.contains(date.weekday);
+//         bool isCurrentMonth = isInMonth;
+
+//         return GestureDetector(
+//           onTap: () {
+//             if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
+//               if (subscriptionController.appViewDaySchedulesVisits.value ==
+//                   "true") {
+//                 widget.calenderController.clearSelections();
+//                 Get.dialog(SalesmanListDialog(
+//                   dateTime: date,
+//                   calenderMapController: widget.calenderController,
+//                   eventData: event,
+//                 ));
+//               } else {
+//                 showDialog(
+//                   barrierDismissible: false,
+//                   context: context,
+//                   builder: (context) => const UpgradePlanScreen(),
+//                 );
+//               }
+//             }
+//           },
+//           child: MyCommnonContainer(
+//             borderRadiusGeometry: BorderRadius.circular(15),
+//             border: Border.all(color: black.withOpacity(0.1)),
+//             boxShadow: isInMonth
+//                 ? [
+//                     BoxShadow(
+//                       color: Colors.black.withOpacity(0.06),
+//                       blurRadius: 20,
+//                       offset: const Offset(3, 3),
+//                       spreadRadius: 1,
+//                     )
+//                   ]
+//                 : [],
+//             color: isToday
+//                 ? primaryColor
+//                 : !isInMonth
+//                     ? secondaryTextColor.withOpacity(0.08)
+//                     : white,
+//             padding: nkRegularPadding(),
+//             child: isCurrentMonth && isWorkingDay
+//                 ? AppDimensions.instance!.orientation == Orientation.portrait
+//                     ? Column(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         crossAxisAlignment: CrossAxisAlignment.center,
+//                         children: [
+//                           MyRegularText(
+//                             label: date.day.toString(),
+//                             color: isToday
+//                                 ? buttonTextColor
+//                                 : !isInMonth
+//                                     ? secondaryTextColor.withOpacity(0.5)
+//                                     : null,
+//                             fontSize:
+//                                 (isTabletOrPhoneLandscape(context)) ? 22 : 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                           const SizedBox(height: 5),
+//                           if (eventCount > 0)
+//                             CircleAvatar(
+//                               radius: 10,
+//                               backgroundColor: (date.isBefore(DateTime.now()) &&
+//                                           !date.isSameDate(DateTime.now())) &&
+//                                       event.any((e) => e.event!.checkIn == null)
+//                                   ? const Color(0xffCCCC00)
+//                                   : Colors.green,
+//                               child: MyRegularText(
+//                                 label: eventCount.toString(),
+//                                 color: Colors.white,
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: (isTabletOrPhoneLandscape(context))
+//                                     ? 14
+//                                     : 12,
+//                               ),
+//                             ),
+//                         ],
+//                       )
+//                     : Row(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         crossAxisAlignment: CrossAxisAlignment.center,
+//                         children: [
+//                           MyRegularText(
+//                             label: date.day.toString(),
+//                             color: isToday
+//                                 ? buttonTextColor
+//                                 : !isInMonth
+//                                     ? secondaryTextColor.withOpacity(0.5)
+//                                     : null,
+//                             fontSize:
+//                                 (isTabletOrPhoneLandscape(context)) ? 22 : 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                           const SizedBox(width: 10),
+//                           if (eventCount > 0)
+//                             CircleAvatar(
+//                               radius: 10,
+//                               backgroundColor: (date.isBefore(DateTime.now()) &&
+//                                           !date.isSameDate(DateTime.now())) &&
+//                                       event.any((e) => e.event!.checkIn == null)
+//                                   ? const Color(0xffCCCC00)
+//                                   : Colors.green,
+//                               child: MyRegularText(
+//                                 label: eventCount.toString(),
+//                                 color: Colors.white,
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 14,
+//                               ),
+//                             ),
+//                         ],
+//                       )
+//                 : Center(
+//                     child: MyRegularText(
+//                       label: date.day.toString(),
+//                       color: secondaryTextColor.withOpacity(0.5),
+//                       fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//           ),
+//         );
+//       },
+//       headerStringBuilder: (date, {secondaryDate}) {
+//         return NKDateUtils.formatMonth(date);
+//       },
+//       startDay: WeekDays.monday,
+//       controller: widget.calenderController.eventControllerv1,
+//       initialMonth: _currentMonth,
+//       maxMonth: DateTime(DateTime.now().year, 12, 31),
+//       minMonth: DateTime(DateTime.now().year, 1, 1),
+//     );
+//   }
+// }
+
+// extension DateTimeExtension on DateTime {
+//   bool isSameDate(DateTime other) {
+//     return year == other.year && month == other.month && day == other.day;
+//   }
+// }
 
 
 

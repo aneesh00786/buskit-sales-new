@@ -1183,7 +1183,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                       // --- Tiered Discount promos ---
 
-                                    if (promo.promoType == "tiered_discount") {
+
+   if (promo.promoType == "tiered_discount") {
   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
 
   if (allVariants.isEmpty) {
@@ -1202,21 +1203,58 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
   // Iterate through all variants in the promotion
   for (final v in allVariants) {
-    
-    // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-    // We search the loaded products list in your controller to find the ProductModel instance
+
+
     double fetchedCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == v.productId,
-        // Fallback to dummy model if not found
-        orElse: () => ProductModel(catTax: 0), 
-      );
-      
-      fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    } catch (e) {
-      print("[PROMO] Error finding product model in controller for ID ${v.productId}: $e");
+
+    // A. Try finding in current loaded products (Fastest)
+    final productModelInstance = widget.controller.products.firstWhere(
+      (p) => p.productId == v.productId,
+      orElse: () => ProductModel(catTax: 0),
+    );
+    fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+
+    // B. If not found or 0 (likely different category), FETCH FROM API
+    if (fetchedCatTax == 0) {
+      try {
+        // 1. Extract SubCategory ID from Product ID (e.g., C49SC7)
+        // Ensure extractSubCategoryId function is available in your file
+        final subCatId = extractSubCategoryId(v.productId.toString()); 
+        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+
+        print("[PROMO] Product not in current list. Fetching from API for SCID: $subCatId");
+
+        // 2. Call your API to get the real product details
+        final remoteProducts = await ApiWorker().getTempProduct(subCatId, companyid: companyId);
+
+        // 3. Find the specific product in the fetched list
+        final remoteProduct = remoteProducts.firstWhere(
+          (p) => p.productId == v.productId,
+          orElse: () => ProductModel(catTax: 0),
+        );
+
+        // 4. Update the tax
+        fetchedCatTax = (remoteProduct.catTax ?? 0).toDouble();
+        print("[PROMO] Fetched remote tax: $fetchedCatTax");
+
+      } catch (e) {
+        print("[PROMO] Error fetching remote tax: $e");
+      }
     }
+    
+    // double fetchedCatTax = 0.0;
+    // try {
+    //   final productModelInstance = widget.controller.products.firstWhere(
+    //     (p) => p.productId == v.productId,
+        
+    //     orElse: () => ProductModel(catTax: 0), 
+    //   );
+    //   print('productModelInstance.cattax:${productModelInstance.catTax}');
+      
+    //   fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+    // } catch (e) {
+    //   print("[PROMO] Error finding product model in controller for ID ${v.productId}: $e");
+    // }
 
     log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
 
@@ -1245,7 +1283,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
       final matchedDiscount = discountData.discounts!.firstWhere(
         (d) {
           final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
-          return dCat == catId || dCat == 114; // Apply 114 discount to 115
+          return dCat == catId || dCat == 114; 
         },
         orElse: () => DiscountModel(),
       );
@@ -1289,7 +1327,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
       promoMsg: promo.discountText,
       CustomerDiscount: detail.discount!.toDouble(),
       tieredDiscount: tieredDiscount,
-      catTax: fetchedCatTax, // <--- Assigning the value here
+      catTax: fetchedCatTax, 
     );
 
     productController.isCartModified.value = true;
@@ -1308,200 +1346,134 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     cartProvider.getCartItemCounts(customerId);
   });
 }
-//                                       if (promo.promoType ==
-//                                           "tiered_discount") {
-                                            
-//                                         final allVariants = promo.products
-//                                                 ?.expand(
-//                                                     (p) => p.variants ?? [])
-//                                                 .toList() ??
-//                                             [];
 
-//                                         if (allVariants.isEmpty) {
-//                                           showCustomToastDisplay(
-//                                             context,
-//                                             "No variants found for this promotion",
-//                                             Colors.orange,
-//                                             Icons.warning,
-//                                           );
-//                                           return;
-//                                         }
 
-//                                         // Validate min order with selected quantity
-//                                         final allowed =
-//                                             await validateMinOrderBeforeAdd(
-//                                                 allVariants);
-//                                         if (!allowed) return;
 
-//                                         for (final v in allVariants) {
-//                                           log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-//                                               "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
+//                                     if (promo.promoType == "tiered_discount") {
+//   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
 
-//                                           // Calculate tiered discount for this quantity
-//                                           double? tieredDiscount;
-//                                           if (promo.promoType ==
-//                                                   "tiered_discount" &&
-//                                               selectedTier.value != null) {
-//                                             // For tiered_discount, use the selected tier's discount
-//                                             tieredDiscount = double.tryParse(
-//                                                     selectedTier.value!
-//                                                             .discountValue
-//                                                             ?.toString() ??
-//                                                         '0') ??
-//                                                 0;
-//                                           } else {
-//                                             // For other promotions, calculate based on quantity
-//                                             tieredDiscount =
-//                                                 _calculateTieredDiscount(
-//                                                     promo, qty.value, true);
-//                                           }
-//                                           // print('tiredDiscount:$tieredDiscount');
+//   if (allVariants.isEmpty) {
+//     showCustomToastDisplay(
+//       context,
+//       "No variants found for this promotion",
+//       Colors.orange,
+//       Icons.warning,
+//     );
+//     return;
+//   }
 
-//                                           // Map each variant into your Detail model
-//                                           print(v.toJson());
-//                                           final catId = extractCategoryId(
-//                                               v.productId.toString());
-//                                           final discountBox = await Hive
-//                                               .openBox<CustomerDiscountModel>(
-//                                                   'discounts');
+//   // Validate min order with selected quantity
+//   final allowed = await validateMinOrderBeforeAdd(allVariants);
+//   if (!allowed) return;
 
-// // print("---- HIVE DISCOUNT LIST ----");
+//   // Iterate through all variants in the promotion
+//   for (final v in allVariants) {
+    
+//     // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
+//     // We search the loaded products list in your controller to find the ProductModel instance
+//     double fetchedCatTax = 0.0;
+//     try {
+//       final productModelInstance = widget.controller.products.firstWhere(
+//         (p) => p.productId == v.productId,
+//         // Fallback to dummy model if not found
+//         orElse: () => ProductModel(catTax: 0), 
+//       );
+      
+//       fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+//     } catch (e) {
+//       print("[PROMO] Error finding product model in controller for ID ${v.productId}: $e");
+//     }
 
-// // for (var item in discountBox.values) {
-// //   print("Customer: ${item.customerId}");
-// //   print("Discounts:");
-// //   for (var d in item.discounts ?? []) {
-// //     print("  → ${d.toJson()}");
-// //   }
-// //   print("---------------------------");
-// // }
-// // print("---- PRODUCT FULL JSON ----");
-// // print(v.toJson());
-// // print("---------------------------");
-// // print("Extracted category from productId → $catId");
+//     log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
 
-//                                           CustomerDiscountModel? discountData =
-//                                               discountBox.values.firstWhere(
-//                                             (item) =>
-//                                                 item.customerId == customerId,
-//                                             orElse: () =>
-//                                                 CustomerDiscountModel(),
-//                                           );
+//     // --- 2. Calculate Tiered Discount ---
+//     double? tieredDiscount;
+//     if (promo.promoType == "tiered_discount" && selectedTier.value != null) {
+//       // For tiered_discount, use the selected tier's discount
+//       tieredDiscount = double.tryParse(selectedTier.value!.discountValue?.toString() ?? '0') ?? 0;
+//     } else {
+//       // For other promotions, calculate based on quantity
+//       tieredDiscount = _calculateTieredDiscount(promo, qty.value, true);
+//     }
 
-//                                           double userDiscountPercent = 0.0;
+//     // --- 3. Extract Category ID & Customer Discounts ---
+//     final catId = extractCategoryId(v.productId.toString());
+//     final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+    
+//     CustomerDiscountModel? discountData = discountBox.values.firstWhere(
+//       (item) => item.customerId == customerId,
+//       orElse: () => CustomerDiscountModel(),
+//     );
 
-//                                           if (discountData.discounts != null &&
-//                                               discountData
-//                                                   .discounts!.isNotEmpty) {
-//                                             final matchedDiscount = discountData
-//                                                 .discounts!
-//                                                 .firstWhere(
-//                                               (d) {
-//                                                 final dCat = int.tryParse(
-//                                                     d.categoriesId?.trim() ??
-//                                                         "");
-//                                                 return dCat == catId ||
-//                                                     dCat ==
-//                                                         114; // Apply 114 discount to 115
-//                                               },
-//                                               orElse: () => DiscountModel(),
-//                                             );
+//     double userDiscountPercent = 0.0;
 
-//                                             // final matchedDiscount = discountData.discounts!.firstWhere(
-//                                             //   (d) {
-//                                             //     final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
-//                                             //     return dCat == catId;   // <-- matching correctly
-//                                             //   },
-//                                             //   orElse: () => DiscountModel(),
-//                                             // );
+//     if (discountData.discounts != null && discountData.discounts!.isNotEmpty) {
+//       final matchedDiscount = discountData.discounts!.firstWhere(
+//         (d) {
+//           final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
+//           return dCat == catId || dCat == 114; // Apply 114 discount to 115
+//         },
+//         orElse: () => DiscountModel(),
+//       );
 
-//                                             userDiscountPercent =
-//                                                 double.tryParse(matchedDiscount
-//                                                             .discount
-//                                                             ?.trim() ??
-//                                                         "0") ??
-//                                                     0.0;
-//                                           }
+//       userDiscountPercent = double.tryParse(matchedDiscount.discount?.trim() ?? "0") ?? 0.0;
+//     }
 
-// // print(v.productId.toString());
-// // print(catId);
+//     // --- 4. Create Detail Object ---
+//     final detail = Detail(
+//       variationId: v.id,
+//       productId: v.productId,
+//       variationName: v.variationName,
+//       unitType: v.unitType,
+//       price: (v.price ?? '0').toString(),
+//       sellPrice: (v.sellPrice ?? '0').toString(),
+//       tax: double.tryParse(v.tax ?? '0') ?? 0,
+//       packtype: v.packtype,
+//       pieces: v.pieces,
+//       stock: v.stock,
+//       lowstock: v.lowstock,
+//       fullstock: v.fullstock,
+//       imageUrl: v.imageUrl,
+//       productName: v.productName,
+//       discount: userDiscountPercent,
+//       inclTax: v.inclTax ?? '',
+//     );
 
-// // print("User Discount % for category $catId = $userDiscountPercent");
-// // print('tieredDiscount:$tieredDiscount');
-// // print('discount data from hive:${discountData.discounts![0].toJson()}');
-// // print('inside the tiered discount');
-//                                           final detail = Detail(
-//                                             variationId: v.id,
-//                                             productId: v.productId,
-//                                             variationName: v.variationName,
-//                                             unitType: v.unitType,
-//                                             price: (v.price ?? '0').toString(),
-//                                             sellPrice:
-//                                                 (v.sellPrice ?? '0').toString(),
-//                                             tax:
-//                                                 double.tryParse(v.tax ?? '0') ??
-//                                                     0,
-//                                             packtype: v.packtype,
-//                                             pieces: v.pieces,
-//                                             stock: v.stock,
-//                                             lowstock: v.lowstock,
-//                                             fullstock: v.fullstock,
-//                                             imageUrl: v.imageUrl,
-//                                             productName: v.productName,
-//                                             discount: userDiscountPercent,
-//                                             inclTax: v.inclTax ?? '',
-//                                           );
+//     print('fetched cattax in the tiered discount: $fetchedCatTax');
 
-//                                           // log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-//                                           //     "productId: ${detail.productId}, name: ${detail.productName}");
+//     // --- 5. PASS catTax TO FUNCTION ---
+//     await CartDatabaseManager().addToCartPromo(
+//       customerId: customerId,
+//       localCount: qty.value,
+//       detail: detail,
+//       isPack: true,
+//       productName: v.productName ?? '',
+//       inclTax: detail.inclTax ?? '',
+//       isChcked: true,
+//       catId: catId,
+//       promoCode: promo.promoCode,
+//       promoMsg: promo.discountText,
+//       CustomerDiscount: detail.discount!.toDouble(),
+//       tieredDiscount: tieredDiscount,
+//       catTax: fetchedCatTax, // <--- Assigning the value here
+//     );
 
-//                                           // print('details:${detail.toString()}');
-//                                           // final catId = extractCategoryId(
-//                                           //     v.productId.toString());
-//                                           // print("Detail BEFORE addToCartPromo: ${detail.discount}");
-//                                           await CartDatabaseManager()
-//                                               .addToCartPromo(
-//                                                   customerId: customerId,
-//                                                   localCount: qty.value,
-//                                                   detail: detail,
-//                                                   isPack: true,
-//                                                   productName:
-//                                                       v.productName ?? '',
-//                                                   inclTax: detail.inclTax ?? '',
-//                                                   isChcked: true,
-//                                                   catId: catId,
-//                                                   promoCode: promo.promoCode,
-//                                                   promoMsg: promo.discountText,
-//                                                   CustomerDiscount: detail
-//                                                       .discount!
-//                                                       .toDouble(),
-//                                                   tieredDiscount:
-//                                                       tieredDiscount);
+//     productController.isCartModified.value = true;
+//   }
 
-//                                           productController
-//                                               .isCartModified.value = true;
-//                                         }
-                                        
-//                                         showCustomToastDisplay(
-//                                           context,
-//                                           "Tiered discount added to cart",
-//                                           Colors.green.shade800,
-//                                           Icons.check,
-//                                         );
+//   showCustomToastDisplay(
+//     context,
+//     "Tiered discount added to cart",
+//     Colors.green.shade800,
+//     Icons.check,
+//   );
 
-//                                         WidgetsBinding.instance
-//                                             .addPostFrameCallback((_) {
-//                                           final cartProvider =
-//                                               Provider.of<CustomersProvider>(
-//                                                   context,
-//                                                   listen: false);
-//                                           cartProvider
-//                                               .updateCartCount(customerId);
-//                                           cartProvider
-//                                               .getCartItemCounts(customerId);
-//                                         });
-//                                       }
-//
+//   WidgetsBinding.instance.addPostFrameCallback((_) {
+//     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+//     cartProvider.updateCartCount(customerId);
+//     cartProvider.getCartItemCounts(customerId);
+//   });
+// }
 
                                       // --- Free Item promos ---
 

@@ -344,6 +344,10 @@ class Detail {
   @HiveField(37) 
   num? initialCount;
 
+
+  @HiveField(38)
+  String? bulkId;
+
   Detail({
     this.id,
     this.companyId,
@@ -381,6 +385,7 @@ class Detail {
     this.promoDiscount,
     this.customerDiscount,
     this.initialCount,
+    this.bulkId,
   });
   Detail copyWith({
     int? id,
@@ -416,6 +421,7 @@ class Detail {
     num? totaltax,
     num? maxDiscount,
     String? productName,
+    String? bulkId,
   }) {
     return Detail(
       id: id ?? this.id,
@@ -451,6 +457,7 @@ class Detail {
       totaltax: totaltax ?? totaltax,
       productName: productName ?? this.productName,
       maxDiscount: maxDiscount ?? this.maxDiscount,
+      bulkId: bulkId ?? this.bulkId,
     );
   }
 
@@ -488,8 +495,9 @@ class Detail {
         totaltax = json['total_tax'],
         productName = json['product_name'],
         maxDiscount = json['max_discount'],
-         promoDiscount = json['promo_discount'],
-        initialCount = json['initialCount'] ?? json['count'] ?? 0.0;
+        promoDiscount = json['promo_discount'],
+        initialCount = json['initialCount'] ?? json['count'] ?? 0.0,
+        bulkId = json['bulk_id'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -528,6 +536,7 @@ class Detail {
     data['max_discount'] = maxDiscount;
     data['promo_discount'] = promoDiscount;
     data['initialCount'] = initialCount;
+    data['bulk_id'] = bulkId;
     return data;
   }
 }

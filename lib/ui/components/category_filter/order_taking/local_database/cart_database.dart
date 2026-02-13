@@ -729,237 +729,266 @@ class CartDatabaseManager {
   }
 
   Future<void> addToCart({
-    required Detail detail,
-    required String productName,
-    required bool isPack,
-    required int localCount,
-    required String customerId,
-    required String inclTax,
-    required bool isChcked,
-    required int catId,
-    double? catTax,
-  }) async {
-    print('add to cart called');
-    if (localCount <= 0) {
-      throw ArgumentError("Error: Count must be greater than zero.");
-    }
-    final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
-    CustomerDiscountModel? discountData;
-    discountData = discountBox.values.firstWhere(
-      (discount) => discount.customerId == customerId,
-      orElse: () => CustomerDiscountModel(),
-    );
+  required Detail detail,
+  required String productName,
+  required bool isPack,
+  required int localCount,
+  required String customerId,
+  required String inclTax,
+  required bool isChcked,
+  required int catId,
+  double? catTax,
+  String? bulkId, // <--- 1. Add this optional parameter
+}) async {
+  print('add to cart called');
+  if (localCount <= 0) {
+    throw ArgumentError("Error: Count must be greater than zero.");
+  }
+  
+  final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+  CustomerDiscountModel? discountData;
+  discountData = discountBox.values.firstWhere(
+    (discount) => discount.customerId == customerId,
+    orElse: () => CustomerDiscountModel(),
+  );
 
-    double effectiveSellingPrice = calculateEffectivePrice(
-      detail: detail,
-      isPack: isPack,
-      catId: catId,
-      customerId: customerId,
-      discountData: discountData,
-      localCount: localCount,
-    );
+  double effectiveSellingPrice = calculateEffectivePrice(
+    detail: detail,
+    isPack: isPack,
+    catId: catId,
+    customerId: customerId,
+    discountData: discountData,
+    localCount: localCount,
+  );
 
-    double discountPercentage =
-        double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
-    print('discount percentage when add to cart:$discountPercentage');
-    double discountedTax = detail.tax != null
-        ? detail.tax! - (detail.tax! * discountPercentage / 100)
-        : 0.0;
+  double discountPercentage =
+      double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
+  print('discount percentage when add to cart:$discountPercentage');
+  
+  double discountedTax = detail.tax != null
+      ? detail.tax! - (detail.tax! * discountPercentage / 100)
+      : 0.0;
 
-    final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
-        item.detail.variationName == detail.variationName &&
-        item.detail.sellPrice == detail.sellPrice &&
-        item.customerId == customerId &&
-        (item.isPromo == false || item.isPromo == null));
-    if (existingDraftItemIndex != -1) {
-      final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
-      final previousCount = existingDraftItem.detail.count;
-      existingDraftItem.detail.count += localCount.toDouble();
-      existingDraftItem.totalPrice = existingDraftItem.isPack!
-          ? (existingDraftItem.detail.count *
-                  (existingDraftItem.detail.pieces ?? 1) *
-                  effectiveSellingPrice)
-              .toDouble()
-          : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
-      await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
-      print('update existing item');
-    } else {
-      final existingCartItemIndex = cartBox.values.toList().indexWhere(
-            (item) => isSameCartRow(
+  // --- DRAFT BOX CHECK ---
+  final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
+      item.detail.variationName == detail.variationName &&
+      item.detail.sellPrice == detail.sellPrice &&
+      item.customerId == customerId &&
+      // Check if bulk IDs match (handle nulls safely)
+      (item.detail.bulkId == bulkId) && 
+      (item.isPromo == false || item.isPromo == null));
+
+  if (existingDraftItemIndex != -1) {
+    final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
+    
+    // update existing draft item
+    existingDraftItem.detail.count += localCount.toDouble();
+    existingDraftItem.totalPrice = existingDraftItem.isPack!
+        ? (existingDraftItem.detail.count *
+                (existingDraftItem.detail.pieces ?? 1) *
+                effectiveSellingPrice)
+            .toDouble()
+        : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
+        
+    await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
+    print('update existing item');
+  } else {
+    // --- CART BOX CHECK ---
+    final existingCartItemIndex = cartBox.values.toList().indexWhere(
+          (item) => 
+            // 2. Ensure we check bulkId to prevent merging Bulk items with Regular items
+            (item.detail.bulkId == bulkId) && 
+            isSameCartRow(
               item,
               detail: detail,
               customerId: customerId,
               isPromo: false,
             ),
-          );
+        );
 
-    
-      if (existingCartItemIndex != -1) {
-        final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
-        final previousCount = existingCartItem.detail.count;
-        existingCartItem.detail.count += localCount.toDouble();
-        final double priceWithTax =
-            existingCartItem.detail.inclTax != "incl_tax"
-                ? effectiveSellingPrice + discountedTax
-                : effectiveSellingPrice;
-        // existingCartItem.detail.count += localCount.toDouble();
-        existingCartItem.totalPrice = existingCartItem.isPack!
-            ? (existingCartItem.detail.count *
-                    (existingCartItem.detail.pieces ?? 1) *
-                    priceWithTax)
-                .toDouble()
-            : (existingCartItem.detail.count * priceWithTax).toDouble();
-        await cartBox.putAt(existingCartItemIndex, existingCartItem);
-      } else {
-        final double priceWithTax = inclTax != "incl_tax"
-            ? effectiveSellingPrice + discountedTax
-            : effectiveSellingPrice;
-        final computedTotalAmount = isPack
-            ? (localCount * (detail.pieces ?? 1) * priceWithTax)
-            : (localCount * priceWithTax);
-        // print('computed amount:$computedTotalAmount');
-        // Clone the detail object and set count to localCount
-        final newDetail = Detail.fromJson(detail.toJson());
-        newDetail.count = localCount.toDouble();
-        newDetail.inclTax = inclTax;
-        if (newDetail.initialCount == null) {
-          newDetail.initialCount = localCount.toDouble();
-          print(
-              'NEW ITEM: Set initialCount to $localCount for ${newDetail.productName}');
-        }
-        final newCartItem = CartItem(
-            detail: newDetail,
-            productName: productName,
-            totalPrice: computedTotalAmount.toDouble(),
-            isPack: isPack,
-            customerId: customerId,
-            count: localCount,
-            boxType: false,
-            isChecked: isChcked,
-            catId: catId,
-            isPromo: false,
-            CustomerDiscount: discountPercentage,
-            catTax: catTax
-            );
-        await cartBox.add(newCartItem);
-        print('new item added to the cart');
+    if (existingCartItemIndex != -1) {
+      final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
+      
+      // Update existing cart item
+      existingCartItem.detail.count += localCount.toDouble();
+      final double priceWithTax =
+          existingCartItem.detail.inclTax != "incl_tax"
+              ? effectiveSellingPrice + discountedTax
+              : effectiveSellingPrice;
+
+      existingCartItem.totalPrice = existingCartItem.isPack!
+          ? (existingCartItem.detail.count *
+                  (existingCartItem.detail.pieces ?? 1) *
+                  priceWithTax)
+              .toDouble()
+          : (existingCartItem.detail.count * priceWithTax).toDouble();
+          
+      await cartBox.putAt(existingCartItemIndex, existingCartItem);
+    } else {
+      // --- NEW ITEM CREATION ---
+      final double priceWithTax = inclTax != "incl_tax"
+          ? effectiveSellingPrice + discountedTax
+          : effectiveSellingPrice;
+          
+      final computedTotalAmount = isPack
+          ? (localCount * (detail.pieces ?? 1) * priceWithTax)
+          : (localCount * priceWithTax);
+
+      // Clone the detail object
+      final newDetail = Detail.fromJson(detail.toJson());
+      newDetail.count = localCount.toDouble();
+      newDetail.inclTax = inclTax;
+      
+      // 3. SET THE BULK ID HERE
+      newDetail.bulkId = bulkId ?? detail.bulkId; 
+      
+      if (newDetail.initialCount == null) {
+        newDetail.initialCount = localCount.toDouble();
+        print('NEW ITEM: Set initialCount to $localCount for ${newDetail.productName}');
       }
+      
+      final newCartItem = CartItem(
+          detail: newDetail,
+          productName: productName,
+          totalPrice: computedTotalAmount.toDouble(),
+          isPack: isPack,
+          customerId: customerId,
+          count: localCount,
+          boxType: false,
+          isChecked: isChcked,
+          catId: catId,
+          isPromo: false,
+          CustomerDiscount: discountPercentage,
+          catTax: catTax
+      );
+      
+      await cartBox.add(newCartItem);
+     
     }
   }
+}
+
+  // Future<void> addToCart({
+  //   required Detail detail,
+  //   required String productName,
+  //   required bool isPack,
+  //   required int localCount,
+  //   required String customerId,
+  //   required String inclTax,
+  //   required bool isChcked,
+  //   required int catId,
+  //   double? catTax,
+  //   String? bulkId,
+  // }) async {
+  //   print('add to cart called');
+  //   if (localCount <= 0) {
+  //     throw ArgumentError("Error: Count must be greater than zero.");
+  //   }
+  //   final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+  //   CustomerDiscountModel? discountData;
+  //   discountData = discountBox.values.firstWhere(
+  //     (discount) => discount.customerId == customerId,
+  //     orElse: () => CustomerDiscountModel(),
+  //   );
+
+  //   double effectiveSellingPrice = calculateEffectivePrice(
+  //     detail: detail,
+  //     isPack: isPack,
+  //     catId: catId,
+  //     customerId: customerId,
+  //     discountData: discountData,
+  //     localCount: localCount,
+  //   );
+
+  //   double discountPercentage =
+  //       double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
+  //   print('discount percentage when add to cart:$discountPercentage');
+  //   double discountedTax = detail.tax != null
+  //       ? detail.tax! - (detail.tax! * discountPercentage / 100)
+  //       : 0.0;
+
+  //   final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
+  //       item.detail.variationName == detail.variationName &&
+  //       item.detail.sellPrice == detail.sellPrice &&
+  //       item.customerId == customerId &&
+  //       (item.isPromo == false || item.isPromo == null));
+  //   if (existingDraftItemIndex != -1) {
+  //     final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
+  //     final previousCount = existingDraftItem.detail.count;
+  //     existingDraftItem.detail.count += localCount.toDouble();
+  //     existingDraftItem.totalPrice = existingDraftItem.isPack!
+  //         ? (existingDraftItem.detail.count *
+  //                 (existingDraftItem.detail.pieces ?? 1) *
+  //                 effectiveSellingPrice)
+  //             .toDouble()
+  //         : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
+  //     await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
+  //     print('update existing item');
+  //   } else {
+  //     final existingCartItemIndex = cartBox.values.toList().indexWhere(
+  //           (item) => isSameCartRow(
+  //             item,
+  //             detail: detail,
+  //             customerId: customerId,
+  //             isPromo: false,
+  //           ),
+  //         );
+
+    
+  //     if (existingCartItemIndex != -1) {
+  //       final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
+  //       final previousCount = existingCartItem.detail.count;
+  //       existingCartItem.detail.count += localCount.toDouble();
+  //       final double priceWithTax =
+  //           existingCartItem.detail.inclTax != "incl_tax"
+  //               ? effectiveSellingPrice + discountedTax
+  //               : effectiveSellingPrice;
+  //       // existingCartItem.detail.count += localCount.toDouble();
+  //       existingCartItem.totalPrice = existingCartItem.isPack!
+  //           ? (existingCartItem.detail.count *
+  //                   (existingCartItem.detail.pieces ?? 1) *
+  //                   priceWithTax)
+  //               .toDouble()
+  //           : (existingCartItem.detail.count * priceWithTax).toDouble();
+  //       await cartBox.putAt(existingCartItemIndex, existingCartItem);
+  //     } else {
+  //       final double priceWithTax = inclTax != "incl_tax"
+  //           ? effectiveSellingPrice + discountedTax
+  //           : effectiveSellingPrice;
+  //       final computedTotalAmount = isPack
+  //           ? (localCount * (detail.pieces ?? 1) * priceWithTax)
+  //           : (localCount * priceWithTax);
+  //       // print('computed amount:$computedTotalAmount');
+  //       // Clone the detail object and set count to localCount
+  //       final newDetail = Detail.fromJson(detail.toJson());
+  //       newDetail.count = localCount.toDouble();
+  //       newDetail.inclTax = inclTax;
+  //       if (newDetail.initialCount == null) {
+  //         newDetail.initialCount = localCount.toDouble();
+  //         print(
+  //             'NEW ITEM: Set initialCount to $localCount for ${newDetail.productName}');
+  //       }
+  //       final newCartItem = CartItem(
+  //           detail: newDetail,
+  //           productName: productName,
+  //           totalPrice: computedTotalAmount.toDouble(),
+  //           isPack: isPack,
+  //           customerId: customerId,
+  //           count: localCount,
+  //           boxType: false,
+  //           isChecked: isChcked,
+  //           catId: catId,
+  //           isPromo: false,
+  //           CustomerDiscount: discountPercentage,
+  //           catTax: catTax
+  //           );
+  //       await cartBox.add(newCartItem);
+  //       print('new item added to the cart');
+  //     }
+  //   }
+  // }
   
 
-//   Future<void> addToCart({
-//     required Detail detail,
-//     required String productName,
-//     required bool isPack,
-//     required int localCount,
-//     required String customerId,
-//     required String inclTax,
-//     required bool isChcked,
-//     required int catId,
-//   }) async {
-//     if (localCount <= 0) {
-//       throw ArgumentError("Error: Count must be greater than zero.");
-//     }
-
-//     final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
-//     CustomerDiscountModel? discountData;
-//     discountData = discountBox.values.firstWhere(
-//       (discount) => discount.customerId == customerId,
-//       orElse: () => CustomerDiscountModel(),
-//     );
-
-//     double effectiveSellingPrice = calculateEffectivePrice(
-//       detail: detail,
-//       isPack: isPack,
-//       catId: catId,
-//       customerId: customerId,
-//       discountData: discountData,
-//       localCount: localCount,
-//     );
-
-//     double discountPercentage =
-//         double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
-//     double discountedTax = detail.tax != null
-//         ? detail.tax! - (detail.tax! * discountPercentage / 100)
-//         : 0.0;
-
-//     final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
-//         item.detail.variationName == detail.variationName &&
-//         item.detail.sellPrice == detail.sellPrice &&
-//         item.customerId == customerId
-//         &&
-//         (item.isPromo == false || item.isPromo == null)
-//         );
-//     if (existingDraftItemIndex != -1) {
-//       final existingDraftItem = draftBox.getAt(existingDraftItemIndex)!;
-//       existingDraftItem.detail.count += localCount.toDouble();
-//       existingDraftItem.totalPrice = existingDraftItem.isPack!
-//           ? (existingDraftItem.detail.count *
-//                   (existingDraftItem.detail.pieces ?? 1) *
-//                   effectiveSellingPrice)
-//               .toDouble()
-//           : (existingDraftItem.detail.count * effectiveSellingPrice).toDouble();
-//       await draftBox.putAt(existingDraftItemIndex, existingDraftItem);
-//     } else {
-//        final existingCartItemIndex = cartBox.values.toList().indexWhere(
-//   (item) => isSameCartRow(
-//     item,
-//     detail: detail,
-//     customerId: customerId,
-//     isPromo: false,
-//   ),
-// );
-//       // final existingCartItemIndex = cartBox.values.toList().indexWhere((item) =>
-//       //     item.detail.variationName == detail.variationName &&
-//       //     item.detail.sellPrice == detail.sellPrice &&
-//       //     item.customerId == customerId);
-//       if (existingCartItemIndex != -1) {
-//         final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
-//         existingCartItem.detail.count += localCount.toDouble();
-//         final double priceWithTax =
-//             existingCartItem.detail.inclTax != "incl_tax"
-//                 ? effectiveSellingPrice + discountedTax
-//                 : effectiveSellingPrice;
-//         // existingCartItem.detail.count += localCount.toDouble();
-//         existingCartItem.totalPrice = existingCartItem.isPack!
-//             ? (existingCartItem.detail.count *
-//                     (existingCartItem.detail.pieces ?? 1) *
-//                     priceWithTax)
-//                 .toDouble()
-//             : (existingCartItem.detail.count * priceWithTax).toDouble();
-//         await cartBox.putAt(existingCartItemIndex, existingCartItem);
-//       } else {
-//         final double priceWithTax = inclTax != "incl_tax"
-//             ? effectiveSellingPrice + discountedTax
-//             : effectiveSellingPrice;
-//         final computedTotalAmount = isPack
-//             ? (localCount * (detail.pieces ?? 1) * priceWithTax)
-//             : (localCount * priceWithTax);
-//         final newDetail = Detail.fromJson(detail.toJson());
-//         newDetail.count = localCount.toDouble();
-//         newDetail.inclTax = inclTax;
-//          if (newDetail.initialCount == null) {
-//         newDetail.initialCount = localCount.toDouble();
-//         print('NEW ITEM: Set initialCount to $localCount for ${newDetail.productName}');
-//       }
-//         final newCartItem = CartItem(
-//           detail: newDetail,
-//           productName: productName,
-//           totalPrice: computedTotalAmount.toDouble(),
-//           isPack: isPack,
-//           customerId: customerId,
-//           count: localCount,
-//           boxType: false,
-//           isChecked: isChcked,
-//           catId: catId,
-//           isPromo: false,
-//           CustomerDiscount: discountPercentage
-//         );
-//         await cartBox.add(newCartItem);
-//       }
-//     }
-//   }
 
   Future<void> addToCartPromo({
   required Detail detail,

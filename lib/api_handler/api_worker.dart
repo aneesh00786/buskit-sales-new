@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/model/staff_discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/promotion_models.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
@@ -3900,4 +3901,54 @@ Future<Bulk> getBulkVolumes() async {
       return Future.error(Exception("Unexpected error: $e"));
     }
   }
+
+
+
+Future<StaffDiscount> getStaffDiscount() async {
+  try {
+    // print('getstaffdiscount called');
+    final isConnected = await ConnectivityService().isOnline();
+    final cacheKey =
+        "${SessionHelper.loginSavedData?.company_id ?? 0}_staff_discount";
+
+    final box = await Hive.openBox('staffDiscountBox');
+
+    if (!isConnected) {
+      final cachedData = box.get(cacheKey);
+
+      if (cachedData != null) {
+        return StaffDiscount.fromJson(
+          cachedData
+          // ApiService().castToStringDynamic(cachedData),
+        );
+      } else {
+        throw Exception('No staff discount data available offline');
+      }
+    }
+
+    // 🔹 ONLINE MODE
+    final response = await dio.postbycustom(
+      ApiConstants.staffDiscount, 
+      queryParameters: {
+        "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+      },
+    );
+
+    final staffDiscount = StaffDiscount.fromJson(response.data);
+
+    print('staffdiscount:$staffDiscount');
+
+    // 🔹 CACHE DATA
+    await box.put(cacheKey, staffDiscount.toJson());
+
+    return staffDiscount;
+  } catch (error) {
+    handleExceptionMessage(
+      apiName: 'Fetch Staff Discount',
+      response: error is DioException ? error.response : null,
+    );
+    throw Exception('Failed to fetch staff discount data: $error');
+  }
+}
+
 }

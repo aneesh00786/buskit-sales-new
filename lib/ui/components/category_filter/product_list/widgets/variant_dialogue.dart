@@ -841,17 +841,20 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               Detail detail = widget.detailsCopy[i];
                               if (localCounts[i] > 0) {
                                 final bool isPack = detail.saleBy == 'Pack';
-                                await CartDatabaseManager().addToCart(
-                                  customerId: customerId,
-                                  localCount: localCounts[i],
-                                  detail: detail,
-                                  isPack: isPack,
-                                  productName: widget.product.productName ?? '',
-                                  inclTax: widget.product.inclTax ?? '',
-                                  isChcked: true,
-                                  catId: widget.product.catId ?? 0,
-                                  catTax: (widget.productList.first.catTax ?? 0).toDouble(),
-                                );
+                              await CartDatabaseManager().addToCart(
+                                    customerId: customerId,
+                                    localCount: localCounts[i],
+                                    detail: detail,
+                                    isPack: isPack,
+                                    productName:
+                                        widget.product.productName ?? '',
+                                    inclTax: widget.product.inclTax ?? '',
+                                    isChcked: true,
+                                    catId: widget.product.catId ?? 0,
+                                    // catTax: (widget.product.catTax ?? 0).toDouble(),
+                                    catTax: (widget.productList.first.catTax ?? 0).toDouble(),
+
+                                  );
                                 print('product name :${ widget.product.productName}');
                                 print('cattaxxxxxxx:${widget.productList.first.catTax}');
                                 print('productttt:${widget.product.toJson()}');

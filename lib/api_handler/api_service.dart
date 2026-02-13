@@ -2123,7 +2123,7 @@ print('response :${response.data}');
       );
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
-
+  log('reponse of fetch one customer api:${response.data}');
         List<CustomerDashMo> customers = [];
         if (jsonResponse['data'] != null) {
           customers = (jsonResponse['data'] as List)
@@ -2150,6 +2150,126 @@ print('response :${response.data}');
           'Failed to fetch customer data fetchOneCustomer exception: $error');
     }
   }
+  Future<CustomerResponse> updateDeliveryAddress({
+    required String customerId,
+    required int companyId,
+    required String address,
+    required String town,
+    required String state,
+    required String zipcode,
+    required String contact,
+    // "updated_by" is required by backend. 
+    // We can pass it here or grab it from session inside the function.
+    required String updatedBy, 
+  }) async {
+    
+    // STRICTLY using the parameters requested by backend team
+    final requestBody = {
+      "customer_id": customerId,
+      "company_id":companyId,
+      "delivery_address": address,
+      "delivery_town": town,
+      "delivery_state": state,
+      "delivery_zipcode": zipcode,
+      "delivery_contact": contact,
+      "updated_by": updatedBy, // Valid ID of the user performing the update
+    };
+
+    try {
+      final response = await responsePostMethod(
+        requestData: requestBody,
+        endPoint: ApiConstants.updatedeliveryaddress, // Ensure this endpoint path is correct
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = response.data;
+        log('response of update customer api:${response.data}');
+
+        return CustomerResponse(
+          statusCode: jsonResponse['status_code'] ?? 0,
+          status: jsonResponse['status'] ?? false,
+          message: jsonResponse['message'] ?? 'Update Successful',
+          data: [], 
+        );
+      } else {
+        throw Exception(
+            'Failed to update customer - Status: ${response.statusCode}');
+      }
+    } on DioException catch (error) {
+       // Log the actual response data from server to see WHY it failed
+       log("Update API Error Data: ${error.response?.data}");
+       
+      handleExceptionMessage(
+          apiName: "update customer",
+          error: error,
+          response: error.response);
+      throw Exception(
+          'Failed to update customer: ${error.message}');
+    }
+  }
+
+  
+  // Future<CustomerResponse> updateDeliveryAddress({
+  //   required String customerId,
+  //   required int companyId,
+  //   required String address,
+  //   required String town,
+  //   required String state,
+  //   required String zipcode,
+  //   required String contact,
+  //   required String remark,
+  // }) async {
+    
+  //   final requestBody = {
+  //     "customer_id": customerId,
+  //     "companyId": companyId, 
+  //     "delivery_address": address,
+  //     "delivery_town": town,
+  //     "delivery_state": state,
+  //     "delivery_zipcode": zipcode,
+  //     "delivery_contact": contact,
+  //     "remark": remark,
+  //   };
+
+  //   try {
+  //     print('request body:$requestBody');
+  //     // Make sure to add 'updateCustomer' to your ApiConstants
+  //     final response = await responsePostMethod(
+  //       requestData: requestBody,
+  //       endPoint: ApiConstants.updatedeliveryaddress, 
+  //       options: Options(
+  //         headers: {'Content-Type': 'application/json'},
+  //       ),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = response.data;
+  //       log('response of update customer api:${response.data}');
+        
+  //       // We reuse CustomerResponse wrapper to keep it consistent
+  //       // Note: The 'data' list might be empty on update depending on your backend
+  //       return CustomerResponse(
+  //         statusCode: jsonResponse['status_code'] ?? 0,
+  //         status: jsonResponse['status'] ?? false,
+  //         message: jsonResponse['message'] ?? '',
+  //         data: [], // Usually updates return success message, not a list of customers
+  //       );
+  //     } else {
+  //       throw Exception(
+  //           'Failed to update customer data from updateCustomer- ${response.statusCode}');
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         apiName: "update customer",
+  //         error: error,
+  //         response: error.response);
+  //     throw Exception(
+  //         'Failed to update customer data updateCustomer exception: $error');
+  //   }
+  // }
 
   Future<void> updateCustomerDashDetails({
     required CustomerDashMo model,

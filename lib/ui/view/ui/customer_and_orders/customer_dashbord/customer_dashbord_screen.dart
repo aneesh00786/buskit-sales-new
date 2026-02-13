@@ -30,6 +30,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/orders_payments.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sale_customer.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/update_customer_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/year_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -368,6 +369,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
   @override
   Widget build(BuildContext context) {
+    final customerId = widget.isFromCalendar
+      ? widget.cusId
+      : productsController.selectedCustomerId.value;
     final loginData = SessionHelper.loginSavedData;
     final salesmanInternalId = loginData?.salesmanId?.toString();
     final customerName = widget.isFromCalendar
@@ -551,62 +555,120 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 );
               }),
             ),
-            SizedBox(
-              width: 130,
-              child: SizedBox(
-                height: 44,
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: const Color(0xffe6ecff),
-                        radius: 15,
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              '${ApiConstants.baseUrl}uploads/$customerImage',
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 4.5,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                  maxWidth: double.infinity),
-                              child: MyRegularText(
-                                label: customerName,
-                                fontSize: 8.8,
-                                maxlines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const MyRegularText(label: "Customer", fontSize: 9),
-                          ],
-                        ),
-                      ),
-                    ],
+            InkWell(
+  onTap: () {
+   showUpdateCustomerDialog(context, customerId, customerName, customerImage);
+  },
+  child: SizedBox(
+    width: 130,
+    child: SizedBox(
+      height: 44,
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: const Color(0xffe6ecff),
+              radius: 15,
+              child: CachedNetworkImage(
+                imageUrl: '${ApiConstants.baseUrl}uploads/$customerImage',
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.error),
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-            )
+            ),
+            const SizedBox(width: 4.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(maxWidth: double.infinity),
+                    child: MyRegularText(
+                      label: customerName,
+                      fontSize: 8.8,
+                      maxlines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const MyRegularText(label: "Customer", fontSize: 9),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+)
+            // SizedBox(
+            //   width: 130,
+            //   child: SizedBox(
+            //     height: 44,
+            //     width: double.infinity,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Row(
+            //         children: [
+            //           CircleAvatar(
+            //             backgroundColor: const Color(0xffe6ecff),
+            //             radius: 15,
+            //             child: CachedNetworkImage(
+            //               imageUrl:
+            //                   '${ApiConstants.baseUrl}uploads/$customerImage',
+            //               placeholder: (context, url) =>
+            //                   const CircularProgressIndicator(),
+            //               errorWidget: (context, url, error) =>
+            //                   const Icon(Icons.error),
+            //               imageBuilder: (context, imageProvider) => Container(
+            //                 decoration: BoxDecoration(
+            //                   shape: BoxShape.circle,
+            //                   image: DecorationImage(
+            //                     image: imageProvider,
+            //                     fit: BoxFit.cover,
+            //                   ),
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           const SizedBox(
+            //             width: 4.5,
+            //           ),
+            //           Expanded(
+            //             child: Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 ConstrainedBox(
+            //                   constraints: const BoxConstraints(
+            //                       maxWidth: double.infinity),
+            //                   child: MyRegularText(
+            //                     label: customerName,
+            //                     fontSize: 8.8,
+            //                     maxlines: 1,
+            //                     overflow: TextOverflow.ellipsis,
+            //                   ),
+            //                 ),
+            //                 const MyRegularText(label: "Customer", fontSize: 9),
+            //               ],
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // )
           ],
         ),
         body: Consumer<CustomersProvider>(
@@ -1415,6 +1477,91 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   String formatDate(DateTime dateTime) {
     return DateFormat('dd-MMMM-yyyy').format(dateTime);
   }
+  
+// Update the arguments to accept customerId
+void showUpdateCustomerDialog(BuildContext context, String customerId, String customerName, String? customerImage) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(15),
+        // Pass the customerId to the popup so it can fetch the API
+        child: UpdateCustomerPopup(
+          customerId: customerId, 
+          initialName: customerName,
+          // initialImage: customerImage, // (Optional: Add this if you kept it in the widget constructor)
+        ),
+      );
+    },
+  );
+}
+
+// Helper for Section Headers
+Widget _buildSectionHeader(String title) {
+  return Text(
+    title,
+    style: const TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
+      color: Color(0xFF9E9E9E),
+      letterSpacing: 1.2,
+    ),
+  );
+}
+
+// Helper for Modern Fields (Cleaner look than the boxy inputs)
+Widget _buildModernField({
+  required IconData icon,
+  required String label,
+  required String value,
+  bool isHighlight = false,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    decoration: BoxDecoration(
+      color: isHighlight ? const Color(0xFFF0F7FF) : const Color(0xFFF8F9FA),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: isHighlight ? Colors.blueAccent : Colors.grey[500],
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isHighlight ? Colors.blue[800] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 }
 
 void useEffect(VoidCallback callback, List<Object?> dependencies) {

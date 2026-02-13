@@ -326,9 +326,16 @@ Future<bool> processCartBeforeNavigation({
       cartList: await Future.wait(allItems.map((item) async {
         final e = item.detail;
         print('full detailssssss:${e.toJson()}');
+        String packValue;
+if (e.bulkId != null && e.bulkId!.isNotEmpty) {
+  // If it's a bulk item, ALWAYS use pieces (e.g., 100), never count (1)
+  packValue = e.pieces.toString(); 
+} else {
+  packValue = e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+}
 
-        final packValue =
-            e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+        // final packValue =
+        //     e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
 
         if (item.isPromo == true) {
           bool isBundle =

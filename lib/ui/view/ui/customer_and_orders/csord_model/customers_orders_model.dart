@@ -1723,6 +1723,11 @@ class CustomerDashMo {
   String? eventDays;
   int? creditPeriod;
   int? companyId;
+  String? deliveryAddress;
+  String? deliveryTown;
+  String? deliveryState;
+  int? deliveryZipcode;
+  String? deliveryContact;
   List<Cart>? cart;
   List<Salesman>? salesman;
 
@@ -1750,6 +1755,11 @@ class CustomerDashMo {
     this.eventDays,
     this.creditPeriod,
     this.companyId,
+    this.deliveryAddress,
+    this.deliveryTown,
+    this.deliveryState,
+    this.deliveryZipcode,
+    this.deliveryContact,
     this.cart,
     this.salesman,
   });
@@ -1786,6 +1796,11 @@ class CustomerDashMo {
       eventDays: json['event_days'],
       creditPeriod: json['credit_period'],
       companyId: json['company_id'],
+      deliveryAddress: json['delivery_address'],
+      deliveryTown: json['delivery_town'],
+      deliveryState: json['delivery_state'],
+      deliveryZipcode: json['delivery_zipcode'], // Ensure this is int in JSON, or parse it
+      deliveryContact: json['delivery_contact']?.toString(),
       cart: cartItems,
       salesman: salesmanItems,
     );

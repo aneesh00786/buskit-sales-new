@@ -130,4 +130,5 @@ mixin class ApiConstants {
   static const String orderReject = "order_reject";
   static const String addInvoice = "add_invoice";
   static const String orderDelivered = "order_delivered";
+  static const String staffDiscount = "staff_discount";
 }

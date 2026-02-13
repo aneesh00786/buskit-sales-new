@@ -250,92 +250,93 @@ List<BulkData> storedBulkList = [];
   // }
 
 
-  Future<bool> processCartBeforeNavigation({
-    required BuildContext context,
-    required String customerId,
-    List<BulkData>? bulkDataList, // <--- 1. Pass your BulkData list here
-  }) async {
-    print('process navigation started');
 
-    final connectivityService = ConnectivityService();
-    final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+Future<bool> processCartBeforeNavigation({
+  required BuildContext context,
+  required String customerId,
+  List<BulkData>? bulkDataList,
+}) async {
+  print('process navigation started');
 
-    final Map<String, CartItem> itemMap = {};
+  final connectivityService = ConnectivityService();
+  final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
 
-    final draftItems = CartDatabaseManager()
-        .draftBox
-        .values
-        .where((e) => e.customerId == customerId)
-        .toList();
-    final cartItems = CartDatabaseManager()
-        .cartItems
-        .where((e) => e.customerId == customerId)
-        .toList();
+  final Map<String, CartItem> itemMap = {};
 
-    for (var item in draftItems) {
-      final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+  final draftItems = CartDatabaseManager()
+      .draftBox
+      .values
+      .where((e) => e.customerId == customerId)
+      .toList();
+  final cartItems = CartDatabaseManager()
+      .cartItems
+      .where((e) => e.customerId == customerId)
+      .toList();
+
+  for (var item in draftItems) {
+    final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+    itemMap[key] = item;
+  }
+
+  for (var item in cartItems) {
+    final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+    if (!itemMap.containsKey(key)) {
       itemMap[key] = item;
     }
+  }
 
-    for (var item in cartItems) {
-      final key = "${item.detail.variationId}_${item.isPromo ?? false}";
-      if (!itemMap.containsKey(key)) {
-        itemMap[key] = item;
-      }
-    }
+  final allItems = itemMap.values.toList();
 
-    final allItems = itemMap.values.toList();
+  allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
 
-    allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
+  final isOnline = await connectivityService.isOnline();
 
-    final isOnline = await connectivityService.isOnline();
+  if (!isOnline) {
+    final List<Detail> detail = allItems.map((e) => e.detail).toList();
+    await CartDatabaseManager().saveDraftOffline(
+      customerId: customerId,
+      salesmanId: currentSalesmanId,
+      totalAmount: finalAmount.value,
+      details: detail,
+      customerName: selectedCustomerName.value,
+      customerMobile: selectedCustomerMobileNo.value,
+      customerEmail: selectedCustomerEmail.value,
+      customerImageUrl: selectedCustomerImageUrl.value,
+      allItemsTotal: allItemsTotalSave.value,
+    );
 
-    if (!isOnline) {
-      final List<Detail> detail = allItems.map((e) => e.detail).toList();
-      await CartDatabaseManager().saveDraftOffline(
-        customerId: customerId,
-        salesmanId: currentSalesmanId,
-        totalAmount: finalAmount.value,
-        details: detail,
-        customerName: selectedCustomerName.value,
-        customerMobile: selectedCustomerMobileNo.value,
-        customerEmail: selectedCustomerEmail.value,
-        customerImageUrl: selectedCustomerImageUrl.value,
-        allItemsTotal: allItemsTotalSave.value,
-      );
+    CartDatabaseManager().clearCart(customerId: customerId);
+    return false;
+  } else {
+    final cartDetails =
+        await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+    await Future.delayed(const Duration(seconds: 1));
 
-      CartDatabaseManager().clearCart(customerId: customerId);
-      return false;
-    } else {
-      final cartDetails =
-          await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-      await Future.delayed(const Duration(seconds: 1));
+    final firstOrder = cartDetails.isNotEmpty
+        ? cartDetails.last
+        : {'cart_id': '', 'draft_id': ''};
 
-      final firstOrder = cartDetails.isNotEmpty
-          ? cartDetails.last
-          : {'cart_id': '', 'draft_id': ''};
+    final existingCartId = firstOrder['cart_id'] ?? '';
+    final existingDraftId = firstOrder['draft_id'] ?? '';
 
-      final existingCartId = firstOrder['cart_id'] ?? '';
-      final existingDraftId = firstOrder['draft_id'] ?? '';
+    final productBYData = AddToCartModel(
+      customerId: customerId,
+      salesmanId: currentSalesmanId,
+      cartId: existingCartId,
+      cartList: await Future.wait(allItems.map((item) async {
+        final e = item.detail;
+        print('full detailssssss:${e.toJson()}');
 
-      final productBYData = AddToCartModel(
-        customerId: customerId,
-        salesmanId: currentSalesmanId,
-        cartId: existingCartId,
-        cartList: await Future.wait(allItems.map((item) async {
-          final e = item.detail;
-          print('full detailssssss:${e.toJson()}');
+        final packValue =
+            e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
 
-          final packValue =
-              e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+        if (item.isPromo == true) {
+          bool isBundle =
+              item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
 
-          if (item.isPromo == true) {
-            bool isBundle =
-                item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
-
-            if (isBundle) {
-              print('isbundle');
-              return SendCartData(
+          if (isBundle) {
+            print('isbundle');
+            return SendCartData(
                 productId: e.productId ?? '',
                 variantId: e.variationId ?? '',
                 pack: packValue,
@@ -353,10 +354,9 @@ List<BulkData> storedBulkList = [];
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
-                catTax:item.taxAmount
-              );
-            } else {
-              return SendCartData(
+                taxAmount: item.taxAmount);
+          } else {
+            return SendCartData(
                 productId: e.productId ?? '',
                 variantId: e.variationId ?? '',
                 pack: packValue,
@@ -372,50 +372,51 @@ List<BulkData> storedBulkList = [];
                 customerDiscount: item.CustomerDiscount,
                 promoDiscount: item.tieredDiscount,
                 initialCount: e.initialCount,
-                catTax:item.taxAmount
-              );
-            }
-          } else {
+                taxAmount: item.taxAmount);
+          }
+        } else {
+          print('bulk part check called');
+          
+          // --- UPDATED BULK LOGIC START ---
+          bool isBulkItem = false;
+          String? currentBulkId = e.bulkId; 
+          print('Current Bulk ID from item: $currentBulkId');
+          String finalPrice = e.sellPrice.toString(); // Default price
 
-            print('bulk parttttttt caledddddddddddddddd');
-            // ✅ Normal items
-            bool isBulkItem = false;
-            String? bulkId;
-            String finalPrice = e.sellPrice.toString(); // Default price
+          // Check if bulkId exists (e.g., "BULK_5")
+          if (currentBulkId != null && currentBulkId.isNotEmpty) {
+            isBulkItem = true;
+            print("Bulk Item Detected. ID: $currentBulkId");
+     print('bulk di from bulk data list:${bulkDataList?.map((e) => e.bulkId)}');
+            // Look up price in bulkDataList using the bulk_id
+            if (bulkDataList != null) {
+              try {
+                // Find matching bulk data where bulk_id matches (e.g. "BULK_5" == "BULK_5")
+                // OR if your BulkData list uses integer IDs (e.g. 5), parse the string "BULK_5" -> 5
+                final matchingBulk = bulkDataList.firstWhere(
+                  (element) => element.bulkId == currentBulkId, 
+                  // Fallback: If your BulkData list logic uses the ID '5' but the string is 'BULK_5', 
+                  // you might need to split the string. Assuming strict string match based on your JSON output:
+                  // orElse: () => null // handle null below
+                );
 
-            if (e.variationName?.contains('[BULK_ID:') == true) {
-              isBulkItem = true;
-              final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-              final match = regex.firstMatch(e.variationName!);
-              
-              if (match != null) {
-                bulkId = match.group(1);
-                
-                // --- 2. NEW BULK PRICE LOGIC START ---
-                // We check if we have the list and the ID, then try to find the matching volumePrice
-                if (bulkDataList != null && bulkId != null) {
-                  try {
-                    final matchingBulk = bulkDataList.firstWhere(
-                      (element) => element!.id.toString() == bulkId,
-                    );
-                    
-                    if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
-                      finalPrice = matchingBulk.volumePrice!;
-                      print('Bulk Price Applied for ID $bulkId: $finalPrice');
-                    }
-                  } catch (err) {
-                    print('Bulk ID $bulkId found in name but not found in provided BulkData list.');
-                  }
+                if (matchingBulk.volumePrice != null &&
+                    matchingBulk.volumePrice!.isNotEmpty) {
+                  finalPrice = matchingBulk.volumePrice!;
+                  print('Bulk Price Applied: $finalPrice');
                 }
-                // --- NEW BULK PRICE LOGIC END ---
+              } catch (err) {
+                print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
               }
             }
+          }
+          // --- UPDATED BULK LOGIC END ---
 
-            return SendCartData(
+          return SendCartData(
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: finalPrice, // <--- 3. Using the calculated price
+              price: finalPrice, 
               packType: isBulkItem
                   ? 'Bulk'
                   : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
@@ -425,312 +426,305 @@ List<BulkData> storedBulkList = [];
               customerDiscount: item.CustomerDiscount,
               promoDiscount: item.tieredDiscount,
               isBulk: isBulkItem,
-              bulkId: bulkId,
+              bulkId: currentBulkId, // Pass the direct ID
               initialCount: e.initialCount,
-              catTax:item.taxAmount
-            );
+              taxAmount: item.taxAmount);
+        }
+      }).toList()),
+      total: finalAmount.value.toStringAsFixed(0),
+    );
+
+    List<String> variantIdsPass = [];
+
+    final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
+    for (var item in allItems) {
+      final variantId = item.detail.variationId ?? '';
+      if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+        variantIdsPass.add(variantId);
+      }
+
+      if (item.isPromo == true &&
+          (item.promoMsg?.startsWith('Bundle') ?? false)) {
+        final promoMsg = item.promoMsg ?? '';
+        for (final m in variantIdRegex.allMatches(promoMsg)) {
+          final extracted = m.group(1);
+          if (extracted != null && extracted.isNotEmpty) {
+            variantIdsPass.add(extracted);
           }
-        }).toList()),
-        total: finalAmount.value.toStringAsFixed(0),
+        }
+      }
+    }
+
+    variantIdsPass = variantIdsPass.toSet().toList();
+
+    final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+    print('add to draft datasssss:${productBYData.toJson()}');
+
+    if (cartOrder != null) {
+      final order = CartOrderModel(
+        customerId: customerId,
+        salesmanId: currentSalesmanId,
+        cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+        orderStatus: 4,
+        draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+        selctedItemCount: 1,
+        varientIds: variantIdsPass,
       );
 
-      List<String> variantIdsPass = [];
-
-      // pattern to catch lines like “Variant Id: VARIATION31”
-      final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
-
-      for (var item in allItems) {
-        final variantId = item.detail.variationId ?? '';
-        if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
-          variantIdsPass.add(variantId);
+      await ApiWorker().placeOrder(order, (statusCode, message, response) {
+        if (statusCode == 200) {
+          showSuccessFullDialogCtrl(context: context);
+        } else {
+          showFaledDialogCtrl(context: context, customerId: customerId);
         }
-
-        if (item.isPromo == true &&
-            (item.promoMsg?.startsWith('Bundle') ?? false)) {
-          final promoMsg = item.promoMsg ?? '';
-          for (final m in variantIdRegex.allMatches(promoMsg)) {
-            final extracted = m.group(1);
-            if (extracted != null && extracted.isNotEmpty) {
-              variantIdsPass.add(extracted);
-            }
-          }
-        }
-      }
-
-      variantIdsPass = variantIdsPass.toSet().toList();
-
-      final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
-      print('add to draft datasssss:${productBYData.toJson()}');
-
-      if (cartOrder != null) {
-        final order = CartOrderModel(
-          customerId: customerId,
-          salesmanId: currentSalesmanId,
-          cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-          orderStatus: 4,
-          draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-          selctedItemCount: 1,
-          varientIds: variantIdsPass,
-        );
-
-        await ApiWorker().placeOrder(order, (statusCode, message, response) {
-          if (statusCode == 200) {
-            showSuccessFullDialogCtrl(context: context);
-          } else {
-            showFaledDialogCtrl(context: context, customerId: customerId);
-          }
-        });
-      }
-
-      CartDatabaseManager().cartItems.clear();
-      CartDatabaseManager().clearCart(customerId: customerId);
-      return true;
+      });
     }
+
+    CartDatabaseManager().cartItems.clear();
+    CartDatabaseManager().clearCart(customerId: customerId);
+    return true;
   }
+}
 
 
+  // Future<bool> processCartBeforeNavigation({
+  //   required BuildContext context,
+  //   required String customerId,
+  //   List<BulkData>? bulkDataList, // <--- 1. Pass your BulkData list here
+  // }) async {
+  //   print('process navigation started');
 
-//   Future<bool> processCartBeforeNavigation({
-//     required BuildContext context,
-//     required String customerId,
-//   }) async {
-//     print('process navigation started');
+  //   final connectivityService = ConnectivityService();
+  //   final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
 
-//     final connectivityService = ConnectivityService();
-//     final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //   final Map<String, CartItem> itemMap = {};
 
-//     final Map<String, CartItem> itemMap = {};
+  //   final draftItems = CartDatabaseManager()
+  //       .draftBox
+  //       .values
+  //       .where((e) => e.customerId == customerId)
+  //       .toList();
+  //   final cartItems = CartDatabaseManager()
+  //       .cartItems
+  //       .where((e) => e.customerId == customerId)
+  //       .toList();
 
-//     final draftItems = CartDatabaseManager()
-//         .draftBox
-//         .values
-//         .where((e) => e.customerId == customerId)
-//         .toList();
-//     final cartItems = CartDatabaseManager()
-//         .cartItems
-//         .where((e) => e.customerId == customerId)
-//         .toList();
+  //   for (var item in draftItems) {
+  //     final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+  //     itemMap[key] = item;
+  //   }
 
-//     for (var item in draftItems) {
-//       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
-//       // final key = item.detail.variationId ?? '';
-//       itemMap[key] = item;
-//     }
+  //   for (var item in cartItems) {
+  //     final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+  //     if (!itemMap.containsKey(key)) {
+  //       itemMap[key] = item;
+  //     }
+  //   }
 
-//     for (var item in cartItems) {
-//       final key = "${item.detail.variationId}_${item.isPromo ?? false}";
-//       // final key = item.detail.variationId ?? '';
-//       if (!itemMap.containsKey(key)) {
-//         itemMap[key] = item;
-//       }
-//     }
+  //   final allItems = itemMap.values.toList();
 
-//     final allItems = itemMap.values.toList();
+  //   allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
 
-//     allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
+  //   final isOnline = await connectivityService.isOnline();
 
-//     final Map<String, Detail> dedupedDetails = {};
+  //   if (!isOnline) {
+  //     final List<Detail> detail = allItems.map((e) => e.detail).toList();
+  //     await CartDatabaseManager().saveDraftOffline(
+  //       customerId: customerId,
+  //       salesmanId: currentSalesmanId,
+  //       totalAmount: finalAmount.value,
+  //       details: detail,
+  //       customerName: selectedCustomerName.value,
+  //       customerMobile: selectedCustomerMobileNo.value,
+  //       customerEmail: selectedCustomerEmail.value,
+  //       customerImageUrl: selectedCustomerImageUrl.value,
+  //       allItemsTotal: allItemsTotalSave.value,
+  //     );
 
-//     // for (final item in allItems) {
-//     //   final key = item.detail.variationId ?? '';
-//     //   if (dedupedDetails.containsKey(key)) {
-//     //     dedupedDetails[key]!.count += item.detail.count;
-//     //   } else {
-//     //     dedupedDetails[key] = item.detail;
-//     //   }
-//     // }
+  //     CartDatabaseManager().clearCart(customerId: customerId);
+  //     return false;
+  //   } else {
+  //     final cartDetails =
+  //         await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
+  //     await Future.delayed(const Duration(seconds: 1));
 
-//     // final detail = dedupedDetails.values.toList();
+  //     final firstOrder = cartDetails.isNotEmpty
+  //         ? cartDetails.last
+  //         : {'cart_id': '', 'draft_id': ''};
 
-//     final isOnline = await connectivityService.isOnline();
+  //     final existingCartId = firstOrder['cart_id'] ?? '';
+  //     final existingDraftId = firstOrder['draft_id'] ?? '';
 
-//     if (!isOnline) {
-//       final List<Detail> detail = allItems.map((e) => e.detail).toList();
-//       await CartDatabaseManager().saveDraftOffline(
-//         customerId: customerId,
-//         salesmanId: currentSalesmanId,
-//         totalAmount: finalAmount.value,
-//         details: detail,
-//         customerName: selectedCustomerName.value,
-//         customerMobile: selectedCustomerMobileNo.value,
-//         customerEmail: selectedCustomerEmail.value,
-//         customerImageUrl: selectedCustomerImageUrl.value,
-//         allItemsTotal: allItemsTotalSave.value,
-//       );
+  //     final productBYData = AddToCartModel(
+  //       customerId: customerId,
+  //       salesmanId: currentSalesmanId,
+  //       cartId: existingCartId,
+  //       cartList: await Future.wait(allItems.map((item) async {
+  //         final e = item.detail;
+  //         print('full detailssssss:${e.toJson()}');
 
-//       CartDatabaseManager().clearCart(customerId: customerId);
-//       return false;
-//     } else {
-//       final cartDetails =
-//           await CartDatabaseManager().getDraftAndCartIdsFromApi(customerId);
-//       await Future.delayed(const Duration(seconds: 1));
+  //         final packValue =
+  //             e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
 
-//       final firstOrder = cartDetails.isNotEmpty
-//           ? cartDetails.last
-//           : {'cart_id': '', 'draft_id': ''};
+  //         if (item.isPromo == true) {
+  //           bool isBundle =
+  //               item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
 
-//       final existingCartId = firstOrder['cart_id'] ?? '';
-//       final existingDraftId = firstOrder['draft_id'] ?? '';
-      
-      
-      
+  //           if (isBundle) {
+  //             print('isbundle');
+  //             return SendCartData(
+  //               productId: e.productId ?? '',
+  //               variantId: e.variationId ?? '',
+  //               pack: packValue,
+  //               price: e.sellPrice.toString(),
+  //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+  //               discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //               quantity: e.count.toInt(),
+  //               variantName: e.variationName ?? '',
+  //               maxDiscount: e.maxDiscount?.toInt(),
+  //               isPromo: true,
+  //               promoCode: item.promoCode ?? '',
+  //               promoMsg: "Bundle: ${e.variationName}",
+  //               isBundle: isBundle,
+  //               bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
+  //               customerDiscount: item.CustomerDiscount,
+  //               promoDiscount: item.tieredDiscount,
+  //               initialCount: e.initialCount,
+  //               catTax:item.taxAmount
+  //             );
+  //           } else {
+  //             return SendCartData(
+  //               productId: e.productId ?? '',
+  //               variantId: e.variationId ?? '',
+  //               pack: packValue,
+  //               price: e.sellPrice.toString(),
+  //               packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
+  //               discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //               quantity: e.count.toInt(),
+  //               variantName: e.variationName ?? '',
+  //               maxDiscount: e.maxDiscount?.toInt(),
+  //               isPromo: true,
+  //               promoCode: item.promoCode ?? '',
+  //               promoMsg: item.promoMsg ?? '',
+  //               customerDiscount: item.CustomerDiscount,
+  //               promoDiscount: item.tieredDiscount,
+  //               initialCount: e.initialCount,
+  //               catTax:item.taxAmount
+  //             );
+  //           }
+  //         } else {
 
-//       final productBYData = AddToCartModel(
-//         customerId: customerId,
-//         salesmanId: currentSalesmanId,
-//         cartId: existingCartId,
-//         cartList: await Future.wait(allItems.map((item) async {
-//           final e = item.detail;
-//           print('full detailssssss:${e.toJson()}');
+  //           print('bulk parttttttt caledddddddddddddddd');
+  //           // ✅ Normal items
+  //           bool isBulkItem = false;
+  //           String? bulkId;
+  //           String finalPrice = e.sellPrice.toString(); // Default price
 
-//           final packValue =
-//               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+  //           if (e.variationName?.contains('[BULK_ID:') == true) {
+  //             isBulkItem = true;
+  //             final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+  //             final match = regex.firstMatch(e.variationName!);
+              
+  //             if (match != null) {
+  //               bulkId = match.group(1);
+                
+  //               // --- 2. NEW BULK PRICE LOGIC START ---
+  //               // We check if we have the list and the ID, then try to find the matching volumePrice
+  //               if (bulkDataList != null && bulkId != null) {
+  //                 try {
+  //                   final matchingBulk = bulkDataList.firstWhere(
+  //                     (element) => element!.id.toString() == bulkId,
+  //                   );
+                    
+  //                   if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
+  //                     finalPrice = matchingBulk.volumePrice!;
+  //                     print('Bulk Price Applied for ID $bulkId: $finalPrice');
+  //                   }
+  //                 } catch (err) {
+  //                   print('Bulk ID $bulkId found in name but not found in provided BulkData list.');
+  //                 }
+  //               }
+  //               // --- NEW BULK PRICE LOGIC END ---
+  //             }
+  //           }
 
-//           if (item.isPromo == true) {
-//             bool isBundle =
-//                 item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
+  //           return SendCartData(
+  //             productId: e.productId ?? '',
+  //             variantId: e.variationId ?? '',
+  //             pack: packValue,
+  //             price: finalPrice, // <--- 3. Using the calculated price
+  //             packType: isBulkItem
+  //                 ? 'Bulk'
+  //                 : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+  //             discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //             quantity: e.count.toInt(),
+  //             variantName: e.variationName ?? '',
+  //             customerDiscount: item.CustomerDiscount,
+  //             promoDiscount: item.tieredDiscount,
+  //             isBulk: isBulkItem,
+  //             bulkId: bulkId,
+  //             initialCount: e.initialCount,
+  //             catTax:item.taxAmount
+  //           );
+  //         }
+  //       }).toList()),
+  //       total: finalAmount.value.toStringAsFixed(0),
+  //     );
 
-//             if (isBundle) {
-//               print('isbundle');
-//               return SendCartData(
-//                 productId: e.productId ?? '',
-//                 variantId: e.variationId ?? '',
-//                 pack: packValue,
-//                 price: e.sellPrice.toString(),
-//                 packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-//                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //     List<String> variantIdsPass = [];
 
-//                 // discount: item.totalDiscountAmount!.toDouble(),
-//                 quantity: e.count.toInt(),
-//                 variantName: e.variationName ?? '',
-//                 maxDiscount: e.maxDiscount?.toInt(),
-//                 isPromo: true,
-//                 promoCode: item.promoCode ?? '',
-//                 promoMsg: "Bundle: ${e.variationName}",
-//                 isBundle: isBundle,
-//                 bundleDetails: isBundle ? "Bundle: ${e.variationName}" : null,
-//                 customerDiscount: item.CustomerDiscount,
-//                 promoDiscount: item.tieredDiscount,
-//                 initialCount: e.initialCount,
-//                 // taxAmount: item.taxAmount ?? 0.0,
-//               );
-//             } else {
-//               return SendCartData(
-//                 productId: e.productId ?? '',
-//                 variantId: e.variationId ?? '',
-//                 pack: packValue,
-//                 price: e.sellPrice.toString(),
-//                 packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-//                 discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //     // pattern to catch lines like “Variant Id: VARIATION31”
+  //     final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
 
-//                 // discount: item.totalDiscountAmount!.toDouble(),
-//                 quantity: e.count.toInt(),
-//                 variantName: e.variationName ?? '',
-//                 maxDiscount: e.maxDiscount?.toInt(),
-//                 isPromo: true,
-//                 promoCode: item.promoCode ?? '',
-//                 promoMsg: item.promoMsg ?? '',
-//                 customerDiscount: item.CustomerDiscount,
-//                 promoDiscount: item.tieredDiscount,
-//                 initialCount: e.initialCount,
-//                 //  taxAmount: item.taxAmount ?? 0.0,
-//               );
-//             }
-//           } else {
-//             // ✅ Normal items
-//             bool isBulkItem = false;
-//   String? bulkId;
-//   if (e.variationName?.contains('[BULK_ID:') == true) {
-//     isBulkItem = true;
-//     final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-//     final match = regex.firstMatch(e.variationName!);
-//     if (match != null) {
-//       bulkId = match.group(1);
-//     }
-//   }
-//             return SendCartData(
-//               productId: e.productId ?? '',
-//               variantId: e.variationId ?? '',
-//               pack: packValue,
-//               price: e.sellPrice.toString(),
-//                packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-//               // packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
-//               // discount: item.totalDiscountAmount!.toDouble(),
-//               discount: (item.totalDiscountAmount ?? 0).toDouble(),
+  //     for (var item in allItems) {
+  //       final variantId = item.detail.variationId ?? '';
+  //       if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+  //         variantIdsPass.add(variantId);
+  //       }
 
-// // promoCode: item.promoCode ?? '',
-// //                 promoMsg: item.promoMsg ?? '',
-//               quantity: e.count.toInt(),
-//               variantName: e.variationName ?? '',
-//               customerDiscount: item.CustomerDiscount,
-//               promoDiscount: item.tieredDiscount,
-//               isBulk: isBulkItem,
-//               bulkId: bulkId,
-//               initialCount: e.initialCount,
-//               // taxAmount: item.taxAmount ?? 0.0,
-//             );
-//           }
-//         }).toList()),
-//         total: finalAmount.value.toStringAsFixed(0),
-//       );
+  //       if (item.isPromo == true &&
+  //           (item.promoMsg?.startsWith('Bundle') ?? false)) {
+  //         final promoMsg = item.promoMsg ?? '';
+  //         for (final m in variantIdRegex.allMatches(promoMsg)) {
+  //           final extracted = m.group(1);
+  //           if (extracted != null && extracted.isNotEmpty) {
+  //             variantIdsPass.add(extracted);
+  //           }
+  //         }
+  //       }
+  //     }
 
-//       List<String> variantIdsPass = [];
+  //     variantIdsPass = variantIdsPass.toSet().toList();
 
-// // pattern to catch lines like “Variant Id: VARIATION31”
-//       final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+  //     final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
+  //     print('add to draft datasssss:${productBYData.toJson()}');
 
-//       for (var item in allItems) {
-//         final variantId = item.detail.variationId ?? '';
-//         if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
-//           variantIdsPass.add(variantId);
-//         }
+  //     if (cartOrder != null) {
+  //       final order = CartOrderModel(
+  //         customerId: customerId,
+  //         salesmanId: currentSalesmanId,
+  //         cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
+  //         orderStatus: 4,
+  //         draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
+  //         selctedItemCount: 1,
+  //         varientIds: variantIdsPass,
+  //       );
 
-//         // also add any ids listed inside a bundle promoMsg
-//         if (item.isPromo == true &&
-//             (item.promoMsg?.startsWith('Bundle') ?? false)) {
-//           final promoMsg = item.promoMsg ?? '';
-//           for (final m in variantIdRegex.allMatches(promoMsg)) {
-//             final extracted = m.group(1);
-//             if (extracted != null && extracted.isNotEmpty) {
-//               variantIdsPass.add(extracted);
-//             }
-//           }
-//         }
-//       }
+  //       await ApiWorker().placeOrder(order, (statusCode, message, response) {
+  //         if (statusCode == 200) {
+  //           showSuccessFullDialogCtrl(context: context);
+  //         } else {
+  //           showFaledDialogCtrl(context: context, customerId: customerId);
+  //         }
+  //       });
+  //     }
 
-//       variantIdsPass = variantIdsPass.toSet().toList();
- 
-
-//       final cartOrder = await ApiWorker().addToDraft(productBYData.toJson());
-//       print('add to draft datasssss:${productBYData.toJson()}');
-
-//       if (cartOrder != null) {
-//         final order = CartOrderModel(
-//           customerId: customerId,
-//           salesmanId: currentSalesmanId,
-//           cartId: existingCartId.isNotEmpty ? existingCartId : cartOrder.cartId,
-//           orderStatus: 4,
-//           draftId: existingDraftId.isNotEmpty ? existingDraftId : '',
-//           selctedItemCount: 1,
-//           varientIds: variantIdsPass,
-//         );
-
-//         await ApiWorker().placeOrder(order, (statusCode, message, response) {
-//           // print('statuscode from backbuttton: $statusCode');
-//           if (statusCode == 200) {
-//             showSuccessFullDialogCtrl(context: context);
-//           } else {
-//             showFaledDialogCtrl(context: context, customerId: customerId);
-//           }
-//         });
-//       }
-
-//       CartDatabaseManager().cartItems.clear();
-//       CartDatabaseManager().clearCart(customerId: customerId);
-//       return true;
-//     }
-//   }
-
+  //     CartDatabaseManager().cartItems.clear();
+  //     CartDatabaseManager().clearCart(customerId: customerId);
+  //     return true;
+  //   }
+  // }
 
 
   void updateSelectedCustomer(

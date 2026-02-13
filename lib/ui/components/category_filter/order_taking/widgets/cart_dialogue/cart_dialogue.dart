@@ -91,6 +91,7 @@ class CartDialogueState extends State<CartDialogue> {
   double totalDiscount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
+   double orderTaxe = 0.0;
   double totalDiscountPreorder = 0.0;
   bool isOrder = true;
   String? _selectedValue;
@@ -217,10 +218,10 @@ void didChangeDependencies() {
     });
   }
 
+
   void _loadCartItems() async {
     try {
       final isOnline = await ConnectivityService().isOnline();
-
       final customerId = widget.customerId ??
           widget.productsController.selectedCustomerId.value;
       final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
@@ -278,177 +279,254 @@ void didChangeDependencies() {
         }
       }
 
-      // --- End offline draft loading ---
-
       widget.productsController.cartItems = await CartDatabaseManager()
           .getCartItems(customerId, draftsOnly: isDraftView);
-      for (final item in widget.productsController.cartItems) {
-        calculateItemDiscounts(item);
-        // print('calculate discount called:${calculateItemDiscounts(item)}');
+
+          for (final item in widget.productsController.cartItems) {
+        // 1. Calculate Base Sell Amount (Unit Price * Pieces per Pack)
+        double sellPrice = double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0;
+        double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
+            ? (item.detail.pieces ?? 1).toDouble()
+            : 1.0;
+        
+        // This matches your 'baseSellAmount' from the correct file
+        double baseSellAmount = sellPrice * pieces; 
+        
+        // 2. Get Quantity
+        double productQuantity = item.detail.count.toDouble();
+
+        // 3. Get Discount Percentages
+        double customerDiscount = (item.CustomerDiscount != null && item.CustomerDiscount! > 0)
+            ? item.CustomerDiscount!
+            : 0.0;
+        
+        num tieredDiscount = (item.tieredDiscount != null && item.tieredDiscount! > 0)
+            ? item.tieredDiscount!
+            : 0;
+
+        double totalDiscountPercent = customerDiscount + tieredDiscount;
+       
+
+        // 4. Calculate Total Discount Amount
+        // Logic: (Base Price * Quantity) * Percentage
+        double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+       
+        item.totalDiscountAmount = totalDiscountAmount;
+
+        // 5. Calculate Price After Discount
+        double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
+      print('price after discount in the load cart items:$priceAfterDiscount');
+        // 6. Calculate Tax
+        double taxPercentage = (item.catTax ?? 0).toDouble();
+        print('tax perrecntage in the load cart items:$taxPercentage');
+        double calculatedTax = 0.0;
+
+        if (taxPercentage > 0) {
+          // Scenario A: Use Category Tax Percentage on the Discounted Price
+          calculatedTax = priceAfterDiscount * (taxPercentage / 100);
+          print('tax in the if case in the load cart items:$calculatedTax');
+        } else {
+          // Scenario B: Fallback to Unit Tax (for Promo Variants)
+          // We must apply the discount to the unit tax as well
+          double totalRawTax = (item.detail.tax ?? 0).toDouble() * productQuantity * pieces;
+          print('tala row tax:$totalRawTax');
+          print('itemn.detail.tax:${item.detail.tax}');
+          print('producrt quantity:$productQuantity');
+          print('pieses:$pieces');
+          // Apply the same discount percentage to the tax
+          // If discount is 10%, we only charge 90% of the tax
+      print('total discountperecentage in the cart load :$totalDiscountPercent');
+          calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
+          print('calculated tax in the else case in the load cart items:$calculatedTax');
+        }
+        
+        item.taxAmount = calculatedTax;
+
+        // 7. Final Price Logic (Inclusive vs Exclusive)
+        if (item.detail.inclTax == "incl_tax") {
+          item.finalPrice = priceAfterDiscount;
+          // For consistency with other parts of the app that rely on totalPrice
+          item.totalPrice = (baseSellAmount * productQuantity); 
+        } else {
+          item.finalPrice = priceAfterDiscount + calculatedTax;
+          item.totalPrice = (baseSellAmount * productQuantity) + calculatedTax;
+        }
       }
+
+  //     for (final item in widget.productsController.cartItems) {
+  //       calculateItemDiscounts(item);
+
+  //  double taxPercentage = (item.catTax ?? 0).toDouble();
+  //       print('tax perecentage:$taxPercentage');
+  //       // Calculate Base Price (Price * Quantity)
+  //       num quantity = item.detail.count;
+  //       double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
+  //           ? (item.detail.pieces ?? 1).toDouble()
+  //           : 1.0;
+  //       double basePrice = (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0) * quantity * pieces;
+        
+  //       // Determine Price After Discount for Tax Calculation
+  //       double totalDiscountAmount = item.totalDiscountAmount ?? 0.0;
+  //       double taxableAmount = basePrice - totalDiscountAmount; 
+  //     print('taxable amount:$taxableAmount');
+  //       if (taxPercentage > 0) {
+  //         // Scenario A: Use Category Tax Percentage
+  //         item.taxAmount = taxableAmount * (taxPercentage / 100);
+  //         print('saved tax fomr load cart items:${item.taxAmount}');
+  //       } else {
+  //         // Scenario B: Fallback to Unit Tax (Fix for Promo/Variants)
+  //         double unitTax = (item.detail.tax ?? 0).toDouble();
+  //         print('unit tax in the load cart items:$unitTax');
+  //         item.taxAmount = unitTax * quantity * pieces;
+  //         print('unit tax saved in the load cart items:${item.taxAmount}');
+  //       }
+
+  //       // 3. Set Total Price (Base + Tax if excl. tax)
+  //       if (item.detail.inclTax != 'incl_tax') {
+  //         item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
+  //       } else {
+  //         item.totalPrice = basePrice;
+  //       }
+
+
+
+
+
+  //     }
 
       await setCartToOrderAndPreorder();
 
-      for (var item in widget.productsController.cartItems) {
-        item.isChecked = true;
-        final count = item.detail.count;
-        final pieces = item.detail.pieces ?? 1;
-        final sellPrice =
-            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-        final tax = item.detail.tax?.toDouble() ?? 0.0;
-        final inclTax = item.detail.inclTax;
-        if (item.isPack == true || item.detail.packtype == 'Pack') {
-          item.totalPrice = (count * pieces * sellPrice);
-        } else {
-          item.totalPrice = (count * sellPrice);
-        }
-        if (inclTax != 'incl_tax') {
-          if (item.isPack == true || item.detail.packtype == 'Pack') {
-            item.totalPrice += (count * pieces * tax);
-          } else {
-            item.totalPrice += (count * tax);
-          }
-        }
-      }
-      for (var item in widget.productsController.preorderItems) {
-        for (final item in widget.productsController.preorderItems) {
-          calculateItemDiscounts(item);
-          // print('calculate discount called in second');
-        }
+      // Helper to process items and set taxAmount
+      void processItems(List<CartItem> items) {
+        for (var item in items) {
+          item.isChecked = true; // Required by your fold function
 
-        item.isChecked = true;
-        final count = item.detail.count;
-        final pieces = item.detail.pieces ?? 1;
-        final sellPrice =
-            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-        final tax = item.detail.tax?.toDouble() ?? 0.0;
-        final inclTax = item.detail.inclTax;
-        if (item.isPack == true || item.detail.packtype == 'Pack') {
-          item.totalPrice = (count * pieces * sellPrice);
-        } else {
-          item.totalPrice = (count * sellPrice);
-        }
-        if (inclTax != 'incl_tax') {
-          if (item.isPack == true || item.detail.packtype == 'Pack') {
-            item.totalPrice += (count * pieces * tax);
-          } else {
-            item.totalPrice += (count * tax);
-          }
-        }
-      }
-      orderSubtotal =
-          widget.productsController.orderItems.fold(0.0, (sum, item) {
-        return item.isChecked! ? sum + (item.totalPrice) : sum;
-      });
-      print('subTotalll:$orderSubtotal');
-      preorderSubtotal =
-          widget.productsController.preorderItems.fold(0.0, (sum, item) {
-        return item.isChecked! ? sum + (item.totalPrice) : sum;
-      });
-      orderTaxx = widget.productsController.orderItems.fold(
-  0.0,
-  (sum, item) {
-    // 1. If unchecked, skip
-    if (item.isChecked != true) return sum;
-
-    // 2. Get the base Total Price
-    double totalPrice = item.totalPrice ?? 0.0;
-
-    // 3. Determine Discount Amount (Replicating your logic)
-    double totalDiscountAmount;
-
-    // Check if backend value exists first
-    if (item.totalDiscountAmount != null && item.totalDiscountAmount! > 0) {
-      totalDiscountAmount = item.totalDiscountAmount!;
-    } else {
-      // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
-      double customerDisc = item.CustomerDiscount ?? 0.0;
-      num tieredDisc = item.tieredDiscount ?? 0;
-      double totalDiscPercent = customerDisc + tieredDisc;
-
-      totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
-    }
-
-    // 4. Calculate Final Price (Price - Discount)
-    double finalPrice = totalPrice - totalDiscountAmount;
-
-    // Safety check: ensure price isn't negative
-    if (finalPrice < 0) finalPrice = 0;
-
-    // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
-    double taxPercentage = (item.catTax ?? 0).toDouble();
-    double itemTaxAmount = finalPrice * (taxPercentage / 100);
-
-    return sum + itemTaxAmount;
-  },
-);
-      // widget.productsController.totalOrderTax.value = orderTaxx;
-
-//
-      // orderTaxx =
-      //       Utils().calculateTotalTax(widget.productsController.orderItems);
-      preorderTax = widget.productsController.preorderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked == true) {
-            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum +
-                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-            } else {
-              return sum + (itemTax * (item.detail.count));
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
-
-      totalDiscountPreorder = widget.productsController.preorderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked != true) return sum;
-
-          final double sellPrice =
+          final count = item.detail.count;
+          final pieces = (item.isPack == true || item.detail.packtype == 'Pack')
+              ? (item.detail.pieces ?? 1).toDouble()
+              : 1.0;
+          final sellPrice =
               double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final double discountPercentage =
-              double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
-          final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+          final unitTax = item.detail.tax?.toDouble() ?? 0.0;
+          final inclTax = item.detail.inclTax;
 
-          final double totalQuantity =
-              (item.isPack == true || item.detail.packtype == 'Pack')
-                  ? (item.detail.pieces?.toDouble() ?? 1) *
-                      item.detail.count.toDouble()
-                  : item.detail.count.toDouble();
+          // 1. Calculate the taxAmount for the fold function to use
+          // taxAmount = unitTax * total Quantity
+          // item.taxAmount = unitTax * pieces * count;
 
-          final double totalPrice = sellPrice * totalQuantity;
-
-          double discountAmount = totalPrice * (discountPercentage / 100);
-
-          if (maxDiscount != null &&
-              maxDiscount > 0 &&
-              discountAmount > maxDiscount) {
-            discountAmount = maxDiscount;
+          // 2. Calculate Total Price (Base Price + Tax if not inclusive)
+          double basePrice = count * pieces * sellPrice;
+          if (inclTax != 'incl_tax') {
+            item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
+          } else {
+            item.totalPrice = basePrice;
           }
+        }
+      }
 
-          return sum + discountAmount;
-        },
-      );
+      processItems(widget.productsController.orderItems);
+      processItems(widget.productsController.preorderItems);
+
       setState(() {
         quantities = List.generate(
             widget.productsController.cartItems.length, (index) => 1);
-        _isLoading = false;
-        widget.productsController.orderItems =
-            widget.productsController.orderItems;
-        widget.productsController.preorderItems =
-            widget.productsController.preorderItems;
-        orderTaxx =
-            Utils().calculateTotalTax(widget.productsController.orderItems);
-        preorderSubtotal =
-            Utils().calculateSubtotal(widget.productsController.preorderItems);
+
+        // Now your fold function will find values in item.taxAmount
+        // orderTaxe = Utils().calculateTotalTax(widget.productsController.orderItems);
+
+        //  orderTaxe = widget.productsController.orderItems.fold(
+        //       0.0,
+        //       (sum, item) {
+        //         // 1. If unchecked, skip
+        //         if (item.isChecked != true) return sum;
+
+        //         // 2. Get the base Total Price
+        //         double totalPrice = item.totalPrice ?? 0.0;
+
+        //         // 3. Determine Discount Amount (Replicating your logic)
+        //         double totalDiscountAmount;
+
+        //         // Check if backend value exists first
+        //         if (item.totalDiscountAmount != null &&
+        //             item.totalDiscountAmount! > 0) {
+        //           totalDiscountAmount = item.totalDiscountAmount!;
+        //         } else {
+        //           // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+        //           double customerDisc = item.CustomerDiscount ?? 0.0;
+        //           num tieredDisc = item.tieredDiscount ?? 0;
+        //           double totalDiscPercent = customerDisc + tieredDisc;
+
+        //           totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+        //         }
+
+        //         // 4. Calculate Final Price (Price - Discount)
+        //         double finalPrice = totalPrice - totalDiscountAmount;
+
+        //         // Safety check: ensure price isn't negative
+        //         if (finalPrice < 0) finalPrice = 0;
+
+        //         // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+        //         double taxPercentage = (item.catTax ?? 0).toDouble();
+        //         double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+        //         return sum + itemTaxAmount;
+        //       },
+        //     );
+
+        print('orderTaxe calculated in setState:${orderTaxe}');
         preorderTax =
             Utils().calculateTotalTax(widget.productsController.preorderItems);
+
+        orderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.orderItems);
+        preorderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.preorderItems);
+        orderTaxe =
+            Utils().calculateTotalTax(widget.productsController.orderItems);
+        // orderTaxe = widget.productsController.orderItems.fold(
+        //   0.0,
+        //   (sum, item) {
+        //     // 1. If unchecked, skip
+        //     if (item.isChecked != true) return sum;
+
+        //     // 2. Get the base Total Price
+        //     double totalPrice = item.totalPrice ?? 0.0;
+
+        //     // 3. Determine Discount Amount (Replicating your logic)
+        //     double totalDiscountAmount;
+
+        //     // Check if backend value exists first
+        //     if (item.totalDiscountAmount != null &&
+        //         item.totalDiscountAmount! > 0) {
+        //       totalDiscountAmount = item.totalDiscountAmount!;
+        //     } else {
+        //       // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+        //       double customerDisc = item.CustomerDiscount ?? 0.0;
+        //       num tieredDisc = item.tieredDiscount ?? 0;
+        //       double totalDiscPercent = customerDisc + tieredDisc;
+
+        //       totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+        //     }
+
+        //     // 4. Calculate Final Price (Price - Discount)
+        //     double finalPrice = totalPrice - totalDiscountAmount;
+
+        //     // Safety check: ensure price isn't negative
+        //     if (finalPrice < 0) finalPrice = 0;
+
+        //     // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+        //     double taxPercentage = (item.catTax ?? 0).toDouble();
+        //     double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+        //     return sum + itemTaxAmount;
+        //   },
+        // );
+        totalDiscountPreorder = Utils()
+            .calculateTotalDiscount(widget.productsController.preorderItems);
+
+        _isLoading = false;
       });
+
       if (widget.productsController.orderItems.isNotEmpty) {
         isOrder = true;
         _selectedValue = _options[0];
@@ -463,6 +541,253 @@ void didChangeDependencies() {
       });
     }
   }
+
+//   void _loadCartItems() async {
+//     try {
+//       final isOnline = await ConnectivityService().isOnline();
+
+//       final customerId = widget.customerId ??
+//           widget.productsController.selectedCustomerId.value;
+//       final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
+
+//       if (isDraftView) {
+//         if (!isOnline) {
+//           var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+//           List<dynamic> drafts =
+//               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+//           final draft = drafts.firstWhere(
+//             (d) => d['customer_id'] == customerId,
+//             orElse: () => null,
+//           );
+
+//           if (draft != null && draft['details'] != null) {
+//             final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+//             final List details = draft['details'];
+//             final draftBox = Hive.box<CartItem>('draftBox');
+
+//             final keysToRemove = draftBox.keys.where((key) {
+//               final item = draftBox.get(key);
+//               return item != null && item.customerId == customerId;
+//             }).toList();
+
+//             for (var key in keysToRemove) {
+//               draftBox.get(key);
+//               await draftBox.delete(key);
+//             }
+
+//             for (var detail in details) {
+//               final cartItem = CartItem(
+//                 detail: Detail(
+//                   productId: detail['product_id'],
+//                   variationId: detail['variant_id'],
+//                   sellPrice: detail['price'],
+//                   discount: detail['discount'],
+//                   count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+//                   pieces: int.tryParse(detail['pack'] ?? '0'),
+//                   variationName: detail['variant_name'],
+//                   saleBy: detail['packType'],
+//                   stock: detail['stock'] ?? 0,
+//                   unitType: detail['unitType'],
+//                 ),
+//                 productName: detail['variant_name'] ?? '',
+//                 totalPrice:
+//                     double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+//                 isPack: detail['packType'] == 'Pack',
+//                 customerId: customerId,
+//                 salesmanId: salesmanId,
+//                 catId: 0,
+//               );
+//               await draftBox.add(cartItem);
+//             }
+//           }
+//         }
+//       }
+
+//       // --- End offline draft loading ---
+
+//       widget.productsController.cartItems = await CartDatabaseManager()
+//           .getCartItems(customerId, draftsOnly: isDraftView);
+//       for (final item in widget.productsController.cartItems) {
+//         calculateItemDiscounts(item);
+//         // print('calculate discount called:${calculateItemDiscounts(item)}');
+//       }
+
+//       await setCartToOrderAndPreorder();
+
+//       for (var item in widget.productsController.cartItems) {
+//         item.isChecked = true;
+//         final count = item.detail.count;
+//         final pieces = item.detail.pieces ?? 1;
+//         final sellPrice =
+//             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//         final tax = item.detail.tax?.toDouble() ?? 0.0;
+//         final inclTax = item.detail.inclTax;
+//         if (item.isPack == true || item.detail.packtype == 'Pack') {
+//           item.totalPrice = (count * pieces * sellPrice);
+//         } else {
+//           item.totalPrice = (count * sellPrice);
+//         }
+//         if (inclTax != 'incl_tax') {
+//           if (item.isPack == true || item.detail.packtype == 'Pack') {
+//             item.totalPrice += (count * pieces * tax);
+//           } else {
+//             item.totalPrice += (count * tax);
+//           }
+//         }
+//       }
+//       for (var item in widget.productsController.preorderItems) {
+//         for (final item in widget.productsController.preorderItems) {
+//           calculateItemDiscounts(item);
+//           // print('calculate discount called in second');
+//         }
+
+//         item.isChecked = true;
+//         final count = item.detail.count;
+//         final pieces = item.detail.pieces ?? 1;
+//         final sellPrice =
+//             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//         final tax = item.detail.tax?.toDouble() ?? 0.0;
+//         final inclTax = item.detail.inclTax;
+//         if (item.isPack == true || item.detail.packtype == 'Pack') {
+//           item.totalPrice = (count * pieces * sellPrice);
+//         } else {
+//           item.totalPrice = (count * sellPrice);
+//         }
+//         if (inclTax != 'incl_tax') {
+//           if (item.isPack == true || item.detail.packtype == 'Pack') {
+//             item.totalPrice += (count * pieces * tax);
+//           } else {
+//             item.totalPrice += (count * tax);
+//           }
+//         }
+//       }
+//       orderSubtotal =
+//           widget.productsController.orderItems.fold(0.0, (sum, item) {
+//         return item.isChecked! ? sum + (item.totalPrice) : sum;
+//       });
+//       print('subTotalll:$orderSubtotal');
+//       preorderSubtotal =
+//           widget.productsController.preorderItems.fold(0.0, (sum, item) {
+//         return item.isChecked! ? sum + (item.totalPrice) : sum;
+//       });
+//       orderTaxx = widget.productsController.orderItems.fold(
+//   0.0,
+//   (sum, item) {
+//     // 1. If unchecked, skip
+//     if (item.isChecked != true) return sum;
+
+//     // 2. Get the base Total Price
+//     double totalPrice = item.totalPrice ?? 0.0;
+
+//     // 3. Determine Discount Amount (Replicating your logic)
+//     double totalDiscountAmount;
+
+//     // Check if backend value exists first
+//     if (item.totalDiscountAmount != null && item.totalDiscountAmount! > 0) {
+//       totalDiscountAmount = item.totalDiscountAmount!;
+//     } else {
+//       // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+//       double customerDisc = item.CustomerDiscount ?? 0.0;
+//       num tieredDisc = item.tieredDiscount ?? 0;
+//       double totalDiscPercent = customerDisc + tieredDisc;
+
+//       totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+//     }
+
+//     // 4. Calculate Final Price (Price - Discount)
+//     double finalPrice = totalPrice - totalDiscountAmount;
+
+//     // Safety check: ensure price isn't negative
+//     if (finalPrice < 0) finalPrice = 0;
+
+//     // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+//     double taxPercentage = (item.catTax ?? 0).toDouble();
+//     double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+//     return sum + itemTaxAmount;
+//   },
+// );
+//       // widget.productsController.totalOrderTax.value = orderTaxx;
+
+// //
+//       // orderTaxx =
+//       //       Utils().calculateTotalTax(widget.productsController.orderItems);
+//       preorderTax = widget.productsController.preorderItems.fold(
+//         0.0,
+//         (sum, item) {
+//           if (item.isChecked == true) {
+//             final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+//             if (item.isPack == true || item.detail.packtype == "Pack") {
+//               return sum +
+//                   (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+//             } else {
+//               return sum + (itemTax * (item.detail.count));
+//             }
+//           } else {
+//             return 0;
+//           }
+//         },
+//       );
+
+//       totalDiscountPreorder = widget.productsController.preorderItems.fold(
+//         0.0,
+//         (sum, item) {
+//           if (item.isChecked != true) return sum;
+
+//           final double sellPrice =
+//               double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//           final double discountPercentage =
+//               double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+//           final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+//           final double totalQuantity =
+//               (item.isPack == true || item.detail.packtype == 'Pack')
+//                   ? (item.detail.pieces?.toDouble() ?? 1) *
+//                       item.detail.count.toDouble()
+//                   : item.detail.count.toDouble();
+
+//           final double totalPrice = sellPrice * totalQuantity;
+
+//           double discountAmount = totalPrice * (discountPercentage / 100);
+
+//           if (maxDiscount != null &&
+//               maxDiscount > 0 &&
+//               discountAmount > maxDiscount) {
+//             discountAmount = maxDiscount;
+//           }
+
+//           return sum + discountAmount;
+//         },
+//       );
+//       setState(() {
+//         quantities = List.generate(
+//             widget.productsController.cartItems.length, (index) => 1);
+//         _isLoading = false;
+//         widget.productsController.orderItems =
+//             widget.productsController.orderItems;
+//         widget.productsController.preorderItems =
+//             widget.productsController.preorderItems;
+//         orderTaxx =
+//             Utils().calculateTotalTax(widget.productsController.orderItems);
+//         preorderSubtotal =
+//             Utils().calculateSubtotal(widget.productsController.preorderItems);
+//         preorderTax =
+//             Utils().calculateTotalTax(widget.productsController.preorderItems);
+//       });
+//       if (widget.productsController.orderItems.isNotEmpty) {
+//         isOrder = true;
+//         _selectedValue = _options[0];
+//       } else if (widget.productsController.preorderItems.isNotEmpty) {
+//         isOrder = false;
+//         _selectedValue = _options[2];
+//       }
+//       setOptions();
+//     } catch (e) {
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     }
+//   }
 
   Future<void> setCartToOrderAndPreorder() async {
     List<CartItem> orderItems = [];
@@ -1055,65 +1380,87 @@ bool _needsRefresh = true;
   );
 }),
 
-                    // Builder(builder: (context) {
-                    //   final String cid =
-                    //       widget.productsController.selectedCustomerId.value;
-                    //   final double flatDisc = widget
-                    //           .productsController.flatDiscountByCustomer[cid] ??
-                    //       0.0;
-                    //       print('discounttt:$flatDisc');
-                    //   // if (flatDisc <= 0) return const SizedBox.shrink();
-                    //   return Container(
-                    //     height: 40,
-                    //     width: double.infinity,
-                    //     padding: const EdgeInsets.all(10),
-                    //     child: Padding(
-                    //       padding: const EdgeInsets.only(right: 10, left: 10),
-                    //       child: Row(
-                    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //         children: [
-                    //           CustomText(
-                    //             content: 'Discount',
-                    //             fontSize: 16,
-                    //             color: Colors.black,
-                    //             fontWeight: FontWeight.w600,
-                    //           ),
-                    //           CustomText(
-                    //             content: formatAmount(flatDisc),
-                    //             fontSize: 16,
-                    //             color: Colors.black,
-                    //             fontWeight: FontWeight.w600,
-                    //           ),
-                    //         ],
-                    //       ),
+Obx(() {
+                        
+                        // ignore: unused_local_variable
+                        final String trigger1 =
+                            widget.productsController.selectedCustomerId.value;
+                        // ignore: unused_local_variable
+                        final int trigger2 =
+                            widget.productsController.orderItems.length;
+
+                        // 2. Calculate Subtotal (Active items only)
+                        double taxableAmount =
+                            widget.productsController.orderItems.fold(
+                          0.0,
+                          (sum, item) {
+                            if (item.isChecked != true) return sum;
+                            return sum +
+                                (item.finalPrice ?? item.totalPrice ?? 0.0);
+                          },
+                        );
+
+                        // 3. Calculate Tax (Example: 15% of subtotal)
+                        // CHANGE 0.15 to your actual tax rate variable if you have one
+                        double calculatedTax = taxableAmount * 0.15;
+                        orderTaxe =
+            Utils().calculateTotalTax(widget.productsController.orderItems);
+
+                        return Container(
+                          height: 40,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  content: 'Tax',
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                CustomText(
+                                  // Use the locally calculated tax, NOT the static 'orderTaxe' variable
+                                  content: formatAmount(orderTaxe),
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+
+
+                   
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Tax',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(orderTaxx),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
                     //     ),
-                    //   );
-                    // }),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Tax',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(orderTaxx),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    //   ),
+                    // ),
 
                   
 
@@ -3696,36 +4043,95 @@ bool _needsRefresh = true;
     _maybeClearFlatDiscountForCustomer(customerId);
   }
 
+
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
     double padding = availableWidth > 400 ? 6 : 3;
     ProductsController productsController = Get.find<ProductsController>();
 
-    // Determine if this is a tiered discount item based on SAVED item properties
-    // (not global selectedPromotion, which isn't reliable for loaded items)
-    // final bool isTieredDiscount = (cartItem.tieredDiscount ?? 0) > 0 &&
-    //     cartItem.detail.initialCount != null &&
-    //     cartItem.detail.initialCount! > 1;
+    // UPDATED LOGIC:
+    // The step-based increment (tiered discount) only applies if:
+    // 1. The item is a Promo item (cartItem.isPromo == true)
+    // 2. It has an initialCount defined greater than 1
+    final bool isTieredDiscount = (cartItem.isPromo == true) &&
+        (cartItem.detail.initialCount != null &&
+            cartItem.detail.initialCount! > 1);
 
-    final bool isTieredDiscount = cartItem.detail.initialCount != null &&
-        cartItem.detail.initialCount! > 1;
-    // Use initialCount as the tier step (persisted in the item)
     final int tierStep = cartItem.detail.initialCount?.toInt() ?? 1;
 
-    // Optional: Define min qty as the initial tier step to prevent going below
-    final int minTierQty = tierStep;
-    print('tieredstep in uiiiiii:$tierStep');
+    // --- Helper function to update Item values locally ---
+    void updateItemCalculations() {
+      // 1. Calculate Base Amount (Price * Pack Pieces)
+      double sellPriceVal =
+          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      int qtyFactor =
+          (cartItem.detail.packtype == 'Pack' || cartItem.isPack == true)
+              ? (cartItem.detail.pieces?.toInt() ?? 1)
+              : 1;
+      double baseSellAmount = sellPriceVal * qtyFactor;
+      double productQuantity = cartItem.detail.count.toDouble();
 
-    void showWarning() {
-      Get.snackbar(
-        "Tier Quantity",
-        "Minimum quantity for this offer is $minTierQty",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.orange.shade700,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
-      );
+      // 2. Calculate Discount
+      double customerDisc =
+          (cartItem.CustomerDiscount != null && cartItem.CustomerDiscount! > 0)
+              ? cartItem.CustomerDiscount!
+              : 0.0;
+      num tieredDisc =
+          (cartItem.tieredDiscount != null && cartItem.tieredDiscount! > 0)
+              ? cartItem.tieredDiscount!
+              : 0;
+      double totalDiscountPercent = customerDisc + tieredDisc;
+
+      // Calculate Discount Amount
+      double totalDiscountAmount =
+          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+      cartItem.totalDiscountAmount = totalDiscountAmount;
+
+      // 3. Calculate Price After Discount
+      double priceAfterDiscount =
+          (baseSellAmount * productQuantity) - totalDiscountAmount;
+
+      // 4. Calculate Tax
+      double taxPercentage = (cartItem.catTax ?? 0).toDouble();
+
+      double tax;
+      if (taxPercentage > 0) {
+        // Scenario A: We have the percentage, calculate normally
+        tax = priceAfterDiscount * (taxPercentage / 100);
+      } else {
+        // Scenario B: Percentage is missing (reload/draft), use Unit Tax from details
+        double unitTax = (cartItem.detail.tax ?? 0).toDouble();
+        
+        // Calculate total pieces (Quantity * Pieces per pack)
+        double totalUnits = cartItem.detail.count.toDouble();
+        if (cartItem.isPack == true || cartItem.detail.packtype == 'Pack') {
+           totalUnits = totalUnits * (cartItem.detail.pieces ?? 1);
+        }
+        
+        tax = unitTax * totalUnits;
+      }
+      
+      cartItem.taxAmount = tax;
+
+      // 5. Update Final Price
+      if (cartItem.detail.inclTax == "incl_tax") {
+        cartItem.finalPrice = priceAfterDiscount;
+      } else {
+        cartItem.finalPrice = priceAfterDiscount + tax;
+      }
     }
+
+    //   double tax = priceAfterDiscount * (taxPercentage / 100);
+    //   cartItem.taxAmount = tax;
+
+    //   // 5. Update Final Price
+    //   if (cartItem.detail.inclTax == "incl_tax") {
+    //     cartItem.finalPrice = priceAfterDiscount;
+    //   } else {
+    //     cartItem.finalPrice = priceAfterDiscount + tax;
+    //   }
+    // }
+    // ----------------------------------------------------
 
     return Container(
       width: availableWidth > 400 ? 80 : 50,
@@ -3750,41 +4156,29 @@ bool _needsRefresh = true;
                 onTap: () {
                   setState(() {
                     if (isTieredDiscount) {
-                      // Do not allow decrement below initial tier quantity
-                      // if (cartItem.detail.count <= minTierQty) {
-                      //   // showTieredDiscountWarning();
-                      //   return;
-                      // }
-
-                      cartItem.detail.count -= tierStep!;
-                      print('tierstep ontap:${cartItem.detail.count}');
-                      // if (cartItem.detail.count < minTierQty) {
-                      //   cartItem.detail.count = minTierQty;
-                      // }
+                      // Only subtract by tierStep if it is a Promo item
+                      if (cartItem.detail.count > tierStep) {
+                        cartItem.detail.count -= tierStep;
+                      }
                     } else {
+                      // Normal decrement by 1
                       if (cartItem.detail.count > 1) {
                         cartItem.detail.count--;
                       }
                     }
-                    // if (isTieredDiscount) {
-                    //   if (cartItem.detail.count <= minTierQty) {
-                    //     showWarning();
-                    //     return;
-                    //   }
-                    //   cartItem.detail.count -= tierStep;
-                    //   print('tierstep ontap minus: ${cartItem.detail.count}');
-                    // } else {
-                    //   if (cartItem.detail.count > 1) {
-                    //     cartItem.detail.count--;
-                    //   }
-                    // }
 
+                    // 1. Update Total Price (Base logic)
                     cartItem.totalPrice = Utils().calculateTotalPrice(
                       cartItem,
                       cartItem.detail.count.toInt(),
                     );
 
+                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
+                    updateItemCalculations();
+
+                    // 3. Now Calculate Totals (Uses the updated taxAmount)
                     calculateAmounts();
+
                     CartDatabaseManager().updateCart(cartItem);
                     CartDatabaseManager()
                         .getCartItems(cartItem.customerId ?? '');
@@ -3822,22 +4216,25 @@ bool _needsRefresh = true;
                 onTap: () {
                   setState(() {
                     if (isTieredDiscount) {
-                      cartItem.detail.count += tierStep!;
+                      // Only add by tierStep if it is a Promo item
+                      cartItem.detail.count += tierStep;
                     } else {
+                      // Normal increment by 1
                       cartItem.detail.count++;
                     }
-                    // if (isTieredDiscount) {
-                    //   cartItem.detail.count += tierStep;
-                    // } else {
-                    //   cartItem.detail.count++;
-                    // }
 
+                    // 1. Update Total Price (Base logic)
                     cartItem.totalPrice = Utils().calculateTotalPrice(
                       cartItem,
                       cartItem.detail.count.toInt(),
                     );
 
+                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
+                    updateItemCalculations();
+
+                    // 3. Now Calculate Totals (Uses the updated taxAmount)
                     calculateAmounts();
+
                     CartDatabaseManager().updateCart(cartItem);
                     widget.productsController.isCartModified.value = true;
                   });
@@ -3860,167 +4257,170 @@ bool _needsRefresh = true;
     );
   }
 
-//   Container productQuantityManager(CartItem cartItem, String sellPrice,
-//       double fontSize, double availableWidth) {
-//     double padding = availableWidth > 400 ? 6 : 3;
-//     ProductsController productsController = Get.find<ProductsController>();
-//     // final promo = productsController.selectedPromotion.value;
-//     // final bool isTieredDiscount = promo?.promoType == "tiered_discount";
-//     final bool isTieredDiscount =
-//         productsController.selectedPromotion.value?.promoType ==
-//             "tiered_discount";
+  // Container productQuantityManager(CartItem cartItem, String sellPrice,
+  //     double fontSize, double availableWidth) {
+  //   double padding = availableWidth > 400 ? 6 : 3;
+  //   ProductsController productsController = Get.find<ProductsController>();
 
-// // Initial quantity becomes the tier step
-//     final tierStep = cartItem.detail.initialCount;
-//     print('tieredstep:$tierStep');
-// // final  minTierQty = tierStep;
+  //   // Determine if this is a tiered discount item based on SAVED item properties
+  //   // (not global selectedPromotion, which isn't reliable for loaded items)
+  //   // final bool isTieredDiscount = (cartItem.tieredDiscount ?? 0) > 0 &&
+  //   //     cartItem.detail.initialCount != null &&
+  //   //     cartItem.detail.initialCount! > 1;
 
-//     // void showTieredDiscountWarning() {
-//     //   Get.snackbar(
-//     //     "Quantity Locked",
-//     //     "Unable to add quantity",
-//     //     snackPosition: SnackPosition.TOP,
-//     //     backgroundColor: Colors.red,
-//     //     colorText: Colors.white,
-//     //     margin: const EdgeInsets.all(10),
-//     //     duration: const Duration(seconds: 3),
-//     //     icon: const Icon(Icons.lock_outline, color: Colors.yellow),
-//     //   );
-//     // }
+  //   final bool isTieredDiscount = cartItem.detail.initialCount != null &&
+  //       cartItem.detail.initialCount! > 1;
+  //   // Use initialCount as the tier step (persisted in the item)
+  //   final int tierStep = cartItem.detail.initialCount?.toInt() ?? 1;
 
-//     return Container(
-//       width: availableWidth > 400 ? 80 : 50,
-//       decoration: BoxDecoration(
-//           borderRadius: BorderRadius.circular(5),
-//           color: const Color.fromARGB(255, 241, 240, 240)),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Container(
-//             decoration: const BoxDecoration(
-//                 color: primaryColor,
-//                 borderRadius: BorderRadius.only(
-//                     topLeft: Radius.circular(5),
-//                     bottomLeft: Radius.circular(5))),
-//             child: Padding(
-//               padding: const EdgeInsets.all(2),
-//               child: InkWell(
-//                 onTap: () {
-//                   setState(() {
-//                     if (isTieredDiscount) {
-//                       // Do not allow decrement below initial tier quantity
-//                       // if (cartItem.detail.count <= minTierQty) {
-//                       //   // showTieredDiscountWarning();
-//                       //   return;
-//                       // }
+  //   // Optional: Define min qty as the initial tier step to prevent going below
+  //   final int minTierQty = tierStep;
+  //   print('tieredstep in uiiiiii:$tierStep');
 
-//                       cartItem.detail.count -= tierStep!;
-//                       print('tierstep ontap:${cartItem.detail.count}');
-//                       // if (cartItem.detail.count < minTierQty) {
-//                       //   cartItem.detail.count = minTierQty;
-//                       // }
-//                     } else {
-//                       if (cartItem.detail.count > 1) {
-//                         cartItem.detail.count--;
-//                       }
-//                     }
+  //   void showWarning() {
+  //     Get.snackbar(
+  //       "Tier Quantity",
+  //       "Minimum quantity for this offer is $minTierQty",
+  //       snackPosition: SnackPosition.TOP,
+  //       backgroundColor: Colors.orange.shade700,
+  //       colorText: Colors.white,
+  //       duration: const Duration(seconds: 2),
+  //     );
+  //   }
 
-//                     cartItem.totalPrice = Utils().calculateTotalPrice(
-//                         cartItem, cartItem.detail.count.toInt());
+  //   return Container(
+  //     width: availableWidth > 400 ? 80 : 50,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(5),
+  //       color: const Color.fromARGB(255, 241, 240, 240),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //             color: primaryColor,
+  //             borderRadius: BorderRadius.only(
+  //               topLeft: Radius.circular(5),
+  //               bottomLeft: Radius.circular(5),
+  //             ),
+  //           ),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   if (isTieredDiscount) {
+  //                     // Do not allow decrement below initial tier quantity
+  //                     // if (cartItem.detail.count <= minTierQty) {
+  //                     //   // showTieredDiscountWarning();
+  //                     //   return;
+  //                     // }
 
-//                     calculateAmounts();
-//                     CartDatabaseManager().updateCart(cartItem);
-//                     widget.productsController.isCartModified.value = true;
-//                   });
-//                 },
+  //                     cartItem.detail.count -= tierStep!;
+  //                     print('tierstep ontap:${cartItem.detail.count}');
+  //                     // if (cartItem.detail.count < minTierQty) {
+  //                     //   cartItem.detail.count = minTierQty;
+  //                     // }
+  //                   } else {
+  //                     if (cartItem.detail.count > 1) {
+  //                       cartItem.detail.count--;
+  //                     }
+  //                   }
+  //                   // if (isTieredDiscount) {
+  //                   //   if (cartItem.detail.count <= minTierQty) {
+  //                   //     showWarning();
+  //                   //     return;
+  //                   //   }
+  //                   //   cartItem.detail.count -= tierStep;
+  //                   //   print('tierstep ontap minus: ${cartItem.detail.count}');
+  //                   // } else {
+  //                   //   if (cartItem.detail.count > 1) {
+  //                   //     cartItem.detail.count--;
+  //                   //   }
+  //                   // }
 
-//                 // onTap:  () {
-//                 //         setState(() {
-//                 //           if (cartItem.detail.count > 1) {
-//                 //             cartItem.detail.count--;
-//                 //             cartItem.totalPrice = Utils().calculateTotalPrice(
-//                 //                 cartItem, cartItem.detail.count.toInt());
-//                 //             calculateAmounts();
-//                 //             CartDatabaseManager().updateCart(cartItem);
-//                 //             CartDatabaseManager()
-//                 //                 .getCartItems(cartItem.customerId ?? '');
-//                 //             widget.productsController.isCartModified.value =
-//                 //                 true;
-//                 //           }
-//                 //         });
-//                 //       },
-//                 child: Padding(
-//                   padding: EdgeInsets.symmetric(horizontal: padding),
-//                   child: CustomText(
-//                     color: Colors.white,
-//                     // color: isTieredDiscount ? Colors.grey : white,
-//                     content: '-',
-//                     fontSize: fontSize,
-//                     fontWeight: FontWeight.bold,
-//                     textAlign: TextAlign.center,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           CustomText(
-//             content: cartItem.detail.count.toStringAsFixed(0),
-//             fontSize: fontSize,
-//           ),
-//           Container(
-//             decoration: const BoxDecoration(
-//                 color: primaryColor,
-//                 borderRadius: BorderRadius.only(
-//                     topRight: Radius.circular(5),
-//                     bottomRight: Radius.circular(5))),
-//             child: Padding(
-//               padding: const EdgeInsets.all(2),
-//               child: InkWell(
-//                 onTap: () {
-//                   setState(() {
-//                     if (isTieredDiscount) {
-//                       cartItem.detail.count += tierStep!;
-//                     } else {
-//                       cartItem.detail.count++;
-//                     }
+  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
+  //                     cartItem,
+  //                     cartItem.detail.count.toInt(),
+  //                   );
 
-//                     cartItem.totalPrice = Utils().calculateTotalPrice(
-//                         cartItem, cartItem.detail.count.toInt());
+  //                   calculateAmounts();
+  //                   CartDatabaseManager().updateCart(cartItem);
+  //                   CartDatabaseManager()
+  //                       .getCartItems(cartItem.customerId ?? '');
+  //                   widget.productsController.isCartModified.value = true;
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: EdgeInsets.symmetric(horizontal: padding),
+  //                 child: CustomText(
+  //                   color: Colors.white,
+  //                   content: '-',
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.bold,
+  //                   textAlign: TextAlign.center,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         CustomText(
+  //           content: cartItem.detail.count.toStringAsFixed(0),
+  //           fontSize: fontSize,
+  //         ),
+  //         Container(
+  //           decoration: const BoxDecoration(
+  //             color: primaryColor,
+  //             borderRadius: BorderRadius.only(
+  //               topRight: Radius.circular(5),
+  //               bottomRight: Radius.circular(5),
+  //             ),
+  //           ),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(2),
+  //             child: InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   if (isTieredDiscount) {
+  //                     cartItem.detail.count += tierStep!;
+  //                   } else {
+  //                     cartItem.detail.count++;
+  //                   }
+  //                   // if (isTieredDiscount) {
+  //                   //   cartItem.detail.count += tierStep;
+  //                   // } else {
+  //                   //   cartItem.detail.count++;
+  //                   // }
 
-//                     calculateAmounts();
-//                     CartDatabaseManager().updateCart(cartItem);
-//                     widget.productsController.isCartModified.value = true;
-//                   });
-//                 },
+  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
+  //                     cartItem,
+  //                     cartItem.detail.count.toInt(),
+  //                   );
 
-//                 // onTap: () {
-//                 //         setState(() {
-//                 //           cartItem.detail.count++;
-//                 //           cartItem.totalPrice = Utils().calculateTotalPrice(
-//                 //               cartItem, cartItem.detail.count.toInt());
-//                 //           calculateAmounts();
-//                 //           CartDatabaseManager().updateCart(cartItem);
-//                 //           widget.productsController.isCartModified.value = true;
-//                 //         });
-//                 //       },
-//                 child: Padding(
-//                   padding: EdgeInsets.symmetric(horizontal: padding),
-//                   child: CustomText(
-//                     color: Colors.white,
-//                     // color: isTieredDiscount ? Colors.grey : white,
-//                     content: '+',
-//                     fontSize: fontSize,
-//                     fontWeight: FontWeight.bold,
-//                     textAlign: TextAlign.center,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
+  //                   calculateAmounts();
+  //                   CartDatabaseManager().updateCart(cartItem);
+  //                   widget.productsController.isCartModified.value = true;
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: EdgeInsets.symmetric(horizontal: padding),
+  //                 child: CustomText(
+  //                   color: Colors.white,
+  //                   content: '+',
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.bold,
+  //                   textAlign: TextAlign.center,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
 
   void calculateAmounts() {
     setState(() {
@@ -4062,8 +4462,7 @@ bool _needsRefresh = true;
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
   }
-
-  void _deleteProduct(String productName, {bool isPreorder = false}) {
+   void _deleteProduct(String productName, {bool isPreorder = false}) {
     setState(() {
       final variantsToDelete =
           widget.productsController.cartItems.where((item) {
@@ -4095,16 +4494,54 @@ bool _needsRefresh = true;
           .toList();
 
       orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTax = Utils().calculateTotalTax(orderItems);
+      orderTaxe = Utils().calculateTotalTax(orderItems);
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
     });
-
-    // Clear flat discount if its source items are gone
-    final String cid =
-        widget.customerId ?? widget.productsController.selectedCustomerId.value;
-    _maybeClearFlatDiscountForCustomer(cid);
   }
+
+  // void _deleteProduct(String productName, {bool isPreorder = false}) {
+  //   setState(() {
+  //     final variantsToDelete =
+  //         widget.productsController.cartItems.where((item) {
+  //       final isMatchingProduct = item.productName == productName;
+  //       final isPreorderItem = item.detail.stock == 0;
+  //       final isOrderItem = (item.detail.stock ?? 0) > 0;
+  //       return isMatchingProduct &&
+  //           ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
+  //     }).toList();
+
+  //     if (variantsToDelete.isEmpty) {
+  //       return;
+  //     }
+
+  //     for (var variant in variantsToDelete) {
+  //       variant.detail.count = 0;
+  //       CartDatabaseManager().deleteCartItem(variant);
+  //       CartDatabaseManager().updateCart(variant);
+  //     }
+  //     widget.productsController.cartItems.removeWhere((item) =>
+  //         item.productName == productName &&
+  //         ((isPreorder && item.detail.stock == 0) ||
+  //             (!isPreorder && (item.detail.stock ?? 0) > 0)));
+  //     final orderItems = widget.productsController.cartItems
+  //         .where((item) => (item.detail.stock ?? 0) > 0)
+  //         .toList();
+  //     final preorderItems = widget.productsController.cartItems
+  //         .where((item) => item.detail.stock == 0)
+  //         .toList();
+
+  //     orderSubtotal = Utils().calculateSubtotal(orderItems);
+  //     orderTax = Utils().calculateTotalTax(orderItems);
+  //     preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+  //     preorderTax = Utils().calculateTotalTax(preorderItems);
+  //   });
+
+  //   // Clear flat discount if its source items are gone
+  //   final String cid =
+  //       widget.customerId ?? widget.productsController.selectedCustomerId.value;
+  //   _maybeClearFlatDiscountForCustomer(cid);
+  // }
 
   /// Clears cart-level flat discount for a customer if no remaining items
   /// are associated with the flat discount promo (based on promoMsg marker).

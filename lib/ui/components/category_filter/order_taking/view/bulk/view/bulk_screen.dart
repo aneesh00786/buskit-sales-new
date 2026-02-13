@@ -1,6 +1,7 @@
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -187,87 +188,225 @@ class DynamicBulkCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
-       SizedBox(width: 400,),
+        const SizedBox(
+          width: 400,
+        ),
         Expanded(
           child: ElevatedButton(
-           onPressed: () async {
-  // 1. Retrieve the controllers using GetX (as used in your variant_dialogue.dart)
-  final CustomerAndOrderController customerAndOrderController = Get.find<CustomerAndOrderController>();
-  final ProductsController productController = Get.find<ProductsController>();
+            onPressed: () async {
+              // 1. Retrieve the controllers
+              final CustomerAndOrderController customerAndOrderController =
+                  Get.find<CustomerAndOrderController>();
+              final ProductsController productController =
+                  Get.find<ProductsController>();
 
-  // 2. Determine the Customer ID following your existing logic
-  final customerId = customerAndOrderController.customerId.value.isNotEmpty
-      ? customerAndOrderController.customerId.value
-      : productController.selectedCustomerId.value;
+              // 2. Determine the Customer ID
+              final customerId =
+                  customerAndOrderController.customerId.value.isNotEmpty
+                      ? customerAndOrderController.customerId.value
+                      : productController.selectedCustomerId.value;
 
-  try {
-    double bPrice = double.tryParse(data.volumePrice ?? '0') ?? 0.0;
-    int items = data.itemNumbers ?? 1;
-    double calculatedSellPrice = bPrice / items;
-    print('calculated sell price: $calculatedSellPrice');
-    // 4. Call the database function
-    await CartDatabaseManager().addToCart(
-      customerId: customerId,
-      localCount: 1, 
-      productName: data.productName ?? '',
-      isPack: true, 
-      isChcked: true,
-      catId: int.tryParse(data.categoryId ?? '0') ?? 0,
-      inclTax: "true", 
-      catTax: productController.products.first.catTax!.toDouble(),
-      detail: Detail(
-        id: int.tryParse(data.productVariantId ?? '0'),
-        productId: data.productId,                        
-        variationId: data.productVariantId,
-        variationName: "${data.volumeName ?? ''} ",
-        sellPrice:calculatedSellPrice.toString(), 
-        pieces: data.itemNumbers,
-        unitType: "",
-        stock: 1
-      ),
-    );
-    print('cat tax in the bulk screen:${productController.products.first.catTax}');
+              try {
+                double bPrice = double.tryParse(data.volumePrice.toString()) ?? 0.0;
+                int items = data.itemNumbers ?? 1;
+                double calculatedSellPrice = bPrice / items;
 
-    // 5. Update the UI state
-    productController.isCartModified.value = true;
-    
-    // Ensure the context is the valid BuildContext from the Widget tree
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
+                // --- TAX FIX START ---
+                double fetchedCatTax = 0.0;
 
-    // 6. Success Feedback using your custom toast
-    showCustomToastDisplay(
-      context, // This must be a BuildContext
-      "Bulk added to cart", 
-      Colors.green, 
-      Icons.shopping_cart_checkout
-    );
+                // A. Try to find tax in currently loaded products (Fast check)
+                try {
+                  if (productController.products.isNotEmpty) {
+                    final productModelInstance = productController.products.firstWhere(
+                      (p) => p.productId == data.productId,
+                      orElse: () => ProductModel(catTax: 0),
+                    );
+                    fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+                  }
+                } catch (e) {
+                  // Ignore local lookup errors
+                }
 
-  } catch (e) {
-    showCustomToastDisplay(
-      context, 
-      "Error adding to cart: $e", 
-      Colors.red, 
-      Icons.error_outline
-    );
-  }
-},
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4285F4),
-            shape: RoundedRectangleBorder(
+                // B. If not found or 0 (different category), FETCH FROM API
+                if (fetchedCatTax == 0 && data.productId != null) {
+                  try {
+                    // Extract SubCategory ID from Product ID (e.g., C49SC7PD83 -> C49SC7)
+                    String pId = data.productId.toString();
+                    String subCatId = "";
+                    
+                    if (pId.contains("PD")) {
+                       subCatId = pId.substring(0, pId.indexOf("PD"));
+                    }
+
+                    if (subCatId.isNotEmpty) {
+                      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+                      print("[BULK] Fetching tax from API for $subCatId...");
+                      
+                      final remoteProducts = await ApiWorker().getTempProduct(subCatId, companyid: companyId);
+                      
+                      final remoteProduct = remoteProducts.firstWhere(
+                        (p) => p.productId == data.productId,
+                        orElse: () => ProductModel(catTax: 0),
+                      );
+                      
+                      fetchedCatTax = (remoteProduct.catTax ?? 0).toDouble();
+                      print("[BULK] API Fetched Tax: $fetchedCatTax");
+                    }
+                  } catch (e) {
+                    print("[BULK] Error fetching tax: $e");
+                  }
+                }
+                // --- TAX FIX END ---
+
+                print('calculated sell price: $calculatedSellPrice | Tax: $fetchedCatTax');
+
+                // 4. Call the database function
+                await CartDatabaseManager().addToCart(
+                  customerId: customerId,
+                  localCount: 1,
+                  productName: data.productName ?? '',
+                  isPack: true,
+                  isChcked: true,
+                  catId: int.tryParse(data.categoryId?.toString() ?? '0') ?? 0,
+                  inclTax: data.inclTax ?? '',
+                  
+                  // PASS THE CORRECT FETCHED TAX HERE
+                  catTax: fetchedCatTax, 
+                  
+                  bulkId: data.bulkId,
+                  detail: Detail(
+                      id: int.tryParse(data.productVariantId?.toString() ?? '0'),
+                      productId: data.productId,
+                      variationId: data.productVariantId,
+                      variationName: "${data.variationName ?? ''} ",
+                      sellPrice: calculatedSellPrice.toString(),
+                      pieces: data.itemNumbers,
+                      unitType: "",
+                      stock: 1,
+                      bulkId: data.bulkId
+                  ),
+                );
+
+                // 5. Update the UI state
+                productController.isCartModified.value = true;
+
+                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                cartProvider.updateCartCount(customerId);
+                cartProvider.getCartItemCounts(customerId);
+
+                // 6. Success Feedback
+                showCustomToastDisplay(
+                    context,
+                    "Bulk added to cart",
+                    Colors.green,
+                    Icons.shopping_cart_checkout);
+              } catch (e) {
+                print("Error adding to cart: $e");
+                showCustomToastDisplay(context, "Error adding to cart: $e",
+                    Colors.red, Icons.error_outline);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4285F4),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text("Add", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, 
-            fontSize: 22)),
+            child: const Text("Add",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22)),
           ),
         ),
       ],
     );
   }
+
+//   Widget _buildActionButtons(BuildContext context) {
+//     return Row(
+//       children: [
+//        SizedBox(width: 400,),
+//         Expanded(
+//           child: ElevatedButton(
+//            onPressed: () async {
+//   // 1. Retrieve the controllers using GetX (as used in your variant_dialogue.dart)
+//   final CustomerAndOrderController customerAndOrderController = Get.find<CustomerAndOrderController>();
+//   final ProductsController productController = Get.find<ProductsController>();
+
+//   // 2. Determine the Customer ID following your existing logic
+//   final customerId = customerAndOrderController.customerId.value.isNotEmpty
+//       ? customerAndOrderController.customerId.value
+//       : productController.selectedCustomerId.value;
+
+//   try {
+//     double bPrice = double.tryParse(data.volumePrice ?? '0') ?? 0.0;
+//     int items = data.itemNumbers ?? 1;
+//     double calculatedSellPrice = bPrice / items;
+//     print('calculated sell price: $calculatedSellPrice');
+//     // 4. Call the database function
+//     await CartDatabaseManager().addToCart(
+//       customerId: customerId,
+//       localCount: 1, 
+//       productName: data.productName ?? '',
+//       isPack: true, 
+//       isChcked: true,
+//       catId: int.tryParse(data.categoryId ?? '0') ?? 0,
+//       inclTax: "true", 
+//       catTax: productController.products.first.catTax!.toDouble(),
+//       detail: Detail(
+//         id: int.tryParse(data.productVariantId ?? '0'),
+//         productId: data.productId,                        
+//         variationId: data.productVariantId,
+//         variationName: "${data.volumeName ?? ''} ",
+//         sellPrice:calculatedSellPrice.toString(), 
+//         pieces: data.itemNumbers,
+//         unitType: "",
+//         stock: 1
+//       ),
+//     );
+//     print('cat tax in the bulk screen:${productController.products.first.catTax}');
+
+//     // 5. Update the UI state
+//     productController.isCartModified.value = true;
+    
+//     // Ensure the context is the valid BuildContext from the Widget tree
+//     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+//     cartProvider.updateCartCount(customerId);
+//     cartProvider.getCartItemCounts(customerId);
+
+//     // 6. Success Feedback using your custom toast
+//     showCustomToastDisplay(
+//       context, // This must be a BuildContext
+//       "Bulk added to cart", 
+//       Colors.green, 
+//       Icons.shopping_cart_checkout
+//     );
+
+//   } catch (e) {
+//     showCustomToastDisplay(
+//       context, 
+//       "Error adding to cart: $e", 
+//       Colors.red, 
+//       Icons.error_outline
+//     );
+//   }
+// },
+//             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4285F4),
+//             shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(8),
+//               ),
+//             ),
+//             child: const Text("Add", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, 
+//             fontSize: 22)),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 }
 
 

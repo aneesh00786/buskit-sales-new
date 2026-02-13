@@ -37,6 +37,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -395,45 +396,88 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () async {
-                    if (widget.isFromGoogle) {
-                      bool shouldProceed = await checkCustomerOut();
-                      if (shouldProceed) {
-                        homeController.sidebarXController.selectIndex(5);
-                        homeController.selectedIndex.value = 5;
-                      }
-                    } else if (widget.isDirectDialogue) {
-                      bool shouldProceed = await checkCustomerOut();
-                      if (shouldProceed) {
-                        homeController.sidebarXController.selectIndex(5);
-                        homeController.selectedIndex.value = 5;
-                        customerOrderController.isActive.value = false;
-                        Get.toNamed(AppRoutes.calender, id: 2);
-                      }
-                    } else {
-                      bool shouldProceed = await checkCustomerOut();
-                      if (shouldProceed) {
-                        customerOrderController.isActive.value = false;
-                        Navigator.pop(context);
-                      }
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xffdcdefc),
+                InkWell(
+                onTap: () async {
+                  // 1. Perform the check-out check first. 
+                  // This awaits the user's decision in the dialog.
+                  bool shouldProceed = await checkCustomerOut();
+              
+                  // 2. If the user clicked "Stay" in the dialog, stop here.
+                  if (!shouldProceed) return;
+              
+                  // 3. Mark as inactive since they are leaving
+                  customerOrderController.isActive.value = false;
+              
+                  // 4. Navigate back based on origin
+                  if (widget.isFromGoogle) {
+                    // If came from Map/Google, just go BACK. 
+                    // Do NOT push CustomerMapScreen again, or you lose the map state and cause errors.
+                    Get.back(id: 2); 
+                  } 
+                  else if (widget.isDirectDialogue) {
+                    homeController.sidebarXController.selectIndex(5);
+                    homeController.selectedIndex.value = 5;
+                    Get.toNamed(AppRoutes.calender, id: 2);
+                  } 
+                  else {
+                    // Default back navigation
+                    Navigator.pop(context);
+                  }
+                  
+                  // REMOVED THE LINE BELOW:
+                  // Get.to( () =>  CustomerMapScreen(...), id: 2); <--- This was causing the error
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(4.0),
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: primaryColor,
-                        size: 16,
-                      ),
-                    ),
+                      border: Border.all(color: primaryColor)),
+                  child: const Icon(
+                    EneftyIcons.arrow_left_3_outline,
+                    color: primaryColor,
+                    size: 20,
                   ),
                 ),
+              ),
+                // GestureDetector(
+                //   onTap: () async {
+                //     if (widget.isFromGoogle) {
+                //       bool shouldProceed = await checkCustomerOut();
+                //       if (shouldProceed) {
+                //         homeController.sidebarXController.selectIndex(5);
+                //         homeController.selectedIndex.value = 5;
+                //       }
+                //     } else if (widget.isDirectDialogue) {
+                //       bool shouldProceed = await checkCustomerOut();
+                //       if (shouldProceed) {
+                //         homeController.sidebarXController.selectIndex(5);
+                //         homeController.selectedIndex.value = 5;
+                //         customerOrderController.isActive.value = false;
+                //         Get.toNamed(AppRoutes.calender, id: 2);
+                //       }
+                //     } else {
+                //       bool shouldProceed = await checkCustomerOut();
+                //       if (shouldProceed) {
+                //         customerOrderController.isActive.value = false;
+                //         Navigator.pop(context);
+                //       }
+                //     }
+                //   },
+                //   child: Container(
+                //     decoration: BoxDecoration(
+                //       color: const Color(0xffdcdefc),
+                //       borderRadius: BorderRadius.circular(4),
+                //     ),
+                //     child: const Padding(
+                //       padding: EdgeInsets.all(4.0),
+                //       child: Icon(
+                //         Icons.arrow_back_ios,
+                //         color: primaryColor,
+                //         size: 16,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                   SizedBox(
                 width: 10,
               ),

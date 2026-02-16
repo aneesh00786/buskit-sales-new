@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -16,7 +17,39 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
-import 'package:flutter/material.dart' show StatefulWidget, State, WidgetsBindingObserver, TextEditingController, WidgetsBinding, showDialog, AlertDialog, BorderRadius, RoundedRectangleBorder, Colors, CircleAvatar, Divider, ElevatedButton, Theme, OutlinedButton, TextButton, Scaffold, AppBar, CircularProgressIndicator, IconButton, Icons, SnackBar, ScaffoldMessenger, ListTile, InkWell, Autocomplete, TextFormField, InputDecoration, OutlineInputBorder, Material, Card;
+import 'package:flutter/material.dart'
+    show
+        StatefulWidget,
+        State,
+        WidgetsBindingObserver,
+        TextEditingController,
+        WidgetsBinding,
+        showDialog,
+        AlertDialog,
+        BorderRadius,
+        RoundedRectangleBorder,
+        Colors,
+        CircleAvatar,
+        Divider,
+        ElevatedButton,
+        Theme,
+        OutlinedButton,
+        TextButton,
+        Scaffold,
+        AppBar,
+        CircularProgressIndicator,
+        IconButton,
+        Icons,
+        SnackBar,
+        ScaffoldMessenger,
+        ListTile,
+        InkWell,
+        Autocomplete,
+        TextFormField,
+        InputDecoration,
+        OutlineInputBorder,
+        Material,
+        Card;
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -28,7 +61,7 @@ import 'package:url_launcher/url_launcher.dart';
 class CustomerMapScreen extends StatefulWidget {
   final List<String> customerIds;
   final List<String> eventIds;
-  
+
   // Added these fields to receive data from the Popup Dialog
   final String? initialStartAddress;
   final String? initialEndAddress;
@@ -174,30 +207,30 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
     }
   }
 
-Customer? _getNextUnvisitedCustomer() {
-  final displayList = _mapController.selectedCustomers;
-  for (var customer in displayList) {
-    // FIX: Removed '?? []' because visitedCustomerIds is now a non-null RxSet
-    if (customer.customerId != null &&
-        !customerAndOrderController.visitedCustomerIds
-            .contains(customer.customerId)) {
-      return customer;
+  Customer? _getNextUnvisitedCustomer() {
+    final displayList = _mapController.selectedCustomers;
+    for (var customer in displayList) {
+      // FIX: Removed '?? []' because visitedCustomerIds is now a non-null RxSet
+      if (customer.customerId != null &&
+          !customerAndOrderController.visitedCustomerIds
+              .contains(customer.customerId)) {
+        return customer;
+      }
     }
+    return null;
   }
-  return null;
-}
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // --- SYNC WITH POPUP DIALOG VALUES ---
     // 1. Text Fields: Use passed values first, otherwise fallback to Controller
-    _startController.text = widget.initialStartAddress ?? 
-        _mapController.currentLocationText.value;
+    _startController.text =
+        widget.initialStartAddress ?? _mapController.currentLocationText.value;
     _endController.text = widget.initialEndAddress ?? "";
-    
+
     // 2. Coordinates: Use Controller values (already set by the Dialog)
     _startLatLng = _mapController.currentLatLng.value;
     _endLatLng = _mapController.searchedLatLng.value;
@@ -205,15 +238,17 @@ Customer? _getNextUnvisitedCustomer() {
     _endController.addListener(_onTextChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _mapController.loadShowRoute(widget.eventIds);
+      // await _mapController.loadShowRoute(widget.eventIds);
       await _mapController.getDirections();
-      
+
       // Safety check: ensure text is populated if coordinates exist
-      if(_startController.text.isEmpty && _mapController.currentLocationText.value.isNotEmpty) {
-         _startController.text = _mapController.currentLocationText.value;
+      if (_startController.text.isEmpty &&
+          _mapController.currentLocationText.value.isNotEmpty) {
+        _startController.text = _mapController.currentLocationText.value;
       }
     });
   }
+
   void _onTextChanged() {
     if (!_hasInputChanged) {
       setState(() {
@@ -300,69 +335,78 @@ Customer? _getNextUnvisitedCustomer() {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-              ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Theme.of(context).primaryColor,
-    foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10)),
-  ),
-  onPressed: () async {
-    // 1. Capture provider while context is valid
-    final dashProvider =
-        Provider.of<CustomersProvider>(context, listen: false);
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () async {
+                    // 1. Capture provider while context is valid
+                    final dashProvider =
+                        Provider.of<CustomersProvider>(context, listen: false);
 
-    // 2. Close the Dialog
-    Navigator.of(context).pop();
+                    // 2. Close the Dialog
+                    Navigator.of(context).pop();
 
-    // 3. Mark as visited 
-    // (This will work now because we initialized the list in Step 1)
-    await customerAndOrderController.markAsVisited(result.customerId!);
+                    // 3. Mark as visited
+                    // (This will work now because we initialized the list in Step 1)
+                    await customerAndOrderController
+                        .markAsVisited(result.customerId!);
 
-    // 4. Close the Map Screen
-    Get.back();
+                    // 4. Close the Map Screen
+                    Get.back();
 
-    // 5. Use addPostFrameCallback
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Switch Tab to Customers (Index 1)
-      homeController.sidebarXController.selectIndex(1);
-      homeController.selectedIndex.value = 1;
+                    // 5. Use addPostFrameCallback
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      // Switch Tab to Customers (Index 1)
+                      homeController.sidebarXController.selectIndex(1);
+                      homeController.selectedIndex.value = 1;
 
-      // Update Controllers
-      customerAndOrderController.setCustomerId(result.customerId!);
-      productsController.selectedCustomerName.value = result.businessName!;
-      productsController.selectedCustomerId.value = result.customerId!;
-      productsController.selectedCustomerImageUrl.value = result.imageUrl!;
-      productsController.onReached(true);
+                      // Update Controllers
+                      customerAndOrderController
+                          .setCustomerId(result.customerId!);
+                      productsController.selectedCustomerName.value =
+                          result.businessName!;
+                      productsController.selectedCustomerId.value =
+                          result.customerId!;
+                      productsController.selectedCustomerImageUrl.value =
+                          result.imageUrl!;
+                      productsController.onReached(true);
 
-      // Fetch Data
-      dashProvider.fetchCustomerDashboardData(result.customerId!);
-      dashProvider.fetchCustomerDashboardRevenueData(result.customerId!);
-      dashProvider.fetchCustomerDashboardDataSalseData(result.customerId!);
-      dashProvider.fetchCustomersDataDash(result.customerId!);
-      dashProvider.fetchCustomerDashboardCountData(result.customerId!);
+                      // Fetch Data
+                      dashProvider
+                          .fetchCustomerDashboardData(result.customerId!);
+                      dashProvider.fetchCustomerDashboardRevenueData(
+                          result.customerId!);
+                      dashProvider.fetchCustomerDashboardDataSalseData(
+                          result.customerId!);
+                      dashProvider.fetchCustomersDataDash(result.customerId!);
+                      dashProvider
+                          .fetchCustomerDashboardCountData(result.customerId!);
 
-      // Navigate to Dashboard
-      Get.to(
-        () => CustomerDachScreen(
-          cusId: result.customerId!,
-          cusName: result.businessName!,
-          cusImage: result.imageUrl!,
-          cusEmail: result.email!,
-          cusMobile: result.mobileno!,
-          isFromCalendar: true,
-          isFromGoogle: true,
-          eventIds: widget.eventIds,
-          customerIds: widget.customerIds,
-        ),
-        id: 2,
-      );
-    });
-  },
-  child: const Text("Go to Customer",
-      style: TextStyle(fontWeight: FontWeight.bold)),
-),
+                      // Navigate to Dashboard
+                      Get.to(
+                        () => CustomerDachScreen(
+                          cusId: result.customerId!,
+                          cusName: result.businessName!,
+                          cusImage: result.imageUrl!,
+                          cusEmail: result.email!,
+                          cusMobile: result.mobileno!,
+                          isFromCalendar: true,
+                          isFromGoogle: true,
+                          eventIds: widget.eventIds,
+                          customerIds: widget.customerIds,
+                        ),
+                        id: 2,
+                      );
+                    });
+                  },
+                  child: const Text("Go to Customer",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
                 const SizedBox(height: 8),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
@@ -438,7 +482,7 @@ Customer? _getNextUnvisitedCustomer() {
             top: 0,
             bottom: 0,
             child: Padding(
-              padding: const EdgeInsets.only(top: 80), 
+              padding: const EdgeInsets.only(top: 80),
               child: Container(
                 width: 50,
                 color: primaryColor.withOpacity(0.2),
@@ -480,7 +524,7 @@ Customer? _getNextUnvisitedCustomer() {
             duration: const Duration(milliseconds: 300),
             top: 0,
             bottom: 0,
-            left: _isDrawerOpen ? 50 : -_drawerWidth, 
+            left: _isDrawerOpen ? 50 : -_drawerWidth,
             child: Padding(
               padding: const EdgeInsets.only(top: 80),
               child: Container(
@@ -495,7 +539,7 @@ Customer? _getNextUnvisitedCustomer() {
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    
+
                     // -- AUTOCOMPLETE FIELD: START LOCATION --
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -508,7 +552,7 @@ Customer? _getNextUnvisitedCustomer() {
                         },
                       ),
                     ),
-                    
+
                     const SizedBox(height: 10),
 
                     // -- AUTOCOMPLETE FIELD: DESTINATION --
@@ -520,7 +564,8 @@ Customer? _getNextUnvisitedCustomer() {
                         controller: _endController,
                         onLocationSelected: (latLng, address) {
                           _endLatLng = latLng;
-                          if (!_hasInputChanged) setState(() => _hasInputChanged = true);
+                          if (!_hasInputChanged)
+                            setState(() => _hasInputChanged = true);
                         },
                       ),
                     ),
@@ -529,76 +574,98 @@ Customer? _getNextUnvisitedCustomer() {
 
                     // -- GO BUTTON --
                     if (_hasInputChanged)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 40,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                            onPressed: _isRouteCalculating
+                                ? null
+                                : () async {
+                                    // 1. Validation
+                                    if (_startLatLng == null ||
+                                        _endLatLng == null) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content: Text(
+                                            "Please select start and destination points"),
+                                      ));
+                                      return;
+                                    }
+
+                                    setState(() => _isRouteCalculating = true);
+
+                                    try {
+                                      // 2. Update Controller State
+                                      _mapController.currentLatLng.value =
+                                          _startLatLng;
+                                      _mapController.searchedLatLng.value =
+                                          _endLatLng;
+
+                                      // 3. Prepare Data for API (Credit Debit)
+                                      // We use the customers currently selected/visible in controller
+                                      List<String> addresses = _mapController
+                                          .selectedCustomers
+                                          .map((customer) =>
+                                              customer.address.toString())
+                                          .toList();
+
+                                      // 4. API Call: Debit Credits
+                                      var creditResponse =
+                                          await ApiWorker().debitRouteCredits(
+                                        amount: addresses.length *
+                                            3, // Logic from dialog
+                                        details: 'ROUTE_UPDATE',
+                                        addresses: addresses,
+                                      );
+
+                                      // Update UI with new credit balance
+                                      await _mapController.updateCredit(
+                                        creditResponse.credit.toString(),
+                                      );
+
+                                      // 5. Refresh Route on Map
+                                      await _mapController.getDirections();
+
+                                      // 6. Fetch Metrics (Time/Distance)
+                                      await _mapController
+                                          .fetchDistanceAndTime();
+
+                                      // Clear Cache to force refresh of legs
+                                      setState(() {
+                                        _distanceDurationCache.clear();
+                                      });
+                                    } catch (e) {
+                                      print("Error updating route: $e");
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content: Text("Failed to update route"),
+                                      ));
+                                    } finally {
+                                      if (mounted)
+                                        setState(
+                                            () => _isRouteCalculating = false);
+                                    }
+                                  },
+                            child: _isRouteCalculating
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2))
+                                : const Text("Refresh route map",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold)),
                           ),
-                          onPressed: _isRouteCalculating ? null : () async {
-                            // 1. Validation
-                            if (_startLatLng == null || _endLatLng == null) {
-                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                content: Text("Please select start and destination points"),
-                              ));
-                              return;
-                            }
-
-                            setState(() => _isRouteCalculating = true);
-
-                            try {
-                              // 2. Update Controller State
-                              _mapController.currentLatLng.value = _startLatLng;
-                              _mapController.searchedLatLng.value = _endLatLng;
-
-                              // 3. Prepare Data for API (Credit Debit)
-                              // We use the customers currently selected/visible in controller
-                              List<String> addresses = _mapController.selectedCustomers
-                                  .map((customer) => customer.address.toString())
-                                  .toList();
-
-                              // 4. API Call: Debit Credits
-                              var creditResponse = await ApiWorker().debitRouteCredits(
-                                amount: addresses.length * 3, // Logic from dialog
-                                details: 'ROUTE_UPDATE',
-                                addresses: addresses,
-                              );
-
-                              // Update UI with new credit balance
-                              await _mapController.updateCredit(
-                                creditResponse.credit.toString(),
-                              );
-
-                              // 5. Refresh Route on Map
-                              await _mapController.getDirections();
-                              
-                              // 6. Fetch Metrics (Time/Distance)
-                              await _mapController.fetchDistanceAndTime();
-                              
-                              // Clear Cache to force refresh of legs
-                              setState(() {
-                                _distanceDurationCache.clear();
-                              });
-
-                            } catch (e) {
-                              print("Error updating route: $e");
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                content: Text("Failed to update route"),
-                              ));
-                            } finally {
-                              if (mounted) setState(() => _isRouteCalculating = false);
-                            }
-                          },
-                          child: _isRouteCalculating 
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Text("Refresh route map", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ),
-                    ),
 
                     // Header and Start Navigation Button
                     Padding(
@@ -685,7 +752,7 @@ Customer? _getNextUnvisitedCustomer() {
                         }
 
                         final displayList = _mapController.selectedCustomers;
-                         print('displaylistsssss:$displayList');
+                      log('displaylistsssss: ${jsonEncode(displayList.map((e) => e.toJson()).toList())}');
                         if (displayList.isEmpty) {
                           return const Center(child: Text("No routes found"));
                         }
@@ -719,63 +786,69 @@ Customer? _getNextUnvisitedCustomer() {
                                 elevation: 3,
                                 shadowColor: Colors.black.withOpacity(0.2),
                                 child: ListTile(
-  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-  onTap: () {
-    if (result.latitude != null && result.longitude != null) {
-      _mapController.zoomToLocation(
-        double.parse(result.latitude!),
-        double.parse(result.longitude!),
-      );
-      // Close drawer after selection to see map
-      setState(() {
-        _isDrawerOpen = false;
-      });
-    }
-  },
-  // FIX 1: Added SizedBox to prevent "Leading widget consumes entire width" error
-  leading: SizedBox(
-  width: 60,
-  // 1. We PUT OBX BACK because visitedCustomerIds is now reactive (.obs)
-  // This ensures the checkmark appears immediately without refreshing.
-  child: Obx(() {
-    // 2. We REMOVED "(... ?? [])"
-    // Since we defined it as RxSet in the controller, it is never null.
-    bool isVisited = customerAndOrderController.visitedCustomerIds
-        .contains(result.customerId);
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 0),
+                                  onTap: () {
+                                    if (result.latitude != null &&
+                                        result.longitude != null) {
+                                      _mapController.zoomToLocation(
+                                        double.parse(result.latitude!),
+                                        double.parse(result.longitude!),
+                                      );
+                                      // Close drawer after selection to see map
+                                      setState(() {
+                                        _isDrawerOpen = false;
+                                      });
+                                    }
+                                  },
+                                  // FIX 1: Added SizedBox to prevent "Leading widget consumes entire width" error
+                                  leading: SizedBox(
+                                    width: 60,
+                                    // 1. We PUT OBX BACK because visitedCustomerIds is now reactive (.obs)
+                                    // This ensures the checkmark appears immediately without refreshing.
+                                    child: Obx(() {
+                                      // 2. We REMOVED "(... ?? [])"
+                                      // Since we defined it as RxSet in the controller, it is never null.
+                                      bool isVisited =
+                                          customerAndOrderController
+                                              .visitedCustomerIds
+                                              .contains(result.customerId);
 
-    if (isVisited) {
-      return const Center(
-        child: CircleAvatar(
-          radius: 16,
-          backgroundColor: Colors.green,
-          child: Icon(Icons.check, color: Colors.white, size: 18),
-        ),
-      );
-    }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "${index + 1}.",
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Expanded(
-          child: CircleAvatar(
-            radius: 18,
-            backgroundImage: NetworkImage(
-              '${ApiConstants.imageBaseUrl}${result.imageUrl}',
-            ),
-          ),
-        ),
-      ],
-    );
-  }),
-),
+                                      if (isVisited) {
+                                        return const Center(
+                                          child: CircleAvatar(
+                                            radius: 16,
+                                            backgroundColor: Colors.green,
+                                            child: Icon(Icons.check,
+                                                color: Colors.white, size: 18),
+                                          ),
+                                        );
+                                      }
+                                      return Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "${index + 1}.",
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: CircleAvatar(
+                                              radius: 18,
+                                              backgroundImage: NetworkImage(
+                                                '${ApiConstants.imageBaseUrl}${result.imageUrl}',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                  ),
                                   title: CustomText(
                                     content: result.businessName,
                                     fontWeight: FontWeight.w700,
@@ -952,7 +1025,8 @@ Customer? _getNextUnvisitedCustomer() {
                 return const Iterable<Map<String, dynamic>>.empty();
               }
               // Call controller's fetch function
-              return await _mapController.fetchAutoCompletePlaces(textEditingValue.text);
+              return await _mapController
+                  .fetchAutoCompletePlaces(textEditingValue.text);
             },
             displayStringForOption: (Map<String, dynamic> option) {
               return option['description'] ?? '';
@@ -961,13 +1035,15 @@ Customer? _getNextUnvisitedCustomer() {
               controller.text = selection['description'];
               final placeId = selection['place_id'];
               if (placeId != null) {
-                LatLng? coords = await _mapController.getLatLngFromPlaceId(placeId);
+                LatLng? coords =
+                    await _mapController.getLatLngFromPlaceId(placeId);
                 if (coords != null) {
                   onLocationSelected(coords, selection['description']);
                 }
               }
             },
-            fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
+            fieldViewBuilder:
+                (context, textController, focusNode, onFieldSubmitted) {
               // Sync texts
               if (textController.text != controller.text) {
                 textController.text = controller.text;
@@ -977,7 +1053,8 @@ Customer? _getNextUnvisitedCustomer() {
                 focusNode: focusNode,
                 decoration: InputDecoration(
                   hintText: hint,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                   enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.black, width: 1),
                     borderRadius: BorderRadius.circular(10),
@@ -1061,7 +1138,8 @@ Customer? _getNextUnvisitedCustomer() {
           // Total Distance
           Row(
             children: [
-              const Icon(EneftyIcons.routing_2_bold, color: Colors.blue, size: 20),
+              const Icon(EneftyIcons.routing_2_bold,
+                  color: Colors.blue, size: 20),
               const SizedBox(width: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1081,7 +1159,8 @@ Customer? _getNextUnvisitedCustomer() {
           // Total Time
           Row(
             children: [
-              const Icon(EneftyIcons.clock_bold, color: Colors.orange, size: 20),
+              const Icon(EneftyIcons.clock_bold,
+                  color: Colors.orange, size: 20),
               const SizedBox(width: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1101,12 +1180,13 @@ Customer? _getNextUnvisitedCustomer() {
       ),
     );
   }
+
   // 1. Helper to parse string distance (e.g., "5.4 km" or "500 m") to double km
   double _parseDistance(String distString) {
     if (distString == '-' || distString == '...') return 0.0;
     try {
       // Remove commas (e.g. 1,000 km)
-      String clean = distString.replaceAll(',', ''); 
+      String clean = distString.replaceAll(',', '');
       if (clean.contains('km')) {
         return double.parse(clean.replaceAll('km', '').trim());
       } else if (clean.contains('m')) {
@@ -1125,7 +1205,7 @@ Customer? _getNextUnvisitedCustomer() {
     int totalMinutes = 0;
     try {
       String clean = durString.replaceAll(',', '');
-      
+
       // Parse Days
       if (clean.contains('day')) {
         final dayMatch = RegExp(r'(\d+)\s?day').firstMatch(clean);
@@ -1133,7 +1213,7 @@ Customer? _getNextUnvisitedCustomer() {
           totalMinutes += int.parse(dayMatch.group(1)!) * 24 * 60;
         }
       }
-      
+
       // Parse Hours
       if (clean.contains('hour')) {
         final hourMatch = RegExp(r'(\d+)\s?hour').firstMatch(clean);
@@ -1141,7 +1221,7 @@ Customer? _getNextUnvisitedCustomer() {
           totalMinutes += int.parse(hourMatch.group(1)!) * 60;
         }
       }
-      
+
       // Parse Minutes
       if (clean.contains('min')) {
         final minMatch = RegExp(r'(\d+)\s?min').firstMatch(clean);
@@ -1165,7 +1245,7 @@ Customer? _getNextUnvisitedCustomer() {
     _distanceDurationCache.forEach((key, value) {
       String dText = value['distance'] ?? '';
       String tText = value['duration'] ?? '';
-      
+
       if (dText != '-' && dText != '...') {
         totalDistKm += _parseDistance(dText);
         totalDurationMins += _parseDurationToMinutes(tText);
@@ -1187,16 +1267,3 @@ Customer? _getNextUnvisitedCustomer() {
     };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

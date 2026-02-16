@@ -371,7 +371,10 @@ Future<void> getDirections() async {
   Customer? destinationCustomer;
   
   // Create a pool of customers
-  List<Customer> pool = List.from(selectedCustomers);
+  List<Customer> pool = selectedCustomers
+    .where((c) => c.customerId != 'manual_destination')
+    .toList();
+  // List<Customer> pool = List.from(selectedCustomers);
 
   // 2. DETERMINE DESTINATION (Fixed Point)
   if (searchedLatLng.value != null) {

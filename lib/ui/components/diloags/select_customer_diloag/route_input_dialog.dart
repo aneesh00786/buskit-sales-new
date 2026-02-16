@@ -76,18 +76,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 )
               ],
             ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     const Text("Set your trip’s start and end points",
-            //         style:
-            //             TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            //     IconButton(
-            //       icon: const Icon(Icons.close, size: 28),
-            //       onPressed: () => Navigator.pop(context),
-            //     )
-            //   ],
-            // ),
+         
             const SizedBox(height: 10),
 
 // --- Start Location Header & Field ---
@@ -189,7 +178,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                             );
                           }
 
-                          widget.controller.fetchDistanceAndTime();
+                          // widget.controller.fetchDistanceAndTime();
                         } catch (e) {
                           print("Error in RouteInputDialog: $e");
                           setState(() => isLoading = false);
@@ -218,8 +207,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
     required TextEditingController controller,
     required Function(LatLng, String) onLocationSelected,
   }) {
-    // ... (Keep existing _buildLocationField implementation exactly as is) ...
-    // Copy the exact code from the previous step here
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[50],

@@ -458,7 +458,7 @@ String getSidebarIcon(int index) {
     case 5:
       return "assets/sidebar_icons/calendaricon.svg";
     case 6:
-      return "assets/sidebar_icons/stafficon.svg";
+      return "assets/sidebar_icons/staff-setting.svg";
       case 7:
        return "assets/sidebar_icons/salesreturn.svg"; 
         case 8:

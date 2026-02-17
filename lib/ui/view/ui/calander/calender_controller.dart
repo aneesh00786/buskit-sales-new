@@ -22,6 +22,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
@@ -58,6 +59,93 @@ RxBool isLoading = false.obs;
   RxList<CalendarSalesmanData> salesmanList = <CalendarSalesmanData>[].obs;
   RxBool initChecklistLoading = false.obs;
     RxBool isSalesmanLoading = false.obs;
+
+    static const String kRouteBox = 'route_data_box';
+  static const String kDailyLimitKey = 'daily_route_limit';
+  static const String kSavedCustomersKey = 'saved_customer_list';
+  Future<void> saveCustomersToHive(List<Customer> customers) async {
+    try {
+      var box = await Hive.openBox(kRouteBox);
+      
+      // Convert list to JSON string for storage
+      List<Map<String, dynamic>> jsonList = customers.map((e) => e.toJson()).toList();
+      String jsonString = jsonEncode(jsonList);
+      
+      await box.put(kSavedCustomersKey, jsonString);
+      print("Customers saved to Hive successfully");
+    } catch (e) {
+      print("Error saving to Hive: $e");
+    }
+  }
+  // Change return type from Future<bool> to Future<int>
+Future<int> checkAndIncrementDailyLimit() async {
+  try {
+    var box = await Hive.openBox(kRouteBox);
+    
+    String todayStr = DateTime.now().toIso8601String().split('T')[0];
+    
+    Map<dynamic, dynamic> limitData = box.get(kDailyLimitKey, defaultValue: {});
+    
+    String lastDate = limitData['date'] ?? '';
+    int count = limitData['count'] ?? 0;
+
+    // Reset if it's a new day
+    if (lastDate != todayStr) {
+      count = 0;
+    }
+
+    // Check Limit (Max 3)
+    if (count >= 3) {
+      return -1; // Return -1 to indicate Limit Reached
+    }
+
+    // Increment and Save
+    count++;
+    await box.put(kDailyLimitKey, {'date': todayStr, 'count': count});
+    
+    print("Daily Limit Updated: $count / 3");
+    
+    return count; // Return the actual count (1, 2, or 3)
+
+  } catch (e) {
+    print("Error checking limit: $e");
+    return 1; // Fallback: allow (return 1) if Hive fails
+  }
+}
+
+  // Future<bool> checkAndIncrementDailyLimit() async {
+  //   try {
+  //     var box = await Hive.openBox(kRouteBox);
+      
+  //     String todayStr = DateTime.now().toIso8601String().split('T')[0]; // Format: YYYY-MM-DD
+      
+  //     // Get existing data: { 'date': '2024-01-01', 'count': 1 }
+  //     Map<dynamic, dynamic> limitData = box.get(kDailyLimitKey, defaultValue: {});
+      
+  //     String lastDate = limitData['date'] ?? '';
+  //     int count = limitData['count'] ?? 0;
+
+  //     // Reset if it's a new day
+  //     if (lastDate != todayStr) {
+  //       count = 0;
+  //     }
+
+  //     // Check Limit (Max 3)
+  //     if (count >= 3) {
+  //       return false; // Limit Reached
+  //     }
+
+  //     // Increment and Save
+  //     count++;
+  //     await box.put(kDailyLimitKey, {'date': todayStr, 'count': count});
+  //     print("Daily Limit Updated: $count / 3");
+  //     return true; // Allowed
+
+  //   } catch (e) {
+  //     print("Error checking limit: $e");
+  //     return true; // Fallback to allow if Hive fails
+  //   }
+  // }
 
   Future<void> initializeCheckedList(
     int length,
@@ -97,7 +185,20 @@ RxBool isLoading = false.obs;
     selectedCustomers.clear();
     checkedList.clear();
   }
-
+Future<int> getCurrentDailyCount() async {
+  try {
+    var box = await Hive.openBox(kRouteBox);
+    String todayStr = DateTime.now().toIso8601String().split('T')[0];
+    Map<dynamic, dynamic> limitData = box.get(kDailyLimitKey, defaultValue: {});
+    
+    if (limitData['date'] != todayStr) {
+      return 0; // New day
+    }
+    return limitData['count'] ?? 0;
+  } catch (e) {
+    return 0;
+  }
+}
 
   void toggleCustomerSelection(
       int index, bool value, CalendarEventData<EventData> event) {
@@ -371,7 +472,10 @@ Future<void> getDirections() async {
   Customer? destinationCustomer;
   
   // Create a pool of customers
-  List<Customer> pool = List.from(selectedCustomers);
+  List<Customer> pool = selectedCustomers
+    .where((c) => c.customerId != 'manual_destination')
+    .toList();
+  // List<Customer> pool = List.from(selectedCustomers);
 
   // 2. DETERMINE DESTINATION (Fixed Point)
   if (searchedLatLng.value != null) {

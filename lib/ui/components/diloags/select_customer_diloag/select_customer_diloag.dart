@@ -184,7 +184,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 1. PRIMARY ACTION: Go to Customer
+              
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
@@ -195,7 +195,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                     elevation: 0,
                   ),
                   onPressed: () {
-                    // --- YOUR ORIGINAL LOGIC START ---
+               
                     Navigator.of(context).pop();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       homeController.sidebarXController.selectIndex(1);
@@ -249,7 +249,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                 ),
                 const SizedBox(height: 8),
 
-                // 2. SECONDARY ACTION: Continue Navigation
+               
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -258,14 +258,13 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                         borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
-                    // Close current dialog
+                  
                     Navigator.of(context).pop();
 
-                    // Logic for Navigation (Matching previous pattern)
+                 
                     if (subscriptionController.visitNavigation.value ==
                         "true") {
-                      // Note: Ensure selectedResult/navigatedToMap are accessible here
-                      // or use the 'customer' object properties
+                     
                       final lat =
                           _mapController.currentLatLng.value?.latitude ?? 0.0;
                       final lng =
@@ -1462,6 +1461,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   return;
                                 }
                                 Get.back();
+                                await _mapController.saveCustomersToHive(_mapController.selectedCustomers);
                                 // 2. Just Open Dialog (Pass Data Down)
                                 showDialog(
                                   context: context,

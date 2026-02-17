@@ -1,6 +1,3 @@
-
-
-
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -48,7 +45,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-     final isSpecificData = widget.selectedTabIndex == 0;
+    final isSpecificData = widget.selectedTabIndex == 0;
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -102,7 +99,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                       
                             Text(
                               ("Name :   ${widget.invoiceData?.businessName}"),
                             ),
@@ -119,31 +115,32 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         ),
                         const Spacer(),
                         ClipOval(
-  child: Container(
-    height: 50,
-    width: 50,
-    child: Image.network(
-      // 👇 Removed condition, now safely accessing invoiceData
-      'https://test.thrivewoo.com/uploads/${widget.invoiceData?.imageUrl ?? ''}',
-      
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          color: Colors.lightBlue[100],
-          child: const Icon(Icons.person, color: Colors.blue),
-        );
-      },
-    ),
-  ),
-)
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            child: Image.network(
+                              // 👇 Removed condition, now safely accessing invoiceData
+                              'https://test.thrivewoo.com/uploads/${widget.invoiceData?.imageUrl ?? ''}',
+
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.lightBlue[100],
+                                  child: const Icon(Icons.person,
+                                      color: Colors.blue),
+                                );
+                              },
+                            ),
+                          ),
+                        )
 //      ClipOval(
 //   child: Container(
 //     height: 50,
 //     width: 50,
 //     child: Image.network(
 //       // 👇 We only keep the path up to 'uploads/' because the API gives us 'customer/...'
-//       'https://test.thrivewoo.com/uploads/${isSpecificData ? (widget.specificData!.imageUrl ?? '') : (widget.invoiceData!.imageUrl ?? '')}', 
-      
+//       'https://test.thrivewoo.com/uploads/${isSpecificData ? (widget.specificData!.imageUrl ?? '') : (widget.invoiceData!.imageUrl ?? '')}',
+
 //       fit: BoxFit.cover,
 //       errorBuilder: (context, error, stackTrace) {
 //         return Container(
@@ -530,8 +527,7 @@ class ProductNameWithTax extends StatelessWidget {
               if (isInclTax)
                 TextSpan(
                   text: suffix,
-                  style: style.copyWith(fontSize: 12,color: taxColor),
-
+                  style: style.copyWith(fontSize: 12, color: taxColor),
                 ),
             ],
           ),

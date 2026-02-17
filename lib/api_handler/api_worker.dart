@@ -340,6 +340,7 @@ class ApiWorker with ApiConstants {
 
     if (isOnline) {
       try {
+       
         final requestPayload = {
           "companyId": companyId,
           "salesman_id": salesmanId,
@@ -354,6 +355,7 @@ class ApiWorker with ApiConstants {
         if (response.statusCode == 200) {
           final data = Map<String, dynamic>.from(response.data as Map);
           await box.put(cacheKey, data);
+          log('response of the api :${response.data}');
           return data;
         } else {
           handleExceptionMessage(
@@ -2861,6 +2863,7 @@ class ApiWorker with ApiConstants {
   required List<String>? eventList,
 }) async {
   try {
+    print('show route api is called');
     // 1. Store the data in a variable first
     Map<String, dynamic> requestData = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,

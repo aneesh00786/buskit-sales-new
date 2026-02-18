@@ -125,9 +125,9 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
                         columnWidths: const {
                           0: FlexColumnWidth(1.5),
                           1: FlexColumnWidth(1),
-                          2: FlexColumnWidth(1),
-                          3: FlexColumnWidth(1),
-                          4: FlexColumnWidth(1),
+                          2: FlexColumnWidth(1.2),
+                          3: FlexColumnWidth(1.2),
+                         
                         },
                         children: [
                           // --- Table Header ---

@@ -456,12 +456,15 @@ class ScheduleListCustomer {
   String? address;
   String? town;
   String? imageUrl;
-
+  String? checkIn;
+  String? checkOut;
   ScheduleListCustomer({
     this.businessName,
     this.address,
     this.town,
     this.imageUrl,
+    this.checkIn,
+    this.checkOut,
   });
 
   factory ScheduleListCustomer.fromJson(Map<String, dynamic> json) =>
@@ -470,6 +473,8 @@ class ScheduleListCustomer {
         address: json["address"] ?? '',
         town: json["town"] ?? '',
         imageUrl: json["image_url"],
+        checkIn: json["check_in"],
+        checkOut: json["check_out"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -477,6 +482,8 @@ class ScheduleListCustomer {
         "address":address,
         "town":town,
         "image_url":imageUrl,
+        "check_in":checkIn,
+        "check_out":checkOut
       };
 }
 

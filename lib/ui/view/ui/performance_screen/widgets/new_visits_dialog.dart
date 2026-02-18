@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -32,9 +30,9 @@ class StaffRouteDialog extends StatefulWidget {
 class _StaffRouteDialogState extends State<StaffRouteDialog> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  
+
   // Store raw customer objects/maps here
-  List<dynamic> visits = []; 
+  List<dynamic> visits = [];
   int appointmentCount = 0;
   int checkInCount = 0;
 
@@ -67,7 +65,8 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
 
   void _loadVisitsForDay(DateTime day) {
     // 1. Find the schedule object for the selected day
-    final scheduleDataForDate = widget.staffController.scheduleList.firstWhereOrNull((data) {
+    final scheduleDataForDate =
+        widget.staffController.scheduleList.firstWhereOrNull((data) {
       if (data.start == null) return false;
 
       DateTime startDateTime;
@@ -78,7 +77,8 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
         startDateTime = data.start as DateTime;
       }
 
-      final scheduleDate = DateTime(startDateTime.year, startDateTime.month, startDateTime.day);
+      final scheduleDate =
+          DateTime(startDateTime.year, startDateTime.month, startDateTime.day);
       final selectedDate = DateTime(day.year, day.month, day.day);
       return scheduleDate == selectedDate;
     });
@@ -96,18 +96,18 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
         checkInCount = visits.where((customer) {
           try {
             // Check for 'checkIn' (camelCase) or 'check_in' (snake_case)
-            final val = (customer as dynamic).toJson()['check_in'] ?? customer.checkIn;
+            final val =
+                (customer as dynamic).toJson()['check_in'] ?? customer.checkIn;
             return val != null;
           } catch (e) {
             // Fallback if toJson() isn't available, try direct property access
             try {
-               return (customer as dynamic).checkIn != null;
+              return (customer as dynamic).checkIn != null;
             } catch (e2) {
-               return false;
+              return false;
             }
           }
         }).length;
-
       } else {
         visits = [];
         appointmentCount = 0;
@@ -203,7 +203,7 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                           ],
                         ),
                       ),
-                      
+
                       // --- CALENDAR ---
                       Container(
                         width: isPhonePortrait(context)
@@ -258,19 +258,23 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               color: primaryColor,
                               shape: BoxShape.circle,
                             ),
-                            todayTextStyle: const TextStyle(color: black, fontWeight: FontWeight.w600),
-                            selectedTextStyle: const TextStyle(color: white, fontWeight: FontWeight.w600),
+                            todayTextStyle: const TextStyle(
+                                color: black, fontWeight: FontWeight.w600),
+                            selectedTextStyle: const TextStyle(
+                                color: white, fontWeight: FontWeight.w600),
                           ),
                           calendarBuilders: CalendarBuilders(
                             defaultBuilder: (context, day, focusedDay) {
-                              Color indicatorColor = shouldShowIndicator(day, widget.staffController.scheduleList);
+                              Color indicatorColor = shouldShowIndicator(
+                                  day, widget.staffController.scheduleList);
                               return Stack(
                                 alignment: Alignment.topRight,
                                 children: [
                                   Center(
                                     child: Text(
                                       '${day.day}',
-                                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                                      style: const TextStyle(
+                                          fontSize: 16, color: Colors.black),
                                     ),
                                   ),
                                   if (indicatorColor != Colors.transparent)
@@ -292,18 +296,20 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 5),
 
                       // --- TABLE HEADERS (New Implementation) ---
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
                         decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-                            top: BorderSide(color: Colors.grey.shade200, width: 1),
-                          )
-                        ),
+                            border: Border(
+                          bottom:
+                              BorderSide(color: Colors.grey.shade300, width: 1),
+                          top:
+                              BorderSide(color: Colors.grey.shade200, width: 1),
+                        )),
                         child: Row(
                           children: [
                             // Header: Customer
@@ -311,10 +317,15 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               flex: 5,
                               child: Row(
                                 children: [
-                                  const Text("Customer", style: TextStyle(fontWeight: FontWeight.bold, fontFamily: myFont, fontSize: 13)),
+                                  const Text("Customer",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: myFont,
+                                          fontSize: 13)),
                                   const SizedBox(width: 5),
                                   if (appointmentCount > 0)
-                                    _buildBadge(appointmentCount, Colors.redAccent),
+                                    _buildBadge(
+                                        appointmentCount, Colors.redAccent),
                                 ],
                               ),
                             ),
@@ -323,7 +334,11 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               flex: 3,
                               child: Row(
                                 children: [
-                                  const Text("Check-In", style: TextStyle(fontWeight: FontWeight.bold, fontFamily: myFont, fontSize: 13)),
+                                  const Text("Check-In",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: myFont,
+                                          fontSize: 13)),
                                   const SizedBox(width: 5),
                                   if (checkInCount > 0)
                                     _buildBadge(checkInCount, Colors.redAccent),
@@ -333,7 +348,11 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                             // Header: Check-Out
                             const Expanded(
                               flex: 2,
-                              child: Text("Check-Out", style: TextStyle(fontWeight: FontWeight.bold, fontFamily: myFont, fontSize: 13)),
+                              child: Text("Check-Out",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: myFont,
+                                      fontSize: 13)),
                             ),
                           ],
                         ),
@@ -350,72 +369,95 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                           child: visits.isEmpty
                               ? const Padding(
                                   padding: EdgeInsets.all(20.0),
-                                  child: Center(child: Text("No visits scheduled.", style: TextStyle(color: Colors.grey))),
+                                  child: Center(
+                                      child: Text("No visits scheduled.",
+                                          style:
+                                              TextStyle(color: Colors.grey))),
                                 )
                               : ListView.separated(
                                   shrinkWrap: true,
                                   itemCount: visits.length,
-                                  separatorBuilder: (context, index) => const Divider(height: 1, color: Colors.transparent),
+                                  separatorBuilder: (context, index) =>
+                                      const Divider(
+                                          height: 1, color: Colors.transparent),
                                   itemBuilder: (context, index) {
                                     final item = visits[index];
-                                    
-                                    
-                                    dynamic data = item is Map ? item : (item as dynamic).toJson();
-                                    
-                                    String name = data['business_name'] ?? data['businessName'] ?? '';
+
+                                    dynamic data = item is Map
+                                        ? item
+                                        : (item as dynamic).toJson();
+
+                                    String name = data['business_name'] ??
+                                        data['businessName'] ??
+                                        '';
                                     String address = data['address'] ?? '';
-                                    String town = data['town'] ?? '' ;
-                                   String? rawImgUrl = data['image_url'] ?? data['imageUrl'];
-  
-  // 2. Construct the URL
-  // If it already starts with http, use it. Otherwise, prepend your base URL.
-  String finalImageUrl = '';
-  if (rawImgUrl != null && rawImgUrl.isNotEmpty) {
-    if (rawImgUrl.startsWith('http')) {
-      finalImageUrl = rawImgUrl;
-    } else {
-      finalImageUrl = 'https://test.thrivewoo.com/uploads/$rawImgUrl';
-    }
-  }
-                                    
-                                    String checkIn = _formatTime(data['check_in'] ?? data['checkIn']);
+                                    String town = data['town'] ?? '';
+                                    String? rawImgUrl =
+                                        data['image_url'] ?? data['imageUrl'];
+
+                                    // 2. Construct the URL
+                                    // If it already starts with http, use it. Otherwise, prepend your base URL.
+                                    String finalImageUrl = '';
+                                    if (rawImgUrl != null &&
+                                        rawImgUrl.isNotEmpty) {
+                                      if (rawImgUrl.startsWith('http')) {
+                                        finalImageUrl = rawImgUrl;
+                                      } else {
+                                        finalImageUrl =
+                                            'https://test.thrivewoo.com/uploads/$rawImgUrl';
+                                      }
+                                    }
+
+                                    String checkIn = _formatTime(
+                                        data['check_in'] ?? data['checkIn']);
                                     // If check_out exists in customer object:
-                                    String checkOut = _formatTime(data['check_out'] ?? data['checkOut']); 
+                                    String checkOut = _formatTime(
+                                        data['check_out'] ?? data['checkOut']);
 
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0),
                                       child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // COLUMN 1: Avatar + Details
                                           Expanded(
                                             flex: 5,
                                             child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                             ClipOval(
-                child: Container(
-                  height: 35,
-                  width: 35,
-                  color: Colors.blue.shade50, // Background if image loads slowly
-                  child: Image.network(
-                    finalImageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.lightBlue[100],
-                        child: const Icon(Icons.person, color: Colors.blue, size: 20),
-                      );
-                    },
-                  ),
-                ),
-              ),
+                                                ClipOval(
+                                                  child: Container(
+                                                    height: 35,
+                                                    width: 35,
+                                                    color: Colors.blue
+                                                        .shade50, // Background if image loads slowly
+                                                    child: Image.network(
+                                                      finalImageUrl,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Container(
+                                                          color: Colors
+                                                              .lightBlue[100],
+                                                          child: const Icon(
+                                                              Icons.person,
+                                                              color:
+                                                                  Colors.blue,
+                                                              size: 20),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
                                                 // CircleAvatar(
                                                 //   radius: 18,
                                                 //   backgroundColor: Colors.blue.shade100,
-                                                //   backgroundImage: (imgUrl != null && imgUrl.isNotEmpty) 
+                                                //   backgroundImage: (imgUrl != null && imgUrl.isNotEmpty)
                                                 //       ? NetworkImage(imgUrl) // Or use your specific image provider
-                                                //       : null, 
+                                                //       : null,
                                                 //   child: (imgUrl == null || imgUrl.isEmpty)
                                                 //       ? const Icon(Icons.person, color: Colors.blue, size: 20)
                                                 //       : null,
@@ -424,38 +466,44 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                                                 // Text Details
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         name,
                                                         style: const TextStyle(
-                                                          fontWeight: FontWeight.w600,
-                                                          fontSize: 13,
-                                                          color: Colors.black87
-                                                        ),
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: 13,
+                                                            color:
+                                                                Colors.black87),
                                                         maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                       const SizedBox(height: 2),
                                                       Text(
                                                         address,
                                                         style: TextStyle(
-                                                          color: Colors.grey.shade600,
-                                                          fontSize: 11,
-                                                          fontFamily: myFont
-                                                        ),
+                                                            color: Colors
+                                                                .grey.shade600,
+                                                            fontSize: 11,
+                                                            fontFamily: myFont),
                                                         maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                       Text(
                                                         town,
                                                         style: TextStyle(
-                                                          color: Colors.grey.shade600,
-                                                          fontSize: 11,
-                                                          fontFamily: myFont
-                                                        ),
+                                                            color: Colors
+                                                                .grey.shade600,
+                                                            fontSize: 11,
+                                                            fontFamily: myFont),
                                                         maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                     ],
                                                   ),
@@ -463,19 +511,19 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                                               ],
                                             ),
                                           ),
-                                          
+
                                           // COLUMN 2: Check-In Time
                                           Expanded(
                                             flex: 3,
                                             child: Padding(
-                                              padding: const EdgeInsets.only(top: 4.0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 4.0),
                                               child: Text(
                                                 checkIn,
                                                 style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.black
-                                                ),
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black),
                                               ),
                                             ),
                                           ),
@@ -484,14 +532,14 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                                           Expanded(
                                             flex: 2,
                                             child: Padding(
-                                              padding: const EdgeInsets.only(top: 4.0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 4.0),
                                               child: Text(
                                                 checkOut,
                                                 style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.black
-                                                ),
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black),
                                               ),
                                             ),
                                           ),
@@ -544,10 +592,10 @@ extension DateTimeExtension on DateTime {
 }
 
 Color shouldShowIndicator(DateTime date, List<ScheduleListData> scheduleList) {
-    // ... [Paste your existing shouldShowIndicator logic here] ...
-    // Note: Ensure this function is present in the file as it was in your original code.
-    // For brevity, I am not repeating the full logic block here unless you need it duplicated.
-    final rawDayList = SessionHelper.settingsData
+  // ... [Paste your existing shouldShowIndicator logic here] ...
+  // Note: Ensure this function is present in the file as it was in your original code.
+  // For brevity, I am not repeating the full logic block here unless you need it duplicated.
+  final rawDayList = SessionHelper.settingsData
           ?.firstWhere(
             (setting) => setting.key == 'day_list',
             orElse: () => AllCompanySettingsData(
@@ -629,9 +677,6 @@ Color shouldShowIndicator(DateTime date, List<ScheduleListData> scheduleList) {
 extension DateOnlyCompare on DateTime {
   DateTime get startOfDay => DateTime(year, month, day);
 }
-
-
-
 
 // // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 

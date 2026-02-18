@@ -339,17 +339,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
                           }),
-                             OptionData(
-                  title: 'Report',
-                  unfilteredCount: "0",
-                 count: targetContent?.visitReport?.toString() ?? '0',
-                  svg: "assets/icons/customer.png",
-                  svgBgColor: const Color.fromARGB(255, 211, 240, 249),
-                  onTap: (){
-                    showTileDialog(
-                          context, _selectedMonthName ?? '', 5, true);
-                  },
-                ),
+                           
 
                 // OptionData(
                 //   title: 'Check-in/out',
@@ -378,6 +368,17 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   staffController: staffController),
                             );
                           }),
+                            OptionData(
+                  title: ' Visit Report',
+                  unfilteredCount: "0",
+                 count: targetContent?.visitReport?.toString() ?? '0',
+                  svg: "assets/icons/customer.png",
+                  svgBgColor: const Color.fromARGB(255, 211, 240, 249),
+                  onTap: (){
+                    showTileDialog(
+                          context, _selectedMonthName ?? '', 5, true);
+                  },
+                ),
                 OptionData(
                   title: 'Customers',
                   unfilteredCount: "0",

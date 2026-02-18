@@ -12,7 +12,7 @@ class EventData {
   String? checkInLatitude;
   dynamic checkOut;
   String? checkOutLatitude;
-  int? checkOutLongitude;
+  String? checkOutLongitude;
   dynamic eventCancel;
   int? status;
   String? createdAt;
@@ -74,9 +74,7 @@ class EventData {
     checkInLatitude = json['check_in_latitude'];
     checkOut = json['check_out'];
     checkOutLatitude = json['check_out_latitude'];
-    checkOutLongitude = json['check_out_longitude'] is bool
-        ? (json['check_out_longitude'] == true ? 1 : 0)
-        : json['check_out_longitude'];
+    checkOutLongitude = json['check_out_longitude'];
 
     eventCancel = json['event_cancel'];
     status = json['status'] is bool

@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_report_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -338,18 +339,30 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
                           }),
-                OptionData(
-                  title: 'Check-in/out',
+                             OptionData(
+                  title: 'Report',
                   unfilteredCount: "0",
-                  count: targetContent?.salesmanInOut?.length.toString() ?? '0',
-                  svg: "assets/icons/check-in.png",
-                  svgBgColor: const Color.fromARGB(255, 215, 236, 246),
-                  onTap: targetContent?.salesmanInOut?.length.toString() == '0'
-                      ? () => showCustomToastDisplay(
-                          context, 'Record Not Found', red, Icons.close)
-                      : () => showTileDialog(
-                          context, _selectedMonthName ?? '', 2, true),
+                 count: targetContent?.visitReport?.toString() ?? '0',
+                  svg: "assets/icons/customer.png",
+                  svgBgColor: const Color.fromARGB(255, 211, 240, 249),
+                  onTap: (){
+                    showTileDialog(
+                          context, _selectedMonthName ?? '', 5, true);
+                  },
                 ),
+
+                // OptionData(
+                //   title: 'Check-in/out',
+                //   unfilteredCount: "0",
+                //   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
+                //   svg: "assets/icons/check-in.png",
+                //   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
+                //   onTap: targetContent?.salesmanInOut?.length.toString() == '0'
+                //       ? () => showCustomToastDisplay(
+                //           context, 'Record Not Found', red, Icons.close)
+                //       : () => showTileDialog(
+                //           context, _selectedMonthName ?? '', 2, true),
+                // ),
                 OptionData(
                     title: 'Visits',
                     unfilteredCount: "0",
@@ -377,6 +390,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       : () => showTileDialog(
                           context, _selectedMonthName ?? '', 4, true),
                 ),
+              
               ],
             );
           }),
@@ -482,34 +496,62 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       ),
     );
   }
-
   void showTileDialog(
       BuildContext context, String monthName, int tabStatus, bool isFull) {
+    
+    
+    if (tabStatus == 5) {
+      
+      int monthIndex = staffController.tabController.index + 1;
+
+     
+      staffController.loadVisitReports(selectedValue, monthIndex).then((_) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return Obx(() {
+              
+              if (staffController.isVisitReportLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              
+           
+              return _buildDialogContainer(
+                isFull, 
+                VisitReportDialog(reportData: staffController.visitReportList)
+              );
+            });
+          },
+        );
+      });
+      return; 
+    }
+
+   
     staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
       showDialog(
         context: context,
         builder: (context) {
           return Obx(() {
             if (staffController.isTopDataLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
             Widget dialogContent;
             switch (tabStatus) {
-              case 1:
-                dialogContent = buildCheckInOutDialogContent(
-                    staffController.checkInOutData.value, staffController);
-              case 2:
+              case 1: 
                 dialogContent = buildCheckInOutDialogContent(
                     staffController.checkInOutData.value, staffController);
                 break;
-              case 3:
+              case 2: 
+                dialogContent = buildCheckInOutDialogContent(
+                    staffController.checkInOutData.value, staffController);
+                break;
+              case 3: 
                 dialogContent = buildVisitsDialogContent(
                     staffController.visitData.value, staffController);
                 break;
-              case 4:
+              case 4: 
                 dialogContent = buildCustomersDialogContent(
                     staffController.customerDatas.value, staffController);
                 break;
@@ -517,29 +559,97 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 dialogContent = const Text('Unknown data.');
             }
 
-            return Padding(
-              padding: isFull
-                  ? const EdgeInsets.all(10)
-                  : const EdgeInsets.symmetric(horizontal: 150),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: white,
-                      ),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: dialogContent),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return _buildDialogContainer(isFull, dialogContent);
           });
         },
       );
     });
   }
+
+  
+  Widget _buildDialogContainer(bool isFull, Widget content) {
+    return Padding(
+      padding: isFull
+          ? const EdgeInsets.all(10)
+          : const EdgeInsets.symmetric(horizontal: 150),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, 
+              ),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: content),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // void showTileDialog(
+  //     BuildContext context, String monthName, int tabStatus, bool isFull) {
+  //   staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return Obx(() {
+  //           if (staffController.isTopDataLoading.value) {
+  //             return const Center(
+  //               child: CircularProgressIndicator(),
+  //             );
+  //           }
+
+  //           Widget dialogContent;
+  //           switch (tabStatus) {
+  //             case 1:
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //             case 2:
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //               break;
+  //             case 3:
+  //               dialogContent = buildVisitsDialogContent(
+  //                   staffController.visitData.value, staffController);
+  //               break;
+  //             case 4:
+  //               dialogContent = buildCustomersDialogContent(
+  //                   staffController.customerDatas.value, staffController);
+  //               break;
+  //             case 5:
+  //             dialogContent = const VisitReportDialog();
+  //             break;
+  //             default:
+  //               dialogContent = const Text('Unknown data.');
+  //           }
+
+  //           return Padding(
+  //             padding: isFull
+  //                 ? const EdgeInsets.all(10)
+  //                 : const EdgeInsets.symmetric(horizontal: 150),
+  //             child: Row(
+  //               children: [
+  //                 Expanded(
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                       borderRadius: BorderRadius.circular(10),
+  //                       color: white,
+  //                     ),
+  //                     child: ClipRRect(
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         child: dialogContent),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         });
+  //       },
+  //     );
+  //   });
+  // }
 }

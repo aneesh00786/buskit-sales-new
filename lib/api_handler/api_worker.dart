@@ -34,6 +34,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_resp
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_event_details_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
@@ -351,7 +352,7 @@ class ApiWorker with ApiConstants {
         Response response = await responsePostMethod(
             requestData: requestPayload,
             endPoint: ApiConstants.salesmanDashNavContent);
-
+  log('reposne data of salesmanDashNavContent:${response.data}');
         if (response.statusCode == 200) {
           final data = Map<String, dynamic>.from(response.data as Map);
           await box.put(cacheKey, data);
@@ -3951,6 +3952,124 @@ Future<StaffDiscount> getStaffDiscount() async {
       response: error is DioException ? error.response : null,
     );
     throw Exception('Failed to fetch staff discount data: $error');
+  }
+}
+
+// Inside ApiWorker class
+
+Future<Map<String, dynamic>?> fetchVisitReportData({
+  required String startDate,
+  required String endDate,
+}) async {
+  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+
+  // Unique cache key including the date range
+  final cacheKey = 'visitReport_${companyId}_${salesmanId}_${startDate}_$endDate';
+  final box = Hive.box('topBarDataBox');
+
+  bool isOnline = await ConnectivityService().isOnline();
+
+  if (isOnline) {
+    try {
+      // payload matching your exact requirement
+      final requestPayload = {
+        "salesman_id": salesmanId,
+        "start_date": startDate,   // "2026-02-01"
+        "end_date": endDate,       // "2026-02-28"
+        "company_id": companyId
+      };
+
+      // CHANGE THIS to your actual endpoint
+    
+      Response response = await responsePostMethod(
+          requestData: requestPayload, 
+          endPoint: ApiConstants.visitReport
+      );
+      log('response of the event:${response.data}');
+
+      if (response.statusCode == 200) {
+        final data = Map<String, dynamic>.from(response.data as Map);
+        await box.put(cacheKey, data);
+        return data;
+      } else {
+        handleExceptionMessage(response: response, apiName: "visit report");
+        return null;
+      }
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          response: error.response, apiName: "visit report", error: error);
+      return null;
+    }
+  } else {
+    // Offline logic (optional)
+    final cachedData = box.get(cacheKey);
+    return cachedData != null 
+        ? Map<String, dynamic>.from(LocalStorage().castToStringDynamic(cachedData))
+        : null;
+  }
+}
+// Add this inside your API Worker class
+Future<List<CustomerEventModel>?> fetchCustomerEventsData({
+  required String eventIds,
+}) async {
+  // 1. Setup Cache Key
+  final cacheKey = 'customer_events_$eventIds';
+  final box = Hive.box('topBarDataBox'); // Using your existing box
+
+  bool isOnline = await ConnectivityService().isOnline();
+
+  if (isOnline) {
+    try {
+      // 2. Prepare Payload
+      final requestPayload = {
+        'event_id': eventIds
+      };
+
+      // 3. Call API using your wrapper (Dio)
+      // Replace 'get_events' with ApiConstants.getEvents if you have it
+      Response response = await responsePostMethod(
+        requestData: requestPayload,
+        endPoint:  ApiConstants.getEvents, 
+      );
+
+      if (response.statusCode == 200) {
+        // Dio automatically decodes JSON to Map/List
+        final jsonResponse = response.data;
+
+        if (jsonResponse['status'] == true) {
+          final List<dynamic> rawData = jsonResponse['data'];
+
+          // 4. Save to Hive Cache
+          await box.put(cacheKey, rawData);
+
+          // 5. Convert to Model List and Return
+          return rawData.map((e) => CustomerEventModel.fromJson(e)).toList();
+        }
+      } 
+      
+      // Handle unsuccessful status
+      handleExceptionMessage(response: response, apiName: "get_events");
+      return null;
+
+    } on DioException catch (error) {
+      handleExceptionMessage(
+          response: error.response, apiName: "get_events", error: error);
+      return null;
+    }
+  } else {
+    // --- Offline Logic ---
+    if (box.containsKey(cacheKey)) {
+      final cachedData = box.get(cacheKey);
+      // Cast cached data back to List
+      if (cachedData is List) {
+        // Use LocalStorage helper if needed, or map directly
+        return cachedData
+            .map((e) => CustomerEventModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+    }
+    return null;
   }
 }
 

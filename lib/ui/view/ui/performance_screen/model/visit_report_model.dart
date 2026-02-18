@@ -3,6 +3,7 @@ class VisitReportModel {
   int visited, missed, total;
   final String eventIds;
   final String missedEventIds;
+  final String totalEventIds;
   VisitReportModel({
     this.date, 
     this.visited = 0, 
@@ -10,6 +11,7 @@ class VisitReportModel {
     this.total = 0,
     required this.eventIds,
     required this.missedEventIds,
+    required this.totalEventIds,
   });
 
   factory VisitReportModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class VisitReportModel {
       total: counts["total_visit"] ?? 0,
       eventIds: counts['visited_event_ids'] ?? '', 
       missedEventIds: counts['missed_event_ids'] ?? '',
+      totalEventIds: counts['total_visited_event_id'] ?? '',
     );
   }
 }

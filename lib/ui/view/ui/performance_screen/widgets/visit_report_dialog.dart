@@ -111,7 +111,18 @@ class VisitReportDialog extends StatelessWidget {
       },
       child: _Badge(data.missed, Colors.redAccent),
     ),
-                                _Badge(data.total, Colors.blueAccent),
+                               InkWell(
+      onTap: () {
+        // Use 'totalEventIds' here
+        if (data.total > 0 && data.totalEventIds.isNotEmpty) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomerDetailsDialog(eventIds: data.totalEventIds),
+          );
+        }
+      },
+      child: _Badge(data.total, Colors.blueAccent),
+    ),
                               ],
                             );
                           }),

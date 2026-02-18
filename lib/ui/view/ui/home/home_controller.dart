@@ -131,13 +131,6 @@ class HomeController extends GetxController {
           transition: Transition.leftToRightWithFade,
           page: () => const LeadsScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.performance &&
-        sidebarXController.selectedIndex == 6) {
-      return GetPageRoute(
-          settings: settings,
-          transition: Transition.leftToRightWithFade,
-          page: () => const PerformanceScreen(),
-          binding: CommonBinding());
     } else if (settings.name == AppRoutes.calender &&
         sidebarXController.selectedIndex == 5) {
       return GetPageRoute(
@@ -147,7 +140,7 @@ class HomeController extends GetxController {
           binding: CommonBinding());
     } 
      else if  (settings.name == AppRoutes.salesReturn &&
-        sidebarXController.selectedIndex == 7) {
+        sidebarXController.selectedIndex == 6) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -155,8 +148,9 @@ class HomeController extends GetxController {
         binding: CommonBinding(),
       );
     }
+  
     else if (settings.name == AppRoutes.ordersScreen &&
-        sidebarXController.selectedIndex == 8) {
+        sidebarXController.selectedIndex == 7) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -164,6 +158,14 @@ class HomeController extends GetxController {
         binding: CommonBinding(),
       );
     } 
+       else if (settings.name == AppRoutes.performance &&
+        sidebarXController.selectedIndex == 8) {
+      return GetPageRoute(
+          settings: settings,
+          transition: Transition.leftToRightWithFade,
+          page: () => const PerformanceScreen(),
+          binding: CommonBinding());
+    }
    
    
     else if (settings.name == AppRoutes.settings &&
@@ -199,21 +201,21 @@ class HomeController extends GetxController {
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
         Get.offNamed(AppRoutes.calender, id: 2);
-      } else if (sidebarXController.selectedIndex == 6 &&
-          selectedIndex.value != 6) {
-        Get.offNamed(AppRoutes.performance, id: 2);
       } 
      
       else if 
-      (sidebarXController.selectedIndex == 7 &&
-        selectedIndex.value != 7) {
+      (sidebarXController.selectedIndex == 6 &&
+        selectedIndex.value != 6) {
       Get.offNamed(AppRoutes.salesReturn, id: 2);
     } 
-     else if (sidebarXController.selectedIndex == 8 &&
-          selectedIndex.value != 8) {
+     else if (sidebarXController.selectedIndex == 7 &&
+          selectedIndex.value != 7) {
         Get.offNamed(AppRoutes.ordersScreen, id: 2);
       } 
-      
+      else if (sidebarXController.selectedIndex == 8 &&
+          selectedIndex.value != 8) {
+        Get.offNamed(AppRoutes.performance, id: 2);
+      } 
        
       
       else if (sidebarXController.selectedIndex == 9 &&
@@ -231,9 +233,9 @@ class HomeController extends GetxController {
     pendingPayments,
     leads, 
     calendar,
-    performance,
     salesReturn,
     todayOrders,
+    performance,
     settings,
     logOut,
    
@@ -247,9 +249,10 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[3], index:3,  EneftyIcons.moneys_bold),
       sideBarComponent(sidebarName[4], index:4,  SIdeBarIcon.ic_leads),
       sideBarComponent(sidebarName[5], index:5,  EneftyIcons.chart_square_bold),
-      sideBarComponent(sidebarName[6], index:6,  EneftyIcons.calendar_bold),   
-      sideBarComponent(sidebarName[7], index:7,  SIdeBarIcon.ic_salesReturn),
-       sideBarComponent(sidebarName[8], index:8,  EneftyIcons.warning_2_outline),
+      
+      sideBarComponent(sidebarName[6], index:6,  SIdeBarIcon.ic_salesReturn),
+       sideBarComponent(sidebarName[7], index:7,  EneftyIcons.warning_2_outline),
+         sideBarComponent(sidebarName[8], index:8,  EneftyIcons.calendar_bold), 
       sideBarComponent(sidebarName[9], index:9,  EneftyIcons.setting_2_bold),
       sideBarComponent(sidebarName[10], index:10,  SIdeBarIcon.ic_log_out,
           context: context),
@@ -457,12 +460,12 @@ String getSidebarIcon(int index) {
       return "assets/sidebar_icons/leadicon.svg";
     case 5:
       return "assets/sidebar_icons/calendaricon.svg";
-    case 6:
-      return "assets/sidebar_icons/staff-setting.svg";
-      case 7:
+      case 6:
        return "assets/sidebar_icons/salesreturn.svg"; 
-        case 8:
+        case 7:
       return "assets/sidebar_icons/ordericon.svg";
+       case 8:
+      return "assets/sidebar_icons/perfomanceImage.svg";
     case 9:
       return "assets/sidebar_icons/settingsicon.svg";
     case 10:

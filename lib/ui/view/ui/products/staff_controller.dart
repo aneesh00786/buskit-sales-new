@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/check
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_report_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,8 @@ class StaffController extends GetxController {
   RxBool isWeekly = true.obs;
   RxInt selectedTabIndex = 0.obs;
   RxBool isPasswordVisible = false.obs;
+  var visitReportList = <VisitReportModel>[].obs;
+var isVisitReportLoading = false.obs;
 
   RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
@@ -391,4 +394,41 @@ class StaffController extends GetxController {
       isLoadingPass.value = false;
     }
   }
+  Future<void> loadVisitReports(String yearStr, int monthIndex) async {
+  isVisitReportLoading.value = true;
+  visitReportList.clear();
+
+  try {
+    int year = int.parse(yearStr);
+    
+    // 1. Calculate Start Date: 1st of the month
+    DateTime start = DateTime(year, monthIndex, 1);
+    
+    // 2. Calculate End Date: The 0th day of the NEXT month is the last day of THIS month
+    DateTime end = DateTime(year, monthIndex + 1, 0);
+
+    // 3. Format to String "YYYY-MM-DD"
+    String startDate = DateFormat('yyyy-MM-dd').format(start);
+    String endDate = DateFormat('yyyy-MM-dd').format(end);
+
+    print("Fetching Report: $startDate to $endDate"); // Debug print
+
+    // 4. Call API
+    final jsonData = await ApiWorker().fetchVisitReportData(
+      startDate: startDate, 
+      endDate: endDate
+    );
+
+    if (jsonData != null && jsonData['eventData'] != null) {
+      List<dynamic> events = jsonData['eventData'];
+      visitReportList.value = events
+          .map((data) => VisitReportModel.fromJson(data))
+          .toList();
+    }
+  } catch (e) {
+    print("Error loading visit reports: $e");
+  } finally {
+    isVisitReportLoading.value = false;
+  }
+}
 }

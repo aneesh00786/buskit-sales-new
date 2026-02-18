@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CustomerDetailsDialog extends StatefulWidget {
-  final String eventIds; 
+  final String eventIds;
 
   const CustomerDetailsDialog({super.key, required this.eventIds});
 
@@ -15,13 +15,14 @@ class CustomerDetailsDialog extends StatefulWidget {
 }
 
 class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
- 
   late Future<List<CustomerEventModel>?> _eventsFuture;
 
   @override
   void initState() {
     super.initState();
-    _eventsFuture = ApiWorker().fetchCustomerEventsData(eventIds: widget.eventIds);
+    // Using the same API worker function you created earlier
+    _eventsFuture =
+        ApiWorker().fetchCustomerEventsData(eventIds: widget.eventIds);
   }
 
   @override
@@ -33,17 +34,23 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
       type: MaterialType.transparency,
       child: Center(
         child: Container(
+          // 1. Set Width & MAX Height (instead of fixed height)
           width: MediaQuery.of(context).size.width * 0.9,
-          height: MediaQuery.of(context).size.height * 0.35,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7, // Max limit
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
+            // 2. Shrink column to fit children
+            mainAxisSize: MainAxisSize.min,
             children: [
               // --- Header ---
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: const BoxDecoration(
                   color: Color(0xFF6C63FF),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -64,8 +71,10 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5)),
-                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                            border:
+                                Border.all(color: Colors.white, width: 1.5)),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 16),
                       ),
                     )
                   ],
@@ -73,36 +82,58 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
               ),
 
               // --- Body ---
-              Expanded(
+              // 3. Use Flexible instead of Expanded
+              Flexible(
+                fit: FlexFit
+                    .loose, // Allows child to be smaller than available space
                 child: FutureBuilder<List<CustomerEventModel>?>(
                   future: _eventsFuture,
                   builder: (context, snapshot) {
+                    // Handle Loading State (give it some height so it doesn't look broken)
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No data found.'));
+                      return const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()));
+                    }
+
+                    // Handle Error
+                    else if (snapshot.hasError) {
+                      return SizedBox(
+                          height: 100,
+                          child:
+                              Center(child: Text('Error: ${snapshot.error}')));
+                    }
+
+                    // Handle Empty Data
+                    else if (!snapshot.hasData ||
+                        snapshot.data == null ||
+                        snapshot.data!.isEmpty) {
+                      return const SizedBox(
+                          height: 100,
+                          child: Center(child: Text('No data found.')));
                     }
 
                     final dataList = snapshot.data!;
 
+                    // 4. SingleChildScrollView handles the scrolling if data exceeds MaxHeight
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
                       child: Table(
                         border: TableBorder.all(color: Colors.grey.shade200),
-                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
                         columnWidths: const {
-                          0: FlexColumnWidth(1.2), // Name
-                          1: FlexColumnWidth(1),   // Date
-                          2: FlexColumnWidth(1.2), // CheckIn
-                          3: FlexColumnWidth(1.2), // CheckOut
-                          // Removed index 4 (Status) to match your 4-column children below
+                          0: FlexColumnWidth(1.5),
+                          1: FlexColumnWidth(1),
+                          2: FlexColumnWidth(1),
+                          3: FlexColumnWidth(1),
+                          4: FlexColumnWidth(1),
                         },
                         children: [
                           // --- Table Header ---
                           TableRow(
-                            decoration: BoxDecoration(color: Colors.grey.shade100),
+                            decoration:
+                                BoxDecoration(color: Colors.grey.shade100),
                             children: const [
                               _HeaderCell('Client Name'),
                               _HeaderCell('Visit Date'),
@@ -112,25 +143,26 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
                           ),
                           // --- Data Rows ---
                           ...dataList.map((item) {
+                            bool isMissed = item.checkIn == null;
                             return TableRow(
                               children: [
-                                // Client Name
-                                _DataCell(Text(item.customerName, textAlign: TextAlign.center)),
-
-                                // Visit Date
-                                _DataCell(Text(dateFormat.format(item.visitDate), textAlign: TextAlign.center)),
-
-                                // Check-In
+                                _DataCell(Text(item.customerName,
+                                    textAlign: TextAlign.center)),
+                                _DataCell(Text(
+                                    dateFormat.format(item.visitDate),
+                                    textAlign: TextAlign.center)),
                                 _DataCell(
                                   item.checkIn != null
-                                      ? _TimeWithLocation(time: timeFormat.format(item.checkIn!))
+                                      ? _TimeWithLocation(
+                                          time:
+                                              timeFormat.format(item.checkIn!))
                                       : const SizedBox(),
                                 ),
-
-                                // Check-Out
                                 _DataCell(
                                   item.checkOut != null
-                                      ? _TimeWithLocation(time: timeFormat.format(item.checkOut!))
+                                      ? _TimeWithLocation(
+                                          time:
+                                              timeFormat.format(item.checkOut!))
                                       : const SizedBox(),
                                 ),
                               ],

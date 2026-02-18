@@ -99,7 +99,18 @@ class VisitReportDialog extends StatelessWidget {
         // We use the existing _Badge widget, but now it's wrapped
         child: _Badge(data.visited, Colors.green),
       ),
-                                _Badge(data.missed, Colors.redAccent),
+                              InkWell(
+      onTap: () {
+        if (data.missed > 0 && data.missedEventIds.isNotEmpty) {
+          showDialog(
+            context: context,
+            // Pass MISSED IDs
+            builder: (_) => CustomerDetailsDialog(eventIds: data.missedEventIds),
+          );
+        }
+      },
+      child: _Badge(data.missed, Colors.redAccent),
+    ),
                                 _Badge(data.total, Colors.blueAccent),
                               ],
                             );

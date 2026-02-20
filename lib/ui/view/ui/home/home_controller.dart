@@ -184,45 +184,58 @@ class HomeController extends GetxController {
 
   changePageRouting() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_isDisposed) return;
+      // if (_isDisposed) return;
 
-      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
+      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0 &&  selectedIndex.value != -2) {
         Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 1 &&
           selectedIndex.value != 1) {
         Get.offNamed(AppRoutes.customersAndOrders, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 2 &&
           selectedIndex.value != 2) {
         Get.offNamed(AppRoutes.product, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 3 &&
           selectedIndex.value != 3) {
         Get.offNamed(AppRoutes.pendingPayment, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 4 &&
           selectedIndex.value != 4) {
         Get.offNamed(AppRoutes.leads, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
         Get.offNamed(AppRoutes.calender, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } 
      
       else if 
       (sidebarXController.selectedIndex == 6 &&
         selectedIndex.value != 6) {
       Get.offNamed(AppRoutes.salesReturn, id: 2);
+       selectedIndex.value = sidebarXController.selectedIndex;
     } 
      else if (sidebarXController.selectedIndex == 7 &&
           selectedIndex.value != 7) {
         Get.offNamed(AppRoutes.ordersScreen, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } 
       else if (sidebarXController.selectedIndex == 8 &&
           selectedIndex.value != 8) {
         Get.offNamed(AppRoutes.performance, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } 
        
       
       else if (sidebarXController.selectedIndex == 9 &&
           selectedIndex.value != 9) {
         Get.offNamed(AppRoutes.settings, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
+      }
+       if (selectedIndex.value == -2) {
+        selectedIndex.value = -1;
       }
       selectedIndex.value = sidebarXController.selectedIndex;
     });
@@ -325,29 +338,29 @@ class HomeController extends GetxController {
             },
           );
         } else {
-         // --- OUR PREVIOUS CLEARING LOGIC ---
-         if (index == 2) {
-  try {
-    final productsController = Get.find<ProductsController>();
-    productsController.selectedCustomerId.value = '';
-    productsController.selectedCustomerName.value = '';
-    productsController.customerAndOrderData.update((val) {
-      if (val != null) val.customerId = '';
-    });
+//          // --- OUR PREVIOUS CLEARING LOGIC ---
+//          if (index == 2) {
+//   try {
+//     final productsController = Get.find<ProductsController>();
+//     productsController.selectedCustomerId.value = '';
+//     productsController.selectedCustomerName.value = '';
+//     productsController.customerAndOrderData.update((val) {
+//       if (val != null) val.customerId = '';
+//     });
 
-    final customerOrderController = Get.find<CustomerAndOrderController>();
-    customerOrderController.setCustomerId('');
-    customerOrderController.isActive.value = false;
-  } catch (e) {
-    print("-> Error clearing controllers: $e");
-  }
-}
+//     final customerOrderController = Get.find<CustomerAndOrderController>();
+//     customerOrderController.setCustomerId('');
+//     customerOrderController.isActive.value = false;
+//   } catch (e) {
+//     print("-> Error clearing controllers: $e");
+//   }
+// }
 
-// ✅ Add a frame delay so Obx sees the cleared value BEFORE ProductScreen rebuilds
-WidgetsBinding.instance.addPostFrameCallback((_) {
-  changePageRouting();
-});
-          // -----------------------------------
+// // ✅ Add a frame delay so Obx sees the cleared value BEFORE ProductScreen rebuilds
+// WidgetsBinding.instance.addPostFrameCallback((_) {
+//   changePageRouting();
+// });
+//           // -----------------------------------
           changePageRouting();
         }
       },

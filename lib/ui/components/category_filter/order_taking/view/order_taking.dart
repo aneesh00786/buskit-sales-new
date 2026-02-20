@@ -1009,11 +1009,12 @@ class _OrderTakingState extends State<OrderTaking>
                           child: CustomSwitch(
                             initialValue: customerAndOrderController.isActive.value,
                             onChanged: (value) {
+                              print('customer id in check out switch:${widget.selectedCustId.toString()}');
                               customerAndOrderController.isActive.value = value;
                             },
                             active: customerAndOrderController.isActive.value,
                             selectedName: widget.productsController.selectedCustomerName.value,
-                            customerId: widget.selectedCustId.toString(),
+                            customerId:  widget.productsController.selectedCustomerId.value.toString(),
                           ),
                         )
                       ],
@@ -1311,6 +1312,7 @@ class _OrderTakingState extends State<OrderTaking>
                           child: CustomSwitch(
                             initialValue: customerAndOrderController.isActive.value,
                             onChanged: (value) {
+                               print('customer id in check out switch:${widget.selectedCustId.toString()}');
                               customerAndOrderController.isActive.value = value;
                             },
                             active: customerAndOrderController.isActive.value,

@@ -139,7 +139,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
         final lat = position.latitude.toString();
         final long = position.longitude.toString();
         final customerId = widget.customerId;
-
+  print('customer id :$customerId');
         if (!isOnline) {
           // Save request offline and change switch state immediately
           await _saveCheckInOutRequestOffline(
@@ -197,6 +197,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: subscriptionController.customerCheckInOut.value == "true"
           ? widget.selectedName.isNotEmpty

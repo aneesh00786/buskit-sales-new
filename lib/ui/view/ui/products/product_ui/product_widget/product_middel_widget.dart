@@ -10,20 +10,23 @@ class ProductMiddelWidget extends StatelessWidget {
   const ProductMiddelWidget({super.key, required this.productsController});
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return productsController.isReached.value
-          ? CustomerDachScreen(
-              isFromCalendar: true,
-              cusId: productsController.selectedCustomerId.value,
-              cusName: productsController.selectedCustomerName.value,
-              cusImage: productsController.selectedCustomerImageUrl.value,
-              cusEmail: productsController.selectedCustomerEmail.value,
-              cusMobile: productsController.selectedCustomerMobileNo.value,
-            )
-          : OrderTaking(
+    return OrderTaking(
               productsController: productsController,
               isDirectDialogue: true,
             );
-    });
+    // Obx(() {
+      // return productsController.isReached.value
+      //     ? 
+      //     CustomerDachScreen(
+      //         isFromCalendar: true,
+      //         cusId: productsController.selectedCustomerId.value,
+      //         cusName: productsController.selectedCustomerName.value,
+      //         cusImage: productsController.selectedCustomerImageUrl.value,
+      //         cusEmail: productsController.selectedCustomerEmail.value,
+      //         cusMobile: productsController.selectedCustomerMobileNo.value,
+      //       )
+      //     :
+        //  return  
+    // });
   }
 }

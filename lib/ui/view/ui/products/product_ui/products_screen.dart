@@ -27,7 +27,8 @@ class _ProductScreenState extends State<ProductScreen> {
     return OrientationBuilder(
       builder: (context, orientation) {
         return Scaffold(
-          body: Obx(() {
+          body: 
+          Obx(() {
             // 1. Get the raw ID
             final rawId = productsController.customerAndOrderData.value.customerId;
             

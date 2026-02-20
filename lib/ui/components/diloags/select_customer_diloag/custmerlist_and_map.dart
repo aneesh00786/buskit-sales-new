@@ -65,6 +65,8 @@ class CustomerMapScreen extends StatefulWidget {
   // Added these fields to receive data from the Popup Dialog
   final String? initialStartAddress;
   final String? initialEndAddress;
+  static bool isNavigatingFromDashboard = false;
+  static dynamic nextCustomerToVisit;
 
   CustomerMapScreen({
     super.key,
@@ -272,16 +274,31 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       _isDrawerOpen = !_isDrawerOpen;
     });
   }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && navigatedToMap) {
-      navigatedToMap = false;
-      if (selectedResult != null) {
+    if (state == AppLifecycleState.resumed) {
+      // 1. Standard flow: If navigation started from this Map Screen
+      if (navigatedToMap && selectedResult != null) {
+        navigatedToMap = false;
         _showReturnDialog(selectedResult!);
+      } 
+      // 2. NEW flow: If navigation started from the Dashboard Screen
+      else if (CustomerMapScreen.isNavigatingFromDashboard && CustomerMapScreen.nextCustomerToVisit != null) {
+        CustomerMapScreen.isNavigatingFromDashboard = false; // Reset flag
+        _showReturnDialog(CustomerMapScreen.nextCustomerToVisit!);
       }
     }
   }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed && navigatedToMap) {
+  //     navigatedToMap = false;
+  //     if (selectedResult != null) {
+  //       _showReturnDialog(selectedResult!);
+  //     }
+  //   }
+  // }
 
   void _showReturnDialog(Customer result) {
     showDialog(

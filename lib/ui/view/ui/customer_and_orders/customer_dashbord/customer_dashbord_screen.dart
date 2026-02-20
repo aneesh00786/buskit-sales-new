@@ -1,4 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously, non_constant_identifier_names, deprecated_member_use
+import 'dart:io';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
@@ -12,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/components/diloags/select_customer_diloag/custmerlist_and_map.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -19,6 +22,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -44,6 +48,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../api_handler/api_worker.dart';
 import 'package:hive/hive.dart';
 
@@ -170,6 +175,27 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             .setSelectedIndex(_tabController.index);
       }
     });
+  }
+  
+  void _navigateTooNext(double startLat, double startLng, double endLat, double endLng) async {
+    if (Platform.isAndroid) {
+      final Uri googleMapsUrl = Uri.parse('https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch Google Maps on Android';
+      }
+    } else if (Platform.isIOS) {
+      final Uri googleMapsUrl = Uri.parse('comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
+      final Uri appleMapsUrl = Uri.parse('https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else if (await canLaunchUrl(appleMapsUrl)) {
+        await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch any map application on iOS';
+      }
+    }
   }
 
   // --- NEW METHOD TO HANDLE MAP CHECK-IN ---
@@ -537,10 +563,56 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           
             child: Row(
               children: [
-               InkWell(
+                // Replace your existing InkWell inside the AppBar's leading Row with this:
+InkWell(
   onTap: () async {
     bool shouldProceed = await checkCustomerOut();
     if (!shouldProceed) return;
+
+    if (!context.mounted) return;
+
+    bool wantsToContinueNav = false;
+
+    // Show the Continue Navigation popup if coming from the map
+    if (widget.isFromGoogle) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text("Next Customer"),
+            content: const Text("Would you like to continue navigation to the next customer?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () {
+                  wantsToContinueNav = true;
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Continue Navigation",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
 
     // 1. PREVENT "BuildContext is no longer valid" CRASH
     if (!context.mounted) return;
@@ -554,9 +626,46 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
     // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
     productsController.customerAndOrderData.value.customerId = null;
-    productsController.customerAndOrderData.refresh(); // <--- This tells ProductScreen to rebuild instantly!
+    productsController.customerAndOrderData.refresh(); 
 
-    // 4. ROUTE SAFELY
+    // 4. Handle External Map Navigation for Next Customer
+    if (wantsToContinueNav) {
+      try {
+        final mapController = Get.find<CalenderMapController>();
+        final custOrderController = Get.find<CustomerAndOrderController>();
+        dynamic nextCustomer;
+
+        // Find the next unvisited customer in the route
+        for (var customer in mapController.selectedCustomers) {
+          if (customer.customerId != null && !custOrderController.visitedCustomerIds.contains(customer.customerId)) {
+            nextCustomer = customer;
+            break;
+          }
+        }
+
+        if (nextCustomer != null) {
+
+          CustomerMapScreen.isNavigatingFromDashboard = true;
+          CustomerMapScreen.nextCustomerToVisit = nextCustomer;
+          // Launch external navigation to the next customer
+          final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
+          final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
+          
+          _navigateTooNext(
+            currentLatitude,
+            currentLongitude,
+            double.parse(nextCustomer.latitude!),
+            double.parse(nextCustomer.longitude!),
+          );
+        } else {
+          showCustomToastDisplay(context, "Route completed! All customers visited.", Colors.green, Icons.check_circle);
+        }
+      } catch (e) {
+        print("Error finding next customer: $e");
+      }
+    }
+
+    // 5. ROUTE SAFELY (Go back to the Map View in the app)
     if (widget.isFromGoogle) {
       homeController.sidebarXController.selectIndex(5);
       homeController.selectedIndex.value = 5;
@@ -583,6 +692,52 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     ),
   ),
 ),
+//                InkWell(
+//   onTap: () async {
+//     bool shouldProceed = await checkCustomerOut();
+//     if (!shouldProceed) return;
+
+//     // 1. PREVENT "BuildContext is no longer valid" CRASH
+//     if (!context.mounted) return;
+
+//     customerOrderController.isActive.value = false;
+
+//     // 2. CLEAR THE SIMPLE OBSERVABLES
+//     productsController.selectedCustomerId.value = '';
+//     productsController.selectedCustomerName.value = '';
+//     customerOrderController.setCustomerId('');
+
+//     // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
+//     productsController.customerAndOrderData.value.customerId = null;
+//     productsController.customerAndOrderData.refresh(); 
+
+//     // 4. ROUTE SAFELY
+//     if (widget.isFromGoogle) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.back(id: 2); 
+//     } 
+//     else if (widget.isDirectDialogue) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.toNamed(AppRoutes.calender, id: 2);
+//     } 
+//     else {
+//       Navigator.pop(context);
+//     }
+//   },
+//   child: Container(
+//     decoration: BoxDecoration(
+//         color: primaryColor.withOpacity(0.2),
+//         borderRadius: BorderRadius.circular(4),
+//         border: Border.all(color: primaryColor)),
+//     child: const Icon(
+//       EneftyIcons.arrow_left_3_outline,
+//       color: primaryColor,
+//       size: 20,
+//     ),
+//   ),
+// ),
               //   InkWell(
               //   onTap: () async {
               //     bool shouldProceed = await checkCustomerOut();

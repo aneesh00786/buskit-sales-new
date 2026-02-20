@@ -457,551 +457,571 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 50,
-      ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // 1. MAIN CONTENT (MAP)
-          Positioned.fill(
-            child: Obx(() {
-              if (_mapController.isShowRouteLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              return _mapController.buildGoogleMap();
-            }),
-          ),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop)async {
+      if (didPop) return;
 
-          // 2. SIDEBAR (FIXED LEFT STRIP)
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 80),
-              child: Container(
-                width: 50,
-                color: primaryColor.withOpacity(0.2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu,
-                        size: 24,
-                        color: primaryColor,
-                      ),
-                      onPressed: _toggleDrawer,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+      // Clear customer context before going back
+      final productsController = Get.find<ProductsController>();
+      productsController.selectedCustomerId.value = '';
+      productsController.selectedCustomerName.value = '';
+      productsController.customerAndOrderData.update((val) {
+        if (val != null) val.customerId = '';
+      });
 
-          // 3. OVERLAY (Closes drawer on tap)
-          if (_isDrawerOpen)
+      final customerOrderController = Get.find<CustomerAndOrderController>();
+      customerOrderController.setCustomerId('');
+      customerOrderController.isActive.value = false;
+
+      Navigator.of(context).pop();
+    },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leadingWidth: 50,
+        ),
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            // 1. MAIN CONTENT (MAP)
             Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isDrawerOpen = false;
-                  });
-                },
+              child: Obx(() {
+                if (_mapController.isShowRouteLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return _mapController.buildGoogleMap();
+              }),
+            ),
+      
+            // 2. SIDEBAR (FIXED LEFT STRIP)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 80),
                 child: Container(
-                  color: Colors.transparent,
+                  width: 50,
+                  color: primaryColor.withOpacity(0.2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.menu,
+                          size: 24,
+                          color: primaryColor,
+                        ),
+                        onPressed: _toggleDrawer,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-
-          // 4. SLIDING DRAWER CONTENT
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            top: 0,
-            bottom: 0,
-            left: _isDrawerOpen ? 50 : -_drawerWidth,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 80),
-              child: Container(
-                width: _drawerWidth,
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 5,
-                    spreadRadius: 2,
-                  )
-                ]),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-
-                    // -- AUTOCOMPLETE FIELD: START LOCATION --
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: _buildAutoCompleteField(
-                        hint: 'Start Location',
-                        icon: Icons.my_location,
-                        controller: _startController,
-                        onLocationSelected: (latLng, address) {
-                          _startLatLng = latLng;
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // -- AUTOCOMPLETE FIELD: DESTINATION --
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: _buildAutoCompleteField(
-                        hint: 'Destination',
-                        icon: Icons.location_on,
-                        controller: _endController,
-                        onLocationSelected: (latLng, address) {
-                          _endLatLng = latLng;
-                          if (!_hasInputChanged)
-                            setState(() => _hasInputChanged = true);
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // -- GO BUTTON --
-                    if (_hasInputChanged)
+      
+            // 3. OVERLAY (Closes drawer on tap)
+            if (_isDrawerOpen)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isDrawerOpen = false;
+                    });
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+      
+            // 4. SLIDING DRAWER CONTENT
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              top: 0,
+              bottom: 0,
+              left: _isDrawerOpen ? 50 : -_drawerWidth,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 80),
+                child: Container(
+                  width: _drawerWidth,
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      spreadRadius: 2,
+                    )
+                  ]),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+      
+                      // -- AUTOCOMPLETE FIELD: START LOCATION --
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 40,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                            ),
-                            onPressed: _isRouteCalculating
-                                ? null
-                                : () async {
-                                    // 1. Validation
-                                    if (_startLatLng == null ||
-                                        _endLatLng == null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text(
-                                            "Please select start and destination points"),
-                                      ));
-                                      return;
-                                    }
-
-                                    setState(() => _isRouteCalculating = true);
-
-                                    try {
-                                      // 2. Update Controller State
-                                      _mapController.currentLatLng.value =
-                                          _startLatLng;
-                                      _mapController.searchedLatLng.value =
-                                          _endLatLng;
-
-                                      // 3. Prepare Data for API (Credit Debit)
-                                      // We use the customers currently selected/visible in controller
-                                      List<String> addresses = _mapController
-                                          .selectedCustomers
-                                          .map((customer) =>
-                                              customer.address.toString())
-                                          .toList();
-
-                                      // 4. API Call: Debit Credits
-                                      var creditResponse =
-                                          await ApiWorker().debitRouteCredits(
-                                        amount: addresses.length *
-                                            3, // Logic from dialog
-                                        details: 'ROUTE_UPDATE',
-                                        addresses: addresses,
-                                      );
-
-                                      // Update UI with new credit balance
-                                      await _mapController.updateCredit(
-                                        creditResponse.credit.toString(),
-                                      );
-
-                                      // 5. Refresh Route on Map
-                                      await _mapController.getDirections();
-
-                                      // 6. Fetch Metrics (Time/Distance)
-                                      await _mapController
-                                          .fetchDistanceAndTime();
-
-                                      // Clear Cache to force refresh of legs
-                                      setState(() {
-                                        _distanceDurationCache.clear();
-                                      });
-                                    } catch (e) {
-                                      print("Error updating route: $e");
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("Failed to update route"),
-                                      ));
-                                    } finally {
-                                      if (mounted)
-                                        setState(
-                                            () => _isRouteCalculating = false);
-                                    }
-                                  },
-                            child: _isRouteCalculating
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                        color: Colors.white, strokeWidth: 2))
-                                : const Text("Refresh route map",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold)),
-                          ),
+                        child: _buildAutoCompleteField(
+                          hint: 'Start Location',
+                          icon: Icons.my_location,
+                          controller: _startController,
+                          onLocationSelected: (latLng, address) {
+                            _startLatLng = latLng;
+                          },
                         ),
                       ),
-
-                    // Header and Start Navigation Button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Customer List',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton.icon(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.green.withOpacity(0.1),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                            ),
-                            icon: const Icon(Icons.play_arrow_rounded,
-                                color: Colors.green, size: 20),
-                            label: const Text("Start Navigation",
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold)),
-                            onPressed: () {
-                              final nextCustomer = _getNextUnvisitedCustomer();
-                              if (nextCustomer != null) {
-                                if (subscriptionController
-                                        .visitNavigation.value ==
-                                    "true") {
-                                  selectedResult = nextCustomer;
-                                  navigatedToMap = true;
-                                  final currentLatitude = _mapController
-                                          .currentLatLng.value?.latitude ??
-                                      0.0;
-                                  final currentLongitude = _mapController
-                                          .currentLatLng.value?.longitude ??
-                                      0.0;
-
-                                  // Close drawer and start nav
-                                  setState(() => _isDrawerOpen = false);
-
-                                  navigateToo(
-                                    currentLatitude,
-                                    currentLongitude,
-                                    double.parse(nextCustomer.latitude!),
-                                    double.parse(nextCustomer.longitude!),
-                                  );
-                                } else {
-                                  showDialog(
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (context) =>
-                                        const UpgradePlanScreen(),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content: Text(
-                                      "Route completed! All customers visited."),
-                                  backgroundColor: Colors.green,
-                                ));
-                              }
-                            },
-                          ),
-                        ],
+      
+                      const SizedBox(height: 10),
+      
+                      // -- AUTOCOMPLETE FIELD: DESTINATION --
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: _buildAutoCompleteField(
+                          hint: 'Destination',
+                          icon: Icons.location_on,
+                          controller: _endController,
+                          onLocationSelected: (latLng, address) {
+                            _endLatLng = latLng;
+                            if (!_hasInputChanged)
+                              setState(() => _hasInputChanged = true);
+                          },
+                        ),
                       ),
-                    ),
-                    _buildRouteSummary(),
-
-                    const Divider(),
-
-                    // List of Customers
-                    Expanded(
-                      child: Obx(() {
-                        if (_mapController.isShowRouteLoading.value) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-
-                        final displayList = _mapController.selectedCustomers;
-                      log('displaylistsssss: ${jsonEncode(displayList.map((e) => e.toJson()).toList())}');
-                        if (displayList.isEmpty) {
-                          return const Center(child: Text("No routes found"));
-                        }
-
-                        return ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: displayList.length,
-                          itemBuilder: (context, index) {
-                            final result = displayList[index];
-                            if (!_distanceDurationCache
-                                    .containsKey(result.customerId) &&
-                                _mapController.currentLatLng.value != null) {
-                              fetchLegDistanceAndDuration(
-                                  result, index, displayList);
-                            }
-                            final cacheKey = "${index}_${result.customerId}";
-                            final distance = _distanceDurationCache[cacheKey]
-                                    ?['distance'] ??
-                                '...';
-                            final duration = _distanceDurationCache[cacheKey]
-                                    ?['duration'] ??
-                                '...';
-                            final isLoading =
-                                _isLoadingDistance[result.customerId] == true;
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 4.0),
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 3,
-                                shadowColor: Colors.black.withOpacity(0.2),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 0),
-                                  onTap: () {
-                                    if (result.latitude != null &&
-                                        result.longitude != null) {
-                                      _mapController.zoomToLocation(
-                                        double.parse(result.latitude!),
-                                        double.parse(result.longitude!),
-                                      );
-                                      // Close drawer after selection to see map
-                                      setState(() {
-                                        _isDrawerOpen = false;
-                                      });
-                                    }
-                                  },
-                                  // FIX 1: Added SizedBox to prevent "Leading widget consumes entire width" error
-                                  leading: SizedBox(
-                                    width: 60,
-                                    // 1. We PUT OBX BACK because visitedCustomerIds is now reactive (.obs)
-                                    // This ensures the checkmark appears immediately without refreshing.
-                                    child: Obx(() {
-                                      // 2. We REMOVED "(... ?? [])"
-                                      // Since we defined it as RxSet in the controller, it is never null.
-                                      bool isVisited =
-                                          customerAndOrderController
-                                              .visitedCustomerIds
-                                              .contains(result.customerId);
-
-                                      if (isVisited) {
-                                        return const Center(
-                                          child: CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: Colors.green,
-                                            child: Icon(Icons.check,
-                                                color: Colors.white, size: 18),
-                                          ),
-                                        );
+      
+                      const SizedBox(height: 10),
+      
+                      // -- GO BUTTON --
+                      if (_hasInputChanged)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 40,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              onPressed: _isRouteCalculating
+                                  ? null
+                                  : () async {
+                                      // 1. Validation
+                                      if (_startLatLng == null ||
+                                          _endLatLng == null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text(
+                                              "Please select start and destination points"),
+                                        ));
+                                        return;
                                       }
-                                      return Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "${index + 1}.",
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Expanded(
+      
+                                      setState(() => _isRouteCalculating = true);
+      
+                                      try {
+                                        // 2. Update Controller State
+                                        _mapController.currentLatLng.value =
+                                            _startLatLng;
+                                        _mapController.searchedLatLng.value =
+                                            _endLatLng;
+      
+                                        // 3. Prepare Data for API (Credit Debit)
+                                        // We use the customers currently selected/visible in controller
+                                        List<String> addresses = _mapController
+                                            .selectedCustomers
+                                            .map((customer) =>
+                                                customer.address.toString())
+                                            .toList();
+      
+                                        // 4. API Call: Debit Credits
+                                        var creditResponse =
+                                            await ApiWorker().debitRouteCredits(
+                                          amount: addresses.length *
+                                              3, // Logic from dialog
+                                          details: 'ROUTE_UPDATE',
+                                          addresses: addresses,
+                                        );
+      
+                                        // Update UI with new credit balance
+                                        await _mapController.updateCredit(
+                                          creditResponse.credit.toString(),
+                                        );
+      
+                                        // 5. Refresh Route on Map
+                                        await _mapController.getDirections();
+      
+                                        // 6. Fetch Metrics (Time/Distance)
+                                        await _mapController
+                                            .fetchDistanceAndTime();
+      
+                                        // Clear Cache to force refresh of legs
+                                        setState(() {
+                                          _distanceDurationCache.clear();
+                                        });
+                                      } catch (e) {
+                                        print("Error updating route: $e");
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text("Failed to update route"),
+                                        ));
+                                      } finally {
+                                        if (mounted)
+                                          setState(
+                                              () => _isRouteCalculating = false);
+                                      }
+                                    },
+                              child: _isRouteCalculating
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white, strokeWidth: 2))
+                                  : const Text("Refresh route map",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+      
+                      // Header and Start Navigation Button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Customer List',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.green.withOpacity(0.1),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                              ),
+                              icon: const Icon(Icons.play_arrow_rounded,
+                                  color: Colors.green, size: 20),
+                              label: const Text("Start Navigation",
+                                  style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold)),
+                              onPressed: () {
+                                final nextCustomer = _getNextUnvisitedCustomer();
+                                if (nextCustomer != null) {
+                                  if (subscriptionController
+                                          .visitNavigation.value ==
+                                      "true") {
+                                    selectedResult = nextCustomer;
+                                    navigatedToMap = true;
+                                    final currentLatitude = _mapController
+                                            .currentLatLng.value?.latitude ??
+                                        0.0;
+                                    final currentLongitude = _mapController
+                                            .currentLatLng.value?.longitude ??
+                                        0.0;
+      
+                                    // Close drawer and start nav
+                                    setState(() => _isDrawerOpen = false);
+      
+                                    navigateToo(
+                                      currentLatitude,
+                                      currentLongitude,
+                                      double.parse(nextCustomer.latitude!),
+                                      double.parse(nextCustomer.longitude!),
+                                    );
+                                  } else {
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (context) =>
+                                          const UpgradePlanScreen(),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text(
+                                        "Route completed! All customers visited."),
+                                    backgroundColor: Colors.green,
+                                  ));
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      _buildRouteSummary(),
+      
+                      const Divider(),
+      
+                      // List of Customers
+                      Expanded(
+                        child: Obx(() {
+                          if (_mapController.isShowRouteLoading.value) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+      
+                          final displayList = _mapController.selectedCustomers;
+                        log('displaylistsssss: ${jsonEncode(displayList.map((e) => e.toJson()).toList())}');
+                          if (displayList.isEmpty) {
+                            return const Center(child: Text("No routes found"));
+                          }
+      
+                          return ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: displayList.length,
+                            itemBuilder: (context, index) {
+                              final result = displayList[index];
+                              if (!_distanceDurationCache
+                                      .containsKey(result.customerId) &&
+                                  _mapController.currentLatLng.value != null) {
+                                fetchLegDistanceAndDuration(
+                                    result, index, displayList);
+                              }
+                              final cacheKey = "${index}_${result.customerId}";
+                              final distance = _distanceDurationCache[cacheKey]
+                                      ?['distance'] ??
+                                  '...';
+                              final duration = _distanceDurationCache[cacheKey]
+                                      ?['duration'] ??
+                                  '...';
+                              final isLoading =
+                                  _isLoadingDistance[result.customerId] == true;
+      
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: Card(
+                                  color: Colors.white,
+                                  elevation: 3,
+                                  shadowColor: Colors.black.withOpacity(0.2),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 0),
+                                    onTap: () {
+                                      if (result.latitude != null &&
+                                          result.longitude != null) {
+                                        _mapController.zoomToLocation(
+                                          double.parse(result.latitude!),
+                                          double.parse(result.longitude!),
+                                        );
+                                        // Close drawer after selection to see map
+                                        setState(() {
+                                          _isDrawerOpen = false;
+                                        });
+                                      }
+                                    },
+                                    // FIX 1: Added SizedBox to prevent "Leading widget consumes entire width" error
+                                    leading: SizedBox(
+                                      width: 60,
+                                      // 1. We PUT OBX BACK because visitedCustomerIds is now reactive (.obs)
+                                      // This ensures the checkmark appears immediately without refreshing.
+                                      child: Obx(() {
+                                        // 2. We REMOVED "(... ?? [])"
+                                        // Since we defined it as RxSet in the controller, it is never null.
+                                        bool isVisited =
+                                            customerAndOrderController
+                                                .visitedCustomerIds
+                                                .contains(result.customerId);
+      
+                                        if (isVisited) {
+                                          return const Center(
                                             child: CircleAvatar(
-                                              radius: 18,
-                                              backgroundImage: NetworkImage(
-                                                '${ApiConstants.imageBaseUrl}${result.imageUrl}',
+                                              radius: 16,
+                                              backgroundColor: Colors.green,
+                                              child: Icon(Icons.check,
+                                                  color: Colors.white, size: 18),
+                                            ),
+                                          );
+                                        }
+                                        return Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${index + 1}.",
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                  ),
-                                  title: CustomText(
-                                    content: result.businessName,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 2),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.location_on,
-                                              size: 12, color: Colors.red),
-                                          const SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              result.address!,
-                                              overflow: TextOverflow.ellipsis,
-                                              style:
-                                                  const TextStyle(fontSize: 11),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                  EneftyIcons.routing_outline,
-                                                  color: primaryColor,
-                                                  size: 14),
-                                              const SizedBox(width: 2),
-                                              isLoading
-                                                  ? const SizedBox(
-                                                      width: 10,
-                                                      height: 10,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                              strokeWidth: 2))
-                                                  : Text(distance,
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontSize: 11)),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  EneftyIcons.clock_2_outline,
-                                                  color: Colors.red,
-                                                  size: 14),
-                                              const SizedBox(width: 2),
-                                              isLoading
-                                                  ? const SizedBox(
-                                                      width: 10,
-                                                      height: 10,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                              strokeWidth: 2))
-                                                  : Text(duration,
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontSize: 11)),
-                                            ],
-                                          ),
-                                          Obx(() {
-                                            if (_mapController
-                                                    .currentLatLng.value ==
-                                                null) {
-                                              return const SizedBox(
-                                                  width: 15,
-                                                  height: 15,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                          strokeWidth: 2));
-                                            }
-                                            return InkWell(
-                                              onTap: () {
-                                                if (subscriptionController
-                                                        .visitNavigation
-                                                        .value ==
-                                                    "true") {
-                                                  selectedResult = result;
-                                                  navigatedToMap = true;
-                                                  final currentLatitude =
-                                                      _mapController
-                                                              .currentLatLng
-                                                              .value
-                                                              ?.latitude ??
-                                                          0.0;
-                                                  final currentLongitude =
-                                                      _mapController
-                                                              .currentLatLng
-                                                              .value
-                                                              ?.longitude ??
-                                                          0.0;
-
-                                                  // Close drawer
-                                                  setState(() =>
-                                                      _isDrawerOpen = false);
-
-                                                  navigateToo(
-                                                    currentLatitude,
-                                                    currentLongitude,
-                                                    double.parse(
-                                                        result.latitude!),
-                                                    double.parse(
-                                                        result.longitude!),
-                                                  );
-                                                } else {
-                                                  showDialog(
-                                                    barrierDismissible: false,
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        const UpgradePlanScreen(),
-                                                  );
-                                                }
-                                              },
-                                              child: const Padding(
-                                                padding: EdgeInsets.all(4.0),
-                                                child: Icon(
-                                                    Icons.near_me_outlined,
-                                                    size: 18,
-                                                    color: Colors.blue),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: CircleAvatar(
+                                                radius: 18,
+                                                backgroundImage: NetworkImage(
+                                                  '${ApiConstants.imageBaseUrl}${result.imageUrl}',
+                                                ),
                                               ),
-                                            );
-                                          })
-                                        ],
-                                      )
-                                    ],
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                    ),
+                                    title: CustomText(
+                                      content: result.businessName,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_on,
+                                                size: 12, color: Colors.red),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                result.address!,
+                                                overflow: TextOverflow.ellipsis,
+                                                style:
+                                                    const TextStyle(fontSize: 11),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                    EneftyIcons.routing_outline,
+                                                    color: primaryColor,
+                                                    size: 14),
+                                                const SizedBox(width: 2),
+                                                isLoading
+                                                    ? const SizedBox(
+                                                        width: 10,
+                                                        height: 10,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                                strokeWidth: 2))
+                                                    : Text(distance,
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontSize: 11)),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                    EneftyIcons.clock_2_outline,
+                                                    color: Colors.red,
+                                                    size: 14),
+                                                const SizedBox(width: 2),
+                                                isLoading
+                                                    ? const SizedBox(
+                                                        width: 10,
+                                                        height: 10,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                                strokeWidth: 2))
+                                                    : Text(duration,
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontSize: 11)),
+                                              ],
+                                            ),
+                                            Obx(() {
+                                              if (_mapController
+                                                      .currentLatLng.value ==
+                                                  null) {
+                                                return const SizedBox(
+                                                    width: 15,
+                                                    height: 15,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2));
+                                              }
+                                              return InkWell(
+                                                onTap: () {
+                                                  if (subscriptionController
+                                                          .visitNavigation
+                                                          .value ==
+                                                      "true") {
+                                                    selectedResult = result;
+                                                    navigatedToMap = true;
+                                                    final currentLatitude =
+                                                        _mapController
+                                                                .currentLatLng
+                                                                .value
+                                                                ?.latitude ??
+                                                            0.0;
+                                                    final currentLongitude =
+                                                        _mapController
+                                                                .currentLatLng
+                                                                .value
+                                                                ?.longitude ??
+                                                            0.0;
+      
+                                                    // Close drawer
+                                                    setState(() =>
+                                                        _isDrawerOpen = false);
+      
+                                                    navigateToo(
+                                                      currentLatitude,
+                                                      currentLongitude,
+                                                      double.parse(
+                                                          result.latitude!),
+                                                      double.parse(
+                                                          result.longitude!),
+                                                    );
+                                                  } else {
+                                                    showDialog(
+                                                      barrierDismissible: false,
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          const UpgradePlanScreen(),
+                                                    );
+                                                  }
+                                                },
+                                                child: const Padding(
+                                                  padding: EdgeInsets.all(4.0),
+                                                  child: Icon(
+                                                      Icons.near_me_outlined,
+                                                      size: 18,
+                                                      color: Colors.blue),
+                                                ),
+                                              );
+                                            })
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                    ),
-                  ],
+                              );
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

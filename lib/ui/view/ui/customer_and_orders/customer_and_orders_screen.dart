@@ -200,6 +200,24 @@ class _TableeeState extends State<Tableee> {
             child: BottomTotalWidget(
                 scrollController: _scrollController2, provider: provider),
           ),
+          // Positioned.fill(
+          //   child: Consumer<CustomersProvider>(
+          //     builder: (context, custProvider, child) {
+          //       if (custProvider.isLoading) {
+          //         return Container(
+          //           color: Colors.white.withOpacity(0.4), // Dims the background
+          //           child: const Center(
+          //             child: CircularProgressIndicator(
+          //               color: Colors.blue,
+          //               strokeWidth: 3.0,
+          //             ),
+          //           ),
+          //         );
+          //       }
+          //       return const SizedBox.shrink(); // Shows nothing when not loading
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
@@ -2461,8 +2479,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             : (fullScreenHeight(context) - (66 * 3)) / 11.5;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
-      if (provider.isLoading) {
-        return const Center(child: CircularProgressIndicator());
+     if (provider.isLoading) {
+        return const Center(child: CircularProgressIndicator(color: primaryColor));
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(

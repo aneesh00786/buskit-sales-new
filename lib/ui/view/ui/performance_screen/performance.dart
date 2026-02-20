@@ -363,10 +363,15 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         ? () => showCustomToastDisplay(
                             context, 'Record Not Found', red, Icons.close)
                         : () {
+                          int selectedYearInt = int.tryParse(selectedValue) ?? currentYear;
+            int selectedMonthInt = staffController.tabController.index + 1;
                             Get.dialog(
-                              StaffRouteDialog(
-                                  staffController: staffController),
-                            );
+              StaffRouteDialog(
+                staffController: staffController,
+                selectedYear: selectedYearInt,
+                selectedMonth: selectedMonthInt,
+              ),
+            );
                           }),
                             OptionData(
                   title: ' Visit Report',

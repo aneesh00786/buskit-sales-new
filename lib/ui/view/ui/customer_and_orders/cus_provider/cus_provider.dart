@@ -231,9 +231,18 @@ class CustomersProvider with ChangeNotifier {
     }
   }
   void updateDashboardYear(int year) {
-    _selectedDashboardYear = year;
-    notifyListeners();
+    if (_selectedDashboardYear != year) {
+      _selectedDashboardYear = year;
+      // Delay the UI update until the current build frame is fully completed
+      Future.microtask(() {
+        notifyListeners();
+      });
+    }
   }
+  // void updateDashboardYear(int year) {
+  //   _selectedDashboardYear = year;
+  //   notifyListeners();
+  // }
 
   Future<void> updateCartCount(String customerId) async {
     try {
@@ -514,6 +523,7 @@ Future<void> fetchChartCategoryPerformance(
   // final now = DateTime.now(); <-- This was forcing it to be the current real-world year
   
   // FIX: Use the variable you updated in step 2 of your dropdown logic
+  if (customerId.isEmpty) return;
   final int yearToUse = _selectedDashboardYear; // or selectedDashboardYear (depending on your variable name)
 
   final dateFormat = DateFormat('yyyy-MM-dd');
@@ -604,6 +614,7 @@ Future<void> fetchChartCategoryPerformance(
   }
 
   Future<void> fetchCustomersDataDash(String customerId) async {
+    if (customerId.isEmpty) return;
     try {
       _customerResponse = _apiService.fetchOneCustomer(customerId);
       notifyListeners();
@@ -718,6 +729,7 @@ Future<void> fetchChartCategoryPerformance(
   int? _selectedYear;
 
   Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
+    if (customerId.isEmpty) return;
     final now = DateTime.now();
     int currentYear = now.year;
     try {
@@ -745,6 +757,7 @@ Future<void> fetchChartCategoryPerformance(
   // }
 
   Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
+    if (customerId.isEmpty) return;
     // OLD (Problematic):
     // final now = DateTime.now();
     // final startDate = DateTime(now.year, 1, 1);
@@ -798,6 +811,7 @@ Future<void> fetchChartCategoryPerformance(
 
  Future<void> fetchCustomerDashboardData(String customerId) async {
     // USE THE SELECTED YEAR HERE
+    if (customerId.isEmpty) return;
     int currentYear = _selectedDashboardYear; 
     
     final startDate = DateTime(currentYear, 1, 1);
@@ -1283,22 +1297,53 @@ Future<void> fetchChartCategoryPerformance(
   }
 
   /// Handles pagination clicks for both online and offline modes
-  void handlePaginationClick(int page) async {
+
+
+void handlePaginationClick(int page) async {
     if (page == _currentPage) return; // No change needed
+
+    // 1. Instantly tell the UI to hide the table and show the spinner
+    _isLoading = true; 
+    notifyListeners();
 
     _currentPage = page;
 
-    // Check if we're offline and have an active search
+    // 2. Now perform the async internet check
     bool isOnline = await ConnectivityService().isOnline();
+    
     if (!isOnline && _searchCustomerName.isNotEmpty) {
-      // For offline search, just update the UI since all results are already loaded
+      // 3. Add a tiny artificial delay so the user actually sees the transition
+      // Otherwise, the local swap happens so fast the UI might just flash
+      await Future.delayed(const Duration(milliseconds: 300));
+      
       logCurrentState();
+      
+      // 4. Turn off loading to bring the table back
+      _isLoading = false; 
       notifyListeners();
     } else {
       // For normal browsing or online search, fetch data for the new page
+      // (Just double-check that your fetchCustomerData() method sets isLoading = false when it finishes!)
       fetchCustomerData(page: page);
     }
   }
+  
+  // void handlePaginationClick(int page) async {
+  //   if (page == _currentPage) return; // No change needed
+
+  //   _currentPage = page;
+
+  //   // Check if we're offline and have an active search
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline && _searchCustomerName.isNotEmpty) {
+  //     // For offline search, just update the UI since all results are already loaded
+  //     logCurrentState();
+  //     notifyListeners();
+  //   } else {
+  //     // For normal browsing or online search, fetch data for the new page
+  //     fetchCustomerData(page: page);
+  //   }
+  // }
 
   // Future<void> addEvent(
   //     String customerId, int eventStatus, List<String> daysList) async {

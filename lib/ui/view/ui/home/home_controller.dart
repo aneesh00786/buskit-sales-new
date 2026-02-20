@@ -11,12 +11,14 @@ import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/sales_return.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:dio/dio.dart';
@@ -281,6 +283,7 @@ class HomeController extends GetxController {
     return SidebarXItem(
       icon: iconData,
       onTap: () async {
+        print("====== SIDEBAR TAPPED! Index: $index | Title: $barTitle ======");
         homeScaffoldKey.currentState?.closeDrawer();
         if (isLogout) {
           showDialog(
@@ -322,6 +325,29 @@ class HomeController extends GetxController {
             },
           );
         } else {
+         // --- OUR PREVIOUS CLEARING LOGIC ---
+         if (index == 2) {
+  try {
+    final productsController = Get.find<ProductsController>();
+    productsController.selectedCustomerId.value = '';
+    productsController.selectedCustomerName.value = '';
+    productsController.customerAndOrderData.update((val) {
+      if (val != null) val.customerId = '';
+    });
+
+    final customerOrderController = Get.find<CustomerAndOrderController>();
+    customerOrderController.setCustomerId('');
+    customerOrderController.isActive.value = false;
+  } catch (e) {
+    print("-> Error clearing controllers: $e");
+  }
+}
+
+// ✅ Add a frame delay so Obx sees the cleared value BEFORE ProductScreen rebuilds
+WidgetsBinding.instance.addPostFrameCallback((_) {
+  changePageRouting();
+});
+          // -----------------------------------
           changePageRouting();
         }
       },

@@ -537,37 +537,83 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           
             child: Row(
               children: [
-                InkWell(
-                onTap: () async {
-                  bool shouldProceed = await checkCustomerOut();
-                  if (!shouldProceed) return;
+               InkWell(
+  onTap: () async {
+    bool shouldProceed = await checkCustomerOut();
+    if (!shouldProceed) return;
+
+    // 1. PREVENT "BuildContext is no longer valid" CRASH
+    if (!context.mounted) return;
+
+    customerOrderController.isActive.value = false;
+
+    // 2. CLEAR THE SIMPLE OBSERVABLES
+    productsController.selectedCustomerId.value = '';
+    productsController.selectedCustomerName.value = '';
+    customerOrderController.setCustomerId('');
+
+    // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
+    productsController.customerAndOrderData.value.customerId = null;
+    productsController.customerAndOrderData.refresh(); // <--- This tells ProductScreen to rebuild instantly!
+
+    // 4. ROUTE SAFELY
+    if (widget.isFromGoogle) {
+      homeController.sidebarXController.selectIndex(5);
+      homeController.selectedIndex.value = 5;
+      Get.back(id: 2); 
+    } 
+    else if (widget.isDirectDialogue) {
+      homeController.sidebarXController.selectIndex(5);
+      homeController.selectedIndex.value = 5;
+      Get.toNamed(AppRoutes.calender, id: 2);
+    } 
+    else {
+      Navigator.pop(context);
+    }
+  },
+  child: Container(
+    decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: primaryColor)),
+    child: const Icon(
+      EneftyIcons.arrow_left_3_outline,
+      color: primaryColor,
+      size: 20,
+    ),
+  ),
+),
+              //   InkWell(
+              //   onTap: () async {
+              //     bool shouldProceed = await checkCustomerOut();
+              //     if (!shouldProceed) return;
               
-                  customerOrderController.isActive.value = false;
+              //     customerOrderController.isActive.value = false;
               
-                  if (widget.isFromGoogle) {
-                    Get.back(id: 2); 
-                  } 
-                  else if (widget.isDirectDialogue) {
-                    homeController.sidebarXController.selectIndex(5);
-                    homeController.selectedIndex.value = 5;
-                    Get.toNamed(AppRoutes.calender, id: 2);
-                  } 
-                  else {
-                    Navigator.pop(context);
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: primaryColor)),
-                  child: const Icon(
-                    EneftyIcons.arrow_left_3_outline,
-                    color: primaryColor,
-                    size: 20,
-                  ),
-                ),
-              ),
+              //     if (widget.isFromGoogle) {
+              //       Get.back(id: 2); 
+              //     } 
+              //     else if (widget.isDirectDialogue) {
+              //       homeController.sidebarXController.selectIndex(5);
+              //       homeController.selectedIndex.value = 5;
+              //       Get.toNamed(AppRoutes.calender, id: 2);
+              //     } 
+              //     else {
+              //       Navigator.pop(context);
+              //     }
+              //   },
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //         color: primaryColor.withOpacity(0.2),
+              //         borderRadius: BorderRadius.circular(4),
+              //         border: Border.all(color: primaryColor)),
+              //     child: const Icon(
+              //       EneftyIcons.arrow_left_3_outline,
+              //       color: primaryColor,
+              //       size: 20,
+              //     ),
+              //   ),
+              // ),
                   SizedBox(
                 width: 10,
               ),

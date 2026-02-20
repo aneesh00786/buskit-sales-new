@@ -17,10 +17,14 @@ import 'package:intl/intl.dart'; // Required for time formatting
 
 class StaffRouteDialog extends StatefulWidget {
   final StaffController staffController;
+  final int selectedYear;
+  final int selectedMonth;
 
   const StaffRouteDialog({
     super.key,
     required this.staffController,
+    required this.selectedYear,
+    required this.selectedMonth,
   });
 
   @override
@@ -39,10 +43,59 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   @override
   void initState() {
     super.initState();
+    DateTime now = DateTime.now();
+    if (widget.selectedYear == now.year && widget.selectedMonth == now.month) {
+      _focusedDay = now; // Set to today's exact date
+    } else {
+      // Otherwise, find the first working day of that specific month
+      _focusedDay = _getFirstWorkingDay(widget.selectedYear, widget.selectedMonth);
+    }
     _selectedDay = _focusedDay;
     _initializeData();
   }
+  DateTime _getFirstWorkingDay(int year, int month) {
+    DateTime firstDayOfMonth = DateTime(year, month, 1);
 
+    // Grab the valid working days from SessionHelper
+    final rawDayList = SessionHelper.settingsData?.firstWhere(
+          (setting) => setting.key == 'day_list',
+          orElse: () => AllCompanySettingsData(
+            key: 'day_list',
+            value: '',
+          ),
+        ).value ?? '';
+
+    if (rawDayList.isEmpty) return firstDayOfMonth;
+
+    List<String> dayList = rawDayList.split(',').map((day) => day.trim()).toList();
+
+    const Map<String, int> dayNameToInt = {
+      'Monday': DateTime.monday,
+      'Tuesday': DateTime.tuesday,
+      'Wednesday': DateTime.wednesday,
+      'Thursday': DateTime.thursday,
+      'Friday': DateTime.friday,
+      'Saturday': DateTime.saturday,
+      'Sunday': DateTime.sunday,
+    };
+
+    List<int> parsedDays = dayList
+        .map((day) => dayNameToInt[day] ?? -1)
+        .where((day) => day != -1)
+        .toList();
+
+    if (parsedDays.isEmpty) return firstDayOfMonth;
+
+    // Loop through the first 7 days to find the first valid working day
+    for (int i = 0; i < 7; i++) {
+      DateTime currentDay = firstDayOfMonth.add(Duration(days: i));
+      if (parsedDays.contains(currentDay.weekday)) {
+        return currentDay;
+      }
+    }
+
+    return firstDayOfMonth; // Fallback
+  }
   Future<void> _initializeData() async {
     DateTime startDate = DateTime(_focusedDay.year, _focusedDay.month, 1);
     DateTime endDate = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);

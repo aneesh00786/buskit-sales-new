@@ -610,15 +610,76 @@ InkWell(
           }
         } else {
           // It's a real customer, show the "Continue Navigation" dialog
+
+          // It's a real customer, show the "Continue Navigation" dialog
+         // It's a real customer, show the "Continue Navigation" dialog
           await showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                title: const Text("Next Customer"),
-                content: Text("Would you like to continue navigation to the next customer (${nextCustomer.businessName})?"),
+                titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                title: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Aligns image and text to the top
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: Colors.blueAccent.withOpacity(0.2), width: 2),
+                      ),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.grey[100],
+                        backgroundImage: NetworkImage(
+                            '${ApiConstants.imageBaseUrl}${nextCustomer.imageUrl}'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Next: ${nextCustomer.businessName ?? 'Customer'}",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          // ---> ADDED THE ADDRESS ROW HERE <---
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.location_on, size: 14, color: Colors.red),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  nextCustomer.address ?? "Address not available",
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                content: const Padding(
+                  padding: EdgeInsets.only(top: 15.0),
+                  child: Text("Would you like to continue navigation to this customer?"),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -647,6 +708,7 @@ InkWell(
               );
             },
           );
+        
         }
       } else {
         // Fallback just in case the list is completely empty

@@ -7,7 +7,11 @@
     <list default="true" id="5660bd51-f1b0-4dde-9ee0-3a91c66f24cb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/components/option/model/option_order_responce.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/option/model/option_order_responce.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/performance.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/performance.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/option_container.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/option_container.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/options_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/options_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

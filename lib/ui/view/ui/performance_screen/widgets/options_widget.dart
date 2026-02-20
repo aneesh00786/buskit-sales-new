@@ -24,6 +24,7 @@ class OptionsWidget extends StatelessWidget {
               count: e.count,
               svg: e.svg,
               svgBgColor: e.svgBgColor,
+              month: e.month, // 👈 Pass the month down here!
             ),
           );
         }).toList(),

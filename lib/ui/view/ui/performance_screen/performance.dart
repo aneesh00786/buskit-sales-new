@@ -328,6 +328,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               options: [
                 OptionData(
                     title: 'Timesheet',
+                    month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.timesheet?.toString() ?? '0',
                     svg: "assets/icons/event.png",
@@ -355,6 +356,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 // ),
                 OptionData(
                     title: 'Visits',
+                    month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.visit?.toString() ?? '0',
                     svg: "assets/icons/location.png",
@@ -375,6 +377,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           }),
                             OptionData(
                   title: ' Visit Report',
+                  month: _selectedMonthName,
                   unfilteredCount: "0",
                  count: targetContent?.visitReport?.toString() ?? '0',
                   svg: "assets/icons/customer.png",
@@ -595,67 +598,4 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       ),
     );
   }
-
-  // void showTileDialog(
-  //     BuildContext context, String monthName, int tabStatus, bool isFull) {
-  //   staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) {
-  //         return Obx(() {
-  //           if (staffController.isTopDataLoading.value) {
-  //             return const Center(
-  //               child: CircularProgressIndicator(),
-  //             );
-  //           }
-
-  //           Widget dialogContent;
-  //           switch (tabStatus) {
-  //             case 1:
-  //               dialogContent = buildCheckInOutDialogContent(
-  //                   staffController.checkInOutData.value, staffController);
-  //             case 2:
-  //               dialogContent = buildCheckInOutDialogContent(
-  //                   staffController.checkInOutData.value, staffController);
-  //               break;
-  //             case 3:
-  //               dialogContent = buildVisitsDialogContent(
-  //                   staffController.visitData.value, staffController);
-  //               break;
-  //             case 4:
-  //               dialogContent = buildCustomersDialogContent(
-  //                   staffController.customerDatas.value, staffController);
-  //               break;
-  //             case 5:
-  //             dialogContent = const VisitReportDialog();
-  //             break;
-  //             default:
-  //               dialogContent = const Text('Unknown data.');
-  //           }
-
-  //           return Padding(
-  //             padding: isFull
-  //                 ? const EdgeInsets.all(10)
-  //                 : const EdgeInsets.symmetric(horizontal: 150),
-  //             child: Row(
-  //               children: [
-  //                 Expanded(
-  //                   child: Container(
-  //                     decoration: BoxDecoration(
-  //                       borderRadius: BorderRadius.circular(10),
-  //                       color: white,
-  //                     ),
-  //                     child: ClipRRect(
-  //                         borderRadius: BorderRadius.circular(10),
-  //                         child: dialogContent),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         });
-  //       },
-  //     );
-  //   });
-  // }
 }

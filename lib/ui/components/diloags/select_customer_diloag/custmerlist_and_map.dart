@@ -274,6 +274,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       _isDrawerOpen = !_isDrawerOpen;
     });
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -281,9 +282,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       if (navigatedToMap && selectedResult != null) {
         navigatedToMap = false;
         _showReturnDialog(selectedResult!);
-      } 
+      }
       // 2. NEW flow: If navigation started from the Dashboard Screen
-      else if (CustomerMapScreen.isNavigatingFromDashboard && CustomerMapScreen.nextCustomerToVisit != null) {
+      else if (CustomerMapScreen.isNavigatingFromDashboard &&
+          CustomerMapScreen.nextCustomerToVisit != null) {
         CustomerMapScreen.isNavigatingFromDashboard = false; // Reset flag
         _showReturnDialog(CustomerMapScreen.nextCustomerToVisit!);
       }
@@ -476,23 +478,23 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop)async {
-      if (didPop) return;
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
 
-      // Clear customer context before going back
-      final productsController = Get.find<ProductsController>();
-      productsController.selectedCustomerId.value = '';
-      productsController.selectedCustomerName.value = '';
-      productsController.customerAndOrderData.update((val) {
-        if (val != null) val.customerId = '';
-      });
+        // Clear customer context before going back
+        final productsController = Get.find<ProductsController>();
+        productsController.selectedCustomerId.value = '';
+        productsController.selectedCustomerName.value = '';
+        productsController.customerAndOrderData.update((val) {
+          if (val != null) val.customerId = '';
+        });
 
-      final customerOrderController = Get.find<CustomerAndOrderController>();
-      customerOrderController.setCustomerId('');
-      customerOrderController.isActive.value = false;
+        final customerOrderController = Get.find<CustomerAndOrderController>();
+        customerOrderController.setCustomerId('');
+        customerOrderController.isActive.value = false;
 
-      Navigator.of(context).pop();
-    },
+        Navigator.of(context).pop();
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -511,7 +513,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 return _mapController.buildGoogleMap();
               }),
             ),
-      
+
             // 2. SIDEBAR (FIXED LEFT STRIP)
             Positioned(
               left: 0,
@@ -539,7 +541,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 ),
               ),
             ),
-      
+
             // 3. OVERLAY (Closes drawer on tap)
             if (_isDrawerOpen)
               Positioned.fill(
@@ -554,7 +556,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   ),
                 ),
               ),
-      
+
             // 4. SLIDING DRAWER CONTENT
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
@@ -575,7 +577,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
-      
+
                       // -- AUTOCOMPLETE FIELD: START LOCATION --
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -588,9 +590,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                           },
                         ),
                       ),
-      
+
                       const SizedBox(height: 10),
-      
+
                       // -- AUTOCOMPLETE FIELD: DESTINATION --
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -605,9 +607,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                           },
                         ),
                       ),
-      
+
                       const SizedBox(height: 10),
-      
+
                       // -- GO BUTTON --
                       if (_hasInputChanged)
                         Padding(
@@ -634,16 +636,17 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                         ));
                                         return;
                                       }
-      
-                                      setState(() => _isRouteCalculating = true);
-      
+
+                                      setState(
+                                          () => _isRouteCalculating = true);
+
                                       try {
                                         // 2. Update Controller State
                                         _mapController.currentLatLng.value =
                                             _startLatLng;
                                         _mapController.searchedLatLng.value =
                                             _endLatLng;
-      
+
                                         // 3. Prepare Data for API (Credit Debit)
                                         // We use the customers currently selected/visible in controller
                                         List<String> addresses = _mapController
@@ -651,7 +654,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                             .map((customer) =>
                                                 customer.address.toString())
                                             .toList();
-      
+
                                         // 4. API Call: Debit Credits
                                         var creditResponse =
                                             await ApiWorker().debitRouteCredits(
@@ -660,19 +663,19 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           details: 'ROUTE_UPDATE',
                                           addresses: addresses,
                                         );
-      
+
                                         // Update UI with new credit balance
                                         await _mapController.updateCredit(
                                           creditResponse.credit.toString(),
                                         );
-      
+
                                         // 5. Refresh Route on Map
                                         await _mapController.getDirections();
-      
+
                                         // 6. Fetch Metrics (Time/Distance)
                                         await _mapController
                                             .fetchDistanceAndTime();
-      
+
                                         // Clear Cache to force refresh of legs
                                         setState(() {
                                           _distanceDurationCache.clear();
@@ -681,12 +684,13 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                         print("Error updating route: $e");
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(
-                                          content: Text("Failed to update route"),
+                                          content:
+                                              Text("Failed to update route"),
                                         ));
                                       } finally {
                                         if (mounted)
-                                          setState(
-                                              () => _isRouteCalculating = false);
+                                          setState(() =>
+                                              _isRouteCalculating = false);
                                       }
                                     },
                               child: _isRouteCalculating
@@ -702,7 +706,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                             ),
                           ),
                         ),
-      
+
                       // Header and Start Navigation Button
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -731,7 +735,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold)),
                               onPressed: () {
-                                final nextCustomer = _getNextUnvisitedCustomer();
+                                final nextCustomer =
+                                    _getNextUnvisitedCustomer();
                                 if (nextCustomer != null) {
                                   if (subscriptionController
                                           .visitNavigation.value ==
@@ -744,10 +749,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                     final currentLongitude = _mapController
                                             .currentLatLng.value?.longitude ??
                                         0.0;
-      
+
                                     // Close drawer and start nav
                                     setState(() => _isDrawerOpen = false);
-      
+
                                     navigateToo(
                                       currentLatitude,
                                       currentLongitude,
@@ -763,12 +768,20 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                     );
                                   }
                                 } else {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text(
-                                        "Route completed! All customers visited."),
+                                  Get.snackbar(
+                                    "Success",
+                                    "You have all ready completed all visits",
                                     backgroundColor: Colors.green,
-                                  ));
+                                    colorText: Colors.white,
+                                    snackPosition: SnackPosition.TOP,
+                                    margin: const EdgeInsets.all(10),
+                                  );
+                                  // ScaffoldMessenger.of(context)
+                                  //     .showSnackBar(const SnackBar(
+                                  //   content: Text(
+                                  //       "Route completed! All customers visited."),
+                                  //   backgroundColor: Colors.green,
+                                  // ));
                                 }
                               },
                             ),
@@ -776,9 +789,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                         ),
                       ),
                       _buildRouteSummary(),
-      
+
                       const Divider(),
-      
+
                       // List of Customers
                       Expanded(
                         child: Obx(() {
@@ -786,13 +799,13 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                             return const Center(
                                 child: CircularProgressIndicator());
                           }
-      
+
                           final displayList = _mapController.selectedCustomers;
-                        log('displaylistsssss: ${jsonEncode(displayList.map((e) => e.toJson()).toList())}');
+                          log('displaylistsssss: ${jsonEncode(displayList.map((e) => e.toJson()).toList())}');
                           if (displayList.isEmpty) {
                             return const Center(child: Text("No routes found"));
                           }
-      
+
                           return ListView.builder(
                             padding: EdgeInsets.zero,
                             itemCount: displayList.length,
@@ -813,7 +826,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                   '...';
                               final isLoading =
                                   _isLoadingDistance[result.customerId] == true;
-      
+
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8.0, vertical: 4.0),
@@ -849,14 +862,15 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                             customerAndOrderController
                                                 .visitedCustomerIds
                                                 .contains(result.customerId);
-      
+
                                         if (isVisited) {
                                           return const Center(
                                             child: CircleAvatar(
                                               radius: 16,
                                               backgroundColor: Colors.green,
                                               child: Icon(Icons.check,
-                                                  color: Colors.white, size: 18),
+                                                  color: Colors.white,
+                                                  size: 18),
                                             ),
                                           );
                                         }
@@ -904,8 +918,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               child: Text(
                                                 result.address!,
                                                 overflow: TextOverflow.ellipsis,
-                                                style:
-                                                    const TextStyle(fontSize: 11),
+                                                style: const TextStyle(
+                                                    fontSize: 11),
                                               ),
                                             ),
                                           ],
@@ -990,11 +1004,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                                 .value
                                                                 ?.longitude ??
                                                             0.0;
-      
+
                                                     // Close drawer
                                                     setState(() =>
                                                         _isDrawerOpen = false);
-      
+
                                                     navigateToo(
                                                       currentLatitude,
                                                       currentLongitude,

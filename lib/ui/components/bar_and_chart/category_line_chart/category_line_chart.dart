@@ -592,28 +592,61 @@ class _CustomBarChartCustomerDashState
 }
 
 Widget customUnderlinedText(String text) {
+  // 1. Truncate the text and add "...." if it exceeds 22 characters
+  String displayText = text.length > 20 ? '${text.substring(0, 20)}....' : text;
+
   return Stack(
     alignment: Alignment.centerLeft,
     children: [
       Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: MyRegularText(
-          label: text,
+          label: displayText, // 2. Use the new displayText
           style: const TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 13,
             color: Colors.black,
           ),
+          overflow: TextOverflow.ellipsis, // Kept as a fallback
         ),
       ),
       Positioned(
         bottom: 6,
         child: Container(
           height: 1.5,
-          width: text.length * 8.0,
+          // 3. Calculate the underline width using the displayText length
+          width: displayText.length * 8.0, 
           color: primaryColor,
         ),
       ),
     ],
   );
 }
+
+// Widget customUnderlinedText(String text) {
+//   return Stack(
+//     alignment: Alignment.centerLeft,
+//     children: [
+//       Padding(
+//         padding: const EdgeInsets.only(bottom: 4),
+//         child: MyRegularText(
+//           label: text,
+//           style: const TextStyle(
+//             fontWeight: FontWeight.w500,
+//             fontSize: 13,
+//             color: Colors.black,
+//           ),
+//           overflow:TextOverflow.ellipsis,
+//         ),
+//       ),
+//       Positioned(
+//         bottom: 6,
+//         child: Container(
+//           height: 1.5,
+//           width: text.length * 8.0,
+//           color: primaryColor,
+//         ),
+//       ),
+//     ],
+//   );
+// }

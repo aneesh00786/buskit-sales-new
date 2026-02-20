@@ -1456,7 +1456,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   if (widgetDate.isBefore(currentDate)) {
                                   showCustomToastDisplay(
                                       context,
-                                      'This route can be accessed from $formattedDate',
+                                      'Only current and working days route can be generated',
+                                      // 'This route can be accessed from $formattedDate',
                                       Colors.orange,
                                       Icons.warning);
                                   return;

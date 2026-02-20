@@ -564,6 +564,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             child: Row(
               children: [
                 // Replace your existing InkWell inside the AppBar's leading Row with this:
+
 InkWell(
   onTap: () async {
     bool shouldProceed = await checkCustomerOut();
@@ -571,47 +572,94 @@ InkWell(
 
     if (!context.mounted) return;
 
+    // --- 1. FIND THE NEXT UNVISITED ITEM ---
+    final mapController = Get.find<CalenderMapController>();
+    final custOrderController = Get.find<CustomerAndOrderController>();
+    dynamic nextCustomer;
+
+    for (var customer in mapController.selectedCustomers) {
+      if (!custOrderController.visitedCustomerIds.contains(customer.customerId)) {
+        nextCustomer = customer;
+        break; // Found the next item!
+      }
+    }
+
     bool wantsToContinueNav = false;
 
-    // Show the Continue Navigation popup if coming from the map
+    // --- 2. SHOW SNACKBAR OR POPUP ---
     if (widget.isFromGoogle) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            title: const Text("Next Customer"),
-            content: const Text("Would you like to continue navigation to the next customer?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text(
-                  "Cancel",
-                  style: TextStyle(color: Colors.grey),
-                ),
+      if (nextCustomer != null) {
+        String nextName = nextCustomer.businessName?.toLowerCase() ?? "";
+        
+        // If the next item is just the End Location, mark it visited and show SnackBar
+        if (nextName.contains("end location") || nextName.contains("destination") || nextName.isEmpty) {
+          
+          // ---> NEW: Mark the end location as visited so the map screen updates <---
+          if (nextCustomer.customerId != null) {
+             await custOrderController.markAsVisited(nextCustomer.customerId!);
+          }
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("All customers visited! Route completed."),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            );
+          }
+        } else {
+          // It's a real customer, show the "Continue Navigation" dialog
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                onPressed: () {
-                  wantsToContinueNav = true;
-                  Navigator.of(context).pop();
-                },
-                child: const Text(
-                  "Continue Navigation",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+                title: const Text("Next Customer"),
+                content: Text("Would you like to continue navigation to the next customer (${nextCustomer.businessName})?"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: () {
+                      wantsToContinueNav = true;
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      "Continue Navigation",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
+        }
+      } else {
+        // Fallback just in case the list is completely empty
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("All customers visited! Route completed."),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      }
     }
 
     // 1. PREVENT "BuildContext is no longer valid" CRASH
@@ -629,43 +677,26 @@ InkWell(
     productsController.customerAndOrderData.refresh(); 
 
     // 4. Handle External Map Navigation for Next Customer
-    if (wantsToContinueNav) {
+    if (wantsToContinueNav && nextCustomer != null) {
       try {
-        final mapController = Get.find<CalenderMapController>();
-        final custOrderController = Get.find<CustomerAndOrderController>();
-        dynamic nextCustomer;
+        CustomerMapScreen.isNavigatingFromDashboard = true;
+        CustomerMapScreen.nextCustomerToVisit = nextCustomer;
 
-        // Find the next unvisited customer in the route
-        for (var customer in mapController.selectedCustomers) {
-          if (customer.customerId != null && !custOrderController.visitedCustomerIds.contains(customer.customerId)) {
-            nextCustomer = customer;
-            break;
-          }
-        }
-
-        if (nextCustomer != null) {
-
-          CustomerMapScreen.isNavigatingFromDashboard = true;
-          CustomerMapScreen.nextCustomerToVisit = nextCustomer;
-          // Launch external navigation to the next customer
-          final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
-          final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
-          
-          _navigateTooNext(
-            currentLatitude,
-            currentLongitude,
-            double.parse(nextCustomer.latitude!),
-            double.parse(nextCustomer.longitude!),
-          );
-        } else {
-          showCustomToastDisplay(context, "Route completed! All customers visited.", Colors.green, Icons.check_circle);
-        }
+        final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
+        final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
+        
+        _navigateTooNext(
+          currentLatitude,
+          currentLongitude,
+          double.parse(nextCustomer.latitude!),
+          double.parse(nextCustomer.longitude!),
+        );
       } catch (e) {
         print("Error finding next customer: $e");
       }
     }
 
-    // 5. ROUTE SAFELY (Go back to the Map View in the app)
+    // 5. ROUTE SAFELY
     if (widget.isFromGoogle) {
       homeController.sidebarXController.selectIndex(5);
       homeController.selectedIndex.value = 5;
@@ -692,6 +723,285 @@ InkWell(
     ),
   ),
 ),
+
+
+
+//                 InkWell(
+//   onTap: () async {
+//     bool shouldProceed = await checkCustomerOut();
+//     if (!shouldProceed) return;
+
+//     if (!context.mounted) return;
+
+//     // --- 1. FIND THE NEXT UNVISITED ITEM ---
+//     final mapController = Get.find<CalenderMapController>();
+//     final custOrderController = Get.find<CustomerAndOrderController>();
+//     dynamic nextCustomer;
+
+//     for (var customer in mapController.selectedCustomers) {
+//       if (!custOrderController.visitedCustomerIds.contains(customer.customerId)) {
+//         nextCustomer = customer;
+//         break; // Found the next item!
+//       }
+//     }
+
+//     bool wantsToContinueNav = false;
+
+//     // --- 2. SHOW SNACKBAR OR POPUP ---
+//     if (widget.isFromGoogle) {
+//       if (nextCustomer != null) {
+//         String nextName = nextCustomer.businessName?.toLowerCase() ?? "";
+        
+//         // If the next item is just the End Location, show SnackBar
+//         if (nextName.contains("end location") || nextName.contains("destination") || nextName.isEmpty) {
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(
+//               content: Text("All customers visited! Route completed."),
+//               backgroundColor: Colors.green,
+//               duration: Duration(seconds: 3),
+//             ),
+//           );
+//         } else {
+//           // It's a real customer, show the "Continue Navigation" dialog
+//           await showDialog(
+//             context: context,
+//             builder: (context) {
+//               return AlertDialog(
+//                 shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(15),
+//                 ),
+//                 title: const Text("Next Customer"),
+//                 content: Text("Would you like to continue navigation to the next customer (${nextCustomer.businessName})?"),
+//                 actions: [
+//                   TextButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                     },
+//                     child: const Text(
+//                       "Cancel",
+//                       style: TextStyle(color: Colors.grey),
+//                     ),
+//                   ),
+//                   ElevatedButton(
+//                     style: ElevatedButton.styleFrom(
+//                       backgroundColor: primaryColor,
+//                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+//                     ),
+//                     onPressed: () {
+//                       wantsToContinueNav = true;
+//                       Navigator.of(context).pop();
+//                     },
+//                     child: const Text(
+//                       "Continue Navigation",
+//                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+//                     ),
+//                   ),
+//                 ],
+//               );
+//             },
+//           );
+//         }
+//       } else {
+//         // Fallback just in case the list is completely empty
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text("All customers visited! Route completed."),
+//             backgroundColor: Colors.green,
+//             duration: Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     }
+
+//     // 1. PREVENT "BuildContext is no longer valid" CRASH
+//     if (!context.mounted) return;
+
+//     customerOrderController.isActive.value = false;
+
+//     // 2. CLEAR THE SIMPLE OBSERVABLES
+//     productsController.selectedCustomerId.value = '';
+//     productsController.selectedCustomerName.value = '';
+//     customerOrderController.setCustomerId('');
+
+//     // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
+//     productsController.customerAndOrderData.value.customerId = null;
+//     productsController.customerAndOrderData.refresh(); 
+
+//     // 4. Handle External Map Navigation for Next Customer
+//     if (wantsToContinueNav && nextCustomer != null) {
+//       try {
+//         CustomerMapScreen.isNavigatingFromDashboard = true;
+//         CustomerMapScreen.nextCustomerToVisit = nextCustomer;
+
+//         final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
+//         final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
+        
+//         _navigateTooNext(
+//           currentLatitude,
+//           currentLongitude,
+//           double.parse(nextCustomer.latitude!),
+//           double.parse(nextCustomer.longitude!),
+//         );
+//       } catch (e) {
+//         print("Error finding next customer: $e");
+//       }
+//     }
+
+//     // 5. ROUTE SAFELY
+//     if (widget.isFromGoogle) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.back(id: 2); 
+//     } 
+//     else if (widget.isDirectDialogue) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.toNamed(AppRoutes.calender, id: 2);
+//     } 
+//     else {
+//       Navigator.pop(context);
+//     }
+//   },
+//   child: Container(
+//     decoration: BoxDecoration(
+//         color: primaryColor.withOpacity(0.2),
+//         borderRadius: BorderRadius.circular(4),
+//         border: Border.all(color: primaryColor)),
+//     child: const Icon(
+//       EneftyIcons.arrow_left_3_outline,
+//       color: primaryColor,
+//       size: 20,
+//     ),
+//   ),
+// ),
+// InkWell(
+//   onTap: () async {
+//     bool shouldProceed = await checkCustomerOut();
+//     if (!shouldProceed) return;
+
+//     if (!context.mounted) return;
+
+//     bool wantsToContinueNav = false;
+
+//     // Show the Continue Navigation popup if coming from the map
+//     if (widget.isFromGoogle) {
+//       await showDialog(
+//         context: context,
+//         builder: (context) {
+//           return AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(15),
+//             ),
+//             title: const Text("Next Customer"),
+//             content: const Text("Would you like to continue navigation to the next customer?"),
+//             actions: [
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: const Text(
+//                   "Cancel",
+//                   style: TextStyle(color: Colors.grey),
+//                 ),
+//               ),
+//               ElevatedButton(
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: primaryColor,
+//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+//                 ),
+//                 onPressed: () {
+//                   wantsToContinueNav = true;
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: const Text(
+//                   "Continue Navigation",
+//                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+//                 ),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     }
+
+//     // 1. PREVENT "BuildContext is no longer valid" CRASH
+//     if (!context.mounted) return;
+
+//     customerOrderController.isActive.value = false;
+
+//     // 2. CLEAR THE SIMPLE OBSERVABLES
+//     productsController.selectedCustomerId.value = '';
+//     productsController.selectedCustomerName.value = '';
+//     customerOrderController.setCustomerId('');
+
+//     // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
+//     productsController.customerAndOrderData.value.customerId = null;
+//     productsController.customerAndOrderData.refresh(); 
+
+//     // 4. Handle External Map Navigation for Next Customer
+//     if (wantsToContinueNav) {
+//       try {
+//         final mapController = Get.find<CalenderMapController>();
+//         final custOrderController = Get.find<CustomerAndOrderController>();
+//         dynamic nextCustomer;
+
+//         // Find the next unvisited customer in the route
+//         for (var customer in mapController.selectedCustomers) {
+//           if (customer.customerId != null && !custOrderController.visitedCustomerIds.contains(customer.customerId)) {
+//             nextCustomer = customer;
+//             break;
+//           }
+//         }
+
+//         if (nextCustomer != null) {
+
+//           CustomerMapScreen.isNavigatingFromDashboard = true;
+//           CustomerMapScreen.nextCustomerToVisit = nextCustomer;
+//           // Launch external navigation to the next customer
+//           final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
+//           final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
+          
+//           _navigateTooNext(
+//             currentLatitude,
+//             currentLongitude,
+//             double.parse(nextCustomer.latitude!),
+//             double.parse(nextCustomer.longitude!),
+//           );
+//         } else {
+//           showCustomToastDisplay(context, "Route completed! All customers visited.", Colors.green, Icons.check_circle);
+//         }
+//       } catch (e) {
+//         print("Error finding next customer: $e");
+//       }
+//     }
+
+//     // 5. ROUTE SAFELY (Go back to the Map View in the app)
+//     if (widget.isFromGoogle) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.back(id: 2); 
+//     } 
+//     else if (widget.isDirectDialogue) {
+//       homeController.sidebarXController.selectIndex(5);
+//       homeController.selectedIndex.value = 5;
+//       Get.toNamed(AppRoutes.calender, id: 2);
+//     } 
+//     else {
+//       Navigator.pop(context);
+//     }
+//   },
+//   child: Container(
+//     decoration: BoxDecoration(
+//         color: primaryColor.withOpacity(0.2),
+//         borderRadius: BorderRadius.circular(4),
+//         border: Border.all(color: primaryColor)),
+//     child: const Icon(
+//       EneftyIcons.arrow_left_3_outline,
+//       color: primaryColor,
+//       size: 20,
+//     ),
+//   ),
+// ),
 //                InkWell(
 //   onTap: () async {
 //     bool shouldProceed = await checkCustomerOut();

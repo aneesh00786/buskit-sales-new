@@ -174,18 +174,40 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
 
     setState(() {});
   }
-
   void _onMonthChanged(DateTime focusedDay) {
     final startOfMonth = DateTime(focusedDay.year, focusedDay.month, 1);
     final endOfMonth = DateTime(focusedDay.year, focusedDay.month + 1, 0);
+    
     widget.staffController.loadScheduleData(
       startOfMonth,
       endOfMonth,
     );
+    
     setState(() {
       _focusedDay = focusedDay;
+      
+      // Clear the underlying data for the list
+      visits = [];
+      appointmentCount = 0;
+      checkInCount = 0;
+      
+      // Optional: Clear the selected day so the user doesn't see a random day 
+      // highlighted from the previous month's selection.
+      _selectedDay = null; 
     });
   }
+
+  // void _onMonthChanged(DateTime focusedDay) {
+  //   final startOfMonth = DateTime(focusedDay.year, focusedDay.month, 1);
+  //   final endOfMonth = DateTime(focusedDay.year, focusedDay.month + 1, 0);
+  //   widget.staffController.loadScheduleData(
+  //     startOfMonth,
+  //     endOfMonth,
+  //   );
+  //   setState(() {
+  //     _focusedDay = focusedDay;
+  //   });
+  // }
 
   // Helper to format time strings (e.g., "2026-02-02T09:00:00" -> "9:00 AM")
   String _formatTime(dynamic timeVal) {

@@ -36,6 +36,13 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
+         DataColumn(
+        label: DialogTableHeaderText(
+          text: 'Quantity',
+          fontSize: fontSize,
+          align: TextAlign.center,
+        ),
+      ),
       DataColumn(
         label: DialogTableHeaderText(
           text: 'Disc',
@@ -50,13 +57,13 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
-      DataColumn(
-        label: DialogTableHeaderText(
-          text: 'Quantity',
-          fontSize: fontSize,
-          align: TextAlign.center,
-        ),
-      ),
+      // DataColumn(
+      //   label: DialogTableHeaderText(
+      //     text: 'Quantity',
+      //     fontSize: fontSize,
+      //     align: TextAlign.center,
+      //   ),
+      // ),
       DataColumn(
         label: DialogTableHeaderText(
           text: 'Total',

@@ -3744,7 +3744,7 @@ Future<Bulk> getBulkVolumes() async {
     );
 
     print('response status code in bulk: ${response.statusCode}');
-    print('response data: ${response.data}'); // ← very useful for debugging
+    log('response data: ${response.data}'); // ← very useful for debugging
 
     final bulk = Bulk.fromJson(response.data);
      

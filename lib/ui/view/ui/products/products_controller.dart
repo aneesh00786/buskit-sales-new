@@ -381,43 +381,36 @@ if (e.bulkId != null && e.bulkId!.isNotEmpty) {
                 initialCount: e.initialCount,
                 taxAmount: item.taxAmount);
           }
-        } else {
+        } 
+        else {
           print('bulk part check called');
           
-          // --- UPDATED BULK LOGIC START ---
           bool isBulkItem = false;
-          String? currentBulkId = e.bulkId; 
-          print('Current Bulk ID from item: $currentBulkId');
-          String finalPrice = e.sellPrice.toString(); // Default price
+          String? currentBulkId = e.bulkId; // e.g., "BULK_5"
+          String? idToSendToBackend = currentBulkId; 
+          String finalPrice = e.sellPrice.toString(); 
 
-          // Check if bulkId exists (e.g., "BULK_5")
           if (currentBulkId != null && currentBulkId.isNotEmpty) {
             isBulkItem = true;
-            print("Bulk Item Detected. ID: $currentBulkId");
-     print('bulk di from bulk data list:${bulkDataList?.map((e) => e.bulkId)}');
-            // Look up price in bulkDataList using the bulk_id
             if (bulkDataList != null) {
               try {
-                // Find matching bulk data where bulk_id matches (e.g. "BULK_5" == "BULK_5")
-                // OR if your BulkData list uses integer IDs (e.g. 5), parse the string "BULK_5" -> 5
                 final matchingBulk = bulkDataList.firstWhere(
                   (element) => element.bulkId == currentBulkId, 
-                  // Fallback: If your BulkData list logic uses the ID '5' but the string is 'BULK_5', 
-                  // you might need to split the string. Assuming strict string match based on your JSON output:
-                  // orElse: () => null // handle null below
                 );
+
+                // --- THE FIX IS HERE ---
+                // Grab the integer 'id' (e.g. 5) instead of 'bulkId' (e.g. "BULK_5")
+                idToSendToBackend = matchingBulk.id?.toString() ?? currentBulkId;
 
                 if (matchingBulk.volumePrice != null &&
                     matchingBulk.volumePrice!.isNotEmpty) {
                   finalPrice = matchingBulk.volumePrice!;
-                  print('Bulk Price Applied: $finalPrice');
                 }
               } catch (err) {
                 print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
               }
             }
           }
-          // --- UPDATED BULK LOGIC END ---
 
           return SendCartData(
               productId: e.productId ?? '',
@@ -433,10 +426,70 @@ if (e.bulkId != null && e.bulkId!.isNotEmpty) {
               customerDiscount: item.CustomerDiscount,
               promoDiscount: item.tieredDiscount,
               isBulk: isBulkItem,
-              bulkId: currentBulkId, // Pass the direct ID
+              bulkId: idToSendToBackend, // <-- Sending '5' instead of 'BULK_5'
               initialCount: e.initialCount,
-              taxAmount: item.taxAmount);
+              taxAmount: item.taxAmount,
+               itemNumbers: isBulkItem ? e.pieces?.toInt() : null,
+          );
         }
+    //     else {
+    //       print('bulk part check called');
+          
+    //       // --- UPDATED BULK LOGIC START ---
+    //       bool isBulkItem = false;
+    //       String? currentBulkId = e.bulkId; 
+    //       print('Current Bulk ID from item: $currentBulkId');
+    //       String finalPrice = e.sellPrice.toString(); // Default price
+
+    //       // Check if bulkId exists (e.g., "BULK_5")
+    //       if (currentBulkId != null && currentBulkId.isNotEmpty) {
+    //         isBulkItem = true;
+    //         print("Bulk Item Detected. ID: $currentBulkId");
+    //  print('bulk di from bulk data list:${bulkDataList?.map((e) => e.bulkId)}');
+    //         // Look up price in bulkDataList using the bulk_id
+    //         if (bulkDataList != null) {
+    //           try {
+    //             // Find matching bulk data where bulk_id matches (e.g. "BULK_5" == "BULK_5")
+    //             // OR if your BulkData list uses integer IDs (e.g. 5), parse the string "BULK_5" -> 5
+    //             final matchingBulk = bulkDataList.firstWhere(
+    //               (element) => element.bulkId == currentBulkId, 
+    //               // Fallback: If your BulkData list logic uses the ID '5' but the string is 'BULK_5', 
+    //               // you might need to split the string. Assuming strict string match based on your JSON output:
+    //               // orElse: () => null // handle null below
+    //             );
+
+    //             if (matchingBulk.volumePrice != null &&
+    //                 matchingBulk.volumePrice!.isNotEmpty) {
+    //               finalPrice = matchingBulk.volumePrice!;
+    //               print('Bulk Price Applied: $finalPrice');
+    //             }
+    //           } catch (err) {
+    //             print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
+    //           }
+    //         }
+    //       }
+    //       // --- UPDATED BULK LOGIC END ---
+
+    //       return SendCartData(
+    //           productId: e.productId ?? '',
+    //           variantId: e.variationId ?? '',
+    //           pack: packValue,
+    //           price: finalPrice, 
+    //           packType: isBulkItem
+    //               ? 'Bulk'
+    //               : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+    //           discount: (item.totalDiscountAmount ?? 0).toDouble(),
+    //           quantity: e.count.toInt(),
+    //           variantName: e.variationName ?? '',
+    //           customerDiscount: item.CustomerDiscount,
+    //           promoDiscount: item.tieredDiscount,
+    //           isBulk: isBulkItem,
+    //           bulkId: currentBulkId, // Pass the direct ID
+    //           initialCount: e.initialCount,
+    //           taxAmount: item.taxAmount,
+    //           itemNumbers: isBulkItem ? e.pieces?.toInt() : null,
+    //           );
+    //     }
       }).toList()),
       total: finalAmount.value.toStringAsFixed(0),
     );

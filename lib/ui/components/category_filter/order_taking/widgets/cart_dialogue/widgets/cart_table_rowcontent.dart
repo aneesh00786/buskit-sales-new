@@ -818,7 +818,8 @@ print('variation name of bulk item:${groupedItem.detail.variationName}');
                           : 1),
                 )),
           ),
-          DataCell(
+       
+           DataCell(
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
@@ -834,6 +835,7 @@ print('variation name of bulk item:${groupedItem.detail.variationName}');
               ),
             ),
           ),
+           
           DataCell(
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1071,27 +1073,12 @@ print('variation name of bulk item:${groupedItem.detail.variationName}');
               ],
             ),
           ),
-          // DataCell(
-          //   Center(
-          //     child: ConstrainedBox(
-          //       constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-          //       child: productQuantityManager(
-          //         groupedItem,
-          //         (groupedItem.detail.inclTax == 'incl_tax'
-          //             ? groupedItem.totalPrice.toString()
-          //             : (groupedItem.totalPrice + (groupedItem.detail.tax ?? 0))
-          //                 .toString()),
-          //         fontSize,
-          //         availableWidth,
-          //       ),
-          //     ),
-          //   ),
-          // ),
           DataCell(
             TableContent(
                 maxLines: 1, fontSize: fontSize, content: formatAmount(tax)),
           ),
-          // DataCell(
+         
+          //  DataCell(
           //   Center(
           //     child: ConstrainedBox(
           //       constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
@@ -1107,6 +1094,7 @@ print('variation name of bulk item:${groupedItem.detail.variationName}');
           //     ),
           //   ),
           // ),
+      
           DataCell(
             Center(
               child: ConstrainedBox(

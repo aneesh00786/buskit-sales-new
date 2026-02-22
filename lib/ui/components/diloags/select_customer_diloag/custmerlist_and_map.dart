@@ -770,7 +770,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                 } else {
                                   Get.snackbar(
                                     "Success",
-                                    "You have all ready completed all visits",
+                                    "You have already completed all your visits.",
                                     backgroundColor: Colors.green,
                                     colorText: Colors.white,
                                     snackPosition: SnackPosition.TOP,

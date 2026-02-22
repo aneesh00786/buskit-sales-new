@@ -380,7 +380,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   month: _selectedMonthName,
                   unfilteredCount: "0",
                  count: targetContent?.visitReport?.toString() ?? '0',
-                  svg: "assets/icons/customer.png",
+                  svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
                   onTap: (){
                     showTileDialog(

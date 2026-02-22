@@ -107,6 +107,9 @@ class SendCartData extends HiveObject {
   @HiveField(20)  
   double? taxAmount;
 
+  @HiveField(21) 
+  int? itemNumbers;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -129,6 +132,7 @@ class SendCartData extends HiveObject {
     this.initialCount,
     this.catTax,
     this.taxAmount,
+    this.itemNumbers,
   });
 
   Map<String, dynamic> toJson() {
@@ -152,6 +156,7 @@ class SendCartData extends HiveObject {
       'initial_count': initialCount,
       'cat_tax': catTax,
       'taxAmount': taxAmount,
+      'item_numbers': itemNumbers,
     };
 
     if (isBundle == true) {

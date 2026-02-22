@@ -505,75 +505,145 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       ),
     );
   }
-  void showTileDialog(
-      BuildContext context, String monthName, int tabStatus, bool isFull) {
-    
+
+  void showTileDialog(BuildContext context, String monthName, int tabStatus, bool isFull) {
     
     if (tabStatus == 5) {
-      
       int monthIndex = staffController.tabController.index + 1;
 
-     
-      staffController.loadVisitReports(selectedValue, monthIndex).then((_) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return Obx(() {
-              
-              if (staffController.isVisitReportLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              
-           
-              return _buildDialogContainer(
-                isFull, 
-                VisitReportDialog(reportData: staffController.visitReportList)
-              );
-            });
-          },
-        );
-      });
-      return; 
-    }
-
-   
-    staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+      // 1. Show the dialog immediately
       showDialog(
         context: context,
         builder: (context) {
           return Obx(() {
-            if (staffController.isTopDataLoading.value) {
+            // This will show the loader while isVisitReportLoading is true
+            if (staffController.isVisitReportLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
-
-            Widget dialogContent;
-            switch (tabStatus) {
-              case 1: 
-                dialogContent = buildCheckInOutDialogContent(
-                    staffController.checkInOutData.value, staffController);
-                break;
-              case 2: 
-                dialogContent = buildCheckInOutDialogContent(
-                    staffController.checkInOutData.value, staffController);
-                break;
-              case 3: 
-                dialogContent = buildVisitsDialogContent(
-                    staffController.visitData.value, staffController);
-                break;
-              case 4: 
-                dialogContent = buildCustomersDialogContent(
-                    staffController.customerDatas.value, staffController);
-                break;
-              default:
-                dialogContent = const Text('Unknown data.');
-            }
-
-            return _buildDialogContainer(isFull, dialogContent);
+            
+            // Once loading is false, it shows the data
+            return _buildDialogContainer(
+              isFull, 
+              VisitReportDialog(reportData: staffController.visitReportList)
+            );
           });
         },
       );
-    });
+
+      // 2. Trigger the API call (Make sure loadVisitReports sets isVisitReportLoading to true at its start)
+      staffController.loadVisitReports(selectedValue, monthIndex);
+      return; 
+    }
+
+    // For all other tab statuses:
+    // 1. Show the dialog immediately
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Obx(() {
+          if (staffController.isTopDataLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          Widget dialogContent;
+          switch (tabStatus) {
+            case 1: 
+              dialogContent = buildCheckInOutDialogContent(
+                  staffController.checkInOutData.value, staffController);
+              break;
+            case 2: 
+              dialogContent = buildCheckInOutDialogContent(
+                  staffController.checkInOutData.value, staffController);
+              break;
+            case 3: 
+              dialogContent = buildVisitsDialogContent(
+                  staffController.visitData.value, staffController);
+              break;
+            case 4: 
+              dialogContent = buildCustomersDialogContent(
+                  staffController.customerDatas.value, staffController);
+              break;
+            default:
+              dialogContent = const Text('Unknown data.');
+          }
+
+          return _buildDialogContainer(isFull, dialogContent);
+        });
+      },
+    );
+
+    // 2. Trigger the API call
+    staffController.fetchSalesmanTopBarData(monthName, tabStatus);
   }
+  // void showTileDialog(
+  //     BuildContext context, String monthName, int tabStatus, bool isFull) {
+    
+    
+  //   if (tabStatus == 5) {
+      
+  //     int monthIndex = staffController.tabController.index + 1;
+
+     
+  //     staffController.loadVisitReports(selectedValue, monthIndex).then((_) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return Obx(() {
+              
+  //             if (staffController.isVisitReportLoading.value) {
+  //               return const Center(child: CircularProgressIndicator());
+  //             }
+              
+           
+  //             return _buildDialogContainer(
+  //               isFull, 
+  //               VisitReportDialog(reportData: staffController.visitReportList)
+  //             );
+  //           });
+  //         },
+  //       );
+  //     });
+  //     return; 
+  //   }
+
+   
+  //   staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return Obx(() {
+  //           if (staffController.isTopDataLoading.value) {
+  //             return const Center(child: CircularProgressIndicator());
+  //           }
+
+  //           Widget dialogContent;
+  //           switch (tabStatus) {
+  //             case 1: 
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //               break;
+  //             case 2: 
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //               break;
+  //             case 3: 
+  //               dialogContent = buildVisitsDialogContent(
+  //                   staffController.visitData.value, staffController);
+  //               break;
+  //             case 4: 
+  //               dialogContent = buildCustomersDialogContent(
+  //                   staffController.customerDatas.value, staffController);
+  //               break;
+  //             default:
+  //               dialogContent = const Text('Unknown data.');
+  //           }
+
+  //           return _buildDialogContainer(isFull, dialogContent);
+  //         });
+  //       },
+  //     );
+  //   });
+  // }
 
   
   Widget _buildDialogContainer(bool isFull, Widget content) {

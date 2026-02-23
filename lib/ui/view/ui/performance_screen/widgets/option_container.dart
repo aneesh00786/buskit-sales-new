@@ -5,19 +5,21 @@ class PerformanceWidget extends StatelessWidget {
   final String svg;
   final Color svgBgColor;
   final String? month; // 1. Added month variable
-
+  final double? width;
   const PerformanceWidget({
     super.key,
     required this.title,
     required this.count,
     required this.svg,
     required this.svgBgColor,
-    this.month, // 2. Added to constructor
+    this.month, 
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: width,
       margin: const EdgeInsets.all(3.0),
       // Note: Removed padding from here and moved it inside the Stack below
       decoration: BoxDecoration(
@@ -45,7 +47,7 @@ class PerformanceWidget extends StatelessWidget {
               children: [
                 Container(
                   height: 50,
-                  width: 50,
+                  width: 35,
                   decoration: BoxDecoration(
                     color: svgBgColor,
                     borderRadius: BorderRadius.circular(20)

@@ -356,6 +356,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 // ),
                 OptionData(
                     title: 'Visits',
+                    width: 165.0,
                     month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.visit?.toString() ?? '0',

@@ -170,6 +170,7 @@ class OptionData {
   String? month;
   VoidCallback? onTap;
   VoidCallback? onUnFilterTap;
+  final double? width;
 
   OptionData({
     required this.title,
@@ -181,5 +182,6 @@ class OptionData {
     this.onTap,
     this.onUnFilterTap,
     this.color,
+    this.width,
   });
 }

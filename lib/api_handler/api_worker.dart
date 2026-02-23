@@ -3107,6 +3107,7 @@ class ApiWorker with ApiConstants {
             "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
           },
         );
+        log('promotions response: ${response.data}');
 
         final promotions = List<PromotionReponse>.from(
           response.data.map((x) => PromotionReponse.fromJson(x)),

@@ -602,7 +602,7 @@ InkWell(
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("All customers visited! Route completed."),
+                content: Text("All customer visits are complete. Today’s route plan has been completed."),
                 backgroundColor: Colors.green,
                 duration: Duration(seconds: 3),
               ),

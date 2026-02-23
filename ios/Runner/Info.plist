@@ -70,6 +70,14 @@
     
     <key>NSLocationAlwaysUsageDescription</key>
     <string>This app needs access to your location in the background.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app requires local network access to discover devices.</string>
+
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+		<string>_https._tcp</string>
+	</array>
 
     <key>UIBackgroundModes</key>
     <array>

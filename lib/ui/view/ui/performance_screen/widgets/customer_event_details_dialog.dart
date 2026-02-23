@@ -177,7 +177,16 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
                                       : const SizedBox(),
                                 ),
                                 _DataCell(
-                                  _StatusPill(status: statusText, color: statusColor)
+                                  // --- Updated Status Display (Plain Text) ---
+                                  Text(
+                                    statusText,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
                                 ),
                               ],
                             );
@@ -250,34 +259,7 @@ class _TimeWithLocation extends StatelessWidget {
   }
 }
 
-// NEW Helper for Status Pill
-class _StatusPill extends StatelessWidget {
-  final String status;
-  final Color color;
-
-  const _StatusPill({required this.status, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        status,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: color, 
-          fontSize: 10, 
-          fontWeight: FontWeight.bold
-        ),
-      ),
-    );
-  }
-}
+// Note: The _StatusPill class has been entirely removed as it is no longer needed.
 
 // class CustomerDetailsDialog extends StatefulWidget {
 //   final String eventIds;

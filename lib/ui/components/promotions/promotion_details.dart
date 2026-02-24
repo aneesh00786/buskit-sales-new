@@ -1240,131 +1240,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
 
 
-//                                     if (promo.promoType == "tiered_discount") {
-//   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
-
-//   if (allVariants.isEmpty) {
-//     showCustomToastDisplay(
-//       context,
-//       "No variants found for this promotion",
-//       Colors.orange,
-//       Icons.warning,
-//     );
-//     return;
-//   }
-
-//   // Validate min order with selected quantity
-//   final allowed = await validateMinOrderBeforeAdd(allVariants);
-//   if (!allowed) return;
-
-//   // Iterate through all variants in the promotion
-//   for (final v in allVariants) {
-    
-//     // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-//     // We search the loaded products list in your controller to find the ProductModel instance
-//     double fetchedCatTax = 0.0;
-//     try {
-//       final productModelInstance = widget.controller.products.firstWhere(
-//         (p) => p.productId == v.productId,
-//         // Fallback to dummy model if not found
-//         orElse: () => ProductModel(catTax: 0), 
-//       );
-      
-//       fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-//     } catch (e) {
-//       print("[PROMO] Error finding product model in controller for ID ${v.productId}: $e");
-//     }
-
-//     log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
-
-//     // --- 2. Calculate Tiered Discount ---
-//     double? tieredDiscount;
-//     if (promo.promoType == "tiered_discount" && selectedTier.value != null) {
-//       // For tiered_discount, use the selected tier's discount
-//       tieredDiscount = double.tryParse(selectedTier.value!.discountValue?.toString() ?? '0') ?? 0;
-//     } else {
-//       // For other promotions, calculate based on quantity
-//       tieredDiscount = _calculateTieredDiscount(promo, qty.value, true);
-//     }
-
-//     // --- 3. Extract Category ID & Customer Discounts ---
-//     final catId = extractCategoryId(v.productId.toString());
-//     final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
-    
-//     CustomerDiscountModel? discountData = discountBox.values.firstWhere(
-//       (item) => item.customerId == customerId,
-//       orElse: () => CustomerDiscountModel(),
-//     );
-
-//     double userDiscountPercent = 0.0;
-
-//     if (discountData.discounts != null && discountData.discounts!.isNotEmpty) {
-//       final matchedDiscount = discountData.discounts!.firstWhere(
-//         (d) {
-//           final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
-//           return dCat == catId || dCat == 114; // Apply 114 discount to 115
-//         },
-//         orElse: () => DiscountModel(),
-//       );
-
-//       userDiscountPercent = double.tryParse(matchedDiscount.discount?.trim() ?? "0") ?? 0.0;
-//     }
-
-//     // --- 4. Create Detail Object ---
-//     final detail = Detail(
-//       variationId: v.id,
-//       productId: v.productId,
-//       variationName: v.variationName,
-//       unitType: v.unitType,
-//       price: (v.price ?? '0').toString(),
-//       sellPrice: (v.sellPrice ?? '0').toString(),
-//       tax: double.tryParse(v.tax ?? '0') ?? 0,
-//       packtype: v.packtype,
-//       pieces: v.pieces,
-//       stock: v.stock,
-//       lowstock: v.lowstock,
-//       fullstock: v.fullstock,
-//       imageUrl: v.imageUrl,
-//       productName: v.productName,
-//       discount: userDiscountPercent,
-//       inclTax: v.inclTax ?? '',
-//     );
-
-//     print('fetched cattax in the tiered discount: $fetchedCatTax');
-
-//     // --- 5. PASS catTax TO FUNCTION ---
-//     await CartDatabaseManager().addToCartPromo(
-//       customerId: customerId,
-//       localCount: qty.value,
-//       detail: detail,
-//       isPack: true,
-//       productName: v.productName ?? '',
-//       inclTax: detail.inclTax ?? '',
-//       isChcked: true,
-//       catId: catId,
-//       promoCode: promo.promoCode,
-//       promoMsg: promo.discountText,
-//       CustomerDiscount: detail.discount!.toDouble(),
-//       tieredDiscount: tieredDiscount,
-//       catTax: fetchedCatTax, // <--- Assigning the value here
-//     );
-
-//     productController.isCartModified.value = true;
-//   }
-
-//   showCustomToastDisplay(
-//     context,
-//     "Tiered discount added to cart",
-//     Colors.green.shade800,
-//     Icons.check,
-//   );
-
-//   WidgetsBinding.instance.addPostFrameCallback((_) {
-//     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-//     cartProvider.updateCartCount(customerId);
-//     cartProvider.getCartItemCounts(customerId);
-//   });
-// }
 
                                       // --- Free Item promos ---
 
@@ -1459,94 +1334,11 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
   );
 }
 
-                                      // if (promo.promoType == "free_gift" ||
-                                      //     promo.promoType == "free_sample") {
-                                      //   final allVariants = promo.products
-                                      //           ?.expand(
-                                      //               (p) => p.variants ?? [])
-                                      //           .toList() ??
-                                      //       [];
-
-                                      //   if (allVariants.isEmpty) {
-                                      //     showCustomToastDisplay(
-                                      //       context,
-                                      //       "No variants found for this promotion",
-                                      //       Colors.orange,
-                                      //       Icons.warning,
-                                      //     );
-                                      //     return;
-                                      //   }
-
-                                      //   // Validate min order with selected quantity
-                                      //   final allowed =
-                                      //       await validateMinOrderBeforeAdd(
-                                      //           allVariants);
-                                      //   if (!allowed) return;
-
-                                      //   for (final v in allVariants) {
-                                      //     log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-                                      //         "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
-
-                                      //     final detail = Detail(
-                                      //       variationId: v.id,
-                                      //       productId: v.productId,
-                                      //       variationName: v.variationName,
-                                      //       unitType: v.unitType,
-                                      //       price: (v.price ?? '0').toString(),
-                                      //       sellPrice:
-                                      //           (v.sellPrice ?? '0').toString(),
-                                      //       tax:
-                                      //           double.tryParse(v.tax ?? '0') ??
-                                      //               0,
-                                      //       packtype: v.packtype,
-                                      //       pieces: v.pieces,
-                                      //       stock: v.stock,
-                                      //       lowstock: v.lowstock,
-                                      //       fullstock: v.fullstock,
-                                      //       imageUrl: v.imageUrl,
-                                      //       productName: v.productName,
-                                      //     );
-
-                                      //     log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-                                      //         "productId: ${detail.productId}, name: ${detail.productName}");
-
-                                      //     final catId = extractCategoryId(
-                                      //         v.productId.toString());
-
-                                      //     await CartDatabaseManager()
-                                      //         .addToCartPromo(
-                                      //       customerId: customerId,
-                                      //       localCount: qty.value,
-                                      //       detail: detail,
-                                      //       isPack: true,
-                                      //       productName: v.productName ?? '',
-                                      //       inclTax: v.tax ?? '',
-                                      //       isChcked: true,
-                                      //       catId: catId,
-                                      //       promoCode: promo.promoCode,
-                                      //       promoMsg: promo.discountText,
-                                      //     );
-
-                                      //     productController
-                                      //         .isCartModified.value = true;
-                                      //   }
-
-                                      //   WidgetsBinding.instance
-                                      //       .addPostFrameCallback((_) {
-                                      //     final cartProvider =
-                                      //         Provider.of<CustomersProvider>(
-                                      //             context,
-                                      //             listen: false);
-                                      //     cartProvider
-                                      //         .updateCartCount(customerId);
-                                      //     cartProvider
-                                      //         .getCartItemCounts(customerId);
-                                      //   });
-                                      // }
+                                   
 
                                       // --- BOGO promos ---
 
-                                      if (promo.promoType == "bogo") {
+if (promo.promoType == "bogo") {
   // Flatten variants
   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
 
@@ -1567,7 +1359,6 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
   for (final v in allVariants) {
     
     // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-    // Search the loaded products list to find the ProductModel instance
     double fetchedCatTax = 0.0;
     try {
       final productModelInstance = widget.controller.products.firstWhere(
@@ -1577,6 +1368,10 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
       );
       
       fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+      
+      // OPTIONAL: You might want to add the API fallback here too, 
+      // just like you did in the tiered_discount case, if the product isn't loaded!
+      
     } catch (e) {
       print("[PROMO] BOGO - Error finding product model for ID ${v.productId}: $e");
     }
@@ -1597,13 +1392,19 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
       fullstock: v.fullstock,
       imageUrl: v.imageUrl,
       productName: v.productName,
+      // Default to 0 for customer discount unless you want BOGO to stack with user discounts
+      discount: 0.0, 
     );
 
     final catId = extractCategoryId(v.productId.toString());
     
     print('fetched cattax in BOGO: $fetchedCatTax');
 
-    // --- 3. Add PAID items (qty) with Tax ---
+    // --- 3. HARDCODE BOGO DISCOUNT ---
+    // BOGO equates to a 50% discount
+    const double bogoDiscountPercentage = 50.0; 
+
+    // --- 4. Add items with Tax and 50% Discount ---
     await CartDatabaseManager().addToCartPromo(
       customerId: customerId,
       localCount: qty.value,
@@ -1615,7 +1416,9 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
       catId: catId,
       promoCode: promo.promoCode,
       promoMsg: promo.discountText,
-      catTax: fetchedCatTax, // <--- Assigning the value here
+      catTax: fetchedCatTax, 
+      CustomerDiscount: paidDetail.discount!.toDouble(),
+      bogoDiscount: bogoDiscountPercentage, // Inject the 50% discount here
     );
 
     productController.isCartModified.value = true;
@@ -1629,90 +1432,103 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
   
   showCustomToastDisplay(
     context,
-    "BOGO items added to cart",
+    "BOGO items added to cart (50% Off)",
     Colors.green.shade800,
     Icons.check,
   );
 }
-                                      // if (promo.promoType == "bogo") {
-                                      //   final allVariants = promo.products
-                                      //           ?.expand(
-                                      //               (p) => p.variants ?? [])
-                                      //           .toList() ??
-                                      //       [];
 
-                                      //   if (allVariants.isEmpty) {
-                                      //     showCustomToastDisplay(
-                                      //       context,
-                                      //       "No variants found for this promotion",
-                                      //       Colors.orange,
-                                      //       Icons.warning,
-                                      //     );
-                                      //     return;
-                                      //   }
 
-                                      //   // Validate min order using PAID quantity only
-                                      //   final allowed =
-                                      //       await validateMinOrderBeforeAdd(
-                                      //           allVariants);
-                                      //   if (!allowed) return;
 
-                                      //   for (final v in allVariants) {
-                                      //     // Paid detail
-                                      //     final paidDetail = Detail(
-                                      //       variationId: v.id,
-                                      //       productId: v.productId,
-                                      //       variationName: v.variationName,
-                                      //       unitType: v.unitType,
-                                      //       price: (v.price ?? '0').toString(),
-                                      //       sellPrice:
-                                      //           (v.sellPrice ?? '0').toString(),
-                                      //       tax:
-                                      //           double.tryParse(v.tax ?? '0') ??
-                                      //               0,
-                                      //       packtype: v.packtype,
-                                      //       pieces: v.pieces,
-                                      //       stock: v.stock,
-                                      //       lowstock: v.lowstock,
-                                      //       fullstock: v.fullstock,
-                                      //       imageUrl: v.imageUrl,
-                                      //       productName: v.productName,
-                                      //     );
+//                                       if (promo.promoType == "bogo") {
+//   // Flatten variants
+//   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
 
-                                      //     final catId = extractCategoryId(
-                                      //         v.productId.toString());
+//   if (allVariants.isEmpty) {
+//     showCustomToastDisplay(
+//       context,
+//       "No variants found for this promotion",
+//       Colors.orange,
+//       Icons.warning,
+//     );
+//     return;
+//   }
 
-                                      //     // 1) Add PAID items (qty)
-                                      //     await CartDatabaseManager()
-                                      //         .addToCartPromo(
-                                      //       customerId: customerId,
-                                      //       localCount: qty.value,
-                                      //       detail: paidDetail,
-                                      //       isPack: true,
-                                      //       productName: v.productName ?? '',
-                                      //       inclTax: v.tax ?? '',
-                                      //       isChcked: true,
-                                      //       catId: catId,
-                                      //       promoCode: promo.promoCode,
-                                      //       promoMsg: promo.discountText,
-                                      //     );
+//   // Validate min order using PAID quantity only
+//   final allowed = await validateMinOrderBeforeAdd(allVariants);
+//   if (!allowed) return;
 
-                                      //     productController
-                                      //         .isCartModified.value = true;
-                                      //   }
+//   for (final v in allVariants) {
+    
+//     // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
+//     // Search the loaded products list to find the ProductModel instance
+//     double fetchedCatTax = 0.0;
+//     try {
+//       final productModelInstance = widget.controller.products.firstWhere(
+//         (p) => p.productId == v.productId,
+//         // Fallback to dummy model if not found
+//         orElse: () => ProductModel(catTax: 0), 
+//       );
+      
+//       fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+//     } catch (e) {
+//       print("[PROMO] BOGO - Error finding product model for ID ${v.productId}: $e");
+//     }
 
-                                      //   WidgetsBinding.instance
-                                      //       .addPostFrameCallback((_) {
-                                      //     final cartProvider =
-                                      //         Provider.of<CustomersProvider>(
-                                      //             context,
-                                      //             listen: false);
-                                      //     cartProvider
-                                      //         .updateCartCount(customerId);
-                                      //     cartProvider
-                                      //         .getCartItemCounts(customerId);
-                                      //   });
-                                      // }
+//     // --- 2. Create Detail Object ---
+//     final paidDetail = Detail(
+//       variationId: v.id,
+//       productId: v.productId,
+//       variationName: v.variationName,
+//       unitType: v.unitType,
+//       price: (v.price ?? '0').toString(),
+//       sellPrice: (v.sellPrice ?? '0').toString(),
+//       tax: double.tryParse(v.tax ?? '0') ?? 0,
+//       packtype: v.packtype,
+//       pieces: v.pieces,
+//       stock: v.stock,
+//       lowstock: v.lowstock,
+//       fullstock: v.fullstock,
+//       imageUrl: v.imageUrl,
+//       productName: v.productName,
+//     );
+
+//     final catId = extractCategoryId(v.productId.toString());
+    
+//     print('fetched cattax in BOGO: $fetchedCatTax');
+
+//     // --- 3. Add PAID items (qty) with Tax ---
+//     await CartDatabaseManager().addToCartPromo(
+//       customerId: customerId,
+//       localCount: qty.value,
+//       detail: paidDetail,
+//       isPack: true,
+//       productName: v.productName ?? '',
+//       inclTax: v.tax ?? '',
+//       isChcked: true,
+//       catId: catId,
+//       promoCode: promo.promoCode,
+//       promoMsg: promo.discountText,
+//       catTax: fetchedCatTax, 
+//     );
+
+//     productController.isCartModified.value = true;
+//   }
+
+//   WidgetsBinding.instance.addPostFrameCallback((_) {
+//     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+//     cartProvider.updateCartCount(customerId);
+//     cartProvider.getCartItemCounts(customerId);
+//   });
+  
+//   showCustomToastDisplay(
+//     context,
+//     "BOGO items added to cart",
+//     Colors.green.shade800,
+//     Icons.check,
+//   );
+// }
+                                     
 
                                       // --- BUY X GET Y promos ---
 

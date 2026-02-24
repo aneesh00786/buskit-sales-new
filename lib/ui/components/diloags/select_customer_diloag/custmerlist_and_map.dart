@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/main.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
@@ -106,7 +107,7 @@ void navigateToo(
 }
 
 class _CustomerMapScreenState extends State<CustomerMapScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, RouteAware {
   final CalenderMapController _mapController =
       Get.find<CalenderMapController>();
   final HomeController homeController = Get.put(HomeController());
@@ -119,7 +120,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   Customer? selectedResult;
 
   // Drawer State Variables
-  bool _isDrawerOpen = true; // Default to open so user sees list first
+  bool _isDrawerOpen = false; // Default to open so user sees list first
   final double _drawerWidth = 300.0;
 
   // -- NEW VARIABLES FOR ROUTE INPUT --
@@ -240,6 +241,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
     _endController.addListener(_onTextChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+
+      if (mounted) {
+        setState(() {
+          _isDrawerOpen = true;
+        });
+      }
       // await _mapController.loadShowRoute(widget.eventIds);
       await _mapController.getDirections();
 
@@ -249,6 +256,23 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
         _startController.text = _mapController.currentLocationText.value;
       }
     });
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+  @override
+  void didPopNext() {
+    // We check if the drawer is closed, and if so, pop it open.
+    if (mounted && !_isDrawerOpen) {
+      setState(() {
+        _isDrawerOpen = true;
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -261,6 +285,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _startController.removeListener(_onTextChanged);
     _endController.removeListener(_onTextChanged);
     WidgetsBinding.instance.removeObserver(this);
@@ -278,6 +303,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      if (mounted && !_isDrawerOpen) {
+        setState(() {
+          _isDrawerOpen = true;
+        });
+      }
       // 1. Standard flow: If navigation started from this Map Screen
       if (navigatedToMap && selectedResult != null) {
         navigatedToMap = false;
@@ -462,10 +492,23 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   child: const Text('Continue Navigation'),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // NEW: Ensure drawer remains open when popup is cancelled
+                    if (mounted && !_isDrawerOpen) {
+                      setState(() {
+                        _isDrawerOpen = true;
+                      });
+                    }
+                  },
                   child:
                       Text('Cancel', style: TextStyle(color: Colors.grey[600])),
                 ),
+                // TextButton(
+                //   onPressed: () => Navigator.of(context).pop(),
+                //   child:
+                //       Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                // ),
               ],
             ),
           ],

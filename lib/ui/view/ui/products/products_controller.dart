@@ -333,8 +333,8 @@ List<BulkData> storedBulkList = [];
         }
 
         // --- CALCULATE COMBINED DISCOUNTS HERE ---
-        final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() + (item.flatDiscount ?? 0).toDouble();
-        final num combinedPromoDiscount = (item.tieredDiscount ?? 0) + (item.flatDiscount ?? 0);
+        final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() + (item.flatDiscount ?? 0).toDouble() + (item.bogoDiscount ?? 0).toDouble();
+        final num combinedPromoDiscount = (item.tieredDiscount ?? 0) + (item.flatDiscount ?? 0) + (item.bogoDiscount ?? 0);
 
         if (item.isPromo == true) {
           bool isBundle =
@@ -361,6 +361,7 @@ List<BulkData> storedBulkList = [];
                 promoDiscount: combinedPromoDiscount, // <-- Combined Promo Discount
                 initialCount: e.initialCount,
                 taxAmount: item.taxAmount,
+                unitPrice: e.sellPrice.toString(),
             );
           } else {
             return SendCartData(
@@ -380,6 +381,7 @@ List<BulkData> storedBulkList = [];
                 promoDiscount: combinedPromoDiscount, // <-- Combined Promo Discount
                 initialCount: e.initialCount,
                 taxAmount: item.taxAmount,
+                unitPrice: e.sellPrice.toString(),
             );
           }
         } 
@@ -429,6 +431,7 @@ List<BulkData> storedBulkList = [];
               initialCount: e.initialCount,
               taxAmount: item.taxAmount,
               itemNumbers: isBulkItem ? e.pieces?.toInt() : null,
+              unitPrice: e.sellPrice.toString(),
           );
         }
    

@@ -1008,6 +1008,7 @@ final String promoType = cart['promo_type'] as String? ?? '';
   double? tieredDiscount,
   double? catTax,
   double? flatDiscount,
+   double? bogoDiscount,
 }) async {
   print('add to cart promo called ');
   if (localCount <= 0) {
@@ -1143,7 +1144,8 @@ final String promoType = cart['promo_type'] as String? ?? '';
         CustomerDiscount: CustomerDiscount,
         tieredDiscount: tieredDiscount,
         catTax: catTax,
-        flatDiscount: flatDiscount
+        flatDiscount: flatDiscount,
+        bogoDiscount: bogoDiscount,
       );
 
       await cartBox.add(newCartItem);

@@ -113,6 +113,9 @@ class SendCartData extends HiveObject {
   @HiveField(22) 
   num? flatDiscount;
 
+  @HiveField(23)
+  String? unitPrice; 
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -137,6 +140,7 @@ class SendCartData extends HiveObject {
     this.taxAmount,
     this.itemNumbers,
     this.flatDiscount,
+    this.unitPrice,
   });
 
   Map<String, dynamic> toJson() {
@@ -162,6 +166,7 @@ class SendCartData extends HiveObject {
       'taxAmount': taxAmount,
       'item_numbers': itemNumbers,
       'flat_discount': flatDiscount,
+      'unit_price': unitPrice,
     };
 
     if (isBundle == true) {

@@ -75,17 +75,19 @@ class GroupedItemDataRows {
               groupedItem.tieredDiscount! > 0)
           ? groupedItem.tieredDiscount!
           : 0;
-          print('toiered discount :$tieredDiscount');
+       
       num flatDiscount = (groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
-          print('flat discountser :$flatDiscount');
-      double totalDiscountPercent = CustomerDiscount + tieredDiscount;
+          num bogoDiscount = (groupedItem.bogoDiscount != null &&
+              groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
+         
+      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount;
       double percentageDiscountAmount =
           (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
     groupedItem.totalDiscountAmount = percentageDiscountAmount;
-      double totalDiscountAmount = percentageDiscountAmount + flatDiscount;
+      double totalDiscountAmount = percentageDiscountAmount + flatDiscount ;
       
   
       // groupedItem.totalDiscountAmount = totalDiscountAmount;
@@ -98,8 +100,10 @@ class GroupedItemDataRows {
       double tax;
       if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
         tax = groupedItem.taxAmount!;
+        print('backend tax:$tax');
       } else {
         tax = priceAfterDiscount * (taxPercentage / 100);
+        print('frontend calculated tax:$tax');
         groupedItem.taxAmount = tax;
       }
 

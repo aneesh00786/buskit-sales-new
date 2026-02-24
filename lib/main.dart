@@ -45,6 +45,8 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
@@ -136,7 +138,8 @@ void main() async {
   Get.put(CustomerCreditController());
   // Get.put(SalesReturnListController());
   final subscriptionController = Get.put(SubscriptionController());
-
+// Add this in your main.dart (or wherever you define your routes/constants)
+ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
   await subscriptionController
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
 
@@ -220,6 +223,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+   
     return LayoutBuilder(
       builder: (context, sizingConstraints) {
         AppDimensions.createInstance(context, sizingConstraints);
@@ -248,6 +252,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               initialRoute: widget.initialRout,
               themeMode: ThemeMode.light,
               debugShowCheckedModeBanner: false,
+              navigatorObservers: [routeObserver],
             ),
           ),
         );

@@ -4049,10 +4049,6 @@ Obx(() {
     double padding = availableWidth > 400 ? 6 : 3;
     ProductsController productsController = Get.find<ProductsController>();
 
-    // UPDATED LOGIC:
-    // The step-based increment (tiered discount) only applies if:
-    // 1. The item is a Promo item (cartItem.isPromo == true)
-    // 2. It has an initialCount defined greater than 1
     final bool isTieredDiscount = (cartItem.isPromo == true) &&
         (cartItem.detail.initialCount != null &&
             cartItem.detail.initialCount! > 1);
@@ -4080,11 +4076,23 @@ Obx(() {
           (cartItem.tieredDiscount != null && cartItem.tieredDiscount! > 0)
               ? cartItem.tieredDiscount!
               : 0;
+          //     num flatDisc = 
+          // (cartItem.flatDiscount != null && cartItem.flatDiscount! > 0) 
+          //     ? cartItem.flatDiscount! 
+          //     : 0;
+             
       double totalDiscountPercent = customerDisc + tieredDisc;
-
+//       double percentageDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+// double blocks = productQuantity / tierStep;
+// // 2. ✅ Add the fixed flat discount
+// double totalDiscountAmount = percentageDiscountAmount + (flatDisc.toDouble() * blocks);
+// double totalDiscountAmount = percentageDiscountAmount + flatDisc.toDouble();
+    
       // Calculate Discount Amount
       double totalDiscountAmount =
-          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0) ;
+          print('total discpunt amount in product quanity:$totalDiscountAmount');
+      
       cartItem.totalDiscountAmount = totalDiscountAmount;
 
       // 3. Calculate Price After Discount
@@ -4121,17 +4129,6 @@ Obx(() {
       }
     }
 
-    //   double tax = priceAfterDiscount * (taxPercentage / 100);
-    //   cartItem.taxAmount = tax;
-
-    //   // 5. Update Final Price
-    //   if (cartItem.detail.inclTax == "incl_tax") {
-    //     cartItem.finalPrice = priceAfterDiscount;
-    //   } else {
-    //     cartItem.finalPrice = priceAfterDiscount + tax;
-    //   }
-    // }
-    // ----------------------------------------------------
 
     return Container(
       width: availableWidth > 400 ? 80 : 50,
@@ -4257,169 +4254,6 @@ Obx(() {
     );
   }
 
-  // Container productQuantityManager(CartItem cartItem, String sellPrice,
-  //     double fontSize, double availableWidth) {
-  //   double padding = availableWidth > 400 ? 6 : 3;
-  //   ProductsController productsController = Get.find<ProductsController>();
-
-  //   // Determine if this is a tiered discount item based on SAVED item properties
-  //   // (not global selectedPromotion, which isn't reliable for loaded items)
-  //   // final bool isTieredDiscount = (cartItem.tieredDiscount ?? 0) > 0 &&
-  //   //     cartItem.detail.initialCount != null &&
-  //   //     cartItem.detail.initialCount! > 1;
-
-  //   final bool isTieredDiscount = cartItem.detail.initialCount != null &&
-  //       cartItem.detail.initialCount! > 1;
-  //   // Use initialCount as the tier step (persisted in the item)
-  //   final int tierStep = cartItem.detail.initialCount?.toInt() ?? 1;
-
-  //   // Optional: Define min qty as the initial tier step to prevent going below
-  //   final int minTierQty = tierStep;
-  //   print('tieredstep in uiiiiii:$tierStep');
-
-  //   void showWarning() {
-  //     Get.snackbar(
-  //       "Tier Quantity",
-  //       "Minimum quantity for this offer is $minTierQty",
-  //       snackPosition: SnackPosition.TOP,
-  //       backgroundColor: Colors.orange.shade700,
-  //       colorText: Colors.white,
-  //       duration: const Duration(seconds: 2),
-  //     );
-  //   }
-
-  //   return Container(
-  //     width: availableWidth > 400 ? 80 : 50,
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(5),
-  //       color: const Color.fromARGB(255, 241, 240, 240),
-  //     ),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //             color: primaryColor,
-  //             borderRadius: BorderRadius.only(
-  //               topLeft: Radius.circular(5),
-  //               bottomLeft: Radius.circular(5),
-  //             ),
-  //           ),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   if (isTieredDiscount) {
-  //                     // Do not allow decrement below initial tier quantity
-  //                     // if (cartItem.detail.count <= minTierQty) {
-  //                     //   // showTieredDiscountWarning();
-  //                     //   return;
-  //                     // }
-
-  //                     cartItem.detail.count -= tierStep!;
-  //                     print('tierstep ontap:${cartItem.detail.count}');
-  //                     // if (cartItem.detail.count < minTierQty) {
-  //                     //   cartItem.detail.count = minTierQty;
-  //                     // }
-  //                   } else {
-  //                     if (cartItem.detail.count > 1) {
-  //                       cartItem.detail.count--;
-  //                     }
-  //                   }
-  //                   // if (isTieredDiscount) {
-  //                   //   if (cartItem.detail.count <= minTierQty) {
-  //                   //     showWarning();
-  //                   //     return;
-  //                   //   }
-  //                   //   cartItem.detail.count -= tierStep;
-  //                   //   print('tierstep ontap minus: ${cartItem.detail.count}');
-  //                   // } else {
-  //                   //   if (cartItem.detail.count > 1) {
-  //                   //     cartItem.detail.count--;
-  //                   //   }
-  //                   // }
-
-  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
-  //                     cartItem,
-  //                     cartItem.detail.count.toInt(),
-  //                   );
-
-  //                   calculateAmounts();
-  //                   CartDatabaseManager().updateCart(cartItem);
-  //                   CartDatabaseManager()
-  //                       .getCartItems(cartItem.customerId ?? '');
-  //                   widget.productsController.isCartModified.value = true;
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: EdgeInsets.symmetric(horizontal: padding),
-  //                 child: CustomText(
-  //                   color: Colors.white,
-  //                   content: '-',
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.bold,
-  //                   textAlign: TextAlign.center,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         CustomText(
-  //           content: cartItem.detail.count.toStringAsFixed(0),
-  //           fontSize: fontSize,
-  //         ),
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //             color: primaryColor,
-  //             borderRadius: BorderRadius.only(
-  //               topRight: Radius.circular(5),
-  //               bottomRight: Radius.circular(5),
-  //             ),
-  //           ),
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(2),
-  //             child: InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   if (isTieredDiscount) {
-  //                     cartItem.detail.count += tierStep!;
-  //                   } else {
-  //                     cartItem.detail.count++;
-  //                   }
-  //                   // if (isTieredDiscount) {
-  //                   //   cartItem.detail.count += tierStep;
-  //                   // } else {
-  //                   //   cartItem.detail.count++;
-  //                   // }
-
-  //                   cartItem.totalPrice = Utils().calculateTotalPrice(
-  //                     cartItem,
-  //                     cartItem.detail.count.toInt(),
-  //                   );
-
-  //                   calculateAmounts();
-  //                   CartDatabaseManager().updateCart(cartItem);
-  //                   widget.productsController.isCartModified.value = true;
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: EdgeInsets.symmetric(horizontal: padding),
-  //                 child: CustomText(
-  //                   color: Colors.white,
-  //                   content: '+',
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.bold,
-  //                   textAlign: TextAlign.center,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
 
   void calculateAmounts() {

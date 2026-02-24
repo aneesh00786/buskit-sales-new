@@ -1020,6 +1020,11 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     } catch (e) {
       print("[PROMO] Flat Discount - Error finding product model for ID ${v.productId}: $e");
     }
+    final double flatAmount = double.tryParse(promo.discountValue?.toString() ?? '0') ?? 0;
+  print('flat amount in details class:$flatAmount');
+  if (flatAmount > 0) {
+    productController.flatDiscountByCustomer[customerId] = flatAmount;
+  }
 
     // --- B. Create Detail Object ---
     final detail = Detail(
@@ -1056,18 +1061,15 @@ class _PromotionDetailsState extends State<PromotionDetails> {
       catId: catId,
       promoCode: promo.promoCode,
       promoMsg: "Flat discount will be applied on total",
-      catTax: fetchedCatTax, // <--- Assigning the value here
+      catTax: fetchedCatTax, 
+      flatDiscount: flatAmount
     );
 
     productController.isCartModified.value = true;
   }
 
   // 2) Store fixed flat discount per customer for cart total display
-  final double flatAmount = double.tryParse(promo.discountValue?.toString() ?? '0') ?? 0;
   
-  if (flatAmount > 0) {
-    productController.flatDiscountByCustomer[customerId] = flatAmount;
-  }
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
@@ -1082,104 +1084,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     Icons.check,
   );
 }
-                                      // if (promo.promoType == "flat_discount") {
-                                      //   // Flatten variants
-                                      //   final allVariants = promo.products
-                                      //           ?.expand(
-                                      //               (p) => p.variants ?? [])
-                                      //           .toList() ??
-                                      //       [];
-                                      //   if (allVariants.isEmpty) {
-                                      //     showCustomToastDisplay(
-                                      //       context,
-                                      //       "No variants found for this promotion",
-                                      //       Colors.orange,
-                                      //       Icons.warning,
-                                      //     );
-                                      //     return;
-                                      //   }
-
-                                      //   // Validate min order with existing helper (based on selected qty)
-                                      //   final allowed =
-                                      //       await validateMinOrderBeforeAdd(
-                                      //           allVariants);
-                                      //   if (!allowed) return;
-
-                                      //   // 1) Add products normally without modifying discount
-                                      //   for (final v in allVariants) {
-                                      //     final detail = Detail(
-                                      //       variationId: v.id,
-                                      //       productId: v.productId,
-                                      //       variationName: v.variationName,
-                                      //       unitType: v.unitType,
-                                      //       price: (v.price ?? '0').toString(),
-                                      //       sellPrice:
-                                      //           (v.sellPrice ?? '0').toString(),
-                                      //       tax:
-                                      //           double.tryParse(v.tax ?? '0') ??
-                                      //               0,
-                                      //       packtype: v.packtype,
-                                      //       pieces: v.pieces,
-                                      //       stock: v.stock,
-                                      //       lowstock: v.lowstock,
-                                      //       fullstock: v.fullstock,
-                                      //       imageUrl: v.imageUrl,
-                                      //       productName: v.productName,
-                                      //     );
-
-                                      //     final catId = extractCategoryId(
-                                      //         v.productId.toString());
-
-                                      //     await CartDatabaseManager()
-                                      //         .addToCartPromo(
-                                      //       customerId: customerId,
-                                      //       localCount: qty.value,
-                                      //       detail: detail,
-                                      //       isPack: true,
-                                      //       productName: v.productName ?? '',
-                                      //       inclTax: v.tax ?? '',
-                                      //       isChcked: true,
-                                      //       catId: catId,
-                                      //       promoCode: promo.promoCode,
-                                      //       promoMsg:
-                                      //           "Flat discount will be applied on total",
-                                      //     );
-
-                                      //     productController
-                                      //         .isCartModified.value = true;
-                                      //   }
-
-                                      //   // 2) Store fixed flat discount per customer for cart total display
-                                      //   final double flatAmount =
-                                      //       double.tryParse(promo.discountValue
-                                      //                   ?.toString() ??
-                                      //               '0') ??
-                                      //           0;
-                                      //   if (flatAmount > 0) {
-                                      //     productController
-                                      //             .flatDiscountByCustomer[
-                                      //         customerId] = flatAmount;
-                                      //   }
-
-                                      //   WidgetsBinding.instance
-                                      //       .addPostFrameCallback((_) {
-                                      //     final cartProvider =
-                                      //         Provider.of<CustomersProvider>(
-                                      //             context,
-                                      //             listen: false);
-                                      //     cartProvider
-                                      //         .updateCartCount(customerId);
-                                      //     cartProvider
-                                      //         .getCartItemCounts(customerId);
-                                      //   });
-
-                                      //   showCustomToastDisplay(
-                                      //     context,
-                                      //     "Items added. Flat discount will be applied on total",
-                                      //     Colors.green.shade800,
-                                      //     Icons.check,
-                                      //   );
-                                      // }
+                                     
 
                                       // --- Tiered Discount promos ---
 
@@ -1241,21 +1146,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         print("[PROMO] Error fetching remote tax: $e");
       }
     }
-    
-    // double fetchedCatTax = 0.0;
-    // try {
-    //   final productModelInstance = widget.controller.products.firstWhere(
-    //     (p) => p.productId == v.productId,
-        
-    //     orElse: () => ProductModel(catTax: 0), 
-    //   );
-    //   print('productModelInstance.cattax:${productModelInstance.catTax}');
-      
-    //   fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    // } catch (e) {
-    //   print("[PROMO] Error finding product model in controller for ID ${v.productId}: $e");
-    // }
-
     log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
 
     // --- 2. Calculate Tiered Discount ---
@@ -1263,6 +1153,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     if (promo.promoType == "tiered_discount" && selectedTier.value != null) {
       // For tiered_discount, use the selected tier's discount
       tieredDiscount = double.tryParse(selectedTier.value!.discountValue?.toString() ?? '0') ?? 0;
+      print('tiered discount from details class:$tieredDiscount');
     } else {
       // For other promotions, calculate based on quantity
       tieredDiscount = _calculateTieredDiscount(promo, qty.value, true);

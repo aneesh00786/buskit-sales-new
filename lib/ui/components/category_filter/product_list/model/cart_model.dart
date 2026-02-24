@@ -88,6 +88,9 @@ class CartItem extends HiveObject {
   @HiveField(26) 
   double? totalTaxAmount;
 
+  @HiveField(27)
+  num? flatDiscount; 
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -116,6 +119,7 @@ class CartItem extends HiveObject {
     this.catTax,
     this.taxAmount,
     this.totalTaxAmount,
+    this.flatDiscount,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -147,6 +151,7 @@ class CartItem extends HiveObject {
       catTax: (json['cat_tax'] as num?)?.toDouble(),
       taxAmount: (json['tax_amount'] as num?)?.toDouble(),
       totalTaxAmount: (json['total_taxAmount'] as num?)?.toDouble(),
+      flatDiscount: (json['flat_discount'] as num?)?.toDouble(),
     );
   }
 
@@ -178,7 +183,8 @@ class CartItem extends HiveObject {
       'tier_step': tierStep,
       'cat_tax': catTax,
       'tax_amount':taxAmount,
-      'total_taxAmount':totalDiscountAmount,
+      'total_taxAmount':totalTaxAmount,
+      'flat_discount': flatDiscount,
     };
   }
 

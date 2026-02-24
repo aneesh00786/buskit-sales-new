@@ -94,7 +94,8 @@ class CartDatabaseManager {
                         (1 - discountPercentage);
                 final num totalTax =
                     num.tryParse(cart['total_tax'].toString()) ?? 0;
-
+final String promoType = cart['promo_type'] as String? ?? '';
+                final double parsedPromoDiscount = (num.tryParse(cart['promo_discount']?.toString() ?? '0') ?? 0).toDouble();
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
@@ -170,14 +171,16 @@ class CartDatabaseManager {
                           0)
                       .toDouble(),
                      
-                  tieredDiscount: (num.tryParse(
-                              cart['promo_discount']?.toString() ?? '0') ??
-                          0)
-                      .toDouble(),
+                  // tieredDiscount: (num.tryParse(
+                  //             cart['promo_discount']?.toString() ?? '0') ??
+                  //         0)
+                  //     .toDouble(),
                       taxAmount:   (num.tryParse(
                               cart['total_tax']?.toString() ?? '0') ??
                           0)
                       .toDouble(),
+                    tieredDiscount: promoType == 'flat_discount' ? 0.0 : parsedPromoDiscount,
+                  flatDiscount: promoType == 'flat_discount' ? parsedPromoDiscount : 0.0,
                   
                 );
                 final prefs = await SharedPreferences.getInstance();
@@ -1004,7 +1007,9 @@ class CartDatabaseManager {
   double? CustomerDiscount,
   double? tieredDiscount,
   double? catTax,
+  double? flatDiscount,
 }) async {
+  print('add to cart promo called ');
   if (localCount <= 0) {
     throw ArgumentError("[PROMO] Error: Count must be greater than zero.");
   }
@@ -1137,7 +1142,8 @@ class CartDatabaseManager {
         promoMsg: promoMsg,
         CustomerDiscount: CustomerDiscount,
         tieredDiscount: tieredDiscount,
-        catTax: catTax
+        catTax: catTax,
+        flatDiscount: flatDiscount
       );
 
       await cartBox.add(newCartItem);

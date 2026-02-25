@@ -118,9 +118,13 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             Text(
                               ("Phone :   ${widget.invoiceData?.mobileNo}"),
                             ),
-                            Text(
-                              ("Staff :   ${widget.invoiceData?.orderSource == 'web_store' ? 'Web Store' : (widget.invoiceData?.salesmanName ?? 'N/A')}"),
-                            ),
+                            if (widget.invoiceData?.orderSource == 'app')
+                              Text(
+                                "Staff :   ${widget.invoiceData?.salesmanName ?? 'N/A'}",
+                              ),
+                            // Text(
+                            //   ("Staff :   ${widget.invoiceData?.orderSource == 'web_store' ? 'Web Store' : (widget.invoiceData?.salesmanName ?? 'N/A')}"),
+                            // ),
                           ],
                         ),
                         const Spacer(),

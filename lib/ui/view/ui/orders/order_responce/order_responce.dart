@@ -55,6 +55,7 @@ class OrderData {
   String? editedFullname;
   String? editedLastname;
   String? generatedDate;
+  String? orderSource;
 
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
@@ -79,6 +80,7 @@ class OrderData {
     this.generatedDate,
     this.cart,
     this.salesman,
+    this.orderSource
 
   });
 
@@ -136,6 +138,7 @@ class OrderData {
         ?.map(
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
         .toList();
+        orderSource = json['order_source'] as String?;
 
   }
 
@@ -160,6 +163,7 @@ class OrderData {
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();
     json['invoice'] = invoice?.map((e) => e.toJson()).toList();
+    json['order_source'] = orderSource;
 
     return json;
   }
@@ -312,6 +316,7 @@ class OrderProcessInvoiceData {
   List<OrderInvoice>? invoice;
   List<SpecificTax>? tax;
   String? imageUrl;
+  String? orderSource;
 
   OrderProcessInvoiceData({
     this.id,
@@ -345,6 +350,7 @@ class OrderProcessInvoiceData {
     this.invoice,
     this.tax,
     this.imageUrl,
+    this.orderSource
   });
 
   factory OrderProcessInvoiceData.fromJson(Map<String, dynamic> json) =>
@@ -399,6 +405,7 @@ class OrderProcessInvoiceData {
                 json["tax"].map((x) => SpecificTax.fromJson(x)))
             : null,
          imageUrl: json["image_url"]?.toString(),
+        orderSource: json['order_source'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -439,6 +446,7 @@ class OrderProcessInvoiceData {
             ? List<dynamic>.from(tax!.map((x) => x.toJson()))
             : null,
         "image_url": imageUrl,
+        "order_source": orderSource,
       };
 }class SalesmanTargetByCatId {
   int statusCode;

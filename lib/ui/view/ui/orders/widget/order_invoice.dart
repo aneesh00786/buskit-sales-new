@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -43,9 +44,16 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
     super.dispose();
   }
 
+  String _companyTimeZone = 'UTC';
+  // 1. Calculate the string before the UI code
+
   @override
   Widget build(BuildContext context) {
     final isSpecificData = widget.selectedTabIndex == 0;
+    final DateTime? createdAt = widget.invoiceData?.orderCreatAt;
+    final String dateString = createdAt != null
+        ? TimeUtils.formatTimeInZone(createdAt, format: 'dd/MM/yyyy hh:mm a')
+        : 'N/A';
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -83,8 +91,10 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           ),
                         ),
                         const Spacer(),
+
+// 2. Simply drop the clean variable into your Text widget
                         Text(
-                          'Created At : ${(NKDateUtils.commonFullDateTimeFormat2(NKDateUtils.formatStringUTCDateTime(widget.invoiceData!.orderCreatAt?.toIso8601String() ?? '')))}',
+                          'Created At : $dateString',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -109,7 +119,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                               ("Phone :   ${widget.invoiceData?.mobileNo}"),
                             ),
                             Text(
-                              ("Staff :   ${widget.invoiceData?.salesmanName}"),
+                              ("Staff :   ${widget.invoiceData?.orderSource == 'web_store' ? 'Web Store' : (widget.invoiceData?.salesmanName ?? 'N/A')}"),
                             ),
                           ],
                         ),
@@ -133,32 +143,6 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             ),
                           ),
                         )
-//      ClipOval(
-//   child: Container(
-//     height: 50,
-//     width: 50,
-//     child: Image.network(
-//       // 👇 We only keep the path up to 'uploads/' because the API gives us 'customer/...'
-//       'https://test.thrivewoo.com/uploads/${isSpecificData ? (widget.specificData!.imageUrl ?? '') : (widget.invoiceData!.imageUrl ?? '')}',
-
-//       fit: BoxFit.cover,
-//       errorBuilder: (context, error, stackTrace) {
-//         return Container(
-//           color: Colors.lightBlue[100],
-//           child: const Icon(Icons.person, color: Colors.blue),
-//         );
-//       },
-//     ),
-//   ),
-// )
-//                         // ClipOval(
-                        //   child: Container(
-                        //     height: 50,
-                        //     width: 50,
-                        //     color: Colors.lightBlue[100],
-                        //     child: const Icon(Icons.person, color: Colors.blue),
-                        //   ),
-                        // ),
                       ],
                     )
                   ],

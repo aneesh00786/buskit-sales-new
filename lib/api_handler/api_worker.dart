@@ -1703,9 +1703,9 @@ class ApiWorker with ApiConstants {
         endPoint: ApiConstants.getRecentOrdersData,
         requestData: requestData,
       );
-      print('request data of ger recent orders:$requestData');
+      log('get recent orders response:${response.data}');
 
-      print("api called for recent orders ${response.data['status_code']}");
+    
       if (response.data['status'] == true &&
           response.data['status_code'] == 200) {}
 
@@ -1790,6 +1790,7 @@ class ApiWorker with ApiConstants {
       };
       final response = await responsePostMethod(
           requestData: requestBody, endPoint: ApiConstants.orderProcessInvoice);
+          log('reponse of the order invoice details:${response.data}');
       if (response.statusCode == 200) {
         return OrderProcessInvoice.fromJson(response.data);
       } else {

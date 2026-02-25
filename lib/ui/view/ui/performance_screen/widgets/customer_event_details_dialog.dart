@@ -213,13 +213,13 @@ Future<void> _loadTimeZone() async {
                                 _DataCell(
                                   item.checkIn != null
                                       ? _TimeWithLocation(
-                                         time: TimeUtils.formatTimeInZone(item.checkIn!, _companyTimeZone))
+                                         time: TimeUtils.formatTimeInZone(item.checkIn!,))
                                       : const SizedBox(),
                                 ),
                                 _DataCell(
                                   item.checkOut != null
                                       ? _TimeWithLocation(
-                                          time: TimeUtils.formatTimeInZone(item.checkOut!, _companyTimeZone))
+                                          time: TimeUtils.formatTimeInZone(item.checkOut!,))
                                       : const SizedBox(),
                                 ),
                                 _DataCell(

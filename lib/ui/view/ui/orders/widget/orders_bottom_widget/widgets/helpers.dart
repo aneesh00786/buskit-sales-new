@@ -156,17 +156,47 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
           ),
   );
 }
-
 Widget orderCreatedByWidget(OrderData orderData) {
+  String displayLabel = '';
+
+  // 1. Check if the order came from the web store
+  if (orderData.orderSource == 'web_store') {
+    displayLabel = 'Web Store';
+  } 
+  // 2. Otherwise, format the user's name
+  else {
+    final String firstName = orderData.fullname ?? '';
+    final String lastName = orderData.lastname ?? '';
+    
+    // .trim() removes any extra spaces if one of the names is missing
+    displayLabel = '$firstName $lastName'.trim();
+    
+    // Fallback just in case the name is completely empty
+    if (displayLabel.isEmpty) {
+      displayLabel = 'N/A';
+    }
+  }
+
   return Center(
     child: MyRegularText(
-      label: '${orderData.fullname} ${orderData.lastname}',
+      label: displayLabel,
       fontWeight: FontWeight.w600,
       fontSize: 11,
       maxlines: 2,
     ),
   );
 }
+
+// Widget orderCreatedByWidget(OrderData orderData) {
+//   return Center(
+//     child: MyRegularText(
+//       label: '${orderData.fullname} ${orderData.lastname}',
+//       fontWeight: FontWeight.w600,
+//       fontSize: 11,
+//       maxlines: 2,
+//     ),
+//   );
+// }
 
 Widget orderPrice(OrderData orderDetailsData) {
   return Center(

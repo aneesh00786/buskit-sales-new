@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
@@ -71,21 +72,39 @@ class _ProductReturnDialogContentState
   final ScrollController _horizontalScrollController = ScrollController();
   late final PendingReturnsController _returnInfoCtrl;
   @override
-void initState() {
-  super.initState();
-  _ctrl = Get.find<ProductReturnController>();
-  _returnInfoCtrl = Get.find<PendingReturnsController>();
-  _horizontalScrollController.addListener(() {
-    setState(() {});
-  });
-  
-  if (_ctrl.orderId.value != widget.orderId) {
-    _ctrl.orderData.value = null;
-    _ctrl.cartItems.clear();
-    _ctrl.orderId.value = widget.orderId;
-    
-    // First fetch product details
-    _ctrl.fetchProductReturnDetails().then((_) {
+  void initState() {
+    super.initState();
+    _ctrl = Get.find<ProductReturnController>();
+    _returnInfoCtrl = Get.find<PendingReturnsController>();
+    _horizontalScrollController.addListener(() {
+      setState(() {});
+    });
+
+    if (_ctrl.orderId.value != widget.orderId) {
+      _ctrl.orderData.value = null;
+      _ctrl.cartItems.clear();
+      _ctrl.orderId.value = widget.orderId;
+
+      // First fetch product details
+      _ctrl.fetchProductReturnDetails().then((_) {
+        // Reset cart items
+        for (var item in _ctrl.cartItems) {
+          item.damageQty = 0;
+          item.returnQty = 0;
+          item.image = null;
+          item.itemReason = '';
+        }
+
+        // Then fetch pending returns (now orderData is available)
+        return _returnInfoCtrl.fetchPendingReturns(
+          cartId: _ctrl.orderData.value?.cartId ?? '',
+          companyId: _ctrl.orderData.value?.companyId?.toString() ?? '',
+        );
+      }).then((_) {
+        // Assign immediately after pending returns completes
+        _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+      });
+    } else {
       // Reset cart items
       for (var item in _ctrl.cartItems) {
         item.damageQty = 0;
@@ -93,36 +112,18 @@ void initState() {
         item.image = null;
         item.itemReason = '';
       }
-      
-      // Then fetch pending returns (now orderData is available)
-      return _returnInfoCtrl.fetchPendingReturns(
-        cartId: _ctrl.orderData.value?.cartId ?? '',
-        companyId: _ctrl.orderData.value?.companyId?.toString() ?? '',
-      );
-    }).then((_) {
-      // Assign immediately after pending returns completes
-      _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
-    });
-    
-  } else {
-    // Reset cart items
-    for (var item in _ctrl.cartItems) {
-      item.damageQty = 0;
-      item.returnQty = 0;
-      item.image = null;
-      item.itemReason = '';
-    }
-    
-    // Fetch pending returns and assign immediately
-    _returnInfoCtrl.fetchPendingReturns(
-      cartId: _ctrl.orderData.value!.cartId!,
-      companyId: _ctrl.orderData.value!.companyId!.toString(),
-    ).then((_) {
-      _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
-    });
-  }
-}
 
+      // Fetch pending returns and assign immediately
+      _returnInfoCtrl
+          .fetchPendingReturns(
+        cartId: _ctrl.orderData.value!.cartId!,
+        companyId: _ctrl.orderData.value!.companyId!.toString(),
+      )
+          .then((_) {
+        _ctrl.returnInfo.value = _returnInfoCtrl.returnsResponse.value;
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -357,9 +358,13 @@ void initState() {
               Text('Phone: ${order.mobileno}'),
               const SizedBox(height: 8),
               Text(
-                'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : 'N/A'} | ${NKDateUtils.commonFullDateTimeFormat2(order.invoice!.firstOrNull!.createdAt!)}',
+                'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : "N/A"} | ${order.invoice?.isNotEmpty == true && order.invoice!.first.createdAt != null ? TimeUtils.formatTimeInZone(order.invoice!.first.createdAt!, format: "dd/MM/yyyy hh:mm a") : "N/A"}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+              // Text(
+              //   'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : 'N/A'} | ${NKDateUtils.commonFullDateTimeFormat2(order.invoice!.firstOrNull!.createdAt!)}',
+              //   style: const TextStyle(fontWeight: FontWeight.bold),
+              // ),
             ],
           ),
         ),
@@ -433,18 +438,13 @@ void initState() {
                       Expanded(
                         child: ProductNameWithTax(
                           productName: '${e.value.productName ?? '-'}',
-                          variationName: '${e.value.variationName ?? '-'}', 
-                          isInclTax: e.value.inclTax == "incl_tax" , 
-                          maxWidth: isPhonePortrait(
-                                                        context)
-                                                    ? fullScreenWidth(context) *
-                                                        0.4
-                                                    : fullScreenWidth(context) *
-                                                        0.2, 
-                          style: TextStyle(
-                                                    fontSize: 14),
-                          ),
-
+                          variationName: '${e.value.variationName ?? '-'}',
+                          isInclTax: e.value.inclTax == "incl_tax",
+                          maxWidth: isPhonePortrait(context)
+                              ? fullScreenWidth(context) * 0.4
+                              : fullScreenWidth(context) * 0.2,
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ),
                     ],
                   ),
@@ -479,32 +479,30 @@ void initState() {
                           color: e.key.isEven ? Colors.grey[50] : Colors.white,
                           child: Row(
                             children: [
-                             
                               _col(formatAmount(cart.price), colUnit),
                               _col(
                                   '${cart.pieces ?? 0} (${cart.quantity ?? 0} ${cart.packType ?? ''})'
                                       .trim(),
                                   colQty),
                               _col(
-                                formatAmount(
-                                    cart.totalPrice), 
+                                formatAmount(cart.totalPrice),
                                 colAmt,
                                 align: TextAlign.right,
                               ),
-                             
+
                               _col(
                                 formatAmount(
                                     cart.discountAmount), // e.g., ₹ 100.00
                                 colDisc,
                                 align: TextAlign.right,
                               ),
-                              
+
                               _col(
                                 formatAmount(cart.tax), // e.g., ₹ 270.00
                                 colTax,
                                 align: TextAlign.right,
                               ),
-                             
+
                               _col(
                                 formatAmount(cart.totalPrice),
                                 colTotal,
@@ -670,90 +668,89 @@ void initState() {
   /// ---------------------------------------------------------------
   //new one added//
 
-Widget _suppQtyCol(
-  String txt,
-  double width, {
-  TextAlign align = TextAlign.left,
-  required Cart cart,
-}) {
-  return SizedBox(
-    width: width,
-    child: Center(
-      child: Obx(() {
-        // Add a safety check for cart.suppliedQty
-        final displayQty = (cart.suppliedQty ?? 0).toString();
-        
-        final info = _ctrl.returnInfo.value;
-        
-        // If no return info, just show the quantity
-        if (info == null || info.aggregated.isEmpty) {
-          return CustomText(
-            content: displayQty,
-            fontSize: 12,
-            textAlign: align,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
+  Widget _suppQtyCol(
+    String txt,
+    double width, {
+    TextAlign align = TextAlign.left,
+    required Cart cart,
+  }) {
+    return SizedBox(
+      width: width,
+      child: Center(
+        child: Obx(() {
+          // Add a safety check for cart.suppliedQty
+          final displayQty = (cart.suppliedQty ?? 0).toString();
 
-        final hasPending = info.aggregated.any((a) => a.variationId == cart.variationId);
-        
-        if (!hasPending) {
-          return CustomText(
-            content: displayQty,
-            fontSize: 12,
-            textAlign: align,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
+          final info = _ctrl.returnInfo.value;
 
-        final pendingQty = info.aggregated
-            .firstWhere(
-              (a) => a.variationId == cart.variationId,
-              orElse: () => Aggregated(variationId: '', pendingQty: 0),
-            )
-            .pendingQty ?? 0;
+          // If no return info, just show the quantity
+          if (info == null || info.aggregated.isEmpty) {
+            return CustomText(
+              content: displayQty,
+              fontSize: 12,
+              textAlign: align,
+              overflow: TextOverflow.ellipsis,
+            );
+          }
 
-        final filtered = info.data
-            .where((r) => r.variationId == cart.variationId)
-            .toList();
+          final hasPending =
+              info.aggregated.any((a) => a.variationId == cart.variationId);
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: CustomText(
-                content: displayQty,
-                fontSize: 12,
-                textAlign: align,
-                overflow: TextOverflow.ellipsis,
+          if (!hasPending) {
+            return CustomText(
+              content: displayQty,
+              fontSize: 12,
+              textAlign: align,
+              overflow: TextOverflow.ellipsis,
+            );
+          }
+
+          final pendingQty = info.aggregated
+                  .firstWhere(
+                    (a) => a.variationId == cart.variationId,
+                    orElse: () => Aggregated(variationId: '', pendingQty: 0),
+                  )
+                  .pendingQty ??
+              0;
+
+          final filtered = info.data
+              .where((r) => r.variationId == cart.variationId)
+              .toList();
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: CustomText(
+                  content: displayQty,
+                  fontSize: 12,
+                  textAlign: align,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.info_outline, color: Colors.blue, size: 16),
-                tooltip: 'Pending: $pendingQty',
-                onPressed: () {
-                  showPendingReturnsDialog(
-                    context,
-                    cart.productName ?? '',
-                    cart.variationName ?? '',
-                    filtered
-                  );
-                },
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.info_outline,
+                      color: Colors.blue, size: 16),
+                  tooltip: 'Pending: $pendingQty',
+                  onPressed: () {
+                    showPendingReturnsDialog(context, cart.productName ?? '',
+                        cart.variationName ?? '', filtered);
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      }),
-    ),
-  );
-}
+            ],
+          );
+        }),
+      ),
+    );
+  }
 
 //   Widget _suppQtyCol(
 //   String txt,
@@ -811,7 +808,7 @@ Widget _suppQtyCol(
 //                   icon: const Icon(Icons.info_outline, color: Colors.blue, size: 16),
 //                   tooltip: 'Pending: $pendingQty',
 //                   onPressed: () {
-                    
+
 //                     showPendingReturnsDialog(context,cart.productName ?? '',cart.variationName ?? '',filtered);
 //                   },
 //                 ),
@@ -823,37 +820,37 @@ Widget _suppQtyCol(
 //     ),
 //   );
 // }
-void showPendingReturnsDialog(BuildContext context,String productName,String variationName,List<ReturnInfoData> filtered ) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 10,
-        child:  PendingReturnsPopup(
-           productName: productName,        // Use parameter
-          variationName: variationName,    // Use parameter
-          returnItems: filtered,
-
-        ),
-      );
-    },
-  );
-}
+  void showPendingReturnsDialog(BuildContext context, String productName,
+      String variationName, List<ReturnInfoData> filtered) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 10,
+          child: PendingReturnsPopup(
+            productName: productName, // Use parameter
+            variationName: variationName, // Use parameter
+            returnItems: filtered,
+          ),
+        );
+      },
+    );
+  }
 
 // Helper: just the text part (for when no data)
-Widget _buildQtyText(String txt, TextAlign align) {
-  return Flexible(
-    child: CustomText(
-      content: txt,
-      fontSize: 12,
-      textAlign: align,
-      overflow: TextOverflow.ellipsis,
-    ),
-  );
-}
+  Widget _buildQtyText(String txt, TextAlign align) {
+    return Flexible(
+      child: CustomText(
+        content: txt,
+        fontSize: 12,
+        textAlign: align,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
 
   Widget _uploadImageBtn({
     required Function(File file) onPicked,
@@ -1076,7 +1073,9 @@ Widget _buildQtyText(String txt, TextAlign align) {
           'Payment Status: $paymentStatusText',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        SizedBox(width: 10,),
+        SizedBox(
+          width: 10,
+        ),
         Text(
           'Payment Method: $paymentMethodText',
           style: const TextStyle(fontWeight: FontWeight.bold),

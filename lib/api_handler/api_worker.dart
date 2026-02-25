@@ -341,7 +341,6 @@ class ApiWorker with ApiConstants {
 
     if (isOnline) {
       try {
-       
         final requestPayload = {
           "companyId": companyId,
           "salesman_id": salesmanId,
@@ -352,7 +351,7 @@ class ApiWorker with ApiConstants {
         Response response = await responsePostMethod(
             requestData: requestPayload,
             endPoint: ApiConstants.salesmanDashNavContent);
-  log('reposne data of salesmanDashNavContent:${response.data}');
+        log('reposne data of salesmanDashNavContent:${response.data}');
         if (response.statusCode == 200) {
           final data = Map<String, dynamic>.from(response.data as Map);
           await box.put(cacheKey, data);
@@ -444,7 +443,8 @@ class ApiWorker with ApiConstants {
       return null;
     }
   }
-    Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
+
+  Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
     try {
       final response = await responsePostMethod(
@@ -699,7 +699,6 @@ class ApiWorker with ApiConstants {
     }
   }
 
-  
   Future<List<ProductModel>> getTempProduct(String subCatId,
       {required int companyid}) async {
     final isConnected = await ConnectivityService().isOnline();
@@ -708,20 +707,19 @@ class ApiWorker with ApiConstants {
       try {
         print('api called correctlyyyyyy get temp product');
 
-    // 1. Construct the URL manually to match your required format
-    late String requestUrl =
-        "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
-        
-    print('Requesting URL: $requestUrl');
+        // 1. Construct the URL manually to match your required format
+        late String requestUrl =
+            "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
 
-   
-    // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
-    final response = await dio.getbycustom(requestUrl);
+        print('Requesting URL: $requestUrl');
+
+        // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
+        final response = await dio.getbycustom(requestUrl);
 
         if (response.statusCode == 200) {
           final responseData = response.data;
           // log('category data from backend in order taking screen:${responseData}');
-          
+
           final productApiResponse = ProductApiResponse.fromJson(responseData);
 
           List<ProductModel> productsForSubCategory = [];
@@ -731,7 +729,7 @@ class ApiWorker with ApiConstants {
             if (scidGroup.scid == subCatId) {
               productsForSubCategory.addAll(scidGroup.products);
               targetScidGroup = scidGroup;
-              break; 
+              break;
             }
           }
 
@@ -778,7 +776,7 @@ class ApiWorker with ApiConstants {
   // log('category data from backend in order taking screen:${responseData}');
   //         // Parse the new response structure
   //         final productApiResponse = ProductApiResponse.fromJson(responseData);
-         
+
   //         List<ProductModel> productsForSubCategory = [];
   //         ScidProductGroup? targetScidGroup;
 
@@ -897,24 +895,24 @@ class ApiWorker with ApiConstants {
         }
       } catch (e, stackTrace) {
         print('┌───────────────────────────────');
-  print('│ ERROR in getAllProducts()');
-  print('├───────────────────────────────');
-  print('│ Type:     ${e.runtimeType}');
-  print('│ Message:  $e');
-  if (e is DioException) {
-    print('│ Status:   ${e.response?.statusCode}');
-    print('│ Endpoint: ${e.requestOptions.path}');
-    print('│ Response: ${e.response?.data}');
-  }
-  print('│');
-  print('│ Stack trace (first few lines):');
-  print('│ ${stackTrace.toString().split('\n').take(6).join('\n│ ')}');
-  print('└───────────────────────────────');
+        print('│ ERROR in getAllProducts()');
+        print('├───────────────────────────────');
+        print('│ Type:     ${e.runtimeType}');
+        print('│ Message:  $e');
+        if (e is DioException) {
+          print('│ Status:   ${e.response?.statusCode}');
+          print('│ Endpoint: ${e.requestOptions.path}');
+          print('│ Response: ${e.response?.data}');
+        }
+        print('│');
+        print('│ Stack trace (first few lines):');
+        print('│ ${stackTrace.toString().split('\n').take(6).join('\n│ ')}');
+        print('└───────────────────────────────');
 
-  handleExceptionMessage(
-    apiName: 'Get All Product',
-    response: e is DioException ? e.response : null,
-  );
+        handleExceptionMessage(
+          apiName: 'Get All Product',
+          response: e is DioException ? e.response : null,
+        );
         // handleExceptionMessage(
         //   apiName: 'Get All Product',
         //   response: e is DioException ? e.response : null,
@@ -1691,7 +1689,6 @@ class ApiWorker with ApiConstants {
   }) async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
-      
       final requestData = {
         "order_status": orderStatus,
         "start_date": '',
@@ -1699,7 +1696,7 @@ class ApiWorker with ApiConstants {
         "limit": 10,
         "page": page,
         "companyId": companyId,
-        "salesmanid":SessionHelper.loginSavedData?.salesmanId ?? '',
+        "salesmanid": SessionHelper.loginSavedData?.salesmanId ?? '',
       };
 
       final response = await responsePostMethod(
@@ -1707,11 +1704,11 @@ class ApiWorker with ApiConstants {
         requestData: requestData,
       );
       print('request data of ger recent orders:$requestData');
-    
-     print("api called for recent orders ${response.data['status_code']}");
+
+      print("api called for recent orders ${response.data['status_code']}");
       if (response.data['status'] == true &&
           response.data['status_code'] == 200) {}
-     
+
       try {
         return OrderResponce.fromJson(response.data);
       } catch (parseError) {
@@ -1732,7 +1729,6 @@ class ApiWorker with ApiConstants {
       throw Exception('Unexpected error occurred: $e');
     }
   }
-
 
   // Future<OrderResponce> getRecentOrdersData({
   //   SearchModel? searchModel,
@@ -1996,10 +1992,17 @@ class ApiWorker with ApiConstants {
   ) async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     cartOrder.companyId = companyId;
+
     try {
-      log("PLACE ORDER REQUEST : ${cartOrder.toJson()}");
+      final Map<String, dynamic> requestPayload = cartOrder.toJson();
+
+      requestPayload['order_source'] = "app";
+
+      log("PLACE ORDER REQUEST : $requestPayload");
+
       final response = await responsePostMethod(
-          requestData: cartOrder.toJson(), endPoint: "place_order");
+          requestData: requestPayload, endPoint: "place_order");
+
       if (response.statusCode == 200) {
         onResponse(
             200, 'Your order has been successfully placed.', response.data);
@@ -2012,6 +2015,30 @@ class ApiWorker with ApiConstants {
       onResponse(500, 'An error occurred while placing the order.', null);
     }
   }
+
+  // Future<void> placeOrder(
+  //   CartOrderModel cartOrder,
+  //   Function(int statusCode, String message, Map<String, dynamic>? responseData)
+  //       onResponse,
+  // ) async {
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   cartOrder.companyId = companyId;
+  //   try {
+  //     log("PLACE ORDER REQUEST : ${cartOrder.toJson()}");
+  //     final response = await responsePostMethod(
+  //         requestData: cartOrder.toJson(), endPoint: "place_order");
+  //     if (response.statusCode == 200) {
+  //       onResponse(
+  //           200, 'Your order has been successfully placed.', response.data);
+  //     } else {
+  //       handleExceptionMessage(response: response, apiName: "place order");
+  //     }
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //         response: error.response, apiName: "place order", error: error);
+  //     onResponse(500, 'An error occurred while placing the order.', null);
+  //   }
+  // }
 
   Future<SalesmanTargetTableResponse?> fetchSalesmanTarget(
       String salesmanId, String month, String year,
@@ -2074,46 +2101,46 @@ class ApiWorker with ApiConstants {
   }
 
   Future<StaffTimesheetResponse> getTimeSheetData({
-  required String year, // Changed parameters to accept Year
-}) async {
-  final id = SessionHelper.loginSavedData?.id ?? '';
-  
-  // Update cache key to be unique by ID and Year
-  final cacheKey = 'timesheet_${id}_$year'; 
-  final timesheetBox = await Hive.openBox('timesheetBox');
+    required String year, // Changed parameters to accept Year
+  }) async {
+    final id = SessionHelper.loginSavedData?.id ?? '';
 
-  bool isOnline = await ConnectivityService().isOnline();
+    // Update cache key to be unique by ID and Year
+    final cacheKey = 'timesheet_${id}_$year';
+    final timesheetBox = await Hive.openBox('timesheetBox');
 
-  // New Payload Structure
-  final requestData = {
-    "id": id,
-    "valueFromDw": "Year",     // Hardcoded as requested
-    "selected_range": [year]   // Passed as a list of string
-  };
+    bool isOnline = await ConnectivityService().isOnline();
 
-  if (isOnline) {
-    try {
-      final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint: ApiConstants.getStaffTimeSheet,
-      );
+    // New Payload Structure
+    final requestData = {
+      "id": id,
+      "valueFromDw": "Year", // Hardcoded as requested
+      "selected_range": [year] // Passed as a list of string
+    };
 
-      if (response.statusCode == 200) {
-        // Cache the fresh data
-        await timesheetBox.put(cacheKey, response.data);
-        return StaffTimesheetResponse.fromJson(response.data);
-      } else {
+    if (isOnline) {
+      try {
+        final response = await responsePostMethod(
+          requestData: requestData,
+          endPoint: ApiConstants.getStaffTimeSheet,
+        );
+
+        if (response.statusCode == 200) {
+          // Cache the fresh data
+          await timesheetBox.put(cacheKey, response.data);
+          return StaffTimesheetResponse.fromJson(response.data);
+        } else {
+          return _getFromCache(timesheetBox, cacheKey);
+        }
+      } on DioException {
+        return _getFromCache(timesheetBox, cacheKey);
+      } catch (e) {
         return _getFromCache(timesheetBox, cacheKey);
       }
-    } on DioException {
-      return _getFromCache(timesheetBox, cacheKey);
-    } catch (e) {
+    } else {
       return _getFromCache(timesheetBox, cacheKey);
     }
-  } else {
-    return _getFromCache(timesheetBox, cacheKey);
   }
-}
 
   // Future<StaffTimesheetResponse> getTimeSheetData({
   //   String? startDate,
@@ -2860,40 +2887,40 @@ class ApiWorker with ApiConstants {
       rethrow;
     }
   }
-   Future<ShowRouteResponse> showRoutes({
-  required List<String>? eventList,
-}) async {
-  try {
-    print('show route api is called');
-    // 1. Store the data in a variable first
-    Map<String, dynamic> requestData = {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "eventlist": eventList
-    };
 
-    // 2. Print it to the console
-    print('--- Show Route Request Data ---');
-    print(requestData); 
-    // Or use log(jsonEncode(requestData)) for a cleaner look if you import 'dart:convert'
+  Future<ShowRouteResponse> showRoutes({
+    required List<String>? eventList,
+  }) async {
+    try {
+      print('show route api is called');
+      // 1. Store the data in a variable first
+      Map<String, dynamic> requestData = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+        "eventlist": eventList
+      };
 
-    final response = await responsePostMethod(
-      endPoint: ApiConstants.showRoute,
-      requestData: requestData, // Use the variable here
-    ).onError((DioException error, stackTrace) {
-      handleExceptionMessage(
-          apiName: 'Show Routes API', response: error.response);
-      return Future.error(DioExceptionHandler.fromDioError(error));
-    });
+      // 2. Print it to the console
+      print('--- Show Route Request Data ---');
+      print(requestData);
+      // Or use log(jsonEncode(requestData)) for a cleaner look if you import 'dart:convert'
 
-    log('showRoutes response: ${response.data}');
-    var res = ShowRouteResponse.fromJson(response.data);
+      final response = await responsePostMethod(
+        endPoint: ApiConstants.showRoute,
+        requestData: requestData, // Use the variable here
+      ).onError((DioException error, stackTrace) {
+        handleExceptionMessage(
+            apiName: 'Show Routes API', response: error.response);
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
 
-    return res;
-  } catch (e) {
-    rethrow;
+      log('showRoutes response: ${response.data}');
+      var res = ShowRouteResponse.fromJson(response.data);
+
+      return res;
+    } catch (e) {
+      rethrow;
+    }
   }
-}
-
 
   // Future<ShowRouteResponse> showRoutes({
   //   required List<String>? eventList,
@@ -2976,7 +3003,7 @@ class ApiWorker with ApiConstants {
   }
 
   Future<void> customerPayment({
-     BuildContext? context,
+    BuildContext? context,
     required String detail,
     required String orderId,
     required String paymentType,
@@ -2998,7 +3025,7 @@ class ApiWorker with ApiConstants {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
     };
     // print('payment-type in api function:$paymentType');
-  print('transactionId in api function:$transactionId');
+    print('transactionId in api function:$transactionId');
     try {
       bool isOnline = await ConnectivityService().isOnline();
 
@@ -3036,8 +3063,6 @@ class ApiWorker with ApiConstants {
       }
     }
   }
-
-
 
   Future<ProductFrequencyResponse> getProductFrequency() async {
     try {
@@ -3171,49 +3196,50 @@ class ApiWorker with ApiConstants {
     }
   }
 
+  Future<GetRecentOrderReturn> getRecentOrdersReturns({
+    SearchModel? searchModel,
+    int? page,
+    // New strict parameters
+    required String valueFromDw,
+    required List<String> selectedRange,
+  }) async {
+    bool isConnected = await ConnectivityService().isOnline();
 
-Future<GetRecentOrderReturn> getRecentOrdersReturns({
-  SearchModel? searchModel,
-  int? page,
-  // New strict parameters
-  required String valueFromDw,
-  required List<String> selectedRange,
-}) async {
-  bool isConnected = await ConnectivityService().isOnline();
+    // Update cache key to be unique based on the new filters
+    final cacheKey =
+        "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
+    final box = Hive.box('salesReturnBox');
 
-  // Update cache key to be unique based on the new filters
-  final cacheKey = "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
-  final box = Hive.box('salesReturnBox');
-
-  if (!isConnected) {
-    final savedData = box.get(cacheKey);
-    if (savedData != null && savedData is Map) {
-      return GetRecentOrderReturn.fromJson(ApiService().castToStringDynamic(savedData));
-    } else {
-      throw Exception('No offline data available');
+    if (!isConnected) {
+      final savedData = box.get(cacheKey);
+      if (savedData != null && savedData is Map) {
+        return GetRecentOrderReturn.fromJson(
+            ApiService().castToStringDynamic(savedData));
+      } else {
+        throw Exception('No offline data available');
+      }
     }
+
+    // UPDATED PAYLOAD
+    final response = await dio.postbycustom(
+      ApiConstants.getRecentOrder,
+      data: {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+        "limit": 10, // Updated to 1000 as per your payload
+        "page": page ?? 1,
+        "valueFromDw": valueFromDw,
+        "selected_range": selectedRange,
+        "order_status": 2,
+      },
+    ).onError((DioException error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
+
+    final responseJson = response.data as Map<String, dynamic>;
+    await box.put(cacheKey, responseJson);
+
+    return GetRecentOrderReturn.fromJson(responseJson);
   }
-
-  // UPDATED PAYLOAD
-  final response = await dio.postbycustom(
-    ApiConstants.getRecentOrder,
-    data: {
-      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
-      "limit": 10, // Updated to 1000 as per your payload
-      "page": page ?? 1,
-      "valueFromDw": valueFromDw,
-      "selected_range": selectedRange,
-      "order_status": 2,
-    },
-  ).onError((DioException error, _) {
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
-
-  final responseJson = response.data as Map<String, dynamic>;
-  await box.put(cacheKey, responseJson);
-
-  return GetRecentOrderReturn.fromJson(responseJson);
-}
 
   // Future<GetRecentOrderReturn> getRecentOrdersReturns({
   //   SearchModel? searchModel,
@@ -3267,237 +3293,226 @@ Future<GetRecentOrderReturn> getRecentOrdersReturns({
   //   return GetRecentOrderReturn.fromJson(responseJson);
   // }
 
+  Future<ProductReturn> getProductReturnDetails(
+      {required String orderId}) async {
+    if (orderId.isEmpty) throw Exception('orderId is required');
 
+    bool isConnected = await ConnectivityService().isOnline();
 
+    final String cacheKey =
+        "${SessionHelper.loginSavedData?.company_id ?? 0}_return_details_$orderId";
+    final box = Hive.box('productReturnDetailsBox');
+    if (!isConnected) {
+      final savedData = box.get(cacheKey);
+      if (savedData != null && savedData is Map) {
+        return ProductReturn.fromJson(
+          ApiService().castToStringDynamic(savedData),
+        );
+      } else {
+        throw Exception('No offline data available for order $orderId');
+      }
+    }
+    final payload = {
+      "companyId": 1,
+      "order_id": orderId,
+      "order_status": 2,
+    };
+    print('API Payload: $payload');
+    final response = await dio
+        .postbycustom(ApiConstants.getReturnOrderDetails, data: payload)
+        .onError((DioException error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
 
-
- Future<ProductReturn> getProductReturnDetails({
-  required String orderId
- }) async{
-  if(orderId.isEmpty) throw Exception('orderId is required');
-  
-
-
-  bool isConnected = await ConnectivityService().isOnline();
-
- final String cacheKey = "${SessionHelper.loginSavedData?.company_id?? 0}_return_details_$orderId";
- final box = Hive.box('productReturnDetailsBox');
- if(!isConnected){
-  final savedData = box.get(cacheKey);
-  if(savedData != null && savedData is Map){
-    return ProductReturn.fromJson(
-      ApiService().castToStringDynamic(savedData),
-    );
-  }else{
-    throw Exception('No offline data available for order $orderId');
-  }
- }
- final payload = {
-    "companyId": 1,
-    "order_id": orderId,
-    "order_status": 2,
-  };
-  print('API Payload: $payload');
-  final response = await dio.postbycustom(
-
-    ApiConstants.getReturnOrderDetails,
-    data: payload
-    
-  ).onError((DioException error, _){
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
-  
-  final responseJson = response.data as Map<String, dynamic>;
-  await box.put(cacheKey, responseJson);
-  final parsed = ProductReturn.fromJson(responseJson);
-  // print('orderDataResponse:${parsed.data}');
- return parsed;
-
- }
-
-
- Future<Map<String, dynamic>> submitButtonTap({
-  required String orderId,
-  required String invoiceId,
-  required String returnReason,
-  required List<Map<String, dynamic>> returnItems,
-  required String customerId,
-  required String cartId,
-  required String salesmanId,
-  required String salesmanName,
-  List<Map<String,dynamic>>? imageList,
-}) async {
-  // -------------------------------------------------
-  // 1. Validation
-  // -------------------------------------------------
-  if (orderId.isEmpty) throw Exception('orderId is required');
-  if (invoiceId.isEmpty) throw Exception('invoiceId is required');
-  if (returnItems.isEmpty) throw Exception('returnItems cannot be empty');
-
-  // -------------------------------------------------
-  // 2. Internet check
-  // -------------------------------------------------
-  bool isConnected = await ConnectivityService().isOnline();
-  if (!isConnected) {
-    throw Exception('No internet connection. Return submission requires online access.');
+    final responseJson = response.data as Map<String, dynamic>;
+    await box.put(cacheKey, responseJson);
+    final parsed = ProductReturn.fromJson(responseJson);
+    // print('orderDataResponse:${parsed.data}');
+    return parsed;
   }
 
-  // -------------------------------------------------
-  // 3. Payload (all strings)
-  // -------------------------------------------------
-  final Map<String, dynamic> payload = {
-    "order_id": orderId,
-    "invoice_id": invoiceId,
-    "company_id": "1",
-    "customer_id": customerId,
-    "cart_id": cartId,
-    "return_reason": returnReason,
-    "created_by_id": salesmanId,
-    "created_by_name": salesmanName,
-    "return_items": jsonEncode(returnItems),
-  };
+  Future<Map<String, dynamic>> submitButtonTap({
+    required String orderId,
+    required String invoiceId,
+    required String returnReason,
+    required List<Map<String, dynamic>> returnItems,
+    required String customerId,
+    required String cartId,
+    required String salesmanId,
+    required String salesmanName,
+    List<Map<String, dynamic>>? imageList,
+  }) async {
+    // -------------------------------------------------
+    // 1. Validation
+    // -------------------------------------------------
+    if (orderId.isEmpty) throw Exception('orderId is required');
+    if (invoiceId.isEmpty) throw Exception('invoiceId is required');
+    if (returnItems.isEmpty) throw Exception('returnItems cannot be empty');
+
+    // -------------------------------------------------
+    // 2. Internet check
+    // -------------------------------------------------
+    bool isConnected = await ConnectivityService().isOnline();
+    if (!isConnected) {
+      throw Exception(
+          'No internet connection. Return submission requires online access.');
+    }
+
+    // -------------------------------------------------
+    // 3. Payload (all strings)
+    // -------------------------------------------------
+    final Map<String, dynamic> payload = {
+      "order_id": orderId,
+      "invoice_id": invoiceId,
+      "company_id": "1",
+      "customer_id": customerId,
+      "cart_id": cartId,
+      "return_reason": returnReason,
+      "created_by_id": salesmanId,
+      "created_by_name": salesmanName,
+      "return_items": jsonEncode(returnItems),
+    };
     if (imageList != null && imageList.isNotEmpty) {
-  for (final imageData in imageList) {
-    final clientKey = imageData['client_key'] as int;
-    final file = imageData['file'] as File?;
-    if (file != null) {
-      payload['damage_image_$clientKey'] = await MultipartFile.fromFile(
-        file.path,
-        filename: file.path.split('/').last,
-      );
+      for (final imageData in imageList) {
+        final clientKey = imageData['client_key'] as int;
+        final file = imageData['file'] as File?;
+        if (file != null) {
+          payload['damage_image_$clientKey'] = await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          );
+        }
+      }
+    }
+
+    try {
+      final formData = FormData.fromMap(payload);
+
+      final response = await dio
+          .postbycustom(
+        ApiConstants.createSalesReturn, // e.g., "/create_sales_return1"
+        data: formData,
+        options: Options(contentType: Headers.multipartFormDataContentType),
+      )
+          .onError<DioException>((error, _) {
+        return Future.error(DioExceptionHandler.fromDioError(error));
+      });
+
+      debugPrint(">>> API Response status: ${response.statusCode}");
+      debugPrint(">>> API Response data: ${response.data}");
+
+      if (response.statusCode == 200) {
+        final responseJson = response.data as Map<String, dynamic>;
+        return responseJson;
+      } else {
+        throw Exception("Failed with status ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      debugPrint("DioException: ${e.message}");
+      debugPrint("Dio Response: ${e.response?.data}");
+      throw Exception("Dio error: ${e.message}");
+    } catch (e) {
+      debugPrint("Unknown Error: $e");
+      throw Exception("Error: $e");
     }
   }
-}
 
-  try {
-    final formData = FormData.fromMap(payload);
+  Future<SearchResponse> searchInvoice({
+    required String query,
+    required String customerId,
+    required String salesmanId,
+  }) async {
+    // Validation
+    if (query.trim().isEmpty) throw Exception('Search query is required');
+    if (customerId.isEmpty) throw Exception('customerId is required');
+    if (salesmanId.isEmpty) throw Exception('salesmanId is required');
 
-    final response = await dio.postbycustom(
-    ApiConstants.createSalesReturn, // e.g., "/create_sales_return1"
-    data: formData,
-    options: Options(contentType: Headers.multipartFormDataContentType),
-  ).onError<DioException>((error, _) {
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
-
-    debugPrint(">>> API Response status: ${response.statusCode}");
-    debugPrint(">>> API Response data: ${response.data}");
-
-    if (response.statusCode == 200) {
-      final responseJson = response.data as Map<String, dynamic>;
-      return responseJson;
-    } else {
-      throw Exception("Failed with status ${response.statusCode}");
+    // Check internet
+    bool isConnected = await ConnectivityService().isOnline();
+    if (!isConnected) {
+      throw Exception('No internet connection. Search requires online access.');
     }
-  } on DioException catch (e) {
-    debugPrint("DioException: ${e.message}");
-    debugPrint("Dio Response: ${e.response?.data}");
-    throw Exception("Dio error: ${e.message}");
-  } catch (e) {
-    debugPrint("Unknown Error: $e");
-    throw Exception("Error: $e");
-  }
-}
 
+    // Payload
+    final Map<String, dynamic> payload = {
+      "company_id": 1,
+      "search": query.trim(),
+      "customer_id": customerId,
+      "salesman_id": salesmanId,
+    };
+    dev.log('search invoice payload: $payload');
+    // API Call
+    final response = await dio
+        .postbycustom(
+      ApiConstants.SearchInvoice, // Add this constant to your ApiConstants
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    )
+        .onError<DioException>((error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
 
+    final responseJson = response.data as Map<String, dynamic>;
+    dev.log('response by search: $responseJson');
 
-
-Future<SearchResponse> searchInvoice({
-  required String query,
-  required String customerId,
-  required String salesmanId,
-}) async {
-  // Validation
-  if (query.trim().isEmpty) throw Exception('Search query is required');
-  if (customerId.isEmpty) throw Exception('customerId is required');
-  if (salesmanId.isEmpty) throw Exception('salesmanId is required');
-  
-  // Check internet
-  bool isConnected = await ConnectivityService().isOnline();
-  if (!isConnected) {
-    throw Exception('No internet connection. Search requires online access.');
-  }
-  
-  // Payload
-  final Map<String, dynamic> payload = {
-    "company_id": 1,
-    "search": query.trim(),
-    "customer_id": customerId,
-    "salesman_id": salesmanId,
-  };
-  dev.log('search invoice payload: $payload');
-  // API Call
-  final response = await dio.postbycustom(
-    ApiConstants.SearchInvoice, // Add this constant to your ApiConstants
-    data: payload,
-    options: Options(contentType: Headers.jsonContentType),
-  ).onError<DioException>((error, _) {
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
-  
-  final responseJson = response.data as Map<String, dynamic>;
-  dev.log('response by search: $responseJson');
-  
-  // Return parsed response
-  return SearchResponse.fromJson(responseJson);
-}
-
-
-Future<ReturnInfo> fetchInforeturnData({
-  required String cartId,
-  required String companyId,
-}) async {
-  // ------------------- 1. Validation -------------------
-  if (cartId.trim().isEmpty) {
-    throw Exception('cartId is required');
-  }
-  // if (companyId <= 0) {
-  //   throw Exception('companyId must be a positive integer');
-  // }
-
-  // ------------------- 2. Internet check -------------------
-  final bool isConnected = await ConnectivityService().isOnline();
-  if (!isConnected) {
-    throw Exception('No internet connection. Fetching returns requires online access.');
+    // Return parsed response
+    return SearchResponse.fromJson(responseJson);
   }
 
-  // ------------------- 3. Payload -------------------
-  final Map<String, dynamic> payload = {
-    "cart_id": cartId.trim(),
-    "companyId": companyId,               // API expects int (e.g. 1)
-  };
+  Future<ReturnInfo> fetchInforeturnData({
+    required String cartId,
+    required String companyId,
+  }) async {
+    // ------------------- 1. Validation -------------------
+    if (cartId.trim().isEmpty) {
+      throw Exception('cartId is required');
+    }
+    // if (companyId <= 0) {
+    //   throw Exception('companyId must be a positive integer');
+    // }
 
-  // ------------------- 4. API Call -------------------
-  final response = await dio.postbycustom(
-    ApiConstants.GetPendingReturnsForCart,   // <-- add this constant
-    data: payload,
-    options: Options(contentType: Headers.jsonContentType),
-  ).onError<DioException>((error, _) {
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
+    // ------------------- 2. Internet check -------------------
+    final bool isConnected = await ConnectivityService().isOnline();
+    if (!isConnected) {
+      throw Exception(
+          'No internet connection. Fetching returns requires online access.');
+    }
 
-  final responseJson = response.data as Map<String, dynamic>;
-  dev.log('Pending returns response: $responseJson');
+    // ------------------- 3. Payload -------------------
+    final Map<String, dynamic> payload = {
+      "cart_id": cartId.trim(),
+      "companyId": companyId, // API expects int (e.g. 1)
+    };
 
-  // ------------------- 5. Return parsed model -------------------
-  return ReturnInfo.fromJson(responseJson);
-}
+    // ------------------- 4. API Call -------------------
+    final response = await dio
+        .postbycustom(
+      ApiConstants.GetPendingReturnsForCart, // <-- add this constant
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    )
+        .onError<DioException>((error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
 
+    final responseJson = response.data as Map<String, dynamic>;
+    dev.log('Pending returns response: $responseJson');
 
+    // ------------------- 5. Return parsed model -------------------
+    return ReturnInfo.fromJson(responseJson);
+  }
 
-Future<OnlinePaymentSession> createOnlinePaymentSession({
+  Future<OnlinePaymentSession> createOnlinePaymentSession({
     required double amount,
-
     required String orderIds,
     // required String customerId,
     // required String companyId,
   }) async {
     final requestPayload = {
       "amount": amount,
-      "isCents": false, 
+      "isCents": false,
       "order_id": orderIds,
       "company_id": "1",
-      
     };
 
     try {
@@ -3535,127 +3550,123 @@ Future<OnlinePaymentSession> createOnlinePaymentSession({
     }
   }
 
-
   Future<OnlinePaymentVerifyResponse> verifyOnlinePaymentSession({
-  required String sessionId,
-  required String companyId,
-}) async {
-  try {
-    print("\n🌐 [API] ========== API CALL START ==========");
-    print("🌐 [API] URL: ${ApiConstants.baseUrl}/verify-checkout-session");
-    print("🌐 [API] session_id: $sessionId");
-    print("🌐 [API] company_id: $companyId");
+    required String sessionId,
+    required String companyId,
+  }) async {
+    try {
+      print("\n🌐 [API] ========== API CALL START ==========");
+      print("🌐 [API] URL: ${ApiConstants.baseUrl}/verify-checkout-session");
+      print("🌐 [API] session_id: $sessionId");
+      print("🌐 [API] company_id: $companyId");
 
-    final response = await dio1.get(
-      'https://test.thrivewoo.com/verify-checkout-session',
-      queryParameters: {
-        'session_id': sessionId,
-        'company_id': companyId,
-      },
-    );
+      final response = await dio1.get(
+        'https://test.thrivewoo.com/verify-checkout-session',
+        queryParameters: {
+          'session_id': sessionId,
+          'company_id': companyId,
+        },
+      );
 
-    print("\n📡 [API] Response Status Code: ${response.statusCode}");
-    print("📦 [API] Raw Response Data Type: ${response.data.runtimeType}");
-    print("📦 [API] Raw Response Data: ${response.data}");
+      print("\n📡 [API] Response Status Code: ${response.statusCode}");
+      print("📦 [API] Raw Response Data Type: ${response.data.runtimeType}");
+      print("📦 [API] Raw Response Data: ${response.data}");
 
-    if (response.statusCode == 200) {
-      try {
-        // Ensure response.data is a Map
-        Map<String, dynamic> jsonData;
-        
-        if (response.data is Map<String, dynamic>) {
-          jsonData = response.data;
-        } else if (response.data is String) {
-          print("⚠️ [API] Response is String, attempting to parse JSON...");
-          jsonData = json.decode(response.data);
-        } else {
-          print("❌ [API] Unexpected response type: ${response.data.runtimeType}");
-          throw Exception("Invalid response format");
+      if (response.statusCode == 200) {
+        try {
+          // Ensure response.data is a Map
+          Map<String, dynamic> jsonData;
+
+          if (response.data is Map<String, dynamic>) {
+            jsonData = response.data;
+          } else if (response.data is String) {
+            print("⚠️ [API] Response is String, attempting to parse JSON...");
+            jsonData = json.decode(response.data);
+          } else {
+            print(
+                "❌ [API] Unexpected response type: ${response.data.runtimeType}");
+            throw Exception("Invalid response format");
+          }
+
+          final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
+          print("\n✅ [API] Successfully parsed response:");
+          print("   - paid: ${result.paid}");
+          print("   - paymentStatus: ${result.paymentStatus}");
+          print("   - paymentIntentId: ${result.paymentIntentId}");
+          print("🌐 [API] ========== API CALL END ==========\n");
+          return result;
+        } catch (parseError, stackTrace) {
+          print("\n❌ [API] JSON Parsing Error: $parseError");
+          print("📚 [API] Stack Trace: $stackTrace");
+          print("📄 [API] Failed to parse data: ${response.data}");
+          print("🌐 [API] ========== API CALL END (ERROR) ==========\n");
+
+          // Return pending status on parse error
+          return OnlinePaymentVerifyResponse(
+            paid: false,
+            paymentStatus: 'error',
+            metadata: {},
+          );
         }
-        
-        final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
-        print("\n✅ [API] Successfully parsed response:");
-        print("   - paid: ${result.paid}");
-        print("   - paymentStatus: ${result.paymentStatus}");
-        print("   - paymentIntentId: ${result.paymentIntentId}");
+      } else {
+        print("\n⚠️ [API] Non-200 Status Code: ${response.statusCode}");
+        print("📄 [API] Response body: ${response.data}");
         print("🌐 [API] ========== API CALL END ==========\n");
-        return result;
-        
-      } catch (parseError, stackTrace) {
-        print("\n❌ [API] JSON Parsing Error: $parseError");
-        print("📚 [API] Stack Trace: $stackTrace");
-        print("📄 [API] Failed to parse data: ${response.data}");
-        print("🌐 [API] ========== API CALL END (ERROR) ==========\n");
-        
-        // Return pending status on parse error
+
         return OnlinePaymentVerifyResponse(
           paid: false,
-          paymentStatus: 'error',
+          paymentStatus: 'pending',
           metadata: {},
         );
       }
-    } else {
-      print("\n⚠️ [API] Non-200 Status Code: ${response.statusCode}");
-      print("📄 [API] Response body: ${response.data}");
-      print("🌐 [API] ========== API CALL END ==========\n");
-      
+    } on DioException catch (dioError) {
+      print("\n❌ [API] DioException caught:");
+      print("   Type: ${dioError.type}");
+      print("   Message: ${dioError.message}");
+      print("   Response Status: ${dioError.response?.statusCode}");
+      print("   Response Data: ${dioError.response?.data}");
+
+      // CRITICAL: Some APIs return success data even in error responses
+      if (dioError.response?.data != null) {
+        try {
+          print("🔄 [API] Attempting to parse data from error response...");
+
+          Map<String, dynamic> jsonData;
+          if (dioError.response!.data is Map<String, dynamic>) {
+            jsonData = dioError.response!.data;
+          } else if (dioError.response!.data is String) {
+            jsonData = json.decode(dioError.response!.data);
+          } else {
+            throw Exception("Cannot parse error response");
+          }
+
+          final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
+          print("✅ [API] Successfully parsed from error response!");
+          print("🌐 [API] ========== API CALL END ==========\n");
+          return result;
+        } catch (e) {
+          print("❌ [API] Failed to parse error response: $e");
+        }
+      }
+
+      print("🌐 [API] ========== API CALL END (DIO ERROR) ==========\n");
+      return OnlinePaymentVerifyResponse(
+        paid: false,
+        paymentStatus: 'pending',
+        metadata: {},
+      );
+    } catch (e, stackTrace) {
+      print("\n❌ [API] Unexpected Error: $e");
+      print("📚 [API] Stack Trace: $stackTrace");
+      print("🌐 [API] ========== API CALL END (UNEXPECTED ERROR) ==========\n");
+
       return OnlinePaymentVerifyResponse(
         paid: false,
         paymentStatus: 'pending',
         metadata: {},
       );
     }
-    
-  } on DioException catch (dioError) {
-    print("\n❌ [API] DioException caught:");
-    print("   Type: ${dioError.type}");
-    print("   Message: ${dioError.message}");
-    print("   Response Status: ${dioError.response?.statusCode}");
-    print("   Response Data: ${dioError.response?.data}");
-
-    // CRITICAL: Some APIs return success data even in error responses
-    if (dioError.response?.data != null) {
-      try {
-        print("🔄 [API] Attempting to parse data from error response...");
-        
-        Map<String, dynamic> jsonData;
-        if (dioError.response!.data is Map<String, dynamic>) {
-          jsonData = dioError.response!.data;
-        } else if (dioError.response!.data is String) {
-          jsonData = json.decode(dioError.response!.data);
-        } else {
-          throw Exception("Cannot parse error response");
-        }
-        
-        final result = OnlinePaymentVerifyResponse.fromJson(jsonData);
-        print("✅ [API] Successfully parsed from error response!");
-        print("🌐 [API] ========== API CALL END ==========\n");
-        return result;
-        
-      } catch (e) {
-        print("❌ [API] Failed to parse error response: $e");
-      }
-    }
-
-    print("🌐 [API] ========== API CALL END (DIO ERROR) ==========\n");
-    return OnlinePaymentVerifyResponse(
-      paid: false,
-      paymentStatus: 'pending',
-      metadata: {},
-    );
-    
-  } catch (e, stackTrace) {
-    print("\n❌ [API] Unexpected Error: $e");
-    print("📚 [API] Stack Trace: $stackTrace");
-    print("🌐 [API] ========== API CALL END (UNEXPECTED ERROR) ==========\n");
-    
-    return OnlinePaymentVerifyResponse(
-      paid: false,
-      paymentStatus: 'pending',
-      metadata: {},
-    );
   }
-}
 //   // In your ApiWorker class
 // Future<OnlinePaymentVerifyResponse> verifyOnlinePaymentSession({
 //   required String sessionId,
@@ -3704,7 +3715,7 @@ Future<OnlinePaymentSession> createOnlinePaymentSession({
 
   //     if (response.statusCode == 200) {
   //       return OnlinePaymentVerifyResponse.fromJson(response.data);
-  //     } 
+  //     }
   //     else {
   //     // For 404, 500, etc. → just return "not paid yet"
   //     print("Verify returned ${response.statusCode} → assuming not paid yet");
@@ -3714,7 +3725,7 @@ Future<OnlinePaymentSession> createOnlinePaymentSession({
   //       metadata: {},
   //     );
   //   }
-  
+
   //   } catch (error) {
   //     // Silent fail during polling is okay
   //    print("Verification poll error (will retry): $error");
@@ -3726,56 +3737,57 @@ Future<OnlinePaymentSession> createOnlinePaymentSession({
   //   }
   // }
 // }
-Future<Bulk> getBulkVolumes() async {
-  try {
-    print('get bulk api called');
+  Future<Bulk> getBulkVolumes() async {
+    try {
+      print('get bulk api called');
 
-    final isConnected = await ConnectivityService().isOnline();
-    final cacheKey = "${SessionHelper.loginSavedData?.company_id ?? 0}_bulk_volumes";
+      final isConnected = await ConnectivityService().isOnline();
+      final cacheKey =
+          "${SessionHelper.loginSavedData?.company_id ?? 0}_bulk_volumes";
 
-    // You can keep offline caching later — for now let's focus on making the request work
+      // You can keep offline caching later — for now let's focus on making the request work
 
-    // ONLINE MODE - POST with body
-    final response = await dio.postbycustom(
-      ApiConstants.getVolumes, // "get-volumes"
-      data: {  // ← Send as JSON body
-        "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
-      },
-      // queryParameters: null,  // ← remove or leave empty
-    );
+      // ONLINE MODE - POST with body
+      final response = await dio.postbycustom(
+        ApiConstants.getVolumes, // "get-volumes"
+        data: {
+          // ← Send as JSON body
+          "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+        },
+        // queryParameters: null,  // ← remove or leave empty
+      );
 
-    print('response status code in bulk: ${response.statusCode}');
-    log('response data: ${response.data}'); // ← very useful for debugging
+      print('response status code in bulk: ${response.statusCode}');
+      log('response data: ${response.data}'); // ← very useful for debugging
 
-    final bulk = Bulk.fromJson(response.data);
-     
-    print('bulk volumes fetched successfully');
+      final bulk = Bulk.fromJson(response.data);
 
-    // Cache the response (uncomment when ready)
-    // final box = await Hive.openBox('bulkVolumesBox');
-    // await box.put(cacheKey, bulk.toJson());
+      print('bulk volumes fetched successfully');
 
-    return bulk;
+      // Cache the response (uncomment when ready)
+      // final box = await Hive.openBox('bulkVolumesBox');
+      // await box.put(cacheKey, bulk.toJson());
 
-  } catch (error) {
-    handleExceptionMessage(
-      apiName: 'Fetch Bulk Volumes',
-      response: error is DioException ? error.response : null,
-    );
+      return bulk;
+    } catch (error) {
+      handleExceptionMessage(
+        apiName: 'Fetch Bulk Volumes',
+        response: error is DioException ? error.response : null,
+      );
 
-    // Optional: print more details about the error
-    if (error is DioException) {
-      print('Dio error details:');
-      print('Status: ${error.response?.statusCode}');
-      print('Response data: ${error.response?.data}');
-      print('Message: ${error.message}');
+      // Optional: print more details about the error
+      if (error is DioException) {
+        print('Dio error details:');
+        print('Status: ${error.response?.statusCode}');
+        print('Response data: ${error.response?.data}');
+        print('Message: ${error.message}');
+      }
+
+      throw Exception('Failed to fetch bulk volumes: $error');
     }
-
-    throw Exception('Failed to fetch bulk volumes: $error');
   }
-}
 
- Future<CalendarSalesmanResponse> fetchSalesmanOfCustomer(
+  Future<CalendarSalesmanResponse> fetchSalesmanOfCustomer(
     String salesmanId,
   ) async {
     try {
@@ -3796,7 +3808,6 @@ Future<Bulk> getBulkVolumes() async {
       throw Exception('Failed to fetch salesman of customer: $error');
     }
   }
-
 
   Future<ButtonAction> orderAccept({
     String? orderId,
@@ -3828,7 +3839,8 @@ Future<Bulk> getBulkVolumes() async {
       return Future.error(Exception("Unexpected error: $e"));
     }
   }
-   Future<ButtonAction> orderReject({
+
+  Future<ButtonAction> orderReject({
     String? orderId,
     String? rejectReason,
   }) async {
@@ -3854,7 +3866,8 @@ Future<Bulk> getBulkVolumes() async {
       return Future.error(Exception("Unexpected error: $e"));
     }
   }
-    Future<Response> packedAndReadyAdd({
+
+  Future<Response> packedAndReadyAdd({
     String? cartId,
     String? orderId,
   }) async {
@@ -3881,7 +3894,8 @@ Future<Bulk> getBulkVolumes() async {
       return Future.error(Exception("Unexpected error: $e"));
     }
   }
-    Future<ButtonAction> orderDeliver({
+
+  Future<ButtonAction> orderDeliver({
     String? orderId,
   }) async {
     final requestData = {
@@ -3907,171 +3921,166 @@ Future<Bulk> getBulkVolumes() async {
     }
   }
 
+  Future<StaffDiscount> getStaffDiscount() async {
+    try {
+      // print('getstaffdiscount called');
+      final isConnected = await ConnectivityService().isOnline();
+      final cacheKey =
+          "${SessionHelper.loginSavedData?.company_id ?? 0}_staff_discount";
 
+      final box = await Hive.openBox('staffDiscountBox');
 
-Future<StaffDiscount> getStaffDiscount() async {
-  try {
-    // print('getstaffdiscount called');
-    final isConnected = await ConnectivityService().isOnline();
-    final cacheKey =
-        "${SessionHelper.loginSavedData?.company_id ?? 0}_staff_discount";
+      if (!isConnected) {
+        final cachedData = box.get(cacheKey);
 
-    final box = await Hive.openBox('staffDiscountBox');
-
-    if (!isConnected) {
-      final cachedData = box.get(cacheKey);
-
-      if (cachedData != null) {
-        return StaffDiscount.fromJson(
-          cachedData
-          // ApiService().castToStringDynamic(cachedData),
-        );
-      } else {
-        throw Exception('No staff discount data available offline');
+        if (cachedData != null) {
+          return StaffDiscount.fromJson(cachedData
+              // ApiService().castToStringDynamic(cachedData),
+              );
+        } else {
+          throw Exception('No staff discount data available offline');
+        }
       }
+
+      // 🔹 ONLINE MODE
+      final response = await dio.postbycustom(
+        ApiConstants.staffDiscount,
+        queryParameters: {
+          "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+        },
+      );
+
+      final staffDiscount = StaffDiscount.fromJson(response.data);
+
+      print('staffdiscount:$staffDiscount');
+
+      // 🔹 CACHE DATA
+      await box.put(cacheKey, staffDiscount.toJson());
+
+      return staffDiscount;
+    } catch (error) {
+      handleExceptionMessage(
+        apiName: 'Fetch Staff Discount',
+        response: error is DioException ? error.response : null,
+      );
+      throw Exception('Failed to fetch staff discount data: $error');
     }
-
-    // 🔹 ONLINE MODE
-    final response = await dio.postbycustom(
-      ApiConstants.staffDiscount, 
-      queryParameters: {
-        "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
-      },
-    );
-
-    final staffDiscount = StaffDiscount.fromJson(response.data);
-
-    print('staffdiscount:$staffDiscount');
-
-    // 🔹 CACHE DATA
-    await box.put(cacheKey, staffDiscount.toJson());
-
-    return staffDiscount;
-  } catch (error) {
-    handleExceptionMessage(
-      apiName: 'Fetch Staff Discount',
-      response: error is DioException ? error.response : null,
-    );
-    throw Exception('Failed to fetch staff discount data: $error');
   }
-}
 
 // Inside ApiWorker class
 
-Future<Map<String, dynamic>?> fetchVisitReportData({
-  required String startDate,
-  required String endDate,
-}) async {
-  final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  Future<Map<String, dynamic>?> fetchVisitReportData({
+    required String startDate,
+    required String endDate,
+  }) async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
 
-  // Unique cache key including the date range
-  final cacheKey = 'visitReport_${companyId}_${salesmanId}_${startDate}_$endDate';
-  final box = Hive.box('topBarDataBox');
+    // Unique cache key including the date range
+    final cacheKey =
+        'visitReport_${companyId}_${salesmanId}_${startDate}_$endDate';
+    final box = Hive.box('topBarDataBox');
 
-  bool isOnline = await ConnectivityService().isOnline();
+    bool isOnline = await ConnectivityService().isOnline();
 
-  if (isOnline) {
-    try {
-      // payload matching your exact requirement
-      final requestPayload = {
-        "salesman_id": salesmanId,
-        "start_date": startDate,   // "2026-02-01"
-        "end_date": endDate,       // "2026-02-28"
-        "company_id": companyId
-      };
+    if (isOnline) {
+      try {
+        // payload matching your exact requirement
+        final requestPayload = {
+          "salesman_id": salesmanId,
+          "start_date": startDate, // "2026-02-01"
+          "end_date": endDate, // "2026-02-28"
+          "company_id": companyId
+        };
 
-      // CHANGE THIS to your actual endpoint
-    
-      Response response = await responsePostMethod(
-          requestData: requestPayload, 
-          endPoint: ApiConstants.visitReport
-      );
-      log('response of the event:${response.data}');
+        // CHANGE THIS to your actual endpoint
 
-      if (response.statusCode == 200) {
-        final data = Map<String, dynamic>.from(response.data as Map);
-        await box.put(cacheKey, data);
-        return data;
-      } else {
-        handleExceptionMessage(response: response, apiName: "visit report");
+        Response response = await responsePostMethod(
+            requestData: requestPayload, endPoint: ApiConstants.visitReport);
+        log('response of the event:${response.data}');
+
+        if (response.statusCode == 200) {
+          final data = Map<String, dynamic>.from(response.data as Map);
+          await box.put(cacheKey, data);
+          return data;
+        } else {
+          handleExceptionMessage(response: response, apiName: "visit report");
+          return null;
+        }
+      } on DioException catch (error) {
+        handleExceptionMessage(
+            response: error.response, apiName: "visit report", error: error);
         return null;
       }
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "visit report", error: error);
-      return null;
-    }
-  } else {
-    // Offline logic (optional)
-    final cachedData = box.get(cacheKey);
-    return cachedData != null 
-        ? Map<String, dynamic>.from(LocalStorage().castToStringDynamic(cachedData))
-        : null;
-  }
-}
-// Add this inside your API Worker class
-Future<List<CustomerEventModel>?> fetchCustomerEventsData({
-  required String eventIds,
-}) async {
-  // 1. Setup Cache Key
-  final cacheKey = 'customer_events_$eventIds';
-  final box = Hive.box('topBarDataBox'); // Using your existing box
-
-  bool isOnline = await ConnectivityService().isOnline();
-
-  if (isOnline) {
-    try {
-      // 2. Prepare Payload
-      final requestPayload = {
-        'event_id': eventIds
-      };
-
-      // 3. Call API using your wrapper (Dio)
-      // Replace 'get_events' with ApiConstants.getEvents if you have it
-      Response response = await responsePostMethod(
-        requestData: requestPayload,
-        endPoint:  ApiConstants.getEvents, 
-      );
-
-      if (response.statusCode == 200) {
-        // Dio automatically decodes JSON to Map/List
-        final jsonResponse = response.data;
-
-        if (jsonResponse['status'] == true) {
-          final List<dynamic> rawData = jsonResponse['data'];
-
-          // 4. Save to Hive Cache
-          await box.put(cacheKey, rawData);
-
-          // 5. Convert to Model List and Return
-          return rawData.map((e) => CustomerEventModel.fromJson(e)).toList();
-        }
-      } 
-      
-      // Handle unsuccessful status
-      handleExceptionMessage(response: response, apiName: "get_events");
-      return null;
-
-    } on DioException catch (error) {
-      handleExceptionMessage(
-          response: error.response, apiName: "get_events", error: error);
-      return null;
-    }
-  } else {
-    // --- Offline Logic ---
-    if (box.containsKey(cacheKey)) {
+    } else {
+      // Offline logic (optional)
       final cachedData = box.get(cacheKey);
-      // Cast cached data back to List
-      if (cachedData is List) {
-        // Use LocalStorage helper if needed, or map directly
-        return cachedData
-            .map((e) => CustomerEventModel.fromJson(Map<String, dynamic>.from(e)))
-            .toList();
-      }
+      return cachedData != null
+          ? Map<String, dynamic>.from(
+              LocalStorage().castToStringDynamic(cachedData))
+          : null;
     }
-    return null;
   }
-}
 
+// Add this inside your API Worker class
+  Future<List<CustomerEventModel>?> fetchCustomerEventsData({
+    required String eventIds,
+  }) async {
+    // 1. Setup Cache Key
+    final cacheKey = 'customer_events_$eventIds';
+    final box = Hive.box('topBarDataBox'); // Using your existing box
+
+    bool isOnline = await ConnectivityService().isOnline();
+
+    if (isOnline) {
+      try {
+        // 2. Prepare Payload
+        final requestPayload = {'event_id': eventIds};
+
+        // 3. Call API using your wrapper (Dio)
+        // Replace 'get_events' with ApiConstants.getEvents if you have it
+        Response response = await responsePostMethod(
+          requestData: requestPayload,
+          endPoint: ApiConstants.getEvents,
+        );
+
+        if (response.statusCode == 200) {
+          // Dio automatically decodes JSON to Map/List
+          final jsonResponse = response.data;
+
+          if (jsonResponse['status'] == true) {
+            final List<dynamic> rawData = jsonResponse['data'];
+
+            // 4. Save to Hive Cache
+            await box.put(cacheKey, rawData);
+
+            // 5. Convert to Model List and Return
+            return rawData.map((e) => CustomerEventModel.fromJson(e)).toList();
+          }
+        }
+
+        // Handle unsuccessful status
+        handleExceptionMessage(response: response, apiName: "get_events");
+        return null;
+      } on DioException catch (error) {
+        handleExceptionMessage(
+            response: error.response, apiName: "get_events", error: error);
+        return null;
+      }
+    } else {
+      // --- Offline Logic ---
+      if (box.containsKey(cacheKey)) {
+        final cachedData = box.get(cacheKey);
+        // Cast cached data back to List
+        if (cachedData is List) {
+          // Use LocalStorage helper if needed, or map directly
+          return cachedData
+              .map((e) =>
+                  CustomerEventModel.fromJson(Map<String, dynamic>.from(e)))
+              .toList();
+        }
+      }
+      return null;
+    }
+  }
 }

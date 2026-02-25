@@ -44,11 +44,13 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:timezone/data/latest_10y.dart' as tz;
 
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+ tz.initializeTimeZones();
   Stripe.publishableKey = 'pk_test_f5u40cbDttJ0TfoPDP7ynfNM00XLdPmGKM';
   await Stripe.instance.applySettings();
   await Hive.initFlutter();

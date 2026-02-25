@@ -1,7 +1,9 @@
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_event_details_model.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 
@@ -16,12 +18,36 @@ class CustomerDetailsDialog extends StatefulWidget {
 
 class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
   late Future<List<CustomerEventModel>?> _eventsFuture;
-
+String _companyTimeZone = 'UTC';
   @override
   void initState() {
     super.initState();
     _eventsFuture =
         ApiWorker().fetchCustomerEventsData(eventIds: widget.eventIds);
+        _loadTimeZone();
+  }
+Future<void> _loadTimeZone() async {
+    try {
+      final settingsBox = Hive.box('settingsBox');
+      final List<dynamic>? storedData = settingsBox.get('all_settings_data');
+      
+      if (storedData != null) {
+        
+        for (var item in storedData) {
+          
+          if (item is Map && item['key'] == 'time_zone') {
+            setState(() {
+              _companyTimeZone = item['value'].toString(); 
+            });
+            debugPrint('✅ Successfully loaded TimeZone from Hive: $_companyTimeZone');
+            return; 
+          }
+        }
+        debugPrint('⚠️ Timezone key not found in Hive settings.');
+      }
+    } catch (e) {
+      debugPrint("🚨 Error loading timezone from Hive: $e");
+    }
   }
 
   @override
@@ -187,19 +213,17 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
                                 _DataCell(
                                   item.checkIn != null
                                       ? _TimeWithLocation(
-                                          time:
-                                              timeFormat.format(item.checkIn!))
+                                         time: TimeUtils.formatTimeInZone(item.checkIn!, _companyTimeZone))
                                       : const SizedBox(),
                                 ),
                                 _DataCell(
                                   item.checkOut != null
                                       ? _TimeWithLocation(
-                                          time:
-                                              timeFormat.format(item.checkOut!))
+                                          time: TimeUtils.formatTimeInZone(item.checkOut!, _companyTimeZone))
                                       : const SizedBox(),
                                 ),
                                 _DataCell(
-                                  // --- Updated Status Display (Plain Text) ---
+                                  
                                   Text(
                                     statusText,
                                     textAlign: TextAlign.center,

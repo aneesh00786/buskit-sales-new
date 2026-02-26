@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
@@ -109,28 +110,35 @@ Widget orderNumberWidget(
     ),
   );
 }
-
 Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+  // 1. Safely parse the date string once at the top
+  final bool hasDate = orderDetailsData.orderCreatAt != null && orderDetailsData.orderCreatAt!.isNotEmpty;
+  
+  // Assuming orderCreatAt is a String since it was passed to formatStringUTCDateTime
+  final DateTime? parsedDate = hasDate ? DateTime.tryParse(orderDetailsData.orderCreatAt!) : null;
+
+  // 2. Prepare the Date string (Keeping your old NKDateUtils logic as requested)
+  final String dateString = parsedDate != null 
+      ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+      : 'N/A';
+
+  // 3. Prepare the Time string (Using your NEW TimeUtils logic for time only)
+  final String timeString = parsedDate != null 
+      ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+      : 'N/A';
+
   return Center(
     child: selectedTabIndex == 0
         ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyRegularText(
-                label: orderDetailsData.orderCreatAt != null
-                    ? NKDateUtils.commonDayFormat2(
-                        NKDateUtils.formatStringUTCDateTime(
-                            orderDetailsData.orderCreatAt!))
-                    : 'N/A',
+                label: dateString, // Old Date Logic
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
               MyRegularText(
-                label: orderDetailsData.orderCreatAt != null
-                    ? NKDateUtils.commonTimeOnlyFormat(
-                        NKDateUtils.formatStringUTCDateTime(
-                            orderDetailsData.orderCreatAt!))
-                    : 'N/A',
+                label: timeString, // New Time Logic
                 fontSize: 12,
               ),
             ],
@@ -139,15 +147,13 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyRegularText(
-                label:
-                    "${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'} ${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'}",
+                label: "$dateString $timeString", // Safely combined
                 fontWeight: FontWeight.w600,
                 fontSize: 11,
               ),
               if (selectedTabIndex != 0) ...[
                 MyRegularText(
-                  label:
-                      '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
+                  label: '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
                   fontWeight: FontWeight.w500,
                   fontSize: 11,
                 ),
@@ -156,6 +162,53 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
           ),
   );
 }
+
+// Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+//   return Center(
+//     child: selectedTabIndex == 0
+//         ? Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               MyRegularText(
+//                 label: orderDetailsData.orderCreatAt != null
+//                     ? NKDateUtils.commonDayFormat2(
+//                         NKDateUtils.formatStringUTCDateTime(
+//                             orderDetailsData.orderCreatAt!))
+//                     : 'N/A',
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 12,
+//               ),
+//               MyRegularText(
+//                 label: orderDetailsData.orderCreatAt != null
+//                     ? NKDateUtils.commonTimeOnlyFormat(
+//                         NKDateUtils.formatStringUTCDateTime(
+//                             orderDetailsData.orderCreatAt!))
+//                     : 'N/A',
+//                 fontSize: 12,
+//               ),
+//             ],
+//           )
+//         : Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               MyRegularText(
+//                 label:
+//                     "${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'} ${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'}",
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 11,
+//               ),
+//               if (selectedTabIndex != 0) ...[
+//                 MyRegularText(
+//                   label:
+//                       '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
+//                   fontWeight: FontWeight.w500,
+//                   fontSize: 11,
+//                 ),
+//               ]
+//             ],
+//           ),
+//   );
+// }
 Widget orderCreatedByWidget(OrderData orderData) {
   String displayLabel = '';
 

@@ -228,6 +228,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             tooltip: 'Increase',
                                             icon: const Icon(Icons.add),
                                             onPressed: () {
+                                              
                                               bundleQty.value =
                                                   bundleQty.value + 1;
                                             },
@@ -807,6 +808,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                               tooltip: 'Increase',
                                               icon: const Icon(Icons.add),
                                               onPressed: () {
+                                                print('tapped increase button');
                                                 qty.value = qty.value + 1;
                                               },
                                             ),
@@ -1339,7 +1341,7 @@ if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
                                       // --- BOGO promos ---
 
 if (promo.promoType == "bogo") {
-  // Flatten variants
+
   final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
 
   if (allVariants.isEmpty) {
@@ -1407,7 +1409,7 @@ if (promo.promoType == "bogo") {
     // --- 4. Add items with Tax and 50% Discount ---
     await CartDatabaseManager().addToCartPromo(
       customerId: customerId,
-      localCount: qty.value,
+      localCount: qty.value * 2,
       detail: paidDetail,
       isPack: true,
       productName: v.productName ?? '',
@@ -2502,6 +2504,7 @@ if (promo.promoType == "bogo") {
                                                           Icons.add,
                                                           size: 18),
                                                       onPressed: () {
+                                                      
                                                         qty = qty + 1;
                                                         itemSetState(() {});
                                                         _updateSelectedItems(

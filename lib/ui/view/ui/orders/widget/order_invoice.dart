@@ -92,26 +92,18 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
       }
     );
 
-    // 4. Build Tax Breakdown Widgets (Only if 'tax' array exists)
-    List<Widget> taxWidgets = [];
+    // 4. Prepare Tax Breakdown text (Only if 'tax' array exists)
+    // This will be shown on the same line as totalTax.
+    final List<String> taxBreakdownParts = [];
     if (taxList.isNotEmpty) {
-      for (var t in taxList) {
-        double tPercent = (t.tax ?? 0).toDouble();
-        double tAmount = 0.0;
-        try {
-          tAmount = (t.taxAmount ?? 0).toDouble();
-        } catch (e) {
-          tAmount = (tPercent * orderTotal) / 100;
-        }
-        
-        taxWidgets.add(
-          Text(
-            '${t.taxName ?? ''} (${tPercent.toStringAsFixed(0)}%)',
-            style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
-          )
-        );
+      for (final t in taxList) {
+        final String name = (t.taxName ?? '').toString().trim();
+        if (name.isEmpty) continue;
+        final double percent = (t.tax ?? 0).toDouble();
+        taxBreakdownParts.add('$name ${percent.toStringAsFixed(0)}%');
       }
     }
+    final String taxBreakdownText = taxBreakdownParts.join(', ');
 
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
@@ -291,29 +283,35 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                     ),
                     const SizedBox(height: 8),
 
-                    // --- TOTAL TAX ROW (Show if totalTax > 0, regardless of breakdown) ---
-                    if (totalTax > 0) 
-                      Row(
-                        children: [
-                          const Text('Total Tax', style: TextStyle(color: black, fontSize: 15, fontWeight: FontWeight.w500)),
-                          const Spacer(),
-                          Text(formatAmount(totalTax)),
-                        ],
-                      ),
-                    
-                    if (totalTax > 0) const SizedBox(height: 8),
-
-                    // --- TAX BREAKDOWN (Show only if we have specific tax details) ---
-                    if (taxWidgets.isNotEmpty) 
+                    // --- TAX (Breakdown + Total Tax in SAME ROW) ---
+                    if (totalTax > 0 || taxBreakdownText.isNotEmpty)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Taxes - ', style: TextStyle(color: black, fontSize: 15, fontWeight: FontWeight.w500)),
-                          Expanded(
-                            child: Wrap(spacing: 16.0, runSpacing: 4.0, children: taxWidgets),
+                          Text(
+                            taxBreakdownText.isNotEmpty 
+                              ? 'Tax $taxBreakdownText' 
+                              : 'Tax',
+                            style: const TextStyle(
+                              color: black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            formatAmount(totalTax),
+                            style: const TextStyle(
+                              color: black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
+
+                    if (totalTax > 0 || taxBreakdownText.isNotEmpty)
+                      const SizedBox(height: 8),
                       
                     Divider(color: Colors.grey.shade400),
                     Row(

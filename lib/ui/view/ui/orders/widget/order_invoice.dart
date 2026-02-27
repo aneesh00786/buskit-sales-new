@@ -193,7 +193,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                           headingTextStyle: const TextStyle(color: black, fontSize: 16, fontWeight: FontWeight.w600),
                           columns: [
                             DataColumn(label: SizedBox(width: isPhonePortrait(context) ? fullScreenWidth(context) * 0.4 : fullScreenWidth(context) * 0.2, child: const Text('ITEM NAME'))),
-                            const DataColumn(label: Expanded(flex: 2, child: Text('PRICE', textAlign: TextAlign.center))),
+                            const DataColumn(label: Expanded(flex: 2, child: Text('U.PRICE', textAlign: TextAlign.center))),
                             const DataColumn(label: Expanded(flex: 2, child: Text('PACKTYPE', textAlign: TextAlign.center))),
                             const DataColumn(label: Expanded(flex: 2, child: Text('QTY', textAlign: TextAlign.center))),
                             const DataColumn(label: Expanded(flex: 2, child: Text('AMOUNT', textAlign: TextAlign.center))),

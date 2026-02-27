@@ -404,53 +404,62 @@ Widget orderStatus(OrderData orderData) {
           ),
         );
 }
-
-Widget viewOrder(OrderController orderController, OrderData orderData,
-    BuildContext context) {
+Widget viewOrder(OrderController orderController, OrderData orderData, BuildContext context) {
   int selectedTabIndex = orderController.hasOfflineOrders.value
       ? orderController.selectedTabIndex.value - 1
       : orderController.selectedTabIndex.value;
+      
   return Center(
     child: IconButton(
       onPressed: () async {
+        // ---------------------------------------------------------
+        // CONDITION 1: 0th Tab -> Call NEW API (Specific Order)
+        // ---------------------------------------------------------
         if (selectedTabIndex == 0) {
           try {
-            await orderController.loadOrderProcessInvoiceData(
+            await orderController.loadSpecificOrderInvoiceData(
               orderId: orderData.orderId!,
-              orderStatus: orderData.orderStatus!,
             );
-            Get.back();
-            // ignore: unnecessary_null_comparison
-            if (orderController.orderProcessInvoiceData != null) {
+            
+            Get.back(); // Dismiss loading/dialog if applicable
+
+            if (orderController.fetchSpecificOrderData != null) {
               Get.dialog(
                 OrderProcessInvoiceDialog(
-                  invoiceData: orderController.orderProcessInvoiceData,
+                  // Pass data to specificData argument
+                  specificData: orderController.fetchSpecificOrderData, 
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
                 barrierDismissible: true,
               );
             } else {
-              throw Exception('No invoice data available');
+              throw Exception('No specific order data available');
             }
           } catch (e) {
             Get.back();
             Get.snackbar('Error', e.toString());
           }
-        } else if (selectedTabIndex >= 1 &&
-            selectedTabIndex != 4 &&
-            selectedTabIndex != 5) {
+        } 
+        
+        // ---------------------------------------------------------
+        // CONDITION 2: All other tabs (except 4 & 5) -> Call OLD API
+        // ---------------------------------------------------------
+        else if (selectedTabIndex >= 1 && selectedTabIndex != 4 && selectedTabIndex != 5) {
           try {
             await orderController.loadOrderProcessInvoiceData(
               orderId: orderData.orderId!,
               orderStatus: orderData.orderStatus!,
             );
+            
             Get.back();
+
             // ignore: unnecessary_null_comparison
             if (orderController.orderProcessInvoiceData != null) {
               Get.dialog(
                 OrderProcessInvoiceDialog(
-                  invoiceData: orderController.orderProcessInvoiceData,
+                  // Pass data to invoiceData argument
+                  invoiceData: orderController.orderProcessInvoiceData, 
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
@@ -463,7 +472,12 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
             Get.back();
             // Get.snackbar('Error', e.toString());
           }
-        } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+        } 
+        
+        // ---------------------------------------------------------
+        // CONDITION 3: Tabs 4 & 5 -> Show Online Preview
+        // ---------------------------------------------------------
+        else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
           showInvoicePreviewOnline(
             context,
             orderData.orderId ?? '',
@@ -474,3 +488,122 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
     ),
   );
 }
+// Widget viewOrder(OrderController orderController, OrderData orderData, BuildContext context) {
+//   int selectedTabIndex = orderController.hasOfflineOrders.value
+//       ? orderController.selectedTabIndex.value - 1
+//       : orderController.selectedTabIndex.value;
+      
+//   return Center(
+//     child: IconButton(
+//       onPressed: () async {
+//         // Handle all standard tab indices (0, 1, 2, 3) identically
+//         if (selectedTabIndex >= 0 && selectedTabIndex != 4 && selectedTabIndex != 5) {
+//           try {
+//             // 1. Call the new specific order API
+//             await orderController.loadSpecificOrderInvoiceData(
+//               orderId: orderData.orderId!,
+//             );
+            
+//             Get.back(); // Dismiss loading/dialog if applicable
+
+//             // 2. Check if the specific data was loaded successfully
+//             if (orderController.fetchSpecificOrderData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   // 3. Pass data to specificData instead of invoiceData
+//                   specificData: orderController.fetchSpecificOrderData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No specific order data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             Get.snackbar('Error', e.toString());
+//           }
+//         } 
+//         // Handle online previews
+//         else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+//           showInvoicePreviewOnline(
+//             context,
+//             orderData.orderId ?? '',
+//           );
+//         }
+//       },
+//       icon: const Icon(Icons.visibility, size: 16),
+//     ),
+//   );
+// }
+
+// Widget viewOrder(OrderController orderController, OrderData orderData,
+//     BuildContext context) {
+//   int selectedTabIndex = orderController.hasOfflineOrders.value
+//       ? orderController.selectedTabIndex.value - 1
+//       : orderController.selectedTabIndex.value;
+//   return Center(
+//     child: IconButton(
+//       onPressed: () async {
+//         if (selectedTabIndex == 0) {
+//           try {
+//             await orderController.loadOrderProcessInvoiceData(
+//               orderId: orderData.orderId!,
+//               orderStatus: orderData.orderStatus!,
+//             );
+//             Get.back();
+//             // ignore: unnecessary_null_comparison
+//             if (orderController.orderProcessInvoiceData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   invoiceData: orderController.orderProcessInvoiceData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No invoice data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             Get.snackbar('Error', e.toString());
+//           }
+//         } else if (selectedTabIndex >= 1 &&
+//             selectedTabIndex != 4 &&
+//             selectedTabIndex != 5) {
+//           try {
+//             await orderController.loadOrderProcessInvoiceData(
+//               orderId: orderData.orderId!,
+//               orderStatus: orderData.orderStatus!,
+//             );
+//             Get.back();
+//             // ignore: unnecessary_null_comparison
+//             if (orderController.orderProcessInvoiceData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   invoiceData: orderController.orderProcessInvoiceData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No invoice data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             // Get.snackbar('Error', e.toString());
+//           }
+//         } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+//           showInvoicePreviewOnline(
+//             context,
+//             orderData.orderId ?? '',
+//           );
+//         }
+//       },
+//       icon: const Icon(Icons.visibility, size: 16),
+//     ),
+//   );
+// }

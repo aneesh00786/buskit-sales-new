@@ -219,6 +219,7 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
 
   @override
   Widget build(BuildContext context) {
+    print('product grid promo state called');
     const double desiredItemWidth = 280.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,

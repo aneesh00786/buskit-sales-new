@@ -1,7 +1,5 @@
-
 import 'dart:async';
 import 'dart:developer';
-
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -30,7 +28,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
-
 class PromotionDetails extends StatefulWidget {
   final ProductsController controller;
 
@@ -41,14 +38,13 @@ class PromotionDetails extends StatefulWidget {
 }
 
 class _PromotionDetailsState extends State<PromotionDetails> {
-
-
   @override
   void initState() {
     super.initState();
-    
-    widget.controller.selectedPromotion.value = null; 
+
+    widget.controller.selectedPromotion.value = null;
   }
+
   @override
   Widget build(BuildContext context) {
     CustomerAndOrderController customerAndOrderController =
@@ -228,7 +224,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             tooltip: 'Increase',
                                             icon: const Icon(Icons.add),
                                             onPressed: () {
-                                              
                                               bundleQty.value =
                                                   bundleQty.value + 1;
                                             },
@@ -240,133 +235,182 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 ),
                                 const SizedBox(height: 12),
                                 InkWell(
-                                 onTap: () async {
-    if ((customerAndOrderController.customerId.value.isNotEmpty) ||
-        (productController.selectedCustomerName.value.isNotEmpty)) {
-      
-      final customerId = customerAndOrderController.customerId.value.isNotEmpty
-          ? customerAndOrderController.customerId.value
-          : productController.selectedCustomerId.value;
+                                  onTap: () async {
+                                    if ((customerAndOrderController
+                                            .customerId.value.isNotEmpty) ||
+                                        (productController.selectedCustomerName
+                                            .value.isNotEmpty)) {
+                                      final customerId =
+                                          customerAndOrderController
+                                                  .customerId.value.isNotEmpty
+                                              ? customerAndOrderController
+                                                  .customerId.value
+                                              : productController
+                                                  .selectedCustomerId.value;
 
-      // 1. Initialize total tax variable for the bundle
-      double totalBundleCatTax = 0.0;
-      
-      // Initialize detailed bundle message
-      String bundleDetailsMsg = "Bundle: ${promo.title}\n\n";
+                                      // 1. Initialize total tax variable for the bundle
+                                      double totalBundleCatTax = 0.0;
 
-      if (promo.bundleItems != null && promo.bundleItems!.isNotEmpty) {
-        bundleDetailsMsg += "Items included:\n";
-        
-        for (final bundleItem in promo.bundleItems!) {
-          // --- A. Find variant info for names/prices (from Promo Object) ---
-          Product? promoProduct;
-          try {
-            promoProduct = promo.products?.firstWhere(
-              (p) => p.id == bundleItem.variantId,
-            );
-          } catch (e) {
-            promoProduct = null;
-          }
+                                      // Initialize detailed bundle message
+                                      String bundleDetailsMsg =
+                                          "Bundle: ${promo.title}\n\n";
 
-          // --- B. LOOKUP CAT_TAX FROM CONTROLLER (products list) ---
-          double itemCatTax = 0.0;
-          
-          try {
-            // Use 'products' list from your controller
-            final productModelInstance = widget.controller.products.firstWhere(
-              (p) => p.productId == bundleItem.productId,
-              // Fallback to a dummy model with 0 tax if not found
-              orElse: () => ProductModel(catTax: 0), 
-            );
+                                      if (promo.bundleItems != null &&
+                                          promo.bundleItems!.isNotEmpty) {
+                                        bundleDetailsMsg += "Items included:\n";
 
-            // Extract the tax safely
-            itemCatTax = (productModelInstance.catTax ?? 0).toDouble();
-            
-          } catch (e) {
-            print("Error finding product model in controller list: $e");
-          }
+                                        for (final bundleItem
+                                            in promo.bundleItems!) {
+                                          // --- A. Find variant info for names/prices (from Promo Object) ---
+                                          Product? promoProduct;
+                                          try {
+                                            promoProduct =
+                                                promo.products?.firstWhere(
+                                              (p) =>
+                                                  p.id == bundleItem.variantId,
+                                            );
+                                          } catch (e) {
+                                            promoProduct = null;
+                                          }
 
-          // --- C. Calculate Totals & Build Message ---
-          if (promoProduct?.variants?.isNotEmpty == true) {
-            final variant = promoProduct!.variants!.first;
-            final unitPrice = double.tryParse(variant.sellPrice?.toString() ?? '0') ?? 0;
-            final qty = bundleItem.quantity ?? 1;
-            final totalPrice = unitPrice * qty;
+                                          // --- B. LOOKUP CAT_TAX FROM CONTROLLER (products list) ---
+                                          double itemCatTax = 0.0;
 
-            // Add to total bundle tax: (Item Tax * Quantity)
-            totalBundleCatTax += (itemCatTax * qty);
+                                          try {
+                                            // Use 'products' list from your controller
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) =>
+                                                  p.productId ==
+                                                  bundleItem.productId,
+                                              // Fallback to a dummy model with 0 tax if not found
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
 
-            // Append details to message string
-            bundleDetailsMsg += "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
-            bundleDetailsMsg += "  Qty: $qty ${bundleItem.unitType}\n";
-            bundleDetailsMsg += "  Price: ${formatAmount(unitPrice.toString())} each\n";
-            bundleDetailsMsg += "  Total: ${formatAmount(totalPrice.toString())}\n";
-            // Optional: You can remove this line from the user-facing message if you prefer
-            // bundleDetailsMsg += "  Cat Tax (est): $itemCatTax\n\n"; 
-          }
-        }
-        bundleDetailsMsg += "Bundle Price: ${formatAmount(promo.bundlePrice)}";
-      }
+                                            // Extract the tax safely
+                                            itemCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
+                                          } catch (e) {
+                                            print(
+                                                "Error finding product model in controller list: $e");
+                                          }
 
-      // --- 2. CREATE BUNDLE DETAIL ---
-      final bundleDetail = Detail(
-        variationId: "BUNDLE_${promo.id}",
-        productId: "BUNDLE_${promo.id}",
-        variationName: promo.title ?? "Bundle",
-        unitType: "bundle",
-        price: promo.bundlePrice?.toString() ?? "0",
-        sellPrice: promo.bundlePrice?.toString() ?? "0",
-        tax: totalBundleCatTax, // Assign the calculated total tax here
-        packtype: "bundle",
-        pieces: 1,
-        stock: 999,
-        lowstock: 0,
-        fullstock: 999,
-        imageUrl: promo.products?.isNotEmpty == true
-            ? promo.products![0].variants?.isNotEmpty == true
-                ? promo.products![0].variants![0].imageUrl
-                : null
-            : null,
-        productName: promo.title ?? "Bundle",
-      );
+                                          // --- C. Calculate Totals & Build Message ---
+                                          if (promoProduct
+                                                  ?.variants?.isNotEmpty ==
+                                              true) {
+                                            final variant =
+                                                promoProduct!.variants!.first;
+                                            final unitPrice = double.tryParse(
+                                                    variant.sellPrice
+                                                            ?.toString() ??
+                                                        '0') ??
+                                                0;
+                                            final qty =
+                                                bundleItem.quantity ?? 1;
+                                            final totalPrice = unitPrice * qty;
 
-      const catId = 0; // Special ID for bundles
-      
-      print('Total Calculated Bundle Tax: $totalBundleCatTax');
+                                            // Add to total bundle tax: (Item Tax * Quantity)
+                                            totalBundleCatTax +=
+                                                (itemCatTax * qty);
 
-      // --- 3. ADD TO CART ---
-      await CartDatabaseManager().addToCartPromo(
-        customerId: customerId,
-        localCount: bundleQty.value,
-        detail: bundleDetail,
-        isPack: true,
-        productName: promo.title ?? "Bundle",
-        inclTax: "0",
-        isChcked: true,
-        catId: catId,
-        promoCode: promo.promoCode,
-        promoMsg: bundleDetailsMsg,
-        catTax: totalBundleCatTax, // Pass the calculated value to your DB manager
-      );
+                                            // Append details to message string
+                                            bundleDetailsMsg +=
+                                                "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
+                                            bundleDetailsMsg +=
+                                                "  Qty: $qty ${bundleItem.unitType}\n";
+                                            bundleDetailsMsg +=
+                                                "  Price: ${formatAmount(unitPrice.toString())} each\n";
+                                            bundleDetailsMsg +=
+                                                "  Total: ${formatAmount(totalPrice.toString())}\n";
+                                            // Optional: You can remove this line from the user-facing message if you prefer
+                                            // bundleDetailsMsg += "  Cat Tax (est): $itemCatTax\n\n";
+                                          }
+                                        }
+                                        bundleDetailsMsg +=
+                                            "Bundle Price: ${formatAmount(promo.bundlePrice)}";
+                                      }
 
-      // --- 4. SUCCESS FEEDBACK ---
-      showCustomToastDisplay(
-        context,
-        "Bundle added to cart",
-        Colors.green.shade800,
-        Icons.check,
-      );
-      
-      // Update cart counts and close
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-         final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-         cartProvider.updateCartCount(customerId);
-         cartProvider.getCartItemCounts(customerId);
-      });
-      
-      Navigator.pop(context);
-    }
-  },
+                                      // --- 2. CREATE BUNDLE DETAIL ---
+                                      final bundleDetail = Detail(
+                                        variationId: "BUNDLE_${promo.id}",
+                                        productId: "BUNDLE_${promo.id}",
+                                        variationName: promo.title ?? "Bundle",
+                                        unitType: "bundle",
+                                        price: promo.bundlePrice?.toString() ??
+                                            "0",
+                                        sellPrice:
+                                            promo.bundlePrice?.toString() ??
+                                                "0",
+                                        tax:
+                                            totalBundleCatTax, // Assign the calculated total tax here
+                                        packtype: "bundle",
+                                        pieces: 1,
+                                        stock: 999,
+                                        lowstock: 0,
+                                        fullstock: 999,
+                                        imageUrl:
+                                            promo.products?.isNotEmpty == true
+                                                ? promo.products![0].variants
+                                                            ?.isNotEmpty ==
+                                                        true
+                                                    ? promo.products![0]
+                                                        .variants![0].imageUrl
+                                                    : null
+                                                : null,
+                                        productName: promo.title ?? "Bundle",
+                                      );
+
+                                      const catId = 0; // Special ID for bundles
+
+                                      print(
+                                          'Total Calculated Bundle Tax: $totalBundleCatTax');
+
+                                      // --- 3. ADD TO CART ---
+                                      await CartDatabaseManager()
+                                          .addToCartPromo(
+                                        customerId: customerId,
+                                        localCount: bundleQty.value,
+                                        detail: bundleDetail,
+                                        isPack: true,
+                                        productName: promo.title ?? "Bundle",
+                                        inclTax: "0",
+                                        isChcked: true,
+                                        catId: catId,
+                                        promoCode: promo.promoCode,
+                                        promoMsg: bundleDetailsMsg,
+                                        catTax:
+                                            totalBundleCatTax, // Pass the calculated value to your DB manager
+                                      );
+
+                                      // --- 4. SUCCESS FEEDBACK ---
+                                      showCustomToastDisplay(
+                                        context,
+                                        "Bundle added to cart",
+                                        Colors.green.shade800,
+                                        Icons.check,
+                                      );
+
+                                      // Update cart counts and close
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        final cartProvider =
+                                            Provider.of<CustomersProvider>(
+                                                context,
+                                                listen: false);
+                                        cartProvider
+                                            .updateCartCount(customerId);
+                                        cartProvider
+                                            .getCartItemCounts(customerId);
+                                      });
+
+                                      Navigator.pop(context);
+                                    }
+                                  },
                                   // onTap: () async {
                                   //   if ((customerAndOrderController
                                   //           .customerId.value.isNotEmpty) ||
@@ -648,49 +692,100 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                               final double? minOrder =
                                   parseAmount(promo.minOrderValue?.toString());
                               if (minOrder == null) return true;
-                              double total = 0;
+
                               for (final v in allVariants) {
-                                // Since addToCart uses isPack: true, use unit * pieces
                                 final double unit = double.tryParse(
                                         (v.sellPrice ?? '0').toString()) ??
                                     0;
                                 final int pcs = (v.pieces ?? 1).toInt();
-                                total += (unit * pcs) * (qty.value);
-                              }
-                              if (total < minOrder) {
-                                await showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      actions: [
-                                        const SizedBox(height: 20),
-                                        const Center(
-                                            child: Icon(
-                                                Icons.warning_amber_outlined,
-                                                size: 50,
-                                                color: Colors.orange)),
-                                        const SizedBox(height: 20),
-                                        Center(
+                                final double itemTotal =
+                                    (unit * pcs) * (qty.value);
+
+                                // Check if this specific item meets the minimum
+                                if (itemTotal < minOrder) {
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        actions: [
+                                          const SizedBox(height: 20),
+                                          const Center(
+                                              child: Icon(
+                                                  Icons.warning_amber_outlined,
+                                                  size: 50,
+                                                  color: Colors.orange)),
+                                          const SizedBox(height: 20),
+                                          Center(
+                                              child: CustomText(
+                                                  content:
+                                                      "Minimum order for ${v.productName} is ${formatAmount(promo.minOrderValue)}",
+                                                  fontSize: 18)),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
                                             child: CustomText(
-                                                content:
-                                                    "Minimum order is ${formatAmount(promo.minOrderValue)}",
-                                                fontSize: 18)),
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: CustomText(
-                                              content: "Ok",
-                                              color: primaryColor),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                return false;
+                                                content: "Ok",
+                                                color: primaryColor),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  return false;
+                                }
                               }
                               return true;
                             }
+
+                            // Future<bool> validateMinOrderBeforeAdd(
+                            //     List<dynamic> allVariants) async {
+                            //   final double? minOrder =
+                            //       parseAmount(promo.minOrderValue?.toString());
+                            //   if (minOrder == null) return true;
+                            //   double total = 0;
+                            //   for (final v in allVariants) {
+                            //     // Since addToCart uses isPack: true, use unit * pieces
+                            //     final double unit = double.tryParse(
+                            //             (v.sellPrice ?? '0').toString()) ??
+                            //         0;
+                            //     final int pcs = (v.pieces ?? 1).toInt();
+                            //     total += (unit * pcs) * (qty.value);
+                            //   }
+                            //   if (total < minOrder) {
+                            //     await showDialog(
+                            //       context: context,
+                            //       barrierDismissible: false,
+                            //       builder: (context) {
+                            //         return AlertDialog(
+                            //           actions: [
+                            //             const SizedBox(height: 20),
+                            //             const Center(
+                            //                 child: Icon(
+                            //                     Icons.warning_amber_outlined,
+                            //                     size: 50,
+                            //                     color: Colors.orange)),
+                            //             const SizedBox(height: 20),
+                            //             Center(
+                            //                 child: CustomText(
+                            //                     content:
+                            //                         "Minimum order is ${formatAmount(promo.minOrderValue)}",
+                            //                     fontSize: 18)),
+                            //             TextButton(
+                            //               onPressed: () =>
+                            //                   Navigator.pop(context),
+                            //               child: CustomText(
+                            //                   content: "Ok",
+                            //                   color: primaryColor),
+                            //             ),
+                            //           ],
+                            //         );
+                            //       },
+                            //     );
+                            //     return false;
+                            //   }
+                            //   return true;
+                            // }
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -986,633 +1081,838 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                       // --- FLAT DISCOUNT promos (cart-level fixed amount) ---
 
-
                                       if (promo.promoType == "flat_discount") {
-  // Flatten variants
-  final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
-  
-  if (allVariants.isEmpty) {
-    showCustomToastDisplay(
-      context,
-      "No variants found for this promotion",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        // Flatten variants
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
 
-  // Validate min order with existing helper (based on selected qty)
-  final allowed = await validateMinOrderBeforeAdd(allVariants);
-  if (!allowed) return;
+                                        if (allVariants.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  // 1) Add products normally 
-  for (final v in allVariants) {
-    
-    // --- A. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-    // We search the loaded products list to find the ProductModel instance
-    double fetchedCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == v.productId,
-        // Fallback to dummy model if not found
-        orElse: () => ProductModel(catTax: 0), 
-      );
-      
-      fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    } catch (e) {
-      print("[PROMO] Flat Discount - Error finding product model for ID ${v.productId}: $e");
-    }
-    final double flatAmount = double.tryParse(promo.discountValue?.toString() ?? '0') ?? 0;
-  print('flat amount in details class:$flatAmount');
-  if (flatAmount > 0) {
-    productController.flatDiscountByCustomer[customerId] = flatAmount;
-  }
+                                        // Validate min order with existing helper (based on selected qty)
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
 
-    // --- B. Create Detail Object ---
-    final detail = Detail(
-      variationId: v.id,
-      productId: v.productId,
-      variationName: v.variationName,
-      unitType: v.unitType,
-      price: (v.price ?? '0').toString(),
-      sellPrice: (v.sellPrice ?? '0').toString(),
-      tax: double.tryParse(v.tax ?? '0') ?? 0,
-      packtype: v.packtype,
-      pieces: v.pieces,
-      stock: v.stock,
-      lowstock: v.lowstock,
-      fullstock: v.fullstock,
-      imageUrl: v.imageUrl,
-      productName: v.productName,
-      // You may need to assign discount here if 'flat' logic requires per-item discount field
-    );
+                                        // 1) Add products normally
+                                        for (final v in allVariants) {
+                                          // --- A. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
+                                          // We search the loaded products list to find the ProductModel instance
+                                          double fetchedCatTax = 0.0;
+                                          try {
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) => p.productId == v.productId,
+                                              // Fallback to dummy model if not found
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
 
-    final catId = extractCategoryId(v.productId.toString());
-    
-    print('fetched cattax in flat discount: $fetchedCatTax');
+                                            fetchedCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
+                                          } catch (e) {
+                                            print(
+                                                "[PROMO] Flat Discount - Error finding product model for ID ${v.productId}: $e");
+                                          }
+                                          final double flatAmount =
+                                              double.tryParse(promo
+                                                          .discountValue
+                                                          ?.toString() ??
+                                                      '0') ??
+                                                  0;
+                                          print(
+                                              'flat amount in details class:$flatAmount');
+                                          if (flatAmount > 0) {
+                                            productController
+                                                    .flatDiscountByCustomer[
+                                                customerId] = flatAmount;
+                                          }
 
-    // --- C. Add to Cart with Tax ---
-    await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: qty.value,
-      detail: detail,
-      isPack: true,
-      productName: v.productName ?? '',
-      inclTax: v.tax ?? '',
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: "Flat discount will be applied on total",
-      catTax: fetchedCatTax, 
-      flatDiscount: flatAmount
-    );
+                                          // --- B. Create Detail Object ---
+                                          final detail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                            // You may need to assign discount here if 'flat' logic requires per-item discount field
+                                          );
 
-    productController.isCartModified.value = true;
-  }
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
 
-  // 2) Store fixed flat discount per customer for cart total display
-  
+                                          print(
+                                              'fetched cattax in flat discount: $fetchedCatTax');
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
+                                          // --- C. Add to Cart with Tax ---
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                                  customerId: customerId,
+                                                  localCount: qty.value,
+                                                  detail: detail,
+                                                  isPack: true,
+                                                  productName:
+                                                      v.productName ?? '',
+                                                  inclTax: v.tax ?? '',
+                                                  isChcked: true,
+                                                  catId: catId,
+                                                  promoCode: promo.promoCode,
+                                                  promoMsg:
+                                                      "Flat discount will be applied on total",
+                                                  catTax: fetchedCatTax,
+                                                  flatDiscount: flatAmount);
 
-  showCustomToastDisplay(
-    context,
-    "Items added. Flat discount will be applied on total",
-    Colors.green.shade800,
-    Icons.check,
-  );
-}
-                                     
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
+
+                                        // 2) Store fixed flat discount per customer for cart total display
+
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Items added. Flat discount will be applied on total",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+                                      }
 
                                       // --- Tiered Discount promos ---
 
+                                      if (promo.promoType ==
+                                          "tiered_discount") {
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
 
-   if (promo.promoType == "tiered_discount") {
-  final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
+                                        if (allVariants.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  if (allVariants.isEmpty) {
-    showCustomToastDisplay(
-      context,
-      "No variants found for this promotion",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        // Validate min order with selected quantity
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
 
-  // Validate min order with selected quantity
-  final allowed = await validateMinOrderBeforeAdd(allVariants);
-  if (!allowed) return;
+                                        // Iterate through all variants in the promotion
+                                        for (final v in allVariants) {
+                                          double fetchedCatTax = 0.0;
 
-  // Iterate through all variants in the promotion
-  for (final v in allVariants) {
+                                          // A. Try finding in current loaded products (Fastest)
+                                          final productModelInstance = widget
+                                              .controller.products
+                                              .firstWhere(
+                                            (p) => p.productId == v.productId,
+                                            orElse: () =>
+                                                ProductModel(catTax: 0),
+                                          );
+                                          fetchedCatTax =
+                                              (productModelInstance.catTax ?? 0)
+                                                  .toDouble();
 
+                                          // B. If not found or 0 (likely different category), FETCH FROM API
+                                          if (fetchedCatTax == 0) {
+                                            try {
+                                              // 1. Extract SubCategory ID from Product ID (e.g., C49SC7)
+                                              // Ensure extractSubCategoryId function is available in your file
+                                              final subCatId =
+                                                  extractSubCategoryId(
+                                                      v.productId.toString());
+                                              final companyId = SessionHelper
+                                                      .loginSavedData
+                                                      ?.company_id ??
+                                                  0;
 
-    double fetchedCatTax = 0.0;
+                                              print(
+                                                  "[PROMO] Product not in current list. Fetching from API for SCID: $subCatId");
 
-    // A. Try finding in current loaded products (Fastest)
-    final productModelInstance = widget.controller.products.firstWhere(
-      (p) => p.productId == v.productId,
-      orElse: () => ProductModel(catTax: 0),
-    );
-    fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+                                              // 2. Call your API to get the real product details
+                                              final remoteProducts =
+                                                  await ApiWorker()
+                                                      .getTempProduct(subCatId,
+                                                          companyid: companyId);
 
-    // B. If not found or 0 (likely different category), FETCH FROM API
-    if (fetchedCatTax == 0) {
-      try {
-        // 1. Extract SubCategory ID from Product ID (e.g., C49SC7)
-        // Ensure extractSubCategoryId function is available in your file
-        final subCatId = extractSubCategoryId(v.productId.toString()); 
-        final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+                                              // 3. Find the specific product in the fetched list
+                                              final remoteProduct =
+                                                  remoteProducts.firstWhere(
+                                                (p) =>
+                                                    p.productId == v.productId,
+                                                orElse: () =>
+                                                    ProductModel(catTax: 0),
+                                              );
 
-        print("[PROMO] Product not in current list. Fetching from API for SCID: $subCatId");
+                                              // 4. Update the tax
+                                              fetchedCatTax =
+                                                  (remoteProduct.catTax ?? 0)
+                                                      .toDouble();
+                                              print(
+                                                  "[PROMO] Fetched remote tax: $fetchedCatTax");
+                                            } catch (e) {
+                                              print(
+                                                  "[PROMO] Error fetching remote tax: $e");
+                                            }
+                                          }
+                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
 
-        // 2. Call your API to get the real product details
-        final remoteProducts = await ApiWorker().getTempProduct(subCatId, companyid: companyId);
+                                          // --- 2. Calculate Tiered Discount ---
+                                          double? tieredDiscount;
+                                          if (promo.promoType ==
+                                                  "tiered_discount" &&
+                                              selectedTier.value != null) {
+                                            // For tiered_discount, use the selected tier's discount
+                                            tieredDiscount = double.tryParse(
+                                                    selectedTier.value!
+                                                            .discountValue
+                                                            ?.toString() ??
+                                                        '0') ??
+                                                0;
+                                            print(
+                                                'tiered discount from details class:$tieredDiscount');
+                                          } else {
+                                            // For other promotions, calculate based on quantity
+                                            tieredDiscount =
+                                                _calculateTieredDiscount(
+                                                    promo, qty.value, true);
+                                          }
 
-        // 3. Find the specific product in the fetched list
-        final remoteProduct = remoteProducts.firstWhere(
-          (p) => p.productId == v.productId,
-          orElse: () => ProductModel(catTax: 0),
-        );
+                                          // --- 3. Extract Category ID & Customer Discounts ---
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
+                                          final discountBox = await Hive
+                                              .openBox<CustomerDiscountModel>(
+                                                  'discounts');
 
-        // 4. Update the tax
-        fetchedCatTax = (remoteProduct.catTax ?? 0).toDouble();
-        print("[PROMO] Fetched remote tax: $fetchedCatTax");
+                                          CustomerDiscountModel? discountData =
+                                              discountBox.values.firstWhere(
+                                            (item) =>
+                                                item.customerId == customerId,
+                                            orElse: () =>
+                                                CustomerDiscountModel(),
+                                          );
 
-      } catch (e) {
-        print("[PROMO] Error fetching remote tax: $e");
-      }
-    }
-    log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
+                                          double userDiscountPercent = 0.0;
 
-    // --- 2. Calculate Tiered Discount ---
-    double? tieredDiscount;
-    if (promo.promoType == "tiered_discount" && selectedTier.value != null) {
-      // For tiered_discount, use the selected tier's discount
-      tieredDiscount = double.tryParse(selectedTier.value!.discountValue?.toString() ?? '0') ?? 0;
-      print('tiered discount from details class:$tieredDiscount');
-    } else {
-      // For other promotions, calculate based on quantity
-      tieredDiscount = _calculateTieredDiscount(promo, qty.value, true);
-    }
+                                          if (discountData.discounts != null &&
+                                              discountData
+                                                  .discounts!.isNotEmpty) {
+                                            final matchedDiscount = discountData
+                                                .discounts!
+                                                .firstWhere(
+                                              (d) {
+                                                final dCat = int.tryParse(
+                                                    d.categoriesId?.trim() ??
+                                                        "");
+                                                return dCat == catId ||
+                                                    dCat == 114;
+                                              },
+                                              orElse: () => DiscountModel(),
+                                            );
 
-    // --- 3. Extract Category ID & Customer Discounts ---
-    final catId = extractCategoryId(v.productId.toString());
-    final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
-    
-    CustomerDiscountModel? discountData = discountBox.values.firstWhere(
-      (item) => item.customerId == customerId,
-      orElse: () => CustomerDiscountModel(),
-    );
+                                            userDiscountPercent =
+                                                double.tryParse(matchedDiscount
+                                                            .discount
+                                                            ?.trim() ??
+                                                        "0") ??
+                                                    0.0;
+                                          }
 
-    double userDiscountPercent = 0.0;
+                                          // --- 4. Create Detail Object ---
+                                          final detail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                            discount: userDiscountPercent,
+                                            inclTax: v.inclTax ?? '',
+                                          );
 
-    if (discountData.discounts != null && discountData.discounts!.isNotEmpty) {
-      final matchedDiscount = discountData.discounts!.firstWhere(
-        (d) {
-          final dCat = int.tryParse(d.categoriesId?.trim() ?? "");
-          return dCat == catId || dCat == 114; 
-        },
-        orElse: () => DiscountModel(),
-      );
+                                          print(
+                                              'fetched cattax in the tiered discount: $fetchedCatTax');
 
-      userDiscountPercent = double.tryParse(matchedDiscount.discount?.trim() ?? "0") ?? 0.0;
-    }
+                                          // --- 5. PASS catTax TO FUNCTION ---
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: qty.value,
+                                            detail: detail,
+                                            isPack: true,
+                                            productName: v.productName ?? '',
+                                            inclTax: detail.inclTax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg: promo.discountText,
+                                            CustomerDiscount:
+                                                detail.discount!.toDouble(),
+                                            tieredDiscount: tieredDiscount,
+                                            catTax: fetchedCatTax,
+                                          );
 
-    // --- 4. Create Detail Object ---
-    final detail = Detail(
-      variationId: v.id,
-      productId: v.productId,
-      variationName: v.variationName,
-      unitType: v.unitType,
-      price: (v.price ?? '0').toString(),
-      sellPrice: (v.sellPrice ?? '0').toString(),
-      tax: double.tryParse(v.tax ?? '0') ?? 0,
-      packtype: v.packtype,
-      pieces: v.pieces,
-      stock: v.stock,
-      lowstock: v.lowstock,
-      fullstock: v.fullstock,
-      imageUrl: v.imageUrl,
-      productName: v.productName,
-      discount: userDiscountPercent,
-      inclTax: v.inclTax ?? '',
-    );
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
 
-    print('fetched cattax in the tiered discount: $fetchedCatTax');
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Tiered discount added to cart",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
 
-    // --- 5. PASS catTax TO FUNCTION ---
-    await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: qty.value,
-      detail: detail,
-      isPack: true,
-      productName: v.productName ?? '',
-      inclTax: detail.inclTax ?? '',
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: promo.discountText,
-      CustomerDiscount: detail.discount!.toDouble(),
-      tieredDiscount: tieredDiscount,
-      catTax: fetchedCatTax, 
-    );
-
-    productController.isCartModified.value = true;
-  }
-
-  showCustomToastDisplay(
-    context,
-    "Tiered discount added to cart",
-    Colors.green.shade800,
-    Icons.check,
-  );
-
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
-}
-
-
-
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+                                      }
 
                                       // --- Free Item promos ---
 
+                                      if (promo.promoType == "free_gift" ||
+                                          promo.promoType == "free_sample") {
+                                        // Flatten variants
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
 
-if (promo.promoType == "free_gift" || promo.promoType == "free_sample") {
-  // Flatten variants
-  final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
+                                        if (allVariants.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  if (allVariants.isEmpty) {
-    showCustomToastDisplay(
-      context,
-      "No variants found for this promotion",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        // Validate min order with selected quantity
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
 
-  // Validate min order with selected quantity
-  final allowed = await validateMinOrderBeforeAdd(allVariants);
-  if (!allowed) return;
+                                        for (final v in allVariants) {
+                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Name: ${v.productName}");
 
-  for (final v in allVariants) {
-    log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Name: ${v.productName}");
+                                          // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
+                                          // Search the loaded products list to find the ProductModel instance
+                                          double fetchedCatTax = 0.0;
+                                          try {
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) => p.productId == v.productId,
+                                              // Fallback to dummy model if not found
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
 
-    // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
-    // Search the loaded products list to find the ProductModel instance
-    double fetchedCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == v.productId,
-        // Fallback to dummy model if not found
-        orElse: () => ProductModel(catTax: 0), 
-      );
-      
-      fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    } catch (e) {
-      print("[PROMO] Free Gift - Error finding product model for ID ${v.productId}: $e");
-    }
+                                            fetchedCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
+                                          } catch (e) {
+                                            print(
+                                                "[PROMO] Free Gift - Error finding product model for ID ${v.productId}: $e");
+                                          }
 
-    // --- 2. Create Detail Object ---
-    final detail = Detail(
-      variationId: v.id,
-      productId: v.productId,
-      variationName: v.variationName,
-      unitType: v.unitType,
-      price: (v.price ?? '0').toString(),
-      sellPrice: (v.sellPrice ?? '0').toString(),
-      tax: double.tryParse(v.tax ?? '0') ?? 0,
-      packtype: v.packtype,
-      pieces: v.pieces,
-      stock: v.stock,
-      lowstock: v.lowstock,
-      fullstock: v.fullstock,
-      imageUrl: v.imageUrl,
-      productName: v.productName,
-    );
+                                          // --- 2. Create Detail Object ---
+                                          final detail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                          );
 
-    final catId = extractCategoryId(v.productId.toString());
-    
-    print('fetched cattax in free gift/sample: $fetchedCatTax');
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
 
-    // --- 3. Add to Cart with Tax ---
-    await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: qty.value,
-      detail: detail,
-      isPack: true,
-      productName: v.productName ?? '',
-      inclTax: v.tax ?? '',
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: promo.discountText,
-      catTax: fetchedCatTax, // <--- Assigning the value here
-    );
+                                          print(
+                                              'fetched cattax in free gift/sample: $fetchedCatTax');
 
-    productController.isCartModified.value = true;
-  }
+                                          // --- 3. Add to Cart with Tax ---
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: qty.value,
+                                            detail: detail,
+                                            isPack: true,
+                                            productName: v.productName ?? '',
+                                            inclTax: v.tax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg: promo.discountText,
+                                            catTax:
+                                                fetchedCatTax, // <--- Assigning the value here
+                                          );
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
-  
-  showCustomToastDisplay(
-    context,
-    "Free items added to cart",
-    Colors.green.shade800,
-    Icons.check,
-  );
-}
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
 
-                                   
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Free items added to cart",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+                                      }
 
                                       // --- BOGO promos ---
 
-if (promo.promoType == "bogo") {
+                                      if (promo.promoType == "bogo") {
+                                        final allVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
 
-  final allVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
+                                        if (allVariants.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No variants found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  if (allVariants.isEmpty) {
-    showCustomToastDisplay(
-      context,
-      "No variants found for this promotion",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        // Validate min order using PAID quantity only
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                allVariants);
+                                        if (!allowed) return;
 
-  // Validate min order using PAID quantity only
-  final allowed = await validateMinOrderBeforeAdd(allVariants);
-  if (!allowed) return;
+                                        for (final v in allVariants) {
+                                          // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
+                                          double fetchedCatTax = 0.0;
+                                          try {
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) => p.productId == v.productId,
+                                              // Fallback to dummy model if not found
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
 
-  for (final v in allVariants) {
-    
-    // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-    double fetchedCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == v.productId,
-        // Fallback to dummy model if not found
-        orElse: () => ProductModel(catTax: 0), 
-      );
-      
-      fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-      
-      // OPTIONAL: You might want to add the API fallback here too, 
-      // just like you did in the tiered_discount case, if the product isn't loaded!
-      
-    } catch (e) {
-      print("[PROMO] BOGO - Error finding product model for ID ${v.productId}: $e");
-    }
+                                            fetchedCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
 
-    // --- 2. Create Detail Object ---
-    final paidDetail = Detail(
-      variationId: v.id,
-      productId: v.productId,
-      variationName: v.variationName,
-      unitType: v.unitType,
-      price: (v.price ?? '0').toString(),
-      sellPrice: (v.sellPrice ?? '0').toString(),
-      tax: double.tryParse(v.tax ?? '0') ?? 0,
-      packtype: v.packtype,
-      pieces: v.pieces,
-      stock: v.stock,
-      lowstock: v.lowstock,
-      fullstock: v.fullstock,
-      imageUrl: v.imageUrl,
-      productName: v.productName,
-      // Default to 0 for customer discount unless you want BOGO to stack with user discounts
-      discount: 0.0, 
-    );
+                                            // OPTIONAL: You might want to add the API fallback here too,
+                                            // just like you did in the tiered_discount case, if the product isn't loaded!
+                                          } catch (e) {
+                                            print(
+                                                "[PROMO] BOGO - Error finding product model for ID ${v.productId}: $e");
+                                          }
 
-    final catId = extractCategoryId(v.productId.toString());
-    
-    print('fetched cattax in BOGO: $fetchedCatTax');
+                                          // --- 2. Create Detail Object ---
+                                          final paidDetail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                            // Default to 0 for customer discount unless you want BOGO to stack with user discounts
+                                            discount: 0.0,
+                                          );
 
-    // --- 3. HARDCODE BOGO DISCOUNT ---
-    // BOGO equates to a 50% discount
-    const double bogoDiscountPercentage = 50.0; 
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
 
-    // --- 4. Add items with Tax and 50% Discount ---
-    await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: qty.value * 2,
-      detail: paidDetail,
-      isPack: true,
-      productName: v.productName ?? '',
-      inclTax: v.tax ?? '',
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: promo.discountText,
-      catTax: fetchedCatTax, 
-      CustomerDiscount: paidDetail.discount!.toDouble(),
-      bogoDiscount: bogoDiscountPercentage, // Inject the 50% discount here
-    );
+                                          print(
+                                              'fetched cattax in BOGO: $fetchedCatTax');
 
-    productController.isCartModified.value = true;
-  }
+                                          // --- 3. HARDCODE BOGO DISCOUNT ---
+                                          // BOGO equates to a 50% discount
+                                          const double bogoDiscountPercentage =
+                                              50.0;
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
-  
-  showCustomToastDisplay(
-    context,
-    "BOGO items added to cart (50% Off)",
-    Colors.green.shade800,
-    Icons.check,
-  );
-}
+                                          // --- 4. Add items with Tax and 50% Discount ---
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: qty.value * 2,
+                                            detail: paidDetail,
+                                            isPack: true,
+                                            productName: v.productName ?? '',
+                                            inclTax: v.tax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg: promo.discountText,
+                                            catTax: fetchedCatTax,
+                                            CustomerDiscount:
+                                                paidDetail.discount!.toDouble(),
+                                            bogoDiscount:
+                                                bogoDiscountPercentage, // Inject the 50% discount here
+                                          );
 
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
 
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
 
-                                     
+                                        showCustomToastDisplay(
+                                          context,
+                                          "BOGO items added to cart (50% Off)",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+                                      }
 
                                       // --- BUY X GET Y promos ---
 
-if (promo.promoType == "buy_x_get_y") {
-  // Extract deal config (assuming one primary deal)
-  final deals = promo.deals ?? [];
-  if (deals.isEmpty) {
-    showCustomToastDisplay(
-      context,
-      "No deal configuration found for this promotion",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                      if (promo.promoType == "buy_x_get_y") {
+                                        // Extract deal config (assuming one primary deal)
+                                        final deals = promo.deals ?? [];
+                                        if (deals.isEmpty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "No deal configuration found for this promotion",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  final deal = deals.first;
+                                        final deal = deals.first;
 
-  final int buyQty = (deal.buyQuantity ?? 0).toInt();
-  final int getQty = (deal.getQuantity ?? 0).toInt();
-  final String buyQtyType = (deal.buyQuantityType ?? '').toString().toLowerCase();
-  final String getQtyType = (deal.getQuantityType ?? '').toString().toLowerCase();
+                                        final int buyQty =
+                                            (deal.buyQuantity ?? 0).toInt();
+                                        final int getQty =
+                                            (deal.getQuantity ?? 0).toInt();
+                                        final String buyQtyType =
+                                            (deal.buyQuantityType ?? '')
+                                                .toString()
+                                                .toLowerCase();
+                                        final String getQtyType =
+                                            (deal.getQuantityType ?? '')
+                                                .toString()
+                                                .toLowerCase();
 
-  if (buyQty <= 0 || getQty < 0) {
-    showCustomToastDisplay(
-      context,
-      "Invalid deal quantities",
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        if (buyQty <= 0 || getQty < 0) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            "Invalid deal quantities",
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  // Determine pack/unit based on type strings (e.g., 'carton' => pack)
-  bool isPackFromType(String t) {
-    return t == 'carton' || t == 'box' || t == 'pack';
-  }
+                                        // Determine pack/unit based on type strings (e.g., 'carton' => pack)
+                                        bool isPackFromType(String t) {
+                                          return t == 'carton' ||
+                                              t == 'box' ||
+                                              t == 'pack';
+                                        }
 
-  final bool buyIsPack = isPackFromType(buyQtyType);
-  final bool getIsPack = isPackFromType(getQtyType);
+                                        final bool buyIsPack =
+                                            isPackFromType(buyQtyType);
+                                        final bool getIsPack =
+                                            isPackFromType(getQtyType);
 
-  // Collect paid variants from promo.products
-  final paidVariants = promo.products?.expand((p) => p.variants ?? []).toList() ?? [];
+                                        // Collect paid variants from promo.products
+                                        final paidVariants = promo.products
+                                                ?.expand(
+                                                    (p) => p.variants ?? [])
+                                                .toList() ??
+                                            [];
 
-  // Validate min order against PAID items only
-  final allowed = await validateMinOrderBeforeAdd(paidVariants);
-  if (!allowed) return;
+                                        // Validate min order against PAID items only
+                                        final allowed =
+                                            await validateMinOrderBeforeAdd(
+                                                paidVariants);
+                                        if (!allowed) return;
 
-  // Enforce buy_x condition against selected quantity
-  if (qty.value < buyQty) {
-    showCustomToastDisplay(
-      context,
-      'Select at least $buyQty to qualify for GET items',
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                        // Enforce buy_x condition against selected quantity
+                                        if (qty.value < buyQty) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            'Select at least $buyQty to qualify for GET items',
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
 
-  // Compute quantities
-  final int paidToAdd = qty.value;
-  final int dealsApplicable = qty.value ~/ buyQty;
-  final int freeToAdd = dealsApplicable * getQty;
+                                        // Compute quantities
+                                        final int paidToAdd = qty.value;
+                                        final int dealsApplicable =
+                                            qty.value ~/ buyQty;
+                                        final int freeToAdd =
+                                            dealsApplicable * getQty;
 
-  // Search in promo.getProducts for matching variant
-  String? getVariantId = deal.getVariantId?.toString();
-  var getVariant;
-  final getProducts = promo.getProducts ?? [];
-  for (final gp in getProducts) {
-    final vars = gp.variants ?? [];
-    for (final gv in vars) {
-      if (getVariantId == null || gv.id.toString() == getVariantId) {
-        getVariant = gv;
-        getVariantId = gv.id.toString();
-        break;
-      }
-    }
-    if (getVariant != null) break;
-  }
-for (final v in paidVariants) {
-    // --- A. LOOKUP CAT TAX FOR PAID ITEM ---
-    double paidItemCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == v.productId,
-        orElse: () => ProductModel(catTax: 0), 
-      );
-      paidItemCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    } catch (e) {
-      print("[PROMO] BuyXGetY (Paid) - Error finding product model: $e");
-    }
+                                        // Search in promo.getProducts for matching variant
+                                        String? getVariantId =
+                                            deal.getVariantId?.toString();
+                                        var getVariant;
+                                        final getProducts =
+                                            promo.getProducts ?? [];
+                                        for (final gp in getProducts) {
+                                          final vars = gp.variants ?? [];
+                                          for (final gv in vars) {
+                                            if (getVariantId == null ||
+                                                gv.id.toString() ==
+                                                    getVariantId) {
+                                              getVariant = gv;
+                                              getVariantId = gv.id.toString();
+                                              break;
+                                            }
+                                          }
+                                          if (getVariant != null) break;
+                                        }
+                                        for (final v in paidVariants) {
+                                          // --- A. LOOKUP CAT TAX FOR PAID ITEM ---
+                                          double paidItemCatTax = 0.0;
+                                          try {
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) => p.productId == v.productId,
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
+                                            paidItemCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
+                                          } catch (e) {
+                                            print(
+                                                "[PROMO] BuyXGetY (Paid) - Error finding product model: $e");
+                                          }
 
-    final paidDetail = Detail(
-      variationId: v.id,
-      productId: v.productId,
-      variationName: v.variationName,
-      unitType: v.unitType,
-      price: (v.price ?? '0').toString(),
-      sellPrice: (v.sellPrice ?? '0').toString(),
-      tax: double.tryParse(v.tax ?? '0') ?? 0,
-      packtype: v.packtype,
-      pieces: v.pieces,
-      stock: v.stock,
-      lowstock: v.lowstock,
-      fullstock: v.fullstock,
-      imageUrl: v.imageUrl,
-      productName: v.productName,
-    );
+                                          final paidDetail = Detail(
+                                            variationId: v.id,
+                                            productId: v.productId,
+                                            variationName: v.variationName,
+                                            unitType: v.unitType,
+                                            price: (v.price ?? '0').toString(),
+                                            sellPrice:
+                                                (v.sellPrice ?? '0').toString(),
+                                            tax:
+                                                double.tryParse(v.tax ?? '0') ??
+                                                    0,
+                                            packtype: v.packtype,
+                                            pieces: v.pieces,
+                                            stock: v.stock,
+                                            lowstock: v.lowstock,
+                                            fullstock: v.fullstock,
+                                            imageUrl: v.imageUrl,
+                                            productName: v.productName,
+                                          );
 
-    final catId = extractCategoryId(v.productId.toString());
-    
-    // --- COMBINE QUANTITIES ---
-    // Force the free quantity into the paid item's row, ignoring ID differences
-    int combinedQty = paidToAdd + freeToAdd;
+                                          final catId = extractCategoryId(
+                                              v.productId.toString());
+
+                                          // --- COMBINE QUANTITIES ---
+                                          // Force the free quantity into the paid item's row, ignoring ID differences
+                                          int combinedQty =
+                                              paidToAdd + freeToAdd;
 // 1. Get the unit price of the free item
-    double freeUnitPrice = 0.0;
-    if (getVariant != null) {
-      freeUnitPrice = double.tryParse((getVariant.sellPrice ?? '0').toString()) ?? 0.0;
-    } else {
-      freeUnitPrice = double.tryParse((v.sellPrice ?? '0').toString()) ?? 0.0;
-    }
+                                          double freeUnitPrice = 0.0;
+                                          if (getVariant != null) {
+                                            freeUnitPrice = double.tryParse(
+                                                    (getVariant.sellPrice ??
+                                                            '0')
+                                                        .toString()) ??
+                                                0.0;
+                                          } else {
+                                            freeUnitPrice = double.tryParse(
+                                                    (v.sellPrice ?? '0')
+                                                        .toString()) ??
+                                                0.0;
+                                          }
 
-    // 2. This is the EXACT monetary discount you want to show (Unit Price * Free Items)
-    double targetDiscountAmount = freeUnitPrice * freeToAdd;
+                                          // 2. This is the EXACT monetary discount you want to show (Unit Price * Free Items)
+                                          double targetDiscountAmount =
+                                              freeUnitPrice * freeToAdd;
 
-    // 3. Calculate how the cart table will calculate the total row value
-    double baseSellPrice = double.tryParse((v.sellPrice ?? '0').toString()) ?? 0.0;
-    int pieces = (v.pieces ?? 1).toInt();
-    int qtyFactor = buyIsPack ? pieces : 1;
-    double totalRowValue = baseSellPrice * qtyFactor * combinedQty;
+                                          // 3. Calculate how the cart table will calculate the total row value
+                                          double baseSellPrice =
+                                              double.tryParse(
+                                                      (v.sellPrice ?? '0')
+                                                          .toString()) ??
+                                                  0.0;
+                                          int pieces = (v.pieces ?? 1).toInt();
+                                          int qtyFactor =
+                                              buyIsPack ? pieces : 1;
+                                          double totalRowValue = baseSellPrice *
+                                              qtyFactor *
+                                              combinedQty;
 
-    // 4. Calculate the exact percentage needed to trick the cart into giving exactly the targetDiscountAmount
-    double dynamicDiscountPercentage = 0.0;
-    if (totalRowValue > 0) { 
-      dynamicDiscountPercentage = (targetDiscountAmount / totalRowValue) * 100.0;
-    }
+                                          // 4. Calculate the exact percentage needed to trick the cart into giving exactly the targetDiscountAmount
+                                          double dynamicDiscountPercentage =
+                                              0.0;
+                                          if (totalRowValue > 0) {
+                                            dynamicDiscountPercentage =
+                                                (targetDiscountAmount /
+                                                        totalRowValue) *
+                                                    100.0;
+                                          }
 
-    // Add to cart as a single combined row
-    await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: combinedQty, 
-      detail: paidDetail,
-      isPack: buyIsPack,
-      productName: v.productName ?? '',
-      inclTax: v.tax ?? '',
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: "${promo.discountText} (Includes $freeToAdd Free)",
-      catTax: paidItemCatTax,
-      bogoDiscount: dynamicDiscountPercentage,
-       // Tricks the cart into reducing the total price
-    );
+                                          // Add to cart as a single combined row
+                                          await CartDatabaseManager()
+                                              .addToCartPromo(
+                                            customerId: customerId,
+                                            localCount: combinedQty,
+                                            detail: paidDetail,
+                                            isPack: buyIsPack,
+                                            productName: v.productName ?? '',
+                                            inclTax: v.tax ?? '',
+                                            isChcked: true,
+                                            catId: catId,
+                                            promoCode: promo.promoCode,
+                                            promoMsg:
+                                                "${promo.discountText} (Includes $freeToAdd Free)",
+                                            catTax: paidItemCatTax,
+                                            bogoDiscount:
+                                                dynamicDiscountPercentage,
+                                            // Tricks the cart into reducing the total price
+                                          );
 
-    productController.isCartModified.value = true;
-  }
+                                          productController
+                                              .isCartModified.value = true;
+                                        }
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
-  
-  showCustomToastDisplay(
-    context,
-    "Buy X Get Y items added to cart",
-    Colors.green.shade800,
-    Icons.check,
-  );
-}
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
+
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Buy X Get Y items added to cart",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
+                                      }
 
 //                                       if (promo.promoType == "buy_x_get_y") {
 //   // Extract deal config (assuming one primary deal)
@@ -1675,15 +1975,15 @@ for (final v in paidVariants) {
 
 //   // 1) Add PAID items: quantity = selectedQty (user-chosen)
 //   final int paidToAdd = qty.value;
-  
+
 //   for (final v in paidVariants) {
-    
+
 //     // --- A. LOOKUP CAT TAX FOR PAID ITEM ---
 //     double paidItemCatTax = 0.0;
 //     try {
 //       final productModelInstance = widget.controller.products.firstWhere(
 //         (p) => p.productId == v.productId,
-//         orElse: () => ProductModel(catTax: 0), 
+//         orElse: () => ProductModel(catTax: 0),
 //       );
 //       paidItemCatTax = (productModelInstance.catTax ?? 0).toDouble();
 //     } catch (e) {
@@ -1708,7 +2008,7 @@ for (final v in paidVariants) {
 //     );
 
 //     final catId = extractCategoryId(v.productId.toString());
-    
+
 //     print('fetched cattax for PAID item in BuyXGetY: $paidItemCatTax');
 
 //     await CartDatabaseManager().addToCartPromo(
@@ -1750,19 +2050,19 @@ for (final v in paidVariants) {
 //     // Determine quantity to add
 //     final int dealsApplicable = qty.value ~/ buyQty;
 //     final int freeToAdd = dealsApplicable * getQty;
-    
+
 //     if (freeToAdd > 0) {
 //       final bool isFreeDeal = (deal.discountType?.toString().toLowerCase() == 'free');
-      
+
 //       // --- B. LOOKUP CAT TAX FOR FREE ITEM ---
 //       double freeItemCatTax = 0.0;
-      
+
 //       // Only fetch tax if it's NOT a completely free deal (otherwise tax is 0)
 //       if (!isFreeDeal) {
 //         try {
 //           final productModelInstance = widget.controller.products.firstWhere(
 //             (p) => p.productId == getVariant.productId,
-//             orElse: () => ProductModel(catTax: 0), 
+//             orElse: () => ProductModel(catTax: 0),
 //           );
 //           freeItemCatTax = (productModelInstance.catTax ?? 0).toDouble();
 //         } catch (e) {
@@ -1788,7 +2088,7 @@ for (final v in paidVariants) {
 //       );
 
 //       final catId = extractCategoryId(getVariant.productId.toString());
-      
+
 //       print('fetched cattax for GET item in BuyXGetY: $freeItemCatTax');
 
 //       await CartDatabaseManager().addToCartPromo(
@@ -1814,7 +2114,7 @@ for (final v in paidVariants) {
 //     cartProvider.updateCartCount(customerId);
 //     cartProvider.getCartItemCounts(customerId);
 //   });
-  
+
 //   showCustomToastDisplay(
 //     context,
 //     "Buy X Get Y items added to cart",
@@ -1822,7 +2122,6 @@ for (final v in paidVariants) {
 //     Icons.check,
 //   );
 // }
-                                   
 
                                       // ---------------------------------------------------------------------------------------------------
                                     } else {
@@ -1925,9 +2224,9 @@ for (final v in paidVariants) {
                                 }
 
                                 if (promo.productScope == "all") {
-                                  int companyId =
-                                      SessionHelper.loginSavedData?.company_id ??
-                                          0;
+                                  int companyId = SessionHelper
+                                          .loginSavedData?.company_id ??
+                                      0;
 
                                   // Call API with subcatIds
                                   CategoryModel categoryData = await ApiWorker()
@@ -2000,7 +2299,7 @@ for (final v in paidVariants) {
                               ),
                               child: const Center(
                                 child: Text(
-                                  "Select Products",
+                                  "Select Productsee",
                                   style: TextStyle(
                                     color: white,
                                     fontSize: 20,
@@ -2359,7 +2658,6 @@ for (final v in paidVariants) {
                                                           Icons.add,
                                                           size: 18),
                                                       onPressed: () {
-                                                      
                                                         qty = qty + 1;
                                                         itemSetState(() {});
                                                         _updateSelectedItems(
@@ -2465,8 +2763,8 @@ for (final v in paidVariants) {
                                         final double? minOrder = parseAmount(
                                             promo.minOrderValue?.toString());
                                         if (minOrder == null) return true;
-                                        double total = 0;
-                                        // Compute total using selectedItems quantities
+
+                                        // Compute total for EACH item individually
                                         for (final e in selectedItems) {
                                           final v = e['variant'];
                                           final int qty = e['quantity'] as int;
@@ -2477,46 +2775,105 @@ for (final v in paidVariants) {
                                               0;
                                           final int pcs =
                                               (v.pieces ?? 1).toInt();
+                                          final double itemTotal =
+                                              (unit * pcs) * qty;
 
-                                          total += (unit * pcs) * qty;
-                                        }
-
-                                        if (total < minOrder) {
-                                          await showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                actions: [
-                                                  const SizedBox(height: 20),
-                                                  const Center(
-                                                      child: Icon(
-                                                          Icons
-                                                              .warning_amber_outlined,
-                                                          size: 50,
-                                                          color:
-                                                              Colors.orange)),
-                                                  const SizedBox(height: 20),
-                                                  Center(
+                                          if (itemTotal < minOrder) {
+                                            await showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  actions: [
+                                                    const SizedBox(height: 20),
+                                                    const Center(
+                                                        child: Icon(
+                                                            Icons
+                                                                .warning_amber_outlined,
+                                                            size: 50,
+                                                            color:
+                                                                Colors.orange)),
+                                                    const SizedBox(height: 20),
+                                                    Center(
+                                                        child: CustomText(
+                                                            content:
+                                                                "Minimum order for ${v.productName} is ${formatAmount(promo.minOrderValue)}",
+                                                            fontSize: 18)),
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context),
                                                       child: CustomText(
-                                                          content:
-                                                              "Minimum order is ${formatAmount(promo.minOrderValue)}",
-                                                          fontSize: 18)),
-                                                  TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(context),
-                                                    child: CustomText(
-                                                        content: "Ok",
-                                                        color: primaryColor),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                          return false;
+                                                          content: "Ok",
+                                                          color: primaryColor),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                            return false;
+                                          }
                                         }
                                         return true;
                                       }
+
+                                      // Future<bool> validateMinOrderBeforeAdd(
+                                      //     List<dynamic> allVariants) async {
+                                      //   final double? minOrder = parseAmount(
+                                      //       promo.minOrderValue?.toString());
+                                      //   if (minOrder == null) return true;
+                                      //   double total = 0;
+                                      //   // Compute total using selectedItems quantities
+                                      //   for (final e in selectedItems) {
+                                      //     final v = e['variant'];
+                                      //     final int qty = e['quantity'] as int;
+
+                                      //     final double unit = double.tryParse(
+                                      //             (v.sellPrice ?? '0')
+                                      //                 .toString()) ??
+                                      //         0;
+                                      //     final int pcs =
+                                      //         (v.pieces ?? 1).toInt();
+
+                                      //     total += (unit * pcs) * qty;
+                                      //   }
+
+                                      //   if (total < minOrder) {
+                                      //     await showDialog(
+                                      //       context: context,
+                                      //       barrierDismissible: false,
+                                      //       builder: (context) {
+                                      //         return AlertDialog(
+                                      //           actions: [
+                                      //             const SizedBox(height: 20),
+                                      //             const Center(
+                                      //                 child: Icon(
+                                      //                     Icons
+                                      //                         .warning_amber_outlined,
+                                      //                     size: 50,
+                                      //                     color:
+                                      //                         Colors.orange)),
+                                      //             const SizedBox(height: 20),
+                                      //             Center(
+                                      //                 child: CustomText(
+                                      //                     content:
+                                      //                         "Minimum order is ${formatAmount(promo.minOrderValue)}",
+                                      //                     fontSize: 18)),
+                                      //             TextButton(
+                                      //               onPressed: () =>
+                                      //                   Navigator.pop(context),
+                                      //               child: CustomText(
+                                      //                   content: "Ok",
+                                      //                   color: primaryColor),
+                                      //             ),
+                                      //           ],
+                                      //         );
+                                      //       },
+                                      //     );
+                                      //     return false;
+                                      //   }
+                                      //   return true;
+                                      // }
 
                                       // Validate min order using existing helper
                                       final allowed =
@@ -2629,89 +2986,144 @@ for (final v in paidVariants) {
                                     }
 
                                     // Validate min order
-                                    final double total = double.tryParse(
-                                            _computeTotalAmount(
-                                                selectedItems)) ??
-                                        0;
-
+                                    // Validate min order for each individual item
                                     final double? minOrder =
                                         promo.minOrderValue != null
                                             ? double.tryParse(
                                                 promo.minOrderValue.toString())
                                             : null;
 
-                                    if (minOrder != null && total < minOrder) {
-                                      showCustomToastDisplay(
-                                        context,
-                                        'Minimum order is ${formatAmount(promo.minOrderValue)}. Selected total is ${formatAmount(total.toString())}.',
-                                        Colors.orange,
-                                        Icons.warning,
-                                      );
-                                      return;
+                                    if (minOrder != null) {
+                                      for (final e in selectedItems) {
+                                        final variant = e['variant'] as dynamic;
+                                        final int qty = e['quantity'] as int;
+                                        final double unit = double.tryParse(
+                                                (variant.sellPrice ?? '0')
+                                                    .toString()) ??
+                                            0;
+                                        final int pcs =
+                                            (variant.pieces ?? 1).toInt();
+                                        final double itemTotal =
+                                            (unit * pcs) * qty;
+
+                                        if (itemTotal < minOrder) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            'Minimum order for ${variant.productName} is ${formatAmount(promo.minOrderValue)}. Selected total is ${formatAmount(itemTotal.toString())}.',
+                                            Colors.orange,
+                                            Icons.warning,
+                                          );
+                                          return;
+                                        }
+                                      }
                                     }
+                                    // final double total = double.tryParse(
+                                    //         _computeTotalAmount(
+                                    //             selectedItems)) ??
+                                    //     0;
+
+                                    // final double? minOrder =
+                                    //     promo.minOrderValue != null
+                                    //         ? double.tryParse(
+                                    //             promo.minOrderValue.toString())
+                                    //         : null;
+
+                                    // if (minOrder != null && total < minOrder) {
+                                    //   showCustomToastDisplay(
+                                    //     context,
+                                    //     'Minimum order is ${formatAmount(promo.minOrderValue)}. Selected total is ${formatAmount(total.toString())}.',
+                                    //     Colors.orange,
+                                    //     Icons.warning,
+                                    //   );
+                                    //   return;
+                                    // }
 
                                     // Add all selected items to cart
                                     for (final e in selectedItems) {
-  final variant = e['variant'] as dynamic;
-  final int qty = e['quantity'] as int;
+                                      final variant = e['variant'] as dynamic;
+                                      final int qty = e['quantity'] as int;
 
-  // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
-  // Use the productId from the variant to find the parent ProductModel
-  double fetchedCatTax = 0.0;
-  try {
-    final productModelInstance = widget.controller.products.firstWhere(
-      (p) => p.productId == variant.productId,
-      // Fallback to dummy model if not found
-      orElse: () => ProductModel(catTax: 0), 
-    );
-    
-    fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-  } catch (err) {
-    print("[PROMO] Error finding product model for tax lookup: $err");
-  }
+                                      // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
+                                      // Use the productId from the variant to find the parent ProductModel
+                                      double fetchedCatTax = 0.0;
+                                      try {
+                                        final productModelInstance = widget
+                                            .controller.products
+                                            .firstWhere(
+                                          (p) =>
+                                              p.productId == variant.productId,
+                                          // Fallback to dummy model if not found
+                                          orElse: () => ProductModel(catTax: 0),
+                                        );
 
-  final detail = Detail(
-    variationId: variant.id,
-    productId: variant.productId,
-    variationName: variant.variationName,
-    unitType: variant.unitType,
-    price: (variant.price ?? '0').toString(),
-    sellPrice: (variant.sellPrice ?? '0').toString(),
-    tax: double.tryParse(variant.tax ?? '0') ?? 0,
-    packtype: variant.packtype,
-    pieces: variant.pieces,
-    stock: variant.stock,
-    lowstock: variant.lowstock,
-    fullstock: variant.fullstock,
-    imageUrl: variant.imageUrl,
-    productName: variant.productName,
-    discount: promo.promoType == "tiered_discount" && e['tier'] != null
-        ? double.tryParse(e['tier'].discountValue?.toString() ?? '0') ?? 0
-        : promo.promoType == "percentage_discount"
-            ? double.tryParse(promo.discountValue.toString())
-            : double.tryParse(promo.discountPercentage.toString()),
-  );
+                                        fetchedCatTax =
+                                            (productModelInstance.catTax ?? 0)
+                                                .toDouble();
+                                      } catch (err) {
+                                        print(
+                                            "[PROMO] Error finding product model for tax lookup: $err");
+                                      }
 
-  final catId = extractCategoryId(variant.productId.toString());
-  
-  print('fetched cattax for selected item: $fetchedCatTax');
+                                      final detail = Detail(
+                                        variationId: variant.id,
+                                        productId: variant.productId,
+                                        variationName: variant.variationName,
+                                        unitType: variant.unitType,
+                                        price:
+                                            (variant.price ?? '0').toString(),
+                                        sellPrice: (variant.sellPrice ?? '0')
+                                            .toString(),
+                                        tax: double.tryParse(
+                                                variant.tax ?? '0') ??
+                                            0,
+                                        packtype: variant.packtype,
+                                        pieces: variant.pieces,
+                                        stock: variant.stock,
+                                        lowstock: variant.lowstock,
+                                        fullstock: variant.fullstock,
+                                        imageUrl: variant.imageUrl,
+                                        productName: variant.productName,
+                                        discount: promo.promoType ==
+                                                    "tiered_discount" &&
+                                                e['tier'] != null
+                                            ? double.tryParse(e['tier']
+                                                        .discountValue
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0
+                                            : promo.promoType ==
+                                                    "percentage_discount"
+                                                ? double.tryParse(promo
+                                                    .discountValue
+                                                    .toString())
+                                                : double.tryParse(promo
+                                                    .discountPercentage
+                                                    .toString()),
+                                      );
 
-  // --- 2. Pass fetchedCatTax to the function ---
-  await _addToCartWithPromoLogic(
-    customerId: customerId,
-    localCount: qty,
-    detail: detail,
-    isPack: true,
-    productName: variant.productName ?? '',
-    inclTax: variant.tax ?? '',
-    catId: catId,
-    promo: promo,
-    productController: productController,
-    context: context,
-    selectedTier: selectedTier.value,
-    catTax: fetchedCatTax, // <--- Assigning the value here
-  );
-}
+                                      final catId = extractCategoryId(
+                                          variant.productId.toString());
+
+                                      print(
+                                          'fetched cattax for selected item: $fetchedCatTax');
+
+                                      // --- 2. Pass fetchedCatTax to the function ---
+                                      await _addToCartWithPromoLogic(
+                                        customerId: customerId,
+                                        localCount: qty,
+                                        detail: detail,
+                                        isPack: true,
+                                        productName: variant.productName ?? '',
+                                        inclTax: variant.tax ?? '',
+                                        catId: catId,
+                                        promo: promo,
+                                        productController: productController,
+                                        context: context,
+                                        selectedTier: selectedTier.value,
+                                        catTax:
+                                            fetchedCatTax, // <--- Assigning the value here
+                                      );
+                                    }
                                     // for (final e in selectedItems) {
                                     //   final variant = e['variant'] as dynamic;
                                     //   final int qty = e['quantity'] as int;
@@ -2836,6 +3248,7 @@ for (final v in paidVariants) {
   }
 
   /// Helper function to handle addToCartPromo with proper promo type logic
+  
   Future<void> _addToCartWithPromoLogic({
     required String customerId,
     required int localCount,
@@ -2849,76 +3262,160 @@ for (final v in paidVariants) {
     required BuildContext context,
     Tier? selectedTier,
     double? catTax,
+    double? calculatedDiscount, // <--- 1. ADD THIS NEW PARAMETER
   }) async {
-    // Determine discount value based on promo type
-    double? discountValue;
+    // 2. USE THE CALCULATED DISCOUNT FIRST
+    double? discountValue = calculatedDiscount; 
     double? maxDiscountValue;
     bool isPercentageBasedDiscount = false;
 
-    if (promo.promoType == "percentage_discount" ||
-        promo.promoType == "happy_hours" ||
-        promo.promoType == "seasonal" ||
-        promo.promoType == "flash_sale" ||
-        promo.promoType == "limited_time") {
-      isPercentageBasedDiscount = true;
-      discountValue = promo.promoType == "percentage_discount"
-          ? double.tryParse(promo.discountValue.toString())
-          : double.tryParse(promo.discountPercentage.toString());
+    // If it wasn't passed, do the normal fallback calculation
+    if (discountValue == null) {
+      if (promo.promoType == "percentage_discount" ||
+          promo.promoType == "happy_hours" ||
+          promo.promoType == "seasonal" ||
+          promo.promoType == "flash_sale" ||
+          promo.promoType == "limited_time") {
+        isPercentageBasedDiscount = true;
+        discountValue = promo.promoType == "percentage_discount"
+            ? double.tryParse(promo.discountValue.toString())
+            : double.tryParse(promo.discountPercentage.toString());
 
-      // Store max discount value for percentage-based discounts
-      if (promo.maxDiscount != null &&
-          promo.maxDiscount.toString().isNotEmpty) {
-        maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
+        // Store max discount value for percentage-based discounts
+        if (promo.maxDiscount != null &&
+            promo.maxDiscount.toString().isNotEmpty) {
+          maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
+        }
+      } else if (promo.promoType == "tiered_discount") {
+        // Handle tiered discount - use selected tier if available, otherwise calculate
+        if (selectedTier != null) {
+          discountValue =
+              double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
+        } else {
+          discountValue = _calculateTieredDiscount(promo, localCount, isPack);
+        }
       }
-    } else if (promo.promoType == "tiered_discount") {
-      // Handle tiered discount - use selected tier if available, otherwise calculate
-      if (selectedTier != null) {
-        discountValue =
-            double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
-      } else {
-        discountValue = _calculateTieredDiscount(promo, localCount, isPack);
+    } else {
+      // If we passed the calculated discount, we still want to grab the max cap 
+      // just so it saves to the database correctly.
+      if (promo.maxDiscount != null && promo.maxDiscount.toString().isNotEmpty) {
+        maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
+        isPercentageBasedDiscount = true;
       }
     }
 
-    // Create detail with discount if applicable
-    final detailWithDiscount = discountValue != null
-        ? Detail(
-            variationId: detail.variationId,
-            productId: detail.productId,
-            variationName: detail.variationName,
-            unitType: detail.unitType,
-            price: detail.price,
-            sellPrice: detail.sellPrice,
-            tax: detail.tax,
-            packtype: detail.packtype,
-            pieces: detail.pieces,
-            stock: detail.stock,
-            lowstock: detail.lowstock,
-            fullstock: detail.fullstock,
-            imageUrl: detail.imageUrl,
-            productName: detail.productName,
+    // 3. USE copyWith() INSTEAD OF MANUAL MAPPING
+    // This safely keeps ALL your original detail data (like barcode, companyId, etc.) 
+    // and ONLY overwrites the discount fields!
+    final detailWithDiscount = (discountValue != null && discountValue > 0)
+        ? detail.copyWith(
             discount: discountValue,
-            // Store max discount value in the detail object for later use in cart calculations
             maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
           )
         : detail;
-
+  print('discount value being added to cart: $discountValue');
     await CartDatabaseManager().addToCartPromo(
-      customerId: customerId,
-      localCount: localCount,
-      detail: detailWithDiscount,
-      isPack: isPack,
-      productName: productName,
-      inclTax: inclTax,
-      isChcked: true,
-      catId: catId,
-      promoCode: promo.promoCode,
-      promoMsg: promo.discountText,
-      catTax: catTax
-    );
+        customerId: customerId,
+        localCount: localCount,
+        detail: detailWithDiscount,
+        isPack: isPack,
+        productName: productName,
+        inclTax: inclTax,
+        isChcked: true,
+        catId: catId,
+        promoCode: promo.promoCode,
+        promoMsg: promo.discountText,
+        catTax: catTax,
+        bogoDiscount: discountValue
+       
+
+        );
 
     productController.isCartModified.value = true;
   }
+
+  // Future<void> _addToCartWithPromoLogic({
+  //   required String customerId,
+  //   required int localCount,
+  //   required Detail detail,
+  //   required bool isPack,
+  //   required String productName,
+  //   required String inclTax,
+  //   required int catId,
+  //   required PromotionReponse promo,
+  //   required ProductsController productController,
+  //   required BuildContext context,
+  //   Tier? selectedTier,
+  //   double? catTax,
+  // }) async {
+  //   // Determine discount value based on promo type
+  //   double? discountValue;
+  //   double? maxDiscountValue;
+  //   bool isPercentageBasedDiscount = false;
+
+  //   if (promo.promoType == "percentage_discount" ||
+  //       promo.promoType == "happy_hours" ||
+  //       promo.promoType == "seasonal" ||
+  //       promo.promoType == "flash_sale" ||
+  //       promo.promoType == "limited_time") {
+  //     isPercentageBasedDiscount = true;
+  //     discountValue = promo.promoType == "percentage_discount"
+  //         ? double.tryParse(promo.discountValue.toString())
+  //         : double.tryParse(promo.discountPercentage.toString());
+
+  //     // Store max discount value for percentage-based discounts
+  //     if (promo.maxDiscount != null &&
+  //         promo.maxDiscount.toString().isNotEmpty) {
+  //       maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
+  //     }
+  //   } else if (promo.promoType == "tiered_discount") {
+  //     // Handle tiered discount - use selected tier if available, otherwise calculate
+  //     if (selectedTier != null) {
+  //       discountValue =
+  //           double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
+  //     } else {
+  //       discountValue = _calculateTieredDiscount(promo, localCount, isPack);
+  //     }
+  //   }
+
+  //   // Create detail with discount if applicable
+  //   final detailWithDiscount = discountValue != null
+  //       ? Detail(
+  //           variationId: detail.variationId,
+  //           productId: detail.productId,
+  //           variationName: detail.variationName,
+  //           unitType: detail.unitType,
+  //           price: detail.price,
+  //           sellPrice: detail.sellPrice,
+  //           tax: detail.tax,
+  //           packtype: detail.packtype,
+  //           pieces: detail.pieces,
+  //           stock: detail.stock,
+  //           lowstock: detail.lowstock,
+  //           fullstock: detail.fullstock,
+  //           imageUrl: detail.imageUrl,
+  //           productName: detail.productName,
+  //           discount: discountValue,
+  //           // Store max discount value in the detail object for later use in cart calculations
+  //           maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
+  //         )
+  //       : detail;
+
+  //   await CartDatabaseManager().addToCartPromo(
+  //       customerId: customerId,
+  //       localCount: localCount,
+  //       detail: detailWithDiscount,
+  //       isPack: isPack,
+  //       productName: productName,
+  //       inclTax: inclTax,
+  //       isChcked: true,
+  //       catId: catId,
+  //       promoCode: promo.promoCode,
+  //       promoMsg: promo.discountText,
+  //       catTax: catTax);
+
+  //   productController.isCartModified.value = true;
+  // }
 
   /// Calculate tiered discount based on quantity and tiers
   double? _calculateTieredDiscount(
@@ -3593,6 +4090,7 @@ for (final v in paidVariants) {
     List<Map<String, dynamic>> selectedItems,
     void Function(void Function()) setStateDialog,
     void Function(void Function()) parentSetState,
+    PromotionReponse promo, // <-- Added promo parameter to calculate discounts
   ) {
     // Group items by product name
     final Map<String, List<Map<String, dynamic>>> groupedItems = {};
@@ -3606,6 +4104,12 @@ for (final v in paidVariants) {
       }
       groupedItems[productName]!.add(item);
     }
+
+    final headerStyle = TextStyle(
+      fontSize: 12,
+      color: Colors.grey[700],
+      fontWeight: FontWeight.w600,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3637,57 +4141,43 @@ for (final v in paidVariants) {
 
             // Table header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Row(
                 children: [
+                  Expanded(flex: 2, child: Text('Variant', style: headerStyle)),
                   Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Variant',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                      flex: 1,
+                      child: Text('Unit Price',
+                          textAlign: TextAlign.center, style: headerStyle)),
                   Expanded(
-                    flex: 1,
-                    child: Text(
-                      'Qty',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                      flex: 1,
+                      child: Text('Pack',
+                          textAlign: TextAlign.center, style: headerStyle)),
                   Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Price',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                      flex: 1,
+                      child: Text('Price',
+                          textAlign: TextAlign.center, style: headerStyle)),
                   Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Total',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 40), // Space for delete button
+                      flex: 1,
+                      child: Text('Quantity',
+                          textAlign: TextAlign.center, style: headerStyle)),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Amount',
+                          textAlign: TextAlign.center, style: headerStyle)),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Disc',
+                          textAlign: TextAlign.center, style: headerStyle)),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Tax',
+                          textAlign: TextAlign.center, style: headerStyle)),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Total',
+                          textAlign: TextAlign.right, style: headerStyle)),
+                  const SizedBox(width: 30), // Space for delete button
                 ],
               ),
             ),
@@ -3698,86 +4188,255 @@ for (final v in paidVariants) {
               final int quantity = item['quantity'] as int;
               final bool isPack = item['isPack'] as bool;
 
-              // Calculate price and total
-              double price = 0;
-              if (isPack) {
-                price = (detail.sellingPackPrice?.toDouble() ?? 0);
-                if (price <= 0) {
-                  final double unitPrice =
-                      double.tryParse(detail.sellPrice.toString()) ?? 0;
-                  final int pieces = (detail.pieces ?? 1).toInt();
-                  price = unitPrice * pieces;
-                }
-              } else {
-                price = double.tryParse(detail.sellPrice.toString()) ?? 0;
+              // 1. Unit Price & Pack
+              final double unitPrice =
+                  double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0.0;
+              final int pieces = (detail.pieces ?? 1).toInt();
+              final String packText = isPack
+                  ? '${detail.packtype ?? 'Bag'}\n(${pieces} Pcs)'
+                  : 'Pcs';
+              final int qtyFactor = isPack ? pieces : 1;
+
+              // 2. Base Price
+              final double basePrice = unitPrice * qtyFactor;
+              final double totalBase = basePrice * quantity;
+
+              // 3. Discount Calculation
+              double discountPercent = 0.0;
+              if (promo.promoType == "percentage_discount" ||
+                  promo.promoType == "happy_hours" ||
+                  promo.promoType == "seasonal" ||
+                  promo.promoType == "flash_sale" ||
+                  promo.promoType == "limited_time") {
+                discountPercent = double.tryParse(
+                        promo.discountValue?.toString() ??
+                            promo.discountPercentage?.toString() ??
+                            '0') ??
+                    0.0;
+              } else if (promo.promoType == "tiered_discount" &&
+                  item['tier'] != null) {
+                discountPercent = double.tryParse(
+                        item['tier'].discountValue?.toString() ?? '0') ??
+                    0.0;
               }
 
-              final double total = price * quantity;
+              double maxDiscountValue =
+                  double.tryParse(promo.maxDiscount?.toString() ?? '0') ?? 0.0;
+              double uncappedDiscountAmount =
+                  totalBase * (discountPercent / 100);
+              double discountAmount = uncappedDiscountAmount;
+
+              if (maxDiscountValue > 0 &&
+                  uncappedDiscountAmount > maxDiscountValue) {
+                discountAmount = maxDiscountValue;
+              }
+
+              double priceAfterDiscount = totalBase - uncappedDiscountAmount;
+
+              // 4. Tax Calculation
+              // 4. Tax Calculation
+              double fetchedCatTax = 0.0;
+              String? resolvedInclTax = detail.inclTax;
+              try {
+                final productModelInstance =
+                    Get.find<ProductsController>().products.firstWhere(
+                          (p) => p.productId == detail.productId,
+                          orElse: () => ProductModel(catTax: 0),
+                        );
+                fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+                if (productModelInstance.inclTax != null &&
+                    productModelInstance.inclTax.toString().isNotEmpty) {
+                  resolvedInclTax = productModelInstance.inclTax;
+                }
+              } catch (err) {}
+
+              // 1. The result of subtraction (Amount - Discount)
+              // Note: priceAfterDiscount was already calculated just above as (totalBase - discountAmount)
+
+              // 2. Apply the fetchedCatTax percentage to the subtracted result
+              double taxAmount = priceAfterDiscount *
+                  (fetchedCatTax /
+                      100.0); // Added .0 to ensure exact decimal math
+              print(
+                  'inclusive tax in the promotion details: ${resolvedInclTax}');
+              // 5. Final Total
+              double finalTotal = resolvedInclTax == "incl_tax"
+                  ? priceAfterDiscount
+                  : priceAfterDiscount + taxAmount;
               final String variantName = detail.variationName ?? 'Standard';
-              final String packType = isPack ? 'Pack' : 'Pcs';
 
               return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Row(
                   children: [
                     // Variant name
                     Expanded(
-                      flex: 3,
+                      flex: 2,
                       child: Text(
-                        '$variantName ($packType)',
-                        style: const TextStyle(fontSize: 13),
+                        variantName,
+                        style: const TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-
+                    // Unit Price
+                    Expanded(
+                      flex: 1,
+                      child: Text(formatAmount(unitPrice.toString()),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.blue)),
+                    ),
+                    // Pack
+                    Expanded(
+                      flex: 1,
+                      child: Text(packText,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 11)),
+                    ),
+                    // Price
+                    Expanded(
+                      flex: 1,
+                      child: Text(formatAmount(basePrice.toString()),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12)),
+                    ),
                     // Quantity
+                    // Quantity
+                    Expanded(
+                        flex: 1,
+                        child: Container(
+                            height:
+                                26, // Keep it compact to fit the table row nicely
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                                border:
+                                    Border.all(color: Colors.grey.shade400)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Decrement Button
+                                InkWell(
+                                  onTap: () {
+                                    final int indexToUpdate =
+                                        selectedItems.indexWhere((element) {
+                                      final Detail elementDetail =
+                                          element['detail'] as Detail;
+                                      final bool elementIsPack =
+                                          element['isPack'] as bool;
+                                      return elementDetail.id == detail.id &&
+                                          elementIsPack == isPack;
+                                    });
+
+                                    if (indexToUpdate != -1) {
+                                      int currentQty =
+                                          selectedItems[indexToUpdate]
+                                              ['quantity'] as int;
+                                      if (currentQty > 1) {
+                                        // Prevents quantity from going to 0
+                                        setStateDialog(() {
+                                          selectedItems[indexToUpdate]
+                                              ['quantity'] = currentQty - 1;
+                                        });
+                                        parentSetState(
+                                            () {}); // Updates the badge counter in the background
+                                      }
+                                    }
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4.0, vertical: 2.0),
+                                    child: Icon(Icons.remove,
+                                        size: 14, color: Colors.black87),
+                                  ),
+                                ),
+
+                                // Quantity Text
+                                Text(quantity.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+
+                                // Increment Button
+                                InkWell(
+                                  onTap: () {
+                                    final int indexToUpdate =
+                                        selectedItems.indexWhere((element) {
+                                      final Detail elementDetail =
+                                          element['detail'] as Detail;
+                                      final bool elementIsPack =
+                                          element['isPack'] as bool;
+                                      return elementDetail.id == detail.id &&
+                                          elementIsPack == isPack;
+                                    });
+
+                                    if (indexToUpdate != -1) {
+                                      int currentQty =
+                                          selectedItems[indexToUpdate]
+                                              ['quantity'] as int;
+                                      setStateDialog(() {
+                                        selectedItems[indexToUpdate]
+                                            ['quantity'] = currentQty + 1;
+                                      });
+                                      parentSetState(
+                                          () {}); // Updates the badge counter in the background
+                                    }
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4.0, vertical: 2.0),
+                                    child: Icon(Icons.add,
+                                        size: 14, color: Colors.black87),
+                                  ),
+                                ),
+                              ],
+                            ))),
+                    Expanded(
+                        flex: 1,
+                        child: Text(formatAmount(totalBase.toString()),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 12))),
+                    // Discount
                     Expanded(
                       flex: 1,
                       child: Text(
-                        quantity.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 13),
-                      ),
+                          formatAmount(uncappedDiscountAmount.toString()),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12)),
                     ),
-
-                    // Price
+                    // Tax
                     Expanded(
-                      flex: 2,
-                      child: Text(
-                        formatAmount(price.toString()),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 13),
-                      ),
+                      flex: 1,
+                      child: Text(formatAmount(taxAmount.toString()),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12)),
                     ),
-
                     // Total
                     Expanded(
-                      flex: 2,
-                      child: Text(
-                        formatAmount(total.toString()),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 13),
-                      ),
+                      flex: 1,
+                      child: Text(formatAmount(finalTotal.toString()),
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
 
                     // Delete button
                     SizedBox(
-                      width: 40,
+                      width: 30,
                       child: IconButton(
                         icon: const Icon(Icons.delete,
-                            size: 14, color: Colors.red),
+                            size: 16, color: Colors.red),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () {
-                          // Find the exact item in the original list
                           final int indexToRemove =
                               selectedItems.indexWhere((element) {
                             final Detail elementDetail =
                                 element['detail'] as Detail;
                             final bool elementIsPack =
                                 element['isPack'] as bool;
-
                             return elementDetail.id == detail.id &&
                                 elementIsPack == isPack;
                           });
@@ -3802,6 +4461,221 @@ for (final v in paidVariants) {
       }).toList(),
     );
   }
+
+  // // Builds a grouped product list with a table-like structure
+  // Widget _buildGroupedProductsList(
+  //   List<Map<String, dynamic>> selectedItems,
+  //   void Function(void Function()) setStateDialog,
+  //   void Function(void Function()) parentSetState,
+  // ) {
+  //   // Group items by product name
+  //   final Map<String, List<Map<String, dynamic>>> groupedItems = {};
+
+  //   for (final item in selectedItems) {
+  //     final Detail detail = item['detail'] as Detail;
+  //     final String productName = detail.productName ?? 'Unknown Product';
+
+  //     if (!groupedItems.containsKey(productName)) {
+  //       groupedItems[productName] = [];
+  //     }
+  //     groupedItems[productName]!.add(item);
+  //   }
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: groupedItems.entries.map((entry) {
+  //       final String productName = entry.key;
+  //       final List<Map<String, dynamic>> variants = entry.value;
+
+  //       return Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           // Product header
+  //           Container(
+  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //             color: Colors.grey[200],
+  //             child: Row(
+  //               children: [
+  //                 Expanded(
+  //                   child: Text(
+  //                     productName,
+  //                     style: const TextStyle(
+  //                       fontWeight: FontWeight.bold,
+  //                       fontSize: 14,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+
+  //           // Table header
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+  //             child: Row(
+  //               children: [
+  //                 Expanded(
+  //                   flex: 3,
+  //                   child: Text(
+  //                     'Variant',
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       color: Colors.grey[700],
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   flex: 1,
+  //                   child: Text(
+  //                     'Qty',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       color: Colors.grey[700],
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   flex: 2,
+  //                   child: Text(
+  //                     'Price',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       color: Colors.grey[700],
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Expanded(
+  //                   flex: 2,
+  //                   child: Text(
+  //                     'Total',
+  //                     textAlign: TextAlign.center,
+  //                     style: TextStyle(
+  //                       fontSize: 12,
+  //                       color: Colors.grey[700],
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 SizedBox(width: 40), // Space for delete button
+  //               ],
+  //             ),
+  //           ),
+
+  //           // Variants
+  //           ...variants.map((item) {
+  //             final Detail detail = item['detail'] as Detail;
+  //             final int quantity = item['quantity'] as int;
+  //             final bool isPack = item['isPack'] as bool;
+
+  //             // Calculate price and total
+  //             double price = 0;
+  //             if (isPack) {
+  //               price = (detail.sellingPackPrice?.toDouble() ?? 0);
+  //               if (price <= 0) {
+  //                 final double unitPrice =
+  //                     double.tryParse(detail.sellPrice.toString()) ?? 0;
+  //                 final int pieces = (detail.pieces ?? 1).toInt();
+  //                 price = unitPrice * pieces;
+  //               }
+  //             } else {
+  //               price = double.tryParse(detail.sellPrice.toString()) ?? 0;
+  //             }
+
+  //             final double total = price * quantity;
+  //             final String variantName = detail.variationName ?? 'Standard';
+  //             final String packType = isPack ? 'Pack' : 'Pcs';
+
+  //             return Padding(
+  //               padding:
+  //                   const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+  //               child: Row(
+  //                 children: [
+  //                   // Variant name
+  //                   Expanded(
+  //                     flex: 3,
+  //                     child: Text(
+  //                       '$variantName ($packType)',
+  //                       style: const TextStyle(fontSize: 13),
+  //                       overflow: TextOverflow.ellipsis,
+  //                     ),
+  //                   ),
+
+  //                   // Quantity
+  //                   Expanded(
+  //                     flex: 1,
+  //                     child: Text(
+  //                       quantity.toString(),
+  //                       textAlign: TextAlign.center,
+  //                       style: const TextStyle(fontSize: 13),
+  //                     ),
+  //                   ),
+
+  //                   // Price
+  //                   Expanded(
+  //                     flex: 2,
+  //                     child: Text(
+  //                       formatAmount(price.toString()),
+  //                       textAlign: TextAlign.center,
+  //                       style: const TextStyle(fontSize: 13),
+  //                     ),
+  //                   ),
+
+  //                   // Total
+  //                   Expanded(
+  //                     flex: 2,
+  //                     child: Text(
+  //                       formatAmount(total.toString()),
+  //                       textAlign: TextAlign.center,
+  //                       style: const TextStyle(fontSize: 13),
+  //                     ),
+  //                   ),
+
+  //                   // Delete button
+  //                   SizedBox(
+  //                     width: 40,
+  //                     child: IconButton(
+  //                       icon: const Icon(Icons.delete,
+  //                           size: 14, color: Colors.red),
+  //                       padding: EdgeInsets.zero,
+  //                       constraints: const BoxConstraints(),
+  //                       onPressed: () {
+  //                         // Find the exact item in the original list
+  //                         final int indexToRemove =
+  //                             selectedItems.indexWhere((element) {
+  //                           final Detail elementDetail =
+  //                               element['detail'] as Detail;
+  //                           final bool elementIsPack =
+  //                               element['isPack'] as bool;
+
+  //                           return elementDetail.id == detail.id &&
+  //                               elementIsPack == isPack;
+  //                         });
+
+  //                         if (indexToRemove != -1) {
+  //                           setStateDialog(() {
+  //                             selectedItems.removeAt(indexToRemove);
+  //                           });
+  //                           parentSetState(() {});
+  //                         }
+  //                       },
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             );
+  //           }),
+
+  //           const Divider(),
+  //         ],
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   void _showSelectedItemsDialog(
     BuildContext context,
@@ -3848,16 +4722,20 @@ for (final v in paidVariants) {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
-          // Add tier selection for tiered_discount promotions
-          // final ValueNotifier<Tier?> selectedTier = ValueNotifier<Tier?>(null);
-
           return Dialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: SizedBox(
-              width: fullScreenWidth(context) * 0.6,
+            insetPadding: const EdgeInsets.all(
+                16), // Adds a nice margin around the dialog on small screens
+            child: Container(
+              width: fullScreenWidth(context) *
+                  0.95, // Increased from 0.6 to 0.95 for much more width
+              constraints: const BoxConstraints(
+                  maxWidth:
+                      1200), // Prevents it from getting too stretched on huge desktop monitors
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize
+                    .min, // Allows the dialog to shrink vertically if there is less data
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -3899,21 +4777,25 @@ for (final v in paidVariants) {
                           const Text('No items selected yet.'),
                         ],
                         if (selectedItems.isNotEmpty) ...[
-                          SizedBox(
-                            height: fullScreenHeight(context) * 0.5,
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: fullScreenHeight(context) *
+                                  0.65, // Dynamically grows up to 65% of screen height, then scrolls
+                            ),
                             child: Scrollbar(
-                              thumbVisibility:
-                                  true, // always show the scrollbar
+                              thumbVisibility: true,
                               child: SingleChildScrollView(
                                 child: _buildGroupedProductsList(
                                   selectedItems,
                                   setStateDialog,
                                   parentSetState,
+                                  promo,
                                 ),
                               ),
                             ),
                           ),
                         ],
+
                         const SizedBox(height: 8),
                         Divider(color: Colors.grey),
                         const SizedBox(height: 8),
@@ -4014,268 +4896,221 @@ for (final v in paidVariants) {
                                       // ---------------- Flat Discount Promo ----------------
 
                                       if (promo.promoType == "flat_discount") {
-  final currentTotal = computeSelectedTotal();
+                                        // Validate min order for each individual product
+                                        if (minOrderValue != null) {
+                                          for (final e in selectedItems) {
+                                            final int qty =
+                                                (e['quantity'] as int);
+                                            final double itemTotal =
+                                                priceForItem(e) * qty;
+                                            final Detail detail =
+                                                e['detail'] as Detail;
 
-  // Validate min order
-  if (minOrderValue != null && currentTotal < minOrderValue) {
-    showCustomToastDisplay(
-      context,
-      'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
-      Colors.orange,
-      Icons.warning,
-    );
-    return;
-  }
+                                            if (itemTotal < minOrderValue) {
+                                              showCustomToastDisplay(
+                                                context,
+                                                'Minimum order for ${detail.productName} is $minOrderAmountFormatted. Selected total is ${formatAmount(itemTotal.toString())}.',
+                                                Colors.orange,
+                                                Icons.warning,
+                                              );
+                                              return;
+                                            }
+                                          }
+                                        }
 
-  // Add all promo variants to cart (no discount at item level)
-  for (final e in selectedItems) {
-    final Detail detail = e['detail'] as Detail;
-    final int qty = e['quantity'] as int;
-    final bool isPack = e['isPack'] as bool;
-    final String productName = (e['productName'] as String?) ?? '';
-    final String inclTax = (e['inclTax'] as String?) ?? '';
-    final int catId = (e['catId'] as int?) ?? 0;
+                                        // Add all promo variants to cart (no discount at item level)
+                                        for (final e in selectedItems) {
+                                          final Detail detail =
+                                              e['detail'] as Detail;
+                                          final int qty = e['quantity'] as int;
+                                          final bool isPack =
+                                              e['isPack'] as bool;
+                                          final String productName =
+                                              (e['productName'] as String?) ??
+                                                  '';
+                                          final String inclTax =
+                                              (e['inclTax'] as String?) ?? '';
+                                          final int catId =
+                                              (e['catId'] as int?) ?? 0;
 
-    // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
-    // Use the productId from the detail object to find the parent ProductModel
-    double fetchedCatTax = 0.0;
-    try {
-      final productModelInstance = widget.controller.products.firstWhere(
-        (p) => p.productId == detail.productId,
-        // Fallback to dummy model if not found
-        orElse: () => ProductModel(catTax: 0),
-      );
+                                          // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
+                                          // Use the productId from the detail object to find the parent ProductModel
+                                          double fetchedCatTax = 0.0;
+                                          try {
+                                            final productModelInstance = widget
+                                                .controller.products
+                                                .firstWhere(
+                                              (p) =>
+                                                  p.productId ==
+                                                  detail.productId,
+                                              // Fallback to dummy model if not found
+                                              orElse: () =>
+                                                  ProductModel(catTax: 0),
+                                            );
 
-      fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-    } catch (err) {
-      print("[PROMO] Flat Discount - Error finding product model for tax lookup: $err");
-    }
-    
-    print('fetched cattax for Flat Discount item: $fetchedCatTax');
+                                            fetchedCatTax =
+                                                (productModelInstance.catTax ??
+                                                        0)
+                                                    .toDouble();
+                                          } catch (err) {
+                                            print(
+                                                "[PROMO] Flat Discount - Error finding product model for tax lookup: $err");
+                                          }
 
-    // --- 2. Pass fetchedCatTax to the helper function ---
-    await _addToCartWithPromoLogic(
-      customerId: customerId,
-      localCount: qty,
-      detail: detail,
-      isPack: isPack,
-      productName: productName,
-      inclTax: inclTax,
-      catId: catId,
-      promo: promo,
-      productController: productController,
-      context: context,
-      catTax: fetchedCatTax, // <--- Assigning the value here
-      // selectedTier: selectedTier.value,
-    );
-  }
+                                          print(
+                                              'fetched cattax for Flat Discount item: $fetchedCatTax');
 
-  // Store cart-level flat discount
-  final double flatAmount = double.tryParse(promo.discountValue?.toString() ?? '0') ?? 0;
-  if (flatAmount > 0) {
-    productController.flatDiscountByCustomer[customerId] = flatAmount;
-  }
+                                          // --- 2. Pass fetchedCatTax to the helper function ---
+                                          await _addToCartWithPromoLogic(
+                                            customerId: customerId,
+                                            localCount: qty,
+                                            detail: detail,
+                                            isPack: isPack,
+                                            productName: productName,
+                                            inclTax: inclTax,
+                                            catId: catId,
+                                            promo: promo,
+                                            productController:
+                                                productController,
+                                            context: context,
+                                            catTax:
+                                                fetchedCatTax, // <--- Assigning the value here
+                                            // selectedTier: selectedTier.value,
+                                          );
+                                        }
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-    cartProvider.updateCartCount(customerId);
-    cartProvider.getCartItemCounts(customerId);
-  });
+                                        // Store cart-level flat discount
+                                        final double flatAmount =
+                                            double.tryParse(promo.discountValue
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                        if (flatAmount > 0) {
+                                          productController
+                                                  .flatDiscountByCustomer[
+                                              customerId] = flatAmount;
+                                        }
 
-  showCustomToastDisplay(
-    context,
-    "Items added. Flat discount will be applied on total",
-    Colors.green.shade800,
-    Icons.check,
-  );
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          final cartProvider =
+                                              Provider.of<CustomersProvider>(
+                                                  context,
+                                                  listen: false);
+                                          cartProvider
+                                              .updateCartCount(customerId);
+                                          cartProvider
+                                              .getCartItemCounts(customerId);
+                                        });
 
-  Navigator.pop(context);
-  Navigator.pop(context);
-  return; // Stop here, skip normal flow
-}
-                                      // if (promo.promoType == "flat_discount") {
-                                      //   final currentTotal =
-                                      //       computeSelectedTotal();
+                                        showCustomToastDisplay(
+                                          context,
+                                          "Items added. Flat discount will be applied on total",
+                                          Colors.green.shade800,
+                                          Icons.check,
+                                        );
 
-                                      //   // Validate min order
-                                      //   if (minOrderValue != null &&
-                                      //       currentTotal < minOrderValue) {
-                                      //     showCustomToastDisplay(
-                                      //       context,
-                                      //       'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
-                                      //       Colors.orange,
-                                      //       Icons.warning,
-                                      //     );
-                                      //     return;
-                                      //   }
-
-                                      //   // Add all promo variants to cart (no discount at item level)
-                                      //   for (final e in selectedItems) {
-                                      //     final Detail detail =
-                                      //         e['detail'] as Detail;
-                                      //     final int qty = e['quantity'] as int;
-                                      //     final bool isPack =
-                                      //         e['isPack'] as bool;
-                                      //     final String productName =
-                                      //         (e['productName'] as String?) ??
-                                      //             '';
-                                      //     final String inclTax =
-                                      //         (e['inclTax'] as String?) ?? '';
-                                      //     final int catId =
-                                      //         (e['catId'] as int?) ?? 0;
-
-                                      //     await _addToCartWithPromoLogic(
-                                      //       customerId: customerId,
-                                      //       localCount: qty,
-                                      //       detail: detail,
-                                      //       isPack: isPack,
-                                      //       productName: productName,
-                                      //       inclTax: inclTax,
-                                      //       catId: catId,
-                                      //       promo: promo,
-                                      //       productController:
-                                      //           productController,
-                                      //       context: context,
-                                      //       // selectedTier: selectedTier.value,
-                                      //     );
-                                      //   }
-
-                                      //   // Store cart-level flat discount
-                                      //   final double flatAmount =
-                                      //       double.tryParse(promo.discountValue
-                                      //                   ?.toString() ??
-                                      //               '0') ??
-                                      //           0;
-                                      //   if (flatAmount > 0) {
-                                      //     productController
-                                      //             .flatDiscountByCustomer[
-                                      //         customerId] = flatAmount;
-                                      //   }
-
-                                      //   WidgetsBinding.instance
-                                      //       .addPostFrameCallback((_) {
-                                      //     final cartProvider =
-                                      //         Provider.of<CustomersProvider>(
-                                      //             context,
-                                      //             listen: false);
-                                      //     cartProvider
-                                      //         .updateCartCount(customerId);
-                                      //     cartProvider
-                                      //         .getCartItemCounts(customerId);
-                                      //   });
-
-                                      //   showCustomToastDisplay(
-                                      //     context,
-                                      //     "Items added. Flat discount will be applied on total",
-                                      //     Colors.green.shade800,
-                                      //     Icons.check,
-                                      //   );
-
-                                      //   Navigator.pop(context);
-                                      //   Navigator.pop(context);
-                                      //   return; // Stop here, skip normal flow
-                                      // }
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                        return; // Stop here, skip normal flow
+                                      }
 
                                       // ---------------- Normal Promo Flow ----------------
 
-                                      final currentTotal =
-                                          computeSelectedTotal();
+                                      
+                                      
 
-                                      // Validate min order
-                                      if (minOrderValue != null &&
-                                          currentTotal < minOrderValue) {
-                                        showCustomToastDisplay(
-                                          context,
-                                          'Minimum order is $minOrderAmountFormatted. Selected total is ${formatAmount(currentTotal.toString())}.',
-                                          Colors.orange,
-                                          Icons.warning,
-                                        );
-                                        return;
+                                      // Validate min order for each individual product
+                                      if (minOrderValue != null) {
+                                        for (final e in selectedItems) {
+                                          final int qty = (e['quantity'] as int);
+                                          final double itemTotal = priceForItem(e) * qty;
+                                          final Detail detail = e['detail'] as Detail;
+
+                                          if (itemTotal < minOrderValue) {
+                                            showCustomToastDisplay(
+                                              context,
+                                              'Minimum order for ${detail.productName} is $minOrderAmountFormatted. Selected total is ${formatAmount(itemTotal.toString())}.',
+                                              Colors.orange,
+                                              Icons.warning,
+                                            );
+                                            return;
+                                          }
+                                        }
                                       }
 
-                                      // Tier validation for tiered_discount
-                                      // if (promo.promoType ==
-                                      //         "tiered_discount" &&
-                                      //     selectedTier.value == null) {
-                                      //   showCustomToastDisplay(
-                                      //     context,
-                                      //     "Please select a tier discount 3",
-                                      //     Colors.orange,
-                                      //     Icons.warning,
-                                      //   );
-                                      //   return;
-                                      // }
-
-                                      // Add selected items normally
                                       for (final e in selectedItems) {
-  final Detail detail = e['detail'] as Detail;
-  final int qty = e['quantity'] as int;
-  final bool isPack = e['isPack'] as bool;
-  final String productName = (e['productName'] as String?) ?? '';
-  final String inclTax = (e['inclTax'] as String?) ?? '';
-  final int catId = (e['catId'] as int?) ?? 0;
+                                        final Detail detail = e['detail'] as Detail;
+                                        final int qty = e['quantity'] as int;
+                                        final bool isPack = e['isPack'] as bool;
+                                        final String productName = (e['productName'] as String?) ?? '';
+                                        final String inclTax = (e['inclTax'] as String?) ?? '';
+                                        final int catId = (e['catId'] as int?) ?? 0;
+                                        final tier = (e['discount'] as num?) ?? 0;
+                                        print('discount in the addtocartwith promo logic on tap:$tier');
+                                        // --- 1. CALCULATE EXACT DISCOUNT PERCENTAGE ---
+                                        double discountPercent = 0.0;
+                                        if (promo.promoType == "percentage_discount" || 
+                                            promo.promoType == "happy_hours" || 
+                                            promo.promoType == "seasonal" || 
+                                            promo.promoType == "flash_sale" || 
+                                            promo.promoType == "limited_time") {
+                                          discountPercent = double.tryParse(promo.discountValue?.toString() ?? promo.discountPercentage?.toString() ?? '0') ?? 0.0;
+                                        } else if (promo.promoType == "tiered_discount" && e['tier'] != null) {
+                                          discountPercent = double.tryParse(e['tier']?.discountValue?.toString() ?? '0') ?? 0.0;
+                                        } else if (promo.promoType == "bogo") {
+                                          discountPercent = 50.0; 
+                                        }
+                                        print('discount perecntage in the details screen:$discountPercent');
 
-  // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
-  double fetchedCatTax = 0.0;
-  try {
-    // Find the parent ProductModel using the ID from the detail object
-    final productModelInstance = widget.controller.products.firstWhere(
-      (p) => p.productId == detail.productId,
-      // Fallback to dummy model if not found
-      orElse: () => ProductModel(catTax: 0),
-    );
+                                        // Handle Maximum Discount Cap
+                                        // double sellPrice = double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0.0;
+                                        // int pieces = (detail.pieces ?? 1).toInt();
+                                        // int qtyFactor = (detail.packtype == 'Pack' || isPack) ? pieces : 1;
+                                        // double totalBasePrice = (sellPrice * qtyFactor) * qty;
 
-    fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-  } catch (err) {
-    print("[PROMO] Error finding product model for tax lookup: $err");
-  }
+                                        // double maxDiscountValue = double.tryParse(promo.maxDiscount?.toString() ?? '0') ?? 0.0;
+                                        // double uncappedDiscountAmount = totalBasePrice * (discountPercent / 100.0);
+                                        
+                                        // if (maxDiscountValue > 0 && uncappedDiscountAmount > maxDiscountValue) {
+                                        //   // Recalculate percentage to enforce the exact max discount cap in the cart table
+                                        //   if (totalBasePrice > 0) {
+                                        //     discountPercent = (maxDiscountValue / totalBasePrice) * 100.0;
+                                        //   }
+                                        // }
 
-  print('fetched cattax for item in selectedItems loop: $fetchedCatTax');
+                                        // --- 2. LOOKUP CAT TAX FROM CONTROLLER LIST ---
+                                        double fetchedCatTax = 0.0;
+                                        try {
+                                          final productModelInstance = widget.controller.products.firstWhere(
+                                            (p) => p.productId == detail.productId,
+                                            orElse: () => ProductModel(catTax: 0),
+                                          );
+                                          fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
+                                        } catch (err) {
+                                          print("[PROMO] Error finding product model for tax lookup: $err");
+                                        }
 
-  // --- 2. Pass fetchedCatTax to the function ---
-  await _addToCartWithPromoLogic(
-    customerId: customerId,
-    localCount: qty,
-    detail: detail,
-    isPack: isPack,
-    productName: productName,
-    inclTax: inclTax,
-    catId: catId,
-    promo: promo,
-    productController: productController,
-    context: context,
-    catTax: fetchedCatTax, // <--- Assigning the value here
-    // selectedTier: selectedTier.value,
-  );
-}
-                                      // for (final e in selectedItems) {
-                                      //   final Detail detail =
-                                      //       e['detail'] as Detail;
-                                      //   final int qty = e['quantity'] as int;
-                                      //   final bool isPack = e['isPack'] as bool;
-                                      //   final String productName =
-                                      //       (e['productName'] as String?) ?? '';
-                                      //   final String inclTax =
-                                      //       (e['inclTax'] as String?) ?? '';
-                                      //   final int catId =
-                                      //       (e['catId'] as int?) ?? 0;
+                                        // --- 3. Pass values to Cart Logic ---
+                                        await _addToCartWithPromoLogic(
+                                          customerId: customerId,
+                                          localCount: qty,
+                                          detail: detail,
+                                          isPack: isPack,
+                                          productName: productName,
+                                          inclTax: inclTax,
+                                          catId: catId,
+                                          promo: promo,
+                                          productController: productController,
+                                          context: context,
+                                          catTax: fetchedCatTax,
+                                          calculatedDiscount: discountPercent
+                                         
+                                        );
+                                      }
 
-                                      //   await _addToCartWithPromoLogic(
-                                      //     customerId: customerId,
-                                      //     localCount: qty,
-                                      //     detail: detail,
-                                      //     isPack: isPack,
-                                      //     productName: productName,
-                                      //     inclTax: inclTax,
-                                      //     catId: catId,
-                                      //     promo: promo,
-                                      //     productController: productController,
-                                      //     context: context,
-                                      //     // selectedTier: selectedTier.value,
-                                      //   );
-                                      // }
 
-                                      // Refresh cart counts
+                                  
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                         final cartProvider =

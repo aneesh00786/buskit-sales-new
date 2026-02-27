@@ -2659,6 +2659,7 @@ class SpecificOrderData {
   List<SpecificOrderCart>? cart;
   List<Invoice>? invoice;
   List<SpecificTax>? tax;
+  String? orderSource;
 
   SpecificOrderData({
     this.id,
@@ -2715,6 +2716,7 @@ class SpecificOrderData {
     this.cart,
     this.invoice,
     this.tax,
+    this.orderSource,
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -2791,6 +2793,7 @@ class SpecificOrderData {
         tax: (json["tax"] as List<dynamic>?)
             ?.map((e) => SpecificTax.fromJson(e))
             .toList(),
+        orderSource: json["order_source"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2848,6 +2851,7 @@ class SpecificOrderData {
         "cart": List<dynamic>.from(cart!.map((x) => x.toJson())),
         "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
         "tax": List<dynamic>.from(tax!.map((x) => x.toJson())),
+        "order_source": orderSource,
       };
 }
 
@@ -2876,6 +2880,8 @@ class SpecificOrderCart {
   num? discount;
   List<TaxDatum>? taxData;
   String? inclTax;
+  String? discountAmount;
+  String? unitPrice;
 
   SpecificOrderCart({
     this.id,
@@ -2902,6 +2908,8 @@ class SpecificOrderCart {
     this.discount,
     this.taxData,
     this.inclTax,
+    this.discountAmount,
+    this.unitPrice,
   });
 
   factory SpecificOrderCart.fromJson(Map<String, dynamic> json) =>
@@ -2937,6 +2945,8 @@ class SpecificOrderCart {
                 json["taxData"].map((x) => TaxDatum.fromJson(x)))
             : [],
         inclTax: json["incl_tax"],
+        discountAmount: json["discount_amount"]?.toString(),
+        unitPrice: json["unit_price"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2966,6 +2976,8 @@ class SpecificOrderCart {
             ? List<dynamic>.from(taxData!.map((x) => x.toJson()))
             : [],
         "incl_tax": inclTax,
+        "discount_amount": discountAmount,
+        "unit_price": unitPrice,
       };
 }
 

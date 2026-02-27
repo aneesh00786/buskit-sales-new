@@ -447,6 +447,7 @@ class ApiWorker with ApiConstants {
   Future<FetchSpecificOrderInvoice> fetchSpecificOrderInvoice(
       String orderId) async {
     try {
+      print('fetch fetchSpecificOrderInvoice called');
       final response = await responsePostMethod(
         endPoint: ApiConstants.fetchSpecificOrder,
         requestData: {
@@ -715,7 +716,7 @@ class ApiWorker with ApiConstants {
 
         // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
         final response = await dio.getbycustom(requestUrl);
-
+log('response of alll products get :${response.data}'); 
         if (response.statusCode == 200) {
           final responseData = response.data;
           // log('category data from backend in order taking screen:${responseData}');
@@ -1783,6 +1784,7 @@ class ApiWorker with ApiConstants {
     int? orderStatus,
   }) async {
     try {
+      print('getOrderProcessInvoiceData called');
       final requestBody = {
         "order_id": orderId,
         "order_status": orderStatus,

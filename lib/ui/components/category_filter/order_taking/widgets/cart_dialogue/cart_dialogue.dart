@@ -303,14 +303,17 @@ void didChangeDependencies() {
         num tieredDiscount = (item.tieredDiscount != null && item.tieredDiscount! > 0)
             ? item.tieredDiscount!
             : 0;
+        num bogoDiscount = (item.bogoDiscount != null && item.bogoDiscount! > 0)
+            ? item.bogoDiscount!
+            : 0;
 
-        double totalDiscountPercent = customerDiscount + tieredDiscount;
+        double totalDiscountPercent = customerDiscount + tieredDiscount + bogoDiscount;
        
 
         // 4. Calculate Total Discount Amount
         // Logic: (Base Price * Quantity) * Percentage
         double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-       
+        
         item.totalDiscountAmount = totalDiscountAmount;
 
         // 5. Calculate Price After Discount

@@ -82,7 +82,7 @@ class GroupedItemDataRows {
           : 0;
           num bogoDiscount = (groupedItem.bogoDiscount != null &&
               groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
-         
+         print('bogo discount:$bogoDiscount');
       double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount;
       double percentageDiscountAmount =
           (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
@@ -93,7 +93,7 @@ class GroupedItemDataRows {
       // groupedItem.totalDiscountAmount = totalDiscountAmount;
 
       double taxPercentage = (groupedItem.catTax ?? 0).toDouble();
-
+      print('tax perecntage in the row content :$taxPercentage');
       double priceAfterDiscount =
           (baseSellAmount * productQuantity) - totalDiscountAmount;
 

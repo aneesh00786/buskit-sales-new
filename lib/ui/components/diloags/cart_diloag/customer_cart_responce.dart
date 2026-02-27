@@ -134,6 +134,7 @@ class CustomerCart {
   OptionOrderData? optionOrderData;
   String? salesmanReason;
   String? inclTax;
+  String? unitPrice;
 
   CustomerCart({
     this.id,
@@ -169,13 +170,14 @@ class CustomerCart {
     this.orderId,
     this.customerDetails,
     this.inclTax,
+    this.unitPrice,
   });
 
   CustomerCart.fromJson(
     Map<String, dynamic> json, {
 
     String? discountPrice,
-    String? discountAmount,
+    // String? discountAmount,
     String? setOrderId,
     CustomerDetails? setCustomerDetails,
     OptionOrderData? setOptionOrderData,
@@ -208,7 +210,7 @@ class CustomerCart {
     quantity = json['quantity'];
     salesmanReason = json['reason'] ?? '';
     discount = discountPrice;
-    discountAmount = discountAmount;
+    discountAmount = json['discount_amount'];
 
     total = json['total_price'];
     totalAmount = json['total_amount'];
@@ -217,6 +219,7 @@ class CustomerCart {
     orderId = setOrderId;
     optionOrderData = setOptionOrderData;
     inclTax = json['incl_tax'];
+    unitPrice = json['unit_price']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -249,6 +252,8 @@ class CustomerCart {
     json['total_price'] = total;
     json['total_amount'] = totalAmount;
     json['incl_tax'] = inclTax;
+    json['discount_amount'] = discountAmount;
+    json['unit_price'] = unitPrice;
     return json;
   }
 }

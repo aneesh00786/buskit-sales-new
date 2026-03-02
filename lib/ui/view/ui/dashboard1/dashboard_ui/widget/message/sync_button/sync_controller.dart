@@ -189,8 +189,12 @@ class SyncController extends GetxController {
           DateTime.now().year.toString(),
         ),
         ApiWorker().getTimeSheetData(
-      year: now.year.toString(), 
-    ),
+  filterValue: currentMonth,  // Passes "March"
+  filterType: "Month",        // Explicitly asks for Month data
+),
+    //     ApiWorker().getTimeSheetData(
+    //   year: now.year.toString(), 
+    // ),
         // ApiWorker().getTimeSheetData(
         //   startDate: startDate,
         //   endDate: endDate,

@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,17 +28,27 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
     super.initState();
     _loadTimesheetData();
   }
-
-  void _loadTimesheetData() async {
-    final String startDate = DateFormat('yyyy-MM-dd').format(
-      DateTime(DateTime.now().year,
-          widget.staffController.tabController.index + 1, 1),
-    );
-    final int year = DateTime.now().year;
+void _loadTimesheetData() async {
+  // 1. Get the current tab index (0 = Jan, 1 = Feb, etc.)
+  int monthIndex = widget.staffController.tabController.index + 1;
+  
+  // 2. Generate the full Month Name (e.g., "March")
+  // using any year (e.g., 2026) is fine to just get the month string
+  String monthName = DateFormat('MMMM').format(DateTime(2026, monthIndex));
+  
+  // 3. Pass "March" to the controller
+  await widget.staffController.loadTimesheetData(monthName);
+}
+  // void _loadTimesheetData() async {
+  //   final String startDate = DateFormat('yyyy-MM-dd').format(
+  //     DateTime(DateTime.now().year,
+  //         widget.staffController.tabController.index + 1, 1),
+  //   );
+  //   final int year = DateTime.now().year;
     
     
-    await widget.staffController.loadTimesheetData(year.toString());
-  }
+  //   await widget.staffController.loadTimesheetData(year.toString());
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +180,7 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
 
       return TableRow(
         children: [
-          _buildTableCell(_formatDate(date)),
+          _buildTableCell(NKDateUtils.commonDayFormat(DateTime.parse(date))),
           _buildTableCell(checkIn),
           _buildTableCell(checkOut),
           _buildTableCell(checkIn != '' && checkOut != '' ? hoursWorked : ''),

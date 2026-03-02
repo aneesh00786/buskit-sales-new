@@ -2102,63 +2102,62 @@ log('response of alll products get :${response.data}');
     }
     return null;
   }
-
   Future<StaffTimesheetResponse> getTimeSheetData({
-    required String year, // Changed parameters to accept Year
-  }) async {
-    final id = SessionHelper.loginSavedData?.id ?? '';
+  required String filterValue, // Pass "March" here
+  required String filterType,  // Pass "Month" here
+}) async {
+  final id = SessionHelper.loginSavedData?.id ?? '';
 
-    // Update cache key to be unique by ID and Year
-    final cacheKey = 'timesheet_${id}_$year';
-    final timesheetBox = await Hive.openBox('timesheetBox');
+  // Update cache key to be unique based on inputs
+  final cacheKey = 'timesheet_${id}_${filterType}_$filterValue';
+  final timesheetBox = await Hive.openBox('timesheetBox');
 
-    bool isOnline = await ConnectivityService().isOnline();
+  bool isOnline = await ConnectivityService().isOnline();
 
-    // New Payload Structure
-    final requestData = {
-      "id": id,
-      "valueFromDw": "Year", // Hardcoded as requested
-      "selected_range": [year] // Passed as a list of string
-    };
+  // Correct Payload Structure matches Web App
+  final requestData = {
+    "id": id,
+    "valueFromDw": filterType, // "Month"
+    "selected_range": [filterValue] // ["March"]
+  };
 
-    if (isOnline) {
-      try {
-        final response = await responsePostMethod(
-          requestData: requestData,
-          endPoint: ApiConstants.getStaffTimeSheet,
-        );
-
-        if (response.statusCode == 200) {
-          // Cache the fresh data
-          await timesheetBox.put(cacheKey, response.data);
-          return StaffTimesheetResponse.fromJson(response.data);
-        } else {
-          return _getFromCache(timesheetBox, cacheKey);
-        }
-      } on DioException {
-        return _getFromCache(timesheetBox, cacheKey);
-      } catch (e) {
+  if (isOnline) {
+    try {
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.getStaffTimeSheet,
+      );
+      
+      if (response.statusCode == 200) {
+        await timesheetBox.put(cacheKey, response.data);
+        return StaffTimesheetResponse.fromJson(response.data);
+      } else {
         return _getFromCache(timesheetBox, cacheKey);
       }
-    } else {
+    } catch (e) {
       return _getFromCache(timesheetBox, cacheKey);
     }
+  } else {
+    return _getFromCache(timesheetBox, cacheKey);
   }
+}
 
   // Future<StaffTimesheetResponse> getTimeSheetData({
-  //   String? startDate,
-  //   String? endDate,
+  //   required String year, // Changed parameters to accept Year
   // }) async {
   //   final id = SessionHelper.loginSavedData?.id ?? '';
-  //   final cacheKey = 'timesheet_${id}_${startDate ?? ''}_${endDate ?? ''}';
+
+  //   // Update cache key to be unique by ID and Year
+  //   final cacheKey = 'timesheet_${id}_$year';
   //   final timesheetBox = await Hive.openBox('timesheetBox');
 
   //   bool isOnline = await ConnectivityService().isOnline();
 
+  //   // New Payload Structure
   //   final requestData = {
-  //     "startdate": startDate,
-  //     "enddate": endDate,
   //     "id": id,
+  //     "valueFromDw": "Year", 
+  //     "selected_range": [year] 
   //   };
 
   //   if (isOnline) {
@@ -2167,8 +2166,10 @@ log('response of alll products get :${response.data}');
   //         requestData: requestData,
   //         endPoint: ApiConstants.getStaffTimeSheet,
   //       );
+  //       log('time sheet response data: ${response.data}');
 
   //       if (response.statusCode == 200) {
+  //         // Cache the fresh data
   //         await timesheetBox.put(cacheKey, response.data);
   //         return StaffTimesheetResponse.fromJson(response.data);
   //       } else {
@@ -2183,6 +2184,8 @@ log('response of alll products get :${response.data}');
   //     return _getFromCache(timesheetBox, cacheKey);
   //   }
   // }
+
+  
 
   StaffTimesheetResponse _getFromCache(Box timesheetBox, String cacheKey) {
     final cachedData = timesheetBox.get(cacheKey);

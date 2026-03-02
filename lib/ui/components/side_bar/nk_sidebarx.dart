@@ -990,7 +990,7 @@ Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false), // User chose "No"
-          child: const Text("Continue with Foreground"),
+          child: const Text("Only while using the app"),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true), // User chose to proceed

@@ -1447,7 +1447,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 if (widgetDate.isAfter(currentDate)) {
                                   showCustomToastDisplay(
                                       context,
-                                        'Only current and working days route can be generated',
+                                       "Only current and working day's route can be generated",
                                       // 'This route can be accessed from $formattedDate',
                                       Colors.orange,
                                       Icons.warning);
@@ -1456,7 +1456,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                   if (widgetDate.isBefore(currentDate)) {
                                   showCustomToastDisplay(
                                       context,
-                                      'Only current and working days route can be generated',
+                                     "Only current and working day's route can be generated",
                                       // 'This route can be accessed from $formattedDate',
                                       Colors.orange,
                                       Icons.warning);

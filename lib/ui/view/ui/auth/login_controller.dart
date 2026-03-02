@@ -754,9 +754,13 @@ class LoginController extends GetxController {
           currentMonth,
           DateTime.now().year.toString(),
         ),
-ApiWorker().getTimeSheetData(
-      year: now.year.toString(), 
-    ),
+        ApiWorker().getTimeSheetData(
+  filterValue: currentMonth,  // Passes "March"
+  filterType: "Month",        // Explicitly asks for Month data
+),
+// ApiWorker().getTimeSheetData(
+//       year: now.year.toString(), 
+//     ),
         // ApiWorker().getTimeSheetData(
         //   startDate: startDate,
         //   endDate: endDate,

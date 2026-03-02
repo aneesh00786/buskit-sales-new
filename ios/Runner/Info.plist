@@ -29,11 +29,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We need your location to provide personalized services, even when the app is in the background.</string>
+	<string>This app needs access to your location in the background to track movement even when the app is closed.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to your location to provide location-based services.</string>
+	<string>This app needs access to your location in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to show your current position on the map.</string>
+	<string>This app needs access to your location to display your current position on the map.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -61,27 +61,16 @@
 	<string>This app requires camera access to take photos or scan QR codes.</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This app requires access to your media library to play music or audio content.</string>
-
-	 <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app needs access to your location to display your current position on the map.</string>
-    
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app needs access to your location in the background to track movement even when the app is closed.</string>
-    
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app needs access to your location in the background.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app requires local network access to discover devices.</string>
-
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_http._tcp</string>
 		<string>_https._tcp</string>
 	</array>
-
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>location</string>
-    </array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 </dict>
 </plist>

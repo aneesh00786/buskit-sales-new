@@ -61,6 +61,7 @@ class OrderData {
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
   List<OrderInvoice>? invoice;
+  String? rejectedDate;
 
   OrderData({
     this.id,
@@ -80,7 +81,8 @@ class OrderData {
     this.generatedDate,
     this.cart,
     this.salesman,
-    this.orderSource
+    this.orderSource,
+    this.rejectedDate,
 
   });
 
@@ -139,6 +141,7 @@ class OrderData {
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
         .toList();
         orderSource = json['order_source'] as String?;
+    rejectedDate = json['rejected_date'] as String?;
 
   }
 
@@ -164,6 +167,7 @@ class OrderData {
     json['customer'] = customer?.map((e) => e.toJson()).toList();
     json['invoice'] = invoice?.map((e) => e.toJson()).toList();
     json['order_source'] = orderSource;
+    json['rejected_date'] = rejectedDate;
 
     return json;
   }
@@ -317,6 +321,7 @@ class OrderProcessInvoiceData {
   List<SpecificTax>? tax;
   String? imageUrl;
   String? orderSource;
+  DateTime? generateAt;
 
   OrderProcessInvoiceData({
     this.id,
@@ -350,7 +355,8 @@ class OrderProcessInvoiceData {
     this.invoice,
     this.tax,
     this.imageUrl,
-    this.orderSource
+    this.orderSource,
+    this.generateAt,
   });
 
   factory OrderProcessInvoiceData.fromJson(Map<String, dynamic> json) =>
@@ -406,6 +412,9 @@ class OrderProcessInvoiceData {
             : null,
          imageUrl: json["image_url"]?.toString(),
         orderSource: json['order_source'] as String?,
+        generateAt: json["generated_date"] != null
+            ? DateTime.tryParse(json["generated_date"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -447,6 +456,7 @@ class OrderProcessInvoiceData {
             : null,
         "image_url": imageUrl,
         "order_source": orderSource,
+        "generated_date": generateAt?.toIso8601String(),
       };
 }class SalesmanTargetByCatId {
   int statusCode;

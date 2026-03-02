@@ -1109,6 +1109,7 @@ print('dashboard list body:$requestBody');
       endPoint: ApiConstants.fetchAllOrderByRange,
       requestData: requestBody,
     );
+    log('response of all orders: ${response.data}');
 
     if (response.statusCode == 200) {
       final jsonResponse = response.data;
@@ -1368,6 +1369,7 @@ print('dashboard list body:$requestBody');
     OrderStatus? orderStatus,
     bool checkDate = false,
   }) async {
+    print('order dash api called');
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "check_date": checkDate,

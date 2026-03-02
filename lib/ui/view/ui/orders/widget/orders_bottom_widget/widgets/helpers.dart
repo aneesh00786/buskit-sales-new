@@ -111,19 +111,38 @@ Widget orderNumberWidget(
   );
 }
 Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
-  // 1. Safely parse the date string once at the top
-  final bool hasDate = orderDetailsData.orderCreatAt != null && orderDetailsData.orderCreatAt!.isNotEmpty;
-  
-  // Assuming orderCreatAt is a String since it was passed to formatStringUTCDateTime
-  final DateTime? parsedDate = hasDate ? DateTime.tryParse(orderDetailsData.orderCreatAt!) : null;
+  // 1. Determine which date string to use based on the tab index
+  String? rawDateString;
 
-  // 2. Prepare the Date string (Keeping your old NKDateUtils logic as requested)
-  final String dateString = parsedDate != null 
+  if (selectedTabIndex == 0) {
+    // Case 1: Pending/New -> Use 'generatedDate'
+    rawDateString = orderDetailsData.generatedDate;
+  } else if (selectedTabIndex == 5) {
+    // Case 2: Delivered -> Use 'deliveryDate' (or deliveryDatetime based on your model)
+    rawDateString = orderDetailsData.deliveryDatetime?.toString();
+  } else if (selectedTabIndex == 6) {
+    // Case 3: Rejected -> Use 'rejectedDate'
+    rawDateString = orderDetailsData.rejectedDate?.toString();
+  } else {
+    // Default (e.g., Confirmed, Processing) -> Use 'orderCreatAt'
+    rawDateString = orderDetailsData.orderCreatAt?.toString();
+  }
+
+  // 2. Validate the date string (Check for null, empty, or '0000' dates)
+  final bool hasDate = rawDateString != null &&
+      rawDateString.isNotEmpty &&
+      !rawDateString.startsWith("0000");
+
+  // 3. Parse the selected string
+  final DateTime? parsedDate =
+      hasDate ? DateTime.tryParse(rawDateString!) : null;
+
+  // 4. Format the Date and Time strings
+  final String dateString = parsedDate != null
       ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
       : 'N/A';
 
-  // 3. Prepare the Time string (Using your NEW TimeUtils logic for time only)
-  final String timeString = parsedDate != null 
+  final String timeString = parsedDate != null
       ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
       : 'N/A';
 
@@ -133,12 +152,12 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyRegularText(
-                label: dateString, // Old Date Logic
+                label: dateString,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
               MyRegularText(
-                label: timeString, // New Time Logic
+                label: timeString,
                 fontSize: 12,
               ),
             ],
@@ -146,14 +165,17 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
         : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Combined Date & Time for other tabs
               MyRegularText(
-                label: "$dateString $timeString", // Safely combined
+                label: "$dateString $timeString",
                 fontWeight: FontWeight.w600,
                 fontSize: 11,
               ),
+              // Show Edited By Name in the else case (for tabs other than 0)
               if (selectedTabIndex != 0) ...[
                 MyRegularText(
-                  label: '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
+                  label:
+                      '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
                   fontWeight: FontWeight.w500,
                   fontSize: 11,
                 ),
@@ -162,28 +184,35 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
           ),
   );
 }
-
 // Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+//   // 1. Safely parse the date string once at the top
+//   final bool hasDate = orderDetailsData.generatedDate != null && orderDetailsData.generatedDate!.isNotEmpty;
+  
+//   // Assuming generatedDate is a String since it was passed to formatStringUTCDateTime
+//   final DateTime? parsedDate = hasDate ? DateTime.tryParse(orderDetailsData.generatedDate!) : null;
+
+//   // 2. Prepare the Date string (Keeping your old NKDateUtils logic as requested)
+//   final String dateString = parsedDate != null 
+//       ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+//       : 'N/A';
+
+//   // 3. Prepare the Time string (Using your NEW TimeUtils logic for time only)
+//   final String timeString = parsedDate != null 
+//       ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+//       : 'N/A';
+
 //   return Center(
 //     child: selectedTabIndex == 0
 //         ? Column(
 //             mainAxisAlignment: MainAxisAlignment.center,
 //             children: [
 //               MyRegularText(
-//                 label: orderDetailsData.orderCreatAt != null
-//                     ? NKDateUtils.commonDayFormat2(
-//                         NKDateUtils.formatStringUTCDateTime(
-//                             orderDetailsData.orderCreatAt!))
-//                     : 'N/A',
+//                 label: dateString, // Old Date Logic
 //                 fontWeight: FontWeight.w600,
 //                 fontSize: 12,
 //               ),
 //               MyRegularText(
-//                 label: orderDetailsData.orderCreatAt != null
-//                     ? NKDateUtils.commonTimeOnlyFormat(
-//                         NKDateUtils.formatStringUTCDateTime(
-//                             orderDetailsData.orderCreatAt!))
-//                     : 'N/A',
+//                 label: timeString, // New Time Logic
 //                 fontSize: 12,
 //               ),
 //             ],
@@ -192,15 +221,13 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
 //             mainAxisAlignment: MainAxisAlignment.center,
 //             children: [
 //               MyRegularText(
-//                 label:
-//                     "${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'} ${orderDetailsData.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderDetailsData.orderCreatAt!)) : 'N/A'}",
+//                 label: "$dateString $timeString", // Safely combined
 //                 fontWeight: FontWeight.w600,
 //                 fontSize: 11,
 //               ),
 //               if (selectedTabIndex != 0) ...[
 //                 MyRegularText(
-//                   label:
-//                       '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
+//                   label: '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
 //                   fontWeight: FontWeight.w500,
 //                   fontSize: 11,
 //                 ),
@@ -209,6 +236,7 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
 //           ),
 //   );
 // }
+
 Widget orderCreatedByWidget(OrderData orderData) {
   String displayLabel = '';
 

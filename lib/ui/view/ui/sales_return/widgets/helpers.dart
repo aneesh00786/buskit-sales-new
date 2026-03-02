@@ -92,7 +92,7 @@ Widget buildOrderDetails(GetRecentOrderReturnData data) {
       ),
       SizedBox(height: 4),
       CustomText(
-        content: NKDateUtils.commonFullDateTimeFormat2(data.orderCreatAt!),
+        content: NKDateUtils.commonFullDateTimeFormat2(data.generatedDate!),
         fontSize: 12,
       ),
       SizedBox(height: 4),

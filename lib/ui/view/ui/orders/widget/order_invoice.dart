@@ -1362,7 +1362,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
     final bool isSpecific = widget.specificData != null;
     final dynamic data = isSpecific ? widget.specificData : widget.invoiceData;
 
-    final DateTime? createdAt = data?.orderCreatAt;
+    final DateTime? createdAt = data?.generateAt;
     final String dateString = createdAt != null
         ? TimeUtils.formatTimeInZone(createdAt, format: 'dd/MM/yyyy hh:mm a')
         : 'N/A';

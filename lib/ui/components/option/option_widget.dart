@@ -1273,7 +1273,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                       mainAxisAlignment: MainAxisAlignment.center,
                                                                                       children: [
                                                                                         Text(
-                                                                                          order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                                          order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
                                                                                           style: TextStyle(
                                                                                             fontSize: fontSize,
                                                                                           ),
@@ -2710,7 +2710,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                                                 children: [
                                                                                   Text(
-                                                                                    order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                                    order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
                                                                                     style: TextStyle(
                                                                                       fontSize: fontSize,
                                                                                     ),

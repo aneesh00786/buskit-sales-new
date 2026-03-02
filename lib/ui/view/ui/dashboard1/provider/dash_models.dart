@@ -1994,6 +1994,7 @@ class OrdersDash {
   final List<Cart> cart;
   final List<CustomerDash> customer;
   final List<InvoiceDash> invoice;
+  final DateTime? generatedAt;
 
   OrdersDash({
     required this.id,
@@ -2019,6 +2020,7 @@ class OrdersDash {
     required this.cart,
     required this.customer,
     required this.invoice,
+    this.generatedAt,
   });
   OrdersDash copyWith({
     int? id,
@@ -2044,6 +2046,7 @@ class OrdersDash {
     List<Cart>? cart,
     List<CustomerDash>? customer,
     List<InvoiceDash>? invoice,
+    DateTime? generatedAt,
   }) {
     return OrdersDash(
       id: id ?? this.id,
@@ -2069,6 +2072,7 @@ class OrdersDash {
       cart: cart ?? this.cart,
       customer: customer ?? this.customer,
       invoice: invoice ?? this.invoice,
+      generatedAt: generatedAt ?? this.generatedAt,
     );
   }
 
@@ -2103,6 +2107,7 @@ class OrdersDash {
       invoice: (json['invoice'] as List? ?? [])
           .map((item) => InvoiceDash.fromJson(ensureStringKeyedMap(item)))
           .toList(),
+      generatedAt: _parseNullableDateTime(json['generated_date']),
     );
   }
   static DateTime _parseDateTime(String? dateString) {
@@ -2660,6 +2665,7 @@ class SpecificOrderData {
   List<Invoice>? invoice;
   List<SpecificTax>? tax;
   String? orderSource;
+  DateTime? generateAt;
 
   SpecificOrderData({
     this.id,
@@ -2717,6 +2723,7 @@ class SpecificOrderData {
     this.invoice,
     this.tax,
     this.orderSource,
+    this.generateAt,  
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -2794,6 +2801,9 @@ class SpecificOrderData {
             ?.map((e) => SpecificTax.fromJson(e))
             .toList(),
         orderSource: json["order_source"]?.toString(),
+        generateAt: json["generated_date"] != null
+            ? DateTime.tryParse(json["generated_date"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -2852,6 +2862,7 @@ class SpecificOrderData {
         "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
         "tax": List<dynamic>.from(tax!.map((x) => x.toJson())),
         "order_source": orderSource,
+        "generated_date": generateAt!.toIso8601String(),
       };
 }
 

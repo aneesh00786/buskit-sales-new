@@ -419,7 +419,7 @@ void showOrderStatusDialog(
                                                                             MainAxisAlignment.center,
                                                                         children: [
                                                                           Text(
-                                                                            getFormattedOrderCreatAt(order.orderCreatedAt.toString()),
+                                                                            getFormattedOrderCreatAt(order.generatedAt.toString()),
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: fontSize,
@@ -430,7 +430,7 @@ void showOrderStatusDialog(
                                                                                 TextOverflow.ellipsis,
                                                                           ),
                                                                           Text(
-                                                                            NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt),
+                                                                            NKDateUtils.commonTimeOnlyFormat(order.generatedAt!),
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: fontSize,

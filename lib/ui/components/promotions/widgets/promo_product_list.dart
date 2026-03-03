@@ -266,7 +266,7 @@ class _ProductGridPromoState extends State<ProductGridPromo> {
                             maxCrossAxisExtent: desiredItemWidth,
                             crossAxisSpacing: 10,
                             mainAxisSpacing: 10,
-                            childAspectRatio: 10 / 9,
+                            childAspectRatio: 10 / 10.5,
                           ),
                           itemCount: products.length,
                           itemBuilder: (context, index) {

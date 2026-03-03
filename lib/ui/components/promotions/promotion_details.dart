@@ -3679,6 +3679,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     CategoryModel categoryData,
     String? minOrderAmount,
   ) {
+   
     final double drawerWidth = 300.0;
     final ProductsController productController = Get.find<ProductsController>();
     final CustomerAndOrderController customerAndOrderController =

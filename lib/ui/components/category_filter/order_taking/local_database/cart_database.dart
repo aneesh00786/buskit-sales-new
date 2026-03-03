@@ -1010,7 +1010,7 @@ final String promoType = cart['promo_type'] as String? ?? '';
   double? flatDiscount,
    double? bogoDiscount,
 }) async {
-  print('add to cart promo called ');
+  
   if (localCount <= 0) {
     throw ArgumentError("[PROMO] Error: Count must be greater than zero.");
   }

@@ -3112,6 +3112,7 @@ log('response of alll products get :${response.data}');
 
   Future<List<PromotionReponse>> getPromotions() async {
     try {
+      print('get promotions called');
       final isConnected = await ConnectivityService().isOnline();
       final cacheKey =
           "${SessionHelper.loginSavedData?.company_id ?? 0}_promotion_data";

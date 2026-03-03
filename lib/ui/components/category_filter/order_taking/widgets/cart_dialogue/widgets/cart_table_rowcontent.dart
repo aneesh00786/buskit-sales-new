@@ -106,11 +106,14 @@ class GroupedItemDataRows {
         print('frontend calculated tax:$tax');
         groupedItem.taxAmount = tax;
       }
+      print('inclusive tax:${groupedItem.detail.inclTax}');
 
       double finalPrice;
       if (groupedItem.detail.inclTax == "incl_tax") {
+        print('its inclusive tax');
         finalPrice = priceAfterDiscount;
       } else {
+        print('its not inclusive tax');
         finalPrice = priceAfterDiscount + tax;
       }
       groupedItem.finalPrice = finalPrice;

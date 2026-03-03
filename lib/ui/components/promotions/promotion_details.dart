@@ -386,6 +386,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         catTax:
                                             totalBundleCatTax, // Pass the calculated value to your DB manager
                                       );
+                                   
 
                                       // --- 4. SUCCESS FEEDBACK ---
                                       showCustomToastDisplay(
@@ -1061,6 +1062,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             promoCode: promo.promoCode,
                                             promoMsg: promo.discountText,
                                           );
+                                         
 
                                           productController
                                               .isCartModified.value = true;
@@ -1187,6 +1189,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                       "Flat discount will be applied on total",
                                                   catTax: fetchedCatTax,
                                                   flatDiscount: flatAmount);
+                                                     
 
                                           productController
                                               .isCartModified.value = true;
@@ -1406,6 +1409,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             tieredDiscount: tieredDiscount,
                                             catTax: fetchedCatTax,
                                           );
+                                        
 
                                           productController
                                               .isCartModified.value = true;
@@ -1526,6 +1530,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             catTax:
                                                 fetchedCatTax, // <--- Assigning the value here
                                           );
+                                           
 
                                           productController
                                               .isCartModified.value = true;
@@ -1654,6 +1659,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             bogoDiscount:
                                                 bogoDiscountPercentage, // Inject the 50% discount here
                                           );
+                                           
 
                                           productController
                                               .isCartModified.value = true;
@@ -1889,7 +1895,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 dynamicDiscountPercentage,
                                             // Tricks the cart into reducing the total price
                                           );
-
+                                          
                                           productController
                                               .isCartModified.value = true;
                                         }
@@ -2817,65 +2823,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         return true;
                                       }
 
-                                      // Future<bool> validateMinOrderBeforeAdd(
-                                      //     List<dynamic> allVariants) async {
-                                      //   final double? minOrder = parseAmount(
-                                      //       promo.minOrderValue?.toString());
-                                      //   if (minOrder == null) return true;
-                                      //   double total = 0;
-                                      //   // Compute total using selectedItems quantities
-                                      //   for (final e in selectedItems) {
-                                      //     final v = e['variant'];
-                                      //     final int qty = e['quantity'] as int;
-
-                                      //     final double unit = double.tryParse(
-                                      //             (v.sellPrice ?? '0')
-                                      //                 .toString()) ??
-                                      //         0;
-                                      //     final int pcs =
-                                      //         (v.pieces ?? 1).toInt();
-
-                                      //     total += (unit * pcs) * qty;
-                                      //   }
-
-                                      //   if (total < minOrder) {
-                                      //     await showDialog(
-                                      //       context: context,
-                                      //       barrierDismissible: false,
-                                      //       builder: (context) {
-                                      //         return AlertDialog(
-                                      //           actions: [
-                                      //             const SizedBox(height: 20),
-                                      //             const Center(
-                                      //                 child: Icon(
-                                      //                     Icons
-                                      //                         .warning_amber_outlined,
-                                      //                     size: 50,
-                                      //                     color:
-                                      //                         Colors.orange)),
-                                      //             const SizedBox(height: 20),
-                                      //             Center(
-                                      //                 child: CustomText(
-                                      //                     content:
-                                      //                         "Minimum order is ${formatAmount(promo.minOrderValue)}",
-                                      //                     fontSize: 18)),
-                                      //             TextButton(
-                                      //               onPressed: () =>
-                                      //                   Navigator.pop(context),
-                                      //               child: CustomText(
-                                      //                   content: "Ok",
-                                      //                   color: primaryColor),
-                                      //             ),
-                                      //           ],
-                                      //         );
-                                      //       },
-                                      //     );
-                                      //     return false;
-                                      //   }
-                                      //   return true;
-                                      // }
-
-                                      // Validate min order using existing helper
+                                    
                                       final allowed =
                                           await validateMinOrderBeforeAdd(
                                               allVariants);
@@ -2923,6 +2871,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                           promoMsg:
                                               "Flat discount will be applied on total",
                                         );
+                                      
 
                                         productController.isCartModified.value =
                                             true;
@@ -3046,6 +2995,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
                                       // Use the productId from the variant to find the parent ProductModel
                                       double fetchedCatTax = 0.0;
+                                      String? inclTaxValue;
                                       try {
                                         final productModelInstance = widget
                                             .controller.products
@@ -3059,6 +3009,9 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         fetchedCatTax =
                                             (productModelInstance.catTax ?? 0)
                                                 .toDouble();
+                                        inclTaxValue = productModelInstance.inclTax;
+                                       print('inclusive tax value from product model: $inclTaxValue');        
+                                          
                                       } catch (err) {
                                         print(
                                             "[PROMO] Error finding product model for tax lookup: $err");
@@ -3100,12 +3053,12 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                     .discountPercentage
                                                     .toString()),
                                       );
+                                     
 
                                       final catId = extractCategoryId(
                                           variant.productId.toString());
 
-                                      print(
-                                          'fetched cattax for selected item: $fetchedCatTax');
+                                 
 
                                       // --- 2. Pass fetchedCatTax to the function ---
                                       await _addToCartWithPromoLogic(
@@ -3114,7 +3067,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         detail: detail,
                                         isPack: true,
                                         productName: variant.productName ?? '',
-                                        inclTax: variant.tax ?? '',
+                                        inclTax: inclTaxValue ?? '',
                                         catId: catId,
                                         promo: promo,
                                         productController: productController,
@@ -3123,6 +3076,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         catTax:
                                             fetchedCatTax, // <--- Assigning the value here
                                       );
+                                     
                                     }
                                     // for (final e in selectedItems) {
                                     //   final variant = e['variant'] as dynamic;
@@ -3330,6 +3284,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
        
 
         );
+          
+
 
     productController.isCartModified.value = true;
   }
@@ -4977,6 +4933,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 fetchedCatTax, // <--- Assigning the value here
                                             // selectedTier: selectedTier.value,
                                           );
+                                          
                                         }
 
                                         // Store cart-level flat discount
@@ -5107,6 +5064,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                           calculatedDiscount: discountPercent
                                          
                                         );
+                                       
                                       }
 
 

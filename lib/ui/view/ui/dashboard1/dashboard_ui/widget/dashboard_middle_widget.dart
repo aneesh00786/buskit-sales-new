@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
@@ -1498,15 +1499,29 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              NKDateUtils.commonFullDateTimeFormat2(
-                NKDateUtils.formatStringUTCDateTime(
-                    message.createdAt.toString()),
-              ),
-              style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.black45,
-                  fontWeight: FontWeight.w500),
-            ),
+  TimeUtils.formatTimeInZone(
+    // 1. Parse the String to a DateTime object
+    DateTime.parse(message.createdAt.toString()),
+    
+    // 2. Define the format pattern (Match this to what commonFullDateTimeFormat2 used)
+    format: 'dd MMM yyyy, hh:mm a', 
+  ),
+  style: const TextStyle(
+    fontSize: 11,
+    color: Colors.black45,
+    fontWeight: FontWeight.w500,
+  ),
+),
+            // Text(
+            //   NKDateUtils.commonFullDateTimeFormat2(
+            //     NKDateUtils.formatStringUTCDateTime(
+            //         message.createdAt.toString()),
+            //   ),
+            //   style: const TextStyle(
+            //       fontSize: 11,
+            //       color: Colors.black45,
+            //       fontWeight: FontWeight.w500),
+            // ),
             if (message.source == 'salesman') ...[
               const SizedBox(width: 4),
               const Icon(Icons.done_all, size: 11, color: Colors.black54),

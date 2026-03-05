@@ -338,6 +338,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -524,94 +525,82 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text("Attendance Reminder"),
-        content: const Text(
-          "You have not checked in yet, but it is currently working hours.\n\nDo you want to Check In now?",
+        titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 12.0),
+        actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        title: Row(
+          children: [
+            Icon(Icons.access_time_filled, size: 25.0, color: primaryColor),
+            const SizedBox(width: 8.0),
+            Text(
+              "Check-In",
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Text(
+            "You haven't checked in yet. Please check in before starting your work.",
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
         ),
         actions: [
-          TextButton(
+         OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+            ),
             onPressed: () => Navigator.pop(context),
-            child: const Text("Later", style: TextStyle(color: Colors.grey)),
+            child: Text(
+              "Not Now",
+             style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+            ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              elevation: 2,
+            ),
             onPressed: () {
               Navigator.pop(context);
-              _performCheckIn();
+              // Call the shared check-in service
+              CheckInService().performCheckIn(context);
             },
-            child: const Text("Check In Now", style: TextStyle(color: white)),
+            child: Text(
+              "Check-In",
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _performCheckIn() async {
-   
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      if (!await _handleLocationPermission()) {
-        Navigator.pop(context);
-        return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-     
-      var alwaysStatus = await Permission.locationAlways.status;
-      if (!alwaysStatus.isGranted) {
-        await Permission.locationAlways.request();
-      }
-      
-      await initializeService(); 
-      final service = FlutterBackgroundService();
-      if (!await service.isRunning()) service.startService();
-
-      
-      final response = await ApiWorker().updateAdminCheckInOut(
-        date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-        time: DateFormat('HH:mm').format(DateTime.now()),
-        direction: "in",
-        lat: position.latitude.toString(),
-        long: position.longitude.toString(),
-      );
-
-      Navigator.pop(context); 
-
-      if (response.statusCode == 200) {
-        await ApiWorker().saveSwitchState(true);
-        NkCommonFunction.showSuccessSnakBar("Checked In Successfully");
-        setState(() {});
-      } else {
-        NkCommonFunction.showErrorSnakBar("Failed to Check In: ${response.statusCode}");
-      }
-    } catch (e) {
-      if (mounted && Navigator.canPop(context)) Navigator.pop(context);
-      NkCommonFunction.showErrorSnakBar("Error: $e");
-    }
-  }
-
-  Future<bool> _handleLocationPermission() async {
-    PermissionStatus status = await Permission.locationWhenInUse.status;
-    if (status.isDenied) {
-      status = await Permission.locationWhenInUse.request();
-      if (!status.isGranted) {
-         NkCommonFunction.showErrorSnakBar('Location permission denied');
-        return false;
-      }
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
-      return false;
-    }
-    return true;
-  }
 
   @override
   Widget build(BuildContext context) {

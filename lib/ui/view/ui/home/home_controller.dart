@@ -77,6 +77,13 @@ class HomeController extends GetxController {
     }
   }
 
+  // Shared check-in function that can be called from anywhere
+  Future<void> performCheckIn(BuildContext context) async {
+    // This will be implemented to call the same logic as the sidebar
+    // For now, we'll trigger the sidebar's check-in logic
+    // The actual implementation will be in the sidebar component
+  }
+
   void _handleTokenExpiration() async {
     if (!_isDisposed && !Get.isDialogOpen!) {
       await Get.dialog(
@@ -304,33 +311,73 @@ class HomeController extends GetxController {
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
-                title: CustomText(content: 'Log out ?'),
-                content:
-                    CustomText(content: 'Are you sure you want to log out ?'),
+                title: Row(
+                    children: [
+                    Icon(Icons.logout, size: 25.0, color: primaryColor),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        "Logout ?",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                    content: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      "Are you sure you want to log out ?.",
+                      style: TextStyle(
+                        fontSize: 19.0,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                 actions: [
-                  TextButton(
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                        side: BorderSide(color: primaryColor, width: 2.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        backgroundColor: Colors.white,
+                        elevation: 3,
+                    ),
                     onPressed: () {
-                              Navigator.pop(context);
+                      Navigator.pop(context);
                               sidebarXController.selectIndex(previousIndex);
-                            },
-                    child: CustomText(content: 'Cancel'),
+                    },
+                    child: Text(
+                      "Cancel",
+                    style: TextStyle(
+                          fontSize: 14.0,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () async {
                       await handleLogoutOnConfirmation(context);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                  style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        elevation: 4,
+                        shadowColor: primaryColor.withOpacity(0.4),
                       ),
-                    ),
                     child: CustomText(
                       content: 'Confirm',
                       color: white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w600
                     ),
                   ),
                 ],

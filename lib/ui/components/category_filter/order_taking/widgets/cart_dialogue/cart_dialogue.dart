@@ -356,47 +356,6 @@ void didChangeDependencies() {
         }
       }
 
-  //     for (final item in widget.productsController.cartItems) {
-  //       calculateItemDiscounts(item);
-
-  //  double taxPercentage = (item.catTax ?? 0).toDouble();
-  //       print('tax perecentage:$taxPercentage');
-  //       // Calculate Base Price (Price * Quantity)
-  //       num quantity = item.detail.count;
-  //       double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
-  //           ? (item.detail.pieces ?? 1).toDouble()
-  //           : 1.0;
-  //       double basePrice = (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0) * quantity * pieces;
-        
-  //       // Determine Price After Discount for Tax Calculation
-  //       double totalDiscountAmount = item.totalDiscountAmount ?? 0.0;
-  //       double taxableAmount = basePrice - totalDiscountAmount; 
-  //     print('taxable amount:$taxableAmount');
-  //       if (taxPercentage > 0) {
-  //         // Scenario A: Use Category Tax Percentage
-  //         item.taxAmount = taxableAmount * (taxPercentage / 100);
-  //         print('saved tax fomr load cart items:${item.taxAmount}');
-  //       } else {
-  //         // Scenario B: Fallback to Unit Tax (Fix for Promo/Variants)
-  //         double unitTax = (item.detail.tax ?? 0).toDouble();
-  //         print('unit tax in the load cart items:$unitTax');
-  //         item.taxAmount = unitTax * quantity * pieces;
-  //         print('unit tax saved in the load cart items:${item.taxAmount}');
-  //       }
-
-  //       // 3. Set Total Price (Base + Tax if excl. tax)
-  //       if (item.detail.inclTax != 'incl_tax') {
-  //         item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
-  //       } else {
-  //         item.totalPrice = basePrice;
-  //       }
-
-
-
-
-
-  //     }
-
       await setCartToOrderAndPreorder();
 
       // Helper to process items and set taxAmount
@@ -434,47 +393,7 @@ void didChangeDependencies() {
         quantities = List.generate(
             widget.productsController.cartItems.length, (index) => 1);
 
-        // Now your fold function will find values in item.taxAmount
-        // orderTaxe = Utils().calculateTotalTax(widget.productsController.orderItems);
-
-        //  orderTaxe = widget.productsController.orderItems.fold(
-        //       0.0,
-        //       (sum, item) {
-        //         // 1. If unchecked, skip
-        //         if (item.isChecked != true) return sum;
-
-        //         // 2. Get the base Total Price
-        //         double totalPrice = item.totalPrice ?? 0.0;
-
-        //         // 3. Determine Discount Amount (Replicating your logic)
-        //         double totalDiscountAmount;
-
-        //         // Check if backend value exists first
-        //         if (item.totalDiscountAmount != null &&
-        //             item.totalDiscountAmount! > 0) {
-        //           totalDiscountAmount = item.totalDiscountAmount!;
-        //         } else {
-        //           // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
-        //           double customerDisc = item.CustomerDiscount ?? 0.0;
-        //           num tieredDisc = item.tieredDiscount ?? 0;
-        //           double totalDiscPercent = customerDisc + tieredDisc;
-
-        //           totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
-        //         }
-
-        //         // 4. Calculate Final Price (Price - Discount)
-        //         double finalPrice = totalPrice - totalDiscountAmount;
-
-        //         // Safety check: ensure price isn't negative
-        //         if (finalPrice < 0) finalPrice = 0;
-
-        //         // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
-        //         double taxPercentage = (item.catTax ?? 0).toDouble();
-        //         double itemTaxAmount = finalPrice * (taxPercentage / 100);
-
-        //         return sum + itemTaxAmount;
-        //       },
-        //     );
+        
 
         print('orderTaxe calculated in setState:${orderTaxe}');
         preorderTax =

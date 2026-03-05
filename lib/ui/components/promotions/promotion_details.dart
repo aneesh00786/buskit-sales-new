@@ -3078,64 +3078,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       );
                                      
                                     }
-                                    // for (final e in selectedItems) {
-                                    //   final variant = e['variant'] as dynamic;
-                                    //   final int qty = e['quantity'] as int;
-
-                                    //   final detail = Detail(
-                                    //     variationId: variant.id,
-                                    //     productId: variant.productId,
-                                    //     variationName: variant.variationName,
-                                    //     unitType: variant.unitType,
-                                    //     price:
-                                    //         (variant.price ?? '0').toString(),
-                                    //     sellPrice: (variant.sellPrice ?? '0')
-                                    //         .toString(),
-                                    //     tax: double.tryParse(
-                                    //             variant.tax ?? '0') ??
-                                    //         0,
-                                    //     packtype: variant.packtype,
-                                    //     pieces: variant.pieces,
-                                    //     stock: variant.stock,
-                                    //     lowstock: variant.lowstock,
-                                    //     fullstock: variant.fullstock,
-                                    //     imageUrl: variant.imageUrl,
-                                    //     productName: variant.productName,
-                                    //     discount: promo.promoType ==
-                                    //                 "tiered_discount" &&
-                                    //             e['tier'] != null
-                                    //         ? double.tryParse(e['tier']
-                                    //                     .discountValue
-                                    //                     ?.toString() ??
-                                    //                 '0') ??
-                                    //             0
-                                    //         : promo.promoType ==
-                                    //                 "percentage_discount"
-                                    //             ? double.tryParse(promo
-                                    //                 .discountValue
-                                    //                 .toString())
-                                    //             : double.tryParse(promo
-                                    //                 .discountPercentage
-                                    //                 .toString()),
-                                    //   );
-
-                                    //   final catId = extractCategoryId(
-                                    //       variant.productId.toString());
-
-                                    //   await _addToCartWithPromoLogic(
-                                    //     customerId: customerId,
-                                    //     localCount: qty,
-                                    //     detail: detail,
-                                    //     isPack: true,
-                                    //     productName: variant.productName ?? '',
-                                    //     inclTax: variant.tax ?? '',
-                                    //     catId: catId,
-                                    //     promo: promo,
-                                    //     productController: productController,
-                                    //     context: context,
-                                    //     selectedTier: selectedTier.value,
-                                    //   );
-                                    // }
+                                  
 
                                     WidgetsBinding.instance
                                         .addPostFrameCallback((_) {
@@ -3250,17 +3193,14 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         }
       }
     } else {
-      // If we passed the calculated discount, we still want to grab the max cap 
-      // just so it saves to the database correctly.
+      
       if (promo.maxDiscount != null && promo.maxDiscount.toString().isNotEmpty) {
         maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
         isPercentageBasedDiscount = true;
       }
     }
 
-    // 3. USE copyWith() INSTEAD OF MANUAL MAPPING
-    // This safely keeps ALL your original detail data (like barcode, companyId, etc.) 
-    // and ONLY overwrites the discount fields!
+   
     final detailWithDiscount = (discountValue != null && discountValue > 0)
         ? detail.copyWith(
             discount: discountValue,
@@ -3290,90 +3230,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     productController.isCartModified.value = true;
   }
 
-  // Future<void> _addToCartWithPromoLogic({
-  //   required String customerId,
-  //   required int localCount,
-  //   required Detail detail,
-  //   required bool isPack,
-  //   required String productName,
-  //   required String inclTax,
-  //   required int catId,
-  //   required PromotionReponse promo,
-  //   required ProductsController productController,
-  //   required BuildContext context,
-  //   Tier? selectedTier,
-  //   double? catTax,
-  // }) async {
-  //   // Determine discount value based on promo type
-  //   double? discountValue;
-  //   double? maxDiscountValue;
-  //   bool isPercentageBasedDiscount = false;
 
-  //   if (promo.promoType == "percentage_discount" ||
-  //       promo.promoType == "happy_hours" ||
-  //       promo.promoType == "seasonal" ||
-  //       promo.promoType == "flash_sale" ||
-  //       promo.promoType == "limited_time") {
-  //     isPercentageBasedDiscount = true;
-  //     discountValue = promo.promoType == "percentage_discount"
-  //         ? double.tryParse(promo.discountValue.toString())
-  //         : double.tryParse(promo.discountPercentage.toString());
-
-  //     // Store max discount value for percentage-based discounts
-  //     if (promo.maxDiscount != null &&
-  //         promo.maxDiscount.toString().isNotEmpty) {
-  //       maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
-  //     }
-  //   } else if (promo.promoType == "tiered_discount") {
-  //     // Handle tiered discount - use selected tier if available, otherwise calculate
-  //     if (selectedTier != null) {
-  //       discountValue =
-  //           double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
-  //     } else {
-  //       discountValue = _calculateTieredDiscount(promo, localCount, isPack);
-  //     }
-  //   }
-
-  //   // Create detail with discount if applicable
-  //   final detailWithDiscount = discountValue != null
-  //       ? Detail(
-  //           variationId: detail.variationId,
-  //           productId: detail.productId,
-  //           variationName: detail.variationName,
-  //           unitType: detail.unitType,
-  //           price: detail.price,
-  //           sellPrice: detail.sellPrice,
-  //           tax: detail.tax,
-  //           packtype: detail.packtype,
-  //           pieces: detail.pieces,
-  //           stock: detail.stock,
-  //           lowstock: detail.lowstock,
-  //           fullstock: detail.fullstock,
-  //           imageUrl: detail.imageUrl,
-  //           productName: detail.productName,
-  //           discount: discountValue,
-  //           // Store max discount value in the detail object for later use in cart calculations
-  //           maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
-  //         )
-  //       : detail;
-
-  //   await CartDatabaseManager().addToCartPromo(
-  //       customerId: customerId,
-  //       localCount: localCount,
-  //       detail: detailWithDiscount,
-  //       isPack: isPack,
-  //       productName: productName,
-  //       inclTax: inclTax,
-  //       isChcked: true,
-  //       catId: catId,
-  //       promoCode: promo.promoCode,
-  //       promoMsg: promo.discountText,
-  //       catTax: catTax);
-
-  //   productController.isCartModified.value = true;
-  // }
-
-  /// Calculate tiered discount based on quantity and tiers
   double? _calculateTieredDiscount(
       PromotionReponse promo, int quantity, bool isPack) {
     if (promo.tiers == null || promo.tiers!.isEmpty) return null;
@@ -4419,220 +4276,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     );
   }
 
-  // // Builds a grouped product list with a table-like structure
-  // Widget _buildGroupedProductsList(
-  //   List<Map<String, dynamic>> selectedItems,
-  //   void Function(void Function()) setStateDialog,
-  //   void Function(void Function()) parentSetState,
-  // ) {
-  //   // Group items by product name
-  //   final Map<String, List<Map<String, dynamic>>> groupedItems = {};
-
-  //   for (final item in selectedItems) {
-  //     final Detail detail = item['detail'] as Detail;
-  //     final String productName = detail.productName ?? 'Unknown Product';
-
-  //     if (!groupedItems.containsKey(productName)) {
-  //       groupedItems[productName] = [];
-  //     }
-  //     groupedItems[productName]!.add(item);
-  //   }
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: groupedItems.entries.map((entry) {
-  //       final String productName = entry.key;
-  //       final List<Map<String, dynamic>> variants = entry.value;
-
-  //       return Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           // Product header
-  //           Container(
-  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  //             color: Colors.grey[200],
-  //             child: Row(
-  //               children: [
-  //                 Expanded(
-  //                   child: Text(
-  //                     productName,
-  //                     style: const TextStyle(
-  //                       fontWeight: FontWeight.bold,
-  //                       fontSize: 14,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-
-  //           // Table header
-  //           Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-  //             child: Row(
-  //               children: [
-  //                 Expanded(
-  //                   flex: 3,
-  //                   child: Text(
-  //                     'Variant',
-  //                     style: TextStyle(
-  //                       fontSize: 12,
-  //                       color: Colors.grey[700],
-  //                       fontWeight: FontWeight.w500,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 Expanded(
-  //                   flex: 1,
-  //                   child: Text(
-  //                     'Qty',
-  //                     textAlign: TextAlign.center,
-  //                     style: TextStyle(
-  //                       fontSize: 12,
-  //                       color: Colors.grey[700],
-  //                       fontWeight: FontWeight.w500,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 Expanded(
-  //                   flex: 2,
-  //                   child: Text(
-  //                     'Price',
-  //                     textAlign: TextAlign.center,
-  //                     style: TextStyle(
-  //                       fontSize: 12,
-  //                       color: Colors.grey[700],
-  //                       fontWeight: FontWeight.w500,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 Expanded(
-  //                   flex: 2,
-  //                   child: Text(
-  //                     'Total',
-  //                     textAlign: TextAlign.center,
-  //                     style: TextStyle(
-  //                       fontSize: 12,
-  //                       color: Colors.grey[700],
-  //                       fontWeight: FontWeight.w500,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 SizedBox(width: 40), // Space for delete button
-  //               ],
-  //             ),
-  //           ),
-
-  //           // Variants
-  //           ...variants.map((item) {
-  //             final Detail detail = item['detail'] as Detail;
-  //             final int quantity = item['quantity'] as int;
-  //             final bool isPack = item['isPack'] as bool;
-
-  //             // Calculate price and total
-  //             double price = 0;
-  //             if (isPack) {
-  //               price = (detail.sellingPackPrice?.toDouble() ?? 0);
-  //               if (price <= 0) {
-  //                 final double unitPrice =
-  //                     double.tryParse(detail.sellPrice.toString()) ?? 0;
-  //                 final int pieces = (detail.pieces ?? 1).toInt();
-  //                 price = unitPrice * pieces;
-  //               }
-  //             } else {
-  //               price = double.tryParse(detail.sellPrice.toString()) ?? 0;
-  //             }
-
-  //             final double total = price * quantity;
-  //             final String variantName = detail.variationName ?? 'Standard';
-  //             final String packType = isPack ? 'Pack' : 'Pcs';
-
-  //             return Padding(
-  //               padding:
-  //                   const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-  //               child: Row(
-  //                 children: [
-  //                   // Variant name
-  //                   Expanded(
-  //                     flex: 3,
-  //                     child: Text(
-  //                       '$variantName ($packType)',
-  //                       style: const TextStyle(fontSize: 13),
-  //                       overflow: TextOverflow.ellipsis,
-  //                     ),
-  //                   ),
-
-  //                   // Quantity
-  //                   Expanded(
-  //                     flex: 1,
-  //                     child: Text(
-  //                       quantity.toString(),
-  //                       textAlign: TextAlign.center,
-  //                       style: const TextStyle(fontSize: 13),
-  //                     ),
-  //                   ),
-
-  //                   // Price
-  //                   Expanded(
-  //                     flex: 2,
-  //                     child: Text(
-  //                       formatAmount(price.toString()),
-  //                       textAlign: TextAlign.center,
-  //                       style: const TextStyle(fontSize: 13),
-  //                     ),
-  //                   ),
-
-  //                   // Total
-  //                   Expanded(
-  //                     flex: 2,
-  //                     child: Text(
-  //                       formatAmount(total.toString()),
-  //                       textAlign: TextAlign.center,
-  //                       style: const TextStyle(fontSize: 13),
-  //                     ),
-  //                   ),
-
-  //                   // Delete button
-  //                   SizedBox(
-  //                     width: 40,
-  //                     child: IconButton(
-  //                       icon: const Icon(Icons.delete,
-  //                           size: 14, color: Colors.red),
-  //                       padding: EdgeInsets.zero,
-  //                       constraints: const BoxConstraints(),
-  //                       onPressed: () {
-  //                         // Find the exact item in the original list
-  //                         final int indexToRemove =
-  //                             selectedItems.indexWhere((element) {
-  //                           final Detail elementDetail =
-  //                               element['detail'] as Detail;
-  //                           final bool elementIsPack =
-  //                               element['isPack'] as bool;
-
-  //                           return elementDetail.id == detail.id &&
-  //                               elementIsPack == isPack;
-  //                         });
-
-  //                         if (indexToRemove != -1) {
-  //                           setStateDialog(() {
-  //                             selectedItems.removeAt(indexToRemove);
-  //                           });
-  //                           parentSetState(() {});
-  //                         }
-  //                       },
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             );
-  //           }),
-
-  //           const Divider(),
-  //         ],
-  //       );
-  //     }).toList(),
-  //   );
-  // }
 
   void _showSelectedItemsDialog(
     BuildContext context,
@@ -4756,55 +4399,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                         const SizedBox(height: 8),
                         Divider(color: Colors.grey),
                         const SizedBox(height: 8),
-                        // Add tier selection dropdown for tiered_discount promotions
-                        // if (promo.promoType == "tiered_discount" &&
-                        //     promo.tiers != null &&
-                        //     promo.tiers!.isNotEmpty) ...[
-                        //   Container(
-                        //     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        //     decoration: BoxDecoration(
-                        //       border: Border.all(color: Colors.grey.shade300),
-                        //       borderRadius: BorderRadius.circular(8),
-                        //     ),
-                        //     child: ValueListenableBuilder<Tier?>(
-                        //       valueListenable: selectedTier,
-                        //       builder: (context, value, _) =>
-                        //           DropdownButtonHideUnderline(
-                        //         child: DropdownButton<Tier>(
-                        //           value: value,
-                        //           hint: const Text('Select Tier'),
-                        //           isExpanded: true,
-                        //           items: promo.tiers!.map((Tier tier) {
-                        //             final requiredQty =
-                        //                 (tier.buyQuantity as num?)?.toInt() ??
-                        //                     0;
-                        //             final qtyType = tier.buyQuantityType ?? '';
-                        //             final discountValue = double.tryParse(
-                        //                     tier.discountValue?.toString() ??
-                        //                         '0') ??
-                        //                 0;
-
-                        //             return DropdownMenuItem<Tier>(
-                        //               value: tier,
-                        //               child: Padding(
-                        //                 padding: const EdgeInsets.symmetric(
-                        //                     horizontal: 16.0),
-                        //                 child: Text(
-                        //                   'Buy $requiredQty $qtyType - Get $discountValue% off',
-                        //                   style: const TextStyle(fontSize: 14),
-                        //                 ),
-                        //               ),
-                        //             );
-                        //           }).toList(),
-                        //           onChanged: (Tier? newValue) {
-                        //             selectedTier.value = newValue;
-                        //           },
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        //   const SizedBox(height: 16),
-                        // ],
+                       
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

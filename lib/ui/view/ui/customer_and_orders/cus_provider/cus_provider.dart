@@ -838,31 +838,6 @@ Future<void> fetchChartCategoryPerformance(
     }
   }
 
-  // Future<void> fetchCustomerDashboardData(String customerId) async {
-  //   final now = DateTime.now();
-  //   final startDate1 = DateTime(now.year, 1, 1);
-  //   final endDate1 = DateTime(now.year, 12, 31);
-
-  //   final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
-  //   final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
-  //   int currentYear = now.year;
-
-  //   try {
-  //     _customersDashFuture = _apiService
-  //         .fetchCustomerDashboardDataa(
-  //             customerId, currentYear, formattedStartDate, formattedEndDate)
-  //         .then((response) {
-  //       _yearList = response.data.yearList;
-  //       notifyListeners();
-  //       return response;
-  //     });
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching customer dashboard data',
-  //         error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
-
   void toggleOrderSelection(RecentOrder order) {
     if (_selectedOrders.contains(order)) {
       _selectedOrders.remove(order);
@@ -1001,34 +976,7 @@ Future<void> fetchChartCategoryPerformance(
       });
 
     }
-      // try {
-      //   _isLoading = true;
-      //   final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
-      //       ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-      //       : _selectedFilter.name;
-
-      //   _customersFuture = _apiService.fetchCustomer(
-      //     salesmanId: '',
-      //     customerName: _searchCustomerName,
-      //     startDate: "",
-      //     endDate: "",
-      //     limit: 10,
-      //     page: page,
-      //     valueFromDw: valueFromDw,
-      //   );
-      //   _customersFuture!.then((value) {
-      //     setCustomers(value.data, value.pagination.totalPages);
-      //     setOrderTotal(value.orderTotal);
-      //     setYearList(value.yearsListOfAll);
-      //     notificationController.loadNotificationData();
-      //     _isLoading = false;
-      //     notifyListeners();
-      //   }).catchError((error) {
-      //     _isLoading = false;
-      //     _errorMessage = 'Failed to fetch customer data 3: $error';
-      //     notifyListeners();
-      //   });
-      // }
+   
        catch (e, stackTrace) {
         _isLoading = false;
         _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
@@ -1038,89 +986,6 @@ Future<void> fetchChartCategoryPerformance(
       await fetchCustomerData();
     }
   }
-  // Future<void> fetchCustomerData({int page = 1}) async {
-  //   _errorMessage = '';
-  //   Get.find<NotificationController>();
-
-  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  //   final customerBox = Hive.box('customerBox');
-  //   final cacheKey = '${companyId}_customer_list_$page';
-  //   bool isOnline = await ConnectivityService().isOnline();
-  //   if (!isOnline) {
-  //     if (_searchCustomerName.isNotEmpty) {
-  //       await performOfflineSearch(_searchCustomerName);
-  //       return;
-  //     }
-
-  //     final cachedData = customerBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       try {
-  //         final safeMap =
-  //             jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
-
-  //         final response = CustomerResponseModelxx.fromJson(safeMap);
-  //         setCustomers(response.data, response.pagination.totalPages);
-  //         setOrderTotal(response.orderTotal);
-  //         setYearList(response.yearsListOfAll);
-  //         _isLoading = false;
-  //         notifyListeners();
-  //         return;
-  //       } catch (e) {
-  //         _filteredCustomers = [];
-  //         _errorMessage = 'Corrupted offline data for this page.';
-  //         _isLoading = false;
-  //         notifyListeners();
-  //         return;
-  //       }
-  //     } else {
-  //       _filteredCustomers = [];
-  //       _errorMessage = 'No offline data for this page.';
-  //       _isLoading = false;
-  //       notifyListeners();
-  //       return;
-  //     }
-  //   }
-
-  //   if (_selectedFilter == FilterDateEnum.thisMonth ||
-  //       _selectedFilter == FilterDateEnum.today ||
-  //       _selectedFilter == FilterDateEnum.thisWeek ||
-  //       _selectedFilter == FilterDateEnum.thisYear ||
-  //       _selectedFilter == FilterDateEnum.range) {
-  //     try {
-  //       _isLoading = true;
-  //       final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
-  //           ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-  //           : _selectedFilter.name;
-
-  //       _customersFuture = _apiService.fetchCustomer(
-  //         salesmanId: '',
-  //         customerName: _searchCustomerName,
-  //         startDate: "",
-  //         endDate: "",
-  //         limit: 10,
-  //         page: page,
-  //         valueFromDw: valueFromDw,
-  //       );
-  //       _customersFuture!.then((value) {
-  //         setCustomers(value.data, value.pagination.totalPages);
-  //         setOrderTotal(value.orderTotal);
-  //         setYearList(value.yearsListOfAll);
-  //         _isLoading = false;
-  //         notifyListeners();
-  //       }).catchError((error) {
-  //         _isLoading = false;
-  //         _errorMessage = 'Failed to fetch customer data 3: $error';
-  //         notifyListeners();
-  //       });
-  //     } catch (e, stackTrace) {
-  //       _isLoading = false;
-  //       _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-  //       rethrow;
-  //     }
-  //   } else {
-  //     await fetchCustomerData();
-  //   }
-  // }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(

@@ -167,7 +167,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       DashboardProvider provider, BuildContext context) {
     return SizedBox(
       height: 50,
-      width: 165,
+      width: 125,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -217,7 +217,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_month, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('This Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -227,7 +227,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('This Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -237,7 +237,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Today', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -247,7 +247,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('This Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -257,7 +257,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.date_range, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Custom Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -279,35 +279,35 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_month, size: 16, color: primaryColor),
                     const SizedBox(width: 8),
-                    const Text('This Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Row(
                   children: [
                     Icon(Icons.calendar_today, size: 16, color: primaryColor),
                     const SizedBox(width: 8),
-                    const Text('This Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Row(
                   children: [
                     Icon(Icons.today, size: 16, color: primaryColor),
                     const SizedBox(width: 8),
-                    const Text('Today', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Row(
                   children: [
                     Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
                     const SizedBox(width: 8),
-                    const Text('This Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Row(
                   children: [
                     Icon(Icons.date_range, size: 16, color: primaryColor),
                     const SizedBox(width: 8),
-                    const Text('Custom Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ];

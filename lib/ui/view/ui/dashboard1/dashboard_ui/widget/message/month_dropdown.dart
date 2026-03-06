@@ -116,7 +116,7 @@ class _MonthDropdownState extends State<MonthDropdown> {
         children: [
           SizedBox(
             height: 50,
-            width: 165,
+            width: 125,
             child: Container(
               key: _dropdownKey,
               decoration: BoxDecoration(
@@ -202,7 +202,7 @@ class _MonthDropdownState extends State<MonthDropdown> {
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

@@ -1,4 +1,5 @@
 // ignore_for_file: library_prefixes, empty_catches, non_constant_identifier_names
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
@@ -14,6 +15,8 @@ import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
     as orderResponseModel;
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -32,6 +35,8 @@ class DashboardProvider with ChangeNotifier {
   List<orderResponseModel.OrderData> get chartOrderData => _chartOrderData;
   List<TargetDatum> _salesmanTargetByCategory = [];
   List<TargetDatum> get salesmanTargetByCategory => _salesmanTargetByCategory;
+  StreamSubscription? _connectivitySubscription;
+  final Dio _dio = Dio();
   void updateSelectedMonths(List<String> months) {
     _selectedFilterMonths = months;
     notifyListeners();
@@ -76,6 +81,54 @@ class DashboardProvider with ChangeNotifier {
     fetchData();
     fetchChatData(SessionHelper.loginSavedData?.salesmanId ?? '');
     fetchSalesmanData();
+    _startOfflineSyncListener();
+  }
+  void _startOfflineSyncListener() {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) async {
+      // Check if any result indicates a connection (mobile or wifi)
+      bool isConnected = results.contains(ConnectivityResult.mobile) || 
+                         results.contains(ConnectivityResult.wifi);
+
+      if (isConnected) {
+        await _processOfflineQueue();
+      }
+    });
+  }
+  Future<void> _processOfflineQueue() async {
+    if (!Hive.isBoxOpen('offlineRequests')) await Hive.openBox('offlineRequests');
+    var box = Hive.box('offlineRequests');
+
+    if (box.isEmpty) return;
+
+    print("🌐 Online detected. Processing ${box.length} offline payments...");
+
+    // Iterate through a copy of keys to avoid modification errors
+    final keys = box.keys.toList();
+    
+    for (var key in keys) {
+      try {
+        final request = box.get(key);
+        if (request == null) continue;
+
+        final payload = request['payload'];
+        final url = request['url'];
+
+        // Send API Request
+        final response = await _dio.post(url, data: payload);
+
+        if (response.statusCode == 200) {
+          // Success: Remove from Hive
+          await box.delete(key);
+          print("✅ Offline payment synced for Order: ${payload['order_id']}");
+        }
+      } catch (e) {
+        print("❌ Failed to sync payment: $e");
+        // Keep in box to try again later
+      }
+    }
+    
+    // Refresh UI to remove Info icons
+    notifyListeners(); 
   }
 
   OrderStatus selectedOrderStatus = OrderStatus.preOrder;
@@ -545,101 +598,6 @@ class DashboardProvider with ChangeNotifier {
   }
 }
 
-  // Future<void> fetchData() async {
-  //   NotificationController notificationController =
-  //       Get.find<NotificationController>();
-  //   final jsonString = await SessionManager.getStringValue(SpString.spLogin);
-  //   jsonDecode(jsonString);
-  //   if (_dataFetched) return;
-  //   try {
-  //     bool isOnline = await ConnectivityService().isOnline();
-  //     if (isOnline) {
-  //       _futureResponseModel =
-  //           Future.delayed(const Duration(seconds: 2), () async {
-  //         final api = await _apiService.fetchDashboardData(
-  //           fetchType: _selectedFilterName,
-  //           startDate: _selectedFilter == FilterDateEnum.range
-  //               ? _selectedStartDate
-  //               : '',
-  //           endDate:
-  //               _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
-  //           selectedDay:
-  //               _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
-  //           selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
-  //               ? _selectedFilterMonths
-  //               : [],
-  //           selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
-  //               ? _selectedFilterWeeks
-  //               : [],
-  //           year:
-  //               _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
-  //         );
-  //         // Save to Hive after successful fetch
-  //         try {
-  //           final dashboardBox = Hive.box('dashboardBox');
-  //           final apiJson = api.toJson();
-  //           dashboardBox.put('dashboardData', jsonEncode(apiJson));
-  //         } catch (e) {
-  //           _logger.e('Error saving dashboard data to Hive', error: e);
-  //         }
-  //         return api;
-  //       });
-  //     } else {
-  //       // Offline: Try to load from Hive
-  //       try {
-  //         final dashboardBox = Hive.box('dashboardBox');
-  //         final cachedData = dashboardBox.get('dashboardData');
-  //         if (cachedData != null) {
-  //           // If cachedData is a String (JSON), decode it first
-  //           dynamic decodedData = cachedData;
-  //           if (cachedData is String) {
-  //             try {
-  //               decodedData = jsonDecode(cachedData);
-  //             } catch (e) {
-  //               decodedData = {};
-  //             }
-  //           }
-  //           Map<String, dynamic> safeMap = ensureStringKeyedMap(decodedData);
-  //           final responseModel = ResponseModell.fromJson(safeMap);
-  //           _futureResponseModel = Future.value(responseModel);
-  //         } else {
-  //           NkCommonFunction.showErrorSnakBar(
-  //               'No offline dashboard data available. Please connect to the internet at least once.');
-  //           // Create an empty response model to prevent UI errors
-  //           _futureResponseModel = Future.value(ResponseModell(
-  //             statusCode: 200,
-  //             status: false,
-  //             message: 'No offline data available',
-  //             allCategory: [],
-  //             categoryPerformance: [],
-  //             monthlyPerformance: [],
-  //           ));
-  //         }
-  //       } catch (e) {
-  //         _logger.e('Error loading dashboard data from Hive', error: e);
-  //         NkCommonFunction.showErrorSnakBar(
-  //             'Error loading offline dashboard data. Please connect to the internet.');
-  //         // Create an empty response model to prevent UI errors
-  //         _futureResponseModel = Future.value(ResponseModell(
-  //           statusCode: 200,
-  //           status: false,
-  //           message: 'Error loading offline data',
-  //           allCategory: [],
-  //           categoryPerformance: [],
-  //           monthlyPerformance: [],
-  //         ));
-  //       }
-  //     }
-  //     if (_selectedFilter != FilterDateEnum.range) {}
-  //     notificationController.loadNotificationData();
-  //     await CartDatabaseManager().getDraftItems();
-  //     notifyListeners();
-  //   } catch (e, stackTrace) {
-  //     _logger.e('Error fetching data', error: e, stackTrace: stackTrace);
-  //     rethrow;
-  //   }
-  // }
-
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -823,6 +781,7 @@ class DashboardProvider with ChangeNotifier {
   @override
   void dispose() {
     _scrollController.dispose();
+    _connectivitySubscription?.cancel();
     super.dispose();
   }
 }

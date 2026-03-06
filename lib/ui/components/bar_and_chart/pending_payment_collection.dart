@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/pending_payment_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -18,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/editable_pending_payment_cell.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +31,75 @@ void pendingPaymentCollectionDialog(
 
   if (collection.order == null || collection.order!.pendingAmount == null) {
     return;
+  }
+  bool isOfflinePaymentPending(String orderId) {
+    if (!Hive.isBoxOpen('offlineRequests')) return false;
+    var box = Hive.box('offlineRequests');
+    // Check if any request in the box matches this orderId
+    return box.values.any((request) {
+      if (request is Map) {
+        final payload = request['payload'];
+        return payload != null && payload['order_id'].toString() == orderId;
+      }
+      return false;
+    });
+  }
+  Map<String, dynamic>? getOfflinePaymentDetails(String orderId) {
+    if (!Hive.isBoxOpen('offlineRequests')) return null;
+    var box = Hive.box('offlineRequests');
+    try {
+      var request = box.values.firstWhere((element) {
+        if (element is Map) {
+          final payload = element['payload'];
+          return payload != null && payload['order_id'].toString() == orderId;
+        }
+        return false;
+      });
+      return request;
+    } catch (e) {
+      return null;
+    }
+  }
+  void showOfflineInfoDialog(BuildContext context, String orderId) {
+    final details = getOfflinePaymentDetails(orderId);
+    if (details == null) return;
+
+    final payload = details['payload'];
+    final timestamp = DateTime.parse(details['timestamp']);
+    final formattedDate = DateFormat('dd MMM yyyy, hh:mm a').format(timestamp);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.wifi_off, color: Colors.orange),
+            SizedBox(width: 10),
+            Text("Offline Payment", style: TextStyle(fontSize: 16)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("This payment is saved locally and will sync automatically when online."),
+            const Divider(),
+            Text("Order ID: $orderId"),
+            Text("Amount: ${addCurrencySymbol()}${payload['recieved_amount']}"),
+            Text("Type: ${payload['payment_type'] == '0' ? 'Cash' : payload['payment_type'] == '1' ? 'Cheque' : 'Bank Transfer'}"),
+            Text("Date: $formattedDate"),
+            if (payload['detail'] != null && payload['detail'].toString().isNotEmpty)
+              Text("Remarks: ${payload['detail']}"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Close"),
+          )
+        ],
+      ),
+    );
   }
 
   late RxString selectedPaymentMethod;
@@ -111,10 +182,10 @@ void pendingPaymentCollectionDialog(
   final receivedAmountController = TextEditingController();
   final remarksController = TextEditingController();
 
-  void processPayments(
+  Future<void> processPayments(
     List<PendingAmount> selectedItems,
     double enteredAmount,
-  ) {
+  ) async {
     for (var item in selectedItems) {
       double itemAmount = (item.receivableAmount ??
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
@@ -124,7 +195,9 @@ void pendingPaymentCollectionDialog(
         double appliedAmount =
             enteredAmount >= itemAmount ? itemAmount : enteredAmount;
         enteredAmount -= appliedAmount;
-        ApiWorker().customerPayment(
+        
+        // Await the API call here
+        await ApiWorker().customerPayment(
           context: context,
           checkDueDate: "",
           checkNumber: "",
@@ -136,22 +209,56 @@ void pendingPaymentCollectionDialog(
                   ? "1"
                   : selectedPaymentMethod.value == 'Bank Transfer'
                       ? "2"
-                      : selectedPaymentMethod.value == 'QR Payment'
-                          ? "3"
-                          : "0",
-          // paymentType: selectedPaymentMethod.value == 'Cash'
-          //     ? "0"
-          //     : selectedPaymentMethod.value == 'Cheque'
-          //         ? "1"
-          //         : selectedPaymentMethod.value == 'Bank Transfer'
-          //         ? "2":"3",
+                      : "0",
           receivedAmount: appliedAmount,
           transactionDate: "",
           transactionId: "",
         );
-      } else {}
+      }
     }
   }
+
+  // void processPayments(
+  //   List<PendingAmount> selectedItems,
+  //   double enteredAmount,
+  // ) {
+  //   for (var item in selectedItems) {
+  //     double itemAmount = (item.receivableAmount ??
+  //             ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
+  //         .toDouble();
+
+  //     if (enteredAmount > 0) {
+  //       double appliedAmount =
+  //           enteredAmount >= itemAmount ? itemAmount : enteredAmount;
+  //       enteredAmount -= appliedAmount;
+  //       ApiWorker().customerPayment(
+  //         context: context,
+  //         checkDueDate: "",
+  //         checkNumber: "",
+  //         detail: remarksController.text,
+  //         orderId: item.orderId.toString(),
+  //         paymentType: selectedPaymentMethod.value == 'Cash'
+  //             ? "0"
+  //             : selectedPaymentMethod.value == 'Cheque'
+  //                 ? "1"
+  //                 : selectedPaymentMethod.value == 'Bank Transfer'
+  //                     ? "2"
+  //                     : selectedPaymentMethod.value == 'QR Payment'
+  //                         ? "3"
+  //                         : "0",
+  //         // paymentType: selectedPaymentMethod.value == 'Cash'
+  //         //     ? "0"
+  //         //     : selectedPaymentMethod.value == 'Cheque'
+  //         //         ? "1"
+  //         //         : selectedPaymentMethod.value == 'Bank Transfer'
+  //         //         ? "2":"3",
+  //         receivedAmount: appliedAmount,
+  //         transactionDate: "",
+  //         transactionId: "",
+  //       );
+  //     } else {}
+  //   }
+  // }
 
   Widget customPaymentDataTable() {
     return DataTable(
@@ -227,6 +334,7 @@ void pendingPaymentCollectionDialog(
           (entry) {
             int index = entry.key;
             var payment = entry.value;
+            bool isOfflinePending = isOfflinePaymentPending(payment.orderId.toString());
             return DataRow(cells: [
               DataCell(Center(child: Text(payment.businessName.toString()))),
               DataCell(Center(
@@ -280,37 +388,81 @@ void pendingPaymentCollectionDialog(
               ),
               DataCell(
                 Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: payment.paymentStatus == 0
-                          ? Colors.red
-                          : payment.paymentStatus == 1
-                              ? Colors.green
-                              : payment.paymentStatus == 3
-                                  ? Colors.amber
-                                  : Colors.grey,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: payment.paymentStatus == 0
-                            ? Colors.red
-                            : payment.paymentStatus == 1
-                                ? Colors.green
-                                : payment.paymentStatus == 3
-                                    ? Colors.amber
-                                    : Colors.grey,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Icon(
-                        payment.paymentStatus == 0 ? Icons.close : Icons.done,
-                        color: Colors.white,
-                        size: 14.0,
-                      ),
-                    ),
-                  ),
+                  child: isOfflinePending
+                      ? InkWell(
+                          onTap: () {
+                             showOfflineInfoDialog(context, payment.orderId.toString());
+                          },
+                          child: const Icon(
+                            Icons.info,
+                            color: Colors.blue, 
+                            size: 20,
+                          ),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            color: payment.paymentStatus == 0
+                                ? Colors.red
+                                : payment.paymentStatus == 1
+                                    ? Colors.green
+                                    : payment.paymentStatus == 3
+                                        ? Colors.amber
+                                        : Colors.grey,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: payment.paymentStatus == 0
+                                  ? Colors.red
+                                  : payment.paymentStatus == 1
+                                      ? Colors.green
+                                      : payment.paymentStatus == 3
+                                          ? Colors.amber
+                                          : Colors.grey,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(1.0),
+                            child: Icon(
+                              payment.paymentStatus == 0 ? Icons.close : Icons.done,
+                              color: Colors.white,
+                              size: 14.0,
+                            ),
+                          ),
+                        ),
                 ),
               ),
+              // DataCell(
+              //   Center(
+              //     child: Container(
+              //       decoration: BoxDecoration(
+              //         color: payment.paymentStatus == 0
+              //             ? Colors.red
+              //             : payment.paymentStatus == 1
+              //                 ? Colors.green
+              //                 : payment.paymentStatus == 3
+              //                     ? Colors.amber
+              //                     : Colors.grey,
+              //         shape: BoxShape.circle,
+              //         border: Border.all(
+              //           color: payment.paymentStatus == 0
+              //               ? Colors.red
+              //               : payment.paymentStatus == 1
+              //                   ? Colors.green
+              //                   : payment.paymentStatus == 3
+              //                       ? Colors.amber
+              //                       : Colors.grey,
+              //         ),
+              //       ),
+              //       child: Padding(
+              //         padding: const EdgeInsets.all(1.0),
+              //         child: Icon(
+              //           payment.paymentStatus == 0 ? Icons.close : Icons.done,
+              //           color: Colors.white,
+              //           size: 14.0,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               DataCell(
                 Center(
                   child: Padding(
@@ -652,113 +804,223 @@ void pendingPaymentCollectionDialog(
                                 Center(
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      final double enteredAmount =
-                                          double.tryParse(
-                                                  receivedAmountController
-                                                      .text) ??
-                                              0;
-
+                                      // 1. Validation
+                                      final double enteredAmount = double.tryParse(receivedAmountController.text) ?? 0;
                                       if (enteredAmount <= 0) {
-                                        showCustomToastDisplay(
-                                            context,
-                                            "Please enter a valid amount",
-                                            Colors.red,
-                                            Icons.error);
+                                        showCustomToastDisplay(context, "Please enter a valid amount", Colors.red, Icons.error);
                                         return;
                                       }
 
-                                      // Build selected items ONCE — used by BOTH flows
-                                      List<PendingAmount> selectedItemsList =
-                                          [];
-                                      for (int i = 0;
-                                          i < selectedItems.length;
-                                          i++) {
+                                      // 2. Build Selected List
+                                      List<PendingAmount> selectedItemsList = [];
+                                      for (int i = 0; i < selectedItems.length; i++) {
                                         if (selectedItems[i]) {
                                           if (title == 'Due Payment') {
-                                            selectedItemsList.add(
-                                                collection.due!.dueAmount![i]);
-                                          } else if (title ==
-                                              'Over Due Payment') {
-                                            selectedItemsList.add(collection
-                                                .overdue!.overdueAmount![i]);
+                                            selectedItemsList.add(collection.due!.dueAmount![i]);
+                                          } else if (title == 'Over Due Payment') {
+                                            selectedItemsList.add(collection.overdue!.overdueAmount![i]);
                                           } else {
-                                            selectedItemsList.add(collection
-                                                .order!.pendingAmount![i]);
+                                            selectedItemsList.add(collection.order!.pendingAmount![i]);
                                           }
                                         }
                                       }
 
                                       if (selectedItemsList.isEmpty) {
-                                        showCustomToastDisplay(
-                                            context,
-                                            "Please select at least one item",
-                                            Colors.red,
-                                            Icons.error);
+                                        showCustomToastDisplay(context, "Please select at least one item", Colors.red, Icons.error);
                                         return;
                                       }
 
-                                      // Now decide: Online Payment → QR flow, else → normal payment
-                                      if (selectedPaymentMethod.value ==
-                                          'QR Payment') {
-                                        // await _startOnlinePayment(
-                                        //   context,
-                                        //   enteredAmount,
-                                        //   selectedItemsList,
-                                        //   // collection,
-                                        // );
+                                      // 3. CHECK CONNECTIVITY
+                                      bool isOnline = await ConnectivityService().isOnline();
+
+                                      // 4. Handle Offline QR Constraint
+                                      if (!isOnline && selectedPaymentMethod.value == 'QR Payment') {
+                                        showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: const Text("Online Required"),
+                                            content: const Text("QR Payments can only be processed while online. Please select Cash, Cheque, or Bank Transfer for offline collection."),
+                                            actions: [
+                                              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
+                                            ],
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      // 5. Normal Processing (Online or Offline-allowed methods)
+                                      if (selectedPaymentMethod.value == 'QR Payment') {
+                                        // This implies isOnline is TRUE (checked above)
                                         await _startOnlinePayment(
                                           context,
                                           enteredAmount,
                                           selectedItemsList,
                                           remarks: remarksController.text,
                                         );
-
-                                        print(
-                                            'payament_type:${selectedPaymentMethod.value}');
                                       } else {
-                                        // Normal Cash/Cheque/Bank Transfer
-                                        processPayments(
-                                          selectedItemsList,
-                                          enteredAmount,
-                                        );
-                                        // _resetPaymentForm();
-                                        updateSelectedItems();
-                                        final dashboardProvider =
-                                            Provider.of<DashboardProvider>(
-                                                context,
-                                                listen: false);
-                                        await dashboardProvider
-                                            .setTempToFilter();
-
-                                        // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
-                                        await dashboardProvider
-                                            .fetchAllOrdersAtOnce();
-
-                                        dashboardProvider.fetchData();
-
-                                        Get.back();
+                                        // Cash/Cheque/Bank (Online OR Offline)
+                                        
+                                        // Await processing (which queues to Hive if offline)
+                                        await processPayments(selectedItemsList, enteredAmount);
+                                        
+                                        // Handle Offline Feedback
+                                        if (!isOnline) {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (ctx) => AlertDialog(
+                                              title: const Row(children: [Icon(Icons.wifi_off, color: Colors.orange), SizedBox(width:10), Text("Payment Queued")]),
+                                              content: const Text("You are offline. The payment has been saved locally and will complete automatically when you go online."),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(ctx); // Close Dialog
+                                                    Get.back(); // Close Collection Dialog
+                                                    
+                                                    // Trigger Dashboard refresh (to update UI with Info icons)
+                                                    final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+                                                    dashboardProvider.fetchData();
+                                                  }, 
+                                                  child: const Text("OK")
+                                                )
+                                              ],
+                                            ),
+                                          );
+                                        } else {
+                                          // Normal Online Success Flow
+                                          updateSelectedItems();
+                                          final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+                                          await dashboardProvider.setTempToFilter();
+                                          await dashboardProvider.fetchAllOrdersAtOnce();
+                                          dashboardProvider.fetchData();
+                                          Get.back();
+                                        }
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue,
-                                      // primaryColor.withOpacity(0.2),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                                     ),
                                     child: Obx(
                                       () => Text(
-                                        selectedPaymentMethod.value ==
-                                                'QR Payment'
-                                            ? 'Pay'
-                                            : 'Submit',
-                                        style: const TextStyle(
-                                            fontSize: 14, color: Colors.white),
+                                        selectedPaymentMethod.value == 'QR Payment' ? 'Pay' : 'Submit',
+                                        style: const TextStyle(fontSize: 14, color: Colors.white),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+                              // DataCell(
+                              //   Center(
+                              //     child: ElevatedButton(
+                              //       onPressed: () async {
+                              //         final double enteredAmount =
+                              //             double.tryParse(
+                              //                     receivedAmountController
+                              //                         .text) ??
+                              //                 0;
+
+                              //         if (enteredAmount <= 0) {
+                              //           showCustomToastDisplay(
+                              //               context,
+                              //               "Please enter a valid amount",
+                              //               Colors.red,
+                              //               Icons.error);
+                              //           return;
+                              //         }
+
+                              //         // Build selected items ONCE — used by BOTH flows
+                              //         List<PendingAmount> selectedItemsList =
+                              //             [];
+                              //         for (int i = 0;
+                              //             i < selectedItems.length;
+                              //             i++) {
+                              //           if (selectedItems[i]) {
+                              //             if (title == 'Due Payment') {
+                              //               selectedItemsList.add(
+                              //                   collection.due!.dueAmount![i]);
+                              //             } else if (title ==
+                              //                 'Over Due Payment') {
+                              //               selectedItemsList.add(collection
+                              //                   .overdue!.overdueAmount![i]);
+                              //             } else {
+                              //               selectedItemsList.add(collection
+                              //                   .order!.pendingAmount![i]);
+                              //             }
+                              //           }
+                              //         }
+
+                              //         if (selectedItemsList.isEmpty) {
+                              //           showCustomToastDisplay(
+                              //               context,
+                              //               "Please select at least one item",
+                              //               Colors.red,
+                              //               Icons.error);
+                              //           return;
+                              //         }
+
+                              //         // Now decide: Online Payment → QR flow, else → normal payment
+                              //         if (selectedPaymentMethod.value ==
+                              //             'QR Payment') {
+                              //           // await _startOnlinePayment(
+                              //           //   context,
+                              //           //   enteredAmount,
+                              //           //   selectedItemsList,
+                              //           //   // collection,
+                              //           // );
+                              //           await _startOnlinePayment(
+                              //             context,
+                              //             enteredAmount,
+                              //             selectedItemsList,
+                              //             remarks: remarksController.text,
+                              //           );
+
+                              //           print(
+                              //               'payament_type:${selectedPaymentMethod.value}');
+                              //         } else {
+                              //           // Normal Cash/Cheque/Bank Transfer
+                              //           processPayments(
+                              //             selectedItemsList,
+                              //             enteredAmount,
+                              //           );
+                              //           // _resetPaymentForm();
+                              //           updateSelectedItems();
+                              //           final dashboardProvider =
+                              //               Provider.of<DashboardProvider>(
+                              //                   context,
+                              //                   listen: false);
+                              //           await dashboardProvider
+                              //               .setTempToFilter();
+
+                              //           // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
+                              //           await dashboardProvider
+                              //               .fetchAllOrdersAtOnce();
+
+                              //           dashboardProvider.fetchData();
+
+                              //           Get.back();
+                              //         }
+                              //       },
+                              //       style: ElevatedButton.styleFrom(
+                              //         backgroundColor: Colors.blue,
+                              //         // primaryColor.withOpacity(0.2),
+                              //         shape: RoundedRectangleBorder(
+                              //             borderRadius:
+                              //                 BorderRadius.circular(10.0)),
+                              //       ),
+                              //       child: Obx(
+                              //         () => Text(
+                              //           selectedPaymentMethod.value ==
+                              //                   'QR Payment'
+                              //               ? 'Pay'
+                              //               : 'Submit',
+                              //           style: const TextStyle(
+                              //               fontSize: 14, color: Colors.white),
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                           ),
                         ],

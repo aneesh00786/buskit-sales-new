@@ -468,7 +468,8 @@ Widget _buildPaymentCollectionButton(
         if (subscriptionController.appPaymentCollection.value == "true") {
           
           pendingPaymentCollectionDialog(context, customerData.customerId);
-        } else {
+        }
+         else {
           showUpgradePlanDialog(context);
         }
       },

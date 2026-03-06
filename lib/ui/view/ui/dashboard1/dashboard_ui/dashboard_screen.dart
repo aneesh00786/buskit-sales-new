@@ -620,7 +620,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
       body: Padding(
         padding: const EdgeInsets.all(5.0),
         child: Column(
-          children: [
+          children: [ 
             DashboardTopWidget(
               dashBoardController: controller,
               homeController: widget.homeController,

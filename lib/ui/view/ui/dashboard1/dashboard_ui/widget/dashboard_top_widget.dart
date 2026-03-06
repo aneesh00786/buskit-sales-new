@@ -265,53 +265,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             isExpanded: true,
             borderRadius: BorderRadius.circular(12),
             underline: Container(),
-            icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
-            dropdownColor: Colors.white,
-            elevation: 8,
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            selectedItemBuilder: (BuildContext context) {
-              return [
-                Row(
-                  children: [
-                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    const Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    const Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(Icons.today, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    const Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    const Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(Icons.date_range, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    const Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ];
-            },
           ),
         ),
       ),

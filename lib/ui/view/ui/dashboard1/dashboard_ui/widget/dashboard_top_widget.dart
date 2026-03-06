@@ -166,24 +166,36 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   Widget _buildFilterDropdown(
       DashboardProvider provider, BuildContext context) {
     return SizedBox(
-      height: 45,
-      width: 120,
+      height: 50,
+      width: 125,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade50,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
-              offset: const Offset(2, 4),
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilterTemp,
             onChanged: (newValue) async {
@@ -201,27 +213,57 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             items: const [
               DropdownMenuItem(
                 value: FilterDateEnum.thisMonth,
-                child: Text('Month', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.thisWeek,
-                child: Text('Week', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.today,
-                child: Text('Day', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.thisYear,
-                child: Text('Year', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.range,
-                child: Text('Range', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.date_range, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
             ],
             isExpanded: true,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             underline: Container(),
           ),
         ),

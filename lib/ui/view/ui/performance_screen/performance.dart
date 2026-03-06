@@ -156,52 +156,71 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             SizedBox(
               height: isSmallScreen ? 29 : 38,
               width: isSmallScreen ? 84 : 104,
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(0, 3),
-                      ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.white,
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
-                    child: DropdownButton<String>(
-                      value: selectedValue,
-                      items: years.map((String year) {
-                        return DropdownMenuItem<String>(
-                          value: year,
-                          child: Text(
-                            year,
-                            style: const TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.8),
+                      blurRadius: 0,
+                      offset: const Offset(-2, -2),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  child: DropdownButton<String>(
+                    value: selectedValue,
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          selectedValue = newValue;
+                        });
+                        staffController.loadSalesmanTargetForSelectedTab(
+                          currentYear: selectedValue,
+                          selectedTabIndex:
+                              staffController.tabController.index + 1,
+                          staffId: salesmanId,
                         );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedValue = newValue;
-                          });
-                          staffController.loadSalesmanTargetForSelectedTab(
-                            currentYear: selectedValue,
-                            selectedTabIndex:
-                                staffController.tabController.index + 1,
-                            staffId: salesmanId,
-                          );
-                        }
-                      },
-                      underline: const SizedBox(),
-                      iconEnabledColor: Colors.black,
+                      }
+                    },
+                    items: years.map((String year) {
+                      return DropdownMenuItem<String>(
+                        value: year,
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                            const SizedBox(width: 8),
+                            Text(year, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(12),
+                    underline: Container(),
+                    icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+                    dropdownColor: Colors.white,
+                    elevation: 8,
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

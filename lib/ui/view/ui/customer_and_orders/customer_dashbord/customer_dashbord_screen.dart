@@ -792,7 +792,7 @@ InkWell(
                 width: 10,
               ),
               Text(
-                "Order Taking",
+                "Customer dashboard",
                 style: TextStyle(
                     fontSize: NkFontSize.largeFont(largeFont: 20),
                     fontWeight: FontWeight.bold),

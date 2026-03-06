@@ -23,6 +23,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/services/permission_status_service.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -80,11 +82,46 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     // Register lifecycle observer to detect when app returns from settings
     WidgetsBinding.instance.addObserver(this);
     
+    // Initialize permission status service and set up listener
+    _initializePermissionStatus();
+    
     ApiWorker().loadSwitchState().then((value) {
       if (mounted) {
         setState(() {
           _onSwitchSelected = value;
           _isLoading = false;
+        });
+      }
+    });
+  }
+
+  Future<void> _initializePermissionStatus() async {
+    final permissionService = PermissionStatusService();
+    print("=== Sidebar initializing permission service ===");
+    
+    // Wait for permission service to initialize and get current status
+    await permissionService.initialize();
+    
+    // Get current permission status after initialization
+    var alwaysStatus = await Permission.locationAlways.status;
+    bool currentPermissionStatus = alwaysStatus.isGranted;
+    
+    print("=== Sidebar permission service initialized ===");
+    print("=== Current permission status: $currentPermissionStatus ===");
+    
+    // Set initial permission status
+    if (mounted) {
+      setState(() {
+        _hasAlwaysPermission = currentPermissionStatus;
+      });
+    }
+    
+    print("=== Sidebar adding listener to permission service ===");
+    permissionService.addListener(() {
+      print("=== Sidebar listener called, new permission status: ${permissionService.hasAlwaysPermission} ===");
+      if (mounted) {
+        setState(() {
+          _hasAlwaysPermission = permissionService.hasAlwaysPermission;
         });
       }
     });
@@ -667,16 +704,74 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
-          content: Text('Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+          titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          title: Row(
+            children: [
+              Icon(
+                Icons.access_time_filled,
+                size: 25.0,
+                color: primaryColor,
+              ),
+              const SizedBox(width: 8.0),
+              Text(
+                newState ? 'Confirm Check-In' : 'Confirm Check-Out',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to ${newState ? 'check in' : 'check out'}?',
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+              ),
               onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             ElevatedButton(
-              child: const Text('Confirm'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+              ),
               onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Confirm',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         );
@@ -691,176 +786,49 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     setState(() => _isLoading = true);
 
     try {
-      // Basic Check
-      if (!await handleLocationPermission(context)) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // Get Position for API
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
       if (newState) {
-        // === CHECK IN LOGIC ===
-
-        // Check current permission status
-        var alwaysStatus = await Permission.locationAlways.status;
+        // Use the shared CheckInService for check-in
+        print("=== Sidebar calling CheckInService().performCheckIn ===");
+        await CheckInService().performCheckIn(context);
         
-        // Update UI with current permission status
-        setState(() {
-          _hasAlwaysPermission = alwaysStatus.isGranted;
-        });
-
-        // If NOT granted, show explanation dialog FIRST, then request
-        if (!alwaysStatus.isGranted) {
-          // Show explanation dialog FIRST
-          bool proceed = await _showAlwaysPermissionDialog(context);
-          
-          if (!proceed) {
-            // User chose "Use Foreground Only" - proceed with fallback
-            setState(() {
-              _hasAlwaysPermission = false;
-            });
-            _startForegroundTracking();
-            print("⚠️ Foreground Stream Started (user chose not to allow Always)");
-            
-            // Send API to complete check-in
-            final response = await ApiWorker().updateAdminCheckInOut(
-              date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-              time: DateFormat('HH:mm').format(DateTime.now()),
-              direction: "in",
-              lat: position.latitude.toString(),
-              long: position.longitude.toString(),
-            );
-
-            if (response.statusCode == 200) {
-              await ApiWorker().saveSwitchState(true);
-              if (mounted) {
-                setState(() {
-                  _onSwitchSelected = true;
-                });
-              }
-            }
-          } else {
-            // User clicked "Request Always" - Try popup first
-            _pendingPosition = position;
-            _waitingForPermissionPopup = true;
-            
-            // Show snackbar while waiting for user response
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Please allow "Always" permission in the popup...'),
-                  duration: Duration(seconds: 10),
-                ),
-              );
-            }
-            
-            // Show iOS popup - try to request Always
-            await Permission.locationAlways.request();
-            
-            // Wait a moment for iOS to update the permission status
-            await Future.delayed(const Duration(milliseconds: 1500));
-            
-            // Check if permission was granted
-            var newStatus = await Permission.locationAlways.status;
-            
-            if (newStatus.isGranted) {
-              // Permission granted! Complete check-in
-              _waitingForPermissionPopup = false;
-              
-              // Clear the snackbar
-              if (mounted) {
-                ScaffoldMessenger.of(context).clearSnackBars();
-              }
-              
-              await initializeService();
-              final service = FlutterBackgroundService();
-              if (!await service.isRunning()) service.startService();
-              
-              setState(() {
-                _hasAlwaysPermission = true;
-              });
-              
-              final response = await ApiWorker().updateAdminCheckInOut(
-                date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                time: DateFormat('HH:mm').format(DateTime.now()),
-                direction: "in",
-                lat: position.latitude.toString(),
-                long: position.longitude.toString(),
-              );
-              
-              if (response.statusCode == 200) {
-                await ApiWorker().saveSwitchState(true);
-                setState(() {
-                  _onSwitchSelected = true;
-                });
-              }
-            } else {
-              // Popup didn't grant Always - Open Settings instead
-              _waitingForPermissionPopup = false;
-              
-              // Clear the snackbar
-              if (mounted) {
-                ScaffoldMessenger.of(context).clearSnackBars();
-              }
-              
-              _pendingSettingsReturn = true;
-              
-              // Show message
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enable "Always" in Settings to enable background tracking'),
-                    duration: Duration(seconds: 4),
-                  ),
-                );
-              }
-              
-              // Open settings
-              await openAppSettings();
-              
-              // Return and wait for user
-              setState(() => _isLoading = false);
-              return;
-            }
-          }
-        } else {
-          // Already has Always permission - start background service
-          await initializeService();
-          final service = FlutterBackgroundService();
-          if (!await service.isRunning()) service.startService();
-          print("✅ Background Service Started (already granted)");
+        // After CheckInService completes, reload the switch state and update UI
+        bool updatedState = await ApiWorker().loadSwitchState();
+        if (mounted) {
+          setState(() {
+            _onSwitchSelected = updatedState;
+          });
         }
-
+        
+        // The CheckInService will handle permission status updates
+        // and the sidebar listener will automatically update the permission status
       } else {
+        // Handle check-out logic
         // Reset permission status on check out
         setState(() {
           _hasAlwaysPermission = false;
         });
+        
         // === CHECK OUT LOGIC ===
         final service = FlutterBackgroundService();
         if (await service.isRunning()) service.invoke('stopService');
         _stopForegroundTracking();
-      }
+        
+        // Send API for check-out
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: "out",
+          lat: "0.0", // No position needed for check-out
+          long: "0.0",
+        );
 
-      // 5. Send API
-      final response = await ApiWorker().updateAdminCheckInOut(
-        date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-        time: DateFormat('HH:mm').format(DateTime.now()),
-        direction: newState ? "in" : "out",
-        lat: position.latitude.toString(),
-        long: position.longitude.toString(),
-      );
-
-      if (response.statusCode == 200) {
-        await ApiWorker().saveSwitchState(newState);
-        if (mounted) {
-          setState(() {
-            _onSwitchSelected = newState;
-          });
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(false);
+          if (mounted) {
+            setState(() {
+              _onSwitchSelected = false;
+            });
+          }
         }
       }
     } catch (e) {

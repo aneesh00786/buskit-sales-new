@@ -73,7 +73,7 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: 45, width: 140, // Compact width
+          height: 50, width: 125, // Compact width
           child: Container(
             key: _dropdownKey,
             decoration: BoxDecoration(
@@ -120,7 +120,7 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: Text(_getSelectedText(), style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+                    Expanded(child: Text(_getSelectedText(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
                     const Icon(Icons.arrow_drop_down, size: 20),
                   ],
                 ),
@@ -128,19 +128,6 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
             ),
           ),
         ),
-        const SizedBox(width: 5),
-        // THE GO BUTTON
-        MyThemeButton( // Or CustomButton
-          buttonText: 'Go',
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-          height: 45,
-          onPressed: () async {
-             bool isOnline = await ConnectivityService().isOnline();
-             if(!isOnline) return;
-             controller.currentPage.value = 1;
-             await controller.updateSalesReturnList();
-          },
-        )
       ],
     ));
   }

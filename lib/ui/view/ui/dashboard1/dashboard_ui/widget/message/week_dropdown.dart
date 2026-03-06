@@ -132,19 +132,32 @@ class _WeekDropdownState extends State<WeekDropdown> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: 45,
-            width: 140,
+            height: 50,
+            width: 125,
             child: Container(
               key: _dropdownKey,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.white,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.shade50,
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 8,
-                    offset: const Offset(2, 4),
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.8),
+                    blurRadius: 0,
+                    offset: const Offset(-2, -2),
                   ),
                 ],
               ),
@@ -214,7 +227,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
                 },
                 child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -222,7 +235,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
                         child: Text(
                           _getSelectedText(context),
                           style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w500),
+                              fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -245,28 +258,44 @@ class _WeekDropdownState extends State<WeekDropdown> {
           const SizedBox(width: 5),
           
           // 2. Updated Go Button Logic
-          CustomButton(
-            text: 'Go',
-            onPressed: () async {
-              if (!isOnline) {
-                showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
-                return;
-              }
+          Container(
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, "You are Offline!", red, Icons.close);
+                  return;
+                }
 
-              // CHECK: If custom action exists, run it. Else, run Dashboard logic.
-              if (widget.onApplyTap != null) {
-                widget.onApplyTap!();
-              } else {
-                final dashboardProvider =
-                    Provider.of<DashboardProvider>(context, listen: false);
+                // CHECK: If custom action exists, run it. Else, run Dashboard logic.
+                if (widget.onApplyTap != null) {
+                  widget.onApplyTap!();
+                } else {
+                  final dashboardProvider =
+                      Provider.of<DashboardProvider>(context, listen: false);
 
-                await dashboardProvider.setTempToFilter();
-                await dashboardProvider.fetchAllOrdersAtOnce();
-                dashboardProvider.fetchData();
-              }
-            },
-            color: primaryColor,
+                  await dashboardProvider.setTempToFilter();
+                  await dashboardProvider.fetchAllOrdersAtOnce();
+                  dashboardProvider.fetchData();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              child: const Text('Go'),
+            ),
           ),
         ],
       );

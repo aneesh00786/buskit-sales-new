@@ -293,47 +293,69 @@ class _TableeeState extends State<Tableee> {
                                           onTap: () => provider.selectDate(
                                               context, true),
                                           child: Container(
-                                            height: 38,
-                                            width: 90,
+                                            height: 50,
+                                            width: 125,
                                             decoration: BoxDecoration(
-                                              color: const Color(0xfff9f9fb),
-                                              border: Border.all(
-                                                  color:
-                                                      const Color(0xffd1d1d1),
-                                                  width: 1.0),
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.white,
+                                                  Colors.white,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color: const Color(
+                                                      0xFFE1E5E9),
+                                                  width: 1),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 2,
-                                                  offset: const Offset(0, 1),
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                  spreadRadius: 0,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  blurRadius: 0,
+                                                  offset: const Offset(-2, -2),
                                                 ),
                                               ],
                                             ),
                                             padding: const EdgeInsets.symmetric(
-                                                vertical: 4, horizontal: 8),
+                                                horizontal: 10, vertical: 6),
                                             child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text(
-                                                  provider.selectedStartDate
-                                                          .isEmpty
-                                                      ? 'DD-MM-YYYY'
-                                                      : DateFormat('dd-MM-yyyy')
-                                                          .format(DateTime
-                                                              .parse(provider
-                                                                  .selectedStartDate)),
-                                                  style: TextStyle(
-                                                      fontSize: 10.5,
-                                                      color: Colors.grey[800]),
+                                                Expanded(
+                                                  child: Text(
+                                                    provider.selectedStartDate
+                                                            .isEmpty
+                                                        ? 'DD-MM-YYYY'
+                                                        : DateFormat(
+                                                                'dd-MM-yyyy')
+                                                            .format(DateTime.parse(
+                                                                provider
+                                                                    .selectedStartDate)),
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
-                                                Icon(Icons.calendar_today,
-                                                    size: 14,
-                                                    color: Colors.grey[700]),
+                                                const Icon(Icons.calendar_today,
+                                                    size: 18,
+                                                    color: Colors.blue),
                                               ],
                                             ),
                                           ),
@@ -346,47 +368,69 @@ class _TableeeState extends State<Tableee> {
                                           onTap: () => provider.selectDate(
                                               context, false),
                                           child: Container(
-                                            height: 38,
-                                            width: 90,
+                                            height: 50,
+                                            width: 125,
                                             decoration: BoxDecoration(
-                                              color: const Color(0xfff9f9fb),
-                                              border: Border.all(
-                                                  color:
-                                                      const Color(0xffd1d1d1),
-                                                  width: 1.0),
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.white,
+                                                  Colors.white,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color: const Color(
+                                                      0xFFE1E5E9),
+                                                  width: 1),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.2),
-                                                  blurRadius: 2,
-                                                  offset: const Offset(0, 1),
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                  spreadRadius: 0,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  blurRadius: 0,
+                                                  offset: const Offset(-2, -2),
                                                 ),
                                               ],
                                             ),
                                             padding: const EdgeInsets.symmetric(
-                                                vertical: 4, horizontal: 8),
+                                                horizontal: 10, vertical: 6),
                                             child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text(
-                                                  provider.selectedEndDate
-                                                          .isEmpty
-                                                      ? 'DD-MM-YYYY'
-                                                      : DateFormat('dd-MM-yyyy')
-                                                          .format(DateTime
-                                                              .parse(provider
-                                                                  .selectedEndDate)),
-                                                  style: TextStyle(
-                                                      fontSize: 10.5,
-                                                      color: Colors.grey[800]),
+                                                Expanded(
+                                                  child: Text(
+                                                    provider.selectedEndDate
+                                                            .isEmpty
+                                                        ? 'DD-MM-YYYY'
+                                                        : DateFormat(
+                                                                'dd-MM-yyyy')
+                                                            .format(DateTime.parse(
+                                                                provider
+                                                                    .selectedEndDate)),
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
-                                                Icon(Icons.calendar_today,
-                                                    size: 14,
-                                                    color: Colors.grey[700]),
+                                                const Icon(Icons.calendar_today,
+                                                    size: 18,
+                                                    color: Colors.blue),
                                               ],
                                             ),
                                           ),
@@ -396,7 +440,7 @@ class _TableeeState extends State<Tableee> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 4.0),
                                         child: SizedBox(
-                                          height: 36.4,
+                                          height: 50,
                                           width: 68,
                                           child: ElevatedButton(
                                             onPressed: () =>
@@ -406,11 +450,17 @@ class _TableeeState extends State<Tableee> {
                                               shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(
-                                                          4.0)),
+                                                          12.0)),
+                                              elevation: 8,
+                                              shadowColor: Colors.black.withOpacity(0.2),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 10),
                                             ),
                                             child: const Text('Go',
                                                 style: TextStyle(
-                                                    color: Colors.white)),
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600)),
                                           ),
                                         ),
                                       ),
@@ -514,27 +564,45 @@ class _TableeeState extends State<Tableee> {
 
   Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
     return SizedBox(
-      height: 45,
-      width: 110,
+      height: 50,
+      width: 125,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade50,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
-              offset: const Offset(2, 4),
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilter,
-            onChanged: (newValue) {
+            onChanged: (newValue) async {
+            bool isOnline = await ConnectivityService().isOnline();
+             if (!isOnline) {
+                   showCustomToastDisplay(
+                   context, "You are Offline!", red, Icons.close);
+                   return;
+             }
             if (newValue != null) {
               // This should ONLY update the variable `selectedFilter` 
               // and call notifyListeners(). Do not fetch API data here.
@@ -555,23 +623,66 @@ class _TableeeState extends State<Tableee> {
             items: const [
               DropdownMenuItem(
                   value: FilterDateEnum.thisMonth,
-                  child: Text('Month', style: TextStyle(fontSize: 10.5))),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               DropdownMenuItem(
                   value: FilterDateEnum.thisWeek,
-                  child: Text('Week', style: TextStyle(fontSize: 10.5))),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               DropdownMenuItem(
                   value: FilterDateEnum.today,
-                  child: Text('Day', style: TextStyle(fontSize: 10.5))),
+                  child: Row(
+                    children: [
+                      Icon(Icons.today, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               DropdownMenuItem(
                   value: FilterDateEnum.thisYear,
-                  child: Text('Year', style: TextStyle(fontSize: 10.5))),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               DropdownMenuItem(
                   value: FilterDateEnum.range,
-                  child: Text('Range', style: TextStyle(fontSize: 10.5))),
+                  child: Row(
+                    children: [
+                      Icon(Icons.date_range, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
             ],
             isExpanded: true,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             underline: Container(),
+            icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+            dropdownColor: Colors.white,
+            elevation: 8,
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

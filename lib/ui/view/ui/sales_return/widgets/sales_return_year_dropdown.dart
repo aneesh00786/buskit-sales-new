@@ -122,22 +122,6 @@ class _SalesReturnYearDropdownState extends State<SalesReturnYearDropdown> {
             ),
           ),
         ),
-        const SizedBox(width: 5),
-        // The Go Button
-        MyThemeButton(
-          buttonText: 'Go',
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-          height: 45,
-          onPressed: () async {
-            bool isOnline = await ConnectivityService().isOnline();
-            if (!isOnline) {
-              showCustomToastDisplay(context, "You are Offline!", Colors.red, Icons.close);
-              return;
-            }
-            controller.currentPage.value = 1;
-            await controller.updateSalesReturnList();
-          },
-        )
       ],
     ));
   }

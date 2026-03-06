@@ -54,23 +54,6 @@ class SalesReturnRangePicker extends StatelessWidget {
         _box(context, controller.rangeStartDate.value, true),
         const SizedBox(width: 5),
         _box(context, controller.rangeEndDate.value, false),
-        const SizedBox(width: 5),
-        MyThemeButton(
-          buttonText: 'Go',
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-          height: 45,
-          onPressed: () async {
-             bool isOnline = await ConnectivityService().isOnline();
-             if(!isOnline) return;
-             
-             if(controller.rangeStartDate.value.isEmpty || controller.rangeEndDate.value.isEmpty) {
-               showCustomToastDisplay(context, "Select date range", red, Icons.close);
-               return;
-             }
-             controller.currentPage.value = 1;
-             await controller.updateSalesReturnList();
-          },
-        )
       ],
     ));
   }

@@ -514,27 +514,45 @@ class _TableeeState extends State<Tableee> {
 
   Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
     return SizedBox(
-      height: 45,
-      width: 110,
+      height: 50,
+      width: 125,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade50,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
-              offset: const Offset(2, 4),
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilter,
-            onChanged: (newValue) {
+            onChanged: (newValue) async {
+            bool isOnline = await ConnectivityService().isOnline();
+             if (!isOnline) {
+                   showCustomToastDisplay(
+                   context, "You are Offline!", red, Icons.close);
+                   return;
+             }
             if (newValue != null) {
               // This should ONLY update the variable `selectedFilter` 
               // and call notifyListeners(). Do not fetch API data here.

@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="5660bd51-f1b0-4dde-9ee0-3a91c66f24cb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api_handler/api_worker.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api_handler/api_worker.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/pending_payment_collection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/pending_payment_collection.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/provider/dash_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/provider/dash_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/pending_payments/widget/pending_payment_collection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/pending_payments/widget/pending_payment_collection.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -712,7 +712,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 bool isOfflinePaymentPending(String orderId) {
   if (!Hive.isBoxOpen('offlineRequests')) return false;
   var box = Hive.box('offlineRequests');
-  // Check if any request in the box matches this orderId
   return box.values.any((request) {
     if (request is Map) {
       final payload = request['payload'];
@@ -720,6 +719,58 @@ bool isOfflinePaymentPending(String orderId) {
     }
     return false;
   });
+}
+// bool isOfflinePaymentPending(String orderId) {
+//   if (!Hive.isBoxOpen('offlineRequests')) return false;
+//   var box = Hive.box('offlineRequests');
+//   // Check if any request in the box matches this orderId
+//   return box.values.any((request) {
+//     if (request is Map) {
+//       final payload = request['payload'];
+//       return payload != null && payload['order_id'].toString() == orderId;
+//     }
+//     return false;
+//   });
+// }
+List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
+  if (!Hive.isBoxOpen('offlineRequests')) return [];
+  var box = Hive.box('offlineRequests');
+  List<Map<String, dynamic>> payments = [];
+
+  for (var key in box.keys) {
+    var element = box.get(key);
+    if (element is Map) {
+      final payload = element['payload'];
+      if (payload != null && payload['order_id'].toString() == orderId) {
+        
+        // Generate Unique ID for UI keys
+        String uniqueId;
+        if (payload['unique_id'] != null) {
+           uniqueId = payload['unique_id'].toString();
+        } else {
+           // Fallback for older records
+           String timestamp = element['timestamp'] ?? DateTime.now().toIso8601String();
+           String salesId = payload['sales_id'] ?? 'unknown'; 
+           uniqueId = "${timestamp}_$salesId";
+        }
+
+        payments.add({
+          'hive_key': key, 
+          'unique_id': uniqueId,
+          'data': element
+        });
+      }
+    }
+  }
+  
+  // Sort by timestamp descending (Newest first)
+  payments.sort((a, b) {
+    var tA = DateTime.parse(a['data']['timestamp']);
+    var tB = DateTime.parse(b['data']['timestamp']);
+    return tB.compareTo(tA);
+  });
+
+  return payments;
 }
 
 // Get details for the info dialog
@@ -738,51 +789,311 @@ Map<String, dynamic>? getOfflinePaymentDetails(String orderId) {
     return null;
   }
 }
-
 void showOfflineInfoDialog(BuildContext context, String orderId) {
-  final details = getOfflinePaymentDetails(orderId);
-  if (details == null) return;
-
-  final payload = details['payload'];
-  final timestamp = DateTime.parse(details['timestamp']);
-  final formattedDate = DateFormat('dd MMM yyyy, hh:mm a').format(timestamp);
-
   showDialog(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Row(
-        children: [
-          Icon(Icons.wifi_off, color: Colors.orange),
-          SizedBox(width: 10),
-          Text("Offline Payment", style: TextStyle(fontSize: 16)),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-              "This payment is saved locally and will sync automatically when online."),
-          const Divider(),
-          Text("Order ID: $orderId"),
-          Text("Amount: ${addCurrencySymbol()}${payload['recieved_amount']}"),
-          Text(
-              "Type: ${payload['payment_type'] == '0' ? 'Cash' : payload['payment_type'] == '1' ? 'Cheque' : 'Bank Transfer'}"),
-          Text("Date: $formattedDate"),
-          if (payload['detail'] != null &&
-              payload['detail'].toString().isNotEmpty)
-            Text("Remarks: ${payload['detail']}"),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: const Text("Close"),
-        )
-      ],
-    ),
+    builder: (dialogContext) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          final paymentList = getOfflinePaymentsList(orderId);
+
+          // Auto-close when last item is deleted
+          if (paymentList.isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(dialogContext).pop();
+              // Optional: refresh parent screen / controller
+              // Get.find<PendingPaymentController>()?.update();
+              // or Provider.of<SomeProvider>(context, listen: false).fetchData();
+            });
+            return const SizedBox.shrink();
+          }
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            title: Row(
+              children: const [
+                Icon(Icons.cloud_off_rounded, color: Colors.deepOrange, size: 28),
+                SizedBox(width: 12),
+                Text(
+                  "Offline Payment Queue",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: DataTable(
+                  headingRowHeight: 48,
+                  dataRowHeight: 56,
+                  horizontalMargin: 16,
+                  columnSpacing: 32,
+                  headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
+                  border: TableBorder(
+                    horizontalInside: BorderSide(color: Colors.grey.shade300),
+                    bottom: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  columns: const [
+                    DataColumn(
+                      label: Text(
+                        'Amount',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Type',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Time',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Action',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                  rows: paymentList.map<DataRow>((item) {
+                    final data = item['data'];
+                    final payload = data['payload'] as Map;
+                    final hiveKey = item['hive_key'];
+                    final uniqueKeyStr = item['unique_id'];
+                    final timestamp = DateTime.parse(data['timestamp'] as String);
+
+                    final formattedTime = DateFormat('dd MMM • hh:mm a').format(timestamp);
+
+                    final paymentType = payload['payment_type'] == '0'
+                        ? 'Cash'
+                        : payload['payment_type'] == '1'
+                            ? 'Cheque'
+                            : 'Bank';
+
+                    return DataRow(
+                      key: ValueKey(uniqueKeyStr),
+                      cells: [
+                        DataCell(
+                          Text(
+                            "${addCurrencySymbol()}${payload['recieved_amount']}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            paymentType,
+                            style: const TextStyle(fontSize: 14),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            formattedTime,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DataCell(
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: Colors.redAccent,
+                              size: 22,
+                            ),
+                            tooltip: 'Remove from queue',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text("Remove this payment?"),
+                                  content: const Text(
+                                    "This offline payment record will be permanently deleted.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, false),
+                                      child: const Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(ctx, true);
+                                        Get.back(); // Close the info dialog as well
+                                      },
+                                      child: const Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                final box = Hive.box('offlineRequests');
+                                await box.delete(hiveKey);
+                                setState(() {}); // refresh table
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text(
+                  "Close",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
   );
 }
+// void showOfflineInfoDialog(BuildContext context, String orderId) {
+//   showDialog(
+//     context: context,
+//     builder: (ctx) {
+//       return StatefulBuilder(
+//         builder: (context, setState) {
+//           // Fetch the list every time the builder runs (allowing delete updates)
+//           var paymentList = getOfflinePaymentsList(orderId);
+
+//           // If user deleted the last item, close the dialog automatically
+//           if (paymentList.isEmpty) {
+//             WidgetsBinding.instance.addPostFrameCallback((_) {
+//               Navigator.pop(ctx);
+//               // Optional: Trigger a refresh on the main controller if needed
+//               // Get.find<PendingPaymentController>().update(); 
+//             });
+//             return const SizedBox(); 
+//           }
+
+//           return AlertDialog(
+//             title: const Row(
+//               children: [
+//                 Icon(Icons.wifi_off, color: Colors.orange),
+//                 SizedBox(width: 10),
+//                 Text("Offline Queue", style: TextStyle(fontSize: 16)),
+//               ],
+//             ),
+//             content: SingleChildScrollView(
+//               scrollDirection: Axis.horizontal,
+//               child: SingleChildScrollView(
+//                 scrollDirection: Axis.vertical,
+//                 child: DataTable(
+//                   columnSpacing: 20,
+//                   headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
+//                   columns: const [
+//                     DataColumn(label: Text('Amount',  style: TextStyle(fontWeight: FontWeight.bold))),
+//                     DataColumn(label: Text('Type',    style: TextStyle(fontWeight: FontWeight.bold))),
+//                     DataColumn(label: Text('Time',    style: TextStyle(fontWeight: FontWeight.bold))),
+//                     DataColumn(label: Text('Action',  style: TextStyle(fontWeight: FontWeight.bold))),
+//                   ],
+//                   rows: paymentList.map<DataRow>((item) {
+//                     final data        = item['data'];
+//                     final payload     = data['payload'];
+//                     final hiveKey     = item['hive_key'];
+//                     final uniqueKeyStr = item['unique_id'];
+//                     final timestamp   = DateTime.parse(data['timestamp']);
+//                     final formattedTime = DateFormat('dd MMM, hh:mm a').format(timestamp);
+                    
+//                     String paymentType = payload['payment_type'] == '0' ? 'Cash' 
+//                                        : payload['payment_type'] == '1' ? 'Cheque' 
+//                                        : 'Bank';
+
+//                     return DataRow(
+//                       key: ValueKey(uniqueKeyStr),
+//                       cells: [
+//                         DataCell(
+//                           Text("${addCurrencySymbol()}${payload['recieved_amount']}"),
+//                         ),
+//                         DataCell(
+//                           Text(paymentType),
+//                         ),
+//                         DataCell(
+//                           Text(formattedTime, style: const TextStyle(fontSize: 12)),
+//                         ),
+//                         DataCell(
+//                           IconButton(
+//                             icon: const Icon(Icons.delete, color: Colors.red),
+//                             onPressed: () async {
+//                               // Delete from Hive
+//                               var box = Hive.box('offlineRequests');
+//                               await box.delete(hiveKey);
+                              
+//                               // Trigger UI rebuild inside this dialog
+//                               setState(() {});
+//                               Get.back(); 
+//                             },
+//                           ),
+//                         ),
+//                       ],
+//                     );
+//                   }).toList(),
+//                 ),
+//               ),
+//             ),
+//             actions: [
+//               TextButton(
+//                 onPressed: () => Navigator.pop(ctx),
+//                 child: const Text("Close"),
+//               )
+//             ],
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
+
+// 
 
 // ---------------------------------
 void pendingPaymentCollectionDialog(

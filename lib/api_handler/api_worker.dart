@@ -3007,7 +3007,6 @@ log('response of alll products get :${response.data}');
       return Future.error(error);
     }
   }
-
   Future<void> customerPayment({
     BuildContext? context,
     required String detail,
@@ -3019,6 +3018,16 @@ log('response of alll products get :${response.data}');
     String? transactionDate = "",
     String? transactionId = "",
   }) async {
+    // 1. Get the current timestamp
+    String timestamp = DateTime.now().toIso8601String();
+
+    // 2. Get the Sales ID (Assuming it is stored in SessionHelper like company_id)
+    // If your sales ID variable is named differently (e.g., userId), change '.id' below.
+    String salesId = SessionHelper.loginSavedData?.id?.toString() ?? "0"; 
+
+    // 3. Generate the Unique ID
+    String uniqueId = "${timestamp}_$salesId";
+
     final requestPayload = {
       "check_due_date": checkDueDate,
       "check_number": checkNumber,
@@ -3029,9 +3038,16 @@ log('response of alll products get :${response.data}');
       "transation_date": transactionDate,
       "transation_id": transactionId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      
+      // ✅ Add the new fields here
+      "sales_id": salesId,   // Ensure sales_id is in payload for your offline logic
+      "unique_id": uniqueId, // The unique string you requested
     };
+
     // print('payment-type in api function:$paymentType');
     print('transactionId in api function:$transactionId');
+    print('Generated Unique ID: $uniqueId'); // Debug print
+
     try {
       bool isOnline = await ConnectivityService().isOnline();
 
@@ -3040,7 +3056,7 @@ log('response of alll products get :${response.data}');
         await box.add({
           "url": '${ApiConstants.baseUrl}${ApiConstants.customerPayment}',
           "payload": requestPayload,
-          "timestamp": DateTime.now().toIso8601String(),
+          "timestamp": timestamp, // Use the SAME timestamp we generated above
         });
         return;
       }
@@ -3069,6 +3085,68 @@ log('response of alll products get :${response.data}');
       }
     }
   }
+
+  // Future<void> customerPayment({
+  //   BuildContext? context,
+  //   required String detail,
+  //   required String orderId,
+  //   required String paymentType,
+  //   required double receivedAmount,
+  //   String? checkDueDate = "",
+  //   String? checkNumber = "",
+  //   String? transactionDate = "",
+  //   String? transactionId = "",
+  // }) async {
+  //   final requestPayload = {
+  //     "check_due_date": checkDueDate,
+  //     "check_number": checkNumber,
+  //     "detail": detail,
+  //     "order_id": orderId,
+  //     "payment_type": paymentType,
+  //     "recieved_amount": receivedAmount,
+  //     "transation_date": transactionDate,
+  //     "transation_id": transactionId,
+  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //   };
+  //   // print('payment-type in api function:$paymentType');
+  //   print('transactionId in api function:$transactionId');
+  //   try {
+  //     bool isOnline = await ConnectivityService().isOnline();
+
+  //     if (!isOnline) {
+  //       var box = await Hive.openBox('offlineRequests');
+  //       await box.add({
+  //         "url": '${ApiConstants.baseUrl}${ApiConstants.customerPayment}',
+  //         "payload": requestPayload,
+  //         "timestamp": DateTime.now().toIso8601String(),
+  //       });
+  //       return;
+  //     }
+
+  //     final response = await dio1.post(
+  //       '${ApiConstants.baseUrl}${ApiConstants.customerPayment}',
+  //       data: requestPayload,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       showCustomToastDisplay(
+  //           context!, "Payment successful", Colors.green, Icons.check);
+  //     } else {
+  //       showCustomToastDisplay(
+  //           context!, "Payment failed", Colors.red, Icons.close);
+  //     }
+  //   } catch (error) {
+  //     showCustomToastDisplay(
+  //         context!, "Error in Payment : $error", Colors.red, Icons.close);
+  //     if (error is DioException) {
+  //       handleExceptionMessage(
+  //           apiName: 'Customer Payment', response: error.response);
+  //       throw DioExceptionHandler.fromDioError(error);
+  //     } else {
+  //       throw Exception('Unexpected error in customerPayment: $error');
+  //     }
+  //   }
+  // }
 
   Future<ProductFrequencyResponse> getProductFrequency() async {
     try {

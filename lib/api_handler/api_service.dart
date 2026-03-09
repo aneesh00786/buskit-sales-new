@@ -1545,7 +1545,7 @@ print('dashboard list body:$requestBody');
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-print('response :${response.data}');
+log('response of the fetchCustomer API :${response.data}');
         if (jsonResponse['status'] != true) {
           throw Exception('API returned error: ${jsonResponse['message']}');
         }

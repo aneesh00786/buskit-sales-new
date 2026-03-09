@@ -165,20 +165,20 @@ class CustomerModelxx {
       creditPeriod: List<CreditPeriodxx>.from(
           (json['credit_period'] ?? []).map((x) => CreditPeriodxx.fromJson(x))),
       companyId: json['company_id'] ?? 0,
-      previousYearSales: json['previous_year_sales'],
-      totalSales: json['total_sales'],
-      sales: json['sales'] ?? 0,
-      salesPrice: _parseToInt(json['sales_price']),
-      delivery: json['delivery'] ?? 0,
-      deliveryPrice: json['delivery_price'],
-      payment: json['payment'] ?? 0,
-      paymentPrice: json['payment_price'],
-      estimates: json['estimates'] ?? 0,
-      estimatesPrice: json['estimates_price'],
-      preOrder: json['pre_order'] ?? 0,
-      preOrderPrice: json['pre_order_price'],
-      drafts: json['drafts'] ?? 0,
-      cancelled: json['cancelled'] ?? 0,
+     previousYearSales: _parseToNum(json['previous_year_sales']),
+      totalSales: _parseToNum(json['total_sales']), 
+      sales: _parseToNum(json['sales']) ?? 0,
+      salesPrice: _parseToNum(json['sales_price']), // Fixed: Handles "322387.225" string
+      delivery: _parseToNum(json['delivery']) ?? 0,
+      deliveryPrice: _parseToNum(json['delivery_price']),
+      payment: _parseToNum(json['payment']) ?? 0,
+      paymentPrice: _parseToNum(json['payment_price']),
+      estimates: _parseToNum(json['estimates']) ?? 0,
+      estimatesPrice: _parseToNum(json['estimates_price']),
+      preOrder: _parseToNum(json['pre_order']) ?? 0,
+      preOrderPrice: _parseToNum(json['pre_order_price']),
+      drafts: _parseToNum(json['drafts']) ?? 0,
+      cancelled: _parseToNum(json['cancelled']) ?? 0,
       salesman: List<Salesmanxx>.from(
           (json['salesman'] ?? []).map((x) => Salesmanxx.fromJson(x))),
       orderData: OrderDataxx.fromJson(json['order_data'] ?? {}),
@@ -227,6 +227,16 @@ class CustomerModelxx {
         'salesman': salesman.map((x) => x.toJson()).toList(),
         'order_data': orderData.toJson(),
       };
+      static num? _parseToNum(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value;
+    if (value is String) {
+      if (value.isEmpty) return null;
+      // This handles integers, doubles, and strings like "322387.225"
+      return num.tryParse(value); 
+    }
+    return null;
+  }
 
   static int? _parseToInt(dynamic value) {
     if (value is int) {
@@ -237,25 +247,42 @@ class CustomerModelxx {
       return null;
     }
   }
-
   static List<String> _parseEventDays(dynamic eventDaysJson) {
     if (eventDaysJson is String) {
-      // If it's a string, handle it
+      if (eventDaysJson == "[]") return []; // Quick check for empty
       if (eventDaysJson.startsWith('[') && eventDaysJson.endsWith(']')) {
-        // Remove outer quotes if present
         final cleanedString =
             eventDaysJson.substring(1, eventDaysJson.length - 1);
-        // Split by comma and trim spaces
+        if (cleanedString.isEmpty) return [];
         return cleanedString
             .split(',')
             .map((day) => day.trim().replaceAll('"', ''))
             .toList();
       }
     } else if (eventDaysJson is List) {
-      return List<String>.from(eventDaysJson);
+      return List<String>.from(eventDaysJson.map((e) => e.toString()));
     }
     return [];
   }
+
+  // static List<String> _parseEventDays(dynamic eventDaysJson) {
+  //   if (eventDaysJson is String) {
+  //     // If it's a string, handle it
+  //     if (eventDaysJson.startsWith('[') && eventDaysJson.endsWith(']')) {
+  //       // Remove outer quotes if present
+  //       final cleanedString =
+  //           eventDaysJson.substring(1, eventDaysJson.length - 1);
+  //       // Split by comma and trim spaces
+  //       return cleanedString
+  //           .split(',')
+  //           .map((day) => day.trim().replaceAll('"', ''))
+  //           .toList();
+  //     }
+  //   } else if (eventDaysJson is List) {
+  //     return List<String>.from(eventDaysJson);
+  //   }
+  //   return [];
+  // }
 }
 
 class CreditPeriodxx {
@@ -398,7 +425,7 @@ class OrderDataxx {
                 ?.map((item) => Order.fromJson(item))
                 .toList() ??
             [],
-        outOfDiviery: (json['out_of_diviery'] as List<dynamic>?)
+        outOfDiviery: (json['out_of_delivery'] as List<dynamic>?)
                 ?.map((item) => Order.fromJson(item))
                 .toList() ??
             [],
@@ -431,7 +458,7 @@ class OrderDataxx {
   Map<String, dynamic> toJson() => {
         'total_sales': totalSales.map((order) => order.toJson()).toList(),
         'pre_order': preOrder.map((order) => order.toJson()).toList(),
-        'out_of_diviery': outOfDiviery.map((order) => order.toJson()).toList(),
+        'out_of_delivery': outOfDiviery.map((order) => order.toJson()).toList(),
         'cancel': cancel.map((order) => order.toJson()).toList(),
         'draft': draft.map((order) => order.toJson()).toList(),
         'estimate': estimate.map((order) => order.toJson()).toList(),

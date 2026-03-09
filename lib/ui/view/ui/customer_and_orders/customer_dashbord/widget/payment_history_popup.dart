@@ -89,6 +89,7 @@ class _PaymentHistoryButtonState extends State<PaymentHistoryButton> {
 
   @override
   Widget build(BuildContext context) {
+    print('payment history button called');
     return CompositedTransformTarget(
       link: _layerLink,
       child: IconButton(

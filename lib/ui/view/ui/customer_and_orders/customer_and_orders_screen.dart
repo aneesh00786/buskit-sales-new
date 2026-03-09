@@ -2928,6 +2928,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
+                                               
                                                 if (customer.sales == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -2961,6 +2962,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
+                                                 print('on tappedyy');
+                                                 print('out of delivery : ${customer.orderData.outOfDiviery}');
                                                 if (customer.delivery == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -3732,6 +3735,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           if (order
                                                                   .paymentStatus !=
                                                               0) ...[
+                                                              
                                                             PaymentHistoryButton(
                                                                 orderId: order
                                                                     .orderId)

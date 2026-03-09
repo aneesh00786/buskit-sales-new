@@ -53,7 +53,7 @@ class CustomerCreditController extends GetxController {
 
           allCustomers.assignAll(cachedCustomers);
           _updateCreditFromList(searchedCustomerId);
-          Get.snackbar("Offline", "Showing cached credit data", backgroundColor: const Color.fromARGB(255, 238, 250, 8),colorText: Colors.black);
+          // Get.snackbar("Offline", "Showing cached credit data", backgroundColor: const Color.fromARGB(255, 238, 250, 8),colorText: Colors.black);
         } else {
           errorMessage('No cached data available offline');
         }

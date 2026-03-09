@@ -118,6 +118,7 @@ class SyncController extends GetxController {
         // ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
 
         ApiWorker().getAllProducts(),
+        ApiWorker().getBulkVolumes(),
         calenderMapController.getRouteCredit(),
         ApiWorker().getCalendarEvents({
           'companyId': companyId,

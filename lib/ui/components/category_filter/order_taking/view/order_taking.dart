@@ -154,6 +154,7 @@ class _OrderTakingState extends State<OrderTaking>
     CartDatabaseManager().addListener(() {
       cartProvider.updateCartCount(customerId);
     });
+    apiWorker.getBulkVolumes();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _isDrawerOpen = true;

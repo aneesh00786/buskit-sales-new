@@ -750,6 +750,7 @@ log('response of alll products get :${response.data}');
         return [];
       }
     } else {
+      
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
       return cachedProducts;
     }
@@ -863,6 +864,7 @@ log('response of alll products get :${response.data}');
 
     if (isConnected) {
       try {
+        print('get all product api called');
         // print('get all product api called');
         final queryParams = {"company_id": companyId};
         // print('query paerametyer in the get all product:$queryParams');
@@ -3822,55 +3824,263 @@ log('response of alll products get :${response.data}');
   //   }
   // }
 // }
-  Future<Bulk> getBulkVolumes() async {
+// Future<Bulk> getBulkVolumes() async {
+//     // 1. Define a unique cache key based on company ID
+//     final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+//     final String cacheKey = "${companyId}_bulk_volumes";
+//     final String boxName = 'bulkVolumesBox';
+
+//     try {
+//       final isConnected = await ConnectivityService().isOnline();
+
+//       if (isConnected) {
+//         // --- ONLINE MODE ---
+//         print('get bulk api called (Online)');
+
+//         final response = await dio.postbycustom(
+//           ApiConstants.getVolumes,
+//           data: {
+//             "company_id": companyId,
+//           },
+//         );
+
+//         print('response status code in bulk: ${response.statusCode}');
+
+//         if (response.statusCode == 200) {
+//           final responseData = response.data;
+          
+//           // 1. Parse Data
+//           final bulk = Bulk.fromJson(responseData);
+
+//           // 2. Cache Data (Save the JSON/Map to Hive)
+//           await _cacheBulkData(boxName, cacheKey, responseData);
+
+//           print('bulk volumes fetched and cached successfully');
+//           return bulk;
+//         } else {
+//           // If API fails but we are "connected", you might want to try fallback or throw
+//           throw Exception('Failed to load bulk volumes: ${response.statusCode}');
+//         }
+//       } else {
+//         // --- OFFLINE MODE ---
+//         print('Device is offline. Attempting to load Bulk from cache...');
+//         return await _loadCachedBulkData(boxName, cacheKey);
+//       }
+//     } catch (error) {
+//       // If API fails (e.g. server error), try falling back to cache
+//       print('Error occurred: $error. Attempting fallback to cache...');
+//       try {
+//         return await _loadCachedBulkData(boxName, cacheKey);
+//       } catch (cacheError) {
+//         // If cache also fails, handle the original exception
+//         handleExceptionMessage(
+//           apiName: 'Fetch Bulk Volumes',
+//           response: error is DioException ? error.response : null,
+//         );
+//         throw Exception('Failed to fetch bulk volumes (Online & Offline failed)');
+//       }
+//     }
+//   }
+Future<Bulk> getBulkVolumes() async {
+    // 1. Setup Keys
+    final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final String cacheKey = "${companyId}_bulk_volumes";
+    final String boxName = 'bulkVolumesBox';
+
     try {
-      print('get bulk api called');
-
       final isConnected = await ConnectivityService().isOnline();
-      final cacheKey =
-          "${SessionHelper.loginSavedData?.company_id ?? 0}_bulk_volumes";
 
-      // You can keep offline caching later — for now let's focus on making the request work
+      if (isConnected) {
+        // --- ONLINE MODE ---
+        print('Attempting Online Fetch...');
+        
+        final response = await dio.postbycustom(
+          ApiConstants.getVolumes,
+          data: {"company_id": companyId},
+        );
 
-      // ONLINE MODE - POST with body
-      final response = await dio.postbycustom(
-        ApiConstants.getVolumes, // "get-volumes"
-        data: {
-          // ← Send as JSON body
-          "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
-        },
-        // queryParameters: null,  // ← remove or leave empty
-      );
+        if (response.statusCode == 200) {
+          try {
+            // A. Try Parsing
+            print('API Success. Parsing data...');
+            final bulk = Bulk.fromJson(response.data);
 
-      print('response status code in bulk: ${response.statusCode}');
-      log('response data: ${response.data}'); // ← very useful for debugging
-
-      final bulk = Bulk.fromJson(response.data);
-
-      print('bulk volumes fetched successfully');
-
-      // Cache the response (uncomment when ready)
-      // final box = await Hive.openBox('bulkVolumesBox');
-      // await box.put(cacheKey, bulk.toJson());
-
-      return bulk;
-    } catch (error) {
-      handleExceptionMessage(
-        apiName: 'Fetch Bulk Volumes',
-        response: error is DioException ? error.response : null,
-      );
-
-      // Optional: print more details about the error
-      if (error is DioException) {
-        print('Dio error details:');
-        print('Status: ${error.response?.statusCode}');
-        print('Response data: ${error.response?.data}');
-        print('Message: ${error.message}');
+            // B. Save to Cache (Only if parsing works)
+            await _cacheBulkData(boxName, cacheKey, response.data);
+            
+            return bulk;
+          } catch (e) {
+            print('CRITICAL: JSON Parsing Failed! Check your Bulk.fromJson model.');
+            print('Error: $e');
+            // If parsing fails, we throw to trigger the offline fallback
+            throw Exception('JSON Parsing Error: $e');
+          }
+        } else {
+          throw Exception('API returned status: ${response.statusCode}');
+        }
+      } else {
+        // --- OFFLINE MODE (No Internet) ---
+        print('No Internet. Loading from cache...');
+        return await _loadCachedBulkData(boxName, cacheKey);
       }
 
-      throw Exception('Failed to fetch bulk volumes: $error');
+    } catch (e) {
+      // --- FALLBACK (API Failed or Parsing Failed) ---
+      print('Online fetch failed ($e). Attempting fallback to cache...');
+
+      try {
+        return await _loadCachedBulkData(boxName, cacheKey);
+      } catch (cacheError) {
+        // Both failed.
+        print('Cache also failed or is empty: $cacheError');
+        
+        // OPTIONAL: Return an empty object instead of throwing error
+        // return Bulk(data: []); // Uncomment if you have an empty constructor
+        
+        throw Exception('Failed to fetch bulk volumes (Online & Offline failed)');
+      }
     }
   }
+
+  // --- Helper: Cache the data ---
+  Future<void> _cacheBulkData(String boxName, String key, dynamic json) async {
+    try {
+      late Box box;
+      if (Hive.isBoxOpen(boxName)) {
+        box = Hive.box(boxName);
+      } else {
+        box = await Hive.openBox(boxName);
+      }
+      await box.put(key, json);
+      print('Bulk data cached for key: $key');
+    } catch (e) {
+      print('Failed to cache bulk data: $e');
+    }
+  }
+
+  // --- Helper: Load from Cache ---
+
+
+// ... inside your class ...
+
+Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
+  try {
+    late Box box;
+    if (Hive.isBoxOpen(boxName)) {
+      box = Hive.box(boxName);
+    } else {
+      box = await Hive.openBox(boxName);
+    }
+
+    final cachedData = box.get(key);
+
+    if (cachedData != null) {
+      print('Cache hit for $key. Processing data...');
+
+      // --- THE FIX ---
+      // Hive returns Map<dynamic, dynamic>.
+      // We encode it to String and decode it back to JSON.
+      // This cleans up all nested Map types to Map<String, dynamic>.
+      final jsonString = json.encode(cachedData);
+      final Map<String, dynamic> cleanJson = json.decode(jsonString);
+
+      return Bulk.fromJson(cleanJson);
+    } else {
+      print('Cache miss: No data found for key $key');
+      throw Exception('No offline data available');
+    }
+  } catch (e) {
+    print('Error loading cached bulk data: $e');
+    throw e;
+  }
+}
+
+  // Future<void> _cacheBulkData(String boxName, String key, dynamic json) async {
+  //   try {
+  //     final box = await Hive.openBox(boxName);
+  //     await box.put(key, json);
+  //     print('Saved to Hive: $boxName / $key');
+  //   } catch (e) {
+  //     print('Failed to save cache: $e');
+  //   }
+  // }
+  // Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
+  //   try {
+  //     late Box box;
+  //     if (Hive.isBoxOpen(boxName)) {
+  //       box = Hive.box(boxName);
+  //     } else {
+  //       box = await Hive.openBox(boxName);
+  //     }
+
+  //     final cachedData = box.get(key);
+
+  //     if (cachedData != null) {
+  //       print('Found cached bulk data for key: $key');
+  //       // Convert the cached JSON Map back into your Bulk model
+  //       // Ensure cachedData is cast to Map<String, dynamic> if Hive stored it as generic Map
+  //       final jsonMap = Map<String, dynamic>.from(cachedData as Map);
+  //       return Bulk.fromJson(jsonMap);
+  //     } else {
+  //       print('No cached bulk data found.');
+  //       // Return an empty Bulk object or throw specific error based on your app logic
+  //       // Assuming Bulk has an empty constructor or you can return null
+  //       throw Exception('No offline data available');
+  //     }
+  //   } catch (e) {
+  //     print('Error loading cached bulk data: $e');
+  //     throw e;
+  //   }
+  // }
+  // Future<Bulk> getBulkVolumes() async {
+  //   try {
+  //     print('get bulk api called');
+
+  //     final isConnected = await ConnectivityService().isOnline();
+  //     final cacheKey =
+  //         "${SessionHelper.loginSavedData?.company_id ?? 0}_bulk_volumes";
+
+  //     // You can keep offline caching later — for now let's focus on making the request work
+
+  //     // ONLINE MODE - POST with body
+  //     final response = await dio.postbycustom(
+  //       ApiConstants.getVolumes, // "get-volumes"
+  //       data: {
+  //         // ← Send as JSON body
+  //         "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+  //       },
+  //       // queryParameters: null,  // ← remove or leave empty
+  //     );
+
+  //     print('response status code in bulk: ${response.statusCode}');
+  //     log('response data: ${response.data}'); // ← very useful for debugging
+
+  //     final bulk = Bulk.fromJson(response.data);
+
+  //     print('bulk volumes fetched successfully');
+
+  //     // Cache the response (uncomment when ready)
+  //     // final box = await Hive.openBox('bulkVolumesBox');
+  //     // await box.put(cacheKey, bulk.toJson());
+
+  //     return bulk;
+  //   } catch (error) {
+  //     handleExceptionMessage(
+  //       apiName: 'Fetch Bulk Volumes',
+  //       response: error is DioException ? error.response : null,
+  //     );
+
+  //     // Optional: print more details about the error
+  //     if (error is DioException) {
+  //       print('Dio error details:');
+  //       print('Status: ${error.response?.statusCode}');
+  //       print('Response data: ${error.response?.data}');
+  //       print('Message: ${error.message}');
+  //     }
+
+  //     throw Exception('Failed to fetch bulk volumes: $error');
+  //   }
+  // }
 
   Future<CalendarSalesmanResponse> fetchSalesmanOfCustomer(
     String salesmanId,

@@ -105,6 +105,7 @@ void main() async {
   await Hive.openBox<ProductModel>('products');
   await Hive.openBox<ScidProductGroup>('scidProductGroups');
   await Hive.openBox('customerCreditBox');  
+  await Hive.openBox('bulkVolumesBox');
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,

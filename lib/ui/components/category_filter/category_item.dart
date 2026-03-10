@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class _CategoryListState extends State<CategoryList> {
     super.initState();
     _expandedIndex = 0;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -124,14 +123,12 @@ class _CategoryListState extends State<CategoryList> {
                             return GestureDetector(
                               onTap: () {
                                 if (option.id == null || option.id!.isEmpty) {
-                                  log('ERROR: Subcategory ${option.subCategory} has no ID');
                                   return;
                                 }
-                                
-                                log('Selecting subcategory: ${option.subCategory} with ID: ${option.id}');
+
                                 widget.onOptionSelected(option.id!);
                                 widget.onDrawerToggle();
-                                
+
                                    widget.productsController
                                     .selectedSubCategoryName
                                     .value = option.subCategory.toString();

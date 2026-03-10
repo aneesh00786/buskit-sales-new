@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
@@ -89,7 +88,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     )
         .then((_) {
       setState(() {
-        log("Salesman Target Table Data after API call: ${widget.staffController.salesmanTargetTableList}");
 
         _targetControllers = widget.staffController.salesmanTargetTableList
             .map((data) => TextEditingController(text: data.target.toString()))
@@ -108,7 +106,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   void _initializeControllers() {
     final salesmanTargetTableList =
         widget.staffController.salesmanTargetTableList;
-    log("Salesman Target Table Data init : $salesmanTargetTableList");
     Future.delayed(const Duration(seconds: 1));
     _weeklyTargetControllers.clear();
     _weeklyProjectionControllers.clear();
@@ -337,7 +334,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
   }
 
   void _saveTargets() async {
-    log('This function Called _saveTargets ');
     final selectedMonth = widget.staffController.tabController.index + 1;
     final selectedMonthName =
         DateFormat.MMMM().format(DateTime(0, selectedMonth));

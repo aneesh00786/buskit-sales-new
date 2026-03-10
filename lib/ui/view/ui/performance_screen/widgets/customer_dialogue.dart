@@ -32,6 +32,7 @@ Widget buildCustomersDialogContent(
           ),
         ]
       : staffController.customerDatas.value!.data!.map((customer) {
+        print('customer image : ${customer.imageUrl}');
           return TableViewRow(
             height: 80,
             cells: [
@@ -39,16 +40,35 @@ Widget buildCustomersDialogContent(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: const Color(0xffe6ecff),
-                      backgroundImage: customer.imageUrl != null
-                          ? NetworkImage(customer.imageUrl!)
-                          : null,
-                      child: customer.imageUrl == null
-                          ? const Icon(Icons.person, size: 20, color: Colors.grey)
-                          : null,
-                    ),
+                       ClipOval(
+                          child: Container(
+                            height: 35,
+                            width: 35,
+                            child: Image.network(
+                              // 👇 Removed condition, now safely accessing invoiceData
+                              'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
+
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.lightBlue[100],
+                                  child: const Icon(Icons.person,
+                                      color: Colors.blue),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                    // CircleAvatar(
+                    //   radius: 20,
+                    //   backgroundColor: const Color(0xffe6ecff),
+                    //   backgroundImage: customer.imageUrl != null
+                    //       ? NetworkImage(customer.imageUrl!)
+                    //       : null,
+                    //   child: customer.imageUrl == null
+                    //       ? const Icon(Icons.person, size: 20, color: Colors.grey)
+                    //       : null,
+                    // ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(

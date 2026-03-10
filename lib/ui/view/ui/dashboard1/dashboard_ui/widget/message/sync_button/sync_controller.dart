@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -15,7 +14,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controlle
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:flutter/material.dart';
@@ -59,10 +57,9 @@ class SyncController extends GetxController {
       await CartDatabaseManager().getDraftItems();
       await ApiWorker().fetchDiscounts(companyId, salesmanId);
 
-      log('Sync finished successfully');
       await _updateLastSyncTime();
-    } catch (e, st) {
-      log("Error while syncing: $e\n$st");
+    } catch (e) {
+      //
     } finally {
       isSyncing.value = false;
     }
@@ -90,10 +87,8 @@ class SyncController extends GetxController {
     final connectivityService = ConnectivityService();
 
     final String currentMonth = DateFormat.MMMM().format(DateTime.now());
-    log("📆 Month passed : $currentMonth");
 
     try {
-      log('loadAllInitialData: Starting to load all initial data...');
 
       await Future.wait([
         connectivityService.syncOfflineOrders(
@@ -119,7 +114,11 @@ class SyncController extends GetxController {
         leadsCustomerController.loadLeadsCustomerData,
         leadsRejectedController.loadRejectedLeadsData,
         orderController.loadOrderCountData(),
+
+        // ApiWorker().getRecentOrdersReturns(startDate: startDate, endDate: endDate ),
+
         ApiWorker().getAllProducts(),
+        ApiWorker().getBulkVolumes(),
         calenderMapController.getRouteCredit(),
         ApiWorker().getCalendarEvents({
           'companyId': companyId,
@@ -191,9 +190,16 @@ class SyncController extends GetxController {
           DateTime.now().year.toString(),
         ),
         ApiWorker().getTimeSheetData(
-          startDate: startDate,
-          endDate: endDate,
-        ),
+  filterValue: currentMonth,  // Passes "March"
+  filterType: "Month",        // Explicitly asks for Month data
+),
+    //     ApiWorker().getTimeSheetData(
+    //   year: now.year.toString(), 
+    // ),
+        // ApiWorker().getTimeSheetData(
+        //   startDate: startDate,
+        //   endDate: endDate,
+        // ),
         ApiWorker().fetchSchedule(
           endDate,
           startDate,
@@ -202,10 +208,8 @@ class SyncController extends GetxController {
       ]);
 
       // Check cache status after loading all data
-      log('loadAllInitialData: Checking cache status after data loading...');
       await productsController.checkCacheStatus();
-    } catch (e, stack) {
-      log('Error in Future.wait during login: $e\n$stack');
+    } catch (e) {
       // Optionally: Show a user-friendly error message here
       // Do NOT rethrow, so the future always completes
     }

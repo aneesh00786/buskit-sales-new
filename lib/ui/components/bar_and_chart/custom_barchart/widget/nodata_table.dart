@@ -47,7 +47,7 @@ Widget noDataTable(String staffProjection, {bool isDayOrRange = false}) {
                   ],
                 ),
               ),
-              // Table Header
+
               Container(
                 color: const Color.fromARGB(255, 247, 247, 247),
                 height: headerHeight,
@@ -64,7 +64,7 @@ Widget noDataTable(String staffProjection, {bool isDayOrRange = false}) {
                         text: 'Target',
                         fontSize: 13,
                       ),
-                      // ],
+
                       if (staffProjection == '1') ...[
                         const DialogTableHeaderText(
                           text: 'Projection',

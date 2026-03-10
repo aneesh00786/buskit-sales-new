@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -63,21 +61,34 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
         provider.selectDate(context, isStartDate);
       },
       child: Container(
-        height: isSmallScreen ? 34 : 42,
-        width: isSmallScreen ? 80 : 110,
+        height: 50,
+        width: 125,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.08),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
-              offset: const Offset(2, 4),
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -92,10 +103,10 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
                         ? 'DD-MM-YYYY'
                         : DateFormat('dd-MM-yyyy')
                             .format(DateTime.parse(provider.selectedEndDate))),
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 10 : 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[800],
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -113,37 +124,52 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
 
   Widget _goButton(
       BuildContext context, DashboardProvider provider, bool isSmallScreen) {
-    return CustomButton(
-      text: 'Go',
-      onPressed: () async {
-        await checkOnline();
-        if (!isOnline) {
-          showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
-          return;
-        }
+    return Container(
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () async {
+          await checkOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+            return;
+          }
 
-        if (provider.selectedStartDate.isEmpty) {
-          showCustomToastDisplay(
-              context, "Select start date", Colors.orange, Icons.warning);
-        }
-        if (provider.selectedEndDate.isEmpty) {
-          showCustomToastDisplay(
-              context, "Select end date", Colors.orange, Icons.warning);
-        }
-        if (provider.selectedStartDate.isNotEmpty &&
-            provider.selectedEndDate.isNotEmpty) {
-          final dashboardProvider =
-              Provider.of<DashboardProvider>(context, listen: false);
+          if (provider.selectedStartDate.isEmpty) {
+            showCustomToastDisplay(
+                context, "Select start date", Colors.orange, Icons.warning);
+          }
+          if (provider.selectedEndDate.isEmpty) {
+            showCustomToastDisplay(
+                context, "Select end date", Colors.orange, Icons.warning);
+          }
+          if (provider.selectedStartDate.isNotEmpty &&
+              provider.selectedEndDate.isNotEmpty) {
+            final dashboardProvider =
+                Provider.of<DashboardProvider>(context, listen: false);
 
-          await dashboardProvider.setTempToFilter();
+            await dashboardProvider.setTempToFilter();
 
-          // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
-          await dashboardProvider.fetchAllOrdersAtOnce();
+            await dashboardProvider.fetchAllOrdersAtOnce();
 
-          dashboardProvider.fetchData();
-        }
-      },
-      color: primaryColor,
+            dashboardProvider.fetchData();
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          shadowColor: primaryColor.withOpacity(0.4),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        child: const Text('Go'),
+      ),
     );
   }
 }

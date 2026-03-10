@@ -2,7 +2,6 @@
 
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -10,6 +9,8 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/calculate_discount.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_rowcontent.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -27,6 +28,8 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/model/customer_dashboard_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
@@ -74,14 +77,21 @@ class CartDialogue extends StatefulWidget {
 }
 
 class CartDialogueState extends State<CartDialogue> {
+  late RxBool useCredit; // Reactive checkbox state
+  late var customerCredit;
+  late var currentCustomerCredit;
+
+  // Current available credit
   List<int> quantities = [];
   List<int> preorderQuantities = [];
   List<int> draftQuantity = [];
   double orderSubtotal = 0.0;
   double orderTax = 0.0;
+  double orderTaxx = 0.0;
   double totalDiscount = 0.0;
   double preorderSubtotal = 0.0;
   double preorderTax = 0.0;
+   double orderTaxe = 0.0;
   double totalDiscountPreorder = 0.0;
   bool isOrder = true;
   String? _selectedValue;
@@ -96,6 +106,9 @@ class CartDialogueState extends State<CartDialogue> {
   List<String> filteredOptions = [];
   CustomerAndOrderController customeController =
       Get.find<CustomerAndOrderController>();
+  ProductsController productController = Get.find<ProductsController>();
+  CustomerCreditController customerCreditController =
+      Get.find<CustomerCreditController>();
   final subscriptionController = Get.find<SubscriptionController>();
 
   final TextEditingController totalQuickController = TextEditingController();
@@ -112,13 +125,18 @@ class CartDialogueState extends State<CartDialogue> {
 
   ScrollController _scrollController3 = ScrollController();
   ScrollController _scrollController4 = ScrollController();
-
+  final CustomerCreditController _customercreditctrl =
+      Get.find<CustomerCreditController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // final customerCreditCtrl = Get.find<CustomerCreditController>();
   late List<int> localCounts;
   @override
   void initState() {
     super.initState();
+    useCredit = false.obs;
+    customerCredit = 0.0;
 
+    currentCustomerCredit = _customercreditctrl.customerCredit.value;
     _scrollController1 = ScrollController();
     _scrollController2 = ScrollController();
     _scrollController3 = ScrollController();
@@ -155,19 +173,33 @@ class CartDialogueState extends State<CartDialogue> {
         _scrollController3.jumpTo(_scrollController4.position.pixels);
       }
     });
+      
 
     localCounts =
         List<int>.filled(widget.productsController.cartItems.length, 0);
-    log('Customer ID in INitstate : ${widget.customerId ?? widget.productsController.selectedCustomerId.value}');
 
-    _loadCartItems();
+    // _loadCartItems();
     Provider.of<CustomersProvider>(context, listen: false).getCartItemCounts(
         widget.customerId ??
             widget.productsController.selectedCustomerId.value);
     calculateAmounts();
     _selectedValue = isOrder ? _options[0] : _options[2];
     setOptions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+       _loadCartItems();
+    // orderTaxx = Utils().calculateTotalTax(widget.productsController.orderItems);
+    // You likely need setState to update the UI with the calculated tax
+    // setState(() {}); 
+  });
   }
+  @override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  // Reload cart items whenever screen becomes active
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _loadCartItems();
+  });
+}
 
   @override
   void dispose() {
@@ -186,14 +218,13 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 
+
   void _loadCartItems() async {
     try {
       final isOnline = await ConnectivityService().isOnline();
-
       final customerId = widget.customerId ??
           widget.productsController.selectedCustomerId.value;
       final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
-      log('[CartDialogue] isDraftView: $isDraftView, customerId: $customerId');
 
       if (isDraftView) {
         if (!isOnline) {
@@ -204,7 +235,6 @@ class CartDialogueState extends State<CartDialogue> {
             (d) => d['customer_id'] == customerId,
             orElse: () => null,
           );
-          log('[CartDialogue] Found offline draft for customer: ${draft != null}');
 
           if (draft != null && draft['details'] != null) {
             final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
@@ -216,12 +246,9 @@ class CartDialogueState extends State<CartDialogue> {
               return item != null && item.customerId == customerId;
             }).toList();
 
-            log('[CartDialogue] Found ${keysToRemove.length} draft items to delete for customer $customerId');
-
             for (var key in keysToRemove) {
-              final deletedItem = draftBox.get(key);
+              draftBox.get(key);
               await draftBox.delete(key);
-              log('[CartDialogue] Deleted draftBox item with key $key: ${deletedItem?.toJson()}');
             }
 
             for (var detail in details) {
@@ -247,180 +274,181 @@ class CartDialogueState extends State<CartDialogue> {
                 catId: 0,
               );
               await draftBox.add(cartItem);
-              log('[CartDialogue] Added CartItem to draftBox: ${cartItem.toJson()}');
             }
-
-            final allDrafts = draftBox.values
-                .where((item) => item.customerId == customerId)
-                .toList();
-            log('[CartDialogue] Total items in draftBox for customer $customerId after insertion: ${allDrafts.length}');
-            for (var item in allDrafts) {
-              log('[CartDialogue] draftBox item: ${item.toJson()}');
-            }
-          } else {
-            log('[CartDialogue] No offline draft details found for customer $customerId');
           }
         }
       }
-
-      // --- End offline draft loading ---
 
       widget.productsController.cartItems = await CartDatabaseManager()
           .getCartItems(customerId, draftsOnly: isDraftView);
-      log('[CartDialogue] Loaded cartItems count: ${widget.productsController.cartItems.map((e) => e.toJson()).toList()}');
+
+          for (final item in widget.productsController.cartItems) {
+        // 1. Calculate Base Sell Amount (Unit Price * Pieces per Pack)
+        double sellPrice = double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0;
+        double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
+            ? (item.detail.pieces ?? 1).toDouble()
+            : 1.0;
+        
+        // This matches your 'baseSellAmount' from the correct file
+        double baseSellAmount = sellPrice * pieces; 
+        
+        // 2. Get Quantity
+        double productQuantity = item.detail.count.toDouble();
+
+        // 3. Get Discount Percentages
+        double customerDiscount = (item.CustomerDiscount != null && item.CustomerDiscount! > 0)
+            ? item.CustomerDiscount!
+            : 0.0;
+        
+        num tieredDiscount = (item.tieredDiscount != null && item.tieredDiscount! > 0)
+            ? item.tieredDiscount!
+            : 0;
+        num bogoDiscount = (item.bogoDiscount != null && item.bogoDiscount! > 0)
+            ? item.bogoDiscount!
+            : 0;
+
+        double totalDiscountPercent = customerDiscount + tieredDiscount + bogoDiscount;
+       
+
+        // 4. Calculate Total Discount Amount
+        // Logic: (Base Price * Quantity) * Percentage
+        double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+        
+        item.totalDiscountAmount = totalDiscountAmount;
+
+        // 5. Calculate Price After Discount
+        double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
+      print('price after discount in the load cart items:$priceAfterDiscount');
+        // 6. Calculate Tax
+        double taxPercentage = (item.catTax ?? 0).toDouble();
+        print('tax perrecntage in the load cart items:$taxPercentage');
+        double calculatedTax = 0.0;
+
+        if (taxPercentage > 0) {
+          // Scenario A: Use Category Tax Percentage on the Discounted Price
+          calculatedTax = priceAfterDiscount * (taxPercentage / 100);
+          print('tax in the if case in the load cart items:$calculatedTax');
+        } else {
+          // Scenario B: Fallback to Unit Tax (for Promo Variants)
+          // We must apply the discount to the unit tax as well
+          double totalRawTax = (item.detail.tax ?? 0).toDouble() * productQuantity * pieces;
+          print('tala row tax:$totalRawTax');
+          print('itemn.detail.tax:${item.detail.tax}');
+          print('producrt quantity:$productQuantity');
+          print('pieses:$pieces');
+          // Apply the same discount percentage to the tax
+          // If discount is 10%, we only charge 90% of the tax
+      print('total discountperecentage in the cart load :$totalDiscountPercent');
+          calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
+          print('calculated tax in the else case in the load cart items:$calculatedTax');
+        }
+        
+        item.taxAmount = calculatedTax;
+
+        // 7. Final Price Logic (Inclusive vs Exclusive)
+        if (item.detail.inclTax == "incl_tax") {
+          item.finalPrice = priceAfterDiscount;
+          // For consistency with other parts of the app that rely on totalPrice
+          item.totalPrice = (baseSellAmount * productQuantity); 
+        } else {
+          item.finalPrice = priceAfterDiscount + calculatedTax;
+          item.totalPrice = (baseSellAmount * productQuantity) + calculatedTax;
+        }
+      }
 
       await setCartToOrderAndPreorder();
 
-      for (var item in widget.productsController.cartItems) {
-        item.isChecked = true;
-        final count = item.detail.count;
-        final pieces = item.detail.pieces ?? 1;
-        final sellPrice =
-            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-        final tax = item.detail.tax?.toDouble() ?? 0.0;
-        final inclTax = item.detail.inclTax;
-        if (item.isPack == true || item.detail.packtype == 'Pack') {
-          item.totalPrice = (count * pieces * sellPrice);
-        } else {
-          item.totalPrice = (count * sellPrice);
-        }
-        if (inclTax != 'incl_tax') {
-          if (item.isPack == true || item.detail.packtype == 'Pack') {
-            item.totalPrice += (count * pieces * tax);
+      // Helper to process items and set taxAmount
+      void processItems(List<CartItem> items) {
+        for (var item in items) {
+          item.isChecked = true; // Required by your fold function
+
+          final count = item.detail.count;
+          final pieces = (item.isPack == true || item.detail.packtype == 'Pack')
+              ? (item.detail.pieces ?? 1).toDouble()
+              : 1.0;
+          final sellPrice =
+              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          final unitTax = item.detail.tax?.toDouble() ?? 0.0;
+          final inclTax = item.detail.inclTax;
+
+          // 1. Calculate the taxAmount for the fold function to use
+          // taxAmount = unitTax * total Quantity
+          // item.taxAmount = unitTax * pieces * count;
+
+          // 2. Calculate Total Price (Base Price + Tax if not inclusive)
+          double basePrice = count * pieces * sellPrice;
+          if (inclTax != 'incl_tax') {
+            item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
           } else {
-            item.totalPrice += (count * tax);
+            item.totalPrice = basePrice;
           }
         }
       }
-      for (var item in widget.productsController.preorderItems) {
-        item.isChecked = true;
-        final count = item.detail.count;
-        final pieces = item.detail.pieces ?? 1;
-        final sellPrice =
-            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-        final tax = item.detail.tax?.toDouble() ?? 0.0;
-        final inclTax = item.detail.inclTax;
-        if (item.isPack == true || item.detail.packtype == 'Pack') {
-          item.totalPrice = (count * pieces * sellPrice);
-        } else {
-          item.totalPrice = (count * sellPrice);
-        }
-        if (inclTax != 'incl_tax') {
-          if (item.isPack == true || item.detail.packtype == 'Pack') {
-            item.totalPrice += (count * pieces * tax);
-          } else {
-            item.totalPrice += (count * tax);
-          }
-        }
-      }
-      log('CartItems Length :  ${widget.productsController.cartItems.length}');
-      log('Order Length :  ${widget.productsController.orderItems.length}');
-      log('PreOrder Length :  ${widget.productsController.preorderItems.length}');
-      orderSubtotal =
-          widget.productsController.orderItems.fold(0.0, (sum, item) {
-        return item.isChecked! ? sum + (item.totalPrice) : sum;
-      });
-      preorderSubtotal =
-          widget.productsController.preorderItems.fold(0.0, (sum, item) {
-        return item.isChecked! ? sum + (item.totalPrice) : sum;
-      });
-      orderTax = widget.productsController.orderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked == true) {
-            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum +
-                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-            } else {
-              return sum + (itemTax * (item.detail.count));
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
-      preorderTax = widget.productsController.preorderItems.fold(
-        0.0,
-        (sum, item) {
-          if (item.isChecked == true) {
-            final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum +
-                  (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
-            } else {
-              return sum + (itemTax * (item.detail.count));
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
-      totalDiscount = widget.productsController.orderItems.fold(
-        0.0,
-        (sum, item) {
-          final discountPrice = (((double.tryParse(
-                          item.detail.sellPrice?.toString() ?? '0') ??
-                      0.0) *
-                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
-                          0.0) /
-                      100)) *
-              ((item.isPack == true || item.detail.packtype == 'Pack')
-                  ? (item.detail.pieces?.toDouble() ?? 1) *
-                      item.detail.count.toDouble()
-                  : item.detail.count.toDouble()));
-          if (item.isChecked == true) {
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum + discountPrice;
-            } else {
-              return 0;
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
-      totalDiscountPreorder = widget.productsController.preorderItems.fold(
-        0.0,
-        (sum, item) {
-          final discountPrice = (((double.tryParse(
-                          item.detail.sellPrice?.toString() ?? '0') ??
-                      0.0) *
-                  ((double.tryParse(item.detail.discount?.toString() ?? '0') ??
-                          0.0) /
-                      100)) *
-              ((item.isPack == true || item.detail.packtype == 'Pack')
-                  ? (item.detail.pieces?.toDouble() ?? 1) *
-                      item.detail.count.toDouble()
-                  : item.detail.count.toDouble()));
-          if (item.isChecked == true) {
-            if (item.isPack == true || item.detail.packtype == "Pack") {
-              return sum + discountPrice;
-            } else {
-              return 0;
-            }
-          } else {
-            return 0;
-          }
-        },
-      );
+
+      processItems(widget.productsController.orderItems);
+      processItems(widget.productsController.preorderItems);
+
       setState(() {
         quantities = List.generate(
             widget.productsController.cartItems.length, (index) => 1);
-        _isLoading = false;
-        widget.productsController.orderItems =
-            widget.productsController.orderItems;
-        widget.productsController.preorderItems =
-            widget.productsController.preorderItems;
-        orderSubtotal =
-            Utils().calculateSubtotal(widget.productsController.orderItems);
-        orderTax =
-            Utils().calculateTotalTax(widget.productsController.orderItems);
-        preorderSubtotal =
-            Utils().calculateSubtotal(widget.productsController.preorderItems);
+
+        
+
+        print('orderTaxe calculated in setState:${orderTaxe}');
         preorderTax =
             Utils().calculateTotalTax(widget.productsController.preorderItems);
+
+        orderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.orderItems);
+        preorderSubtotal =
+            Utils().calculateSubtotal(widget.productsController.preorderItems);
+        orderTaxe =
+            Utils().calculateTotalTax(widget.productsController.orderItems);
+        // orderTaxe = widget.productsController.orderItems.fold(
+        //   0.0,
+        //   (sum, item) {
+        //     // 1. If unchecked, skip
+        //     if (item.isChecked != true) return sum;
+
+        //     // 2. Get the base Total Price
+        //     double totalPrice = item.totalPrice ?? 0.0;
+
+        //     // 3. Determine Discount Amount (Replicating your logic)
+        //     double totalDiscountAmount;
+
+        //     // Check if backend value exists first
+        //     if (item.totalDiscountAmount != null &&
+        //         item.totalDiscountAmount! > 0) {
+        //       totalDiscountAmount = item.totalDiscountAmount!;
+        //     } else {
+        //       // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+        //       double customerDisc = item.CustomerDiscount ?? 0.0;
+        //       num tieredDisc = item.tieredDiscount ?? 0;
+        //       double totalDiscPercent = customerDisc + tieredDisc;
+
+        //       totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+        //     }
+
+        //     // 4. Calculate Final Price (Price - Discount)
+        //     double finalPrice = totalPrice - totalDiscountAmount;
+
+        //     // Safety check: ensure price isn't negative
+        //     if (finalPrice < 0) finalPrice = 0;
+
+        //     // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+        //     double taxPercentage = (item.catTax ?? 0).toDouble();
+        //     double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+        //     return sum + itemTaxAmount;
+        //   },
+        // );
+        totalDiscountPreorder = Utils()
+            .calculateTotalDiscount(widget.productsController.preorderItems);
+
+        _isLoading = false;
       });
+
       if (widget.productsController.orderItems.isNotEmpty) {
         isOrder = true;
         _selectedValue = _options[0];
@@ -430,12 +458,258 @@ class CartDialogueState extends State<CartDialogue> {
       }
       setOptions();
     } catch (e) {
-      log('Error loading cart items: $e');
       setState(() {
         _isLoading = false;
       });
     }
   }
+
+//   void _loadCartItems() async {
+//     try {
+//       final isOnline = await ConnectivityService().isOnline();
+
+//       final customerId = widget.customerId ??
+//           widget.productsController.selectedCustomerId.value;
+//       final bool isDraftView = widget.isFromCustomerDach == true && isOnline;
+
+//       if (isDraftView) {
+//         if (!isOnline) {
+//           var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+//           List<dynamic> drafts =
+//               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+//           final draft = drafts.firstWhere(
+//             (d) => d['customer_id'] == customerId,
+//             orElse: () => null,
+//           );
+
+//           if (draft != null && draft['details'] != null) {
+//             final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+//             final List details = draft['details'];
+//             final draftBox = Hive.box<CartItem>('draftBox');
+
+//             final keysToRemove = draftBox.keys.where((key) {
+//               final item = draftBox.get(key);
+//               return item != null && item.customerId == customerId;
+//             }).toList();
+
+//             for (var key in keysToRemove) {
+//               draftBox.get(key);
+//               await draftBox.delete(key);
+//             }
+
+//             for (var detail in details) {
+//               final cartItem = CartItem(
+//                 detail: Detail(
+//                   productId: detail['product_id'],
+//                   variationId: detail['variant_id'],
+//                   sellPrice: detail['price'],
+//                   discount: detail['discount'],
+//                   count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+//                   pieces: int.tryParse(detail['pack'] ?? '0'),
+//                   variationName: detail['variant_name'],
+//                   saleBy: detail['packType'],
+//                   stock: detail['stock'] ?? 0,
+//                   unitType: detail['unitType'],
+//                 ),
+//                 productName: detail['variant_name'] ?? '',
+//                 totalPrice:
+//                     double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+//                 isPack: detail['packType'] == 'Pack',
+//                 customerId: customerId,
+//                 salesmanId: salesmanId,
+//                 catId: 0,
+//               );
+//               await draftBox.add(cartItem);
+//             }
+//           }
+//         }
+//       }
+
+//       // --- End offline draft loading ---
+
+//       widget.productsController.cartItems = await CartDatabaseManager()
+//           .getCartItems(customerId, draftsOnly: isDraftView);
+//       for (final item in widget.productsController.cartItems) {
+//         calculateItemDiscounts(item);
+//         // print('calculate discount called:${calculateItemDiscounts(item)}');
+//       }
+
+//       await setCartToOrderAndPreorder();
+
+//       for (var item in widget.productsController.cartItems) {
+//         item.isChecked = true;
+//         final count = item.detail.count;
+//         final pieces = item.detail.pieces ?? 1;
+//         final sellPrice =
+//             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//         final tax = item.detail.tax?.toDouble() ?? 0.0;
+//         final inclTax = item.detail.inclTax;
+//         if (item.isPack == true || item.detail.packtype == 'Pack') {
+//           item.totalPrice = (count * pieces * sellPrice);
+//         } else {
+//           item.totalPrice = (count * sellPrice);
+//         }
+//         if (inclTax != 'incl_tax') {
+//           if (item.isPack == true || item.detail.packtype == 'Pack') {
+//             item.totalPrice += (count * pieces * tax);
+//           } else {
+//             item.totalPrice += (count * tax);
+//           }
+//         }
+//       }
+//       for (var item in widget.productsController.preorderItems) {
+//         for (final item in widget.productsController.preorderItems) {
+//           calculateItemDiscounts(item);
+//           // print('calculate discount called in second');
+//         }
+
+//         item.isChecked = true;
+//         final count = item.detail.count;
+//         final pieces = item.detail.pieces ?? 1;
+//         final sellPrice =
+//             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//         final tax = item.detail.tax?.toDouble() ?? 0.0;
+//         final inclTax = item.detail.inclTax;
+//         if (item.isPack == true || item.detail.packtype == 'Pack') {
+//           item.totalPrice = (count * pieces * sellPrice);
+//         } else {
+//           item.totalPrice = (count * sellPrice);
+//         }
+//         if (inclTax != 'incl_tax') {
+//           if (item.isPack == true || item.detail.packtype == 'Pack') {
+//             item.totalPrice += (count * pieces * tax);
+//           } else {
+//             item.totalPrice += (count * tax);
+//           }
+//         }
+//       }
+//       orderSubtotal =
+//           widget.productsController.orderItems.fold(0.0, (sum, item) {
+//         return item.isChecked! ? sum + (item.totalPrice) : sum;
+//       });
+//       print('subTotalll:$orderSubtotal');
+//       preorderSubtotal =
+//           widget.productsController.preorderItems.fold(0.0, (sum, item) {
+//         return item.isChecked! ? sum + (item.totalPrice) : sum;
+//       });
+//       orderTaxx = widget.productsController.orderItems.fold(
+//   0.0,
+//   (sum, item) {
+//     // 1. If unchecked, skip
+//     if (item.isChecked != true) return sum;
+
+//     // 2. Get the base Total Price
+//     double totalPrice = item.totalPrice ?? 0.0;
+
+//     // 3. Determine Discount Amount (Replicating your logic)
+//     double totalDiscountAmount;
+
+//     // Check if backend value exists first
+//     if (item.totalDiscountAmount != null && item.totalDiscountAmount! > 0) {
+//       totalDiscountAmount = item.totalDiscountAmount!;
+//     } else {
+//       // Otherwise calculate it: (CustomerDiscount + TieredDiscount)
+//       double customerDisc = item.CustomerDiscount ?? 0.0;
+//       num tieredDisc = item.tieredDiscount ?? 0;
+//       double totalDiscPercent = customerDisc + tieredDisc;
+
+//       totalDiscountAmount = totalPrice * (totalDiscPercent / 100.0);
+//     }
+
+//     // 4. Calculate Final Price (Price - Discount)
+//     double finalPrice = totalPrice - totalDiscountAmount;
+
+//     // Safety check: ensure price isn't negative
+//     if (finalPrice < 0) finalPrice = 0;
+
+//     // 5. Calculate Tax Amount: Final Price * (TaxPercentage / 100)
+//     double taxPercentage = (item.catTax ?? 0).toDouble();
+//     double itemTaxAmount = finalPrice * (taxPercentage / 100);
+
+//     return sum + itemTaxAmount;
+//   },
+// );
+//       // widget.productsController.totalOrderTax.value = orderTaxx;
+
+// //
+//       // orderTaxx =
+//       //       Utils().calculateTotalTax(widget.productsController.orderItems);
+//       preorderTax = widget.productsController.preorderItems.fold(
+//         0.0,
+//         (sum, item) {
+//           if (item.isChecked == true) {
+//             final double itemTax = item.detail.tax?.toDouble() ?? 0.0;
+//             if (item.isPack == true || item.detail.packtype == "Pack") {
+//               return sum +
+//                   (itemTax * (item.detail.pieces ?? 1) * (item.detail.count));
+//             } else {
+//               return sum + (itemTax * (item.detail.count));
+//             }
+//           } else {
+//             return 0;
+//           }
+//         },
+//       );
+
+//       totalDiscountPreorder = widget.productsController.preorderItems.fold(
+//         0.0,
+//         (sum, item) {
+//           if (item.isChecked != true) return sum;
+
+//           final double sellPrice =
+//               double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+//           final double discountPercentage =
+//               double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0;
+//           final double? maxDiscount = item.detail.maxDiscount?.toDouble();
+
+//           final double totalQuantity =
+//               (item.isPack == true || item.detail.packtype == 'Pack')
+//                   ? (item.detail.pieces?.toDouble() ?? 1) *
+//                       item.detail.count.toDouble()
+//                   : item.detail.count.toDouble();
+
+//           final double totalPrice = sellPrice * totalQuantity;
+
+//           double discountAmount = totalPrice * (discountPercentage / 100);
+
+//           if (maxDiscount != null &&
+//               maxDiscount > 0 &&
+//               discountAmount > maxDiscount) {
+//             discountAmount = maxDiscount;
+//           }
+
+//           return sum + discountAmount;
+//         },
+//       );
+//       setState(() {
+//         quantities = List.generate(
+//             widget.productsController.cartItems.length, (index) => 1);
+//         _isLoading = false;
+//         widget.productsController.orderItems =
+//             widget.productsController.orderItems;
+//         widget.productsController.preorderItems =
+//             widget.productsController.preorderItems;
+//         orderTaxx =
+//             Utils().calculateTotalTax(widget.productsController.orderItems);
+//         preorderSubtotal =
+//             Utils().calculateSubtotal(widget.productsController.preorderItems);
+//         preorderTax =
+//             Utils().calculateTotalTax(widget.productsController.preorderItems);
+//       });
+//       if (widget.productsController.orderItems.isNotEmpty) {
+//         isOrder = true;
+//         _selectedValue = _options[0];
+//       } else if (widget.productsController.preorderItems.isNotEmpty) {
+//         isOrder = false;
+//         _selectedValue = _options[2];
+//       }
+//       setOptions();
+//     } catch (e) {
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     }
+//   }
 
   Future<void> setCartToOrderAndPreorder() async {
     List<CartItem> orderItems = [];
@@ -453,15 +727,16 @@ class CartDialogueState extends State<CartDialogue> {
       widget.productsController.orderItems = orderItems;
       widget.productsController.preorderItems = preorderItems;
     });
-
-    // log("[setCartToOrderAndPreorder] controller preorderItems : ${preorderItems.map((e) => e.toJson()).toList()}");
-    log("[setCartToOrderAndPreorder] controller preorderItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
   }
-
+bool _needsRefresh = true;
   @override
   Widget build(BuildContext context) {
-    log('preOrder items : ${widget.productsController.preorderItems.length}');
-    log('preOrder items : $isOrder');
+     if (_needsRefresh) {
+    _needsRefresh = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCartItems();
+    });
+  }
     if (_isLoading) {
       return const Center(
         child: SpinKitFadingCube(
@@ -493,6 +768,7 @@ class CartDialogueState extends State<CartDialogue> {
           double availableHeight = constraints.maxHeight;
           double fontSize = availableWidth / 50;
           double rowHeight = availableHeight / 14;
+          // var useCredit = false.obs; // Reactive boolean for checkbox
           return ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: availableWidth,
@@ -501,10 +777,73 @@ class CartDialogueState extends State<CartDialogue> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DialogueHedingWidget(
-                    height: height,
-                    width: width,
-                    title: 'My Cart',
+                  GetBuilder<CustomerCreditController>(
+                    builder: (creditCtrl) {
+                      // Auto-fetch credit when dialog opens (only if not already loaded)
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final customerId =
+                            widget.productsController.selectedCustomerId.value;
+
+                        if (customerId.isNotEmpty &&
+                                creditCtrl.allCustomers.isEmpty || // First time
+                            !creditCtrl.allCustomers
+                                .any((c) => c.customerId == customerId)) {
+                          creditCtrl.fetchCustomerCredit(
+                            companyId:
+                                SessionHelper.loginSavedData?.company_id ?? 1,
+                            salesmanId:
+                                SessionHelper.loginSavedData?.salesmanId,
+                            searchedCustomerId: customerId,
+                          );
+                        }
+                      });
+
+                      final credit = creditCtrl.customerCredit.value;
+                      final isLoading = creditCtrl.isLoading.value;
+                      customerCredit = credit;
+                      return DialogueHedingWidget(
+                        height: height,
+                        width: width,
+                        title: 'My Cart',
+                        creditWidget: Obx(() {
+                          final latestCredit =
+                              customerCreditController.customerCredit.value;
+
+                          return isLoading
+                              ? const Text(
+                                  'Credit: Loading...',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              : RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontFamily: fontFamilyName,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Credit: ',
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      TextSpan(
+                                        text: formatAmount(
+                                            latestCredit.toStringAsFixed(2)),
+                                        style: TextStyle(
+                                          color: latestCredit > 0
+                                              ? Colors.green.shade700
+                                              : Colors.grey.shade600,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                        }),
+                      );
+                    },
                   ),
                   if (widget.productsController.orderItems.isNotEmpty ||
                       widget.productsController.preorderItems.isNotEmpty) ...[
@@ -677,8 +1016,9 @@ class CartDialogueState extends State<CartDialogue> {
                                         controller: _scrollController1,
                                         child: SizedBox(
                                           height: double.maxFinite,
-                                          width:
-                                              fullScreenWidth(context) * 1.15,
+                                          width: isPhonePortrait(context)
+                                              ? fullScreenWidth(context) * 2
+                                              : fullScreenWidth(context) * 1.15,
                                           child: Row(
                                             children: [
                                               Expanded(
@@ -860,96 +1200,237 @@ class CartDialogueState extends State<CartDialogue> {
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,
                           child: Container(
-                            width: fullScreenWidth(context) * 1.15,
+                            width: isPhonePortrait(context)
+                                ? fullScreenWidth(context) * 2
+                                : fullScreenWidth(context) * 1.15,
                           ),
                         ),
                       ),
                     ),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      color: lightPrimaryColor,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Subtotal',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(orderSubtotal),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    Obx(() {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      var customerCredit =
+                          _customercreditctrl.customerCredit.value ?? 0.0;
+                  
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      print('flat discount:$flatDisc');
+                      // final double baseAmount = orderSubtotal - flatDisc;
+                      double baseAmount =
+                          widget.productsController.orderItems.fold(
+                        0.0,
+                        (sum, item) {
+                          if (!item.isChecked!) return sum;
+                          return sum + (item.finalPrice ?? item.totalPrice);
+                        },
+                      );
+
+                      // print('base amount:$baseAmount');
+                      final double finalBeforeCredit =
+                          baseAmount.clamp(0.0, double.infinity);
+
+                      // print('final before credit:$finalBeforeCredit');
+                      final double payableAmount = useCredit.value
+                          ? (finalBeforeCredit - customerCredit)
+                              .clamp(0.0, double.infinity)
+                          : finalBeforeCredit;
+                      // print('payble amount:$payableAmount');
+                      //thi is the portion of orders//
+                      return CartTotalWidget(
+                        title: 'Subtotal',
+                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                        content: payableAmount,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color2:
+                            payableAmount <= 0 ? Colors.green : primaryColor,
+                      );
+                    }),
+
                     const SizedBox(height: 5.0),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Discount',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
+                    Obx(() {
+  // 1. Get the flat discount (if you still want to include it)
+  final String cid = widget.productsController.selectedCustomerId.value;
+  final double flatDisc =
+      widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+
+  // 2. Calculate the sum of item-level discounts
+  double itemLevelDiscount = widget.productsController.orderItems.fold(
+    0.0,
+    (sum, item) {
+      // Skip unchecked items to match your subtotal logic
+      if (item.isChecked != true) return sum;
+      
+      // Add the item's total discount amount (handling nulls)
+      return sum + (item.totalDiscountAmount ?? 0.0);
+    },
+  );
+
+  // 3. Combine them for the total discount to display
+  final double totalDiscount = flatDisc + itemLevelDiscount;
+
+  // Optional: If you want to hide the widget when there is no discount
+  // if (totalDiscount <= 0) return const SizedBox.shrink();
+
+  return Container(
+    height: 40,
+    width: double.infinity,
+    padding: const EdgeInsets.all(10),
+    child: Padding(
+      padding: const EdgeInsets.only(right: 10, left: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomText(
+            content: 'Discount',
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
+          CustomText(
+            // Display the calculated total discount
+            content: formatAmount(totalDiscount),
+            fontSize: 16,
+            color: Colors.black, // You might want Colors.red or green for discount
+            fontWeight: FontWeight.w600,
+          ),
+        ],
+      ),
+    ),
+  );
+}),
+
+Obx(() {
+                        
+                        // ignore: unused_local_variable
+                        final String trigger1 =
+                            widget.productsController.selectedCustomerId.value;
+                        // ignore: unused_local_variable
+                        final int trigger2 =
+                            widget.productsController.orderItems.length;
+
+                        // 2. Calculate Subtotal (Active items only)
+                        double taxableAmount =
+                            widget.productsController.orderItems.fold(
+                          0.0,
+                          (sum, item) {
+                            if (item.isChecked != true) return sum;
+                            return sum +
+                                (item.finalPrice ?? item.totalPrice ?? 0.0);
+                          },
+                        );
+
+                        // 3. Calculate Tax (Example: 15% of subtotal)
+                        // CHANGE 0.15 to your actual tax rate variable if you have one
+                        double calculatedTax = taxableAmount * 0.15;
+                        orderTaxe =
+            Utils().calculateTotalTax(widget.productsController.orderItems);
+
+                        return Container(
+                          height: 40,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10, left: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  content: 'Tax',
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                CustomText(
+                                  // Use the locally calculated tax, NOT the static 'orderTaxe' variable
+                                  content: formatAmount(orderTaxe),
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ],
                             ),
-                            CustomText(
-                              content: formatAmount(totalDiscount),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Tax',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(orderTax),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                          ),
+                        );
+                      }),
+
+
+                   
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Tax',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(orderTaxx),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+
+                  
+
                     const Divider(),
-                    CartTotalWidget(
-                      title: 'Final Amount',
-                      content: orderSubtotal,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color2: Colors.green,
-                    ),
+
+                    Obx(() {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      var customerCredit =
+                          _customercreditctrl.customerCredit.value ?? 0.0;
+                      print('customer credit in my cart:$customerCredit');
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      print('flat discount:$flatDisc');
+                      // final double baseAmount = orderSubtotal - flatDisc;
+                      double baseAmount =
+                          widget.productsController.orderItems.fold(
+                        0.0,
+                        (sum, item) {
+                          if (!item.isChecked!) return sum;
+                          return sum + (item.finalPrice ?? item.totalPrice);
+                        },
+                      );
+
+                      print('base amount:$baseAmount');
+                      final double finalBeforeCredit =
+                          baseAmount.clamp(0.0, double.infinity);
+
+                      print('final before credit:$finalBeforeCredit');
+                      final double payableAmount = useCredit.value
+                          ? (finalBeforeCredit - customerCredit)
+                              .clamp(0.0, double.infinity)
+                          : finalBeforeCredit;
+                      print('payble amount:$payableAmount');
+                      //thi is the portion of orders//
+                      return CartTotalWidget(
+                        title: 'Final Amount',
+                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                        content: payableAmount,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color2:
+                            payableAmount <= 0 ? Colors.green : primaryColor,
+                      );
+                    }),
+
+                  
                   ],
                   if (!isOrder) ...[
                     (widget.productsController.preorderItems.isEmpty)
@@ -981,8 +1462,9 @@ class CartDialogueState extends State<CartDialogue> {
                                         child: SizedBox(
                                           // color: red,
                                           height: double.maxFinite,
-                                          width:
-                                              fullScreenWidth(context) * 1.15,
+                                          width: isPhonePortrait(context)
+                                              ? fullScreenWidth(context) * 2
+                                              : fullScreenWidth(context) * 1.15,
                                           child: Row(
                                             children: [
                                               Expanded(
@@ -1000,7 +1482,6 @@ class CartDialogueState extends State<CartDialogue> {
                                                       .toSet()
                                                       .toList()
                                                       .map((productName) {
-                                                    log("preorderItems inside _buildGroupItems : ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}");
                                                     List<CartItem>
                                                         groupedItems = widget
                                                             .productsController
@@ -1161,7 +1642,9 @@ class CartDialogueState extends State<CartDialogue> {
                           scrollDirection: Axis.horizontal,
                           controller: _scrollController2,
                           child: Container(
-                            width: fullScreenWidth(context) * 1.15,
+                            width: isPhonePortrait(context)
+                                ? fullScreenWidth(context) * 2
+                                : fullScreenWidth(context) * 1.15,
                           ),
                         ),
                       ),
@@ -1193,31 +1676,65 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const SizedBox(height: 5.0),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Discount',
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(totalDiscountPreorder),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
+                    // Container(
+                    //   height: 40,
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(10),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.only(right: 10, left: 10),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         CustomText(
+                    //           content: 'Discount',
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //         CustomText(
+                    //           content: formatAmount(totalDiscountPreorder),
+                    //           fontSize: 16,
+                    //           color: Colors.black,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // Flat discount (cart-level)
+                    Builder(builder: (context) {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      // if (flatDisc <= 0) return const SizedBox.shrink();
+                      return Container(
+                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                content: 'Discount',
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              CustomText(
+                                content: formatAmount(flatDisc),
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                     Container(
                       height: 40,
                       width: double.infinity,
@@ -1244,13 +1761,48 @@ class CartDialogueState extends State<CartDialogue> {
                       ),
                     ),
                     const Divider(),
-                    CartTotalWidget(
-                      title: 'Final Amount',
-                      content: preorderSubtotal,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color2: Colors.green,
-                    ),
+                    Obx(() {
+                      final String cid =
+                          widget.productsController.selectedCustomerId.value;
+                      var customerCredit =
+                          _customercreditctrl.customerCredit.value ?? 0.0;
+                      print('customer credit in my cart:$customerCredit');
+                      final double flatDisc = widget
+                              .productsController.flatDiscountByCustomer[cid] ??
+                          0.0;
+                      print('flat discount:$flatDisc');
+                      // final double baseAmount = orderSubtotal - flatDisc;
+                      double baseAmount =
+                          widget.productsController.orderItems.fold(
+                        0.0,
+                        (sum, item) {
+                          if (!item.isChecked!) return sum;
+                          return sum + (item.finalPrice ?? item.totalPrice);
+                        },
+                      );
+
+                      print('base amount:$baseAmount');
+                      final double finalBeforeCredit =
+                          baseAmount.clamp(0.0, double.infinity);
+
+                      print('final before credit:$finalBeforeCredit');
+                      final double payableAmount = useCredit.value
+                          ? (finalBeforeCredit - customerCredit)
+                              .clamp(0.0, double.infinity)
+                          : finalBeforeCredit;
+                      print('payble amount:$payableAmount');
+                      return CartTotalWidget(
+                        title: 'Final Amount',
+
+                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
+                        // this is the portion of preorder//
+                        content: preorderSubtotal,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color2:
+                            payableAmount <= 0 ? Colors.green : primaryColor,
+                      );
+                    }),
                   ],
                   SizedBox(
                     height: _selectedValue == "Quick Sale"
@@ -1270,7 +1822,7 @@ class CartDialogueState extends State<CartDialogue> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: filteredOptions.map((option) {
                             totalQuickController.text = isOrder
-                                ? '\$${orderSubtotal.toStringAsFixed(2)}'
+                                ? '\$${orderSubtotal.toStringAsFixed(2)} '
                                 : '\$${preorderSubtotal.toStringAsFixed(2)}';
 
                             return Padding(
@@ -1676,6 +2228,9 @@ class CartDialogueState extends State<CartDialogue> {
                           text: 'Save & Send',
                           size: width > 1200 ? 14 : 10,
                           color: const Color(0xff5bc0de),
+
+//
+
                           onTap: () async {
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
@@ -1686,102 +2241,278 @@ class CartDialogueState extends State<CartDialogue> {
                                     "true";
                             final isCheckedIn = widget.active == true;
 
-                            if (isCheckedIn ||
-                                (!isCheckedIn && !hasCheckInOutPermission)) {
-                              final sanitizedText = totalQuickController.text
-                                  .replaceAll(RegExp(r'[^\d.]'), '')
-                                  .trim();
-                              if (sanitizedText.isEmpty) {
+                            if (!(isCheckedIn || !hasCheckInOutPermission)) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Icon(Icons.warning_amber_rounded,
+                                      color: Colors.red, size: 60),
+                                  content: const Text(
+                                      'Please check-in before processing the order'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              return;
+                            }
+
+                            final sanitizedText = totalQuickController.text
+                                .replaceAll(RegExp(r'[^\d.]'), '')
+                                .trim();
+                            if (sanitizedText.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Invalid amount entered'),
+                                    backgroundColor: Colors.red),
+                              );
+                              return;
+                            }
+
+                            final double userEnteredAmount =
+                                double.parse(sanitizedText);
+                            final String customerId = widget.customerId ??
+                                widget.productsController.selectedCustomerId
+                                    .value;
+
+                            // Calculate base amount after flat discount
+                            final String cid = widget
+                                .productsController.selectedCustomerId.value;
+                            final double flatDisc = widget.productsController
+                                    .flatDiscountByCustomer[cid] ??
+                                0.0;
+                            final double subtotal =
+                                isOrder ? orderSubtotal : preorderSubtotal;
+                            final double baseAmount = (subtotal - flatDisc)
+                                .clamp(0.0, double.infinity);
+
+                            // Use the correct total: prefer calculated baseAmount, but allow manual override in Quick Sale
+                            final double originalTotal =
+                                _selectedValue == "Quick Sale"
+                                    ? userEnteredAmount
+                                    : baseAmount;
+
+                            final availableCredit =
+                                _customercreditctrl.customerCredit.value ?? 0.0;
+
+                            // Show Credit Popup Only If Needed
+                            bool? useCreditResult = false;
+                            if (availableCredit > 0 && originalTotal > 0) {
+                              useCreditResult = await showCreditUsageDialog(
+                                context: context,
+                                availableCredit: availableCredit,
+                                amountToPayBeforeCredit: originalTotal,
+                              );
+
+                              if (useCreditResult == null)
+                                return; // User closed dialog → cancel order
+                              // useCreditConfirmed = result;
+                            }
+
+                            // Get cart & draft IDs
+                            final cartDetails = await CartDatabaseManager()
+                                .getDraftAndCartIdsFromApi(customerId);
+                            await Future.delayed(
+                                const Duration(milliseconds: 500));
+                            final firstOrder = cartDetails.isNotEmpty
+                                ? cartDetails.last
+                                : {'cart_id': '', 'draft_id': ''};
+                            final cartIdPrefs = firstOrder['cart_id'] ?? '';
+                            final draftIdPrefs = firstOrder['draft_id'] ?? '';
+
+                            // Quick Sale form validation
+                            if (_selectedValue == "Quick Sale") {
+                              if (!(_formKey.currentState?.validate() ??
+                                  false)) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    backgroundColor: Colors.red,
-                                    content: Text('Invalid amount entered'),
-                                    duration: Duration(seconds: 3),
-                                  ),
+                                      content: Text(
+                                          'Please fill all required fields'),
+                                      backgroundColor: Colors.red),
                                 );
                                 return;
                               }
-
-                              final finalAmount = double.parse(sanitizedText);
-                              final customerId = widget.customerId ??
-                                  widget.productsController.selectedCustomerId
-                                      .value;
-
-                              final cartDetails = await CartDatabaseManager()
-                                  .getDraftAndCartIdsFromApi(customerId);
-                              await Future.delayed(const Duration(seconds: 1));
-                              final firstOrder = cartDetails.isNotEmpty
-                                  ? cartDetails.last
-                                  : {'cart_id': '', 'draft_id': ''};
-                              final cartIdPrefs = firstOrder['cart_id'] ?? '';
-                              final draftIdPrefs = firstOrder['draft_id'] ?? '';
-                              // log('Existing cart ID $existingCartId');
-                              // log('Existing Draft ID $existingDraftId');
-                              if (_selectedValue == "Quick Sale") {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  await processSaveAndSend(
-                                    finalAmount: finalAmount,
-                                    paymentType: paymentType,
-                                    context: context,
-                                    cartId: cartIdPrefs,
-                                    draftId: draftIdPrefs,
-                                  );
-                                  cartProvider.getCartItemCounts(customerId);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: Colors.red,
-                                      content: Text(
-                                          'Please fill all required fields'),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                log('CustomerIdz : $customerId');
-                                await processSaveAndSend(
-                                  finalAmount: finalAmount,
-                                  context: context,
-                                  cartId: cartIdPrefs,
-                                  draftId: draftIdPrefs,
-                                );
-                                cartProvider.getCartItemCounts(customerId);
-                              }
-                            } else {
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Center(
-                                      child: Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: Colors.red,
-                                        size: 60,
-                                      ),
-                                    ),
-                                    content: CustomText(
-                                      content:
-                                          'Please check-in before processing the order',
-                                      fontSize: 18,
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.of(context,
-                                                  rootNavigator: true)
-                                              .pop();
-                                        },
-                                        child: const Text('OK'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
                             }
+
+                            // Call processSaveAndSend with:
+                            // - ORIGINAL total (before credit)
+                            // - useCreditConfirmed from popup
+                            await processSaveAndSend(
+                              context: context,
+                              finalAmount:
+                                  originalTotal, // ← Important: send original amount
+                              useCreditConfirmed: useCreditResult ??
+                                  false, // ← Decision from popup
+                              paymentType: paymentType,
+                              cartId: cartIdPrefs,
+                              draftId: draftIdPrefs,
+                            );
+
+                            cartProvider.getCartItemCounts(customerId);
                           },
+                          // onTap: () async {
+                          //   final cartProvider = Provider.of<CustomersProvider>(
+                          //       context,
+                          //       listen: false);
+                          //   final hasCheckInOutPermission =
+                          //       subscriptionController
+                          //               .customerCheckInOut.value ==
+                          //           "true";
+                          //   final isCheckedIn = widget.active == true;
+
+                          //   if (isCheckedIn ||
+                          //       (!isCheckedIn && !hasCheckInOutPermission)) {
+                          //     final sanitizedText = totalQuickController.text
+                          //         .replaceAll(RegExp(r'[^\d.]'), '')
+                          //         .trim();
+                          //     if (sanitizedText.isEmpty) {
+                          //       ScaffoldMessenger.of(context).showSnackBar(
+                          //         const SnackBar(
+                          //           backgroundColor: Colors.red,
+                          //           content: Text('Invalid amount entered'),
+                          //           duration: Duration(seconds: 3),
+                          //         ),
+                          //       );
+                          //       return;
+                          //     }
+
+                          //     final finalAmount = double.parse(sanitizedText);
+                          //     final customerId = widget.customerId ??
+                          //         widget.productsController.selectedCustomerId
+                          //             .value;
+
+                          //     num amountPaidByCredit = 0.0;
+                          //     if (useCredit.value &&
+                          //         _customercreditctrl.customerCredit.value >
+                          //             0) {
+                          //       final String cid = widget.productsController
+                          //           .selectedCustomerId.value;
+                          //       final flatDisc = widget.productsController
+                          //               .flatDiscountByCustomer[cid] ??
+                          //           0.0;
+                          //       final baseAmount = (isOrder
+                          //               ? orderSubtotal
+                          //               : preorderSubtotal) -
+                          //           flatDisc;
+                          //       final finalBeforeCredit =
+                          //           baseAmount.clamp(0.0, double.infinity);
+                          //       final availableCredit =
+                          //           _customercreditctrl.customerCredit.value ??
+                          //               0.0;
+                          //       amountPaidByCredit =
+                          //           finalBeforeCredit > availableCredit
+                          //               ? availableCredit
+                          //               : finalBeforeCredit;
+                          //       final newCreditBalance =
+                          //           (availableCredit - amountPaidByCredit)
+                          //               .clamp(0.0, double.infinity);
+
+                          //       // === UPDATE CREDIT IN DATABASE / API ===
+                          //       try {
+                          //         final String currentCustomerId = widget
+                          //             .productsController
+                          //             .selectedCustomerId
+                          //             .value;
+
+                          //         await _customercreditctrl
+                          //             .updateCustomerCreditLocally(
+                          //           customerId: customerId,
+                          //           newCreditAmount: newCreditBalance,
+                          //         );
+
+                          //         // Get.snackbar(
+                          //         //   "Credit Updated",
+                          //         //   "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
+                          //         //   snackPosition: SnackPosition.BOTTOM,
+                          //         //   backgroundColor:
+                          //         //       Colors.green.withOpacity(0.8),
+                          //         //   colorText: Colors.white,
+                          //         // );
+                          //       } catch (e) {
+                          //         Get.snackbar(
+                          //             "Error", "Failed to update credit: $e",
+                          //             backgroundColor: Colors.red);
+                          //         return; // Stop processing if credit update fails
+                          //       }
+                          //     }
+
+                          //     final cartDetails = await CartDatabaseManager()
+                          //         .getDraftAndCartIdsFromApi(customerId);
+                          //     await Future.delayed(const Duration(seconds: 1));
+                          //     final firstOrder = cartDetails.isNotEmpty
+                          //         ? cartDetails.last
+                          //         : {'cart_id': '', 'draft_id': ''};
+                          //     final cartIdPrefs = firstOrder['cart_id'] ?? '';
+                          //     final draftIdPrefs = firstOrder['draft_id'] ?? '';
+                          //     // log('Existing cart ID $existingCartId');
+                          //     // log('Existing Draft ID $existingDraftId');
+                          //     if (_selectedValue == "Quick Sale") {
+                          //       if (_formKey.currentState?.validate() ??
+                          //           false) {
+                          //         await processSaveAndSend(
+                          //           finalAmount: finalAmount,
+                          //           paymentType: paymentType,
+                          //           context: context,
+                          //           cartId: cartIdPrefs,
+                          //           draftId: draftIdPrefs,
+                          //         );
+                          //         cartProvider.getCartItemCounts(customerId);
+                          //       } else {
+                          //         ScaffoldMessenger.of(context).showSnackBar(
+                          //           const SnackBar(
+                          //             backgroundColor: Colors.red,
+                          //             content: Text(
+                          //                 'Please fill all required fields'),
+                          //             duration: Duration(seconds: 3),
+                          //           ),
+                          //         );
+                          //       }
+                          //     } else {
+                          //       await processSaveAndSend(
+                          //         finalAmount: finalAmount,
+                          //         context: context,
+                          //         cartId: cartIdPrefs,
+                          //         draftId: draftIdPrefs,
+                          //       );
+                          //       cartProvider.getCartItemCounts(customerId);
+                          //     }
+                          //   } else {
+                          //     showDialog(
+                          //       context: context,
+                          //       barrierDismissible: false,
+                          //       builder: (BuildContext context) {
+                          //         return AlertDialog(
+                          //           title: const Center(
+                          //             child: Icon(
+                          //               Icons.warning_amber_rounded,
+                          //               color: Colors.red,
+                          //               size: 60,
+                          //             ),
+                          //           ),
+                          //           content: CustomText(
+                          //             content:
+                          //                 'Please check-in before processing the order',
+                          //             fontSize: 18,
+                          //           ),
+                          //           actions: [
+                          //             TextButton(
+                          //               onPressed: () {
+                          //                 Navigator.pop(context);
+                          //                 Navigator.of(context,
+                          //                         rootNavigator: true)
+                          //                     .pop();
+                          //               },
+                          //               child: const Text('OK'),
+                          //             ),
+                          //           ],
+                          //         );
+                          //       },
+                          //     );
+                          //   }
+                          // },
                         ),
                       ],
                     ),
@@ -1818,8 +2549,9 @@ class CartDialogueState extends State<CartDialogue> {
             Row(
               children: [
                 CustomHeaderContainer(
-                  text: productName,
-                  fontSize: fontSize,
+                  text:
+                      productName.startsWith('Bundle') ? "Bundle" : productName,
+                  fontSize: isPhonePortrait(context) ? 14 : fontSize,
                 ),
                 const Spacer(),
                 SizedBox(
@@ -1861,11 +2593,16 @@ class CartDialogueState extends State<CartDialogue> {
                   dataRowHeight: rowHeight,
                   horizontalMargin: 5,
                   columnSpacing: 15,
-                  columns: DataTableColumns.getColumns(fontSize),
+                  columns: DataTableColumns.getColumns(
+                      isPhonePortrait(context) ? 12 : fontSize,
+                      isBundle: productName.startsWith('Bundle')),
                   rows: GroupedItemDataRows.getRows(
                     groupedItems: groupedItems,
-                    fontSize: availableWidth / 55,
-                    availableWidth: availableWidth,
+                    fontSize:
+                        isPhonePortrait(context) ? 12 : availableWidth / 55,
+                    availableWidth: isPhonePortrait(context)
+                        ? fullScreenWidth(context) * 2
+                        : availableWidth,
                     context: context,
                     productQuantityManager: productQuantityManager,
                     deleteConfirmationDialogue: deleteConfirmationDialogue,
@@ -1883,11 +2620,11 @@ class CartDialogueState extends State<CartDialogue> {
   Future<void> processSaveAndSend({
     required BuildContext context,
     required double finalAmount,
+    required bool useCreditConfirmed,
     int? paymentType,
     required String cartId,
     required String draftId,
   }) async {
-    // Determine which items to process based on the active tab (_selectedValue)
     List<CartItem> itemList;
     String customerId = (widget.customerId != null && widget.customerId != '')
         ? widget.customerId ??
@@ -1908,14 +2645,9 @@ class CartDialogueState extends State<CartDialogue> {
     } else {
       itemList = [];
     }
-    // Debug logging
-    log('DEBUG: _selectedValue: $_selectedValue');
-    log('DEBUG: orderItems: ${widget.productsController.orderItems.map((e) => e.toJson()).toList()}');
-    log('DEBUG: preorderItems: ${widget.productsController.preorderItems.map((e) => e.toJson()).toList()}');
-    log('DEBUG: itemList: ${itemList.map((e) => e.toJson()).toList()}');
-    log('DEBUG 2: customers and order controller customer Id : ${customeController.customerId.value}');
-    log('DEBUG 2: products controller customer Id : ${widget.productsController.selectedCustomerId.value}');
+
     final connectivityService = ConnectivityService();
+
     if (itemList.isNotEmpty &&
         (customeController.customerId.value.isNotEmpty ||
             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
@@ -1927,11 +2659,9 @@ class CartDialogueState extends State<CartDialogue> {
         },
       );
       try {
-        log('[processSaveAndSend] Checking connectivity...');
         bool isOnline = await connectivityService.isOnline();
 
         if (!isOnline) {
-          log('[processSaveAndSend] Device is offline. Saving order offline...');
           int status = _selectedValue == 'Sale Order'
               ? 11
               : _selectedValue == 'Booking'
@@ -1939,6 +2669,7 @@ class CartDialogueState extends State<CartDialogue> {
                   : _selectedValue == 'Estimate'
                       ? 7
                       : 14;
+
           await saveOrderOffline(finalAmount, paymentType, status);
           Navigator.pop(context);
           showDialog(
@@ -1956,7 +2687,6 @@ class CartDialogueState extends State<CartDialogue> {
                       Navigator.of(context, rootNavigator: true).pop();
                       _clearCartItem(itemList, customerId);
                     });
-                    // Call the callback to refresh the draft list
                     if (widget.onDraftUpdated != null) {
                       widget.onDraftUpdated!();
                     }
@@ -1972,45 +2702,189 @@ class CartDialogueState extends State<CartDialogue> {
           }
           return;
         } else {
-          log('[processSaveAndSend] Preparing data for API call...');
-          // Use only itemList for the API payload
           List<Detail> detail = itemList.map((e) => e.detail).toList();
-          log('[processSaveAndSend] Number of items in the order: ${itemList.length}');
           final productBYData = AddToCartModel(
             customerId: customerId,
             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
             cartId: '',
-            cartList: await Future.wait(detail.map((e) async {
+            cartList: await Future.wait(itemList.map((item) async {
+              final e = item.detail;
+
+              // Calculate Pack Value
               String packValue =
                   e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
-              return SendCartData(
+              print('bundle promo msg: ${item.promoMsg}');
+              // 1. Check if it is a Promo Item
+              if (item.isPromo == true) {
+                bool isBundle = item.promoMsg != null &&
+                    item.promoMsg!.startsWith("Bundle");
+
+                if (isBundle) {
+                  // --- Bundle Logic ---
+                  return SendCartData(
+                    productId: e.productId ?? '',
+                    variantId: e.variationId ?? '',
+                    pack: packValue,
+                    price: e.sellPrice.toString(),
+                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                    discount: e.discount ?? 0,
+                    quantity: e.count.toInt(),
+                    variantName: e.variationName ?? '',
+
+                    // Specific Bundle Flags
+                    isPromo: true,
+                    isBundle: true,
+                    promoCode: item.promoCode ?? '',
+                    promoMsg: "Bundle: ${e.variationName}",
+                    bundleDetails: "Bundle: ${e.variationName}",
+
+                    customerDiscount: item.CustomerDiscount,
+                    promoDiscount: item.tieredDiscount,
+                  );
+                } else {
+                  // --- Standard Promo Logic ---
+                  return SendCartData(
+                    productId: e.productId ?? '',
+                    variantId: e.variationId ?? '',
+                    pack: packValue,
+                    price: e.sellPrice.toString(),
+                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                    discount: e.discount ?? 0,
+                    quantity: e.count.toInt(),
+                    variantName: e.variationName ?? '',
+
+                    // Standard Promo Flags
+                    isPromo: true,
+                    isBundle: false, // Not a bundle
+                    promoCode: item.promoCode ?? '',
+                    promoMsg: item.promoMsg ?? '',
+
+                    customerDiscount: item.CustomerDiscount,
+                    promoDiscount: item.tieredDiscount,
+                  );
+                }
+              } else {
+                // 2. Normal Item Logic (Check for Bulk)
+                bool isBulkItem = false;
+                String? bulkId;
+
+                if (e.variationName?.contains('[BULK_ID:') == true) {
+                  isBulkItem = true;
+                  final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+                  final match = regex.firstMatch(e.variationName!);
+                  if (match != null) {
+                    bulkId = match.group(1);
+                  }
+                }
+
+                return SendCartData(
                   productId: e.productId ?? '',
                   variantId: e.variationId ?? '',
                   pack: packValue,
                   price: e.sellPrice.toString(),
-                  packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                  packType: isBulkItem
+                      ? 'Bulk'
+                      : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+                  // packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
                   discount: e.discount ?? 0,
                   quantity: e.count.toInt(),
-                  variantName: e.variationName ?? '');
+                  variantName: e.variationName ?? '',
+
+                  // Normal/Bulk Flags
+                  isPromo: false,
+                  isBundle: false,
+                  isBulk: isBulkItem,
+                  bulkId: bulkId,
+
+                  customerDiscount: item.CustomerDiscount,
+                  promoDiscount: item.tieredDiscount,
+                );
+              }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),
           );
+          //         final productBYData = AddToCartModel(
+          //           customerId: customerId,
+          //           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          //           cartId: '',
+          //           cartList: await Future.wait(itemList.map((item) async {
+          //             final e = item.detail;
+          //             String packValue =
+          //                 e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+          //                 bool isBulkItem = false;
+          // String? bulkId;
+          // if (e.variationName?.contains('[BULK_ID:') == true) {
+          //   isBulkItem = true;
+          //   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+          //   final match = regex.firstMatch(e.variationName!);
+          //   if (match != null) {
+          //     bulkId = match.group(1);
+          //   }
+          // }
+
+          //             return SendCartData(
+          //               productId: e.productId ?? '',
+          //               variantId: e.variationId ?? '',
+          //               pack: packValue,
+          //               price: e.sellPrice.toString(),
+          //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+          //               discount: e.discount ?? 0,
+          //               quantity: e.count.toInt(),
+          //               variantName: e.variationName ?? '',
+          //               isPromo: true,
+          //               promoCode: item.promoCode ?? '',
+          //               promoMsg: item.promoMsg ?? '',
+          //               customerDiscount: item.CustomerDiscount,
+          //               promoDiscount: item.tieredDiscount,
+          //               isBulk: isBulkItem,
+          //               bulkId: bulkId,
+          //               isBundle: true,
+          //             );
+          //           }).toList()),
+          //           total: finalAmount.toStringAsFixed(0),
+          //         );
 
           List<String> varientIdsPass = [];
           for (var item in detail) {
             varientIdsPass.add(item.variationId ?? '');
           }
 
-          log("VARIENT IDS : $varientIdsPass");
-          log('[processSaveAndSend] Sending API request with payload: ${productBYData.toJson()}');
           CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
-          log('[processSaveAndSend] API response received. Cart ID: ${cartOrder?.cartId}');
+          print(
+              'addtocartttt productBYData to json: ${productBYData.toJson()}');
 
           if (cartOrder != null) {
-            log('[processSaveAndSend] Preparing order placement...');
             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
             int orderStatus = _selectedValue == 'Sale Order'
+                ? 11
+                : _selectedValue == 'Booking'
+                    ? 0
+                    : _selectedValue == 'Estimate'
+                        ? 7
+                        : 14;
+
+            final customerCreditCtrl = Get.find<CustomerCreditController>();
+            final availableCredit =
+                customerCreditCtrl.customerCredit.value ?? 0.0;
+            final double originalTotal = finalAmount; // Before credit
+
+            final bool shouldUseCredit =
+                useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
+            final creditUsed = shouldUseCredit
+                ? (originalTotal > availableCredit
+                    ? availableCredit
+                    : originalTotal)
+                : 0.0;
+
+            final double amountToPayAfterCredit =
+                (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+            print(
+                "Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
+
+            // === FINAL ORDER ===
+            int orderStatuses = _selectedValue == 'Sale Order'
                 ? 11
                 : _selectedValue == 'Booking'
                     ? 0
@@ -2032,15 +2906,26 @@ class CartDialogueState extends State<CartDialogue> {
               transactionDate: dateController.text.trim(),
               draftId: draftId.isNotEmpty ? draftId : '',
               varientIds: varientIdsPass,
+              creditAmount: shouldUseCredit ? creditUsed : 0,
             );
+            print('place order data: ${order.toJson()}');
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
               Navigator.pop(context);
               if (statusCode == 200) {
+                if (shouldUseCredit) {
+                  // Deduct used credit from controller (immediate UI update)
+                  customerCreditCtrl.customerCredit.value =
+                      (availableCredit - creditUsed)
+                          .clamp(0.0, double.infinity)
+                          .toInt();
+                }
+
+                productController.isCartModified.value = false;
+
                 _clearCartItem(itemList, customerId);
 
-                // Update cached drafts after successful order placement
                 try {
                   final apiService = ApiService();
                   final salesmanId =
@@ -2055,7 +2940,6 @@ class CartDialogueState extends State<CartDialogue> {
                   final formattedEndDate =
                       DateFormat('yyyy-MM-dd').format(endDate);
 
-                  // Determine order type based on _selectedValue
                   String orderType;
                   switch (_selectedValue) {
                     case 'Sale Order':
@@ -2082,17 +2966,10 @@ class CartDialogueState extends State<CartDialogue> {
                     startDate: formattedStartDate,
                     endDate: formattedEndDate,
                     orderType: orderType,
-                    sentCartIds: [
-                      cartOrder.cartId
-                    ], // The cart ID that was just sent
+                    sentCartIds: [cartOrder.cartId],
                     sentAmount: finalAmount,
                   );
-
-                  log('[processSaveAndSend] Successfully updated cached drafts after order placement');
-                } catch (e) {
-                  log('[processSaveAndSend] Error updating cached drafts: $e');
-                  // Don't show error to user as this is a background operation
-                }
+                } catch (e) {}
 
                 showDialog(
                   barrierDismissible: false,
@@ -2114,12 +2991,9 @@ class CartDialogueState extends State<CartDialogue> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            // Navigator.pop(context);
                             final cartProvider = Provider.of<CustomersProvider>(
                                 context,
                                 listen: false);
-                            final cartItemCount = await cartProvider
-                                .getCartItemCounts(customerId);
 
                             CartDatabaseManager().addListener(() {
                               cartProvider.updateCartCount(customerId);
@@ -2134,42 +3008,6 @@ class CartDialogueState extends State<CartDialogue> {
                                   .fetchCustomerDashboardCountData(customerId);
                             }
 
-                            // if (cartItemCount != 0) {
-                            //   // final cartItems = await CartDatabaseManager()
-                            //   //     .getCartItems(customerId);
-
-                            //   // bool hasRelevantItems;
-                            //   // if (isOrder) {
-                            //   //   hasRelevantItems = cartItems.any(
-                            //   //       (item) => (item.detail.stock ?? 0) > 0);
-                            //   // } else {
-                            //   //   hasRelevantItems = cartItems.any(
-                            //   //       (item) => (item.detail.stock ?? 0) == 0);
-                            //   // }
-
-                            //   // if (!hasRelevantItems) {
-                            //   //   setState(() {
-                            //   //     isOrder = !isOrder;
-                            //   //   });
-                            //   // }
-                            //   bool isOnline =
-                            //       await ConnectivityService().isOnline();
-                            //   if (isOnline) {
-                            //     Navigator.of(context, rootNavigator: true)
-                            //         .pop();
-                            //     if (Navigator.canPop(context)) {
-                            //       Navigator.pop(context);
-                            //     }
-                            //     widget.onDraftUpdated;
-                            //   }
-                            // }
-
-                            // if (cartItemCount == 0) {
-                            //   Navigator.of(context, rootNavigator: true).pop();
-                            //   if (Navigator.canPop(context)) {
-                            //     Navigator.pop(context);
-                            //   }
-                            // }
                             setState(() {
                               Navigator.pop(context);
                               Navigator.of(context, rootNavigator: true).pop();
@@ -2219,15 +3057,11 @@ class CartDialogueState extends State<CartDialogue> {
         }
       } catch (e) {
         Navigator.pop(context);
-        log('[processSaveAndSend] Error: $e');
         showFailureDialog(context, 'An unexpected error occurred.');
       }
     } else {
       Navigator.pop(context);
-      if (
-          // customeController.customerId.value.isEmpty ||
-          //   widget.productsController.selectedCustomerId.value.isEmpty
-          widget.customerId == '') {
+      if (widget.customerId == '') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
@@ -2247,8 +3081,446 @@ class CartDialogueState extends State<CartDialogue> {
     }
   }
 
+//   Future<void> processSaveAndSend({
+//     required BuildContext context,
+//     required double finalAmount,
+//     required bool useCreditConfirmed,
+//     int? paymentType,
+//     required String cartId,
+//     required String draftId,
+//   }) async {
+//     // Determine which items to process based on the active tab (_selectedValue)
+//     List<CartItem> itemList;
+//     String customerId = (widget.customerId != null && widget.customerId != '')
+//         ? widget.customerId ??
+//             widget.productsController.selectedCustomerId.value
+//         : widget.productsController.selectedCustomerId.value;
+//     if (_selectedValue == 'Sale Order' ||
+//         _selectedValue == 'Quick Sale' ||
+//         _selectedValue == 'Estimate') {
+//       itemList = [
+//         ...widget.productsController.orderItems
+//             .where((item) => item.isChecked == true)
+//       ];
+//     } else if (_selectedValue == 'Booking') {
+//       itemList = [
+//         ...widget.productsController.preorderItems
+//             .where((item) => item.isChecked == true)
+//       ];
+//     } else {
+//       itemList = [];
+//     }
+//     // Debug logging
+//     final connectivityService = ConnectivityService();
+//     if (itemList.isNotEmpty &&
+//         (customeController.customerId.value.isNotEmpty ||
+//             widget.productsController.selectedCustomerId.value.isNotEmpty)) {
+//       showDialog(
+//         barrierDismissible: false,
+//         context: context,
+//         builder: (BuildContext context) {
+//           return const Center(child: CircularProgressIndicator());
+//         },
+//       );
+//       try {
+//         bool isOnline = await connectivityService.isOnline();
+
+//         if (!isOnline) {
+//           int status = _selectedValue == 'Sale Order'
+//               ? 11
+//               : _selectedValue == 'Booking'
+//                   ? 0
+//                   : _selectedValue == 'Estimate'
+//                       ? 7
+//                       : 14;
+//           await saveOrderOffline(finalAmount, paymentType, status);
+//           Navigator.pop(context);
+//           showDialog(
+//             barrierDismissible: false,
+//             context: context,
+//             builder: (context) => AlertDialog(
+//               title: const Text('Offline Mode'),
+//               content: const Text(
+//                   'The order will be placed automatically when connected to the internet.'),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () {
+//                     setState(() {
+//                       Navigator.pop(context);
+//                       Navigator.of(context, rootNavigator: true).pop();
+//                       _clearCartItem(itemList, customerId);
+//                     });
+//                     // Call the callback to refresh the draft list
+//                     if (widget.onDraftUpdated != null) {
+//                       widget.onDraftUpdated!();
+//                     }
+//                   },
+//                   child: const Text('OK'),
+//                 ),
+//               ],
+//             ),
+//           );
+//           if (widget.productsController.orderItems.isEmpty &&
+//               widget.productsController.preorderItems.isEmpty) {
+//             clearEntireCartForCustomer();
+//           }
+//           return;
+//         } else {
+//           final productBYData = AddToCartModel(
+//             customerId: customerId,
+//             salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+//             cartId: '',
+//             cartList: await Future.wait(itemList.map((item) async {
+//               final e = item.detail; // for easier reference
+
+//               String packValue =
+//                   e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+
+//               if (item.isPromo == true) {
+//                 bool isBundle = item.promoMsg != null &&
+//                     item.promoMsg!.startsWith("Bundle");
+
+//                 if (isBundle) {
+//                   return SendCartData(
+//                     productId: e.productId ?? '',
+//                     variantId: e.variationId ?? '',
+//                     pack: packValue,
+//                     price: e.sellPrice.toString(),
+//                     packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                     discount: e.discount ?? 0,
+//                     quantity: e.count.toInt(),
+//                     variantName: e.variationName ?? '',
+//                     maxDiscount: e.maxDiscount?.toInt(),
+//                     isPromo: true,
+//                     promoCode: item.promoCode ?? '',
+//                     promoMsg: "Bundle: ${e.variationName}",
+//                     isBundle: true,
+//                     bundleDetails:
+//                         isBundle ? "Bundle: ${e.variationName}" : null,
+//                   );
+//                 } else {
+//                   return SendCartData(
+//                     productId: e.productId ?? '',
+//                     variantId: e.variationId ?? '',
+//                     pack: packValue,
+//                     price: e.sellPrice.toString(),
+//                     packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                     discount: e.discount ?? 0,
+//                     quantity: e.count.toInt(),
+//                     variantName: e.variationName ?? '',
+//                     maxDiscount: e.maxDiscount?.toInt(),
+//                     isPromo: true,
+//                     promoCode: item.promoCode ?? '',
+//                     promoMsg: item.promoMsg ?? '',
+//                     customerDiscount: item.CustomerDiscount,
+//                     promoDiscount: item.tieredDiscount,
+//                   );
+//                 }
+//               } else {
+//                 // ✅ Normal items
+//                 return SendCartData(
+//                   productId: e.productId ?? '',
+//                   variantId: e.variationId ?? '',
+//                   pack: packValue,
+//                   price: e.sellPrice.toString(),
+//                   packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+//                   discount: e.discount ?? 0,
+//                   quantity: e.count.toInt(),
+//                   variantName: e.variationName ?? '',
+//                   isPromo: false,
+//                   promoCode: "",
+//                   customerDiscount: item.CustomerDiscount,
+//                   promoDiscount: item.tieredDiscount,
+//                 );
+//               }
+//             }).toList()),
+//             total: finalAmount.toStringAsFixed(0),
+//           );
+
+//           List<String> variantIdsPass = [];
+
+//           final RegExp variantIdRegex = RegExp(r'Variant Id:\s*(\S+)');
+
+//           for (var item in itemList) {
+//             final variantId = item.detail.variationId ?? '';
+//             if (variantId.isNotEmpty && !variantId.contains("BUNDLE")) {
+//               variantIdsPass.add(variantId);
+//             }
+
+//             if (item.isPromo == true &&
+//                 (item.promoMsg?.startsWith('Bundle') ?? false)) {
+//               final promoMsg = item.promoMsg ?? '';
+//               for (final m in variantIdRegex.allMatches(promoMsg)) {
+//                 final extracted = m.group(1);
+//                 if (extracted != null && extracted.isNotEmpty) {
+//                   variantIdsPass.add(extracted);
+//                 }
+//               }
+//             }
+//           }
+
+//           variantIdsPass = variantIdsPass.toSet().toList();
+
+//           CartOrderModel? cartOrder =
+//               await ApiWorker().addToCart(productBYData.toJson());
+
+//           if (cartOrder != null) {
+//             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+//             int orderStatus = _selectedValue == 'Sale Order'
+//                 ? 11
+//                 : _selectedValue == 'Booking'
+//                     ? 0
+//                     : _selectedValue == 'Estimate'
+//                         ? 7
+//                         : 14;
+
+// //
+//             // final customerCreditCtrl = Get.find<CustomerCreditController>();
+//             // final availableCredit =
+//             //     customerCreditCtrl.customerCredit.value; // fresh value
+//             // final originalTotal = finalAmount; // total before any credit
+
+//             // final bool shouldUseCredit = (_selectedValue == 'Sale Order' ||
+//             //         _selectedValue == 'Quick Sale') &&
+//             //     useCredit.value == true &&
+//             //     availableCredit > 0;
+
+//             // final creditUsed = shouldUseCredit
+//             //     ? (originalTotal > availableCredit
+//             //         ? availableCredit
+//             //         : originalTotal)
+//             //     : 0.0;
+
+//             // final amountToPay =
+//             //     (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+//             // print(
+//             //     "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
+
+//  final customerCreditCtrl = Get.find<CustomerCreditController>();
+//     final  availableCredit = customerCreditCtrl.customerCredit.value ?? 0.0;
+//     final double originalTotal = finalAmount; // Before credit
+
+//     final bool shouldUseCredit = useCreditConfirmed && availableCredit > 0 && originalTotal > 0;
+//     final  creditUsed = shouldUseCredit
+//         ? (originalTotal > availableCredit ? availableCredit : originalTotal)
+//         : 0.0;
+
+//     final double amountToPayAfterCredit = (originalTotal - creditUsed).clamp(0.0, double.infinity);
+
+//     print("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
+
+//     // === FINAL ORDER ===
+//     int orderStatuses = _selectedValue == 'Sale Order'
+//         ? 11
+//         : _selectedValue == 'Booking'
+//             ? 0
+//             : _selectedValue == 'Estimate'
+//                 ? 7
+//                 : 14;
+
+//             CartOrderModel order = CartOrderModel(
+//               customerId: customerId,
+//               salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+//               cartId: cartOrder.cartId,
+//               orderStatus: orderStatus,
+//               orderPrice: finalAmount,
+//               paymentType: paymentType.toString(),
+//               companyId: companyId,
+//               paymentDetail: remarkController.text.trim(),
+//               transactionNumber:
+//                   chequeOrTransactionNumberController.text.trim(),
+//               transactionDate: dateController.text.trim(),
+//               draftId: draftId.isNotEmpty ? draftId : '',
+//               varientIds: variantIdsPass,
+//               useCredit: shouldUseCredit,
+//               creditAmount: shouldUseCredit ? creditUsed : 0,
+//             );
+//             // print('Cart Order: ${order.toJson()}');
+
+//             await ApiWorker().placeOrder(order,
+//                 (statusCode, message, response) async {
+//               Navigator.pop(context);
+//               // print(
+//               //     'statusCodeww: $statusCode, message: $message, response: $response');
+//               if (statusCode == 200) {
+//                 if (shouldUseCredit) {
+//     // Deduct used credit from controller (immediate UI update)
+//    customerCreditCtrl.customerCredit.value =
+//     (availableCredit - creditUsed).clamp(0.0, double.infinity).toInt();
+
+//   }
+
+//                 productController.isCartModified.value = false;
+//                 // showSuccessFullDialogCtrl(context: context);
+//                 _clearCartItem(itemList, customerId);
+
+//                 // Update cached drafts after successful order placement
+//                 try {
+//                   final apiService = ApiService();
+//                   final salesmanId =
+//                       SessionHelper.loginSavedData?.salesmanId ?? '';
+
+//                   final now = DateTime.now();
+//                   final startDate = DateTime(now.year, 1, 1);
+//                   final endDate = DateTime(now.year, 12 + 1, 0);
+
+//                   final formattedStartDate =
+//                       DateFormat('yyyy-MM-dd').format(startDate);
+//                   final formattedEndDate =
+//                       DateFormat('yyyy-MM-dd').format(endDate);
+
+//                   // Determine order type based on _selectedValue
+//                   String orderType;
+//                   switch (_selectedValue) {
+//                     case 'Sale Order':
+//                       orderType = 'sale_order';
+//                       break;
+//                     case 'Quick Sale':
+//                       orderType = 'quick_sale';
+//                       break;
+//                     case 'Booking':
+//                       orderType = 'booking';
+//                       break;
+//                     case 'Estimate':
+//                       orderType = 'estimate';
+//                       break;
+//                     default:
+//                       orderType = 'draft';
+//                   }
+
+//                   await apiService.updateCachedDraftsAfterSaveAndSend(
+//                     context,
+//                     customerId: customerId,
+//                     draftId: draftId.isNotEmpty ? draftId : '',
+//                     salesmanId: salesmanId,
+//                     startDate: formattedStartDate,
+//                     endDate: formattedEndDate,
+//                     orderType: orderType,
+//                     sentCartIds: [
+//                       cartOrder.cartId
+//                     ], // The cart ID that was just sent
+//                     sentAmount: finalAmount,
+//                   );
+//                 } catch (e) {
+//                   // Don't show error to user as this is a background operation
+//                 }
+
+//                 showDialog(
+//                   barrierDismissible: false,
+//                   context: context,
+//                   builder: (BuildContext context) {
+//                     return AlertDialog(
+//                       title: Center(
+//                         child: SizedBox(
+//                           height: 100,
+//                           width: 100,
+//                           child: Lottie.asset(
+//                               'assets/images/Animation - 1726906882515.json'),
+//                         ),
+//                       ),
+//                       content: CustomText(
+//                         content: message,
+//                         fontSize: 18,
+//                       ),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () async {
+//                             // Navigator.pop(context);
+//                             final cartProvider = Provider.of<CustomersProvider>(
+//                                 context,
+//                                 listen: false);
+
+//                             CartDatabaseManager().addListener(() {
+//                               cartProvider.updateCartCount(customerId);
+//                             });
+//                             if (widget.isDashboard == true) {
+//                               Provider.of<DashboardProvider>(context,
+//                                       listen: false)
+//                                   .fetchData();
+//                             } else {
+//                               Provider.of<CustomersProvider>(context,
+//                                       listen: false)
+//                                   .fetchCustomerDashboardCountData(customerId);
+//                             }
+
+//                             setState(() {
+//                               Navigator.pop(context);
+//                               Navigator.of(context, rootNavigator: true).pop();
+//                             });
+//                             if (widget.onDraftUpdated != null) {
+//                               widget.onDraftUpdated!();
+//                             }
+//                           },
+//                           child: const Text('OK'),
+//                         ),
+//                       ],
+//                     );
+//                   },
+//                 );
+//               } else {
+//                 showDialog(
+//                   barrierDismissible: false,
+//                   context: context,
+//                   builder: (BuildContext context) {
+//                     return AlertDialog(
+//                       title: Center(
+//                         child: SizedBox(
+//                           height: 200,
+//                           width: 200,
+//                           child: Lottie.asset(
+//                               'assets/images/Warning_animation.json'),
+//                         ),
+//                       ),
+//                       content: CustomText(
+//                         content: message,
+//                         fontSize: 18,
+//                       ),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () {
+//                             Navigator.pop(context);
+//                           },
+//                           child: const Text('OK'),
+//                         ),
+//                       ],
+//                     );
+//                   },
+//                 );
+//               }
+//             });
+//           }
+//         }
+//       } catch (e) {
+//         Navigator.pop(context);
+//         showFailureDialog(context, 'An unexpected error occurred.');
+//       }
+//     } else {
+//       Navigator.pop(context);
+//       if (
+//           // customeController.customerId.value.isEmpty ||
+//           //   widget.productsController.selectedCustomerId.value.isEmpty
+//           widget.customerId == '') {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             backgroundColor: Colors.red,
+//             content: Text('No Customer Selected'),
+//             duration: Duration(seconds: 3),
+//           ),
+//         );
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             backgroundColor: Colors.red,
+//             content: Text('Your cart is empty.'),
+//             duration: Duration(seconds: 3),
+//           ),
+//         );
+//       }
+//     }
+//   }
+
   Future<void> clearEntireCartForCustomer() async {
-    log('[clearEntireCartForCustomer]');
     String customerId = customeController.customerId.isNotEmpty
         ? customeController.customerId.value
         : widget.productsController.selectedCustomerId.value;
@@ -2360,9 +3632,6 @@ class CartDialogueState extends State<CartDialogue> {
           .toList();
     }
 
-    log('[saveOrderOffline] Cart Order data : ${widget.productsController.orderItems}');
-    log('[saveOrderOffline] Cart PreOrder data : ${widget.productsController.preorderItems}');
-
     // Save the order to offline orders box
     Map<String, dynamic> orderData = {
       'order_id': orderId,
@@ -2424,11 +3693,8 @@ class CartDialogueState extends State<CartDialogue> {
 
     var offlineBox = await Hive.openBox('offlineOrders');
     await offlineBox.put(orderId, orderData);
-    log('[saveOrderOffline] Order saved locally with ID $orderId: $orderData');
 
-    log("PROCESSED ITEMS : ${processedItems.map((e) => e.toJson()).toList()}");
     for (final item in processedItems) {
-      log("DELETE CART ITEMS");
       CartDatabaseManager().deleteCartItem(item);
     }
 
@@ -2443,10 +3709,6 @@ class CartDialogueState extends State<CartDialogue> {
           .where((item) => item.detail.stock == 0)
           .toList();
     });
-
-    log("CART ITEMS: ${widget.productsController.cartItems}");
-    log("ORDER ITEMS: ${widget.productsController.orderItems}");
-    log("PREORDER ITEMS: ${widget.productsController.preorderItems}");
 
     // Update cached drafts after offline save
     try {
@@ -2493,10 +3755,8 @@ class CartDialogueState extends State<CartDialogue> {
         sentCartIds: [orderId],
         sentAmount: finalAmount,
       );
-
-      log('[saveOrderOffline] Successfully updated cached drafts after offline order save');
     } catch (e) {
-      log('[saveOrderOffline] Error updating cached drafts: $e');
+      //
     }
 
     {
@@ -2516,20 +3776,13 @@ class CartDialogueState extends State<CartDialogue> {
           drafts.indexWhere((draft) => draft['customer_id'] == checkCustomerId);
 
       if (existingDraftIndex != -1) {
-        var existingDraftForCustomer = drafts[existingDraftIndex];
-
         List<dynamic> detailsAfterProcessing = [];
-
-        log('existingDraftForCustomer : $existingDraftForCustomer');
 
         var newCartItems = remainingItems;
 
         for (var item in newCartItems) {
           item.isChecked = true;
         }
-
-        log('[newCartItems] : ${newCartItems.map((e) => e.toJson()).toList()}');
-        log('[newCartItems] display total : ${Utils().calculateSubtotal(newCartItems)}');
 
         if (newCartItems.isEmpty || newCartItems == []) {
           drafts.removeAt(existingDraftIndex);
@@ -2545,7 +3798,6 @@ class CartDialogueState extends State<CartDialogue> {
           };
 
           for (var detail in newCartItems) {
-            log("NEW CART ITEM DETAILS: ${detail.toJson()}");
             detailsAfterProcessing.add({
               'product_id': detail.detail.productId ?? '',
               'variant_id': detail.detail.variationId ?? '',
@@ -2570,10 +3822,6 @@ class CartDialogueState extends State<CartDialogue> {
         }
 
         await offlineDraftsBox.put('drafts', drafts);
-
-        var offlineDraftsBoxDisplay = await Hive.openBox('offlineDrafts');
-
-        log("OFFLINE DRAFT BOX AFTER REMOVING ITEM : ${offlineDraftsBoxDisplay.values}");
       }
     }
   }
@@ -2670,7 +3918,6 @@ class CartDialogueState extends State<CartDialogue> {
                 _deleteProduct(productName, isPreorder: isPreOrder);
                 await provider.updateCartCount(customerId);
                 _loadCartItems();
-                log('Draft Delete Clicked : $customerId');
                 Navigator.pop(context);
                 widget.productsController.isCartModified.value = true;
                 showCustomToastDisplay(
@@ -2714,49 +3961,153 @@ class CartDialogueState extends State<CartDialogue> {
       provider.updateCartCount(customerId);
     });
 
-    log('Deleted variant: ${variantToDelete.detail.variationName} with stock set to 0');
+    // If no remaining items carry a flat discount promo, clear it
+    _maybeClearFlatDiscountForCustomer(customerId);
   }
+
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {
     double padding = availableWidth > 400 ? 6 : 3;
+    ProductsController productsController = Get.find<ProductsController>();
+
+    final bool isTieredDiscount = (cartItem.isPromo == true) &&
+        (cartItem.detail.initialCount != null &&
+            cartItem.detail.initialCount! > 1);
+
+    final int tierStep = cartItem.detail.initialCount?.toInt() ?? 1;
+
+    // --- Helper function to update Item values locally ---
+    void updateItemCalculations() {
+      // 1. Calculate Base Amount (Price * Pack Pieces)
+      double sellPriceVal =
+          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      int qtyFactor =
+          (cartItem.detail.packtype == 'Pack' || cartItem.isPack == true)
+              ? (cartItem.detail.pieces?.toInt() ?? 1)
+              : 1;
+      double baseSellAmount = sellPriceVal * qtyFactor;
+      double productQuantity = cartItem.detail.count.toDouble();
+
+      // 2. Calculate Discount
+      double customerDisc =
+          (cartItem.CustomerDiscount != null && cartItem.CustomerDiscount! > 0)
+              ? cartItem.CustomerDiscount!
+              : 0.0;
+      num tieredDisc =
+          (cartItem.tieredDiscount != null && cartItem.tieredDiscount! > 0)
+              ? cartItem.tieredDiscount!
+              : 0;
+          //     num flatDisc = 
+          // (cartItem.flatDiscount != null && cartItem.flatDiscount! > 0) 
+          //     ? cartItem.flatDiscount! 
+          //     : 0;
+             
+      double totalDiscountPercent = customerDisc + tieredDisc;
+//       double percentageDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+// double blocks = productQuantity / tierStep;
+// // 2. ✅ Add the fixed flat discount
+// double totalDiscountAmount = percentageDiscountAmount + (flatDisc.toDouble() * blocks);
+// double totalDiscountAmount = percentageDiscountAmount + flatDisc.toDouble();
+    
+      // Calculate Discount Amount
+      double totalDiscountAmount =
+          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0) ;
+          print('total discpunt amount in product quanity:$totalDiscountAmount');
+      
+      cartItem.totalDiscountAmount = totalDiscountAmount;
+
+      // 3. Calculate Price After Discount
+      double priceAfterDiscount =
+          (baseSellAmount * productQuantity) - totalDiscountAmount;
+
+      // 4. Calculate Tax
+      double taxPercentage = (cartItem.catTax ?? 0).toDouble();
+
+      double tax;
+      if (taxPercentage > 0) {
+        // Scenario A: We have the percentage, calculate normally
+        tax = priceAfterDiscount * (taxPercentage / 100);
+      } else {
+        // Scenario B: Percentage is missing (reload/draft), use Unit Tax from details
+        double unitTax = (cartItem.detail.tax ?? 0).toDouble();
+        
+        // Calculate total pieces (Quantity * Pieces per pack)
+        double totalUnits = cartItem.detail.count.toDouble();
+        if (cartItem.isPack == true || cartItem.detail.packtype == 'Pack') {
+           totalUnits = totalUnits * (cartItem.detail.pieces ?? 1);
+        }
+        
+        tax = unitTax * totalUnits;
+      }
+      
+      cartItem.taxAmount = tax;
+
+      // 5. Update Final Price
+      if (cartItem.detail.inclTax == "incl_tax") {
+        cartItem.finalPrice = priceAfterDiscount;
+      } else {
+        cartItem.finalPrice = priceAfterDiscount + tax;
+      }
+    }
+
+
     return Container(
       width: availableWidth > 400 ? 80 : 50,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 241, 240, 240)),
+        borderRadius: BorderRadius.circular(5),
+        color: const Color.fromARGB(255, 241, 240, 240),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    bottomLeft: Radius.circular(5))),
+              color: primaryColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(5),
+                bottomLeft: Radius.circular(5),
+              ),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(2),
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    if (cartItem.detail.count > 1) {
-                      cartItem.detail.count--;
-                      cartItem.totalPrice = Utils().calculateTotalPrice(
-                          cartItem, cartItem.detail.count.toInt());
-                      calculateAmounts();
-                      log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                      log('Draft ID On Cart ${cartItem.draftId}');
-                      CartDatabaseManager().updateCart(cartItem);
-                      CartDatabaseManager()
-                          .getCartItems(cartItem.customerId ?? '');
-                      widget.productsController.isCartModified.value = true;
+                    if (isTieredDiscount) {
+                      // Only subtract by tierStep if it is a Promo item
+                      if (cartItem.detail.count > tierStep) {
+                        cartItem.detail.count -= tierStep;
+                      }
+                    } else {
+                      // Normal decrement by 1
+                      if (cartItem.detail.count > 1) {
+                        cartItem.detail.count--;
+                      }
                     }
+
+                    // 1. Update Total Price (Base logic)
+                    cartItem.totalPrice = Utils().calculateTotalPrice(
+                      cartItem,
+                      cartItem.detail.count.toInt(),
+                    );
+
+                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
+                    updateItemCalculations();
+
+                    // 3. Now Calculate Totals (Uses the updated taxAmount)
+                    calculateAmounts();
+
+                    CartDatabaseManager().updateCart(cartItem);
+                    CartDatabaseManager()
+                        .getCartItems(cartItem.customerId ?? '');
+                    widget.productsController.isCartModified.value = true;
                   });
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
                   child: CustomText(
-                    color: white,
+                    color: Colors.white,
                     content: '-',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -2772,21 +4123,37 @@ class CartDialogueState extends State<CartDialogue> {
           ),
           Container(
             decoration: const BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomRight: Radius.circular(5))),
+              color: primaryColor,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(5),
+                bottomRight: Radius.circular(5),
+              ),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(2),
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem.detail.count++;
+                    if (isTieredDiscount) {
+                      // Only add by tierStep if it is a Promo item
+                      cartItem.detail.count += tierStep;
+                    } else {
+                      // Normal increment by 1
+                      cartItem.detail.count++;
+                    }
+
+                    // 1. Update Total Price (Base logic)
                     cartItem.totalPrice = Utils().calculateTotalPrice(
-                        cartItem, cartItem.detail.count.toInt());
+                      cartItem,
+                      cartItem.detail.count.toInt(),
+                    );
+
+                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
+                    updateItemCalculations();
+
+                    // 3. Now Calculate Totals (Uses the updated taxAmount)
                     calculateAmounts();
-                    log("Updated count for item ${cartItem.detail.id}: ${cartItem.detail.count}");
-                    log('Draft ID On Cart ${cartItem.draftId}');
+
                     CartDatabaseManager().updateCart(cartItem);
                     widget.productsController.isCartModified.value = true;
                   });
@@ -2794,7 +4161,7 @@ class CartDialogueState extends State<CartDialogue> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
                   child: CustomText(
-                    color: white,
+                    color: Colors.white,
                     content: '+',
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -2809,13 +4176,15 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
+
+
   void calculateAmounts() {
     setState(() {
       if (isOrder) {
         orderSubtotal =
             Utils().calculateSubtotal(widget.productsController.orderItems);
-        orderTax =
-            Utils().calculateTotalTax(widget.productsController.orderItems);
+        // orderTax =
+        //     Utils().calculateTotalTax(widget.productsController.orderItems);
         totalDiscount = Utils()
             .calculateTotalDiscount(widget.productsController.orderItems);
       } else {
@@ -2844,12 +4213,12 @@ class CartDialogueState extends State<CartDialogue> {
           .where((item) => item.detail.stock == 0)
           .toList();
     });
-    log('Cart Item Cleared : $cartItem');
+    // Clear flat discount if its source items are gone
+    _maybeClearFlatDiscountForCustomer(customerId);
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
   }
-
-  void _deleteProduct(String productName, {bool isPreorder = false}) {
+   void _deleteProduct(String productName, {bool isPreorder = false}) {
     setState(() {
       final variantsToDelete =
           widget.productsController.cartItems.where((item) {
@@ -2861,7 +4230,6 @@ class CartDialogueState extends State<CartDialogue> {
       }).toList();
 
       if (variantsToDelete.isEmpty) {
-        log('No ${isPreorder ? "preorder" : "order"} variants found for product: $productName');
         return;
       }
 
@@ -2882,12 +4250,71 @@ class CartDialogueState extends State<CartDialogue> {
           .toList();
 
       orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTax = Utils().calculateTotalTax(orderItems);
+      orderTaxe = Utils().calculateTotalTax(orderItems);
       preorderSubtotal = Utils().calculateSubtotal(preorderItems);
       preorderTax = Utils().calculateTotalTax(preorderItems);
     });
+  }
 
-    log('Deleted all ${isPreorder ? "preorder" : "order"} variants for product: $productName');
+  // void _deleteProduct(String productName, {bool isPreorder = false}) {
+  //   setState(() {
+  //     final variantsToDelete =
+  //         widget.productsController.cartItems.where((item) {
+  //       final isMatchingProduct = item.productName == productName;
+  //       final isPreorderItem = item.detail.stock == 0;
+  //       final isOrderItem = (item.detail.stock ?? 0) > 0;
+  //       return isMatchingProduct &&
+  //           ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
+  //     }).toList();
+
+  //     if (variantsToDelete.isEmpty) {
+  //       return;
+  //     }
+
+  //     for (var variant in variantsToDelete) {
+  //       variant.detail.count = 0;
+  //       CartDatabaseManager().deleteCartItem(variant);
+  //       CartDatabaseManager().updateCart(variant);
+  //     }
+  //     widget.productsController.cartItems.removeWhere((item) =>
+  //         item.productName == productName &&
+  //         ((isPreorder && item.detail.stock == 0) ||
+  //             (!isPreorder && (item.detail.stock ?? 0) > 0)));
+  //     final orderItems = widget.productsController.cartItems
+  //         .where((item) => (item.detail.stock ?? 0) > 0)
+  //         .toList();
+  //     final preorderItems = widget.productsController.cartItems
+  //         .where((item) => item.detail.stock == 0)
+  //         .toList();
+
+  //     orderSubtotal = Utils().calculateSubtotal(orderItems);
+  //     orderTax = Utils().calculateTotalTax(orderItems);
+  //     preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+  //     preorderTax = Utils().calculateTotalTax(preorderItems);
+  //   });
+
+  //   // Clear flat discount if its source items are gone
+  //   final String cid =
+  //       widget.customerId ?? widget.productsController.selectedCustomerId.value;
+  //   _maybeClearFlatDiscountForCustomer(cid);
+  // }
+
+  /// Clears cart-level flat discount for a customer if no remaining items
+  /// are associated with the flat discount promo (based on promoMsg marker).
+  void _maybeClearFlatDiscountForCustomer(String customerId) {
+    try {
+      final hasFlatPromoItems = widget.productsController.cartItems.any((item) {
+        final msg = item.promoMsg?.toLowerCase() ?? '';
+        return msg.contains('flat discount');
+      });
+      if (!hasFlatPromoItems) {
+        if (widget.productsController.flatDiscountByCustomer
+            .containsKey(customerId)) {
+          widget.productsController.flatDiscountByCustomer.remove(customerId);
+          setState(() {});
+        }
+      }
+    } catch (_) {}
   }
 
   Map<String, dynamic> castToStringDynamic(Map<dynamic, dynamic> input) {
@@ -2906,6 +4333,319 @@ class CartDialogueState extends State<CartDialogue> {
     });
   }
 }
+
+Future<bool?> showCreditUsageDialog({
+  required BuildContext context,
+  required availableCredit,
+  required double amountToPayBeforeCredit,
+}) async {
+  // Calculate how much credit would be used if applied
+  final double creditToBeUsed = amountToPayBeforeCredit > availableCredit
+      ? availableCredit
+      : amountToPayBeforeCredit;
+
+  final double amountAfterCredit =
+      (amountToPayBeforeCredit - creditToBeUsed).clamp(0.0, double.infinity);
+
+  return await showDialog<bool?>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          "Apply Customer Credit?",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Available Credit
+            Row(
+              children: [
+                const Text("Available Credit: ",
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  formatAmount(availableCredit),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 19,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Order Total
+            Row(
+              children: [
+                const Text("Order Total: ",
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  formatAmount(amountToPayBeforeCredit),
+                  style: const TextStyle(fontSize: 17),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Visual Summary Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //  Text(
+                  //   "If you apply credit:",
+                  //   style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green),
+                  // ),
+                  // const SizedBox(height: 8),
+                  // Text(
+                  //   "• Deduct: ${formatAmount(creditToBeUsed)}",
+                  //   style: const TextStyle(fontSize: 16),
+                  // ),
+                  Text(
+                    "After applying the credit, your total payable amount will be: ${formatAmount(amountAfterCredit)}",
+                    // "You pay: ${formatAmount(amountAfterCredit)}",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: amountAfterCredit == 0
+                          ? Colors.green[800]
+                          : Colors.blue[800],
+                    ),
+                  ),
+                  // if (amountAfterCredit == 0)
+                  // const Padding(
+                  //   padding: EdgeInsets.only(top: 8),
+                  //   child: Row(
+                  //     children: [
+                  //       Icon(Icons.celebration, color: Colors.green, size: 20),
+                  //       SizedBox(width: 6),
+                  //       Text(
+                  //         "Full amount covered!",
+                  //         style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          // Cancel Button
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context, null), // null means cancelled
+            child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.grey[200],
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+
+          // Skip Credit Button
+          OutlinedButton(
+            onPressed: () => Navigator.pop(context, false),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text("Pay without Credit",
+                style: TextStyle(fontSize: 16)),
+          ),
+
+          // Pay with Credit Button
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.check_circle, size: 20),
+            label: Text(
+              amountAfterCredit == 0 ? "Pay with Credit" : "Apply Credit",
+              style: const TextStyle(fontSize: 16),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Future<bool> showCreditUsageDialog({
+//   required BuildContext context,
+//   required  availableCredit,
+//   required double amountToPayBeforeCredit,
+// }) async {
+//   // Default: auto-check if credit can fully or partially cover the amount
+//   bool useCredit = availableCredit > 0 && amountToPayBeforeCredit > 0;
+
+//   final bool? result = await showDialog<bool>(
+//     context: context,
+//     barrierDismissible: false, // User must choose
+//     builder: (BuildContext dialogContext) {
+//       return StatefulBuilder(
+//         builder: (context, StateSetter setState) {
+//           // Calculate how much credit will actually be used
+//           final double creditToBeUsed = useCredit
+//               ? (amountToPayBeforeCredit > availableCredit
+//                   ? availableCredit
+//                   : amountToPayBeforeCredit)
+//               : 0.0;
+
+//           final double amountAfterCredit = (amountToPayBeforeCredit - creditToBeUsed).clamp(0.0, double.infinity);
+
+//           return AlertDialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(16),
+//             ),
+//             title: const Text(
+//               "Apply Customer Credit?",
+//               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+//             ),
+//             content: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // Available Credit
+//                 Row(
+//                   children: [
+//                     const Text("Available Credit: ", style: TextStyle(fontWeight: FontWeight.w600)),
+//                     Text(
+//                       formatAmount(availableCredit),
+//                       style: const TextStyle(
+//                         fontWeight: FontWeight.bold,
+//                         color: Colors.green,
+//                         fontSize: 18,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 8),
+
+//                 // Order Amount Before Credit
+//                 Row(
+//                   children: [
+//                     const Text("Order Amount: ", style: TextStyle(fontWeight: FontWeight.w600)),
+//                     Text(
+//                       formatAmount(amountToPayBeforeCredit),
+//                       style: const TextStyle(fontSize: 16),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 16),
+
+//                 // Checkbox with live preview
+//                 Container(
+//                   padding: const EdgeInsets.all(12),
+//                   decoration: BoxDecoration(
+//                     color: Colors.grey[50],
+//                     borderRadius: BorderRadius.circular(12),
+//                     border: Border.all(color: Colors.grey.shade300),
+//                   ),
+//                   child: Column(
+//                     children: [
+//                       CheckboxListTile(
+//                         dense: true,
+//                         contentPadding: EdgeInsets.zero,
+//                         controlAffinity: ListTileControlAffinity.leading,
+//                         title: Text(
+//                           useCredit
+//                               ? "Use Credit – Deduct ${formatAmount(creditToBeUsed)}"
+//                               : "Do not use credit",
+//                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+//                         ),
+//                         subtitle: useCredit
+//                             ? Text(
+//                                 "You will pay: ${formatAmount(amountAfterCredit)}",
+//                                 style: TextStyle(
+//                                   fontSize: 15,
+//                                   color: amountAfterCredit == 0 ? Colors.green : Colors.blue[700],
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               )
+//                             : null,
+//                         value: useCredit,
+//                         activeColor: Colors.green,
+//                         onChanged: availableCredit <= 0
+//                             ? null
+//                             : (bool? value) {
+//                                 setState(() {
+//                                   useCredit = value ?? false;
+//                                 });
+//                               },
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+
+//                 if (amountAfterCredit == 0 && useCredit)
+//                   Padding(
+//                     padding: const EdgeInsets.only(top: 12),
+//                     child: Row(
+//                       children: [
+//                         Icon(Icons.celebration, color: Colors.green),
+//                         const SizedBox(width: 8),
+//                         Text(
+//                           "Full amount covered by credit!",
+//                           style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//               ],
+//             ),
+//             actionsAlignment: MainAxisAlignment.spaceBetween,
+//             actions: [
+//               TextButton(
+//                 style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
+//                 onPressed: () => Navigator.pop(dialogContext, false),
+//                 child: const Text("Skip Credit", style: TextStyle(fontSize: 16)),
+//               ),
+//               ElevatedButton(
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: useCredit ? Colors.green : Colors.blue,
+//                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                 ),
+//                 onPressed: () => Navigator.pop(dialogContext, useCredit),
+//                 child: Text(
+//                   useCredit
+//                       ? (amountAfterCredit == 0 ? "Pay with Credit" : "Apply & Pay ${formatAmount(amountAfterCredit)}")
+//                       : "Pay Full ${formatAmount(amountToPayBeforeCredit)}",
+//                   style: const TextStyle(fontSize: 16, color: Colors.white),
+//                 ),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     },
+//   );
+
+//   // Return true/false based on user choice
+//   return result ?? false;
+// }
 
 class CartTextFields extends StatelessWidget {
   const CartTextFields({

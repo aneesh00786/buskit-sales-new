@@ -1,5 +1,3 @@
-//Check From Here
-
 import 'dart:convert';
 
 PendingPaymentResponse pendingPaymentResponseFromJson(String str) =>
@@ -184,7 +182,6 @@ class Pagination {
       };
 }
 
-///~~~~~~~~~~~~~~~~~~~~~~~~~ GET ALL PENDING PAYMENT INDIVIDUAL~~~~~~~~~~~~~
 IndividualPendingPaymentResponse individualPendingPaymentResponseFromJson(
         String str) =>
     IndividualPendingPaymentResponse.fromJson(json.decode(str));

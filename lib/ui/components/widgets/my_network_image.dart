@@ -1,8 +1,6 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/null_check_oprations.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicator.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicatorz.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +49,6 @@ class MyNetworkImage extends StatelessWidget {
       cacheManager: cacheManager,
       errorWidget: errorWidget ??
           (context, url, error) {
-            log('IMAGE ERROR ${error.toString()}');
             return NkCommonFunction.errorWidget();
           },
       imageBuilder: imageBuilder,

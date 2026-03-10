@@ -1,7 +1,5 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -9,7 +7,6 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/login_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:lottie/lottie.dart';
@@ -47,9 +44,6 @@ class _PaymentDialogContentState extends State<PaymentDialogContent> {
     setState(() {
       cardDetails = controller.details;
     });
-    debugPrint("Card complete: ${cardDetails?.complete}");
-    debugPrint("Brand: ${cardDetails?.brand}");
-    debugPrint("Last4: ${cardDetails?.last4}");
   }
 
   @override
@@ -388,17 +382,12 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
       "plan_id": widget.planId.toString()
     };
 
-    log("Request: $request");
-
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}subscriptionView');
       final response = await http.post(
         url,
         body: request,
       );
-
-      log("Status code: ${response.statusCode}");
-      log("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -410,7 +399,6 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             'Failed to load Subscription view: ${response.statusCode}');
       }
     } catch (e) {
-      log("Error 2: $e");
       setState(() {
         htmlContent = "<h2>Error loading Subscription view</h2>";
         isLoading = false;
@@ -430,7 +418,7 @@ class _PayPalWebViewScreenState extends State<PayPalWebViewScreen> {
             : InAppWebView(
                 initialData: InAppWebViewInitialData(
                   data: htmlContent,
-                  baseUrl: WebUri("https://test.thrivewoo.com"),
+                  baseUrl: WebUri(ApiConstants.baseUrl1),
                   mimeType: "text/html",
                   encoding: "utf-8",
                 ),

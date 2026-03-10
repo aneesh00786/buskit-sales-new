@@ -1,9 +1,6 @@
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:flutter/material.dart';
 
-/// *********** General use Sizes  ***************
-
-///===> [nkChildWrappedSizeBox] use to Wrap Containt child
 SizedBox nkChildWrappedSizeBox({
   Widget? child,
   double? height,
@@ -69,8 +66,6 @@ SizedBox nkExtraLargeSizeBox({
       width: width ?? AppDimensions.instance.width * .16,
       child: child,
     );
-
-/// *********** General use Padding  ***************
 
 EdgeInsets nkSmallPadding({
   double? top,

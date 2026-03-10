@@ -1,20 +1,17 @@
-// ignore: file_names
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
-import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/location_services/location_services.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
-import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
@@ -26,8 +23,11 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/services/permission_status_service.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -52,9 +52,13 @@ class NkSidebarXSideBar extends StatefulWidget {
   State<NkSidebarXSideBar> createState() => _NkSidebarXSideBarState();
 }
 
-class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
+class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindingObserver {
   bool _onSwitchSelected = false;
   bool _isLoading = true;
+  bool _hasAlwaysPermission = false;
+  bool _pendingSettingsReturn = false;
+  bool _waitingForPermissionPopup = false; // NEW: Track if we're waiting for iOS popup
+  Position? _pendingPosition; // Store position for later use
   StaffController staffController = Get.put(StaffController());
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
@@ -69,13 +73,18 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
   PendingPaymentController pendingPaymentController =
       Get.put(PendingPaymentController());
   SearchModel searchData = SearchModel();
-  final ApiWorker _apiWorker = ApiWorker();
   TabController? _tabController;
   TabController? get tabController => _tabController;
   final int currentYear = DateTime.now().year;
   @override
   void initState() {
     super.initState();
+    // Register lifecycle observer to detect when app returns from settings
+    WidgetsBinding.instance.addObserver(this);
+    
+    // Initialize permission status service and set up listener
+    _initializePermissionStatus();
+    
     ApiWorker().loadSwitchState().then((value) {
       if (mounted) {
         setState(() {
@@ -84,14 +93,249 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
         });
       }
     });
-    log('Switch state: $_onSwitchSelected');
+  }
+
+  Future<void> _initializePermissionStatus() async {
+    final permissionService = PermissionStatusService();
+    print("=== Sidebar initializing permission service ===");
+    
+    // Wait for permission service to initialize and get current status
+    await permissionService.initialize();
+    
+    // Get current permission status after initialization
+    var alwaysStatus = await Permission.locationAlways.status;
+    bool currentPermissionStatus = alwaysStatus.isGranted;
+    
+    print("=== Sidebar permission service initialized ===");
+    print("=== Current permission status: $currentPermissionStatus ===");
+    
+    // Set initial permission status
+    if (mounted) {
+      setState(() {
+        _hasAlwaysPermission = currentPermissionStatus;
+      });
+    }
+    
+    print("=== Sidebar adding listener to permission service ===");
+    permissionService.addListener(() {
+      print("=== Sidebar listener called, new permission status: ${permissionService.hasAlwaysPermission} ===");
+      if (mounted) {
+        setState(() {
+          _hasAlwaysPermission = permissionService.hasAlwaysPermission;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // When app resumes from settings OR from iOS permission popup
+    if (state == AppLifecycleState.resumed) {
+      if (_pendingSettingsReturn) {
+        _pendingSettingsReturn = false;
+        _checkPermissionAndContinue();
+      } else if (_waitingForPermissionPopup) {
+        // User returned from iOS permission popup - check permission status
+        _waitingForPermissionPopup = false;
+        _handleIOSPermissionResponse();
+      }
+    }
+  }
+
+  // Poll for permission changes (for iOS upgrade scenario)
+  void _startPollingPermission(Position position, BuildContext context) {
+    // Show snackbar while waiting
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please respond to the permission popup...'),
+          duration: Duration(seconds: 15),
+        ),
+      );
+    }
+    
+    // Poll for permission status - with longer timeout
+    int pollCount = 0;
+    Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
+      pollCount++;
+      var alwaysStatus = await Permission.locationAlways.status;
+      print("📍 Polling #$pollCount - permission status: $alwaysStatus (isGranted=${alwaysStatus.isGranted})");
+      
+      // Check if permission was granted
+      if (alwaysStatus.isGranted) {
+        timer.cancel();
+        _waitingForPermissionPopup = false;
+        
+        // Permission granted!
+        await initializeService();
+        final service = FlutterBackgroundService();
+        if (!await service.isRunning()) service.startService();
+        print("✅ Background Service Started after polling");
+        
+        // Update UI
+        setState(() {
+          _hasAlwaysPermission = true;
+        });
+        
+        // Send API
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: "in",
+          lat: position.latitude.toString(),
+          long: position.longitude.toString(),
+        );
+        
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(true);
+          setState(() {
+            _onSwitchSelected = true;
+          });
+        }
+        
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+      // Stop polling after 20 seconds and use foreground
+      else if (pollCount >= 20 || alwaysStatus.isPermanentlyDenied) {
+        timer.cancel();
+        _waitingForPermissionPopup = false;
+        print("⚠️ Permission timeout/denied, using foreground tracking");
+        _startForegroundTracking();
+        
+        // Complete the check-in anyway
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: "in",
+          lat: position.latitude.toString(),
+          long: position.longitude.toString(),
+        );
+        
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(true);
+          setState(() {
+            _onSwitchSelected = true;
+          });
+        }
+        
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    });
+  }
+
+  // Handle permission response after iOS popup is dismissed
+  void _handleIOSPermissionResponse() async {
+    if (!mounted) return;
+    
+    // Add a small delay to ensure iOS has fully updated the permission
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    var alwaysStatus = await Permission.locationAlways.status;
+    print("📍 Permission status after iOS popup: $alwaysStatus");
+    
+    // Check if permission was granted
+    if (alwaysStatus.isGranted) {
+      // Permission granted! Start background service and complete check-in
+      await initializeService();
+      final service = FlutterBackgroundService();
+      if (!await service.isRunning()) service.startService();
+      print("✅ Background Service Started after iOS popup");
+      
+      // Update UI
+      setState(() {
+        _hasAlwaysPermission = true;
+      });
+      
+      // Send API if we have position
+      if (_pendingPosition != null) {
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: "in",
+          lat: _pendingPosition!.latitude.toString(),
+          long: _pendingPosition!.longitude.toString(),
+        );
+        
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(true);
+          setState(() {
+            _onSwitchSelected = true;
+          });
+        }
+        _pendingPosition = null;
+      }
+    } else {
+      // Permission was denied - start foreground tracking as fallback
+      print("⚠️ Permission denied, using foreground tracking");
+      _startForegroundTracking();
+    }
+    
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  // Separate method to check permission after returning from settings
+  Future<void> _checkPermissionAndContinue() async {
+    if (!mounted) return;
+    
+    var alwaysStatus = await Permission.locationAlways.status;
+    
+    setState(() {
+      _hasAlwaysPermission = alwaysStatus.isGranted;
+      _isLoading = true;
+    });
+
+    if (alwaysStatus.isGranted) {
+      // Permission granted, start background service
+      await initializeService();
+      final service = FlutterBackgroundService();
+      if (!await service.isRunning()) service.startService();
+      print("✅ Background Service Started after returning from settings");
+      
+      // Send API with stored position
+      if (_pendingPosition != null) {
+        final response = await ApiWorker().updateAdminCheckInOut(
+          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+          time: DateFormat('HH:mm').format(DateTime.now()),
+          direction: "in",
+          lat: _pendingPosition!.latitude.toString(),
+          long: _pendingPosition!.longitude.toString(),
+        );
+        
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(true);
+          setState(() {
+            _onSwitchSelected = true;
+          });
+        }
+      }
+      
+      _pendingPosition = null;
+    }
+    
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    log('ImagePath Side : ${widget.userDetails.imagePath}');
-    final dashboardProvider =
-        Provider.of<DashboardProvider>(context, listen: false);
+    Provider.of<DashboardProvider>(context, listen: false);
     return OrientationBuilder(builder: (context, orientation) {
       return SidebarX(
         controller: widget._controller,
@@ -403,7 +647,40 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
                       ),
                     ],
                   ),
-                )
+                ),
+                // Show Always Permission Status when Checked In
+                if (_onSwitchSelected)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _hasAlwaysPermission
+                              ? Icons.check_circle
+                              : Icons.warning_amber_rounded,
+                          color: _hasAlwaysPermission
+                              ? Colors.green
+                              : Colors.orange,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _hasAlwaysPermission
+                                ? 'Background location enabled'
+                                : 'Background location disabled - tracking only when app is open',
+                            style: TextStyle(
+                              color: _hasAlwaysPermission
+                                  ? Colors.green.shade200
+                                  : Colors.orange.shade200,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           );
@@ -421,69 +698,276 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> {
 
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !_onSwitchSelected;
+
+    // Initial Confirmation - Close this dialog FIRST before requesting permissions
     bool? confirmAction = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
+          titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          title: Row(
+            children: [
+              Icon(
+                Icons.access_time_filled,
+                size: 25.0,
+                color: primaryColor,
+              ),
+              const SizedBox(width: 8.0),
+              Text(
+                newState ? 'Confirm Check-In' : 'Confirm Check-Out',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
           content: Text(
-              'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+            'Are you sure you want to ${newState ? 'check in' : 'check out'}?',
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+              ),
               onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             ElevatedButton(
-              child: const Text('Confirm'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+              ),
               onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Confirm',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         );
       },
     );
 
-    if (confirmAction == true) {
-      if (!await handleLocationPermission(context)) {
-        return;
-      }
+    if (confirmAction != true) return;
 
-      setState(() {
-        _isLoading = true;
-      });
+    // Close any remaining dialogs/popups before proceeding
+    Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
 
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+    setState(() => _isLoading = true);
+
+    try {
+      if (newState) {
+        // Use the shared CheckInService for check-in
+        print("=== Sidebar calling CheckInService().performCheckIn ===");
+        await CheckInService().performCheckIn(context);
+        
+        // After CheckInService completes, reload the switch state and update UI
+        bool updatedState = await ApiWorker().loadSwitchState();
+        if (mounted) {
+          setState(() {
+            _onSwitchSelected = updatedState;
+          });
+        }
+        
+        // The CheckInService will handle permission status updates
+        // and the sidebar listener will automatically update the permission status
+      } else {
+        // Handle check-out logic
+        // Reset permission status on check out
+        setState(() {
+          _hasAlwaysPermission = false;
+        });
+        
+        // === CHECK OUT LOGIC ===
+        final service = FlutterBackgroundService();
+        if (await service.isRunning()) service.invoke('stopService');
+        _stopForegroundTracking();
+        
+        // Send API for check-out
         final response = await ApiWorker().updateAdminCheckInOut(
           date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
           time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: newState ? "in" : "out",
-          lat: position.latitude.toString(),
-          long: position.longitude.toString(),
+          direction: "out",
+          lat: "0.0", // No position needed for check-out
+          long: "0.0",
         );
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(newState);
 
+        if (response.statusCode == 200) {
+          await ApiWorker().saveSwitchState(false);
           if (mounted) {
             setState(() {
-              _onSwitchSelected = newState;
+              _onSwitchSelected = false;
             });
           }
         }
-      } catch (e) {
-        log('Error: $e');
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
       }
+    } catch (e) {
+      print("Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
+
+  // void _handleSwitchToggle(BuildContext context) async {
+  //   bool newState = !_onSwitchSelected;
+  //   bool? confirmAction = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
+  //         content: Text(
+  //             'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
+  //         actions: [
+  //           TextButton(
+  //             child: const Text('Cancel'),
+  //             onPressed: () => Navigator.of(context).pop(false),
+  //           ),
+  //           ElevatedButton(
+  //             child: const Text('Confirm'),
+  //             onPressed: () => Navigator.of(context).pop(true),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (confirmAction == true) {
+  //     if (!await handleLocationPermission(context)) {
+  //       return;
+  //     }
+
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
+
+  //     try {
+  //       Position position = await Geolocator.getCurrentPosition(
+  //         desiredAccuracy: LocationAccuracy.high,
+  //       );
+  //       final response = await ApiWorker().updateAdminCheckInOut(
+  //         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+  //         time: DateFormat('HH:mm').format(DateTime.now()),
+  //         direction: newState ? "in" : "out",
+  //         lat: position.latitude.toString(),
+  //         long: position.longitude.toString(),
+  //       );
+  //       if (response.statusCode == 200) {
+  //         await ApiWorker().saveSwitchState(newState);
+
+  //         if (mounted) {
+  //           setState(() {
+  //             _onSwitchSelected = newState;
+  //           });
+  //         }
+  //       }
+  //     } catch (e) {
+  //     //
+  //     } finally {
+  //       if (mounted) {
+  //         setState(() {
+  //           _isLoading = false;
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
 }
 
+Timer? _foregroundTimer;
+void _startForegroundTracking() {
+    print("Starting foreground tracking (Timer Mode: Every 10s)...");
+
+    // 1. Run immediately so user doesn't wait 10s for the first hit
+    _performForegroundUpdate();
+
+    // 2. Start the 10-second periodic timer
+    _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _performForegroundUpdate();
+    });
+  }
+
+  void _stopForegroundTracking() {
+    if (_foregroundTimer != null) {
+      _foregroundTimer!.cancel();
+      _foregroundTimer = null;
+      print("Stopped foreground tracking.");
+    }
+  }
+
+  Future<void> _performForegroundUpdate() async {
+    try {
+      // 1. Get current position
+      // We use getCurrentPosition because we just want the 'current' spot right now
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // 2. Call your existing server function
+      // This replaces the "ApiWorker()..." line you asked about
+     initializeService();
+    
+
+      print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
+
+    } catch (e) {
+      print("Error in foreground update: $e");
+    }
+  }
+Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Enable Background Tracking"),
+      content: const Text(
+        "To track your location even when the app is closed (for accurate attendance), please allow 'Always' permission.\n\n"
+        "If you prefer, you can continue with foreground-only tracking (app must stay open)."
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false), // User chose "No"
+          child: const Text("Only while using the app"),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true), // User chose to proceed
+          child: const Text("Request Always"),
+        ),
+      ],
+    ),
+  ) ?? false;
+}
 Future<bool> handleLocationPermission(BuildContext context) async {
   PermissionStatus status = await Permission.locationWhenInUse.status;
 

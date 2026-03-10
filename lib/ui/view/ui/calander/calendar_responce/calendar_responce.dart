@@ -1,242 +1,4 @@
-
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
-// class CalendarEventResponce {
-//   int? statusCode;
-//   bool? status;
-//   String? message;
-//   List<CalendarResEventData>? data;
-
-//   CalendarEventResponce({
-//     this.statusCode,
-//     this.status,
-//     this.message,
-//     this.data,
-//   });
-
-//   CalendarEventResponce.fromJson(Map<String, dynamic> json) {
-//     statusCode = json['status_code'] as int?;
-//     status = json['status'] as bool?;
-//     message = json['message'] as String?;
-//     data = (json['data'] as List?)
-//         ?.map((dynamic e) =>
-//             CalendarResEventData.fromJson(e as Map<String, dynamic>))
-//         .toList();
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['status_code'] = statusCode;
-//     json['status'] = status;
-//     json['message'] = message;
-//     json['data'] = data?.map((e) => e.toJson()).toList();
-//     return json;
-//   }
-// }
-
-// class CalendarResEventData {
-//   String? fullname;
-//   String? mobileno;
-//   String? email;
-//   String? imagePath;
-//   String? salesmanId;
-//   List<CalEvents>? events;
-
-//   CalendarResEventData({
-//     this.fullname,
-//     this.mobileno,
-//     this.email,
-//     this.imagePath,
-//     this.salesmanId,
-//     this.events,
-//   });
-
-//   CalendarResEventData.fromJson(Map<String, dynamic> json) {
-//     fullname = json['fullname'] as String?;
-//     mobileno = json['mobileno'] as String?;
-//     email = json['email'] as String?;
-//     imagePath = json['image_path'] as String?;
-//     salesmanId = json['salesman_id'] as String?;
-//     events = json['events'] != 0
-//         ? (json['events'] as List?)
-//             ?.map((dynamic e) => CalEvents.fromJson(e as Map<String, dynamic>))
-//             .toList()
-//         : [];
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['fullname'] = fullname;
-//     json['mobileno'] = mobileno;
-//     json['email'] = email;
-//     json['image_path'] = imagePath;
-//     json['salesman_id'] = salesmanId;
-//     json['events'] = events?.map((e) => e.toJson()).toList();
-//     return json;
-//   }
-// }
-
-// class CalEvents {
-//   String? end;
-//   String? start;
-//   String? title;
-//   List<CustomerAndOrderData>? customer;
-//   String? eventType;
-
-//   CalEvents({
-//     this.end,
-//     this.start,
-//     this.title,
-//     this.customer,
-//     this.eventType,
-//   });
-
-//   CalEvents.fromJson(Map<String, dynamic> json) {
-//     end = json['end'] as String?;
-//     start = json['start'] as String?;
-//     title = json['title'] as String?;
-//     customer = json['customer'] != 0
-//         ? (json['customer'] as List?)
-//             ?.map((dynamic e) =>
-//                 CustomerAndOrderData.fromJson(e as Map<String, dynamic>))
-//             .toList()
-//         : [];
-//     eventType = json['eventType'] as String?;
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['end'] = end;
-//     json['start'] = start;
-//     json['title'] = title;
-//     json['customer'] = customer?.map((e) => e.toJson()).toList();
-//     json['eventType'] = eventType;
-//     return json;
-//   }
-// }
-
-
-
-
-// class SalesmanResponce {
-//   int? statusCode;
-//   bool? status;
-//   String? message;
-//   List<SalesmanData>? data;
-
-//   SalesmanResponce({
-//     this.statusCode,
-//     this.status,
-//     this.message,
-//     this.data,
-//   });
-
-//   SalesmanResponce.fromJson(Map<String, dynamic> json) {
-//     statusCode = json['status_code'] as int?;
-//     status = json['status'] as bool?;
-//     message = json['message'] as String?;
-//     data = (json['data'] as List?)
-//         ?.map((dynamic e) => SalesmanData.fromJson(e as Map<String, dynamic>))
-//         .toList();
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['status_code'] = statusCode;
-//     json['status'] = status;
-//     json['message'] = message;
-//     json['data'] = data?.map((e) => e.toJson()).toList();
-//     return json;
-//   }
-// }
-
-// class SalesmanData {
-//   int? id;
-//   String? salesmanId;
-//   String? fullname;
-//   String? mobileno;
-//   String? email;
-//   String? password;
-//   String? town;
-//   String? state;
-//   int? zipcode;
-//   String? address;
-//   String? idimagePath;
-//   String? imagePath;
-//   String? createAt;
-//   String? token;
-//   List<SalesManVisitEvents>? events;
-//   dynamic schedule;
-//   dynamic creditPoint;
-//   dynamic cancelEventReason;
-
-//   SalesmanData({
-//     this.id,
-//     this.salesmanId,
-//     this.fullname,
-//     this.mobileno,
-//     this.email,
-//     this.password,
-//     this.town,
-//     this.state,
-//     this.zipcode,
-//     this.address,
-//     this.idimagePath,
-//     this.imagePath,
-//     this.createAt,
-//     this.token,
-//     this.events,
-//     this.schedule,
-//     this.creditPoint,
-//     this.cancelEventReason,
-//   });
-
-//   SalesmanData.fromJson(Map<String, dynamic> json) {
-//     id = json['id'] as int?;
-//     salesmanId = json['salesman_id'] as String?;
-//     fullname = json['fullname'] as String?;
-//     mobileno = json['mobileno'] as String?;
-//     email = json['email'] as String?;
-//     password = json['password'] as String?;
-//     town = json['town'] as String?;
-//     state = json['state'] as String?;
-//     zipcode = json['zipcode'] as int?;
-//     address = json['address'] as String?;
-//     idimagePath = json['idimage_path'] as String?;
-//     imagePath = json['image_path'] as String?;
-//     createAt = json['create_at'] as String?;
-//     token = json['token'] as String?;
-//     events = (json['events'] as List?)
-//         ?.map((dynamic e) =>
-//             SalesManVisitEvents.fromJson(e as Map<String, dynamic>))
-//         .toList();
-//     schedule = json['schedule'];
-//     creditPoint = json['credit_point'];
-//     cancelEventReason = json['cancel_event_reason'];
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> json = <String, dynamic>{};
-//     json['id'] = id;
-//     json['salesman_id'] = salesmanId;
-//     json['fullname'] = fullname;
-//     json['mobileno'] = mobileno;
-//     json['email'] = email;
-//     json['password'] = password;
-//     json['town'] = town;
-//     json['state'] = state;
-//     json['zipcode'] = zipcode;
-//     json['address'] = address;
-//     json['idimage_path'] = idimagePath;
-//     json['image_path'] = imagePath;
-//     json['create_at'] = createAt;
-//     json['token'] = token;
-//     json['events'] = events?.map((e) => e.toJson()).toList();
-//     json['schedule'] = schedule;
-//     json['credit_point'] = creditPoint;
-//     json['cancel_event_reason'] = cancelEventReason;
-//     return json;
-//   }
-// }
 
 class SalesManVisitEvents {
   int? id;
@@ -305,7 +67,6 @@ class SalesManVisitEvents {
     return json;
   }
 }
-
 
 class RouteCreditResponse {
     int statusCode;
@@ -376,6 +137,8 @@ class FetchOnlyCustomerData {
   String email;
   String businessName;
   String imageUrl;
+  String? latitude;  
+  String? longitude;
 
   FetchOnlyCustomerData({
     required this.eventId,
@@ -388,6 +151,8 @@ class FetchOnlyCustomerData {
     required this.email,
     required this.businessName,
     required this.imageUrl,
+    this.latitude,        
+    this.longitude
   });
 
   factory FetchOnlyCustomerData.fromJson(Map<String, dynamic> json) =>
@@ -403,6 +168,8 @@ class FetchOnlyCustomerData {
         email: json["email"],
         businessName: json["business_name"],
         imageUrl: json["image_url"],
+        latitude: json['latitude']?.toString() ?? '0.0',  
+        longitude: json['longitude']?.toString() ?? '0.0',
       );
 
   Map<String, dynamic> toJson() => {
@@ -476,9 +243,9 @@ class Result {
   int zipcode;
   String imageUrl;
   String scheduleTime;
-  double latitude;
-  double longitude;
-  String formattedAddress;
+  double? latitude;
+  double? longitude;
+  String? formattedAddress;
 
   Result({
     required this.businessName,
@@ -496,25 +263,23 @@ class Result {
     required this.formattedAddress,
   });
 
-  factory Result.fromJson(Map<String, dynamic> json) => Result(
-        businessName: json["business_name"],
-        email: json["email"],
-        mobileno: json["mobileno"],
-        customerId: json["customer_id"],
-        address: json["address"],
-        town: json["town"],
-        state: json["state"],
-        zipcode: json["zipcode"],
-        imageUrl: json["image_url"],
-        scheduleTime: json["schedule_time"],
-        latitude: json["latitude"] != "error"
-            ? json["latitude"]?.toDouble()
-            : "error",
-        longitude: json["longitude"] != "error"
-            ? json["longitude"]?.toDouble()
-            : "error",
-        formattedAddress: json["formatted_address"],
-      );
+ factory Result.fromJson(Map<String, dynamic> json) => Result(
+    businessName: json["business_name"]?.toString() ?? '',
+    email: json["email"]?.toString() ?? '',
+    mobileno: json["mobileno"]?.toString() ?? '',
+    customerId: json["customer_id"]?.toString() ?? '',
+    address: json["address"]?.toString() ?? '',
+    town: json["town"]?.toString() ?? '',
+    state: json["state"]?.toString() ?? '',
+    // Handle zipcode safely as int
+    zipcode: json["zipcode"] is int ? json["zipcode"] : 0,
+    imageUrl: json["image_url"]?.toString() ?? '',
+    // This was likely the culprit for the "type 'Null' is not a subtype of 'String'" error
+    scheduleTime: json["schedule_time"]?.toString() ?? '', 
+    latitude: (json["latitude"] is num) ? (json["latitude"] as num).toDouble() : null,
+    longitude: (json["longitude"] is num) ? (json["longitude"] as num).toDouble() : null,
+    formattedAddress: json["formatted_address"]?.toString() ?? '',
+);
 
   Map<String, dynamic> toJson() => {
         "business_name": businessName,

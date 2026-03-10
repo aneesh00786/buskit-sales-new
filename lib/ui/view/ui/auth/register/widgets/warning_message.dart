@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +25,7 @@ Widget warningMessage() {
           decoration: BoxDecoration(
             color: Colors.blue,
             shape: BoxShape.circle,
-            
+
           ),
           child: const Icon(
             Icons.info_outline,

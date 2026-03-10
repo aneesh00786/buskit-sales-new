@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
@@ -18,11 +17,15 @@ class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
   final int selectedTabIndex;
   final bool hasOfflineOrders;
+  final List<OrderData>? overrideOrders;  // New: for search results
+  final bool isSearchMode;
   const OrderBottomWidget({
     super.key,
     required this.orderController,
     required this.selectedTabIndex,
     this.hasOfflineOrders = false,
+    this.overrideOrders,
+    this.isSearchMode = false,
   });
 
   @override
@@ -199,6 +202,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     }
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     int tabIndex = widget.hasOfflineOrders
@@ -219,7 +225,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
-          log("countForTab 2 : $_countForTab");
           if (widget.orderController.offlineOrderCount.value != 0 ||
               !_isOnline) {
             return const Center(
@@ -301,10 +306,28 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                 height: (fullScreenHeight(context) - 242) / 10,
                                 child: Row(
                                   children: [
+                                    // Expanded(
+                                    //     flex: 2, child: placeholderWidget()),
+                                    // Expanded(
+                                    //     flex: 8, child: placeholderWidget()),
                                     Expanded(
-                                        flex: 2, child: placeholderWidget()),
+                                      flex: 2,
+                                      child: Center(
+                                        child: CustomText(
+                                          content:
+                                              '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                          maxLine: 1,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
                                     Expanded(
-                                        flex: 8, child: placeholderWidget()),
+                                      flex: 8,
+                                      child: customerDetailsWidget(
+                                          orderData.customer!.first),
+                                    ),
                                   ],
                                 ),
                               );
@@ -335,7 +358,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                                   Expanded(
                                     flex: 8,
                                     child: customerDetailsWidget(
-                                        orderData.cart!.first),
+                                        orderData.customer!.first),
                                   ),
                                 ],
                               ),
@@ -364,12 +387,15 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: OrdersBottomTitleRow(
-                      widget: widget,
-                      scrollController2: _scrollController2,
-                      tabIndex: tabIndex,
-                    ),
+                    width: isTabletOrPhoneLandscape(context)
+                        ? MediaQuery.of(context).size.width
+                        : fullScreenWidth(context) * 2,
+                    child:OrdersBottomTitleRow(
+                widget: widget,
+                scrollController2: _scrollController2,
+                tabIndex: tabIndex,
+                orderList: widget.orderController.orderDataList, // Pass correct list
+              ),
                   ),
                 ),
               ),

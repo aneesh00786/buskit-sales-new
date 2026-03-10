@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -130,7 +128,7 @@ abstract class NkCommonFunction {
 
   static Future<dio.MultipartFile> getFormData(String imagePath,
       {required String mapKeyName}) async {
-    // get file name
+
     String fileNameMedia = '';
     if (imagePath.isNotEmpty) {
       File fileMedia = File(imagePath);
@@ -272,9 +270,9 @@ abstract class NkCommonFunction {
     static String getFullSalesmanImageUrl(String? imgPath) {
     if (imgPath == null || imgPath.isEmpty) return '';
     String path = imgPath;
-    // Remove any leading slashes
+
     if (path.startsWith('/')) path = path.substring(1);
-    // Ensure it starts with 'uploads/salesman/'
+
     if (!path.startsWith('uploads/salesman/')) {
       if (path.startsWith('salesman/')) {
         path = 'uploads/$path';

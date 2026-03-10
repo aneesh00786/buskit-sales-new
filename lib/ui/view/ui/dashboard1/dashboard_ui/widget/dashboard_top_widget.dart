@@ -1,13 +1,12 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
-import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
@@ -62,7 +61,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           SessionHelper.loginSavedData?.salesmanId ?? '');
 
       if (response.statusCode == 200) {
-        log('success', name: 'userVerification');
       } else {
         final message = response.message;
         Get.snackbar(
@@ -73,11 +71,10 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
           colorText: Colors.white,
           duration: const Duration(seconds: 5),
         );
-        log(message, name: 'userVerification');
         handleLogout(context);
       }
     } catch (e) {
-      log('userVerification exception: $e', name: 'userVerification');
+      //
     }
   }
 
@@ -107,6 +104,28 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Dashboard',
+                style: TextStyle(
+                    fontSize: NkFontSize.largeFont(largeFont: 20),
+                    fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Consumer<DashboardProvider>(
+                  builder: (context, provider, child) {
+                    return NotificationWidget(
+                      startDate: provider.selectedStartDate,
+                      endDate: provider.selectedEndDate,
+                    );
+                  },
+                ),
+                SizedBox(width: 120, child: profiloe())
+              ],
+            ),
+          ],
+        ),
         calender(),
         nkSmallSizeBox(),
         Obx(() {
@@ -119,11 +138,9 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             );
           }
           if (widget.dashBoardController.errorMessage.value.isNotEmpty) {
-            log('Error: ${widget.dashBoardController.errorMessage.value}');
             return const Center(child: NodataWidget());
           }
           final data = widget.dashBoardController.dashbordData.value;
-          log('DashBoard data Value ===========${data.orderCountList}');
           return OptionWidget(
             customType: "",
             customOrderStatusType: OrderStatus.preOrder,
@@ -149,24 +166,36 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   Widget _buildFilterDropdown(
       DashboardProvider provider, BuildContext context) {
     return SizedBox(
-      height: 45,
-      width: 120,
+      height: 50,
+      width: 125,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade50,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
-              offset: const Offset(2, 4),
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-              left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilterTemp,
             onChanged: (newValue) async {
@@ -184,27 +213,57 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             items: const [
               DropdownMenuItem(
                 value: FilterDateEnum.thisMonth,
-                child: Text('Month', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.thisWeek,
-                child: Text('Week', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.today,
-                child: Text('Day', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.thisYear,
-                child: Text('Year', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
               DropdownMenuItem(
                 value: FilterDateEnum.range,
-                child: Text('Range', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.date_range, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
             ],
             isExpanded: true,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             underline: Container(),
           ),
         ),
@@ -213,7 +272,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   }
 
   Widget calender() {
-    final loginController = Get.find<LoginController>();
+    Get.find<LoginController>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -228,7 +287,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   Flexible(
                     child: Row(
                       children: [
-                        const SizedBox(width: 5),
+                        // CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
+
                         _buildFilterDropdown(provider, context),
                         if (provider.selectedFilterTemp ==
                             FilterDateEnum.thisMonth) ...[
@@ -266,7 +326,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 15),
                   // Obx(() => loginController.isSyncing.value
                   //     ? SizedBox(
                   //         width: 100,
@@ -294,12 +354,12 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   //         ),
                   //       )
                   //     : const SizedBox.shrink()),
-                  const SizedBox(width: 20),
-                  NotificationWidget(
-                    startDate: provider.selectedStartDate,
-                    endDate: provider.selectedEndDate,
-                  ),
-                  SizedBox(width: 120, child: profiloe()),
+                  const SizedBox(width: 15),
+                  // NotificationWidget(
+                  //   startDate: provider.selectedStartDate,
+                  //   endDate: provider.selectedEndDate,
+                  // ),
+                  // SizedBox(width: 110, child: profiloe()),
                 ],
               );
             }

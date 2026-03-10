@@ -7,7 +7,8 @@ class NKDateUtils {
   static final DateFormat _dayFormat = DateFormat('dd');
   static final DateFormat _firstDayFormat = DateFormat('MMM dd');
   static final DateFormat _fullDayFormat = DateFormat('EEE dd MMM, yyyy');
-  // static final DateFormat _apiDayFormat = DateFormat('dd/MM/yyyy');
+  static final DateFormat _commonTimeFormat = DateFormat('hh:mm');
+  static final DateFormat _commonTimeOnlyFormat = DateFormat('hh:mm a');
   static final DateFormat _apiDayFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat _commonDayFormat = DateFormat('dd/MM/yyyy');
   static final DateFormat _commonDayFormat2 = DateFormat('dd-MM-yyyy');
@@ -15,6 +16,8 @@ class NKDateUtils {
       DateFormat('dd/MM/yyyy hh:mm');
   static final DateFormat _commonFullDateTimeFormat2 =
       DateFormat('dd/MM/yyyy  hh:mm a');
+  static final DateFormat _commonDayFormat3 = DateFormat('MMM dd, yyyy');
+
   static String commonFullDateTimeFormat(DateTime d) =>
       _commonFullDateTimeFormat.format(d);
   static String commonFullDateTimeFormat2(DateTime d) =>
@@ -32,11 +35,12 @@ class NKDateUtils {
   static String commonDayFormat(DateTime d) => _commonDayFormat.format(d);
 
   static String commonDayFormat2(DateTime d) => _commonDayFormat2.format(d);
-  static final DateFormat _commonTimeFormat = DateFormat('hh:mm');
+  
   static String commonTimeFormat(DateTime d) => _commonTimeFormat.format(d);
   
-  static final DateFormat _commonTimeOnlyFormat = DateFormat('hh:mm a');
   static String commonTimeOnlyFormat(DateTime d) => _commonTimeOnlyFormat.format(d);
+
+  static String commonDayFormat3(DateTime d) => _commonDayFormat3.format(d);
 
   static const List<String> weekdays = [
     'Monday',
@@ -63,21 +67,16 @@ class NKDateUtils {
     'December'
   ];
 
-  /// The list of days in a given month
   static List<DateTime> daysInMonth(DateTime month) {
     var first = firstDayOfMonth(month);
-    // var daysBefore = first.weekday;
-    // var firstToDisplay = first.subtract(Duration(days: daysBefore));
     var last = NKDateUtils.lastDayOfMonth(month);
 
     var daysAfter = 7 - last.weekday;
 
-    // If the last day is sunday (7) the entire week must be rendered
     if (daysAfter == 0) {
       daysAfter = 7;
     }
 
-    // var lastToDisplay = last.add(Duration(days: daysAfter));
     return daysRange(first, last).toList();
   }
 
@@ -100,28 +99,19 @@ class NKDateUtils {
   }
 
   static DateTime firstDayOfWeek(DateTime day) {
-    /// Handle Daylight Savings by setting hour to 12:00 Noon
-    /// rather than the default of Midnight
     day = DateTime.utc(day.year, day.month, day.day, 12);
 
-    /// Weekday is on a 1-7 scale Monday - Sunday,
-    /// This Calendar works from Sunday - Monday
     var decreaseNum = day.weekday % 7;
     return day.subtract(Duration(days: decreaseNum));
   }
 
   static DateTime lastDayOfWeek(DateTime day) {
-    /// Handle Daylight Savings by setting hour to 12:00 Noon
-    /// rather than the default of Midnight
     day = DateTime.utc(day.year, day.month, day.day, 12);
 
-    /// Weekday is on a 1-7 scale Monday - Sunday,
-    /// This Calendar's Week starts on Sunday
     var increaseNum = day.weekday % 7;
     return day.add(Duration(days: 7 - increaseNum));
   }
 
-  /// The last day of a given month
   static DateTime lastDayOfMonth(DateTime month) {
     var beginningNextMonth = (month.month < 12)
         ? DateTime(month.year, month.month + 1, 1)
@@ -129,10 +119,6 @@ class NKDateUtils {
     return beginningNextMonth.subtract(const Duration(days: 1));
   }
 
-  /// Returns a [DateTime] for each day the given range.
-  ///
-  /// [start] inclusive
-  /// [end] exclusive
   static Iterable<DateTime> daysInRange(DateTime start, DateTime end) sync* {
     var i = start;
     var offset = start.timeZoneOffset;
@@ -147,14 +133,11 @@ class NKDateUtils {
     }
   }
 
-  /// Whether or not two times are on the same day.
   static bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   static bool isSameWeek(DateTime a, DateTime b) {
-    /// Handle Daylight Savings by setting hour to 12:00 Noon
-    /// rather than the default of Midnight
     a = DateTime.utc(a.year, a.month, a.day);
     b = DateTime.utc(b.year, b.month, b.day);
 
@@ -207,28 +190,22 @@ class NKDateUtils {
   }
 
   static String formatDate(DateTime date) {
-    //FORMAT LIKE "Thursday 03 March 2022"
     return DateFormat('EEEE dd MMMM yyyy').format(date);
   }
 
   static String formatDateYMD(DateTime date) {
-    //FORMAT LIKE "Thursday 03 March 2022"
     return DateFormat('yMMMMd').format(date);
   }
 
   static String formatDateRemiders(DateTime date) {
-    //FORMAT LIKE "Thursday 03 March 2022"
     return DateFormat('hh:mm').format(date);
   }
 
   static DateTime formatStringDateTime(String date) {
-    //FORMAT LIKE "Thursday 03 March 2022"
     return DateFormat("dd-MM-yyyy hh:mm:ss").parse(date);
   }
 
   static DateTime formatStringUTCDateTime(String date) {
-    //FORMAT LIKE "Thursday 03 March 2022"
-
     return DateTime.parse(date).toLocal();
   }
 

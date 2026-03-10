@@ -121,6 +121,9 @@ class ProductModel {
   @HiveField(14)
   String? productCode;
 
+  @HiveField(15)
+  num? catTax;
+
   ProductModel({
     this.id,
     this.productId,
@@ -137,6 +140,7 @@ class ProductModel {
     this.stock,
     this.detail,
     this.productCode,
+    this.catTax,
   });
 
   ProductModel.fromJson(Map<String, dynamic> json) {
@@ -154,6 +158,22 @@ class ProductModel {
     companyId = json['company_id'];
     stock = json['stock'];
     productCode = json['product_code'];
+
+    // --- FIX START ---
+    // 1. Try to get tax from the main product level
+    var rawTax = json['cat_tax'];
+
+    // 2. If it's missing there, check inside the first item of the 'detail' list
+    if (rawTax == null &&
+        json['detail'] != null &&
+        (json['detail'] as List).isNotEmpty) {
+      rawTax = json['detail'][0]['cat_tax'];
+    }
+
+    // 3. Safely parse whatever we found into a number
+    catTax = rawTax != null ? num.tryParse(rawTax.toString()) : 0;
+    // --- FIX END ---
+
     if (json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -161,6 +181,34 @@ class ProductModel {
       });
     }
   }
+
+  // ProductModel.fromJson(Map<String, dynamic> json) {
+  //   id = json['id'];
+  //   productId = json['product_id'];
+  //   brandname = json['brandname'];
+  //   productName = json['product_name'];
+  //   description = json['description'];
+  //   reasonBySalesman = json['reason_by_salesman'];
+  //   imageUrl = json['image_url'];
+  //   inclTax = json['incl_tax'];
+  //   status = json['status'];
+  //   scid = json['scid'];
+  //   catId = json['catId'];
+  //   companyId = json['company_id'];
+  //   stock = json['stock'];
+  //   productCode = json['product_code'];
+  //  if (json['cat_tax'] != null) {
+  //     catTax = num.tryParse(json['cat_tax'].toString());
+  //   } else {
+  //     catTax = 0; // Or null, depending on your preference
+  //   }
+  //   if (json['detail'] != null) {
+  //     detail = <Detail>[];
+  //     json['detail'].forEach((v) {
+  //       detail!.add(Detail.fromJson(v));
+  //     });
+  //   }
+  // }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -178,6 +226,7 @@ class ProductModel {
     data['company_id'] = companyId;
     data['stock'] = stock;
     data['product_code'] = productCode;
+    data['cat_tax'] = catTax;
     if (detail != null) {
       data['detail'] = detail!.map((v) => v.toJson()).toList();
     }
@@ -283,6 +332,22 @@ class Detail {
   @HiveField(33)
   String? productName;
 
+  @HiveField(34)
+  num? maxDiscount;
+
+   @HiveField(35)
+  num? promoDiscount;
+
+  @HiveField(36)
+  num? customerDiscount;
+
+  @HiveField(37) 
+  num? initialCount;
+
+
+  @HiveField(38)
+  String? bulkId;
+
   Detail({
     this.id,
     this.companyId,
@@ -316,6 +381,11 @@ class Detail {
     this.discount,
     this.totaltax,
     this.productName,
+    this.maxDiscount,
+    this.promoDiscount,
+    this.customerDiscount,
+    this.initialCount,
+    this.bulkId,
   });
   Detail copyWith({
     int? id,
@@ -348,42 +418,47 @@ class Detail {
     num? unitTax,
     String? pack,
     num? discount,
-    num? totalTax,
+    num? totaltax,
+    num? maxDiscount,
     String? productName,
+    String? bulkId,
   }) {
     return Detail(
-        id: id ?? this.id,
-        companyId: companyId ?? this.companyId,
-        productId: productId ?? this.productId,
-        variationId: variationId ?? this.variationId,
-        inNo: inNo ?? this.inNo,
-        barcode: barcode ?? this.barcode,
-        variationName: variationName ?? this.variationName,
-        unitType: unitType ?? this.unitType,
-        price: price ?? this.price,
-        sellPrice: sellPrice ?? this.sellPrice,
-        tax: tax ?? this.tax,
-        packtype: packtype ?? this.packtype,
-        pieces: pieces ?? this.pieces,
-        stock: stock ?? this.stock,
-        lowstock: lowstock ?? this.lowstock,
-        fullstock: fullstock ?? this.fullstock,
-        imageUrl: imageUrl ?? this.imageUrl,
-        status: status ?? this.status,
-        vStatus: vStatus ?? this.vStatus,
-        count: count ?? this.count,
-        saleBy: saleBy ?? this.saleBy,
-        totalPrice: totalPrice ?? this.totalPrice,
-        sellingPrice: sellingPrice ?? this.sellingPrice,
-        packPrice: packPrice ?? this.packPrice,
-        sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
-        inclTax: inclTax ?? this.inclTax,
-        initialQuantity: initialQuantity ?? this.initialQuantity,
-        unitTax: unitTax ?? this.unitTax,
-        pack: pack ?? this.pack,
-        discount: discount ?? this.discount,
-        totaltax: totaltax ?? totaltax,
-        productName: productName ?? this.productName);
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      productId: productId ?? this.productId,
+      variationId: variationId ?? this.variationId,
+      inNo: inNo ?? this.inNo,
+      barcode: barcode ?? this.barcode,
+      variationName: variationName ?? this.variationName,
+      unitType: unitType ?? this.unitType,
+      price: price ?? this.price,
+      sellPrice: sellPrice ?? this.sellPrice,
+      tax: tax ?? this.tax,
+      packtype: packtype ?? this.packtype,
+      pieces: pieces ?? this.pieces,
+      stock: stock ?? this.stock,
+      lowstock: lowstock ?? this.lowstock,
+      fullstock: fullstock ?? this.fullstock,
+      imageUrl: imageUrl ?? this.imageUrl,
+      status: status ?? this.status,
+      vStatus: vStatus ?? this.vStatus,
+      count: count ?? this.count,
+      saleBy: saleBy ?? this.saleBy,
+      totalPrice: totalPrice ?? this.totalPrice,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      packPrice: packPrice ?? this.packPrice,
+      sellingPackPrice: sellingPackPrice ?? this.sellingPackPrice,
+      inclTax: inclTax ?? this.inclTax,
+      initialQuantity: initialQuantity ?? this.initialQuantity,
+      unitTax: unitTax ?? this.unitTax,
+      pack: pack ?? this.pack,
+      discount: discount ?? this.discount,
+      totaltax: totaltax ?? totaltax,
+      productName: productName ?? this.productName,
+      maxDiscount: maxDiscount ?? this.maxDiscount,
+      bulkId: bulkId ?? this.bulkId,
+    );
   }
 
   Detail.fromJson(Map<String, dynamic> json)
@@ -418,7 +493,11 @@ class Detail {
         pack = json['packtype'],
         discount = json['discount'],
         totaltax = json['total_tax'],
-        productName = json['product_name'];
+        productName = json['product_name'],
+        maxDiscount = json['max_discount'],
+        promoDiscount = json['promo_discount'],
+        initialCount = json['initialCount'] ?? json['count'] ?? 0.0,
+        bulkId = json['bulk_id'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -454,6 +533,10 @@ class Detail {
     data['discount'] = discount;
     data['total_tax'] = totaltax;
     data['product_name'] = productName;
+    data['max_discount'] = maxDiscount;
+    data['promo_discount'] = promoDiscount;
+    data['initialCount'] = initialCount;
+    data['bulk_id'] = bulkId;
     return data;
   }
 }

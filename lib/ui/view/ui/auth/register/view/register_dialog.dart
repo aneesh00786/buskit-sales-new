@@ -1,5 +1,4 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, deprecated_member_use
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -314,7 +313,6 @@ Future<dynamic> registerDialog(
                                         false) {
                                       final fullPhoneNo =
                                           '${loginController.phoneCode}${loginController.phoneNumberController.text}';
-                                      log('Full Phone Number $fullPhoneNo');
                                       if (loginController.validateOtp(otp)) {
                                         await ApiWorker().insertAdmin(
                                             address: loginController
@@ -356,13 +354,11 @@ Future<dynamic> registerDialog(
                                                 const RegisterPlanScreen(),
                                           ),
                                         );
-                                        log('Form is valid, email verified, and OTP is correct.');
                                       } else {
                                         errorSnackbar(
                                             "Please verify the email.");
                                       }
                                     } else {
-                                      log("Form validation failed.");
                                     }
                                   }
                                 : null,

@@ -83,7 +83,8 @@ class ProductDetailsDialog extends Dialog {
                         price: e.price.toString(),
                         discount: 0,
                         quantity: e.quntity!.toInt(),
-                        variantName: ''
+                        variantName: '',
+                        unitPrice:  e.price.toString(),
                         ))
                     .toList(),
                 total: data

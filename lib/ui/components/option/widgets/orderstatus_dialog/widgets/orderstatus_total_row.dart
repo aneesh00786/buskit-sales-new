@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -26,9 +24,11 @@ class OrderstatusTotalRow extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: scrollController3,
       child: SizedBox(
-        width: fullScreenWidth(context) > 640
-            ? fullScreenWidth(context) * 1
-            : fullScreenWidth(context) * 1.1,
+        width: isPhonePortrait(context)
+            ? fullScreenWidth(context) * 2.3
+            : fullScreenWidth(context) > 640
+                ? fullScreenWidth(context) * 1
+                : fullScreenWidth(context) * 1.1,
         child: Row(
           children: [
             Expanded(
@@ -55,7 +55,7 @@ class OrderstatusTotalRow extends StatelessWidget {
                     )),
                     DataColumn(
                         label: SizedBox(
-                      // color: red,
+
                       width: flexWidth * 4.1,
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -73,7 +73,7 @@ class OrderstatusTotalRow extends StatelessWidget {
                     DataRow(
                       cells: [
                         DataCell(SizedBox(width: flexWidth * 4.5)),
-                        DataCell(SizedBox(width: flexWidth * 4.1)),
+                        DataCell(SizedBox(width: flexWidth * 1)),
                       ],
                     ),
                   ]),

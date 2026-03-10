@@ -4,7 +4,24 @@ import 'package:intl/intl.dart';
 
 extension StringExtension on String {
   String get nkStringCapitalizeFirstCaracter {
+    if (this.isEmpty) {
+      return this; 
+    }
     return "${this[0].toUpperCase()}${substring(1)}";
+  }
+
+  String get nkStringCleanAndCapitalize {
+    if (isEmpty) return this;
+
+    String cleaned = replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ');
+
+    List<String> words = cleaned
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .toList();
+
+    return words.join(' ');
   }
 
   String get nkValueWithCurrencySymbol {
@@ -38,7 +55,7 @@ String formatAmount(dynamic value) {
               )
               .value ??
           '')
-      .trim(); 
+      .trim();
   double amount;
 
   try {

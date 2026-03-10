@@ -241,7 +241,6 @@ class _OfflineOrderDetailsDialogState extends State<OfflineOrderDetailsDialog> {
                                     discountPrice +
                                     (inclTax ? 0 : netTax);
 
-
                                 final packLabel =
                                     isPack ? 'Pack ($perPack pcs)' : 'Pcs';
 

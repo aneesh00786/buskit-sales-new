@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, deprecated_member_use
+// ignore_for_file: non_constant_identifier_names
 
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
@@ -43,6 +43,7 @@ Widget Frequently(
                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                 child: InkWell(
                   onTap: () {
+                    // print('frequently on tapped');
                     if (frequentProductLists.isNotEmpty) {
                       return showProductListDialog<FrequantliyProductList>(
                         context: context,

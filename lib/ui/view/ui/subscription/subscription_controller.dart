@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/sibscription_model.dart';
 import 'package:get/get.dart';
@@ -78,7 +77,6 @@ class SubscriptionController extends GetxController {
 
         features.forEach((key, value) {
           final status = value.status.toString();
-          log('Status :${value.status.toString()}');
           switch (key) {
             case 'communication':
               communication.value = status;
@@ -247,8 +245,6 @@ class SubscriptionController extends GetxController {
       }
       await Future.delayed(const Duration(seconds: 1));
       isSubscriptionLoading(false);
-      log("LOAD SUBSCRIPTION FEATURES () : $subscriptionResponse");
-      log("subs communication ${communication.value}");
       update();
     } catch (e) {
       isSubscriptionLoading(false);
@@ -268,7 +264,6 @@ class SubscriptionController extends GetxController {
       await Future.delayed(const Duration(seconds: 1));
       isSubscriptionPlanDetailsLoading(false);
 
-      log("LOAD SUBSCRIPTION PLAN DETAILS(): $subscriptionPlanDetailsResponse");
 
       update();
     } catch (e) {

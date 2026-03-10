@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -45,7 +44,6 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
     return RangeSelector(
       onChanged:
           (selectedIndex, (DateTime? startDate, DateTime? endDate) label) {
-        log("label++++${label.$1}:${label.$1}");
         customerAndOrderController.updateCustomerVisitScheduleSet(
             label.$1, label.$2);
       },

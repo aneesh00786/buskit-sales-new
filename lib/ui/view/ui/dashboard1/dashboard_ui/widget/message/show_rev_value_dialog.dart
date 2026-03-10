@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -12,12 +13,17 @@ void showValueDialog(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
+          insetPadding: isPhonePortrait(context) || isPhoneLandscape(context)
+              ? EdgeInsets.zero
+              : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+              double dialogWidth = isPhonePortrait(context)
+                  ? fullScreenWidth(context)
+                  : fullScreenWidth(context) * 0.7;
               double maxDialogHeight = constraints.maxHeight * 0.7;
               double rowHeight = 40.0;
               double headerHeight = 30.0;
@@ -288,12 +294,17 @@ void showValueDialogCusDash(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
+        insetPadding: isPhonePortrait(context) || isPhoneLandscape(context)
+            ? EdgeInsets.zero
+            : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            double dialogWidth = MediaQuery.of(context).size.width * 0.5;
+            double dialogWidth = isPhonePortrait(context)
+                ? fullScreenWidth(context)
+                : fullScreenWidth(context) * 0.7;
             double maxDialogHeight = constraints.maxHeight * 0.7;
             double rowHeight = 40.0;
             double headerHeight = 30.0;

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+
 class PerformanceResponse {
   int? statusCode;
   bool? status;
@@ -188,12 +190,13 @@ class NavbarAndTargetContent {
   DateTime? lastOnline;
   int? status;
   int? customer;
-  //come_back
+
   dynamic totalTarget;
   double? actual;
   int? timesheet;
   List<SalesmanInOut>? salesmanInOut;
   int? visit;
+  int? visitReport;
 
   NavbarAndTargetContent({
     this.id,
@@ -228,6 +231,7 @@ class NavbarAndTargetContent {
     this.timesheet,
     this.salesmanInOut,
     this.visit,
+    this.visitReport,
   });
 
   factory NavbarAndTargetContent.fromJson(Map<String, dynamic> json) =>
@@ -271,6 +275,7 @@ class NavbarAndTargetContent {
                 json["salesman_IN_OUT"].map((x) => SalesmanInOut.fromJson(x)))
             : [],
         visit: json["visit"] ?? 0,
+        visitReport: json["routes"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -308,6 +313,7 @@ class NavbarAndTargetContent {
             ? List<dynamic>.from(salesmanInOut!.map((x) => x.toJson()))
             : [],
         "visit": visit,
+        "routes":visitReport,
       };
 }
 
@@ -447,22 +453,40 @@ class ScheduleListData {
 
 class ScheduleListCustomer {
   String? businessName;
-
+  String? address;
+  String? town;
+  String? imageUrl;
+  String? checkIn;
+  String? checkOut;
   ScheduleListCustomer({
     this.businessName,
+    this.address,
+    this.town,
+    this.imageUrl,
+    this.checkIn,
+    this.checkOut,
   });
 
   factory ScheduleListCustomer.fromJson(Map<String, dynamic> json) =>
       ScheduleListCustomer(
         businessName: json["business_name"] ?? '',
+        address: json["address"] ?? '',
+        town: json["town"] ?? '',
+        imageUrl: json["image_url"],
+        checkIn: json["check_in"],
+        checkOut: json["check_out"],
       );
 
   Map<String, dynamic> toJson() => {
         "business_name": businessName,
+        "address":address,
+        "town":town,
+        "image_url":imageUrl,
+        "check_in":checkIn,
+        "check_out":checkOut
       };
 }
 
-//####################################### VALUE TARGET ###########################################
 class SalesmanValueTargetResponse {
   bool? success;
   List<SalesmanValueTargetData>? data;

@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/option/model/option_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
@@ -54,12 +55,13 @@ class OrderData {
   String? editedFullname;
   String? editedLastname;
   String? generatedDate;
+  String? orderSource;
 
   List<CustomerCart>? cart;
   List<CustomerDetails>? customer;
   List<CustomerAssignedSalesman>? salesman;
   List<OrderInvoice>? invoice;
-  // int? receivableAmount;
+  String? rejectedDate;
 
   OrderData({
     this.id,
@@ -79,7 +81,9 @@ class OrderData {
     this.generatedDate,
     this.cart,
     this.salesman,
-    // this.receivableAmount,
+    this.orderSource,
+    this.rejectedDate,
+
   });
 
   OrderData.fromJson(Map<String, dynamic> json) {
@@ -99,9 +103,13 @@ class OrderData {
     editedLastname = json['edited_lastname'] as String?;
 
     generatedDate = json['generated_date'] as String?;
-    invoice = (json['invoice'] as List?)
-        ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
-        .toList();
+     invoice = json['invoice'] != null
+        ? [
+            OrderInvoice.fromJson(
+              ensureStringKeyedMap(json['invoice']),
+            )
+          ]
+        : [];
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
             setOptionOrderData: OptionOrderData(
@@ -132,7 +140,9 @@ class OrderData {
         ?.map(
             (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
         .toList();
-    // receivableAmount = json['receivable_amount'] as int?;
+        orderSource = json['order_source'] as String?;
+    rejectedDate = json['rejected_date'] as String?;
+
   }
 
   Map<String, dynamic> toJson() {
@@ -156,7 +166,9 @@ class OrderData {
     json['salesman'] = salesman?.map((e) => e.toJson()).toList();
     json['customer'] = customer?.map((e) => e.toJson()).toList();
     json['invoice'] = invoice?.map((e) => e.toJson()).toList();
-    // json['receivable_amount'] = receivableAmount;
+    json['order_source'] = orderSource;
+    json['rejected_date'] = rejectedDate;
+
     return json;
   }
 }
@@ -307,6 +319,9 @@ class OrderProcessInvoiceData {
   List<CustomerCart>? cart;
   List<OrderInvoice>? invoice;
   List<SpecificTax>? tax;
+  String? imageUrl;
+  String? orderSource;
+  DateTime? generateAt;
 
   OrderProcessInvoiceData({
     this.id,
@@ -339,6 +354,9 @@ class OrderProcessInvoiceData {
     this.cart,
     this.invoice,
     this.tax,
+    this.imageUrl,
+    this.orderSource,
+    this.generateAt,
   });
 
   factory OrderProcessInvoiceData.fromJson(Map<String, dynamic> json) =>
@@ -392,6 +410,11 @@ class OrderProcessInvoiceData {
             ? List<SpecificTax>.from(
                 json["tax"].map((x) => SpecificTax.fromJson(x)))
             : null,
+         imageUrl: json["image_url"]?.toString(),
+        orderSource: json['order_source'] as String?,
+        generateAt: json["generated_date"] != null
+            ? DateTime.tryParse(json["generated_date"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -431,6 +454,9 @@ class OrderProcessInvoiceData {
         "tax": tax != null
             ? List<dynamic>.from(tax!.map((x) => x.toJson()))
             : null,
+        "image_url": imageUrl,
+        "order_source": orderSource,
+        "generated_date": generateAt?.toIso8601String(),
       };
 }class SalesmanTargetByCatId {
   int statusCode;

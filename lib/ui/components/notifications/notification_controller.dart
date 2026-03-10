@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count_model.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,6 @@ class NotificationController extends GetxController {
 
   RxBool isNotificationLoading = false.obs;
   Future<RecentOrderCountData> loadNotificationData(
-    String startDate,
-    String endDate,
   ) async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       isNotificationLoading.value = true;
@@ -29,8 +26,6 @@ class NotificationController extends GetxController {
       });
     }
   }
-
-  /// LEADS COUNT
 
   RxBool isLeadsCountLoading = false.obs;
   Future<int> loadLeadsCountData() async {

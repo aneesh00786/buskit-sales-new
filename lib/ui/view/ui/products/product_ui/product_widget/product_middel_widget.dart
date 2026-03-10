@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
@@ -11,21 +10,23 @@ class ProductMiddelWidget extends StatelessWidget {
   const ProductMiddelWidget({super.key, required this.productsController});
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      log('isReached state: ${productsController.isReached.value}');
-      return productsController.isReached.value
-          ? CustomerDachScreen(
-              isFromCalendar: true,
-              cusId: productsController.selectedCustomerId.value,
-              cusName: productsController.selectedCustomerName.value,
-              cusImage: productsController.selectedCustomerImageUrl.value,
-              cusEmail: productsController.selectedCustomerEmail.value,
-              cusMobile: productsController.selectedCustomerMobileNo.value,
-            )
-          : OrderTaking(
+    return OrderTaking(
               productsController: productsController,
               isDirectDialogue: true,
             );
-    });
+    // Obx(() {
+      // return productsController.isReached.value
+      //     ? 
+      //     CustomerDachScreen(
+      //         isFromCalendar: true,
+      //         cusId: productsController.selectedCustomerId.value,
+      //         cusName: productsController.selectedCustomerName.value,
+      //         cusImage: productsController.selectedCustomerImageUrl.value,
+      //         cusEmail: productsController.selectedCustomerEmail.value,
+      //         cusMobile: productsController.selectedCustomerMobileNo.value,
+      //       )
+      //     :
+        //  return  
+    // });
   }
 }

@@ -2,7 +2,6 @@
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/model/register_plan_model.dart';
-import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 
 class PlansTableWidgets extends StatelessWidget {
@@ -66,11 +65,6 @@ class PlansTableWidgets extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      // child: Icon(
-                      //   status == 'true' ? Icons.check : Icons.close,
-                      //   color: status == 'true' ? Colors.green : Colors.red,
-                      //   size: 20,
-                      // ),
                       child: Center(
                         child: Image.asset(
                           status == 'true'

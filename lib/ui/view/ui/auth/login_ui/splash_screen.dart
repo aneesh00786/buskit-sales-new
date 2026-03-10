@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +34,6 @@ class SplashScreenLogging extends StatelessWidget {
               ElevatedButton(
                 onPressed: onSyncInBackground ??
                     () {
-                      log('Sync button pressed but onSyncInBackground is null');
                     },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,

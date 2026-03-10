@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -10,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_order_responce/customer_and_order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 import '../csord_model/customers_orders_model.dart';
 
@@ -108,6 +109,14 @@ class CustomersProvider with ChangeNotifier {
   Future<CustomerResponse>? _customerResponse;
   Future<CustomerResponse>? get customerResponse => _customerResponse;
 
+
+  int _selectedDashboardYear = DateTime.now().year;
+  int get selectedDashboardYear => _selectedDashboardYear;
+
+  void resetFilters() {
+    _selectedFilter = FilterDateEnum.thisMonth;
+  }
+
   void resetProvider() {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedStartDate = '';
@@ -116,6 +125,10 @@ class CustomersProvider with ChangeNotifier {
     _customers = [];
     searchController.clear();
   }
+  void updateFilterSelection(FilterDateEnum newFilter) {
+  _selectedFilter = newFilter;
+  notifyListeners(); 
+}
 
   void setCurrentMonthDates() {
     final now = DateTime.now();
@@ -132,7 +145,6 @@ class CustomersProvider with ChangeNotifier {
     required String targetType,
     required String staffProjection,
   }) {
-    log('This function has called');
     barGroups = targetType == '0'
         ? valuePerformance.asMap().entries.map((entry) {
             int index = entry.key;
@@ -208,56 +220,98 @@ class CustomersProvider with ChangeNotifier {
 
   Future<int> getCartItemCounts(String customerId) async {
     try {
-      log("Customer Id inside getCartItemCounts: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
-      log("Cart items inside count : ${cartItems.map((e) => e.toJson()).toList()}");
       final count = cartItems.length;
       cartItemCount = count;
       notifyListeners();
-      log('Cart count calculated for customer $customerId: $cartItemCount');
       updateCartCount(customerId);
       return cartItemCount;
     } catch (e) {
-      log('Error calculating cart item counts for customer $customerId: $e');
       return 0;
     }
   }
+  void updateDashboardYear(int year) {
+    if (_selectedDashboardYear != year) {
+      _selectedDashboardYear = year;
+      // Delay the UI update until the current build frame is fully completed
+      Future.microtask(() {
+        notifyListeners();
+      });
+    }
+  }
+  // void updateDashboardYear(int year) {
+  //   _selectedDashboardYear = year;
+  //   notifyListeners();
+  // }
 
   Future<void> updateCartCount(String customerId) async {
     try {
-      log("Customer Id inside updateCartCount: $customerId");
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       cartItemCount = cartItems.length;
-      log('The cart item Count $cartItemCount');
       notifyListeners();
-      log('Cart count updated for customer $customerId: $cartItemCount');
     } catch (e) {
-      log('Error updating cart count for customer $customerId: $e');
+      //
     }
   }
 
-  Future<void> fetchChartCategoryPerformance(
+Future<void> fetchChartCategoryPerformance(
       dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
-    //comeback
-    final now = DateTime.now();
-    final dateFormat = DateFormat('yyyy-MM-dd');
-
-    final firstDayOfYear = DateTime(now.year, 1, 1);
-    final lastDayOfYear = DateTime(now.year, 12, 31);
-
     try {
+      // Debouncing network requests
+
+      // OLD CODE (Problem):
+      // final now = DateTime.now();
+      // final firstDayOfYear = DateTime(now.year, 1, 1);
+
+      // NEW CODE (Fix):
+      // Use the class-level variable 'selectedDashboardYear'
+      int year = selectedDashboardYear; 
+      
+      final dateFormat = DateFormat('yyyy-MM-dd');
+
+      final firstDayOfYear = DateTime(year, 1, 1);
+      final lastDayOfYear = DateTime(year, 12, 31);
+
       _productResponse = _apiService.fetchCustomerDashboardCartData(
         customerId: customerId,
         catId: catId,
         selectedYearCategory: selectedYearCategory,
+        // startDate: selectedStartDate,
+        // endDate: selectedEndDate,
         startDate: dateFormat.format(firstDayOfYear),
         endDate: dateFormat.format(lastDayOfYear),
       );
+
+      // notifyListeners();
     } catch (e, stackTrace) {
       _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
       rethrow;
     }
   }
+
+
+  // Future<void> fetchChartCategoryPerformance(
+  //     dynamic customerId, dynamic catId, dynamic selectedYearCategory) async {
+  //   //comeback
+  //   final now = DateTime.now();
+  //   final dateFormat = DateFormat('yyyy-MM-dd');
+
+  //   final firstDayOfYear = DateTime(now.year, 1, 1);
+  //   final lastDayOfYear = DateTime(now.year, 12, 31);
+
+  //   try {
+  //     _productResponse = _apiService.fetchCustomerDashboardCartData(
+  //       customerId: customerId,
+  //       catId: catId,
+  //       selectedYearCategory: selectedYearCategory,
+  //       startDate: dateFormat.format(firstDayOfYear),
+  //       endDate: dateFormat.format(lastDayOfYear),
+  //     );
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   set currentPage(int newPage) {
     if (newPage != _currentPage) {
@@ -267,7 +321,6 @@ class CustomersProvider with ChangeNotifier {
   }
 
   void updateSearchQuery(String query) async {
-    log("updateSearchQuery query : $query");
     _searchCustomerName = query;
     _currentPage = 1;
     _errorMessage = ''; // Clear previous error messages
@@ -295,7 +348,7 @@ class CustomersProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      log("Error fetching customer data: $e");
+      //
     } finally {
       notifyListeners();
     }
@@ -303,8 +356,6 @@ class CustomersProvider with ChangeNotifier {
 
   /// Performs offline search by searching through all cached customer data
   Future<void> performOfflineSearch(String searchQuery) async {
-    log('[performOfflineSearch] Starting offline search for: $searchQuery');
-
     try {
       _isLoading = true;
       notifyListeners();
@@ -327,7 +378,6 @@ class CustomersProvider with ChangeNotifier {
                 jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
             final response = CustomerResponseModelxx.fromJson(safeMap);
             allCachedCustomers.addAll(response.data);
-            log('[performOfflineSearch] Loaded ${response.data.length} customers from page $page');
 
             // Check if there are more pages
             if (page >= response.pagination.totalPages) {
@@ -336,11 +386,9 @@ class CustomersProvider with ChangeNotifier {
               page++;
             }
           } catch (e) {
-            log('[performOfflineSearch] Error parsing cached data for page $page: $e');
             hasMoreData = false;
           }
         } else {
-          log('[performOfflineSearch] No cached data for page $page, stopping search');
           hasMoreData = false;
         }
       }
@@ -351,8 +399,6 @@ class CustomersProvider with ChangeNotifier {
         final query = searchQuery.toLowerCase();
         return customer.businessName.toLowerCase().startsWith(query);
       }).toList();
-
-      log('[performOfflineSearch] Found ${searchResults.length} matching customers out of ${allCachedCustomers.length} total cached customers');
 
       if (searchResults.isNotEmpty) {
         // Store all search results and calculate pagination
@@ -376,7 +422,7 @@ class CustomersProvider with ChangeNotifier {
               setOrderTotal(response.orderTotal);
               setYearList(response.yearsListOfAll);
             } catch (e) {
-              log('[performOfflineSearch] Error loading order totals and year list: $e');
+              //
             }
           }
         }
@@ -388,7 +434,6 @@ class CustomersProvider with ChangeNotifier {
             'No customers found matching "$searchQuery" in offline data.';
       }
     } catch (e) {
-      log('[performOfflineSearch] Error during offline search: $e');
       _errorMessage = 'Error performing offline search: $e';
       _filteredCustomers = [];
     } finally {
@@ -399,8 +444,6 @@ class CustomersProvider with ChangeNotifier {
 
   /// Loads cached data for the current page when offline
   Future<void> loadCachedDataForCurrentPage() async {
-    log('[loadCachedDataForCurrentPage] Loading cached data for page $_currentPage');
-
     try {
       _isLoading = true;
       notifyListeners();
@@ -416,23 +459,19 @@ class CustomersProvider with ChangeNotifier {
               jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
           final response = CustomerResponseModelxx.fromJson(safeMap);
 
-          log('[loadCachedDataForCurrentPage] Loaded ${response.data.length} customers from page $_currentPage');
           setCustomers(response.data, response.pagination.totalPages);
           setOrderTotal(response.orderTotal);
           setYearList(response.yearsListOfAll);
           _errorMessage = '';
         } catch (e) {
-          log('[loadCachedDataForCurrentPage] Error parsing cached data: $e');
           _filteredCustomers = [];
           _errorMessage = 'Corrupted offline data for this page.';
         }
       } else {
-        log('[loadCachedDataForCurrentPage] No cached data for page $_currentPage');
         _filteredCustomers = [];
         _errorMessage = 'No offline data for this page.';
       }
     } catch (e) {
-      log('[loadCachedDataForCurrentPage] Error loading cached data: $e');
       _errorMessage = 'Error loading offline data: $e';
       _filteredCustomers = [];
     } finally {
@@ -456,20 +495,15 @@ class CustomersProvider with ChangeNotifier {
       final startIndex = (_currentPage - 1) * itemsPerPage;
       final endIndex = startIndex + itemsPerPage;
 
-      log('[getCurrentPageCustomers] Search mode: $_searchCustomerName, Page: $_currentPage, Total customers: ${_customers.length}, Start: $startIndex, End: $endIndex');
-
       if (startIndex < _customers.length) {
         final result = _customers.sublist(startIndex,
             endIndex > _customers.length ? _customers.length : endIndex);
-        log('[getCurrentPageCustomers] Returning ${result.length} customers for current page');
         return result;
       } else {
-        log('[getCurrentPageCustomers] No customers for current page');
         return [];
       }
     } else {
       // For normal browsing, return all filtered customers
-      log('[getCurrentPageCustomers] Normal mode: returning ${_filteredCustomers.length} customers');
       return _filteredCustomers;
     }
   }
@@ -483,26 +517,55 @@ class CustomersProvider with ChangeNotifier {
     _yearsListOfAllList = yearsListOfAll;
   }
 
-  Future<void> fetchCustomerDashboardCountData(
-    String customerId,
-  ) async {
-    final now = DateTime.now();
-    final dateFormat = DateFormat('yyyy-MM-dd');
-    final firstDayOfYear = DateTime(now.year, 1, 1);
-    final lastDayOfYear = DateTime(now.year, 12, 31);
-    try {
-      _countFuture = _apiService.fetchOrderCount(
-        customerId,
-        dateFormat.format(firstDayOfYear),
-        dateFormat.format(lastDayOfYear),
-      );
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching customer dashboard data',
-          error: e, stackTrace: stackTrace);
-      rethrow;
-    }
+
+ Future<void> fetchCustomerDashboardCountData(String customerId) async {
+  // ERROR WAS HERE: 
+  // final now = DateTime.now(); <-- This was forcing it to be the current real-world year
+  
+  // FIX: Use the variable you updated in step 2 of your dropdown logic
+  if (customerId.isEmpty) return;
+  final int yearToUse = _selectedDashboardYear; // or selectedDashboardYear (depending on your variable name)
+
+  final dateFormat = DateFormat('yyyy-MM-dd');
+  
+  // Create dates based on the SELECTED year
+  final firstDayOfYear = DateTime(yearToUse, 1, 1);
+  final lastDayOfYear = DateTime(yearToUse, 12, 31);
+
+  try {
+    _countFuture = _apiService.fetchOrderCount(
+      customerId,
+      dateFormat.format(firstDayOfYear),
+      dateFormat.format(lastDayOfYear),
+    );
+    notifyListeners();
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching customer dashboard data',
+        error: e, stackTrace: stackTrace);
+    rethrow;
   }
+}
+
+  // Future<void> fetchCustomerDashboardCountData(
+  //   String customerId,
+  // ) async {
+  //   final now = DateTime.now();
+  //   final dateFormat = DateFormat('yyyy-MM-dd');
+  //   final firstDayOfYear = DateTime(now.year, 1, 1);
+  //   final lastDayOfYear = DateTime(now.year, 12, 31);
+  //   try {
+  //     _countFuture = _apiService.fetchOrderCount(
+  //       customerId,
+  //       dateFormat.format(firstDayOfYear),
+  //       dateFormat.format(lastDayOfYear),
+  //     );
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> pickImage(gallery) async {
     final pickedFile = await _picker.pickImage(source: gallery);
@@ -551,6 +614,7 @@ class CustomersProvider with ChangeNotifier {
   }
 
   Future<void> fetchCustomersDataDash(String customerId) async {
+    if (customerId.isEmpty) return;
     try {
       _customerResponse = _apiService.fetchOneCustomer(customerId);
       notifyListeners();
@@ -561,16 +625,25 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
+   Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
       {bool checkDate = false}) async {
+    // this is for customer dashboard
     try {
-      final now = DateTime.now();
-      final startDate = DateTime(now.year, 1, 1);
-      final endDate = DateTime(now.year, 12 + 1, 0);
+      // OLD CODE (Problem):
+      // final now = DateTime.now();
+      // final startDate = DateTime(now.year, 1, 1);
+      // final endDate = DateTime(now.year, 12 + 1, 0);
+
+      // NEW CODE (Fix):
+      // Use the class-level variable 'selectedDashboardYear'
+      int year = selectedDashboardYear;
+
+      final startDate = DateTime(year, 1, 1);
+      final endDate = DateTime(year, 12, 31);
 
       final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
       final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
-
+      
       dynamic orderType;
 
       switch (s) {
@@ -587,11 +660,11 @@ class CustomersProvider with ChangeNotifier {
         default:
           orderType = '';
       }
+
       _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
-        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
         return _apiService.fetchCustomerDashOrders(
           cusId: custId,
-          salesmanId: salesmanId,
+          salesmanId: "",
           orderType: orderType,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
@@ -606,9 +679,57 @@ class CustomersProvider with ChangeNotifier {
     }
   }
 
+
+  // Future<void> fetchOrdersForCustomDash(OrderStatus s, String custId,
+  //     {bool checkDate = false}) async {
+  //   try {
+  //     final now = DateTime.now();
+  //     final startDate = DateTime(now.year, 1, 1);
+  //     final endDate = DateTime(now.year, 12 + 1, 0);
+
+  //     final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+  //     final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
+
+  //     dynamic orderType;
+
+  //     switch (s) {
+  //       case OrderStatus.delivered:
+  //         orderType = '';
+  //       case OrderStatus.estimates:
+  //         orderType = 7;
+  //       case OrderStatus.preOrder:
+  //         orderType = 0;
+  //       case OrderStatus.draft:
+  //         orderType = 4;
+  //       case OrderStatus.cancelled:
+  //         orderType = 3;
+  //       default:
+  //         orderType = '';
+  //     }
+  //     _orderResponse = Future.delayed(const Duration(milliseconds: 300), () {
+  //       final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+  //       return _apiService.fetchCustomerDashOrders(
+  //         cusId: custId,
+  //         salesmanId: salesmanId,
+  //         orderType: orderType,
+  //         startDate: formattedStartDate,
+  //         endDate: formattedEndDate,
+  //         orderStatus: s,
+  //         checkDate: checkDate,
+  //       );
+  //     });
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
   List<YearList> _yearList = [];
   int? _selectedYear;
+
   Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
+    if (customerId.isEmpty) return;
     final now = DateTime.now();
     int currentYear = now.year;
     try {
@@ -621,39 +742,87 @@ class CustomersProvider with ChangeNotifier {
       rethrow;
     }
   }
+  // Future<void> fetchCustomerDashboardDataSalseData(String customerId) async {
+  //   final now = DateTime.now();
+  //   int currentYear = now.year;
+  //   try {
+  //     _customerTotalSaleResponseFuture =
+  //         _apiService.fetchCustomerTotalSale(customerId, currentYear);
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
-    final now = DateTime.now();
-    final startDate1 = DateTime(now.year, 1, 1);
-    final endDate1 = DateTime(now.year, 12, 31);
+    if (customerId.isEmpty) return;
+    // OLD (Problematic):
+    // final now = DateTime.now();
+    // final startDate = DateTime(now.year, 1, 1);
+    
+    // NEW (Fix): 
+    // Use the variable 'selectedDashboardYear' from your provider state
+    int year = selectedDashboardYear; 
 
-    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
-    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
-    int currentYear = now.year;
+    // Construct dates based on the selected year
+    final startDate = DateTime(year, 1, 1);
+    final endDate = DateTime(year, 12, 31);
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
 
     try {
       _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
-          customerId, currentYear, formattedStartDate, formattedEndDate);
+          customerId, 
+          year, 
+          formattedStartDate, 
+          formattedEndDate
+      );
       notifyListeners();
     } catch (e, stackTrace) {
-      _logger.e('Error fetching customer dashboard data',
+      _logger.e('Error fetching customer revenue dashboard data',
           error: e, stackTrace: stackTrace);
       rethrow;
     }
   }
 
-  Future<void> fetchCustomerDashboardData(String customerId) async {
-    final now = DateTime.now();
-    final startDate1 = DateTime(now.year, 1, 1);
-    final endDate1 = DateTime(now.year, 12, 31);
 
-    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
-    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
-    int currentYear = now.year;
+  // Future<void> fetchCustomerDashboardRevenueData(String customerId) async {
+  //   final now = DateTime.now();
+  //   final startDate1 = DateTime(now.year, 1, 1);
+  //   final endDate1 = DateTime(now.year, 12, 31);
 
-    log('Start Date End Date $formattedStartDate, $formattedEndDate');
+  //   final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate1);
+  //   final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate1);
+  //   int currentYear = now.year;
+
+  //   try {
+  //     _customerRevenueResponseFuture = _apiService.fetchCustomerRevenueData(
+  //         customerId, currentYear, formattedStartDate, formattedEndDate);
+  //     notifyListeners();
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching customer dashboard data',
+  //         error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
+ Future<void> fetchCustomerDashboardData(String customerId) async {
+    // USE THE SELECTED YEAR HERE
+    if (customerId.isEmpty) return;
+    int currentYear = _selectedDashboardYear; 
+    
+    final startDate = DateTime(currentYear, 1, 1);
+    // Note: DateTime(year, 13, 0) gives Dec 31st of that year
+    final endDate = DateTime(currentYear, 13, 0); 
+
+    final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+    final formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
 
     try {
+      // Pass the selected year and calculated dates to API
       _customersDashFuture = _apiService
           .fetchCustomerDashboardDataa(
               customerId, currentYear, formattedStartDate, formattedEndDate)
@@ -681,39 +850,26 @@ class CustomersProvider with ChangeNotifier {
   bool isOrderSelected(RecentOrder order) {
     return _selectedOrders.contains(order);
   }
-
   Future<void> fetchCustomerData({int page = 1}) async {
-    log("Filter type : ${_selectedFilter == FilterDateEnum.range
-            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-                .toString()
-            : _selectedFilter.name}");
-
     _errorMessage = '';
-    Get.find<NotificationController>();
+    NotificationController notificationController =
+        Get.find<NotificationController>();
+    final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final customerBox = Hive.box('customerBox');
     final cacheKey = '${companyId}_customer_list_$page';
+    
     bool isOnline = await ConnectivityService().isOnline();
+    
     if (!isOnline) {
-      log('[fetchCustomerData] Offline mode. Looking for cacheKey: $cacheKey');
-
-      // If there's an active search query, perform offline search
-      if (_searchCustomerName.isNotEmpty) {
-        log('[fetchCustomerData] Offline search mode with query: $_searchCustomerName');
-        await performOfflineSearch(_searchCustomerName);
-        return;
-      }
-
       final cachedData = customerBox.get(cacheKey);
       if (cachedData != null) {
         try {
-          // This safely converts the Hive-stored map into a Map<String, dynamic>
-          final safeMap =
-              jsonDecode(jsonEncode(cachedData)) as Map<String, dynamic>;
+          // Ensure all keys are strings before passing to fromJson
+          final safeMap = ensureStringKeyedMap(cachedData);
 
           final response = CustomerResponseModelxx.fromJson(safeMap);
-          log('[fetchCustomerData] Loaded [${response.data.length}] customers from cacheKey: $cacheKey');
           setCustomers(response.data, response.pagination.totalPages);
           setOrderTotal(response.orderTotal);
           setYearList(response.yearsListOfAll);
@@ -721,7 +877,6 @@ class CustomersProvider with ChangeNotifier {
           notifyListeners();
           return;
         } catch (e) {
-          log('[fetchCustomerData] Error parsing cached data for page $page: $e');
           _filteredCustomers = [];
           _errorMessage = 'Corrupted offline data for this page.';
           _isLoading = false;
@@ -729,7 +884,6 @@ class CustomersProvider with ChangeNotifier {
           return;
         }
       } else {
-        log('[fetchCustomerData] No cached data for page $page');
         _filteredCustomers = [];
         _errorMessage = 'No offline data for this page.';
         _isLoading = false;
@@ -745,45 +899,218 @@ class CustomersProvider with ChangeNotifier {
         _selectedFilter == FilterDateEnum.range) {
       try {
         _isLoading = true;
-        log("fetchCustomer query : $_searchCustomerName");
-        final dynamic valueFromDw = _selectedFilter == FilterDateEnum.range
-            ? [_selectedFilter.name, _selectedStartDate, _selectedEndDate]
-            : _selectedFilter.name;
+        notifyListeners(); // Tell the UI loading has started
 
-        log('Final valueFromDw sent to API: $valueFromDw');
+        String apiValueFromDw = "";
+        List<String> apiSelectedRange = [];
+        String apiStartDate = "";
+        String apiEndDate = "";
 
+        // Logic to determine payload based on Filter Enum
+        switch (_selectedFilter) {
+          case FilterDateEnum.thisMonth:
+            apiValueFromDw = "Month";
+            apiSelectedRange = dashboardProvider.selectedFilterMonths;
+            break;
+
+          case FilterDateEnum.thisWeek:
+            apiValueFromDw = "Week";
+            apiSelectedRange = dashboardProvider.selectedFilterWeeks;
+            break;
+
+          case FilterDateEnum.thisYear:
+            apiValueFromDw = "Year";
+            apiSelectedRange = [dashboardProvider.selectedYear.toString()];
+            break;
+
+          case FilterDateEnum.range:
+            apiValueFromDw = "Range";
+            apiSelectedRange = [_selectedStartDate, _selectedEndDate];
+            apiStartDate = _selectedStartDate;
+            apiEndDate = _selectedEndDate;
+            break;
+
+          case FilterDateEnum.today:
+            apiValueFromDw = "Day";
+            apiSelectedRange = [dashboardProvider.selectedDate];
+            break;
+
+          default:
+            apiValueFromDw = "All";
+        }
+
+        // 1. AWAIT THE API CALL: This pauses the function until data is received
         _customersFuture = _apiService.fetchCustomer(
-          salesmanId: '',
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           customerName: _searchCustomerName,
-          startDate: "",
-          endDate: "",
           limit: 10,
           page: page,
-          valueFromDw: valueFromDw,
+          valueFromDw: apiValueFromDw,
+          selectedRange: apiSelectedRange,
+          startDate: apiStartDate,
+          endDate: apiEndDate,
         );
-        log('Selecetd Filters : $_selectedFilter');
-        _customersFuture!.then((value) {
-          setCustomers(value.data, value.pagination.totalPages);
-          setOrderTotal(value.orderTotal);
-          setYearList(value.yearsListOfAll);
-          log('year list : ${value.yearsListOfAll.first.orderYears ?? ''}');
-          // notificationController.loadNotificationData();
-          _isLoading = false;
-          notifyListeners();
-        }).catchError((error) {
-          _isLoading = false;
-          _errorMessage = 'Failed to fetch customer data 3: $error';
-          notifyListeners();
-        });
+
+        final value = await _customersFuture!;
+
+        // 2. ONLY RUNS AFTER DATA IS RECEIVED
+        setCustomers(value.data, value.pagination.totalPages);
+        setOrderTotal(value.orderTotal);
+        setYearList(value.yearsListOfAll);
+
+        notificationController.loadNotificationData();
+        _isLoading = false;
+        notifyListeners();
+
       } catch (e, stackTrace) {
         _isLoading = false;
+        _errorMessage = 'Failed to fetch customer data: $e';
+        notifyListeners();
         _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-        rethrow;
+        
+        // Rethrow the error so your UI "Go" button catches it and closes the dialog!
+        rethrow; 
       }
     } else {
       await fetchCustomerData();
     }
   }
+
+  // Future<void> fetchCustomerData({int page = 1}) async {
+  //   _errorMessage = '';
+  //   NotificationController notificationController =
+  //       Get.find<NotificationController>();
+  //       final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
+
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final customerBox = Hive.box('customerBox');
+  //   final cacheKey = '${companyId}_customer_list_$page';
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline) {
+  //     final cachedData = customerBox.get(cacheKey);
+  //     if (cachedData != null) {
+  //       try {
+  //         // Ensure all keys are strings before passing to fromJson
+  //         final safeMap = ensureStringKeyedMap(cachedData);
+
+  //         final response = CustomerResponseModelxx.fromJson(safeMap);
+  //         setCustomers(response.data, response.pagination.totalPages);
+  //         setOrderTotal(response.orderTotal);
+  //         setYearList(response.yearsListOfAll);
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       } catch (e) {
+  //         _filteredCustomers = [];
+  //         _errorMessage = 'Corrupted offline data for this page.';
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       }
+  //     } else {
+  //       _filteredCustomers = [];
+  //       _errorMessage = 'No offline data for this page.';
+  //       _isLoading = false;
+  //       notifyListeners();
+  //       return;
+  //     }
+  //   }
+
+  //   if (_selectedFilter == FilterDateEnum.thisMonth ||
+  //       _selectedFilter == FilterDateEnum.today ||
+  //       _selectedFilter == FilterDateEnum.thisWeek ||
+  //       _selectedFilter == FilterDateEnum.thisYear ||
+  //       _selectedFilter == FilterDateEnum.range) {
+
+  //         try {
+  //     _isLoading = true;
+      
+  //     String apiValueFromDw = "";
+  //     List<String> apiSelectedRange = [];
+  //     String apiStartDate = "";
+  //     String apiEndDate = "";
+
+  //     // Logic to determine payload based on Filter Enum
+  //     switch (_selectedFilter) {
+  //       case FilterDateEnum.thisMonth:
+  //         apiValueFromDw = "Month";
+  //         // TODO: Replace '_selectedMonthsList' with the variable connected to your MonthDropdown()
+  //         // Example: apiSelectedRange = ["January", "March"]; 
+  //         apiSelectedRange = dashboardProvider.selectedFilterMonths; 
+  //         break;
+
+  //       case FilterDateEnum.thisWeek:
+  //         apiValueFromDw = "Week";
+  //         // TODO: Replace '_selectedWeeksList' with the variable connected to your WeekDropdown()
+  //         // Example: apiSelectedRange = ["week1", "week2"];
+  //         apiSelectedRange = dashboardProvider.selectedFilterWeeks; 
+  //         break;
+
+  //       case FilterDateEnum.thisYear:
+  //         apiValueFromDw = "Year";
+  //         // TODO: Replace '_selectedYearsList' with the variable connected to your YearDropdown()
+  //         // Example: apiSelectedRange = ["2025", "2026"];
+  //         apiSelectedRange = [dashboardProvider.selectedYear.toString()]; 
+  //         break;
+
+  //       case FilterDateEnum.range:
+  //         apiValueFromDw = "Range";
+  //         // For Range, usually we send start/end date, but if backend wants it in selected_range:
+  //         apiSelectedRange = [_selectedStartDate, _selectedEndDate];
+  //         // Or if backend still wants specific start/end keys:
+  //         apiStartDate = _selectedStartDate;
+  //         apiEndDate = _selectedEndDate;
+  //         break;
+
+  //       case FilterDateEnum.today:
+  //          apiValueFromDw = "Day"; // Or "Today" depending on backend expectation
+  //          apiSelectedRange = [dashboardProvider.selectedDate]; // Assuming selectedStartDate holds today's date
+  //          break;
+           
+  //       default:
+  //         apiValueFromDw = "All"; // Default fallback
+  //     }
+
+  //     _customersFuture = _apiService.fetchCustomer(
+  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //       customerName: _searchCustomerName,
+  //       limit: 10,
+  //       page: page,
+  //       valueFromDw: apiValueFromDw,
+  //       selectedRange: apiSelectedRange,
+  //       startDate: apiStartDate,
+  //       endDate: apiEndDate,
+  //     );
+
+  //     _customersFuture!.then((value) {
+  //       setCustomers(value.data, value.pagination.totalPages);
+  //       setOrderTotal(value.orderTotal);
+  //       setYearList(value.yearsListOfAll);
+        
+  //       // If the API returns the arrays for dropdowns (as seen in your json), 
+  //       // you might want to update your dropdown lists here:
+  //       // setMonthArray(value.monthArray); // if you add this to model
+        
+  //       notificationController.loadNotificationData();
+  //       _isLoading = false;
+  //       notifyListeners();
+  //     }).catchError((error) {
+  //       _isLoading = false;
+  //       _errorMessage = 'Failed to fetch customer data: $error';
+  //       notifyListeners();
+  //     });
+
+  //   }
+   
+  //      catch (e, stackTrace) {
+  //       _isLoading = false;
+  //       _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
+  //       rethrow;
+  //     }
+  //   } else {
+  //     await fetchCustomerData();
+  //   }
+  // }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -868,8 +1195,7 @@ class CustomersProvider with ChangeNotifier {
 
       if (selectedFilter != FilterDateEnum.range) {
         fetchCustomerData();
-        notificationController.loadNotificationData(
-            _selectedStartDate, _selectedEndDate);
+        notificationController.loadNotificationData();
       }
       notifyListeners();
     }
@@ -912,7 +1238,6 @@ class CustomersProvider with ChangeNotifier {
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline && _searchCustomerName.isNotEmpty) {
       // For offline search, just update the UI since all results are already loaded
-      log('[refreshCurrentPage] Offline search mode - just updating UI');
       notifyListeners();
     } else {
       fetchCustomerData(page: _currentPage);
@@ -962,28 +1287,53 @@ class CustomersProvider with ChangeNotifier {
   }
 
   /// Handles pagination clicks for both online and offline modes
-  void handlePaginationClick(int page) async {
-    log('[handlePaginationClick] Page: $page, Current page: $_currentPage, Search: $_searchCustomerName');
 
+
+void handlePaginationClick(int page) async {
     if (page == _currentPage) return; // No change needed
 
-    _currentPage = page;
-    log('[handlePaginationClick] Updated current page to: $_currentPage');
+    // 1. Instantly tell the UI to hide the table and show the spinner
+    _isLoading = true; 
+    notifyListeners();
 
-    // Check if we're offline and have an active search
+    _currentPage = page;
+
+    // 2. Now perform the async internet check
     bool isOnline = await ConnectivityService().isOnline();
+    
     if (!isOnline && _searchCustomerName.isNotEmpty) {
-      // For offline search, just update the UI since all results are already loaded
-      log('[handlePaginationClick] Offline search mode - just updating UI');
-      log('[handlePaginationClick] Total customers: ${_customers.length}, Total pages: $_totalPages');
+      // 3. Add a tiny artificial delay so the user actually sees the transition
+      // Otherwise, the local swap happens so fast the UI might just flash
+      await Future.delayed(const Duration(milliseconds: 300));
+      
       logCurrentState();
+      
+      // 4. Turn off loading to bring the table back
+      _isLoading = false; 
       notifyListeners();
     } else {
       // For normal browsing or online search, fetch data for the new page
-      log('[handlePaginationClick] Online mode - fetching data for page: $page');
+      // (Just double-check that your fetchCustomerData() method sets isLoading = false when it finishes!)
       fetchCustomerData(page: page);
     }
   }
+  
+  // void handlePaginationClick(int page) async {
+  //   if (page == _currentPage) return; // No change needed
+
+  //   _currentPage = page;
+
+  //   // Check if we're offline and have an active search
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline && _searchCustomerName.isNotEmpty) {
+  //     // For offline search, just update the UI since all results are already loaded
+  //     logCurrentState();
+  //     notifyListeners();
+  //   } else {
+  //     // For normal browsing or online search, fetch data for the new page
+  //     fetchCustomerData(page: page);
+  //   }
+  // }
 
   // Future<void> addEvent(
   //     String customerId, int eventStatus, List<String> daysList) async {
@@ -1011,12 +1361,7 @@ class CustomersProvider with ChangeNotifier {
   ScrollController get scrollController => _scrollController;
 
   /// Debug method to log current state
-  void logCurrentState() {
-    log('[logCurrentState] Current page: $_currentPage, Total pages: $_totalPages');
-    log('[logCurrentState] Search query: "$_searchCustomerName"');
-    log('[logCurrentState] Total customers: ${_customers.length}, Filtered customers: ${_filteredCustomers.length}');
-    log('[logCurrentState] Current page customers: ${getCurrentPageCustomers().length}');
-  }
+  void logCurrentState() {}
 
   @override
   void dispose() {

@@ -84,20 +84,7 @@ void showOrderStatusChartDialog(
                                     ),
                                   );
                                 } else if (snapshot.hasError) {
-                                  return const Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.error_outline,
-                                            size: 50, color: Colors.red),
-                                        SizedBox(height: 10),
-                                        Text(
-                                            "Our servers are currently down for maintenance. We’re working to resolve the issue as quickly as possible. Please check back soon, and thank you for your understanding.",
-                                            textAlign: TextAlign.center),
-                                      ],
-                                    ),
-                                  );
+                                  return const NodataWidget();
                                 } else if (snapshot.hasData) {
                                   final categoryPerformance =
                                       snapshot.data!.delivery;

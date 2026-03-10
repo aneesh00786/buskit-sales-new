@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -14,7 +14,7 @@ class CommunicationsDisplayWidget extends StatefulWidget {
   const CommunicationsDisplayWidget({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _CommunicationsDisplayWidgetState createState() =>
       _CommunicationsDisplayWidgetState();
 }

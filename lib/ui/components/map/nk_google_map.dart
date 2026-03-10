@@ -1,9 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/ui/components/map/location_permission.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicator.dart';
+import 'package:busskit_salesexecutive/ui/components/widgets/my_progress_indicatorz.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +36,6 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       mapController = controller;
 
-      log("onMapCreated ${controller.mapId}");
     });
   }
 
@@ -56,7 +53,6 @@ class _MapScreenState extends State<MapScreen> {
       });
     } catch (e) {
       NkCommonFunction.showErrorSnakBar(locationPermissionDenied);
-      log("Error getting location: $e");
     }
   }
 

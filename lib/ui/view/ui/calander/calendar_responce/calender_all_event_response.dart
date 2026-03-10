@@ -1,35 +1,3 @@
-// class CalenderDatas {
-//   int? statusCode;
-//   bool? status;
-//   String? message;
-//   List<EventData>? data;
-
-//   CalenderDatas({this.statusCode, this.status, this.message, this.data});
-
-//   CalenderDatas.fromJson(Map<String, dynamic> json) {
-//     statusCode = json['status_code'];
-//     status = json['status'];
-//     message = json['message'];
-//     if (json['data'] != null) {
-//       data = <EventData>[];
-//       json['data'].forEach((v) {
-//         data!.add(EventData.fromJson(v));
-//       });
-//     }
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-//     data['status_code'] = statusCode;
-//     data['status'] = status;
-//     data['message'] = message;
-//     if (this.data != null) {
-//       data['data'] = this.data!.map((v) => v.toJson()).toList();
-//     }
-//     return data;
-//   }
-// }
-
 class EventData {
   int? id;
   String? eventId;
@@ -44,7 +12,7 @@ class EventData {
   String? checkInLatitude;
   dynamic checkOut;
   String? checkOutLatitude;
-  int? checkOutLongitude;
+  String? checkOutLongitude;
   dynamic eventCancel;
   int? status;
   String? createdAt;
@@ -56,6 +24,10 @@ class EventData {
   String? address;
   String? latitude;
   String? longitude;
+  String? salesmanFirstname;
+  String? salesmanLastname;
+  String? salesmanMobileno;
+  String? salesmanEmail;
 
   EventData(
       {this.id,
@@ -82,7 +54,12 @@ class EventData {
       this.mobileNo,
       this.address,
       this.latitude,
-      this.longitude});
+      this.longitude,
+      this.salesmanFirstname,
+      this.salesmanLastname,
+      this.salesmanMobileno,
+      this.salesmanEmail,
+      });
   EventData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     eventId = json['event_id'];
@@ -97,9 +74,7 @@ class EventData {
     checkInLatitude = json['check_in_latitude'];
     checkOut = json['check_out'];
     checkOutLatitude = json['check_out_latitude'];
-    checkOutLongitude = json['check_out_longitude'] is bool
-        ? (json['check_out_longitude'] == true ? 1 : 0)
-        : json['check_out_longitude'];
+    checkOutLongitude = json['check_out_longitude'];
 
     eventCancel = json['event_cancel'];
     status = json['status'] is bool
@@ -114,6 +89,10 @@ class EventData {
     address = json["address"];
     latitude = json["latitude"];
     longitude = json["longitude"];
+    salesmanFirstname = json["salesman_firstname"];
+    salesmanLastname = json["salesman_lastname"];
+    salesmanMobileno = json["salesman_mobileno"];
+    salesmanEmail = json["salesman_email"];
   }
 
   Map<String, dynamic> toJson() {
@@ -143,6 +122,10 @@ class EventData {
     data['address'] = address;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
+    data['salesman_firstname'] = salesmanFirstname;
+    data['salesman_lastname'] = salesmanLastname;
+    data['salesman_mobileno'] = salesmanMobileno;
+    data['salesman_email'] = salesmanEmail;
     return data;
   }
 }
@@ -210,4 +193,3 @@ class Customer {
   int get hashCode =>
       mobileno.hashCode ^ email.hashCode ^ latitude.hashCode ^ longitude.hashCode;
 }
-

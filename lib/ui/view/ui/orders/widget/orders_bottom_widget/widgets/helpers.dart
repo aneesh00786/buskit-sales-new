@@ -1,6 +1,6 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
@@ -24,7 +24,7 @@ Widget placeholderWidget() {
   );
 }
 
-Widget customerDetailsWidget(CustomerCart orderData) {
+Widget customerDetailsWidget(CustomerDetails orderData) {
   return GestureDetector(
     onTap: () => {},
     child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -35,7 +35,7 @@ Widget customerDetailsWidget(CustomerCart orderData) {
           width: 34,
           color: Colors.grey[200],
           child: Image.network(
-            '${ApiConstants.baseUrl}uploads/${orderData.customerDetails!.imageUrl}',
+            '${ApiConstants.imageBaseUrl}${orderData.imageUrl ?? ''}',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -57,19 +57,19 @@ Widget customerDetailsWidget(CustomerCart orderData) {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content: orderData.customerDetails?.businessName ?? 'Unknown',
+                content: orderData.businessName ?? 'Unknown',
                 maxLine: 2,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
               CustomText(
-                content: orderData.customerDetails?.mobileno ?? 'Unknown',
+                content: orderData.mobileno ?? 'Unknown',
                 maxLine: 2,
                 fontSize: 10,
               ),
               MyRegularText(
                 align: TextAlign.start,
-                label: orderData.customerDetails?.email ?? 'Unknown',
+                label: orderData.email ?? 'Unknown',
                 maxlines: 1,
                 fontSize: 12,
                 overflow: TextOverflow.ellipsis,
@@ -81,13 +81,13 @@ Widget customerDetailsWidget(CustomerCart orderData) {
 }
 
 Widget orderNumberWidget(
-    CustomerCart orderData, OrderData orderDetailsData, int selectedTabIndex) {
+    OrderData orderDetailsData, int selectedTabIndex) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         MyRegularText(
-          label: orderData.optionOrderData?.orderId ?? 'N/A',
+          label: orderDetailsData.orderId ?? 'N/A',
           fontWeight: FontWeight.w600,
           fontSize: 11,
         ),
@@ -110,29 +110,54 @@ Widget orderNumberWidget(
     ),
   );
 }
+Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+  // 1. Determine which date string to use based on the tab index
+  String? rawDateString;
 
-Widget orderCreatedDateWidget(
-    CustomerCart orderData, OrderData orderDetailsData, int selectedTabIndex) {
+  if (selectedTabIndex == 0) {
+    // Case 1: Pending/New -> Use 'generatedDate'
+    rawDateString = orderDetailsData.generatedDate;
+  } else if (selectedTabIndex == 5) {
+    // Case 2: Delivered -> Use 'deliveryDate' (or deliveryDatetime based on your model)
+    rawDateString = orderDetailsData.deliveryDatetime?.toString();
+  } else if (selectedTabIndex == 6) {
+    // Case 3: Rejected -> Use 'rejectedDate'
+    rawDateString = orderDetailsData.rejectedDate?.toString();
+  } else {
+    // Default (e.g., Confirmed, Processing) -> Use 'orderCreatAt'
+    rawDateString = orderDetailsData.orderCreatAt?.toString();
+  }
+
+  // 2. Validate the date string (Check for null, empty, or '0000' dates)
+  final bool hasDate = rawDateString != null &&
+      rawDateString.isNotEmpty &&
+      !rawDateString.startsWith("0000");
+
+  // 3. Parse the selected string
+  final DateTime? parsedDate =
+      hasDate ? DateTime.tryParse(rawDateString!) : null;
+
+  // 4. Format the Date and Time strings
+  final String dateString = parsedDate != null
+      ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+      : 'N/A';
+
+  final String timeString = parsedDate != null
+      ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+      : 'N/A';
+
   return Center(
     child: selectedTabIndex == 0
         ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyRegularText(
-                label: orderData.optionOrderData?.orderCreatAt != null
-                    ? NKDateUtils.commonDayFormat2(
-                        NKDateUtils.formatStringUTCDateTime(
-                            orderData.optionOrderData!.orderCreatAt!))
-                    : 'N/A',
+                label: dateString,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
               MyRegularText(
-                label: orderData.optionOrderData?.orderCreatAt != null
-                    ? NKDateUtils.commonTimeOnlyFormat(
-                        NKDateUtils.formatStringUTCDateTime(
-                            orderData.optionOrderData!.orderCreatAt!))
-                    : 'N/A',
+                label: timeString,
                 fontSize: 12,
               ),
             ],
@@ -140,12 +165,13 @@ Widget orderCreatedDateWidget(
         : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Combined Date & Time for other tabs
               MyRegularText(
-                label:
-                    "${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'} ${orderData.optionOrderData?.orderCreatAt != null ? NKDateUtils.commonTimeOnlyFormat(NKDateUtils.formatStringUTCDateTime(orderData.optionOrderData!.orderCreatAt!)) : 'N/A'}",
+                label: "$dateString $timeString",
                 fontWeight: FontWeight.w600,
                 fontSize: 11,
               ),
+              // Show Edited By Name in the else case (for tabs other than 0)
               if (selectedTabIndex != 0) ...[
                 MyRegularText(
                   label:
@@ -158,11 +184,83 @@ Widget orderCreatedDateWidget(
           ),
   );
 }
+// Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+//   // 1. Safely parse the date string once at the top
+//   final bool hasDate = orderDetailsData.generatedDate != null && orderDetailsData.generatedDate!.isNotEmpty;
+  
+//   // Assuming generatedDate is a String since it was passed to formatStringUTCDateTime
+//   final DateTime? parsedDate = hasDate ? DateTime.tryParse(orderDetailsData.generatedDate!) : null;
+
+//   // 2. Prepare the Date string (Keeping your old NKDateUtils logic as requested)
+//   final String dateString = parsedDate != null 
+//       ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+//       : 'N/A';
+
+//   // 3. Prepare the Time string (Using your NEW TimeUtils logic for time only)
+//   final String timeString = parsedDate != null 
+//       ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+//       : 'N/A';
+
+//   return Center(
+//     child: selectedTabIndex == 0
+//         ? Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               MyRegularText(
+//                 label: dateString, // Old Date Logic
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 12,
+//               ),
+//               MyRegularText(
+//                 label: timeString, // New Time Logic
+//                 fontSize: 12,
+//               ),
+//             ],
+//           )
+//         : Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               MyRegularText(
+//                 label: "$dateString $timeString", // Safely combined
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 11,
+//               ),
+//               if (selectedTabIndex != 0) ...[
+//                 MyRegularText(
+//                   label: '${orderDetailsData.editedFullname} ${orderDetailsData.editedLastname}',
+//                   fontWeight: FontWeight.w500,
+//                   fontSize: 11,
+//                 ),
+//               ]
+//             ],
+//           ),
+//   );
+// }
 
 Widget orderCreatedByWidget(OrderData orderData) {
+  String displayLabel = '';
+
+  // 1. Check if the order came from the web store
+  if (orderData.orderSource == 'web_store') {
+    displayLabel = 'Web Store';
+  } 
+  // 2. Otherwise, format the user's name
+  else {
+    final String firstName = orderData.fullname ?? '';
+    final String lastName = orderData.lastname ?? '';
+    
+    // .trim() removes any extra spaces if one of the names is missing
+    displayLabel = '$firstName $lastName'.trim();
+    
+    // Fallback just in case the name is completely empty
+    if (displayLabel.isEmpty) {
+      displayLabel = 'N/A';
+    }
+  }
+
   return Center(
     child: MyRegularText(
-      label: '${orderData.fullname} ${orderData.lastname}',
+      label: displayLabel,
       fontWeight: FontWeight.w600,
       fontSize: 11,
       maxlines: 2,
@@ -170,11 +268,22 @@ Widget orderCreatedByWidget(OrderData orderData) {
   );
 }
 
-Widget orderPrice(CustomerCart orderData) {
+// Widget orderCreatedByWidget(OrderData orderData) {
+//   return Center(
+//     child: MyRegularText(
+//       label: '${orderData.fullname} ${orderData.lastname}',
+//       fontWeight: FontWeight.w600,
+//       fontSize: 11,
+//       maxlines: 2,
+//     ),
+//   );
+// }
+
+Widget orderPrice(OrderData orderDetailsData) {
   return Center(
     child: MyRegularText(
-      label: orderData.optionOrderData?.orderTotal != null
-          ? formatAmount(orderData.optionOrderData!.orderTotal)
+      label: orderDetailsData.orderTotal != null
+          ? formatAmount(orderDetailsData.orderTotal)
           : 'N/A',
       fontWeight: FontWeight.w600,
       fontSize: 11,
@@ -183,9 +292,9 @@ Widget orderPrice(CustomerCart orderData) {
   );
 }
 
-Widget paymentStatus(CustomerCart orderData) {
+Widget paymentStatus(OrderData orderData) {
   Color statusColor;
-  switch (orderData.optionOrderData?.paymentStatus) {
+  switch (orderData.paymentStatus) {
     case 0:
       statusColor = Colors.red;
       break;
@@ -204,7 +313,7 @@ Widget paymentStatus(CustomerCart orderData) {
       backgroundColor: statusColor,
       radius: 12,
       child: Icon(
-        orderData.optionOrderData?.paymentStatus == 0
+        orderData.paymentStatus == 0
             ? Icons.close
             : Icons.check,
         size: 20,
@@ -214,9 +323,9 @@ Widget paymentStatus(CustomerCart orderData) {
   );
 }
 
-Widget orderStatus(CustomerCart orderData) {
+Widget orderStatus(OrderData orderData) {
   Color statusColor;
-  switch (orderData.optionOrderData?.orderStatus) {
+  switch (orderData.orderStatus) {
     case 11:
       statusColor = const Color.fromARGB(255, 225, 250, 191);
       break;
@@ -242,7 +351,7 @@ Widget orderStatus(CustomerCart orderData) {
       statusColor = Colors.grey;
   }
 
-  return orderData.optionOrderData?.orderStatus == 14
+  return orderData.orderStatus == 14
       ? Center(
           child: Padding(
             padding: const EdgeInsets.all(0),
@@ -259,15 +368,15 @@ Widget orderStatus(CustomerCart orderData) {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomText(
-                        content: orderData.optionOrderData?.orderStatus != null
+                        content: orderData.orderStatus != null
                             ? OrderHandlingClass.fromType(
-                                    orderData.optionOrderData!.orderStatus!)
+                                    orderData.orderStatus!)
                                 .name
                             : 'Unknown',
                         fontSize: 11.0,
                         fontWeight: FontWeight.w600,
                       ),
-                      if (orderData.optionOrderData?.orderStatus == 14) ...[
+                      if (orderData.orderStatus == 14) ...[
                         const SizedBox(height: 3),
                         Row(
                           children: [
@@ -301,16 +410,16 @@ Widget orderStatus(CustomerCart orderData) {
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: orderData.optionOrderData?.orderStatus != null
+                  color: orderData.orderStatus != null
                       ? statusColor
                       : Colors.grey,
                   borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                 ),
                 child: Center(
                   child: CustomText(
-                    content: orderData.optionOrderData?.orderStatus != null
+                    content: orderData.orderStatus != null
                         ? OrderHandlingClass.fromType(
-                                orderData.optionOrderData!.orderStatus!)
+                                orderData.orderStatus!)
                             .name
                         : 'Unknown',
                     fontSize: 11,
@@ -323,55 +432,62 @@ Widget orderStatus(CustomerCart orderData) {
           ),
         );
 }
-
-Widget viewOrder(OrderController orderController, OrderData orderData,
-    BuildContext context) {
+Widget viewOrder(OrderController orderController, OrderData orderData, BuildContext context) {
   int selectedTabIndex = orderController.hasOfflineOrders.value
       ? orderController.selectedTabIndex.value - 1
       : orderController.selectedTabIndex.value;
+      
   return Center(
     child: IconButton(
       onPressed: () async {
-        log('Order ID :${orderData.orderId ?? ''}');
-        log('Selected Tab Index :$selectedTabIndex');
+        // ---------------------------------------------------------
+        // CONDITION 1: 0th Tab -> Call NEW API (Specific Order)
+        // ---------------------------------------------------------
         if (selectedTabIndex == 0) {
           try {
-            await orderController.loadOrderProcessInvoiceData(
+            await orderController.loadSpecificOrderInvoiceData(
               orderId: orderData.orderId!,
-              orderStatus: orderData.orderStatus!,
             );
-            Get.back();
-            // ignore: unnecessary_null_comparison
-            if (orderController.orderProcessInvoiceData != null) {
+            
+            Get.back(); // Dismiss loading/dialog if applicable
+
+            if (orderController.fetchSpecificOrderData != null) {
               Get.dialog(
                 OrderProcessInvoiceDialog(
-                  invoiceData: orderController.orderProcessInvoiceData,
+                  // Pass data to specificData argument
+                  specificData: orderController.fetchSpecificOrderData, 
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
                 barrierDismissible: true,
               );
             } else {
-              throw Exception('No invoice data available');
+              throw Exception('No specific order data available');
             }
           } catch (e) {
             Get.back();
             Get.snackbar('Error', e.toString());
           }
-        } else if (selectedTabIndex >= 1 &&
-            selectedTabIndex != 4 &&
-            selectedTabIndex != 5) {
+        } 
+        
+        // ---------------------------------------------------------
+        // CONDITION 2: All other tabs (except 4 & 5) -> Call OLD API
+        // ---------------------------------------------------------
+        else if (selectedTabIndex >= 1 && selectedTabIndex != 4 && selectedTabIndex != 5) {
           try {
             await orderController.loadOrderProcessInvoiceData(
               orderId: orderData.orderId!,
               orderStatus: orderData.orderStatus!,
             );
+            
             Get.back();
+
             // ignore: unnecessary_null_comparison
             if (orderController.orderProcessInvoiceData != null) {
               Get.dialog(
                 OrderProcessInvoiceDialog(
-                  invoiceData: orderController.orderProcessInvoiceData,
+                  // Pass data to invoiceData argument
+                  invoiceData: orderController.orderProcessInvoiceData, 
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
@@ -384,15 +500,138 @@ Widget viewOrder(OrderController orderController, OrderData orderData,
             Get.back();
             // Get.snackbar('Error', e.toString());
           }
-        } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+        } 
+        
+        // ---------------------------------------------------------
+        // CONDITION 3: Tabs 4 & 5 -> Show Online Preview
+        // ---------------------------------------------------------
+        else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
           showInvoicePreviewOnline(
-                                                                                  context,
-                                                                                  orderData.orderId ?? '',
-                                                                                );
-          
+            context,
+            orderData.orderId ?? '',
+          );
         }
       },
       icon: const Icon(Icons.visibility, size: 16),
     ),
   );
 }
+// Widget viewOrder(OrderController orderController, OrderData orderData, BuildContext context) {
+//   int selectedTabIndex = orderController.hasOfflineOrders.value
+//       ? orderController.selectedTabIndex.value - 1
+//       : orderController.selectedTabIndex.value;
+      
+//   return Center(
+//     child: IconButton(
+//       onPressed: () async {
+//         // Handle all standard tab indices (0, 1, 2, 3) identically
+//         if (selectedTabIndex >= 0 && selectedTabIndex != 4 && selectedTabIndex != 5) {
+//           try {
+//             // 1. Call the new specific order API
+//             await orderController.loadSpecificOrderInvoiceData(
+//               orderId: orderData.orderId!,
+//             );
+            
+//             Get.back(); // Dismiss loading/dialog if applicable
+
+//             // 2. Check if the specific data was loaded successfully
+//             if (orderController.fetchSpecificOrderData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   // 3. Pass data to specificData instead of invoiceData
+//                   specificData: orderController.fetchSpecificOrderData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No specific order data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             Get.snackbar('Error', e.toString());
+//           }
+//         } 
+//         // Handle online previews
+//         else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+//           showInvoicePreviewOnline(
+//             context,
+//             orderData.orderId ?? '',
+//           );
+//         }
+//       },
+//       icon: const Icon(Icons.visibility, size: 16),
+//     ),
+//   );
+// }
+
+// Widget viewOrder(OrderController orderController, OrderData orderData,
+//     BuildContext context) {
+//   int selectedTabIndex = orderController.hasOfflineOrders.value
+//       ? orderController.selectedTabIndex.value - 1
+//       : orderController.selectedTabIndex.value;
+//   return Center(
+//     child: IconButton(
+//       onPressed: () async {
+//         if (selectedTabIndex == 0) {
+//           try {
+//             await orderController.loadOrderProcessInvoiceData(
+//               orderId: orderData.orderId!,
+//               orderStatus: orderData.orderStatus!,
+//             );
+//             Get.back();
+//             // ignore: unnecessary_null_comparison
+//             if (orderController.orderProcessInvoiceData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   invoiceData: orderController.orderProcessInvoiceData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No invoice data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             Get.snackbar('Error', e.toString());
+//           }
+//         } else if (selectedTabIndex >= 1 &&
+//             selectedTabIndex != 4 &&
+//             selectedTabIndex != 5) {
+//           try {
+//             await orderController.loadOrderProcessInvoiceData(
+//               orderId: orderData.orderId!,
+//               orderStatus: orderData.orderStatus!,
+//             );
+//             Get.back();
+//             // ignore: unnecessary_null_comparison
+//             if (orderController.orderProcessInvoiceData != null) {
+//               Get.dialog(
+//                 OrderProcessInvoiceDialog(
+//                   invoiceData: orderController.orderProcessInvoiceData,
+//                   selectedTabIndex: selectedTabIndex,
+//                   orderController: orderController,
+//                 ),
+//                 barrierDismissible: true,
+//               );
+//             } else {
+//               throw Exception('No invoice data available');
+//             }
+//           } catch (e) {
+//             Get.back();
+//             // Get.snackbar('Error', e.toString());
+//           }
+//         } else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
+//           showInvoicePreviewOnline(
+//             context,
+//             orderData.orderId ?? '',
+//           );
+//         }
+//       },
+//       icon: const Icon(Icons.visibility, size: 16),
+//     ),
+//   );
+// }

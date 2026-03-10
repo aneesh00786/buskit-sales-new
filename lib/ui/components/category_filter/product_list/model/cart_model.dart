@@ -1,5 +1,3 @@
-//cart_model
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:hive_flutter/adapters.dart';
 part 'cart_model.g.dart';
@@ -45,6 +43,57 @@ class CartItem extends HiveObject {
   @HiveField(12)
   int? catId;
 
+  @HiveField(13)
+  bool? isPromo;
+
+  @HiveField(14)
+  String? promoCode;
+
+  @HiveField(15)
+  String? promoMsg;
+
+  @HiveField(16)
+  List<BundleItem>? bundleItems;
+
+  @HiveField(17)
+  String? title;
+
+  @HiveField(18)
+  String? bundlePrice;
+
+  
+  @HiveField(19)
+  double? CustomerDiscount; 
+
+
+  @HiveField(20)
+  num? tieredDiscount; 
+
+
+  @HiveField(21)
+  double? totalDiscountAmount;
+
+  @HiveField(22)
+  double? finalPrice;
+
+  @HiveField(23) 
+  int? tierStep; 
+
+  @HiveField(24) 
+  double? catTax;
+
+  @HiveField(25) 
+  double? taxAmount;
+
+  @HiveField(26) 
+  double? totalTaxAmount;
+
+  @HiveField(27)
+  num? flatDiscount; 
+
+    @HiveField(28)
+  num? bogoDiscount; 
+
   CartItem({
     required this.detail,
     required this.productName,
@@ -59,6 +108,22 @@ class CartItem extends HiveObject {
     this.salesmanId,
     this.boxType,
     this.catId,
+    this.isPromo,
+    this.promoCode,
+    this.promoMsg,
+    this.bundleItems,
+    this.title,
+    this.bundlePrice,
+    this.CustomerDiscount,
+    this.tieredDiscount,
+    this.totalDiscountAmount,
+    this.finalPrice,
+    this.tierStep,
+    this.catTax,
+    this.taxAmount,
+    this.totalTaxAmount,
+    this.flatDiscount,
+    this.bogoDiscount,
   });
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -70,12 +135,28 @@ class CartItem extends HiveObject {
       count: json['count'] as int?,
       customerId: json['customer_id'] as String?,
       cartId: json['cart_id'] as String?,
-      draftId: json['id'] as String?,
+      draftId: json['id'].toString(),
       isChecked: json['isChecked'] as bool? ?? true,
       draftTotal: json['order_total'] as num? ?? 0,
       salesmanId: json['salesman_id'] as String?,
       boxType: json['boxType'],
       catId: json['categories_id'],
+      isPromo: json['is_promo'] == 1 ? true : false,
+      promoCode: json['promo_code'],
+      promoMsg: json['promo_msg'],
+      bundleItems: json['bundle_items'],
+      title: json['title'],
+      bundlePrice: json['bundle_price'],
+      CustomerDiscount: (json['customer_discount'] as num?)?.toDouble(),
+      tieredDiscount: (json['tiered_discount'] as num?)?.toDouble(),
+      totalDiscountAmount: (json['total_discountAmount'] as num?)?.toDouble(),
+      finalPrice: (json['final_price'] as num?)?.toDouble(),
+      tierStep: json['tier_step'] as int?,
+      catTax: (json['cat_tax'] as num?)?.toDouble(),
+      taxAmount: (json['tax_amount'] as num?)?.toDouble(),
+      totalTaxAmount: (json['total_taxAmount'] as num?)?.toDouble(),
+      flatDiscount: (json['flat_discount'] as num?)?.toDouble(),
+      bogoDiscount: (json['bogo_discount'] as num?)?.toDouble(),
     );
   }
 
@@ -93,7 +174,23 @@ class CartItem extends HiveObject {
       'order_total': draftTotal,
       'salesman_id': salesmanId,
       'boxType': boxType,
-      'categories_id': catId
+      'categories_id': catId,
+      'is_promo': isPromo,
+      'promo_code': promoCode,
+      'promo_msg': promoMsg,
+      'bundle_items': bundleItems,
+      'title': title,
+      'bundle_price': bundlePrice,
+      'customer_discount': CustomerDiscount,
+      'tiered_discount': tieredDiscount,
+      'total_discountAmount': totalDiscountAmount,
+      'final_price': finalPrice,
+      'tier_step': tierStep,
+      'cat_tax': catTax,
+      'tax_amount':taxAmount,
+      'total_taxAmount':totalTaxAmount,
+      'flat_discount': flatDiscount,
+      'bogo_discount': bogoDiscount,
     };
   }
 
@@ -111,6 +208,13 @@ class CartItem extends HiveObject {
     String? salesmanId,
     bool? boxType,
     int? catId,
+    bool? isPromo,
+    String? promoCode,
+    String? promoMsg,
+    List<BundleItem>? bundleItems,
+    String? title,
+    String? bundlePrice,
+    double? catTax,
   }) {
     return CartItem(
       detail: detail ?? this.detail,
@@ -126,6 +230,61 @@ class CartItem extends HiveObject {
       salesmanId: salesmanId ?? this.salesmanId,
       boxType: boxType ?? this.boxType,
       catId: catId ?? this.catId,
+      isPromo: isPromo ?? this.isPromo,
+      promoCode: promoCode ?? this.promoCode,
+      promoMsg: promoMsg ?? this.promoMsg,
+      bundleItems: bundleItems ?? this.bundleItems,
+      title: title ?? this.title,
+      bundlePrice: bundlePrice ?? this.bundlePrice,
+      catTax: catTax ?? this.catTax,
     );
   }
+}
+
+class BundleItem {
+  String? productId;
+  String? variantId;
+  String? bundleItemUnitType;
+  int? quantity;
+  String? variationName;
+  String? unitType;
+  String? productName;
+  num? unitPrice;
+  num? totalPrice;
+
+  BundleItem({
+    this.productId,
+    this.variantId,
+    this.bundleItemUnitType,
+    this.quantity,
+    this.variationName,
+    this.unitType,
+    this.productName,
+    this.unitPrice,
+    this.totalPrice,
+  });
+
+  factory BundleItem.fromJson(Map<String, dynamic> json) => BundleItem(
+        productId: json["product_id"],
+        variantId: json["variant_id"],
+        bundleItemUnitType: json["unit_type"],
+        quantity: json["quantity"],
+        variationName: json["variation_name"],
+        unitType: json["unitType"],
+        unitPrice: json['unit_price'],
+        totalPrice: json['total_price'],
+        productName: json['product_name'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "product_id": productId,
+        "variant_id": variantId,
+        "unit_type": bundleItemUnitType,
+        "quantity": quantity,
+        "variation_name": variationName,
+        "unitType": unitType,
+        "unit_price": unitPrice,
+        "total_price": totalPrice,
+        "product_name": productName,
+      };
 }

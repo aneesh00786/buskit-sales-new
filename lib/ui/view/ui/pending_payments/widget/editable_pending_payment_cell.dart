@@ -1,7 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -63,8 +61,6 @@ class _EditablePendingPaymentCellState
       isChanged = false;
     });
 
-    log("update receivable ");
-
     try {
       final dio = Dio();
 
@@ -74,19 +70,14 @@ class _EditablePendingPaymentCellState
         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       };
 
-      log("post receivable request : $data");
-
       final response = await dio.post(
         '${ApiConstants.baseUrl}post_receivable_amount',
         data: data,
       );
 
-      log("post receivable response : $response");
-
       if (response.statusCode == 200) {
         // Success case
         final responseData = response.data;
-        final status = responseData['status'] ?? 'success';
         final message =
             responseData['message'] ?? 'Receivable amount updated successfully';
 
@@ -97,11 +88,9 @@ class _EditablePendingPaymentCellState
           Icons.check_circle,
         );
 
-        log("API Success - Status: $status, Message: $message");
       } else {
         // Error case with non-200 status
         final responseData = response.data;
-        final status = responseData['status'] ?? 'error';
         final message =
             responseData['message'] ?? 'Failed to update receivable amount';
 
@@ -122,7 +111,6 @@ class _EditablePendingPaymentCellState
           Icons.error,
         );
 
-        log("API Error - Status: $status, Message: $message");
       }
     } catch (e) {
       // Exception case
@@ -158,7 +146,6 @@ class _EditablePendingPaymentCellState
         Icons.error,
       );
 
-      log("Exception occurred: ${e.toString()}");
     }
 
     widget.onValueChanged(_controller.text, widget.index);

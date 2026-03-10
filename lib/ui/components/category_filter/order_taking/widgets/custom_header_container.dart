@@ -13,7 +13,7 @@ class CustomHeaderContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
+      height: 50,
       padding: const EdgeInsets.all(10),
       decoration: const BoxDecoration(
         color: lightPrimaryColor,

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -10,10 +9,12 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 10),
+              connectTimeout: const Duration(seconds: 20),
               receiveTimeout: const Duration(seconds: 30),
+              sendTimeout: const Duration(seconds: 20),
               responseType: ResponseType.json),
         )..interceptors.addAll([
+            GlobalApiInterceptor(),
             AuthorizationInterceptor(),
             LoggerInterceptor(),
           ]);
@@ -76,7 +77,6 @@ class DioClient with ApiConstants {
           final errorMessage = DioExceptionHandler.fromDioError(err).toString();
           throw errorMessage;
         }
-        log('Retrying request ($retryCount/$maxRetries): $path');
       } catch (e) {
         throw e.toString();
       }
@@ -195,7 +195,6 @@ class DioExceptionHandler implements Exception {
         errorMessage = 'An unexpected error occurred.';
         break;
     }
-    log('Error occurred: $errorMessage');
   }
 
   @override
@@ -245,38 +244,26 @@ void handleHttpResponseError({
   }
 }
 
+/// Legacy function for backward compatibility
+/// This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
 void handleExceptionMessage({
   Response<dynamic>? response,
   String? apiName,
   DioException? error,
 }) {
-  log('Error Type: ${error?.type}');
-  String message = "";
-  final errorData = response?.data;
-  if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
-    message = errorData['message'].toString();
-  }
-  int statusCode = response?.statusCode ?? 0;
-  if (message.isNotEmpty) {
-    NkCommonFunction.showErrorSnakBar("$message. $apiName");
-  } else if (error?.type == DioExceptionType.connectionTimeout ||
-      error?.type == DioExceptionType.receiveTimeout) {
-    log("Dio Timeout Error: $error");
-    NkCommonFunction.showErrorSnakBar(
-      "Request timed out. Please check your internet connection and try again. $apiName",
-    );
-  } else {
-    handleHttpResponseError(
-      statusCode: statusCode,
-      showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-      message: apiName,
-    );
-  }
+  // This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+  // The global interceptor will handle all errors automatically
+  // This function is kept for backward compatibility but does nothing
 }
 
-errorSnackbar(String message) {
-  NkCommonFunction.showErrorSnakBar(message);
+/// Legacy function for backward compatibility
+/// This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+void errorSnackbar(String message) {
+  // This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+  // The global interceptor will handle all errors automatically
+  // This function is kept for backward compatibility but does nothing
 }
+
 
 class AuthorizationInterceptor extends Interceptor {
   @override
@@ -312,23 +299,53 @@ class LoggerInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final options = err.requestOptions;
-    final requestPath = '${options.baseUrl}${options.path}';
-    logger.e('${options.method} request => $requestPath');
-    logger.d('Error: ${err.error}, Message: ${err.message}');
     return;
   }
+}
 
+/// Global API Interceptor that handles all API errors automatically
+/// This eliminates the need to call handleExceptionMessage() in every API call
+class GlobalApiInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final requestPath = '${options.baseUrl}${options.path}';
-    logger.i('${options.method} request => $requestPath');
-    return super.onRequest(options, handler);
-  }
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    String message = "";
 
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.d('StatusCode: ${response.statusCode}, Data: ${response.data}');
-    return super.onResponse(response, handler);
+    /// API response error message
+    final responseData = err.response?.data;
+
+    if (responseData is Map<String, dynamic> &&
+        responseData['message'] != null) {
+      message = responseData['message'].toString();
+    }
+
+    /// Timeout handling
+    if (err.type == DioExceptionType.connectionTimeout) {
+      NkCommonFunction.showErrorSnakBar(
+          "Unable to connect to server. Please check your internet.");
+    } else if (err.type == DioExceptionType.receiveTimeout) {
+      NkCommonFunction.showErrorSnakBar(
+          "Server is taking too long to respond.");
+    } else if (err.type == DioExceptionType.sendTimeout) {
+      NkCommonFunction.showErrorSnakBar("Request timeout. Please try again.");
+    } else if (err.type == DioExceptionType.connectionError) {
+      NkCommonFunction.showErrorSnakBar("No internet connection.");
+    }
+
+    /// API returned error
+    else if (message.isNotEmpty) {
+      NkCommonFunction.showErrorSnakBar(message);
+    }
+
+    /// HTTP status errors
+    else {
+      int statusCode = err.response?.statusCode ?? 0;
+      handleHttpResponseError(
+        statusCode: statusCode,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "",
+      );
+    }
+
+    super.onError(err, handler);
   }
 }

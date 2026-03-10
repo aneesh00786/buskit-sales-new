@@ -1,8 +1,5 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/option/widgets/data_row_column.dart';
 import 'package:flutter/material.dart';
 
 class OrderStatusHeadingRow extends StatelessWidget {
@@ -23,9 +20,11 @@ class OrderStatusHeadingRow extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: scrollController2,
       child: SizedBox(
-        width: fullScreenWidth(context) > 640
-            ? fullScreenWidth(context) * 1
-            : fullScreenWidth(context) * 1.1,
+        width: isPhonePortrait(context)
+            ? fullScreenWidth(context) * 2.3
+            : fullScreenWidth(context) > 640
+                ? fullScreenWidth(context) * 1
+                : fullScreenWidth(context) * 1.1,
         child: Row(
           children: [
             Expanded(
@@ -161,7 +160,35 @@ class OrderStatusHeadingRow extends StatelessWidget {
                     )),
                   ],
                   rows: [
-                    dataRowOrderstatus(flexWidth),
+                    DataRow(
+                      cells: [
+                        DataCell(
+                          SizedBox(width: flexWidth * 1.5),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 0.9),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 0.9),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1.1),
+                        ),
+                        DataCell(
+                          SizedBox(width: flexWidth * 1.1),
+                        ),
+                        const DataCell(Text('')),
+                      ],
+                    ),
                   ]),
             ),
           ],

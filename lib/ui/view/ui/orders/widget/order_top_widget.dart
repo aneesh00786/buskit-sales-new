@@ -1,4 +1,5 @@
 
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
@@ -22,6 +23,10 @@ class OrderTopWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: CustomText(content: 'Recent Orders',fontWeight: FontWeight.bold,),
+        ),
         const Spacer(),
         profiloe(),
       ],

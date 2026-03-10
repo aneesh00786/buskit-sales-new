@@ -1,6 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -38,7 +37,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
       'order_id': widget.orderId,
       'companyId': SessionHelper.loginSavedData?.company_id.toString() ?? '0',
     };
-    log("request $request");
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}preview-invoice');
       final response = await http.post(
@@ -46,7 +44,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
         body: request,
       );
 
-      log("Status code: ${response.statusCode}");
       // log("Response body [preview-invoice]: ${response.body}");
 
       if (response.statusCode == 200) {
@@ -58,7 +55,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
         throw Exception('Failed to load invoice: ${response.statusCode}');
       }
     } catch (e) {
-      log("Error: $e");
       setState(() {
         htmlContent = "<h2>Error loading invoice</h2>";
         isLoading = false;

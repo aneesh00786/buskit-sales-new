@@ -1,11 +1,13 @@
-// ignore_for_file: use_key_in_widget_constructors
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 
 class PaginationWidget extends StatefulWidget {
+  const PaginationWidget({super.key});
+
   @override
-  // ignore: library_private_types_in_public_api
+
   _PaginationWidgetState createState() => _PaginationWidgetState();
 }
 

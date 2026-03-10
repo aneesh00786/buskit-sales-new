@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously, empty_catches
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -14,10 +13,12 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
+import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
+import 'package:busskit_salesexecutive/ui/components/custom_tooltip.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -25,11 +26,17 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/day_picker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/month_dropdown.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/week_dropdown.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/year_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_scrollbar.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -40,6 +47,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import '../../../components/color/colors.dart';
 import '../../../theme/custom_fonts.dart';
@@ -123,11 +131,39 @@ class _TableeeState extends State<Tableee> {
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: white,
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
         actions: [
-          Expanded(child: calender()),
+             Expanded(
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Customers & Orders',
+                  style: TextStyle(
+                      fontSize: NkFontSize.largeFont(largeFont: 20),
+                      fontWeight: FontWeight.bold)),
+              Row(
+                children: [
+                  addCustomer(context),
+                  const SizedBox(width: 20),
+                  NotificationWidget(
+                    startDate: provider.selectedStartDate,
+                    endDate: provider.selectedEndDate,
+                  ),
+                   SizedBox(width: 120, child: profiloe()),
+                ],
+              ),
+            ],
+          )),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 8),
+          //   child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
+          // ),
+          // SizedBox(width: 5,),
+          // Expanded(child: calender()),
+          
         ],
       ),
       body: Stack(
@@ -136,17 +172,26 @@ class _TableeeState extends State<Tableee> {
             left: 0,
             right: 0,
             top: 0,
-            child: TopTotalWidget(
-                scrollController: _scrollController3, provider: provider),
+            child: Column(
+              children: [
+                calender(),
+                SizedBox(
+                  height: 5,
+                ),
+
+                TopTotalWidget(
+                    scrollController: _scrollController3, provider: provider),
+              ],
+            ),
           ),
           Column(
             children: [
-              const SizedBox(height: 58),
+              const SizedBox(height: 120),
               Expanded(
                   child: FrozenHeaderTable(
                 scrollController: _scrollController1,
               )),
-              // const SizedBox(height: 58),
+              const SizedBox(height: 20),
             ],
           ),
           Positioned(
@@ -156,599 +201,529 @@ class _TableeeState extends State<Tableee> {
             child: BottomTotalWidget(
                 scrollController: _scrollController2, provider: provider),
           ),
+          // Positioned.fill(
+          //   child: Consumer<CustomersProvider>(
+          //     builder: (context, custProvider, child) {
+          //       if (custProvider.isLoading) {
+          //         return Container(
+          //           color: Colors.white.withOpacity(0.4), // Dims the background
+          //           child: const Center(
+          //             child: CircularProgressIndicator(
+          //               color: Colors.blue,
+          //               strokeWidth: 3.0,
+          //             ),
+          //           ),
+          //         );
+          //       }
+          //       return const SizedBox.shrink(); // Shows nothing when not loading
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
   Widget calender() {
-    return Consumer<DashboardProvider>(builder: (context, provider, child) {
-      bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
-      if (isTabletOrPhoneLandscape(context)) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Consumer<CustomersProvider>(
-                builder: (context, provider, child) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Consumer<DashboardProvider>(
+          builder: (context, dashboardProvider, child) {
+            return Consumer<CustomersProvider>(
+              builder: (context, provider, child) {
+                /// --- Tablet / Landscape Layout
+                if (isTabletOrPhoneLandscape(context)) {
                   return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(width: 5),
-                      SizedBox(
-                        height: 45,
-                        width: 120,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                                color: Colors.grey.shade300, width: 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade50,
-                                blurRadius: 8,
-                                offset: const Offset(2, 4),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 10.0, right: 4.0, top: 4.0, bottom: 1.0),
-                            child: DropdownButton<FilterDateEnum>(
-                              value: provider.selectedFilter,
-                              onChanged: (newValue) async {
-                                bool isOnline =
-                                    await ConnectivityService().isOnline();
-                                if (!isOnline) {
-                                  showCustomToastDisplay(context,
-                                      "You are Offline!", red, Icons.close);
-                                  return;
-                                }
-                                if (newValue != null) {
-                                  provider.onFilterChanged(newValue);
-                                }
-                              },
-                              items: const [
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisMonth,
-                                  child: Text(
-                                    'This Month',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 9.8,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.today,
-                                  child: Text(
-                                    'Today',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisWeek,
-                                  child: Text(
-                                    'This Week',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.thisYear,
-                                  child: Text(
-                                    'This Year',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 10.5,
-                                    ),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: FilterDateEnum.range,
-                                  child: Text(
-                                    'Range',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 10.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              isExpanded: true,
-                              borderRadius: BorderRadius.circular(10),
-                              underline: Container(),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const ClampingScrollPhysics(),
-                          child: Row(
-                            children: [
-                              if (provider.selectedFilter ==
-                                  FilterDateEnum.range)
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            provider.selectDate(context, true),
-                                        child: Container(
-                                          height: 38,
-                                          width: 90,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xfff9f9fb),
-                                            border: Border.all(
-                                                color: const Color(0xffd1d1d1),
-                                                width: 1.0),
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2),
-                                                blurRadius: 2,
-                                                offset: const Offset(0, 1),
-                                              ),
-                                            ],
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4, horizontal: 8),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                provider.selectedStartDate
-                                                        .isEmpty
-                                                    ? 'DD-MM-YYYY'
-                                                    : DateFormat('dd-MM-yyyy')
-                                                        .format(DateTime.parse(
-                                                            provider
-                                                                .selectedStartDate)),
-                                                style: TextStyle(
-                                                    fontSize: 10.5,
-                                                    color: Colors.grey[800]),
-                                              ),
-                                              Icon(
-                                                Icons.calendar_today,
-                                                size: 14,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            provider.selectDate(context, false),
-                                        child: Container(
-                                          height: 38,
-                                          width: 90,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xfff9f9fb),
-                                            border: Border.all(
-                                                color: const Color(0xffd1d1d1),
-                                                width: 1.0),
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2),
-                                                blurRadius: 2,
-                                                offset: const Offset(0, 1),
-                                              ),
-                                            ],
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4, horizontal: 8),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                provider.selectedEndDate.isEmpty
-                                                    ? 'DD-MM-YYYY'
-                                                    : DateFormat('dd-MM-yyyy')
-                                                        .format(DateTime.parse(
-                                                            provider
-                                                                .selectedEndDate)),
-                                                style: TextStyle(
-                                                    fontSize: 10.5,
-                                                    color: Colors.grey[800]),
-                                              ),
-                                              Icon(
-                                                Icons.calendar_today,
-                                                size: 14,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      child: SizedBox(
-                                        height: 36.4,
-                                        width: 68,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            provider.fetchCustomerData();
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: primaryColor,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Go',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              const SizedBox(width: 15),
-                              addCustomer(context),
+                      Flexible(
+                        child: Row(
+                          children: [
+                            // const SizedBox(width: 5),
+                            buildFilterDropdown(provider, context),
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.thisMonth) ...[
                               const SizedBox(width: 5),
+                              MonthDropdown(
+                                onApplyTap: () => provider.fetchCustomerData(),
+                              ),
+                              // You can import and use MonthDropdown if needed, or keep existing behavior
+                              // For now, keeping existing range picker logic
                             ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            NotificationWidget(
-              startDate: provider.selectedStartDate,
-              endDate: provider.selectedEndDate,
-            ),
-            SizedBox(width: 120, child: profiloe()),
-          ],
-        );
-      } else {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(width: 5),
-                addCustomer(context),
-                Spacer(),
-                NotificationWidget(
-                  startDate: provider.selectedStartDate,
-                  endDate: provider.selectedEndDate,
-                ),
-                SizedBox(width: 120, child: profiloe()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Consumer<CustomersProvider>(
-                    builder: (context, provider, child) {
-                      return Row(
-                        children: [
-                          const SizedBox(width: 5),
-                          SizedBox(
-                            height: 45,
-                            width: 120,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                    color: Colors.grey.shade300, width: 1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade50,
-                                    blurRadius: 8,
-                                    offset: const Offset(2, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10.0,
-                                    right: 4.0,
-                                    top: 4.0,
-                                    bottom: 1.0),
-                                child: DropdownButton<FilterDateEnum>(
-                                  value: provider.selectedFilter,
-                                  onChanged: (newValue) async {
-                                    bool isOnline =
-                                        await ConnectivityService().isOnline();
-                                    if (!isOnline) {
-                                      showCustomToastDisplay(context,
-                                          "You are Offline!", red, Icons.close);
-                                      return;
-                                    }
-                                    if (newValue != null) {
-                                      provider.onFilterChanged(newValue);
-                                    }
-                                  },
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: FilterDateEnum.thisMonth,
-                                      child: Text(
-                                        'This Month',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Poppins_Regular',
-                                          fontSize: 9.8,
-                                        ),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: FilterDateEnum.today,
-                                      child: Text(
-                                        'Today',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Poppins_Regular',
-                                          fontSize: 10.5,
-                                        ),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: FilterDateEnum.thisWeek,
-                                      child: Text(
-                                        'This Week',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Poppins_Regular',
-                                          fontSize: 10.5,
-                                        ),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: FilterDateEnum.thisYear,
-                                      child: Text(
-                                        'This Year',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Poppins_Regular',
-                                          fontSize: 10.5,
-                                        ),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: FilterDateEnum.range,
-                                      child: Text(
-                                        'Range',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Poppins_Regular',
-                                          fontSize: 10.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  isExpanded: true,
-                                  borderRadius: BorderRadius.circular(10),
-                                  underline: Container(),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              physics: const ClampingScrollPhysics(),
-                              child: Row(
-                                children: [
-                                  if (provider.selectedFilter ==
-                                      FilterDateEnum.range)
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: GestureDetector(
-                                            onTap: () => provider.selectDate(
-                                                context, true),
-                                            child: Container(
-                                              height: 38,
-                                              width: 90,
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xfff9f9fb),
-                                                border: Border.all(
-                                                    color:
-                                                        const Color(0xffd1d1d1),
-                                                    width: 1.0),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.2),
-                                                    blurRadius: 2,
-                                                    offset: const Offset(0, 1),
-                                                  ),
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.thisWeek) ...[
+                              const SizedBox(width: 5),
+                              WeekDropdown(
+                                onApplyTap: () {
+                                  provider
+                                      .fetchCustomerData(); // This triggers the API call
+                                },
+                              )
+                            ],
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.thisYear) ...[
+                              const SizedBox(width: 5),
+                              YearDropdown(
+                                onApplyTap: () {
+                                  provider.fetchCustomerData();
+                                },
+                              )
+                            ],
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.today) ...[
+                              const SizedBox(width: 5),
+                              DatePickerWidget(
+                                onApplyTap: () {
+                                  provider.fetchCustomerData();
+                                },
+                              )
+                            ],
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.range) ...[
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        child: GestureDetector(
+                                          onTap: () => provider.selectDate(
+                                              context, true),
+                                          child: Container(
+                                            height: 50,
+                                            width: 125,
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.white,
+                                                  Colors.white,
                                                 ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
-                                              alignment: Alignment.centerLeft,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4,
-                                                      horizontal: 8),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color: const Color(
+                                                      0xFFE1E5E9),
+                                                  width: 1),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                  spreadRadius: 0,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  blurRadius: 0,
+                                                  offset: const Offset(-2, -2),
+                                                ),
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
                                                     provider.selectedStartDate
                                                             .isEmpty
                                                         ? 'DD-MM-YYYY'
                                                         : DateFormat(
                                                                 'dd-MM-yyyy')
-                                                            .format(DateTime
-                                                                .parse(provider
+                                                            .format(DateTime.parse(
+                                                                provider
                                                                     .selectedStartDate)),
-                                                    style: TextStyle(
-                                                        fontSize: 10.5,
-                                                        color:
-                                                            Colors.grey[800]),
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
-                                                  Icon(
-                                                    Icons.calendar_today,
-                                                    size: 14,
-                                                    color: Colors.grey[700],
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                                const Icon(Icons.calendar_today,
+                                                    size: 18,
+                                                    color: Colors.blue),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: GestureDetector(
-                                            onTap: () => provider.selectDate(
-                                                context, false),
-                                            child: Container(
-                                              height: 38,
-                                              width: 90,
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xfff9f9fb),
-                                                border: Border.all(
-                                                    color:
-                                                        const Color(0xffd1d1d1),
-                                                    width: 1.0),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.2),
-                                                    blurRadius: 2,
-                                                    offset: const Offset(0, 1),
-                                                  ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        child: GestureDetector(
+                                          onTap: () => provider.selectDate(
+                                              context, false),
+                                          child: Container(
+                                            height: 50,
+                                            width: 125,
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.white,
+                                                  Colors.white,
                                                 ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
-                                              alignment: Alignment.centerLeft,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4,
-                                                      horizontal: 8),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color: const Color(
+                                                      0xFFE1E5E9),
+                                                  width: 1),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                  spreadRadius: 0,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  blurRadius: 0,
+                                                  offset: const Offset(-2, -2),
+                                                ),
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
                                                     provider.selectedEndDate
                                                             .isEmpty
                                                         ? 'DD-MM-YYYY'
                                                         : DateFormat(
                                                                 'dd-MM-yyyy')
-                                                            .format(DateTime
-                                                                .parse(provider
+                                                            .format(DateTime.parse(
+                                                                provider
                                                                     .selectedEndDate)),
-                                                    style: TextStyle(
-                                                        fontSize: 10.5,
-                                                        color:
-                                                            Colors.grey[800]),
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
-                                                  Icon(
-                                                    Icons.calendar_today,
-                                                    size: 14,
-                                                    color: Colors.grey[700],
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                                const Icon(Icons.calendar_today,
+                                                    size: 18,
+                                                    color: Colors.blue),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: SizedBox(
-                                            height: 36.4,
-                                            width: 68,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                provider.fetchCustomerData();
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: primaryColor,
-                                                shape: RoundedRectangleBorder(
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        child: SizedBox(
+                                          height: 50,
+                                          width: 68,
+                                          child: ElevatedButton(
+                                            onPressed: () =>
+                                                provider.fetchCustomerData(),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: primaryColor,
+                                              shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(
-                                                          4.0),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                'Go',
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
+                                                          12.0)),
+                                              elevation: 8,
+                                              shadowColor: Colors.black.withOpacity(0.2),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 10),
                                             ),
+                                            child: const Text('Go',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600)),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  const SizedBox(width: 15),
-                                ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      // const SizedBox(width: 10),
+                      // addCustomer(context),
+                      // const SizedBox(width: 20),
+                      // NotificationWidget(
+                      //   startDate: provider.selectedStartDate,
+                      //   endDate: provider.selectedEndDate,
+                      // ),
+                      //  SizedBox(width: 95, child: profiloe()),
+                    ],
+                  );
+                }
+
+                /// --- Phone / Portrait Layout
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row: Add Customer + Notification + Update
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        addCustomer(context),
+                        const SizedBox(width: 10),
+                        NotificationWidget(
+                          startDate: provider.selectedStartDate,
+                          endDate: provider.selectedEndDate,
+                        ),
+                        const SizedBox(width: 10),
+                         SizedBox(width: 120, child: profiloe()),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Filter row - horizontally scrollable
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 5),
+                          buildFilterDropdown(provider, context),
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.range) ...[
+                            const SizedBox(width: 10),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () =>
+                                      provider.selectDate(context, true),
+                                  child: dateBox(provider.selectedStartDate),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () =>
+                                      provider.selectDate(context, false),
+                                  child: dateBox(provider.selectedEndDate),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  height: 36.4,
+                                  width: 68,
+                                  child: ElevatedButton(
+                                    onPressed: () =>
+                                        provider.fetchCustomerData(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4)),
+                                    ),
+                                    child: const Text('Go',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12)),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                          ],
                         ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            )
-          ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                );
+              },
+            );
+          },
         );
-      }
-    });
+      },
+    );
   }
 
+  Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
+    return SizedBox(
+      height: 50,
+      width: 125,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.8),
+              blurRadius: 0,
+              offset: const Offset(-2, -2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          child: DropdownButton<FilterDateEnum>(
+            value: provider.selectedFilter,
+            onChanged: (newValue) async {
+            bool isOnline = await ConnectivityService().isOnline();
+             if (!isOnline) {
+                   showCustomToastDisplay(
+                   context, "You are Offline!", red, Icons.close);
+                   return;
+             }
+            if (newValue != null) {
+              // This should ONLY update the variable `selectedFilter` 
+              // and call notifyListeners(). Do not fetch API data here.
+              provider.updateFilterSelection(newValue); 
+            }
+          },
+            // onChanged: (newValue) async {
+            //   bool isOnline = await ConnectivityService().isOnline();
+            //   if (!isOnline) {
+            //     showCustomToastDisplay(
+            //         context, "You are Offline!", red, Icons.close);
+            //     return;
+            //   }
+            //   if (newValue != null) {
+            //     provider.onFilterChanged(newValue);
+            //   }
+            // },
+            items: const [
+              DropdownMenuItem(
+                  value: FilterDateEnum.thisMonth,
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              DropdownMenuItem(
+                  value: FilterDateEnum.thisWeek,
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              DropdownMenuItem(
+                  value: FilterDateEnum.today,
+                  child: Row(
+                    children: [
+                      Icon(Icons.today, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              DropdownMenuItem(
+                  value: FilterDateEnum.thisYear,
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              DropdownMenuItem(
+                  value: FilterDateEnum.range,
+                  child: Row(
+                    children: [
+                      Icon(Icons.date_range, size: 16, color: primaryColor),
+                      SizedBox(width: 8),
+                      Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+            ],
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(12),
+            underline: Container(),
+            icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+            dropdownColor: Colors.white,
+            elevation: 8,
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  Widget dateBox(String date) {
+    return Container(
+      height: 38,
+      width: 90,
+      decoration: BoxDecoration(
+        color: const Color(0xfff9f9fb),
+        border: Border.all(color: const Color(0xffd1d1d1), width: 1.0),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 2,
+              offset: const Offset(0, 1)),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            date.isEmpty
+                ? 'DD-MM-YYYY'
+                : DateFormat('dd-MM-yyyy').format(DateTime.parse(date)),
+            style: TextStyle(fontSize: 10.5, color: Colors.grey[800]),
+          ),
+          Icon(Icons.calendar_today, size: 14, color: Colors.grey[700]),
+        ],
+      ),
+    );
+  }
+
+
+
   Consumer<CustomersProvider> addCustomer(BuildContext context) {
-    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
+    ResponsiveInfo.isMobileDimension(context);
     return Consumer<CustomersProvider>(builder: (context, provider, child) {
       return FutureBuilder<CustomerResponse>(
         future: provider.customerResponse,
@@ -783,7 +758,7 @@ class _TableeeState extends State<Tableee> {
 
           return SizedBox(
             height: 38,
-            width: 100,
+            width: 98,
             child: CustomButton(
               onPressed: () {
                 showDialog(
@@ -1467,7 +1442,6 @@ class _TableeeState extends State<Tableee> {
                                                     setState(() {
                                                       isAddingCustomer = false;
                                                     });
-                                                    log(error.toString());
                                                   }
                                                 },
                                           style: ElevatedButton.styleFrom(
@@ -1574,36 +1548,32 @@ class _TableeeState extends State<Tableee> {
     int page = 1;
     try {
       // Fetch first page to get totalPages
-      log('[fetchAllCustomerPages] Fetching customer page 1');
       final firstResponse = await apiService.fetchCustomer(
-        salesmanId: '',
+        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
         customerName: provider.searchCustomerName,
         startDate: '',
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: provider.selectedFilter == FilterDateEnum.range
+        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
             ? [
                 provider.selectedFilter.name,
                 provider.selectedStartDate,
                 provider.selectedEndDate
               ]
-            : provider.selectedFilter.name,
+            : provider.selectedFilter.name).toString(),
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
       allYearsList.addAll(firstResponse.yearsListOfAll);
       totalPages = firstResponse.pagination.totalPages;
-      log('[fetchAllCustomerPages] First page fetched, totalPages reported: $totalPages');
       // Save first page to Hive with cacheKey
       final customerBox = Hive.box('customerBox');
       final cacheKeyFirst =
           '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
-      log('[fetchAllCustomerPages] Caching page 1 with ${firstResponse.data.length} customers');
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        log('[fetchAllCustomerPages] Fetching customer page $page');
         final response = await apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
           customerName: provider.searchCustomerName,
@@ -1611,13 +1581,13 @@ class _TableeeState extends State<Tableee> {
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw: provider.selectedFilter == FilterDateEnum.range
+          valueFromDw:( provider.selectedFilter == FilterDateEnum.range
               ? [
                   provider.selectedFilter.name,
                   provider.selectedStartDate,
                   provider.selectedEndDate
                 ]
-              : provider.selectedFilter.name,
+              : provider.selectedFilter.name).toString(),
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -1625,12 +1595,10 @@ class _TableeeState extends State<Tableee> {
         final cacheKey =
             '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
         await customerBox.put(cacheKey, response.toJson());
-        log('[fetchAllCustomerPages] Caching page $page with ${response.data.length} customers');
       }
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
-      log('[fetchAllCustomerPages] Finished fetching all pages. Total pages: $totalPages, Total customers: ${allCustomers.length}');
       // Build unique customerId list from all pages
       // final allCustomerIds = allCustomers
       //     .map((c) => c.customerId)
@@ -1639,7 +1607,6 @@ class _TableeeState extends State<Tableee> {
       //     .toList();
       // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
-      log('Error fetching all customer pages : $e');
       rethrow;
     }
   }
@@ -1675,7 +1642,6 @@ class TopTotalWidget extends StatelessWidget {
               child: TextField(
                 onChanged: (query) {
                   provider.updateSearchQuery(query);
-                  log("Entered query : $query");
                 },
                 controller: searchController,
                 decoration: InputDecoration(
@@ -1965,6 +1931,7 @@ class BottomTotalWidget extends StatefulWidget {
 
   final ScrollController _scrollController;
   final CustomersProvider provider;
+  
 
   @override
   State<BottomTotalWidget> createState() => _BottomTotalWidgetState();
@@ -1974,6 +1941,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
   bool isOnline = false;
 
   bool isOfflineAndSearch = false;
+  
 
   void loadOnineAndSearchState() async {
     isOnline = await ConnectivityService().isOnline();
@@ -2064,425 +2032,442 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
             provider.orderTotalList.length < 7) {
           return const LoadingToNoDataWidget();
         }
-        return Row(
+        return Column(
           children: [
-            _buildTableCell(
-              padding: EdgeInsets.zero,
-              Container(
-                width: 260,
-                color: Colors.grey[200],
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Container(
-                          // Remove fixed width
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(3.0),
-                          ),
+            Row(
+              children: [
+                _buildTableCell(
+                  padding: EdgeInsets.zero,
+                  Container(
+                    width: 260,
+                    color: Colors.grey[200],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0, horizontal: 6.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: provider.currentPage > 1
-                                      ? () {
-                                          provider.handlePaginationClick(
-                                              provider.currentPage - 1);
-                                        }
-                                      : null,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: const Icon(
-                                      Icons.keyboard_double_arrow_left,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Wrap(
-                                    alignment: WrapAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 4.0,
-                                    runSpacing: 4.0,
-                                    children: _buildPagination(
-                                            provider.currentPage,
-                                            provider.totalPages)
-                                        .map<Widget>((item) {
-                                      if (item is String &&
-                                          item.endsWith('...')) {
-                                        final int page = int.parse(
-                                            item.replaceAll('...', ''));
-                                        return GestureDetector(
-                                          onTap: () {
-                                            provider
-                                                .handlePaginationClick(page);
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else if (item is String &&
-                                          item.startsWith('...')) {
-                                        final int page = int.parse(
-                                            item.replaceAll('...', ''));
-                                        return GestureDetector(
-                                          onTap: () {
-                                            provider
-                                                .handlePaginationClick(page);
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else if (item is int) {
-                                        final bool isCurrent =
-                                            item == provider.currentPage;
-                                        return GestureDetector(
-                                          onTap: isCurrent
-                                              ? null
-                                              : () {
-                                                  provider
-                                                      .handlePaginationClick(
-                                                          item);
-                                                },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: isCurrent
-                                                  ? Colors.white
-                                                  : Colors.transparent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Text(
-                                              '$item',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: isCurrent
-                                                    ? primaryColor
-                                                    : Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        return Container();
-                                      }
-                                    }).toList(),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap:
-                                      provider.currentPage < provider.totalPages
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              // Remove fixed width
+                              decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(3.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4.0, horizontal: 6.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: provider.currentPage > 1
                                           ? () {
                                               provider.handlePaginationClick(
-                                                  provider.currentPage + 1);
+                                                  provider.currentPage - 1);
                                             }
                                           : null,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: const Icon(
-                                      Icons.keyboard_double_arrow_right,
-                                      size: 20,
-                                      color: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: const Icon(
+                                          Icons.keyboard_double_arrow_left,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Expanded(
+                                      child: Wrap(
+                                        alignment: WrapAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        spacing: 4.0,
+                                        runSpacing: 4.0,
+                                        children: _buildPagination(
+                                                provider.currentPage,
+                                                provider.totalPages)
+                                            .map<Widget>((item) {
+                                          if (item is String &&
+                                              item.endsWith('...')) {
+                                            final int page = int.parse(
+                                                item.replaceAll('...', ''));
+                                            return GestureDetector(
+                                              onTap: () {
+                                                provider
+                                                    .handlePaginationClick(page);
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else if (item is String &&
+                                              item.startsWith('...')) {
+                                            final int page = int.parse(
+                                                item.replaceAll('...', ''));
+                                            return GestureDetector(
+                                              onTap: () {
+                                                provider
+                                                    .handlePaginationClick(page);
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else if (item is int) {
+                                            final bool isCurrent =
+                                                item == provider.currentPage;
+                                            return GestureDetector(
+                                              onTap: isCurrent
+                                                  ? null
+                                                  : () {
+                                                      provider
+                                                          .handlePaginationClick(
+                                                              item);
+                                                    },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: isCurrent
+                                                      ? Colors.white
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  '$item',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: isCurrent
+                                                        ? primaryColor
+                                                        : Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Container();
+                                          }
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap:
+                                          provider.currentPage < provider.totalPages
+                                              ? () {
+                                                  provider.handlePaginationClick(
+                                                      provider.currentPage + 1);
+                                                }
+                                              : null,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: const Icon(
+                                          Icons.keyboard_double_arrow_right,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    // const Spacer(),
-                    const SizedBox(width: 10),
-                    Container(
-                      color: Colors.grey[200],
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Total',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                ),
-              ),
-              300,
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: widget._scrollController,
-                physics: const ClampingScrollPhysics(),
-                child: Container(
-                  color: Colors.grey[200],
-                  child: Row(
-                    children: [
-                      _buildTableCell(
-                        Center(
-                          child: Text(
-                              formatAmount(isOfflineAndSearch
-                                  ? provider.customers.fold(
-                                      0.0,
-                                      (sum, item) =>
-                                          sum +
-                                          num.parse(item.previousYearSales
-                                              .toString()))
-                                  : provider
-                                      .orderTotalList[7].previousYearSale),
-                              style: const TextStyle(
-                                  fontFamily: "BarlowCondensed",
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                        120,
-                      ),
-                      _buildTableCell(
-                        const SizedBox.shrink(),
-                        20,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.totalSales.toString()))
-                                    : provider.orderTotalList[0].sales),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.deliveryPrice.toString()))
-                                    : provider.orderTotalList[1].delivery),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.paymentPrice.toString()))
-                                    : provider.orderTotalList[2].payment),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                              item.orderData.preOrder
-                                                  .takeLast(
-                                                      item.preOrder.toInt())
-                                                  .fold(
-                                                      0.0,
-                                                      (a, b) =>
-                                                          a + b.orderTotal)
-                                                  .toString(),
-                                            ))
-                                    : provider.orderTotalList[4].preOrder),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                                item.estimatesPrice.toString()))
-                                    : provider.orderTotalList[3].estimate),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(
-                                              item.orderData.draft
-                                                  .takeLast(item.drafts.toInt())
-                                                  .fold(
-                                                      0.0,
-                                                      (a, b) =>
-                                                          a + b.orderTotal)
-                                                  .toString(),
-                                            ))
-                                    : provider.orderTotalList[5].draft),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                formatAmount(isOfflineAndSearch
-                                    ? provider.customers.fold(
-                                        0.0,
-                                        (sum, item) =>
-                                            sum +
-                                            num.parse(item.orderData.cancel
-                                                .takeLast(
-                                                    item.cancelled.toInt())
-                                                .fold(0.0,
-                                                    (a, b) => a + b.orderTotal)
-                                                .toString()))
-                                    : provider.orderTotalList[6].cancelled),
-                                style: const TextStyle(
-                                    fontFamily: "BarlowCondensed",
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                        140,
-                      ),
-                      _buildTableCell(
-                        const Text(
-                          '',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                        // const Spacer(),
+                        const SizedBox(width: 10),
+                        Container(
+                          color: Colors.grey[200],
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Total',
+                                  style: TextStyle(
+                                      fontSize: 17, fontWeight: FontWeight.w700)),
+                            ],
                           ),
                         ),
-                        160,
-                      ),
-                      // _buildTableCell(
-                      //   const Text(
-                      //     '',
-                      //     style: TextStyle(
-                      //       fontWeight: FontWeight.w600,
-                      //       fontSize: 16,
-                      //     ),
-                      //   ),
-                      //   120,
-                      // ),
-                    ],
+                        const SizedBox(width: 5),
+                      ],
+                    ),
                   ),
+                  300,
                 ),
-              ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: widget._scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    child: Container(
+                      color:Colors.grey[200],
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              _buildTableCell(
+                                Center(
+                                  child: Text(
+                                      formatAmount(isOfflineAndSearch
+                                          ? provider.customers.fold(
+                                              0.0,
+                                              (sum, item) =>
+                                                  sum +
+                                                  num.parse(item.previousYearSales
+                                                      .toString()))
+                                          : provider
+                                              .orderTotalList[7].previousYearSale),
+                                      style: const TextStyle(
+                                          fontFamily: "BarlowCondensed",
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700)),
+                                ),
+                                120,
+                              ),
+                              _buildTableCell(
+                                const SizedBox.shrink(),
+                                20,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.totalSales.toString()))
+                                            : provider.orderTotalList[0].sales),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.deliveryPrice.toString()))
+                                            : provider.orderTotalList[1].delivery),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.paymentPrice.toString()))
+                                            : provider.orderTotalList[2].payment),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                      item.orderData.preOrder
+                                                          .takeLast(
+                                                              item.preOrder.toInt())
+                                                          .fold(
+                                                              0.0,
+                                                              (a, b) =>
+                                                                  a + b.orderTotal)
+                                                          .toString(),
+                                                    ))
+                                            : provider.orderTotalList[4].preOrder),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                        item.estimatesPrice.toString()))
+                                            : provider.orderTotalList[3].estimate),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(
+                                                      item.orderData.draft
+                                                          .takeLast(item.drafts.toInt())
+                                                          .fold(
+                                                              0.0,
+                                                              (a, b) =>
+                                                                  a + b.orderTotal)
+                                                          .toString(),
+                                                    ))
+                                            : provider.orderTotalList[5].draft),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        formatAmount(isOfflineAndSearch
+                                            ? provider.customers.fold(
+                                                0.0,
+                                                (sum, item) =>
+                                                    sum +
+                                                    num.parse(item.orderData.cancel
+                                                        .takeLast(
+                                                            item.cancelled.toInt())
+                                                        .fold(0.0,
+                                                            (a, b) => a + b.orderTotal)
+                                                        .toString()))
+                                            : provider.orderTotalList[6].cancelled),
+                                        style: const TextStyle(
+                                            fontFamily: "BarlowCondensed",
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700)),
+                                  ],
+                                ),
+                                140,
+                              ),
+                              _buildTableCell(
+                                const Text(
+                                  '',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                160,
+                              ),
+                              // _buildTableCell(
+                              //   const Text(
+                              //     '',
+                              //     style: TextStyle(
+                              //       fontWeight: FontWeight.w600,
+                              //       fontSize: 16,
+                              //     ),
+                              //   ),
+                              //   120,
+                              // ),
+                            ],
+                          ),
+                         
+                        ],
+                      ),
+                      
+                    ),
+                    
+                  ),
+                  
+                ),
+                
+              ],
             ),
+            CustomHorizontalScrollbar(
+                          controller:  widget._scrollController,
+                          thumbColor: Colors.blue,
+                         )
           ],
         );
       },
@@ -2503,7 +2488,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSmallScreen = ResponsiveInfo.isMobileDimension(context);
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -2535,343 +2519,6 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-// enum EventType {
-//   select,
-//   weekly,
-//   fortnightly,
-//   monthly,
-//   daily,
-// }
-
-// extension EventTypeExtension on EventType {
-//   String get displayName {
-//     switch (this) {
-//       case EventType.select:
-//         return "-Select-";
-//       case EventType.weekly:
-//         return "Weekly";
-//       case EventType.fortnightly:
-//         return "Fortnightly";
-//       case EventType.monthly:
-//         return "Monthly";
-//       case EventType.daily:
-//         return "Daily";
-//     }
-//   }
-
-//   int get value {
-//     switch (this) {
-//       case EventType.select:
-//         return 0;
-//       case EventType.weekly:
-//         return 2;
-//       case EventType.fortnightly:
-//         return 3;
-//       case EventType.monthly:
-//         return 4;
-//       case EventType.daily:
-//         return 5;
-//     }
-//   }
-
-//   static EventType fromValue(int value) {
-//     switch (value) {
-//       case 0:
-//         return EventType.select;
-//       case 2:
-//         return EventType.weekly;
-//       case 3:
-//         return EventType.fortnightly;
-//       case 4:
-//         return EventType.monthly;
-//       case 5:
-//         return EventType.daily;
-//       default:
-//         return EventType.weekly;
-//     }
-//   }
-// }
-
-// class EventTypeDropdown extends StatefulWidget {
-//   final EventType initialValue;
-//   final Function(EventType) onChanged;
-//   final List<String> defaultEventDays;
-//   final String customerId;
-//   final int eventStatus;
-//   final CustomersProvider provider;
-
-//   const EventTypeDropdown({
-//     super.key,
-//     required this.initialValue,
-//     required this.onChanged,
-//     required this.defaultEventDays,
-//     required this.customerId,
-//     required this.eventStatus,
-//     required this.provider,
-//   });
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _EventTypeDropdownState createState() => _EventTypeDropdownState();
-// }
-
-// class _EventTypeDropdownState extends State<EventTypeDropdown> {
-//   SubscriptionController subscriptionController =
-//       Get.find<SubscriptionController>();
-
-//   late EventType selectedValue;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     selectedValue = widget.initialValue;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SingleChildScrollView(
-//       scrollDirection: Axis.horizontal,
-//       physics: const ClampingScrollPhysics(),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.start,
-//         children: [
-//           Container(
-//             decoration: const BoxDecoration(
-//                 color: Color(0xffdddefc),
-//                 borderRadius: BorderRadius.all(Radius.circular(5))),
-//             height: 38,
-//             width: 90,
-//             child: Padding(
-//               padding: const EdgeInsets.only(left: 8, right: 2),
-//               child: GestureDetector(
-//                 onTap: () {
-//                   if (subscriptionController.visitSetting.value != 'true') {
-//                     showUpgradePlanDialog(context);
-//                   }
-//                 },
-//                 child: AbsorbPointer(
-//                   absorbing:
-//                       subscriptionController.visitSetting.value != 'true',
-//                   child: DropdownButton<EventType>(
-//                     iconSize: 17.5,
-//                     value: selectedValue,
-//                     onChanged: (EventType? newValue) {
-//                       if (newValue != null) {
-//                         setState(() {
-//                           selectedValue = newValue;
-//                           widget.onChanged(newValue);
-
-//                           if (newValue == EventType.fortnightly) {
-//                             _selectDate(context, 3);
-//                           } else if (newValue == EventType.daily) {
-//                             widget.provider.addEvent(
-//                               widget.customerId,
-//                               // widget.eventStatus,
-//                               5,
-//                               [DateTime.now().toIso8601String()],
-//                             );
-//                             widget.provider.fetchCustomerData();
-//                           } else if (newValue == EventType.monthly) {
-//                             widget.provider.addEvent(
-//                               widget.customerId,
-//                               // widget.eventStatus,
-//                               4,
-//                               [DateTime.now().toIso8601String()],
-//                             );
-//                             widget.provider.fetchCustomerData();
-//                           } else if (newValue == EventType.weekly) {
-//                             showDaysOfWeekPopup(
-//                               context,
-//                               widget.defaultEventDays,
-//                               widget.customerId,
-//                               newValue.value,
-//                               widget.provider,
-//                             );
-//                           } else {
-//                             showDaysOfWeekPopup(
-//                               context,
-//                               widget.defaultEventDays,
-//                               widget.customerId,
-//                               newValue.value,
-//                               widget.provider,
-//                             );
-//                           }
-//                         });
-//                       }
-//                     },
-//                     items: EventType.values
-//                         .map<DropdownMenuItem<EventType>>((EventType value) {
-//                       return DropdownMenuItem<EventType>(
-//                         value: value,
-//                         child: Text(
-//                           value.displayName,
-//                           style: const TextStyle(
-//                             fontSize: 11.5,
-//                             color: Colors.black87,
-//                             fontWeight: FontWeight.bold,
-//                             //fontFamily: 'Poppins_Regular',
-//                           ),
-//                         ),
-//                       );
-//                     }).toList(),
-//                     underline: Container(),
-//                     isExpanded: true,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           const SizedBox(
-//             width: 5.0,
-//           ),
-//           if (widget.defaultEventDays.isNotEmpty)
-//             SizedBox(
-//               width: 24,
-//               height: 24,
-//               child: GestureDetector(
-//                   onTap: () {
-//                     showDaysOfWeekPopup(context, widget.defaultEventDays,
-//                         widget.customerId, widget.eventStatus, widget.provider);
-//                   },
-//                   child: Container(
-//                     width: 24,
-//                     height: 24,
-//                     decoration: BoxDecoration(
-//                       color: primaryColor,
-//                       borderRadius: BorderRadius.circular(15),
-//                       boxShadow: [
-//                         BoxShadow(
-//                           color: Colors.grey.withOpacity(0.3),
-//                           spreadRadius: 1,
-//                           blurRadius: 4,
-//                           offset: const Offset(0, 2),
-//                         ),
-//                       ],
-//                     ),
-//                     child: const Center(
-//                       child: Text(
-//                         'i',
-//                         style: TextStyle(
-//                           fontSize: 12,
-//                           color: Colors.white,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ),
-//                   )),
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void showDaysOfWeekPopup(BuildContext context, List<String> selectedDays,
-//       String cusID, int eventSt, CustomersProvider provider) {
-//     final List<String> daysOfWeek = [
-//       'Monday',
-//       'Tuesday',
-//       'Wednesday',
-//       'Thursday',
-//     ];
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return StatefulBuilder(
-//           builder: (context, setState) {
-//             return AlertDialog(
-//               content: SingleChildScrollView(
-//                 physics: const ClampingScrollPhysics(),
-//                 child: ListBody(
-//                   children: daysOfWeek.map((day) {
-//                     return CheckboxListTile(
-//                       title: Text(day),
-//                       value: selectedDays.contains(day.toLowerCase()),
-//                       onChanged: (bool? value) {
-//                         setState(() {
-//                           if (value == true) {
-//                             selectedDays.add(day.toLowerCase());
-//                           } else {
-//                             selectedDays.remove(day.toLowerCase());
-//                           }
-//                         });
-//                       },
-//                     );
-//                   }).toList(),
-//                 ),
-//               ),
-//               actions: <Widget>[
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.end,
-//                   children: [
-//                     ElevatedButton(
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: const Color(0xffdcdefc),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(4.0),
-//                         ),
-//                       ),
-//                       child: const Text(
-//                         'Cancel',
-//                         style: TextStyle(color: primaryColor),
-//                       ),
-//                       onPressed: () {
-//                         Navigator.of(context).pop();
-//                       },
-//                     ),
-//                     const SizedBox(
-//                       width: 5,
-//                     ),
-//                     ElevatedButton(
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: primaryColor,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(4.0),
-//                         ),
-//                       ),
-//                       child: const Text(
-//                         'Add To Calender',
-//                         style: TextStyle(color: Colors.white),
-//                       ),
-//                       onPressed: () async {
-//                         await provider.addEvent(
-//                           cusID,
-//                           eventSt,
-//                           selectedDays,
-//                         );
-//                         provider.fetchCustomerData();
-//                         Navigator.of(context).pop();
-//                       },
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
-
-//   Future<void> _selectDate(BuildContext context, int eventStatus) async {
-//     DateTime? selectedDate = await showDatePicker(
-//       context: context,
-//       initialDate: DateTime.now(),
-//       firstDate: DateTime(2000),
-//       lastDate: DateTime(2101),
-//     );
-
-//     if (selectedDate != null) {
-//       widget.provider.addEvent(
-//         widget.customerId,
-//         eventStatus,
-//         // widget.eventStatus,
-//         [selectedDate.toIso8601String()],
-//       );
-//       widget.provider.fetchCustomerData();
-//     }
-//   }
-// }
-
 class FrozenHeaderTable extends StatefulWidget {
   final ScrollController scrollController;
 
@@ -2892,12 +2539,27 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   String? startDate;
   String? endDate;
   String dropdownValue = 'Today';
+
   final ScrollController vertical = ScrollController();
   final ScrollController vertical1 = ScrollController();
+
+  late LinkedScrollControllerGroup _controllers;
+
+  late ScrollController _scrollController1;
+  late ScrollController _scrollController2;
+  late ScrollController _scrollController3;
 
   @override
   void initState() {
     super.initState();
+
+    _controllers = LinkedScrollControllerGroup();
+
+    // SET 1
+    _scrollController1 = _controllers.addAndGet();
+    _scrollController2 = _controllers.addAndGet();
+    _scrollController3 = _controllers.addAndGet();
+
     vertical.addListener(() {
       if (vertical1.hasClients &&
           vertical.position.pixels != vertical1.position.pixels) {
@@ -2911,10 +2573,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         vertical.jumpTo(vertical1.position.pixels);
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<CustomersProvider>();
-      customerAndOrderController.initializeYears(provider.yearsListOfAllList);
-    });
   }
 
   @override
@@ -2925,12 +2583,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
 
     double fixedRowHeight = isLandscape
-        ? fullScreenHeight(context) / 9.05
-        : (fullScreenHeight(context) - (66 * 3)) / 10;
+        ? !isTablet(context)
+            ? fullScreenHeight(context) / 6
+            : fullScreenHeight(context) / 9.05
+        : isPhonePortrait(context)
+            ? (fullScreenHeight(context) - (66 * 3)) / 11.1
+            : (fullScreenHeight(context) - (66 * 3)) / 11.5;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
-      if (provider.isLoading) {
-        return const Center(child: CircularProgressIndicator());
+     if (provider.isLoading) {
+        return const Center(child: CircularProgressIndicator(color: primaryColor));
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
@@ -3044,8 +2706,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       shouldNavigate = true;
                                                     }
 
-                                                    log("shouldNavigate : $shouldNavigate");
-
                                                     if (shouldNavigate) {
                                                       provider
                                                           .setCurrentMonthDates();
@@ -3092,7 +2752,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               .selectedCustomerImage
                                                               .value =
                                                           customer.imageUrl;
-                                                      log('Customer ID == : ${customer.customerId}, Controller Cus ID: ${prodController.selectedCustomerId.value}');
                                                       await Future.delayed(
                                                           const Duration(
                                                               milliseconds:
@@ -3252,7 +2911,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   context,
                                                   customer,
                                                   customer.orderData
-                                                      .previousYearSales);
+                                                      .previousYearSales,
+                                                  'Previous Year');
                                             },
                                             child: CustomText(
                                               content: formatAmount(
@@ -3265,10 +2925,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       ),
                                       _buildTableCell(
                                         Padding(
-                                          padding: const EdgeInsets.all(4.0),
+                                          padding: const EdgeInsets.all(2.0),
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
+                                               
                                                 if (customer.sales == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -3277,11 +2938,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       Icons.close);
                                                 } else {
                                                   _showOrderDataDialog(
-                                                    context,
-                                                    customer,
-                                                    customer
-                                                        .orderData.totalSales,
-                                                  );
+                                                      context,
+                                                      customer,
+                                                      customer
+                                                          .orderData.totalSales,
+                                                      'Sales');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3298,10 +2959,12 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       ),
                                       _buildTableCell(
                                         Padding(
-                                          padding: const EdgeInsets.all(4.0),
+                                          padding: const EdgeInsets.all(2.0),
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
+                                                 print('on tappedyy');
+                                                 print('out of delivery : ${customer.orderData.outOfDiviery}');
                                                 if (customer.delivery == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -3313,7 +2976,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       context,
                                                       customer,
                                                       customer.orderData
-                                                          .outOfDiviery);
+                                                          .outOfDiviery,
+                                                      'Delivery');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3345,7 +3009,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       context,
                                                       customer,
                                                       customer
-                                                          .orderData.payment);
+                                                          .orderData.payment,
+                                                      'Payment');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3377,7 +3042,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       context,
                                                       customer,
                                                       customer
-                                                          .orderData.preOrder);
+                                                          .orderData.preOrder,
+                                                      'Booking');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3420,7 +3086,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       context,
                                                       customer,
                                                       customer
-                                                          .orderData.estimate);
+                                                          .orderData.estimate,
+                                                      'Estimate');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3455,7 +3122,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   _showOrderDataDialog(
                                                       context,
                                                       customer,
-                                                      customer.orderData.draft);
+                                                      customer.orderData.draft,
+                                                      'Draft');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3495,8 +3163,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   _showOrderDataDialog(
                                                       context,
                                                       customer,
-                                                      customer
-                                                          .orderData.cancel);
+                                                      customer.orderData.cancel,
+                                                      "Cancelled");
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3608,7 +3276,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            log("Customer Id checkout: ${customerAndOrderController.customerId.value}");
 
             return AlertDialog(
               title: const Text('Customer Check-Out'),
@@ -3648,7 +3315,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           cartProvider.updateCartCount(customerId);
                         });
 
-                        log('CustomerId 2 :${customerAndOrderController.customerId.value}');
                         Get.to(
                                 ChangeNotifierProvider.value(
                                   value: Provider.of<CustomersProvider>(context,
@@ -3746,7 +3412,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           }
                         }
                       } catch (e) {
-                        log('Error during check-out: $e');
                       }
 
                       if (context.mounted) Navigator.of(context).pop();
@@ -3764,8 +3429,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   }
 
   void _showOrderDataDialog(BuildContext context, CustomerModelxx customer,
-      List<Order> filteredOrders) {
+      List<Order> filteredOrders, String orderType) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Row(
@@ -3782,499 +3448,861 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     builder:
                         (BuildContext context, BoxConstraints constraints) {
                       double availableWidth = constraints.maxWidth;
-                      double fontSize = availableWidth * 0.017;
+                      double fontSize = isPhonePortrait(context)
+                          ? 14
+                          : (availableWidth * 0.017).clamp(7.0, 15.0);
                       double padding = availableWidth / 100;
                       double fixedIconSize = fontSize;
-                      double flexWidth = availableWidth / 10;
+                      double flexWidth = isPhonePortrait(context)
+                          ? availableWidth / 4.2
+                          : availableWidth / 10;
 
                       return Stack(
                         children: [
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                height: filteredOrders.length < 11
-                                    ? null
-                                    : fullScreenHeight(context) * 0.7,
-                                child: SingleChildScrollView(
-                                  child: DataTable(
-                                    dataRowHeight: fontSize * 5.5,
-                                    headingRowHeight:
-                                        fullScreenWidth(context) > 740
-                                            ? 45
-                                            : 75,
-                                    headingRowColor:
-                                        const WidgetStatePropertyAll(
-                                            primaryColor),
-                                    columnSpacing: 10,
-                                    headingTextStyle: TextStyle(
-                                        fontSize: fontSize + 1,
-                                        color: white,
-                                        fontWeight: FontWeight.w700),
-                                    columns: const [
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                      DataColumn(label: SizedBox()),
-                                    ],
-                                    rows: filteredOrders.isEmpty
-                                        ? [
-                                            const DataRow(cells: [
-                                              DataCell(
-                                                  Text('Record Not Found')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                              DataCell(Text('')),
-                                            ])
-                                          ]
-                                        : filteredOrders.map((order) {
-                                            return DataRow(
-                                              cells: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController1,
+                                child: SizedBox(
+                                  width: isPhonePortrait(context)
+                                      ? fullScreenWidth(context) * 2.3
+                                      : fullScreenWidth(context) > 640
+                                          ? fullScreenWidth(context) * 1
+                                          : fullScreenWidth(context) * 1,
+                                  height: filteredOrders.length < 11
+                                      ? null
+                                      : fullScreenHeight(context) * 0.7,
+                                  child: SingleChildScrollView(
+                                    child: DataTable(
+                                      dataRowHeight: fontSize * 5.5,
+                                      headingRowHeight:
+                                          fullScreenWidth(context) > 740
+                                              ? 45
+                                              : 75,
+                                      headingRowColor:
+                                          const WidgetStatePropertyAll(
+                                              primaryColor),
+                                      columnSpacing: 10,
+                                      headingTextStyle: TextStyle(
+                                          fontSize: fontSize + 1,
+                                          color: white,
+                                          fontWeight: FontWeight.w700),
+                                      columns: const [
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                        DataColumn(label: SizedBox()),
+                                      ],
+                                      rows: filteredOrders.isEmpty
+                                          ? [
+                                              const DataRow(cells: [
                                                 DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1.5,
-                                                    child: Row(
-                                                      children: [
-                                                        CircleAvatar(
-                                                          radius:
-                                                              (fixedIconSize /
-                                                                      2) +
-                                                                  2,
-                                                          backgroundColor:
-                                                              const Color(
-                                                                  0xffe6ecff),
-                                                          child: Icon(
-                                                              Icons.person,
-                                                              size:
-                                                                  fixedIconSize,
-                                                              color:
-                                                                  Colors.blue),
-                                                        ),
-                                                        SizedBox(
-                                                            width: padding),
-                                                        Flexible(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                customer != null
-                                                                    ? customer
-                                                                        .businessName
-                                                                    : 'N/A',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                              Text(
-                                                                customer != null
-                                                                    ? customer
-                                                                        .fullname
-                                                                    : 'N/A',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize -
-                                                                            2,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                              Text(
-                                                                customer != null
-                                                                    ? customer
-                                                                        .mobileno
-                                                                    : 'N/A',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize -
-                                                                            2,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                              Text(
-                                                                customer != null
-                                                                    ? customer
-                                                                        .email
-                                                                    : 'N/A',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize -
-                                                                            2,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                            ],
+                                                    Text('Record Not Found')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                                DataCell(Text('')),
+                                              ])
+                                            ]
+                                          : filteredOrders.map((order) {
+                                              return DataRow(
+                                                cells: [
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1.5,
+                                                      child: Row(
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius:
+                                                                (fixedIconSize /
+                                                                        2) +
+                                                                    2,
+                                                            backgroundColor:
+                                                                const Color(
+                                                                    0xffe6ecff),
+                                                            child: Icon(
+                                                                Icons.person,
+                                                                size:
+                                                                    fixedIconSize,
+                                                                color: Colors
+                                                                    .blue),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          SizedBox(
+                                                              width: padding),
+                                                          Flexible(
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                  customer !=
+                                                                          null
+                                                                      ? customer
+                                                                          .businessName
+                                                                      : 'N/A',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                                Text(
+                                                                  customer !=
+                                                                          null
+                                                                      ? customer
+                                                                          .fullname
+                                                                      : 'N/A',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize -
+                                                                              2,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                                Text(
+                                                                  customer !=
+                                                                          null
+                                                                      ? customer
+                                                                          .mobileno
+                                                                      : 'N/A',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize -
+                                                                              2,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                                Text(
+                                                                  customer !=
+                                                                          null
+                                                                      ? customer
+                                                                          .email
+                                                                      : 'N/A',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize -
+                                                                              2,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 0.9,
-                                                    child: InkWell(
-                                                      onTap: () async {
-                                                        bool isOnline =
-                                                            await ConnectivityService()
-                                                                .isOnline();
-                                                        if (isOnline) {
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 0.9,
+                                                      child: InkWell(
+                                                        onTap: () {
                                                           showDetailedOrderInvoiceDialog(
                                                               context,
                                                               order.orderId,
                                                               false);
-                                                        } else {
-                                                          showCustomToastDisplay(
-                                                              context,
-                                                              "You are Offline!",
-                                                              red,
-                                                              Icons.warning);
-                                                        }
-                                                      },
-                                                      child: Center(
-                                                        child: Text(
-                                                          order.orderId,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  primaryColor,
-                                                              fontSize:
-                                                                  fontSize,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1,
-                                                    child: Center(
-                                                      child: Text(
-                                                        order.orderCreatAt !=
-                                                                null
-                                                            ? getFormattedOrderCreatAt(
-                                                                order
-                                                                    .orderCreatAt
-                                                                    .toString())
-                                                            : 'N/A',
-                                                        style: TextStyle(
-                                                          fontSize: fontSize,
-                                                        ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1,
-                                                    child: Center(
-                                                      child: Text(
-                                                        '${order.fullname} ${order.lastname}',
-                                                        style: TextStyle(
-                                                          fontSize: fontSize,
-                                                        ),
-                                                        maxLines: 2,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1,
-                                                    child: Center(
-                                                      child: Text(
-                                                        formatAmount(
-                                                            order.orderTotal),
-                                                        maxLines: 1,
-                                                        style: TextStyle(
-                                                          fontSize: fontSize,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 0.9,
-                                                    child: InkWell(
-                                                      onTap: () {
-                                                        showInvoicePreviewOnline(
-                                                          context,
-                                                          order.orderId,
-                                                        );
-                                                      },
-                                                      child: Center(
-                                                        child: Text(
-                                                          order.invoiceId
-                                                              .toString(),
-                                                          style: TextStyle(
-                                                              color:
-                                                                  primaryColor,
-                                                              fontSize:
-                                                                  fontSize,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1.1,
-                                                    child: Center(
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color:
-                                                              order.paymentStatus ==
-                                                                      0
-                                                                  ? Colors.red
-                                                                  : Colors
-                                                                      .green,
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                              color: order.paymentStatus ==
-                                                                      0
-                                                                  ? Colors.red
-                                                                  : Colors
-                                                                      .green),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(1.0),
-                                                          child: Icon(
-                                                              order.paymentStatus ==
-                                                                      0
-                                                                  ? Icons.close
-                                                                  : Icons.done,
-                                                              color: white,
-                                                              size: 14.0),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: flexWidth * 1.1,
-                                                    child: Center(
-                                                      child: Container(
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                          color:
-                                                              Color(0xffffdbb8),
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          15.0)),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      8.0,
-                                                                  vertical:
-                                                                      4.0),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Text(
-                                                                getStatusName(order
-                                                                    .orderStatus),
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                              ),
-                                                              if (order.orderStatus ==
-                                                                      2 &&
-                                                                  order.deliveryDate !=
-                                                                      null) ...[
-                                                                Text(
-                                                                  NKDateUtils.commonFullDateTimeFormat(
-                                                                      NKDateUtils.formatStringUTCDateTime(order
-                                                                          .deliveryDate!
-                                                                          .toIso8601String())),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  maxLines: 2,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        fontSize -
-                                                                            2,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ]
-                                                            ],
+                                                        },
+                                                        child: Center(
+                                                          child: Text(
+                                                            order.orderId,
+                                                            style: TextStyle(
+                                                                color:
+                                                                    primaryColor,
+                                                                fontSize:
+                                                                    fontSize,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                const DataCell(Text('')),
-                                              ],
-                                            );
-                                          }).toList(),
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1,
+                                                      child: Center(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              order.orderCreatAt !=
+                                                                      null
+                                                                  ? getFormattedOrderCreatAt(order
+                                                                      .orderCreatAt
+                                                                      .toString())
+                                                                  : 'N/A',
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                            Text(
+                                                              order.orderCreatAt !=
+                                                                      null
+                                                                  ? NKDateUtils
+                                                                      .commonTimeOnlyFormat(order
+                                                                          .orderCreatAt
+                                                                          .toLocal())
+                                                                  : 'N/A',
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1,
+                                                      child: Center(
+                                                        child: Text(
+                                                          '${order.fullname} ${order.lastname}',
+                                                          style: TextStyle(
+                                                            fontSize: fontSize,
+                                                          ),
+                                                          maxLines: 2,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                   DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1.1,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween, 
+                                                        children: [
+                                                          Expanded(
+                                                            child: CustomTooltip(
+                                                              message:
+                                                                  '${formatAmount(order.orderTotal)} / '
+                                                                  '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
+                                                                  '${formatAmount(order.receivedAmount)}',
+                                                              child: Text(
+                                                                '${formatAmount(order.orderTotal)} / '
+                                                                '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
+                                                                '${formatAmount(order.receivedAmount)}',
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow
+                                                                    .ellipsis,
+                                                                style: TextStyle(
+                                                                  fontSize:
+                                                                      fontSize,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                         
+                                                          if (order.paymentStatus != 0) ...[
+                                                            PaymentHistoryButton(
+                                                                orderId: order.orderId)
+                                                          ],
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // DataCell(
+                                                  //   SizedBox(
+                                                  //     width: flexWidth * 1,
+                                                  //     child: Center(
+                                                  //       child: Text(
+                                                  //         formatAmount(
+                                                  //             order.orderTotal),
+                                                  //         maxLines: 1,
+                                                  //         style: TextStyle(
+                                                  //           fontSize: fontSize,
+                                                  //         ),
+                                                  //       ),
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 0.9,
+                                                      child: InkWell(
+                                                        onTap: () async {
+                                                          bool isOnline =
+                                                              await ConnectivityService()
+                                                                  .isOnline();
+                                                          order.invoiceId !=
+                                                                      "" ||
+                                                                  order.invoiceId !=
+                                                                      null
+                                                              ? {
+                                                                  if (isOnline)
+                                                                    {
+                                                                      showDialog(
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (context) {
+                                                                          return InvoicePreview(
+                                                                              orderId: order.orderId);
+                                                                        },
+                                                                      )
+                                                                    }
+                                                                  else
+                                                                    {
+                                                                      showCustomToastDisplay(
+                                                                          context,
+                                                                          "You are Offline!",
+                                                                          red,
+                                                                          Icons
+                                                                              .warning),
+                                                                    }
+                                                                }
+                                                              : null;
+                                                        },
+                                                        child: Center(
+                                                          child: Text(
+                                                            order.invoiceId
+                                                                .toString(),
+                                                            style: TextStyle(
+                                                                color:
+                                                                    primaryColor,
+                                                                fontSize:
+                                                                    fontSize,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1.1,
+                                                      child: Center(
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color:
+                                                                order.paymentStatus ==
+                                                                        0
+                                                                    ? Colors.red
+                                                                    : Colors
+                                                                        .green,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                                color: order.paymentStatus ==
+                                                                        0
+                                                                    ? Colors.red
+                                                                    : Colors
+                                                                        .green),
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(1.0),
+                                                            child: Icon(
+                                                                order.paymentStatus ==
+                                                                        0
+                                                                    ? Icons
+                                                                        .close
+                                                                    : Icons
+                                                                        .done,
+                                                                color: white,
+                                                                size: 14.0),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                      width: flexWidth * 1.1,
+                                                      child: Center(
+                                                        child: Container(
+                                                          clipBehavior:
+                                                              Clip.antiAlias,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color: Color(
+                                                                0xffffdbb8),
+                                                            borderRadius:
+                                                                BorderRadius.all(
+                                                                    Radius.circular(
+                                                                        15.0)),
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        0.0,
+                                                                    vertical:
+                                                                        0.0),
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      vertical:
+                                                                          6,
+                                                                      horizontal:
+                                                                          12.0),
+                                                                  child: Text(
+                                                                    getStatusName(
+                                                                        order
+                                                                            .orderStatus),
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            fontSize,
+                                                                        fontWeight:
+                                                                            FontWeight.w600),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                  ),
+                                                                ),
+                                                                if (order.orderStatus ==
+                                                                        2 &&
+                                                                    order.deliveryDate !=
+                                                                        null) ...[
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        horizontal:
+                                                                            8.0),
+                                                                    child: Text(
+                                                                      NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order
+                                                                          .deliveryDate!
+                                                                          .toIso8601String())),
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      maxLines:
+                                                                          2,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            fontSize -
+                                                                                2,
+                                                                        fontWeight:
+                                                                            FontWeight.w400,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                                if (order
+                                                                        .orderStatus ==
+                                                                    14) ...[
+                                                                  const SizedBox(
+                                                                      height:
+                                                                          5),
+                                                                  Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child: Container(
+                                                                            color: Colors.blue,
+                                                                            child: const Center(
+                                                                              child: Text(
+                                                                                'Quick Sale',
+                                                                                style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
+                                                                              ),
+                                                                            )),
+                                                                      ),
+                                                                    ],
+                                                                  )
+                                                                ]
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const DataCell(Text('')),
+                                                ],
+                                              );
+                                            }).toList(),
+                                    ),
                                   ),
                                 ),
                               ),
-                              Row(
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _scrollController3,
+                                child: SizedBox(
+                                  width: isPhonePortrait(context)
+                                      ? fullScreenWidth(context) * 2.3
+                                      : fullScreenWidth(context) > 640
+                                          ? fullScreenWidth(context) * 1
+                                          : fullScreenWidth(context) * 1,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: DataTable(
+                                            dataRowHeight: 0,
+                                            headingRowHeight: 30,
+                                            headingRowColor:
+                                                const WidgetStatePropertyAll(
+                                                    primaryColor),
+                                            columnSpacing: 10,
+                                            headingTextStyle: TextStyle(
+                                                fontSize: fontSize + 2,
+                                                color: white,
+                                                fontWeight: FontWeight.w700),
+                                            columns: [
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1.5,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 0.9,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1,
+                                                child: const Center(
+                                                  child: Text(
+                                                    'Total',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1,
+                                                child: Center(
+                                                  child: Text(
+                                                    formatAmount(filteredOrders
+                                                        .fold<double>(
+                                                      0.0,
+                                                      (sum, order) =>
+                                                          sum +
+                                                          (order.orderTotal),
+                                                    )),
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 0.9,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1.1,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              DataColumn(
+                                                  label: SizedBox(
+                                                width: flexWidth * 1.2,
+                                                child: const Center(
+                                                  child: Text(
+                                                    '',
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              )),
+                                              const DataColumn(
+                                                  label: Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    '',
+                                                  ),
+                                                ),
+                                              )),
+                                            ],
+                                            rows: [
+                                              DataRow(
+                                                cells: [
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.5),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 0.9),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 0.9),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.1),
+                                                  ),
+                                                  DataCell(
+                                                    SizedBox(
+                                                        width: flexWidth * 1.1),
+                                                  ),
+                                                  const DataCell(Text('')),
+                                                ],
+                                              ),
+                                            ]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _scrollController2,
+                            child: SizedBox(
+                              width: isPhonePortrait(context)
+                                  ? fullScreenWidth(context) * 2.3
+                                  : fullScreenWidth(context) > 640
+                                      ? fullScreenWidth(context) * 1
+                                      : fullScreenWidth(context) * 1,
+                              child: Row(
                                 children: [
                                   Expanded(
                                     child: DataTable(
                                         dataRowHeight: 0,
-                                        headingRowHeight: 30,
+                                        headingRowHeight:
+                                            fullScreenWidth(context) > 740
+                                                ? 45
+                                                : 75,
                                         headingRowColor:
                                             const WidgetStatePropertyAll(
                                                 primaryColor),
                                         columnSpacing: 10,
                                         headingTextStyle: TextStyle(
-                                            fontSize: fontSize + 2,
+                                            fontSize: fontSize + 1,
                                             color: white,
                                             fontWeight: FontWeight.w700),
                                         columns: [
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.5,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Customer List',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 0.9,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                            //  width: flexWidth * 0.9,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Order No.',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Created',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1,
-                                            child: const Center(
-                                              child: Text(
-                                                'Total',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Created By',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1,
-                                            child: Center(
-                                              child: Text(
-                                                formatAmount(
-                                                    filteredOrders.fold<double>(
-                                                  0.0,
-                                                  (sum, order) =>
-                                                      sum + (order.orderTotal),
-                                                )),
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Amount',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 0.9,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Invoice',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.1,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Payment Status',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                              label: SizedBox(
-                                            width: flexWidth * 1.2,
-                                            child: const Center(
-                                              child: Text(
-                                                '',
-                                                maxLines: 2,
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Status',
+                                                  maxLines: 2,
+                                                ),
                                               ),
                                             ),
                                           )),
@@ -4295,17 +4323,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1.5),
                                               ),
                                               DataCell(
+                                                SizedBox(width: flexWidth * 0.9),
+                                              ),
+                                              DataCell(
                                                 SizedBox(
-                                                    width: flexWidth * 0.9),
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 1),
+                                                SizedBox(
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
+                                                SizedBox(
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
                                                 SizedBox(
@@ -4326,137 +4356,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: DataTable(
-                                    dataRowHeight: fontSize * 5.5,
-                                    headingRowHeight: 45,
-                                    headingRowColor:
-                                        const WidgetStatePropertyAll(
-                                            primaryColor),
-                                    columnSpacing: 10,
-                                    headingTextStyle: TextStyle(
-                                        fontSize: fontSize + 1,
-                                        color: white,
-                                        fontWeight: FontWeight.w700),
-                                    columns: const [
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Customer List',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Order No.',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Created',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Created By',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Amount',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Invoice',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Payment Status',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            'Status',
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                      )),
-                                      DataColumn(
-                                          label: Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            '',
-                                          ),
-                                        ),
-                                      )),
-                                    ],
-                                    rows: [
-                                      DataRow(
-                                        cells: [
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.5),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 0.9),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 0.9),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.1),
-                                          ),
-                                          DataCell(
-                                            SizedBox(width: flexWidth * 1.1),
-                                          ),
-                                          const DataCell(Text('')),
-                                        ],
-                                      ),
-                                    ]),
-                              ),
-                            ],
+                            ),
                           ),
                           Positioned(
                             top: 0,
@@ -4531,13 +4431,17 @@ Widget _buildDataCell(String count, String amount, Color color, bool isCenter) {
             fontSize: 11,
             color: Colors.white,
             fontWeight: FontWeight.bold,
+          
           ),
         ),
       ),
       const SizedBox(width: 4),
-      CustomText(
-        content: formatAmount(amount),
-        fontSize: 12,
+      Flexible(
+        child: CustomText(
+          content: formatAmount(amount),
+          fontSize: 12,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     ],
   );

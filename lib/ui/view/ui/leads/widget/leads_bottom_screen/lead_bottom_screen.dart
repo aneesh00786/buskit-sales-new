@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -46,9 +47,11 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     double fixedRowHeight = isLandscape
-        ? MediaQuery.of(context).size.height / 10.09
+        ? isTablet(context)
+            ? MediaQuery.of(context).size.height / 10.09
+            : MediaQuery.of(context).size.height / 5.09
         : MediaQuery.of(context).size.height / 10 -
-            MediaQuery.of(context).size.height * 0.018;
+            MediaQuery.of(context).size.height * 0.024;
 
     return MyCommnonContainer(
       padding: EdgeInsets.zero,
@@ -110,7 +113,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                       return Container(
                         height: fixedRowHeight,
                         decoration: BoxDecoration(
-                          color: index.isEven ? Colors.grey[50] : Colors.white,
+                         color: index.isEven ? Colors.grey[50] : Color.fromARGB(255, 255, 255, 255),
+                          
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -177,7 +181,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 Container(
                   padding: const EdgeInsets.all(3),
                   height: 50,
-                  color: Colors.grey[200],
+                  color: const Color.fromARGB(255, 238, 238, 238),
                   child: Row(
                     children: [LeadsBottomPaginationWidget(), const Spacer()],
                   ),

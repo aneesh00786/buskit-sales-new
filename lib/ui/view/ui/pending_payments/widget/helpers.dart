@@ -9,7 +9,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pendin
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -59,8 +58,15 @@ Widget buildHeader(
                   child: SingleChildScrollView(
                     controller: headerScrollController,
                     scrollDirection: Axis.horizontal,
+                    primary: false,
                     child: SizedBox(
-                      width: fullScreenWidth(context) * 0.9,
+                      width: (isTabletOrPhoneLandscape(context))
+                          ? fullScreenWidth(context) > 650
+                              ? fullScreenWidth(context) * 1
+                              : fullScreenWidth(context) > 720
+                                  ? fullScreenWidth(context)
+                                  : fullScreenWidth(context) * 1.2
+                          : fullScreenWidth(context) * 2,
                       child: Column(
                         children: [
                           Expanded(
@@ -186,9 +192,16 @@ Widget buildOrderList(
                 trackVisibility: true,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
+                  primary: false,
                   controller: orderScrollController,
                   child: SizedBox(
-                    width: fullScreenWidth(context) * 0.9,
+                    width: (isTabletOrPhoneLandscape(context))
+                        ? fullScreenWidth(context) > 650
+                            ? fullScreenWidth(context) * 1
+                            : fullScreenWidth(context) > 720
+                                ? fullScreenWidth(context)
+                                : fullScreenWidth(context) * 1.2
+                        : fullScreenWidth(context) * 2,
                     child: ListView.builder(
                       itemCount: orderController.orderDataList.length + 1,
                       itemBuilder: (context, index) {
@@ -453,9 +466,10 @@ Widget _buildPaymentCollectionButton(
     child: InkResponse(
       onTap: () {
         if (subscriptionController.appPaymentCollection.value == "true") {
-          log('Collect Pyament ${subscriptionController.appPaymentCollection.value}');
+          
           pendingPaymentCollectionDialog(context, customerData.customerId);
-        } else {
+        }
+         else {
           showUpgradePlanDialog(context);
         }
       },

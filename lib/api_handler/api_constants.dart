@@ -1,24 +1,18 @@
 mixin class ApiConstants {
-  static const String baseUrl = "https://test.thrivewoo.com/";
   static const String baseUrl1 = "https://test.thrivewoo.com";
+  static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
-
-  /// Login APi END Point
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
-
-  /// Image API end
   static const String prooduct = "product";
   static const String customer = "customer";
-
   static const String dashboardList = "dashboard_list";
   static const String customerRevenue = "customer_Revenue";
   static const String fetchOrderByRange = "fetch_orderByRange";
   static const String fetchValuePerformance = "fetchValuePerformance";
-  static const String fetchSalesmanTargetByCategory =
-      "fetch_SalesmanTargetByCatId";
+  static const String fetchSalesmanTargetByCategory = "fetch_SalesmanTargetByCatId";
   static const String getDashboardList = "Get_dashboard_list";
   static const String searchCustomer = "search_customer";
   static const String deletCustomer = "delete_customer";
@@ -63,22 +57,14 @@ mixin class ApiConstants {
   static const String sendVerificationMail = "sendVerificationMail";
   static const String insertadmin = "insertadmin";
   static const String sendInvoice = "send-invoice";
-
-  /// Category Api END Point
   static const String fetchcategories = "fetch_categories";
-
-  /// Product Api
   static const String fetchproduct = "fetch_product";
   static const String updateCheckinCustomer = "Update_checkin_customer";
-
-  /// Leads Api
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
   static const String updateCustomer = "update_customer";
   static const String fetchSalesmanTarget = "fetch_salesmanTarget";
   static const String fetchLeadsCustomer = "fetch_leads_customer";
-
-  /// CALENDAR API
   static const String scheduleCustomer = "schedule_customer";
   static const String fetchScheduleCustomer = "fetch_schedule_customer";
   static const String updateEvenets = "update_events";
@@ -86,21 +72,14 @@ mixin class ApiConstants {
   static const String fetchOnlyCustomerData = "fetch_only_customer_data";
   static const String scheduleVisit = "ScheduleVisit";
   static const String deductCreditRoute = "DeductCreditRoute";
-
-  /// ORDER API
   static const String fetchOrder = "fetch_order";
   static const String fetchAllOrder = "fetch_all_order";
-
-  /// PENDING  PAYMENT API
   static const String fetchPendingPayments = "fetch_pending_payments";
   static const String getAllPendingPaymentIndividuals =
       "get_all_pending_payment_individual";
-  // DUMMY IMAGE URL
   static const String dummyImageUrl =
       "https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg";
-  // GOOGLE MAP API KEY
   static const String kGoogleApiKey = "AIzaSyC8E9zV-5yGKWKqeBuIicx2Ma40cnXJsoc";
-  // GOOGLE MAP API'S
   static const String mapBaseUrl = "https://maps.gomaps.pro/maps/api/";
   static const String gmapBaseUrl = "https://maps.googleapis.com/maps/api/";
   static const String navmapBaseUrl = "https://www.google.com/maps/";
@@ -110,19 +89,16 @@ mixin class ApiConstants {
   static const String distanceMatrix = "distancematrix/json";
   static const String recentOrderCount = "recent_order_count";
   static const String ordersCountGet = "orders_count_get";
-  static const String getRecentOrder = "get_recent_orders";
+  static const String getRecentOrder = "get_delivered_orders";
   static const String orderProcessInvoice = "order_process_invoice";
   static const String waitingForApproval = "waiting_for_approvel";
-  static const String localHost = 'https://test.thrivewoo.com/';
-  //PERFORMANCE
+  static const String localHost = baseUrl;
   static const String fetchSchedule = "fetch_schedule";
   static const String getWeekelyType = "get_weekly_type";
   static const String fetchSalesmanValueTarget = "fetch_SalesmanValueTarget";
   static const String getStaffTimeSheet = "get_StaffTimesheet";
   static const String updateValueBasedTargetValue =
       "Update_ValueBasedtargetValue";
-
-  /// SUBSCRIBTION API
   static const String getSubscribedPlan = "get_subscribed_plan";
   static const String getPlanDetiails = "get_plan_detiails";
   static const String userVerification = "user_verification";
@@ -132,12 +108,30 @@ mixin class ApiConstants {
   static const String getRegisteredAddressAdmin =
       "get_registered_address_admin";
   static const String createPaypalAuth = "create-paypal-auth";
-
   static const String showRoute = "show-route";
   static const String fetchCategories = "fetch_categories";
+  static const String getPromoCategories = "get-promo-categories";
   static const String fetchProduct = "fetch_product";
-
+  static const String promotions = "webStore-promo";
   static const String getLeadForUpdating = "get_lead_for_updating";
   static const String customerPayment = "customer_payment";
   static const String getProductFrequency = "get_product_frequency";
+  static const String fetchProductByBrand = "fetch_product_by_brand";
+  static const String getReturnOrderDetails = "order_process_invoice";
+  static const String createSalesReturn = "create_sales_return";
+  static const String SearchInvoice = "SearchInvoice";
+  static const String imagePath = '/uploads/setting/1739620175980.jpg';
+  static const String imageEndpoint = '$baseUrl$imagePath';
+  static const String GetPendingReturnsForCart = '/get_pending_returns_for_cart';
+  static const String getVolumes = "get-volumes";
+  static const String fetchSalesmanOfCustomer = "fetch_salesman_of_customer";
+  static const String getRecentOrdersData = "get_recent_orders";
+  static const String orderAcceptDirect = "order_accept_direct";
+  static const String orderReject = "order_reject";
+  static const String addInvoice = "add_invoice";
+  static const String orderDelivered = "order_delivered";
+  static const String staffDiscount = "staff_discount";
+  static const String updatedeliveryaddress = "update-delivery-address";
+  static const String visitReport = "visit_report";
+  static const String getEvents = "get_events";
 }

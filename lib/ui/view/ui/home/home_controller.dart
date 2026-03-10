@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
@@ -9,15 +8,18 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/performance.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/products_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/sales_return.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -48,9 +50,7 @@ class HomeController extends GetxController {
         .fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
     SessionHelper().getLoginData().then((value) {
       userDetails = value;
-      log('User details assigned in onInit: $value');
     }).catchError((error) {
-      log('Error fetching user details in onInit: $error');
     });
   }
 
@@ -74,8 +74,14 @@ class HomeController extends GetxController {
         await Future.delayed(const Duration(milliseconds: 500));
         _handleTokenExpiration();
       }
-      log('Error fetching dashboard data: $e');
     }
+  }
+
+  // Shared check-in function that can be called from anywhere
+  Future<void> performCheckIn(BuildContext context) async {
+    // This will be implemented to call the same logic as the sidebar
+    // For now, we'll trigger the sidebar's check-in logic
+    // The actual implementation will be in the sidebar component
   }
 
   void _handleTokenExpiration() async {
@@ -134,13 +140,6 @@ class HomeController extends GetxController {
           transition: Transition.leftToRightWithFade,
           page: () => const LeadsScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.performance &&
-        sidebarXController.selectedIndex == 6) {
-      return GetPageRoute(
-          settings: settings,
-          transition: Transition.leftToRightWithFade,
-          page: () => const PerformanceScreen(),
-          binding: CommonBinding());
     } else if (settings.name == AppRoutes.calender &&
         sidebarXController.selectedIndex == 5) {
       return GetPageRoute(
@@ -148,7 +147,18 @@ class HomeController extends GetxController {
           settings: settings,
           page: () => const CalenderScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.ordersScreen &&
+    } 
+     else if  (settings.name == AppRoutes.salesReturn &&
+        sidebarXController.selectedIndex == 6) {
+      return GetPageRoute(
+        transition: Transition.leftToRightWithFade,
+        settings: settings,
+        page: () => const SalesReturn(),
+        binding: CommonBinding(),
+      );
+    }
+  
+    else if (settings.name == AppRoutes.ordersScreen &&
         sidebarXController.selectedIndex == 7) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
@@ -156,8 +166,19 @@ class HomeController extends GetxController {
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    } else if (settings.name == AppRoutes.settings &&
+    } 
+       else if (settings.name == AppRoutes.performance &&
         sidebarXController.selectedIndex == 8) {
+      return GetPageRoute(
+          settings: settings,
+          transition: Transition.leftToRightWithFade,
+          page: () => const PerformanceScreen(),
+          binding: CommonBinding());
+    }
+   
+   
+    else if (settings.name == AppRoutes.settings &&
+        sidebarXController.selectedIndex == 9) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
@@ -170,34 +191,58 @@ class HomeController extends GetxController {
 
   changePageRouting() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_isDisposed) return;
+      // if (_isDisposed) return;
 
-      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0) {
+      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0 &&  selectedIndex.value != -2) {
         Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 1 &&
           selectedIndex.value != 1) {
         Get.offNamed(AppRoutes.customersAndOrders, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 2 &&
           selectedIndex.value != 2) {
         Get.offNamed(AppRoutes.product, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 3 &&
           selectedIndex.value != 3) {
         Get.offNamed(AppRoutes.pendingPayment, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 4 &&
           selectedIndex.value != 4) {
         Get.offNamed(AppRoutes.leads, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
         Get.offNamed(AppRoutes.calender, id: 2);
-      } else if (sidebarXController.selectedIndex == 6 &&
-          selectedIndex.value != 6) {
-        Get.offNamed(AppRoutes.performance, id: 2);
-      } else if (sidebarXController.selectedIndex == 7 &&
+         selectedIndex.value = sidebarXController.selectedIndex;
+      } 
+     
+      else if 
+      (sidebarXController.selectedIndex == 6 &&
+        selectedIndex.value != 6) {
+      Get.offNamed(AppRoutes.salesReturn, id: 2);
+       selectedIndex.value = sidebarXController.selectedIndex;
+    } 
+     else if (sidebarXController.selectedIndex == 7 &&
           selectedIndex.value != 7) {
         Get.offNamed(AppRoutes.ordersScreen, id: 2);
-      } else if (sidebarXController.selectedIndex == 8 &&
+         selectedIndex.value = sidebarXController.selectedIndex;
+      } 
+      else if (sidebarXController.selectedIndex == 8 &&
           selectedIndex.value != 8) {
+        Get.offNamed(AppRoutes.performance, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
+      } 
+       
+      
+      else if (sidebarXController.selectedIndex == 9 &&
+          selectedIndex.value != 9) {
         Get.offNamed(AppRoutes.settings, id: 2);
+         selectedIndex.value = sidebarXController.selectedIndex;
+      }
+       if (selectedIndex.value == -2) {
+        selectedIndex.value = -1;
       }
       selectedIndex.value = sidebarXController.selectedIndex;
     });
@@ -208,12 +253,14 @@ class HomeController extends GetxController {
     customersAndOrders,
     products,
     pendingPayments,
-    leads,
-    performance,
+    leads, 
     calendar,
+    salesReturn,
     todayOrders,
+    performance,
     settings,
-    logOut
+    logOut,
+   
   ].obs;
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
@@ -224,10 +271,12 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[3], index:3,  EneftyIcons.moneys_bold),
       sideBarComponent(sidebarName[4], index:4,  SIdeBarIcon.ic_leads),
       sideBarComponent(sidebarName[5], index:5,  EneftyIcons.chart_square_bold),
-      sideBarComponent(sidebarName[6], index:6,  EneftyIcons.calendar_bold),
-      sideBarComponent(sidebarName[7], index:7,  EneftyIcons.shopping_cart_bold),
-      sideBarComponent(sidebarName[8], index:8,  EneftyIcons.setting_2_bold),
-      sideBarComponent(sidebarName[9], index:9,  SIdeBarIcon.ic_log_out,
+      
+      sideBarComponent(sidebarName[6], index:6,  SIdeBarIcon.ic_salesReturn),
+       sideBarComponent(sidebarName[7], index:7,  EneftyIcons.warning_2_outline),
+         sideBarComponent(sidebarName[8], index:8,  EneftyIcons.calendar_bold), 
+      sideBarComponent(sidebarName[9], index:9,  EneftyIcons.setting_2_bold),
+      sideBarComponent(sidebarName[10], index:10,  SIdeBarIcon.ic_log_out,
           context: context),
     ];
   }
@@ -254,6 +303,7 @@ class HomeController extends GetxController {
     return SidebarXItem(
       icon: iconData,
       onTap: () async {
+        print("====== SIDEBAR TAPPED! Index: $index | Title: $barTitle ======");
         homeScaffoldKey.currentState?.closeDrawer();
         if (isLogout) {
           showDialog(
@@ -261,47 +311,73 @@ class HomeController extends GetxController {
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
-                title: CustomText(content: 'Log out ?'),
-                content:
-                    CustomText(content: 'Are you sure you want to log out ?'),
+                title: Row(
+                    children: [
+                    Icon(Icons.logout, size: 25.0, color: primaryColor),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        "Logout ?",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                    content: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      "Are you sure you want to log out ?.",
+                      style: TextStyle(
+                        fontSize: 19.0,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                 actions: [
-                  TextButton(
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                        side: BorderSide(color: primaryColor, width: 2.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        backgroundColor: Colors.white,
+                        elevation: 3,
+                    ),
                     onPressed: () {
-                              Navigator.pop(context);
+                      Navigator.pop(context);
                               sidebarXController.selectIndex(previousIndex);
-                            },
-                    child: CustomText(content: 'Cancel'),
+                    },
+                    child: Text(
+                      "Cancel",
+                    style: TextStyle(
+                          fontSize: 14.0,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      // if (!_isDisposed) {
-                      //   Navigator.pop(context);
-                      //   await handleLogout(context);
-                      //   dio.interceptors.clear();
-                      //   if (!_isDisposed) {
-                      //     Get.offAllNamed(AppRoutes.login);
-                      //   }
-                      //   if (!_isDisposed) {
-                      //     Provider.of<DashboardProvider>(context, listen: false)
-                      //         .resetProvider();
-                      //     Provider.of<DashboardProvider>(context, listen: false)
-                      //         .resetFilter();
-                      //   }
-                      // }
                       await handleLogoutOnConfirmation(context);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                  style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        elevation: 4,
+                        shadowColor: primaryColor.withOpacity(0.4),
                       ),
-                    ),
                     child: CustomText(
                       content: 'Confirm',
                       color: white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w600
                     ),
                   ),
                 ],
@@ -309,6 +385,29 @@ class HomeController extends GetxController {
             },
           );
         } else {
+//          // --- OUR PREVIOUS CLEARING LOGIC ---
+//          if (index == 2) {
+//   try {
+//     final productsController = Get.find<ProductsController>();
+//     productsController.selectedCustomerId.value = '';
+//     productsController.selectedCustomerName.value = '';
+//     productsController.customerAndOrderData.update((val) {
+//       if (val != null) val.customerId = '';
+//     });
+
+//     final customerOrderController = Get.find<CustomerAndOrderController>();
+//     customerOrderController.setCustomerId('');
+//     customerOrderController.isActive.value = false;
+//   } catch (e) {
+//     print("-> Error clearing controllers: $e");
+//   }
+// }
+
+// // ✅ Add a frame delay so Obx sees the cleared value BEFORE ProductScreen rebuilds
+// WidgetsBinding.instance.addPostFrameCallback((_) {
+//   changePageRouting();
+// });
+//           // -----------------------------------
           changePageRouting();
         }
       },
@@ -319,22 +418,19 @@ class HomeController extends GetxController {
           ),
           child: Row(
             children: [
-              // Icon(
-              //   iconData,
-              //   size: 20,
-              //   color: Colors.black.withOpacity(0.7),
-              //   weight: 700,
-              // ),
+            
+
+
               SvgPicture.asset(
                 getSidebarIcon(index ?? 0),
                 // 'assets/new_icons/ic_user.svg',
-                height: index == 8 || index == 9 ? 30 : 24,
-                width: index == 8 || index == 9 ? 30 : 24,
+                height: index == 9 || index == 10 ? 30 : 24,
+                width: index == 9 || index == 10 ? 30 : 24,
                 color: sidebarXController.selectedIndex == index
-                    ? index == 8 || index == 9
+                    ? index == 9 || index == 10
                         ? null
                         : primaryColor
-                    : index == 8 || index == 9
+                    : index == 9 || index == 10
                         ? null
                         : Colors.grey,
               ),
@@ -435,69 +531,6 @@ class HomeController extends GetxController {
   }
 }
 
-// Future<void> handleLogout(BuildContext context) async {
-//   await SessionManager.clearData();
-//   await SessionHelper().clearSettingsData();
-//   await SessionHelper().clearAll();
-//   await CartDatabaseManager().clearCompleteCart();
-//   if (Hive.isBoxOpen('discounts')) {
-//     await Hive.box<CustomerDiscountModel>('discounts').clear();
-//   }
-
-//   if (Hive.isBoxOpen('cartBox')) {
-//     await Hive.box<CartItem>('cartBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('cartPreorderBox')) {
-//     await Hive.box<CartItem>('cartPreorderBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('draftBox')) {
-//     await Hive.box<CartItem>('draftBox').clear();
-//   }
-
-//   if (Hive.isBoxOpen('products')) {
-//     await Hive.box<ProductModel>('products').close();
-//   }
-//   await Hive.deleteBoxFromDisk('products');
-//   final untypedBoxNames = [
-//     'dashboardBox',
-//     'customerdashboardBox',
-//     'customerRevenueBox',
-//     'customerTotalSaleBox',
-//     'weeklyTypeBox',
-//     'customerBox',
-//     'productBox',
-//     'chatBox',
-//     'pendingPaymentBox',
-//     'performanceBox',
-//     'leadsBox',
-//     'leadsRejectBox',
-//     'ordersBox',
-//     'fetchAllOrdersBox',
-//     'settingsBox',
-//     'calendarEventsBox',
-//     'salesmanTargetBox',
-//     'salesmanValueTargetBox',
-//     'subscribtionBox',
-//     'subscribtionPlanDetailsBox',
-//   ];
-
-//   for (final boxName in untypedBoxNames) {
-//     try {
-//       if (Hive.isBoxOpen(boxName)) {
-//         await Hive.box(boxName).clear();
-//       } else {
-//         final box = await Hive.openBox(boxName);
-//         await box.clear();
-//       }
-//     } catch (e) {
-//       log("Error clearing box $boxName: $e");
-//     }
-//   }
-
-//   Get.offAllNamed(AppRoutes.login);
-// }
 
 String getSidebarIcon(int index) {
   switch (index) {
@@ -513,13 +546,15 @@ String getSidebarIcon(int index) {
       return "assets/sidebar_icons/leadicon.svg";
     case 5:
       return "assets/sidebar_icons/calendaricon.svg";
-    case 6:
-      return "assets/sidebar_icons/stafficon.svg";
-    case 7:
+      case 6:
+       return "assets/sidebar_icons/salesreturn.svg"; 
+        case 7:
       return "assets/sidebar_icons/ordericon.svg";
-    case 8:
-      return "assets/sidebar_icons/settingsicon.svg";
+       case 8:
+      return "assets/sidebar_icons/perfomanceImage.svg";
     case 9:
+      return "assets/sidebar_icons/settingsicon.svg";
+    case 10:
       return "assets/sidebar_icons/logouticon.svg";
     default:
       return "assets/sidebar_icons/ic_user.svg";

@@ -15,7 +15,7 @@ class CartController extends GetxController {
     int index = cartItems.indexWhere((item) => item.detail.id == cartItem.detail.id);
     if (index != -1 && cartItems[index].detail.count > 0) {
       cartItems[index].detail.count--;
-      update(); // Notify the UI
+      update(); 
     }
   }
 }

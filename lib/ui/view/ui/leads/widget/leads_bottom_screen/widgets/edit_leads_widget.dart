@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -127,6 +128,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
     }
 
     return Dialog(
+      insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),

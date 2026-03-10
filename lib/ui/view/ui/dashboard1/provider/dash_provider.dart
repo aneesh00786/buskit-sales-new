@@ -1,17 +1,25 @@
 // ignore_for_file: library_prefixes, empty_catches, non_constant_identifier_names
-import 'dart:developer';
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart'
     as orderResponseModel;
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -21,13 +29,14 @@ class DashboardProvider with ChangeNotifier {
   Future<ResponseModell>? _futureResponseModel;
   Future<SalesmenResponse>? _salesmenResponse;
   Future<MessagesResponse>? _individualChatResponse;
-  bool _isDraftFetched = false;
   List<String> _selectedFilterMonths = [];
   List<String> get selectedFilterMonths => _selectedFilterMonths;
   List<orderResponseModel.OrderData> _chartOrderData = [];
   List<orderResponseModel.OrderData> get chartOrderData => _chartOrderData;
   List<TargetDatum> _salesmanTargetByCategory = [];
   List<TargetDatum> get salesmanTargetByCategory => _salesmanTargetByCategory;
+  StreamSubscription? _connectivitySubscription;
+  final Dio _dio = Dio();
   void updateSelectedMonths(List<String> months) {
     _selectedFilterMonths = months;
     notifyListeners();
@@ -72,6 +81,54 @@ class DashboardProvider with ChangeNotifier {
     fetchData();
     fetchChatData(SessionHelper.loginSavedData?.salesmanId ?? '');
     fetchSalesmanData();
+    _startOfflineSyncListener();
+  }
+  void _startOfflineSyncListener() {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) async {
+      // Check if any result indicates a connection (mobile or wifi)
+      bool isConnected = results.contains(ConnectivityResult.mobile) || 
+                         results.contains(ConnectivityResult.wifi);
+
+      if (isConnected) {
+        await _processOfflineQueue();
+      }
+    });
+  }
+  Future<void> _processOfflineQueue() async {
+    if (!Hive.isBoxOpen('offlineRequests')) await Hive.openBox('offlineRequests');
+    var box = Hive.box('offlineRequests');
+
+    if (box.isEmpty) return;
+
+    print("🌐 Online detected. Processing ${box.length} offline payments...");
+
+    // Iterate through a copy of keys to avoid modification errors
+    final keys = box.keys.toList();
+    
+    for (var key in keys) {
+      try {
+        final request = box.get(key);
+        if (request == null) continue;
+
+        final payload = request['payload'];
+        final url = request['url'];
+
+        // Send API Request
+        final response = await _dio.post(url, data: payload);
+
+        if (response.statusCode == 200) {
+          // Success: Remove from Hive
+          await box.delete(key);
+          print("✅ Offline payment synced for Order: ${payload['order_id']}");
+        }
+      } catch (e) {
+        print("❌ Failed to sync payment: $e");
+        // Keep in box to try again later
+      }
+    }
+    
+    // Refresh UI to remove Info icons
+    notifyListeners(); 
   }
 
   OrderStatus selectedOrderStatus = OrderStatus.preOrder;
@@ -110,70 +167,151 @@ class DashboardProvider with ChangeNotifier {
     _selectedEndDate = '';
   }
 
-  void resetFilter() {
+  final List<String> months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+
+  void resetFilter() async {
     _selectedFilter = FilterDateEnum.thisMonth;
     _selectedFilterTemp = FilterDateEnum.thisMonth;
     _selectedFilterName = "Month";
     _selectedFilterNameTemp = "Month";
     _selectedStartDate = '';
     _selectedEndDate = '';
+    _selectedFilterMonths = [months[DateTime.now().month - 1]];
+    _selectedFilterWeeks = [
+      "week${((DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays) ~/ 7) + 1}"
+    ];
+    _selectedYear = DateTime.now().year;
+
+    await fetchAllOrdersAtOnce();
   }
+
 
   Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
-    try {
-      _responseModelCp = Future.delayed(const Duration(milliseconds: 300), () {
-        return _apiService.fetchDashboardCategoruPerformenceData(
-          catId: catId,
-          startDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
-          endDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
-          fetchType: _selectedFilterName,
-          selectedDay:
-              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
-          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
-              ? _selectedFilterMonths
-              : [],
-          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
-              ? _selectedFilterWeeks
-              : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
-        );
-      });
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-      rethrow;
+  try {
+    // 1. Determine the correct fetchType string based on your filter
+    String fetchType = _selectedFilterName; 
+    
+    // If your _selectedFilterName is "Year" (capitalized) in the UI, 
+    // force it to lowercase "year" for the API payload requirement.
+    if (_selectedFilter == FilterDateEnum.thisYear) {
+      fetchType = "year"; 
     }
-  }
 
-  Future<void> fetchchartValuePerformance(
-      String month, String timeRange) async {
-    try {
-      _responseModelNewCp =
-          Future.delayed(const Duration(milliseconds: 300), () {
-        return _apiService.fetchDashboardValuePerformanceData(
-          catId: month,
-          startDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
-          endDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
-          fetchType: _selectedFilterName,
-          selectedDay:
-              _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
-          selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
-              ? _selectedFilterMonths
-              : [],
-          selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
-              ? _selectedFilterWeeks
-              : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
-        );
-      });
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
-      rethrow;
-    }
+    // 2. Ensure we have a valid year integer to send
+    // Use _selectedYear if available, otherwise fallback to current year
+    int yearToSend = _selectedYear != 0 ? _selectedYear : DateTime.now().year;
+
+    _responseModelCp = Future.delayed(const Duration(milliseconds: 300), () {
+      return _apiService.fetchDashboardCategoruPerformenceData(
+        catId: catId,
+        fetchType: fetchType,
+        year: yearToSend, // Pass the integer year
+        
+        // Pass specific data based on filter
+        startDate: _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+        endDate: _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+        selectedDay: _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+        selectedMonths: _selectedFilter == FilterDateEnum.thisMonth ? _selectedFilterMonths : [],
+        selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek ? _selectedFilterWeeks : [],
+      );
+    });
+    
+    notifyListeners(); // Important to update UI after assigning the Future
+    
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+    rethrow;
   }
+}
+
+  // Future<void> fetchchartCategoryPerformmenc(dynamic catId) async {
+  //   try {
+  //     _responseModelCp = Future.delayed(const Duration(milliseconds: 300), () {
+  //       return _apiService.fetchDashboardCategoruPerformenceData(
+  //         catId: catId,
+  //         startDate:
+  //             _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+  //         endDate:
+  //             _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+  //         fetchType: _selectedFilterName,
+  //         selectedDay:
+  //             _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+  //         selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+  //             ? _selectedFilterMonths
+  //             : [],
+  //         selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+  //             ? _selectedFilterWeeks
+  //             : [],
+  //         year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+  //       );
+  //     });
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
+
+    Future<void> fetchchartValuePerformance(String month, String timeRange) async {
+  try {
+    _responseModelNewCp =
+        Future.delayed(const Duration(milliseconds: 300), () {
+      return _apiService.fetchDashboardValuePerformanceData(
+        month: month,
+        timeRange: timeRange, 
+        // Assuming _selectedYear is your filter variable (2025)
+        selectedRange: _selectedYear.toString(), 
+        // Assuming you want the current system year for the 'year' param (2026)
+        year: DateTime.now().year, 
+      );
+    });
+    // notifyListeners(); // Uncomment if you need to trigger UI rebuilds elsewhere
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+    rethrow;
+  }
+}
+
+  // Future<void> fetchchartValuePerformance(
+  //     String month, String timeRange) async {
+  //   try {
+  //     _responseModelNewCp =
+  //         Future.delayed(const Duration(milliseconds: 300), () {
+  //       return _apiService.fetchDashboardValuePerformanceData(
+  //         catId: month,
+  //         startDate:
+  //             _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+  //         endDate:
+  //             _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
+  //         fetchType: _selectedFilterName,
+  //         selectedDay:
+  //             _selectedFilter == FilterDateEnum.today ? _selectedDate : '',
+  //         selectedMonths: _selectedFilter == FilterDateEnum.thisMonth
+  //             ? _selectedFilterMonths
+  //             : [],
+  //         selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
+  //             ? _selectedFilterWeeks
+  //             : [],
+  //         year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+  //       );
+  //     });
+  //   } catch (e, stackTrace) {
+  //     _logger.e('Error fetching orders', error: e, stackTrace: stackTrace);
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> fetchChartOrderData(
       String salesmanId, dynamic categoryId) async {
@@ -232,7 +370,6 @@ class DashboardProvider with ChangeNotifier {
         );
       });
 
-      log("Response: $_salesmanTargetByCategory");
     } catch (e, stackTrace) {
       _logger.e('Error fetching salesman targets',
           error: e, stackTrace: stackTrace);
@@ -310,7 +447,7 @@ class DashboardProvider with ChangeNotifier {
         _selectedFilterNameTemp = "Week";
         break;
       case FilterDateEnum.thisYear:
-        _selectedFilterNameTemp = "Year";
+        _selectedFilterNameTemp = "year";
         break;
       case FilterDateEnum.thisMonth:
         _selectedFilterNameTemp = "Month";
@@ -323,7 +460,6 @@ class DashboardProvider with ChangeNotifier {
         break;
     }
 
-    log('on filter changed');
     if (selectedFilterTemp != null) {
       _selectedFilterTemp = selectedFilterTemp;
       notifyListeners();
@@ -351,7 +487,6 @@ class DashboardProvider with ChangeNotifier {
   }
 
   Future<void> fetchAllOrdersAtOnce() async {
-    log("fetchAllOrdersAtOnce");
     await fetchOrdersData(OrderStatus.delivered, checkDate: true);
     await fetchOrdersData(OrderStatus.estimates, checkDate: true);
     await fetchOrdersData(OrderStatus.estimates, checkDate: false);
@@ -361,23 +496,30 @@ class DashboardProvider with ChangeNotifier {
     await fetchOrdersData(OrderStatus.cancelled, checkDate: true);
   }
 
-  Future<void> fetchData() async {
-    NotificationController notificationController =
-        Get.find<NotificationController>();
-    final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
 
-    try {
-      final now = DateTime.now();
-      String startDate =
-          DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
-      String endDate = DateTime(now.year, now.month + 1, 0)
-          .toIso8601String()
-          .substring(0, 10);
-      _futureResponseModel = Future.delayed(const Duration(seconds: 2), () {
-        return _apiService.fetchDashboardData(
-          fetchType: _selectedFilterName,
-          startDate:
-              _selectedFilter == FilterDateEnum.range ? _selectedStartDate : '',
+  Future<void> fetchData() async {
+  NotificationController notificationController =
+      Get.find<NotificationController>();
+  final jsonString = await SessionManager.getStringValue(SpString.spLogin);
+  jsonDecode(jsonString);
+  
+  if (_dataFetched) return;
+  
+  try {
+    bool isOnline = await ConnectivityService().isOnline();
+    if (isOnline) {
+      _futureResponseModel =
+          Future.delayed(const Duration(seconds: 2), () async {
+        
+        // Use the selected year, or default to current year. 
+        // Do NOT send 0, as the payload always requires a valid year (e.g., 2026).
+        int yearToSend = _selectedYear != 0 ? _selectedYear : DateTime.now().year;
+
+        final api = await _apiService.fetchDashboardData(
+          fetchType: _selectedFilterName, // "Month", "Week", "Year", etc.
+          startDate: _selectedFilter == FilterDateEnum.range
+              ? _selectedStartDate
+              : '',
           endDate:
               _selectedFilter == FilterDateEnum.range ? _selectedEndDate : '',
           selectedDay:
@@ -388,22 +530,73 @@ class DashboardProvider with ChangeNotifier {
           selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
               ? _selectedFilterWeeks
               : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
-          salesmanId: salesmanId,
+          year: yearToSend, // Updated to send the actual year
         );
+        
+        // Save to Hive after successful fetch
+        try {
+          final dashboardBox = Hive.box('dashboardBox');
+          final apiJson = api.toJson();
+          dashboardBox.put('dashboardData', jsonEncode(apiJson));
+        } catch (e) {
+          _logger.e('Error saving dashboard data to Hive', error: e);
+        }
+        return api;
       });
-
-      notificationController.loadNotificationData(startDate, endDate);
-      if (!_isDraftFetched) {
-        await CartDatabaseManager().getDraftItems();
-        _isDraftFetched = true;
-      }
-      notifyListeners();
-    } catch (e, stackTrace) {
-      _logger.e('Error fetching data', error: e, stackTrace: stackTrace);
-      rethrow;
+    } else {
+      // ... (Your existing Offline Logic remains unchanged) ...
+       try {
+          final dashboardBox = Hive.box('dashboardBox');
+          final cachedData = dashboardBox.get('dashboardData');
+          if (cachedData != null) {
+            dynamic decodedData = cachedData;
+            if (cachedData is String) {
+              try {
+                decodedData = jsonDecode(cachedData);
+              } catch (e) {
+                decodedData = {};
+              }
+            }
+            Map<String, dynamic> safeMap = ensureStringKeyedMap(decodedData);
+            final responseModel = ResponseModell.fromJson(safeMap);
+            _futureResponseModel = Future.value(responseModel);
+          } else {
+            NkCommonFunction.showErrorSnakBar(
+                'No offline dashboard data available. Please connect to the internet at least once.');
+            _futureResponseModel = Future.value(ResponseModell(
+              statusCode: 200,
+              status: false,
+              message: 'No offline data available',
+              allCategory: [],
+              categoryPerformance: [],
+              monthlyPerformance: [],
+            ));
+          }
+        } catch (e) {
+          _logger.e('Error loading dashboard data from Hive', error: e);
+          NkCommonFunction.showErrorSnakBar(
+              'Error loading offline dashboard data. Please connect to the internet.');
+          _futureResponseModel = Future.value(ResponseModell(
+            statusCode: 200,
+            status: false,
+            message: 'Error loading offline data',
+            allCategory: [],
+            categoryPerformance: [],
+            monthlyPerformance: [],
+          ));
+        }
     }
+    
+    if (_selectedFilter != FilterDateEnum.range) {}
+    notificationController.loadNotificationData();
+    await CartDatabaseManager().getDraftItems();
+    notifyListeners();
+    
+  } catch (e, stackTrace) {
+    _logger.e('Error fetching data', error: e, stackTrace: stackTrace);
+    rethrow;
   }
+}
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -588,6 +781,7 @@ class DashboardProvider with ChangeNotifier {
   @override
   void dispose() {
     _scrollController.dispose();
+    _connectivitySubscription?.cancel();
     super.dispose();
   }
 }

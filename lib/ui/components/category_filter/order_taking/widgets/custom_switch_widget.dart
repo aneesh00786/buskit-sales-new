@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -66,7 +64,6 @@ class _CustomSwitchState extends State<CustomSwitch> {
         duration: const Duration(seconds: 3),
       ),
     );
-    log('Active value : $isOn');
   }
 
   Future<void> _saveCheckInOutRequestOffline({
@@ -95,9 +92,6 @@ class _CustomSwitchState extends State<CustomSwitch> {
 
   void _handleSwitchToggle(BuildContext context) async {
     bool newState = !isOn;
-
-    log("newState: $newState");
-    log("isOn: $isOn");
 
     // Show confirmation dialog
     bool? confirmAction = await showDialog<bool>(
@@ -145,7 +139,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
         final lat = position.latitude.toString();
         final long = position.longitude.toString();
         final customerId = widget.customerId;
-
+  print('customer id :$customerId');
         if (!isOnline) {
           // Save request offline and change switch state immediately
           await _saveCheckInOutRequestOffline(
@@ -190,7 +184,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
           }
         }
       } catch (e) {
-        log('Error: $e');
+      //
       } finally {
         if (mounted) {
           setState(() {
@@ -203,6 +197,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: subscriptionController.customerCheckInOut.value == "true"
           ? widget.selectedName.isNotEmpty

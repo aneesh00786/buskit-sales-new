@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -70,7 +68,7 @@ class LeadsController extends GetxController {
   ].obs;
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
-    // loadOrderData(chartIndex: newIndex);
+
   }
 
   void deleteLead(int id) {
@@ -188,7 +186,6 @@ class LeadsController extends GetxController {
     }
   }
 
-  /// Widget Section
   CustomerStatus typeToConvertStatus(int statusType) {
     switch (statusType) {
       case 1:

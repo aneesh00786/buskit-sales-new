@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -22,7 +21,6 @@ class LocalStorage {
       throw Exception('No cached data available');
     }
     try {
-      log('Fetched cached data from Hive: $cachedData');
       final castedData = castToStringDynamic(cachedData);
       if (castedData.isEmpty) {
         throw Exception('Cached data is null or improperly formatted.');
@@ -56,7 +54,6 @@ class LocalStorage {
         yearsListOfAll: yearList,
       );
     } catch (e) {
-      log('Error processing cached data: $e');
       throw Exception('Failed to parse cached data: $e');
     }
   }
@@ -106,7 +103,6 @@ class LocalStorage {
             .castToStringDynamic(Map<String, dynamic>.from(jsonString));
         return CustomerAndOrderResponce.fromJson(convertedData);
       } catch (e) {
-        log("Error converting customer data: $e");
         return null;
       }
     }
@@ -166,7 +162,6 @@ class LocalStorage {
   storedPendingPaymentData(Box<dynamic> pendingPaymentBox, String cacheKey) {
     final cachedData = pendingPaymentBox.get(cacheKey);
     if (cachedData != null) {
-      log('Cached data found: $cachedData');
       return PendingPaymentResponse.fromJson(
           LocalStorage().castToStringDynamic(cachedData));
     } else {
@@ -177,7 +172,6 @@ class LocalStorage {
   LeadResponce storedLeadsData(Box<dynamic> leadsBox, String cacheKey) {
     final cachedData = leadsBox.get(cacheKey);
     if (cachedData != null) {
-      log('Cached data found: $cachedData');
       return LeadResponce.fromJson(
           LocalStorage().castToStringDynamic(cachedData));
     } else {
@@ -188,7 +182,6 @@ class LocalStorage {
   Future<void> storeCustomerData(CustomerAndOrderResponce customerData) async {
     final box = await Hive.openBox('customerBox');
     await box.put('customerData', customerData.toJson());
-    log('Customer data stored in Hive');
   }
 
   storedSettingsData(Box<dynamic> settingsBox, String cacheKey) {
@@ -201,7 +194,6 @@ class LocalStorage {
           .toList();
       return settingsList;
     } else {
-      log("No cached settings data available.");
       errorSnackbar('No offline data available.');
     }
   }
@@ -212,7 +204,7 @@ class LocalStorage {
       final castedData = castToStringDynamic(cachedData);
       return PerformanceData.fromJson(castedData);
     } else {
-      errorSnackbar('No perfromance cached data available');
+      // errorSnackbar('No perfromance cached data available');
       return null;
     }
   }
@@ -222,17 +214,13 @@ class LocalStorage {
     try {
       var orderCountBox = await Hive.openBox('orderCountBox');
       if (orderCountBox.containsKey(cacheKey)) {
-        log('Fetching cached data for key: $cacheKey');
         final cachedData = orderCountBox.get(cacheKey);
-        log('Cached Data: $cachedData');
         final parsedData = LocalStorage().castToStringDynamic(cachedData);
         return RecentOrderCountResponse.fromJson(parsedData);
       } else {
-        log('No cached data available for key: $cacheKey');
         throw Exception('No cached data available4');
       }
     } catch (e) {
-      log('Error fetching from Hive: $e');
       throw Exception('Failed to fetch data from Hive');
     }
   }
@@ -245,7 +233,6 @@ class LocalStorage {
             .castToStringDynamic(Map<String, dynamic>.from(savedCategory));
         return CategoryModel.fromJson(convertedData);
       } catch (e) {
-        log("Error converting category data: $e");
         throw Exception('Failed to convert offline data');
       }
     } else {
@@ -280,13 +267,11 @@ class LocalStorage {
     try {
       if (weeklyTypeBox.containsKey(cacheKey)) {
         final cachedWeeklyType = weeklyTypeBox.get(cacheKey) as String?;
-        log("Weekly Type fetched from Hive345: $cachedWeeklyType");
         return cachedWeeklyType;
       } else {
-        log("No cached Weekly Type data found for key: $cacheKey");
       }
     } catch (e) {
-      log("Error accessing cached Weekly Type data: $e");
+      //
     }
   }
 
@@ -298,10 +283,9 @@ class LocalStorage {
         return SalesmanValueTargetResponse.fromJson(convertedData);
       } else {
         errorSnackbar("No salesman value target cached data available");
-        log("No cached data available for Salesman Value Target.");
       }
     } catch (e) {
-      log("Error accessing cached Salesman Value Target data: $e");
+      //
     }
   }
 
@@ -320,7 +304,6 @@ class LocalStorage {
       final Map<String, dynamic> castedData =
           (cachedData as Map<dynamic, dynamic>)
               .map((key, value) => MapEntry(key.toString(), value));
-      log('Casted data runtimeType: ${castedData.runtimeType}');
       final List<dynamic> rawData = castedData['data'] ?? [];
       final List<Messages> parsedData = rawData.map((messageJson) {
         final messageMap = (messageJson as Map<dynamic, dynamic>).map(
@@ -335,17 +318,14 @@ class LocalStorage {
         data: parsedData,
       );
     } catch (e) {
-      log('Error parsing cached data: $e');
       throw Exception('Failed to process cached data due to type mismatch.');
     }
   }
 
   storedChatData(dynamic cachedData, String cacheKey) {
     if (cachedData != null) {
-      log('Found cached data for key: $cacheKey');
       return _parseCachedChatData(cachedData);
     } else {
-      log('No cached data found for key $cacheKey.');
       throw Exception('No cached data available.');
     }
   }
@@ -407,7 +387,6 @@ class LocalStorage {
             castToStringDynamic(Map<dynamic, dynamic>.from(parsedJson));
         return mapJsonToResponseModel(safeData);
       } catch (e) {
-        log("Error parsing cached data: $e");
         await dashboardBox.delete('dashboardData');
         NkCommonFunction.showErrorSnakBar(
             'Cached data is corrupted. Please connect to the internet.');

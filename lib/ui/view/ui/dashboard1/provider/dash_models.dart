@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:intl/intl.dart';
 
@@ -10,7 +8,9 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      category: json['category'],
+      category: json['category'] is List
+          ? (json['category'].isNotEmpty ? json['category'][0] : null)
+          : json['category'],
     );
   }
 
@@ -471,6 +471,27 @@ class ResponseModell {
           ? OrderCountListt.fromJson(json['data']?['order_count_list'])
           : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status_code': statusCode,
+      'status': status,
+      'message': message,
+      'data': {
+        'all_category': allCategory?.map((e) => e.toJson()).toList(),
+        'category_performance':
+            categoryPerformance?.map((e) => e.toJson()).toList(),
+        'monthly_performance':
+            monthlyPerformance?.map((e) => e.toJson()).toList(),
+        'revenu': revenue?.toJson(),
+        'collection': collection?.toJson(),
+        'delivery': delivery?.toJson(),
+        'top_selling_product':
+            topSellingProducts?.map((e) => e.toJson()).toList() ?? [],
+        'order_count_list': orderCountList?.toJson(),
+      },
+    };
   }
 }
 
@@ -1317,9 +1338,9 @@ class PendingAmount {
   final String? businessName;
   final int? orderStatus;
   final num? orderTotal;
-  final num? receivedAmount;
+   num? receivedAmount;
   final num? receivableAmount;
-  final int? paymentStatus;
+   int? paymentStatus;
   final int? creditPeriod;
   final int? count;
   final String? percentage;
@@ -1973,6 +1994,7 @@ class OrdersDash {
   final List<Cart> cart;
   final List<CustomerDash> customer;
   final List<InvoiceDash> invoice;
+  final DateTime? generatedAt;
 
   OrdersDash({
     required this.id,
@@ -1998,6 +2020,7 @@ class OrdersDash {
     required this.cart,
     required this.customer,
     required this.invoice,
+    this.generatedAt,
   });
   OrdersDash copyWith({
     int? id,
@@ -2023,6 +2046,7 @@ class OrdersDash {
     List<Cart>? cart,
     List<CustomerDash>? customer,
     List<InvoiceDash>? invoice,
+    DateTime? generatedAt,
   }) {
     return OrdersDash(
       id: id ?? this.id,
@@ -2048,6 +2072,7 @@ class OrdersDash {
       cart: cart ?? this.cart,
       customer: customer ?? this.customer,
       invoice: invoice ?? this.invoice,
+      generatedAt: generatedAt ?? this.generatedAt,
     );
   }
 
@@ -2082,6 +2107,7 @@ class OrdersDash {
       invoice: (json['invoice'] as List? ?? [])
           .map((item) => InvoiceDash.fromJson(ensureStringKeyedMap(item)))
           .toList(),
+      generatedAt: _parseNullableDateTime(json['generated_date']),
     );
   }
   static DateTime _parseDateTime(String? dateString) {
@@ -2090,7 +2116,7 @@ class OrdersDash {
         return DateTime.parse(dateString);
       }
     } catch (e) {
-      log('Failed to parse date: $dateString, error: $e');
+      //
     }
     return DateTime(1970, 1, 1);
   }
@@ -2101,7 +2127,7 @@ class OrdersDash {
         return DateTime.parse(dateString);
       }
     } catch (e) {
-      log('Failed to parse nullable date: $dateString, error: $e');
+      //
     }
     return null;
   }
@@ -2638,6 +2664,8 @@ class SpecificOrderData {
   List<SpecificOrderCart>? cart;
   List<Invoice>? invoice;
   List<SpecificTax>? tax;
+  String? orderSource;
+  DateTime? generateAt;
 
   SpecificOrderData({
     this.id,
@@ -2694,6 +2722,8 @@ class SpecificOrderData {
     this.cart,
     this.invoice,
     this.tax,
+    this.orderSource,
+    this.generateAt,  
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -2719,7 +2749,7 @@ class SpecificOrderData {
         deliveryState: json["delivery_state"]?.toString() ?? '',
         deliveryZipcode: json["delivery_zipcode"] as int?,
         remark: json["remark"]?.toString() ?? '',
-        imageUrl: json["image_url"]?.toString() ?? '',
+        imageUrl: json["image_url"]?.toString(),
         salesmanId: json["salesman_id"]?.toString() ?? '',
         status: json["status"] as int?,
         createAt: json["create_at"] != null
@@ -2770,6 +2800,10 @@ class SpecificOrderData {
         tax: (json["tax"] as List<dynamic>?)
             ?.map((e) => SpecificTax.fromJson(e))
             .toList(),
+        orderSource: json["order_source"]?.toString(),
+        generateAt: json["generated_date"] != null
+            ? DateTime.tryParse(json["generated_date"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -2827,6 +2861,8 @@ class SpecificOrderData {
         "cart": List<dynamic>.from(cart!.map((x) => x.toJson())),
         "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
         "tax": List<dynamic>.from(tax!.map((x) => x.toJson())),
+        "order_source": orderSource,
+        "generated_date": generateAt!.toIso8601String(),
       };
 }
 
@@ -2850,7 +2886,13 @@ class SpecificOrderCart {
   int? catId;
   dynamic taxName;
   num? tax;
+  num? discountValue;
+  num? discountPer;
+  num? discount;
+  List<TaxDatum>? taxData;
   String? inclTax;
+  String? discountAmount;
+  String? unitPrice;
 
   SpecificOrderCart({
     this.id,
@@ -2872,7 +2914,13 @@ class SpecificOrderCart {
     this.catId,
     this.taxName,
     this.tax,
+    this.discountValue,
+    this.discountPer,
+    this.discount,
+    this.taxData,
     this.inclTax,
+    this.discountAmount,
+    this.unitPrice,
   });
 
   factory SpecificOrderCart.fromJson(Map<String, dynamic> json) =>
@@ -2889,14 +2937,27 @@ class SpecificOrderCart {
         totalPrice: json["total_price"],
         status: json["status"],
         orderPlaceStatus: json["order_place_status"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] != null
+            ? DateTime.tryParse(json["created_at"])
+            : null,
+        updatedAt: json["updated_at"] != null
+            ? DateTime.tryParse(json["updated_at"])
+            : null,
         variationName: json["variation_name"],
         productName: json["product_name"],
         catId: json["catId"],
         taxName: json["tax_name"],
         tax: num.tryParse(json["tax"].toString()) ?? 0,
+        discountValue: json["discount_value"],
+        discountPer: json["discount_per"],
+        discount: json["discount"],
+        taxData: json["taxData"] != null
+            ? List<TaxDatum>.from(
+                json["taxData"].map((x) => TaxDatum.fromJson(x)))
+            : [],
         inclTax: json["incl_tax"],
+        discountAmount: json["discount_amount"]?.toString(),
+        unitPrice: json["unit_price"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -2912,14 +2973,42 @@ class SpecificOrderCart {
         "total_price": totalPrice,
         "status": status,
         "order_place_status": orderPlaceStatus,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "variation_name": variationName,
         "product_name": productName,
         "catId": catId,
         "tax_name": taxName,
         "tax": tax,
+        "discount_value": discountValue,
+        "discount_per": discountPer,
+        "discount": discount,
+        "taxData": taxData != null
+            ? List<dynamic>.from(taxData!.map((x) => x.toJson()))
+            : [],
         "incl_tax": inclTax,
+        "discount_amount": discountAmount,
+        "unit_price": unitPrice,
+      };
+}
+
+class TaxDatum {
+  String taxName;
+  int tax;
+
+  TaxDatum({
+    required this.taxName,
+    required this.tax,
+  });
+
+  factory TaxDatum.fromJson(Map<String, dynamic> json) => TaxDatum(
+        taxName: json["tax_name"],
+        tax: json["tax"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "tax_name": taxName,
+        "tax": tax,
       };
 }
 

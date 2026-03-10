@@ -1,9 +1,9 @@
+// ignore_for_file: must_be_immutable
 
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class LeadTableText extends StatelessWidget {
   LeadCustomerData leadCustomerData;
   String content;

@@ -10,11 +10,14 @@ class OrdersBottomList extends StatelessWidget {
     required ScrollController scrollController2,
     required this.widget,
     required this.tabIndex,
+    required this.orderList,
+
   }) : _scrollController2 = scrollController2;
 
   final ScrollController _scrollController2;
   final OrderBottomWidget widget;
   final int tabIndex;
+  final List<OrderData> orderList;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +26,13 @@ class OrdersBottomList extends StatelessWidget {
         scrollDirection: Axis.vertical,
         physics: const ClampingScrollPhysics(),
         controller: _scrollController2,
-        itemCount: widget.orderController.orderDataList.length,
+        // itemCount: widget.orderController.orderDataList.length,
+        itemCount: orderList.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          OrderData orderData = widget.orderController.orderDataList[index];
-          if (orderData.cart == null || orderData.cart!.isEmpty) {
+          // OrderData orderData = widget.orderController.orderDataList[index];
+            OrderData orderData = orderList[index];
+          if (orderData.cart == null) {
             return Container(
               color: index.isEven ? Colors.white : Colors.grey[50],
               height:
@@ -40,6 +45,7 @@ class OrdersBottomList extends StatelessWidget {
                   Expanded(flex: 4, child: placeholderWidget()),
                   Expanded(flex: 4, child: placeholderWidget()),
                   Expanded(flex: 5, child: placeholderWidget()),
+                  Expanded(flex: 4, child: placeholderWidget()),
                   Expanded(flex: 4, child: placeholderWidget()),
                   Expanded(flex: 2, child: placeholderWidget()),
                 ],
@@ -57,14 +63,12 @@ class OrdersBottomList extends StatelessWidget {
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderNumberWidget(
-                        orderData.cart!.first, orderData, tabIndex),
+                    child: orderNumberWidget(orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderCreatedDateWidget(
-                        orderData.cart!.first, orderData, tabIndex),
+                    child: orderCreatedDateWidget(orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
@@ -74,17 +78,17 @@ class OrdersBottomList extends StatelessWidget {
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 5,
-                    child: orderPrice(orderData.cart!.first),
+                    child: orderPrice(orderData),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: paymentStatus(orderData.cart!.first),
+                    child: paymentStatus(orderData),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderStatus(orderData.cart!.first),
+                    child: orderStatus(orderData),
                   ),
                   Expanded(
                       flex: 2,
@@ -96,30 +100,28 @@ class OrdersBottomList extends StatelessWidget {
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderNumberWidget(
-                        orderData.cart!.first, orderData, tabIndex),
+                    child: orderNumberWidget(orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderCreatedDateWidget(
-                        orderData.cart!.first, orderData, tabIndex),
+                    child: orderCreatedDateWidget(orderData, tabIndex),
                   ),
                   const SizedBox(width: 5),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderPrice(orderData.cart!.first),
+                    child: orderPrice(orderData),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: paymentStatus(orderData.cart!.first),
+                    child: paymentStatus(orderData),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     flex: 4,
-                    child: orderStatus(orderData.cart!.first),
+                    child: orderStatus(orderData),
                   ),
                   Expanded(
                       flex: 2,

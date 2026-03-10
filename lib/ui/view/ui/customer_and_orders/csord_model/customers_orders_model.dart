@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:convert';
 
 import '../../dashboard1/provider/dash_models.dart';
@@ -167,20 +165,20 @@ class CustomerModelxx {
       creditPeriod: List<CreditPeriodxx>.from(
           (json['credit_period'] ?? []).map((x) => CreditPeriodxx.fromJson(x))),
       companyId: json['company_id'] ?? 0,
-      previousYearSales: json['previous_year_sales'],
-      totalSales: json['total_sales'],
-      sales: json['sales'] ?? 0,
-      salesPrice: _parseToInt(json['sales_price']),
-      delivery: json['delivery'] ?? 0,
-      deliveryPrice: json['delivery_price'],
-      payment: json['payment'] ?? 0,
-      paymentPrice: json['payment_price'],
-      estimates: json['estimates'] ?? 0,
-      estimatesPrice: json['estimates_price'],
-      preOrder: json['pre_order'] ?? 0,
-      preOrderPrice: json['pre_order_price'],
-      drafts: json['drafts'] ?? 0,
-      cancelled: json['cancelled'] ?? 0,
+     previousYearSales: _parseToNum(json['previous_year_sales']),
+      totalSales: _parseToNum(json['total_sales']), 
+      sales: _parseToNum(json['sales']) ?? 0,
+      salesPrice: _parseToNum(json['sales_price']), // Fixed: Handles "322387.225" string
+      delivery: _parseToNum(json['delivery']) ?? 0,
+      deliveryPrice: _parseToNum(json['delivery_price']),
+      payment: _parseToNum(json['payment']) ?? 0,
+      paymentPrice: _parseToNum(json['payment_price']),
+      estimates: _parseToNum(json['estimates']) ?? 0,
+      estimatesPrice: _parseToNum(json['estimates_price']),
+      preOrder: _parseToNum(json['pre_order']) ?? 0,
+      preOrderPrice: _parseToNum(json['pre_order_price']),
+      drafts: _parseToNum(json['drafts']) ?? 0,
+      cancelled: _parseToNum(json['cancelled']) ?? 0,
       salesman: List<Salesmanxx>.from(
           (json['salesman'] ?? []).map((x) => Salesmanxx.fromJson(x))),
       orderData: OrderDataxx.fromJson(json['order_data'] ?? {}),
@@ -229,6 +227,16 @@ class CustomerModelxx {
         'salesman': salesman.map((x) => x.toJson()).toList(),
         'order_data': orderData.toJson(),
       };
+      static num? _parseToNum(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value;
+    if (value is String) {
+      if (value.isEmpty) return null;
+      // This handles integers, doubles, and strings like "322387.225"
+      return num.tryParse(value); 
+    }
+    return null;
+  }
 
   static int? _parseToInt(dynamic value) {
     if (value is int) {
@@ -239,25 +247,42 @@ class CustomerModelxx {
       return null;
     }
   }
-
   static List<String> _parseEventDays(dynamic eventDaysJson) {
     if (eventDaysJson is String) {
-      // If it's a string, handle it
+      if (eventDaysJson == "[]") return []; // Quick check for empty
       if (eventDaysJson.startsWith('[') && eventDaysJson.endsWith(']')) {
-        // Remove outer quotes if present
         final cleanedString =
             eventDaysJson.substring(1, eventDaysJson.length - 1);
-        // Split by comma and trim spaces
+        if (cleanedString.isEmpty) return [];
         return cleanedString
             .split(',')
             .map((day) => day.trim().replaceAll('"', ''))
             .toList();
       }
     } else if (eventDaysJson is List) {
-      return List<String>.from(eventDaysJson);
+      return List<String>.from(eventDaysJson.map((e) => e.toString()));
     }
     return [];
   }
+
+  // static List<String> _parseEventDays(dynamic eventDaysJson) {
+  //   if (eventDaysJson is String) {
+  //     // If it's a string, handle it
+  //     if (eventDaysJson.startsWith('[') && eventDaysJson.endsWith(']')) {
+  //       // Remove outer quotes if present
+  //       final cleanedString =
+  //           eventDaysJson.substring(1, eventDaysJson.length - 1);
+  //       // Split by comma and trim spaces
+  //       return cleanedString
+  //           .split(',')
+  //           .map((day) => day.trim().replaceAll('"', ''))
+  //           .toList();
+  //     }
+  //   } else if (eventDaysJson is List) {
+  //     return List<String>.from(eventDaysJson);
+  //   }
+  //   return [];
+  // }
 }
 
 class CreditPeriodxx {
@@ -400,7 +425,7 @@ class OrderDataxx {
                 ?.map((item) => Order.fromJson(item))
                 .toList() ??
             [],
-        outOfDiviery: (json['out_of_diviery'] as List<dynamic>?)
+        outOfDiviery: (json['out_of_delivery'] as List<dynamic>?)
                 ?.map((item) => Order.fromJson(item))
                 .toList() ??
             [],
@@ -433,7 +458,7 @@ class OrderDataxx {
   Map<String, dynamic> toJson() => {
         'total_sales': totalSales.map((order) => order.toJson()).toList(),
         'pre_order': preOrder.map((order) => order.toJson()).toList(),
-        'out_of_diviery': outOfDiviery.map((order) => order.toJson()).toList(),
+        'out_of_delivery': outOfDiviery.map((order) => order.toJson()).toList(),
         'cancel': cancel.map((order) => order.toJson()).toList(),
         'draft': draft.map((order) => order.toJson()).toList(),
         'estimate': estimate.map((order) => order.toJson()).toList(),
@@ -457,6 +482,7 @@ class Order {
   final DateTime orderCreatAt;
   final num orderTotal;
   final int receivedAmount;
+  final int? receivableAmount;
   final DateTime? receivedAmountDate;
   final DateTime? checkDueDate;
   final DateTime? deliveryDate;
@@ -469,7 +495,6 @@ class Order {
   final String? mobileNo;
   final String? imageUrl;
   final String? invoiceId;
-  // final List<InvoiceDash> invoice;
 
   Order({
     required this.id,
@@ -484,6 +509,7 @@ class Order {
     required this.orderCreatAt,
     required this.orderTotal,
     required this.receivedAmount,
+    this.receivableAmount,
     this.receivedAmountDate,
     this.checkDueDate,
     this.deliveryDate,
@@ -496,8 +522,6 @@ class Order {
     this.mobileNo,
     this.imageUrl,
     this.invoiceId,
-    // required this.invoice,
-    // this.receivableAmount,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -514,6 +538,7 @@ class Order {
             json['order_creat_at'] ?? DateTime.now().toIso8601String()),
         orderTotal: json['order_total'] ?? 0,
         receivedAmount: json['received_amount'] ?? 0,
+        receivableAmount: json['receivable_amount'],
         receivedAmountDate: json['received_amount_date'] != null
             ? DateTime.parse(json['received_amount_date'])
             : null,
@@ -549,6 +574,7 @@ class Order {
         'order_creat_at': orderCreatAt.toIso8601String(),
         'order_total': orderTotal,
         'received_amount': receivedAmount,
+        'receivable_amount': receivableAmount,
         'received_amount_date': receivedAmountDate?.toIso8601String(),
         'check_due_date': checkDueDate?.toIso8601String(),
         'delivery_datetime': deliveryDate?.toIso8601String(),
@@ -561,8 +587,6 @@ class Order {
         'email': email,
         'image_url': imageUrl,
         'mobileno': mobileNo,
-
-        // 'receivable_amount': receivableAmount,
       };
 }
 
@@ -619,7 +643,6 @@ class OrderTotalxx {
     this.previousYearSale,
   });
 
-  // Factory constructor to create an instance from a JSON map
   factory OrderTotalxx.fromJson(Map<String, dynamic> json) {
     return OrderTotalxx(
       sales: json['sales'] != null ? json['sales'].toString() : '',
@@ -782,6 +805,7 @@ class RecentOrder {
   final String customerId;
   final String invoiceId;
   List<dynamic>? duedate;
+ final int? receivableAmount;
 
   RecentOrder({
     required this.paymentType,
@@ -796,6 +820,7 @@ class RecentOrder {
     required this.customerId,
     required this.invoiceId,
     this.duedate,
+    this.receivableAmount,
   });
 
   factory RecentOrder.fromJson(Map<String, dynamic> json) {
@@ -812,6 +837,7 @@ class RecentOrder {
       customerId: json['customer_id'] as String,
       invoiceId: json['invoice_id'] ?? '',
       duedate: List<dynamic>.from(json["duedate"].map((x) => x)),
+      receivableAmount: json['receivable_amount'] as int?,
     );
   }
 
@@ -829,6 +855,7 @@ class RecentOrder {
       'customer_id': customerId,
       'invoice_id': invoiceId,
       "duedate": List<dynamic>.from(duedate!.map((x) => x)),
+      'receivable_amount': receivableAmount,
     };
   }
 }
@@ -1460,7 +1487,6 @@ class DiscountData {
   }
 }
 
-// The root model class
 class ApiResponsees {
   final int statusCode;
   final bool status;
@@ -1474,7 +1500,6 @@ class ApiResponsees {
     required this.data,
   });
 
-  // Convert a JSON map to an ApiResponse object
   factory ApiResponsees.fromJson(Map<String, dynamic> json) {
     return ApiResponsees(
       statusCode: json['status_code'] ?? 0,
@@ -1727,6 +1752,11 @@ class CustomerDashMo {
   String? eventDays;
   int? creditPeriod;
   int? companyId;
+  String? deliveryAddress;
+  String? deliveryTown;
+  String? deliveryState;
+  int? deliveryZipcode;
+  String? deliveryContact;
   List<Cart>? cart;
   List<Salesman>? salesman;
 
@@ -1754,6 +1784,11 @@ class CustomerDashMo {
     this.eventDays,
     this.creditPeriod,
     this.companyId,
+    this.deliveryAddress,
+    this.deliveryTown,
+    this.deliveryState,
+    this.deliveryZipcode,
+    this.deliveryContact,
     this.cart,
     this.salesman,
   });
@@ -1790,6 +1825,11 @@ class CustomerDashMo {
       eventDays: json['event_days'],
       creditPeriod: json['credit_period'],
       companyId: json['company_id'],
+      deliveryAddress: json['delivery_address'],
+      deliveryTown: json['delivery_town'],
+      deliveryState: json['delivery_state'],
+      deliveryZipcode: json['delivery_zipcode'], // Ensure this is int in JSON, or parse it
+      deliveryContact: json['delivery_contact']?.toString(),
       cart: cartItems,
       salesman: salesmanItems,
     );
@@ -1887,7 +1927,7 @@ class ProductResponse {
   });
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
-    // Check for 'data' key and convert to a list of ProductDetail
+
     var dataList = json['data'] as List? ?? [];
     List<ProductDetail> productDetailsList =
         dataList.map((i) => ProductDetail.fromJson(i)).toList();
@@ -1929,7 +1969,7 @@ class SamlwEodel {
 class Datum {
   int id;
   String customerId;
-  CartId cartId;
+  String cartId;
   String fullname;
   String mobileno;
   String email;
@@ -2006,8 +2046,6 @@ class Datum {
   });
 }
 
-enum CartId { CART22, CART36, EMPTY }
-
 class CreditPeriod {
   int creditPeriod;
 
@@ -2059,8 +2097,6 @@ class Paginationddd {
     required this.perPage,
   });
 }
-
-// NEW REVENUE SECTION
 
 class CustomerRevenueResponse {
   int statusCode;
@@ -2184,7 +2220,7 @@ class BookingRevenueDatum {
     required this.receivedAmount,
     this.receivedAmountDate,
     required this.checkDueDate,
-    this.checkNumber, // Nullable
+    this.checkNumber, 
     this.transactionDate,
     required this.transactionDetails,
     required this.rejectionReason,
@@ -2219,7 +2255,7 @@ class BookingRevenueDatum {
             ? null
             : DateTime.parse(json["received_amount_date"]),
         checkDueDate: DateTime.parse(json["check_due_date"]),
-        checkNumber: json["check_number"], // Handle null
+        checkNumber: json["check_number"], 
         transactionDate: json["transaction_date"] == null
             ? null
             : DateTime.parse(json["transaction_date"]),
@@ -2253,7 +2289,7 @@ class BookingRevenueDatum {
         "received_amount": receivedAmount,
         "received_amount_date": receivedAmountDate?.toIso8601String(),
         "check_due_date": checkDueDate.toIso8601String(),
-        "check_number": checkNumber, // Nullable
+        "check_number": checkNumber, 
         "transaction_date": transactionDate?.toIso8601String(),
         "transaction_details": transactionDetails,
         "rejection_reason": rejectionReason,

@@ -1,6 +1,5 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
@@ -29,12 +28,13 @@ class LeadTopScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // AddLeadsBt(),
-            // addLeads(context),
-            AddLeadsScreen(
+            CustomText(content: 'Leads',fontWeight: FontWeight.bold,),
+            SizedBox(width: 10,),
+         
+            const Spacer(),
+               AddLeadsScreen(
               leadsController: leadsController,
             ),
-            const Spacer(),
             const NotificationWidget(
               startDate: '',
               endDate: '',
@@ -50,7 +50,7 @@ class LeadTopScreen extends StatelessWidget {
 Widget profiloe() {
   return Consumer<DashboardProvider>(builder: (context, provider, child) {
     HomeController homeController = Get.put(HomeController());
-    log('Profile pic Path :${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
+
     return FutureBuilder<SalesmanResponse>(
       future: provider.adminResponse,
       builder: (context, snapshot) {

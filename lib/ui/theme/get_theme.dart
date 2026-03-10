@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -62,7 +60,7 @@ class NkGetXTheme {
           buttonColor: primaryButtonColor,
           textTheme: ButtonTextTheme.normal,
           padding: nkRegularPadding(),
-         //  height: Get.height * 0.06,
+
           disabledColor: primaryButtonColor,
           focusColor: primaryButtonColor,
           layoutBehavior: ButtonBarLayoutBehavior.padded,
@@ -96,7 +94,7 @@ class NkGetXTheme {
 
   static DataTableThemeData get dataTableTheme => DataTableThemeData(
         columnSpacing: AppDimensions.instance.width * .02,
-        //dataRowMaxHeight: height * 0.1,
+
         headingTextStyle: Get.textTheme.displayLarge!.copyWith(
           inherit: false,
           fontWeight: NkGeneralSize.nkBoldFontWeight(),
@@ -105,4 +103,3 @@ class NkGetXTheme {
         ),
       );
 }
-

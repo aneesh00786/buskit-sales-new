@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
 
 import 'dart:async';
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -176,7 +175,6 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                           String email = emailController.text.trim();
                           if (email.isNotEmpty) {
                             ApiWorker().sendOtp(email);
-                            log("Email submitted: $email");
                           }
                           _startResendTimer();
                         }

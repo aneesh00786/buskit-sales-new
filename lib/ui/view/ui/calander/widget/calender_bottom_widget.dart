@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-import 'dart:developer';
+import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -13,29 +13,30 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:intl/intl.dart';
 
+
+
+
+
 class CalenderBottomWidget extends StatefulWidget {
   final CalenderMapController calenderController;
 
-  const CalenderBottomWidget({
-    super.key,
-    required this.calenderController,
-  });
+  const CalenderBottomWidget({super.key, required this.calenderController});
 
   @override
   State<CalenderBottomWidget> createState() => _CalenderBottomWidgetState();
 }
 
 class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
-  bool navigatedToMap = false;
-  Customer? selectedCustomer;
   final subscriptionController = Get.find<SubscriptionController>();
   DateTime _currentMonth = DateTime.now();
 
@@ -79,19 +80,21 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
 
     return MonthView(
       cellAspectRatio:
-          AppDimensions.instance.orientation == Orientation.landscape
+          AppDimensions.instance!.orientation == Orientation.landscape
               ? 1.7
-              : 0.8,
+              : isTablet(context)
+                  ? 0.85
+                  : 0.5,
       headerStyle: HeaderStyle(
         decoration: BoxDecoration(
           color: primaryColor.withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
         ),
         headerTextStyle: const TextStyle(
-            color: black,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            fontFamily: "Poppins_Regular"),
+          color: black,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       onPageChange: (date, page) async {
         final isOnline = await ConnectivityService().isOnline();
@@ -102,11 +105,9 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
             red,
             Icons.close,
           );
-          // Force rebuild to keep calendar on previous month
           setState(() {});
           return;
         }
-        // Allow month change
         final startOfSelectedMonth = DateTime(date.year, date.month, 1);
         setState(() {
           _currentMonth = startOfSelectedMonth;
@@ -123,30 +124,45 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
         bool isCurrentMonth = isInMonth;
 
         return GestureDetector(
-          onTap: () async {
-            if (subscriptionController.appViewDaySchedulesVisits.value ==
-                "true") {
-              if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
+          onTap: () {
+            if (isCurrentMonth && isWorkingDay && event.isNotEmpty) {
+              if (subscriptionController.appViewDaySchedulesVisits.value == "true") {
                 widget.calenderController.clearSelections();
-                await widget.calenderController.loadOnlyCustomerData(
-                  DateFormat('yyyy-MM-dd').format(date),
-                  event
-                      .where((e) => e.event?.customerId != null)
-                      .map((e) => e.event!.customerId!)
-                      .toList(),
-                );
-                Get.dialog(
-                  SelectCustomerDiloag(
-                    dateTime: date,
-                    calenderMapController: widget.calenderController,
-                    eventData: event,
-                  ),
+
+                // --- MODIFIED LOGIC START ---
+                
+                // 1. Extract the Salesman ID
+                // Since we are skipping the list, we assume we take the ID from the first event 
+                // or handle the case where there might be mixed IDs. 
+                String salesmanId = event.first.event?.salesmanId ?? "Unknown";
+
+                // 2. Extract Customer IDs from the event list
+                // This logic replaces the loop that was previously in SalesmanListDialog
+                List<String> customerIds = event
+                    .map((e) => e.event?.customerId)
+                    .where((id) => id != null && id != "Unknown") // Filter invalid IDs
+                    .cast<String>() // Ensure they are strings
+                    .toSet() // Remove duplicates
+                    .toList();
+
+                // 3. Navigate directly to SelectCustomerDiloag
+                Get.dialog(SelectCustomerDiloag(
+                  dateTime: date,
+                  calenderMapController: widget.calenderController,
+                  eventData: event,
+                  customerIds: customerIds,
+                  salesmanId: salesmanId, 
+                ));
+                
+                // --- MODIFIED LOGIC END ---
+
+              } else {
+                showDialog(
                   barrierDismissible: false,
+                  context: context,
+                  builder: (context) => const UpgradePlanScreen(),
                 );
-                log('Date : $date');
               }
-            } else {
-              showUpgradePlanDialog(context);
             }
           },
           child: MyCommnonContainer(
@@ -169,7 +185,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     : white,
             padding: nkRegularPadding(),
             child: isCurrentMonth && isWorkingDay
-                ? AppDimensions.instance.orientation == Orientation.portrait
+                ? AppDimensions.instance!.orientation == Orientation.portrait
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -181,7 +197,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 : !isInMonth
                                     ? secondaryTextColor.withOpacity(0.5)
                                     : null,
-                            fontSize: 22,
+                            fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                           const SizedBox(height: 5),
@@ -197,7 +213,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 label: eventCount.toString(),
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                                fontSize: (isTabletOrPhoneLandscape(context)) ? 14 : 12,
                               ),
                             ),
                         ],
@@ -213,7 +229,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                                 : !isInMonth
                                     ? secondaryTextColor.withOpacity(0.5)
                                     : null,
-                            fontSize: 22,
+                            fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                           const SizedBox(width: 10),
@@ -238,7 +254,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                     child: MyRegularText(
                       label: date.day.toString(),
                       color: secondaryTextColor.withOpacity(0.5),
-                      fontSize: 22,
+                      fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -254,11 +270,5 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
       maxMonth: DateTime(DateTime.now().year, 12, 31),
       minMonth: DateTime(DateTime.now().year, 1, 1),
     );
-  }
-}
-
-extension DateTimeExtension on DateTime {
-  bool isSameDate(DateTime other) {
-    return year == other.year && month == other.month && day == other.day;
   }
 }

@@ -1,8 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -26,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/options_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_report_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -50,12 +48,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   String? _selectedMonthName;
   final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-  String selectedValue =  DateTime.now().year.toString();
+  String selectedValue = DateTime.now().year.toString();
   String staffProjection = '';
   String targetType = '';
 
   Future<void> _loadSettings() async {
-
     try {
       final settingsList = await ApiWorker().fetchAllSettings(companyId);
       setState(() {
@@ -72,8 +69,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-
-      log("Error fetching settings: $e");
+      //
     }
   }
 
@@ -139,6 +135,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       _targetControllers = _targetControllers.sublist(0, count);
     }
   }
+ 
+  List<String> get years => List.generate(5, (index) => (currentYear - index).toString());
 
   @override
   Widget build(BuildContext context) {
@@ -146,83 +144,103 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
-        actions: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            child: Row(
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: isSmallScreen ? 29 : 38,
-                        width: isSmallScreen ? 84 : 104,
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 3,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 4.0, right: 4.0, top: 4.0, bottom: 1.0),
-                              child: DropdownButton<String>(
-                                value: selectedValue,
-                                items:
-                                    ['2025', '2024', '2023'].map((String year) {
-                                  return DropdownMenuItem<String>(
-                                    value: year,
-                                    child: Text(
-                                      year,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    setState(() {
-                                      selectedValue = newValue;
-                                    });
-                                    staffController
-                                        .loadSalesmanTargetForSelectedTab(
-                                      currentYear: selectedValue,
-                                      selectedTabIndex:
-                                          staffController.tabController.index +
-                                              1,
-                                      staffId: salesmanId,
-                                    );
-                                  }
-                                },
-                                underline: const SizedBox(),
-                                iconEnabledColor: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+        title: Row(
+          children: [
+            CustomText(
+              content: "Performance & Target", // Change to whatever you want
+              fontWeight: FontWeight.bold,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            SizedBox(
+              height: isSmallScreen ? 29 : 38,
+              width: isSmallScreen ? 84 : 104,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.white,
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.8),
+                      blurRadius: 0,
+                      offset: const Offset(-2, -2),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  child: DropdownButton<String>(
+                    value: selectedValue,
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          selectedValue = newValue;
+                        });
+                        staffController.loadSalesmanTargetForSelectedTab(
+                          currentYear: selectedValue,
+                          selectedTabIndex:
+                              staffController.tabController.index + 1,
+                          staffId: salesmanId,
+                        );
+                      }
+                    },
+                    items: years.map((String year) {
+                      return DropdownMenuItem<String>(
+                        value: year,
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                            const SizedBox(width: 8),
+                            Text(year, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(12),
+                    underline: Container(),
+                    icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+                    dropdownColor: Colors.white,
+                    elevation: 8,
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                const NotificationWidget(
-                  startDate: '',
-                  endDate: '',
-                ),
-                profiloe(),
-              ],
+              ),
             ),
-          )
+          ],
+        ),
+        actions: [
+          const NotificationWidget(
+            startDate: '',
+            endDate: '',
+          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: [
+
+          //   ],
+          // ),
+          profiloe()
         ],
       ),
       body: Column(
@@ -284,26 +302,85 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             staffProjection: staffProjection,
                             targetType: targetType);
                       } else {
-                        errorSnackbar("No internet connection . please check your network");
+                        errorSnackbar(
+                            "No internet connection . please check your network");
                       }
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: isSelected
-                            ? Border.all(color: Colors.grey.shade300)
-                            : null,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15)),
-                      ),
-                      child: CustomText(
-                        content: monthName,
-                        color: isSelected ? Colors.blue : Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Stack(
+                      children: [
+                        // Main card container
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            color: isSelected 
+                                ? Colors.white
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                      spreadRadius: 0,
+                                    ),
+                                  ]
+                                : [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                            border: Border.all(
+                              color: isSelected 
+                                  ? primaryColor.withOpacity(0.3)
+                                  : Colors.transparent,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isSelected ? Icons.calendar_month : Icons.calendar_today,
+                                size: 18,
+                                color: isSelected ? primaryColor : Colors.grey[600],
+                              ),
+                              const SizedBox(width: 10),
+                              CustomText(
+                                content: monthName,
+                                color: isSelected ? Colors.black87 : Colors.grey[700],
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Bottom indicator for selected tab
+                        if (isSelected)
+                          Positioned(
+                            bottom: -2,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    primaryColor,
+                                    primaryColor.withOpacity(0.5),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 }),
@@ -328,6 +405,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               options: [
                 OptionData(
                     title: 'Timesheet',
+                    month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.timesheet?.toString() ?? '0',
                     svg: "assets/icons/event.png",
@@ -338,22 +416,25 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         : () {
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
-                          }
-                    ),
-                OptionData(
-                  title: 'Check-in/out',
-                  unfilteredCount: "0",
-                  count: targetContent?.salesmanInOut?.length.toString() ?? '0',
-                  svg: "assets/icons/check-in.png",
-                  svgBgColor: const Color.fromARGB(255, 215, 236, 246),
-                  onTap: targetContent?.salesmanInOut?.length.toString() == '0'
-                      ? () => showCustomToastDisplay(
-                          context, 'Record Not Found', red, Icons.close)
-                      : () => showTileDialog(
-                          context, _selectedMonthName ?? '', 2, true),
-                ),
+                          }),
+                           
+
+                // OptionData(
+                //   title: 'Check-in/out',
+                //   unfilteredCount: "0",
+                //   count: targetContent?.salesmanInOut?.length.toString() ?? '0',
+                //   svg: "assets/icons/check-in.png",
+                //   svgBgColor: const Color.fromARGB(255, 215, 236, 246),
+                //   onTap: targetContent?.salesmanInOut?.length.toString() == '0'
+                //       ? () => showCustomToastDisplay(
+                //           context, 'Record Not Found', red, Icons.close)
+                //       : () => showTileDialog(
+                //           context, _selectedMonthName ?? '', 2, true),
+                // ),
                 OptionData(
                     title: 'Visits',
+                    width: 165.0,
+                    month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.visit?.toString() ?? '0',
                     svg: "assets/icons/location.png",
@@ -362,12 +443,28 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         ? () => showCustomToastDisplay(
                             context, 'Record Not Found', red, Icons.close)
                         : () {
+                          int selectedYearInt = int.tryParse(selectedValue) ?? currentYear;
+            int selectedMonthInt = staffController.tabController.index + 1;
                             Get.dialog(
-                              StaffRouteDialog(
-                                  staffController: staffController),
-                            );
-                          }
-                    ),
+              StaffRouteDialog(
+                staffController: staffController,
+                selectedYear: selectedYearInt,
+                selectedMonth: selectedMonthInt,
+              ),
+            );
+                          }),
+                            OptionData(
+                  title: ' Visit Report',
+                  month: _selectedMonthName,
+                  unfilteredCount: "0",
+                 count: targetContent?.visitReport?.toString() ?? '0',
+                  svg: "assets/icons/check-in.png",
+                  svgBgColor: const Color.fromARGB(255, 211, 240, 249),
+                  onTap: (){
+                    showTileDialog(
+                          context, _selectedMonthName ?? '', 5, true);
+                  },
+                ),
                 OptionData(
                   title: 'Customers',
                   unfilteredCount: "0",
@@ -380,6 +477,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       : () => showTileDialog(
                           context, _selectedMonthName ?? '', 4, true),
                 ),
+              
               ],
             );
           }),
@@ -486,63 +584,166 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     );
   }
 
-  void showTileDialog(
-      BuildContext context, String monthName, int tabStatus, bool isFull) {
-    staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+  void showTileDialog(BuildContext context, String monthName, int tabStatus, bool isFull) {
+    
+    if (tabStatus == 5) {
+      int monthIndex = staffController.tabController.index + 1;
+
+      // 1. Show the dialog immediately
       showDialog(
         context: context,
         builder: (context) {
           return Obx(() {
-            if (staffController.isTopDataLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+            // This will show the loader while isVisitReportLoading is true
+            if (staffController.isVisitReportLoading.value) {
+              return const Center(child: CircularProgressIndicator());
             }
-
-            Widget dialogContent;
-            switch (tabStatus) {
-              case 1:
-                dialogContent = buildCheckInOutDialogContent(
-                    staffController.checkInOutData.value, staffController);
-              case 2:
-                dialogContent = buildCheckInOutDialogContent(
-                    staffController.checkInOutData.value, staffController);
-                break;
-              case 3:
-                dialogContent = buildVisitsDialogContent(
-                    staffController.visitData.value, staffController);
-                break;
-              case 4:
-                dialogContent = buildCustomersDialogContent(
-                    staffController.customerDatas.value, staffController);
-                break;
-              default:
-                dialogContent = const Text('Unknown data.');
-            }
-
-            return Padding(
-              padding: isFull
-                  ? const EdgeInsets.all(10)
-                  : const EdgeInsets.symmetric(horizontal: 150),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: white,
-                      ),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: dialogContent),
-                    ),
-                  ),
-                ],
-              ),
+            
+            // Once loading is false, it shows the data
+            return _buildDialogContainer(
+              isFull, 
+              VisitReportDialog(reportData: staffController.visitReportList)
             );
           });
         },
       );
-    });
+
+      // 2. Trigger the API call (Make sure loadVisitReports sets isVisitReportLoading to true at its start)
+      staffController.loadVisitReports(selectedValue, monthIndex);
+      return; 
+    }
+
+    // For all other tab statuses:
+    // 1. Show the dialog immediately
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Obx(() {
+          if (staffController.isTopDataLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          Widget dialogContent;
+          switch (tabStatus) {
+            case 1: 
+              dialogContent = buildCheckInOutDialogContent(
+                  staffController.checkInOutData.value, staffController);
+              break;
+            case 2: 
+              dialogContent = buildCheckInOutDialogContent(
+                  staffController.checkInOutData.value, staffController);
+              break;
+            case 3: 
+              dialogContent = buildVisitsDialogContent(
+                  staffController.visitData.value, staffController);
+              break;
+            case 4: 
+              dialogContent = buildCustomersDialogContent(
+                  staffController.customerDatas.value, staffController);
+              break;
+            default:
+              dialogContent = const Text('Unknown data.');
+          }
+
+          return _buildDialogContainer(isFull, dialogContent);
+        });
+      },
+    );
+
+    // 2. Trigger the API call
+    staffController.fetchSalesmanTopBarData(monthName, tabStatus);
+  }
+  // void showTileDialog(
+  //     BuildContext context, String monthName, int tabStatus, bool isFull) {
+    
+    
+  //   if (tabStatus == 5) {
+      
+  //     int monthIndex = staffController.tabController.index + 1;
+
+     
+  //     staffController.loadVisitReports(selectedValue, monthIndex).then((_) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return Obx(() {
+              
+  //             if (staffController.isVisitReportLoading.value) {
+  //               return const Center(child: CircularProgressIndicator());
+  //             }
+              
+           
+  //             return _buildDialogContainer(
+  //               isFull, 
+  //               VisitReportDialog(reportData: staffController.visitReportList)
+  //             );
+  //           });
+  //         },
+  //       );
+  //     });
+  //     return; 
+  //   }
+
+   
+  //   staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return Obx(() {
+  //           if (staffController.isTopDataLoading.value) {
+  //             return const Center(child: CircularProgressIndicator());
+  //           }
+
+  //           Widget dialogContent;
+  //           switch (tabStatus) {
+  //             case 1: 
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //               break;
+  //             case 2: 
+  //               dialogContent = buildCheckInOutDialogContent(
+  //                   staffController.checkInOutData.value, staffController);
+  //               break;
+  //             case 3: 
+  //               dialogContent = buildVisitsDialogContent(
+  //                   staffController.visitData.value, staffController);
+  //               break;
+  //             case 4: 
+  //               dialogContent = buildCustomersDialogContent(
+  //                   staffController.customerDatas.value, staffController);
+  //               break;
+  //             default:
+  //               dialogContent = const Text('Unknown data.');
+  //           }
+
+  //           return _buildDialogContainer(isFull, dialogContent);
+  //         });
+  //       },
+  //     );
+  //   });
+  // }
+
+  
+  Widget _buildDialogContainer(bool isFull, Widget content) {
+    return Padding(
+      padding: isFull
+          ? const EdgeInsets.all(10)
+          : const EdgeInsets.symmetric(horizontal: 150),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, 
+              ),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: content),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

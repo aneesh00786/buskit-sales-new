@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_font_size.dart';
@@ -56,7 +55,6 @@ class DashBoardController extends GetxController {
     if (startDate != null && endDate != null) {
       searchModel.startDate = NKDateUtils.apiDayFormat(startDate);
       searchModel.endDate = NKDateUtils.apiDayFormat(endDate);
-      log("start_Date++${searchModel.startDate}");
       loadDahsbordData;
     } else {
       searchModel.startDate = "";
@@ -104,7 +102,6 @@ class DashBoardController extends GetxController {
   }) async {
     fetchSpecificOrderData = null;
     isInvoiceLoading(true);
-    log("Loading Specific Order Invoice Data");
 
     var data = await ApiWorker().fetchSpecificOrderInvoice(
       orderId,
@@ -115,7 +112,6 @@ class DashBoardController extends GetxController {
     }
 
     isInvoiceLoading(false); // Stop loading
-    log('is Invoice Loading : ${isInvoiceLoading.value}');
     return fetchSpecificOrderData!;
   }
 }

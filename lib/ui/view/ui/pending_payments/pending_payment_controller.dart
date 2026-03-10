@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
@@ -13,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 
 class PendingPaymentController extends GetxController {
   final ApiWorker _apiWorker = ApiWorker();
@@ -86,24 +88,84 @@ class PendingPaymentController extends GetxController {
       // Handle errors here
     }
   }
+  // inside PendingPaymentController class
 
   Future<void> loadIndividualPendingPayments(String customerId) async {
     try {
       isLoading.value = true;
-      var response = await _apiWorker.getAllPendingPaymentIndividual(
-        customerId: customerId,
-      );
-      // ignore: unnecessary_null_comparison
-      if (response.data != null) {
-        individualPendingPayments.assignAll(response.data);
+      
+      bool isOnline = await ConnectivityService().isOnline();
+
+      if (isOnline) {
+        // --- ONLINE FLOW ---
+        // 1. Fetch from API
+        var response = await _apiWorker.getAllPendingPaymentIndividual(
+          customerId: customerId,
+        );
+
+        if (response.data != null) {
+          individualPendingPayments.assignAll(response.data);
+          
+          // 2. SAVE TO HIVE FOR OFFLINE USE
+          try {
+            var box = await Hive.openBox('offlineCustomerPayments');
+            // Convert list of objects to list of JSON maps
+            List<Map<String, dynamic>> jsonList = response.data.map((e) => e.toJson()).toList();
+            await box.put(customerId, jsonList); 
+          } catch (e) {
+            print("Error saving offline data: $e");
+          }
+        } else {
+          individualPendingPayments.clear();
+        }
       } else {
-        individualPendingPayments.clear();
+        // --- OFFLINE FLOW ---
+        // 3. LOAD FROM HIVE
+        try {
+          var box = await Hive.openBox('offlineCustomerPayments');
+          if (box.containsKey(customerId)) {
+            // Get the raw data (List of Maps)
+            List<dynamic> storedData = box.get(customerId);
+            
+            // Convert back to your model objects
+            List<IndividualPendingData> offlineList = storedData.map((e) {
+               // Ensure 'e' is cast to Map<String, dynamic> safely
+               return IndividualPendingData.fromJson(Map<String, dynamic>.from(e));
+            }).toList();
+            
+            individualPendingPayments.assignAll(offlineList);
+          } else {
+             individualPendingPayments.clear();
+          }
+        } catch (e) {
+          print("Error loading offline data: $e");
+          individualPendingPayments.clear();
+        }
       }
     } catch (e) {
+       print("Error in loadIndividualPendingPayments: $e");
     } finally {
       isLoading.value = false;
     }
   }
+
+  // Future<void> loadIndividualPendingPayments(String customerId) async {
+  //   try {
+  //     isLoading.value = true;
+  //     var response = await _apiWorker.getAllPendingPaymentIndividual(
+  //       customerId: customerId,
+  //     );
+  //     // ignore: unnecessary_null_comparison
+  //     if (response.data != null) {
+  //       individualPendingPayments.assignAll(response.data);
+  //     } else {
+  //       individualPendingPayments.clear();
+  //     }
+  //   } catch (e) {
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
@@ -125,7 +187,6 @@ class PendingPaymentController extends GetxController {
 
   void processPayments(
       List<IndividualPendingData> selectedItemsList, num enteredAmount) {
-    log("Selected Items: $selectedItemsList");
     num remainingAmount = enteredAmount;
 
     for (int i = 0; i < selectedItemsList.length; i++) {
@@ -156,7 +217,6 @@ class PendingPaymentController extends GetxController {
     }
 
     if (remainingAmount > 0) {
-      log("Remaining balance after payment: $remainingAmount");
     }
   }
 

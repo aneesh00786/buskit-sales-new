@@ -154,4 +154,3 @@ class LoginData {
     return json;
   }
 }
-

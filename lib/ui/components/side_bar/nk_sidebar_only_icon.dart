@@ -1,9 +1,4 @@
-//nk Side Bar
-
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
-
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -13,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_wi
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -123,6 +119,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
     bool isRecentOrders = index == 7;
     bool isLeads = index == 4;
     bool isDirectProduct = index == 2;
+    bool isCustomersAndOrders = index == 1;
+    bool isDashboard = index == 0;
     return GestureDetector(
       onTap: () async {
         bool hasDraftId = CartDatabaseManager()
@@ -138,14 +136,12 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               sideBarData.onTap?.call();
               widget.onTap?.call(widget.sidebarXController.selectedIndex);
             });
-            log('Tab updated after clearing cart.');
             if (customerOrderController.isActive.value == false) {
               productController.selectedCustomerId.value = "";
               productController.selectedCustomerName.value = "";
               productController.selectedCustomerImageUrl.value = "";
             }
           }, cartItemCount, customerId, hasDraftId);
-          log('Condition1');
         } else if (isDirectProduct) {
           if (customerOrderController.isActive.value == false) {
             productController.selectedCustomerId.value = "";
@@ -154,6 +150,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
           }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
+          if (isCustomersAndOrders) {
+            Provider.of<CustomersProvider>(context, listen: false)
+                .resetFilters();
+          }
+          if (isDashboard) {
+            Provider.of<DashboardProvider>(context, listen: false)
+                .resetFilter();
+          }
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();
@@ -175,6 +179,14 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
           }
           subscriptionController.loadSubscriptionFeatures(
               SessionHelper.loginSavedData?.company_id ?? 0);
+          if (isCustomersAndOrders) {
+            Provider.of<CustomersProvider>(context, listen: false)
+                .resetFilters();
+          }
+          if (isDashboard) {
+            Provider.of<DashboardProvider>(context, listen: false)
+                .resetFilter();
+          }
           setState(() {
             widget.sidebarXController.selectIndex(index);
             sideBarData.onTap?.call();
@@ -208,13 +220,13 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               curve: Curves.easeInOut,
               child: SvgPicture.asset(
                 getSidebarIcon(index),
-                height: index == 8 || index == 9 ? 30 : 24,
-                width: index == 8 || index == 9 ? 30 : 24,
+                height: index == 9 || index == 10 ? 30 : 24,
+                width: index == 9 || index == 10 ? 30 : 24,
                 color: widget.sidebarXController.selectedIndex == index
-                    ? index == 8 || index == 9
+                    ? index == 9 || index == 10
                         ? null
                         : Theme.of(context).primaryColor
-                    : index == 8 || index == 9
+                    : index == 9 || index == 10
                         ? null
                         : Colors.grey,
               ),
@@ -285,12 +297,7 @@ Future<void> handleTabSwitchNavigation(
       ? customerController.customerId.value
       : productController.selectedCustomerId.value;
 
-  log('[TabSwitch] Initiated. Customer ID used: $customerIdFinal');
-  log('[TabSwitch] Has Draft: $hasDraft | Cart Item Count: $cartItemCount');
-
   if (!hasDraft && productController.isCartModified.value) {
-    log('[TabSwitch] No draft found. Showing loading dialog.');
-
     late BuildContext dialogContext;
 
     // Show loading dialog with its own captured context
@@ -317,9 +324,6 @@ Future<void> handleTabSwitchNavigation(
 
       // Pop the loading dialog using its own context
       Navigator.of(dialogContext).pop();
-      log('[TabSwitch] Loading dialog dismissed.');
-
-      log('[TabSwitch] processCartBeforeNavigation completed. Was online: $wasOnline');
 
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -392,7 +396,6 @@ Future<void> handleTabSwitchNavigation(
     } catch (e) {
       // Dismiss loading dialog if error occurs
       Navigator.of(dialogContext).pop();
-      log('[TabSwitch][Error] Exception occurred: $e');
 
       await showDialog(
         context: context,
@@ -413,12 +416,10 @@ Future<void> handleTabSwitchNavigation(
 
       updateTabIndex();
     } finally {
-      log('[TabSwitch] Resetting customer IDs.');
       customerController.customerId.value = '';
       productController.selectedCustomerId.value = '';
     }
   } else {
-    log('[TabSwitch] Draft already exists. Directly updating tab index.');
     updateTabIndex();
   }
   final dashboardProvider =

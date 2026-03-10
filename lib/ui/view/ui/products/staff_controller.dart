@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -9,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/check
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_report_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/staff_target_table_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +46,8 @@ class StaffController extends GetxController {
   RxBool isWeekly = true.obs;
   RxInt selectedTabIndex = 0.obs;
   RxBool isPasswordVisible = false.obs;
+  var visitReportList = <VisitReportModel>[].obs;
+var isVisitReportLoading = false.obs;
 
   RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
@@ -69,14 +71,11 @@ class StaffController extends GetxController {
 
   Future<void> loadWeeklyType() async {
     final weeklyType = await ApiWorker().getWeeklyType();
-    log('Weekly Type fetched from API: $weeklyType');
     isWeekly.value = weeklyType == "true";
-    log("Updated Weekly state: ${isWeekly.value}");
   }
 
   Future<void> loadSalesmanTarget(String salesmanId, String month, String year,
       String monthName, bool isFromLogin, int compId) async {
-    log("✅ loadSalesmanTarget STARTED:");
     isLoading.value = true;
     try {
       var response = await ApiWorker().fetchSalesmanPerformanceData(
@@ -87,7 +86,6 @@ class StaffController extends GetxController {
         isfromLogin: isFromLogin,
       );
       if (response != null) {
-        log('📊 Response contains categoryPerformance: $response');
         salesmanTargetList.update((list) {
           if (list != null) {
             list.navbarAndTargetContent = response.navbarAndTargetContent;
@@ -97,10 +95,9 @@ class StaffController extends GetxController {
           }
         });
       } else {
-        log('❌ Response was null');
       }
-    } on DioException catch (e) {
-      log('❗ Error loading data: $e');
+    } on DioException {
+      //
     } finally {
       isLoading.value = false;
     }
@@ -128,10 +125,9 @@ class StaffController extends GetxController {
             throw Exception('Invalid tabStatus: $tabStatus');
         }
       } else {
-        log("No data returned from the API.");
       }
     } catch (e) {
-      log("Error 2: $e");
+      //
     } finally {
       isTopDataLoading.value = false;
     }
@@ -192,8 +188,6 @@ class StaffController extends GetxController {
   }
 
   Future<Iterable<CustomerAndOrderData>> loadCustomer(String? id) async {
-    log("SALESMAN ${selectedStaff.value.salesmanId}");
-    log("StartDate ${searchModel.startDate}");
     var data = await _apiWorker.getCustomer();
     customerAndOrderList.assignAll(data.custAndOrderdata!);
     refresh();
@@ -234,22 +228,17 @@ class StaffController extends GetxController {
     try {
       isScheduleLoading.value = true;
 
-      log('Fetching schedule for salesman: , from: $startDate, to: $endDate');
-
       var data = await ApiWorker()
           .fetchSchedule(formatDate(endDate), formatDate(startDate));
 
       if (data?.data != null) {
         scheduleList.assignAll(data!.data!);
       } else {
-        log('No schedule data available.');
         scheduleList.assignAll([]);
       }
 
       return data?.data;
-    } catch (e, stacktrace) {
-      log('Error fetching schedule: $e');
-      log('Stacktrace: $stacktrace');
+    } catch (e) {
       return null;
     } finally {
       isScheduleLoading.value = false;
@@ -281,14 +270,11 @@ class StaffController extends GetxController {
       String salesmanId, String month, String year) async {
     try {
       isTargetLoading.value = true;
-      log("isTargetLoadingforTab: ${isTargetLoading.value}");
       var data = await ApiWorker().fetchSalesmanTarget(salesmanId, month, year);
       salesmanTargetTableList.assignAll(data?.data ?? []);
       weekList.assignAll(data?.weekList ?? []);
-      log('Salesman Target List Length :${salesmanTargetTableList.length}');
       return data?.data ?? [];
     } catch (e) {
-      log("Error loading target data: $e");
       return [];
     } finally {
       isTargetLoading.value = false;
@@ -298,38 +284,60 @@ class StaffController extends GetxController {
   RxBool isTimesheetLoading = false.obs;
   RxMap<String, StaffTimesheetData> staffTimesheetData =
       <String, StaffTimesheetData>{}.obs;
+Future<Map<String, StaffTimesheetData>> loadTimesheetData(String filterValue) async {
+  try {
+    isTimesheetLoading.value = true;
+    staffTimesheetData.clear();
 
-  Future<Map<String, StaffTimesheetData>> loadTimesheetData(
-    String? startDate,
-    String? endDate,
-  ) async {
-    try {
-      isTimesheetLoading.value = true;
-      staffTimesheetData.clear();
+    // Call API with "Month" and the Month Name (e.g., "March")
+    // If you ever need Year, you can change "Month" to "Year"
+    var response = await ApiWorker().getTimeSheetData(
+      filterValue: filterValue, 
+      filterType: "Month" 
+    );
 
-      var response = await ApiWorker()
-          .getTimeSheetData(startDate: startDate, endDate: endDate);
-
-      if (response.data != null && response.data!.isNotEmpty) {
-        staffTimesheetData.assignAll(response.data!);
-        log('✅ Fetched Timesheet Data: ${response.toJson()}');
-        return response.data!;
-      } else {
-        log("⚠️ No timesheet data found.");
-        staffTimesheetData.clear();
-        return {};
-      }
-    } catch (e, stackTrace) {
-      log('❌ Error fetching timesheet data: $e\n$stackTrace');
-
+    if (response.data != null && response.data!.isNotEmpty) {
+      staffTimesheetData.assignAll(response.data!);
+      return response.data!;
+    } else {
       staffTimesheetData.clear();
       return {};
-    } finally {
-      Future.delayed(const Duration(milliseconds: 50), () {
-        isTimesheetLoading.value = false;
-      });
     }
+  } catch (e) {
+    staffTimesheetData.clear();
+    return {};
+  } finally {
+    Future.delayed(const Duration(milliseconds: 50), () {
+      isTimesheetLoading.value = false;
+    });
   }
+}
+
+//       Future<Map<String, StaffTimesheetData>> loadTimesheetData(String year) async {
+//   try {
+//     isTimesheetLoading.value = true;
+//     staffTimesheetData.clear();
+
+//     // specific parameter: year
+//     var response = await ApiWorker().getTimeSheetData(year: year);
+
+//     if (response.data != null && response.data!.isNotEmpty) {
+//       staffTimesheetData.assignAll(response.data!);
+//       return response.data!;
+//     } else {
+//       staffTimesheetData.clear();
+//       return {};
+//     }
+//   } catch (e) {
+//     staffTimesheetData.clear();
+//     return {};
+//   } finally {
+//     Future.delayed(const Duration(milliseconds: 50), () {
+//       isTimesheetLoading.value = false;
+//     });
+//   }
+// }
+
 
   Future<void> updateValueBasedTarget(
     String salesmanId,
@@ -339,11 +347,9 @@ class StaffController extends GetxController {
     Map<String, dynamic> weeklyTarget,
   ) async {
     try {
-      var data = await ApiWorker().updateValueBasedTargetValue(
+      await ApiWorker().updateValueBasedTargetValue(
           salesmanId, year, month, monthTarget, weeklyTarget);
-      log("${data.statusMessage}");
     } catch (e) {
-      log('Error: $e');
       rethrow;
     }
   }
@@ -357,11 +363,9 @@ class StaffController extends GetxController {
     Map<dynamic, dynamic> weeklyProjection,
   ) async {
     try {
-      var data = await ApiWorker().updateCategoryTargetValue(salesmanId, month,
+      await ApiWorker().updateCategoryTargetValue(salesmanId, month,
           year, categoryData, weeklyTarget, weeklyProjection);
-      log("${data.statusMessage}");
     } catch (e) {
-      log('Error: $e');
       rethrow;
     }
   }
@@ -373,7 +377,6 @@ class StaffController extends GetxController {
   }) async {
     isLoadingPass.value = true;
     try {
-      log("This Function Worked");
       await ApiWorker().changePassword(
         currentPassword: currentPassword,
         newPassword: newPassword,
@@ -385,10 +388,46 @@ class StaffController extends GetxController {
           "Success",
           "Password changed successfully");
     } catch (e) {
-      log("Error from controller: $e");
       Get.snackbar("Error", "Something went wrong");
     } finally {
       isLoadingPass.value = false;
     }
   }
+  Future<void> loadVisitReports(String yearStr, int monthIndex) async {
+  isVisitReportLoading.value = true;
+  visitReportList.clear();
+
+  try {
+    int year = int.parse(yearStr);
+    
+    // 1. Calculate Start Date: 1st of the month
+    DateTime start = DateTime(year, monthIndex, 1);
+    
+    // 2. Calculate End Date: The 0th day of the NEXT month is the last day of THIS month
+    DateTime end = DateTime(year, monthIndex + 1, 0);
+
+    // 3. Format to String "YYYY-MM-DD"
+    String startDate = DateFormat('yyyy-MM-dd').format(start);
+    String endDate = DateFormat('yyyy-MM-dd').format(end);
+
+    print("Fetching Report: $startDate to $endDate"); // Debug print
+
+    // 4. Call API
+    final jsonData = await ApiWorker().fetchVisitReportData(
+      startDate: startDate, 
+      endDate: endDate
+    );
+
+    if (jsonData != null && jsonData['eventData'] != null) {
+      List<dynamic> events = jsonData['eventData'];
+      visitReportList.value = events
+          .map((data) => VisitReportModel.fromJson(data))
+          .toList();
+    }
+  } catch (e) {
+    print("Error loading visit reports: $e");
+  } finally {
+    isVisitReportLoading.value = false;
+  }
+}
 }

@@ -5,7 +5,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 Widget buildVisitsDialogContent(
     VisitData? data, StaffController staffController) {
   if (data == null) return const Text('No Visit data available.');
@@ -55,7 +54,7 @@ Widget buildVisitsDialogContent(
             height: containerHeight,
             child: Column(
               children: [
-                // Header
+
                 Container(
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
@@ -85,7 +84,7 @@ Widget buildVisitsDialogContent(
                     }).toList(),
                   ),
                 ),
-                // Rows
+
                 Flexible(
                   child: ListView.builder(
                     itemCount: rows.length,
@@ -155,7 +154,7 @@ Widget buildVisitsDialogContent(
               ],
             ),
           ),
-          // Close Button
+
           Positioned(
             top: 0,
             right: 0,

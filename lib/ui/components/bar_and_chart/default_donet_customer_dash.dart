@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
@@ -28,7 +29,7 @@ class DoughnutDefaultCustomerDash extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _DoughnutDefaultCustomerDashState createState() =>
       _DoughnutDefaultCustomerDashState();
 }

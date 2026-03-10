@@ -18,6 +18,7 @@ class CustomDialogHeading extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
+            flex: 1,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Date",
@@ -26,6 +27,7 @@ class CustomDialogHeading extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 1,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Invoice",
@@ -34,6 +36,7 @@ class CustomDialogHeading extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 1,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Status",
@@ -42,6 +45,7 @@ class CustomDialogHeading extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 2,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Amount",
@@ -50,6 +54,7 @@ class CustomDialogHeading extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 1,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Due By",
@@ -58,6 +63,7 @@ class CustomDialogHeading extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 1,
             child: Center(
               child: DialogTableHeaderText(
                 text: "Select",

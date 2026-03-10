@@ -1,10 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'cart_model.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class CartItemAdapter extends TypeAdapter<CartItem> {
   @override
@@ -30,13 +24,17 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       salesmanId: fields[10] as String?,
       boxType: fields[11] as bool?,
       catId: fields[12] as int?,
+      isPromo: fields[13] as bool?,
+      promoCode: fields[14] as String?,
+      promoMsg: fields[15] as String?,
+      bundleItems: (fields[16] as List?)?.cast<BundleItem>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, CartItem obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.detail)
       ..writeByte(1)
@@ -62,7 +60,15 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       ..writeByte(11)
       ..write(obj.boxType)
       ..writeByte(12)
-      ..write(obj.catId);
+      ..write(obj.catId)
+      ..writeByte(13)
+      ..write(obj.isPromo)
+      ..writeByte(14)
+      ..write(obj.promoCode)
+      ..writeByte(15)
+      ..write(obj.promoMsg)
+      ..writeByte(16)
+      ..write(obj.bundleItems);
   }
 
   @override

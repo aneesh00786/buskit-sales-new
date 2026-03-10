@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -9,6 +8,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/collection_dialog_table.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/doughnut_default_delivery.dart';
@@ -46,6 +46,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -99,7 +100,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         targetType = targetTypeSetting?.value ?? '';
       });
     } catch (e) {
-      log("Error fetching settings: $e");
+      //
     }
   }
 
@@ -112,10 +113,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
 
     return SizedBox(
       height: isMobile
-          ? screenHeight * 0.9
+          ? null
           : MediaQuery.of(context).orientation == Orientation.portrait
               ? screenHeight * 0.9
-              : screenHeight * 1.55,
+              : screenHeight * 2,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(
@@ -151,7 +152,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                   SizedBox(
                       height: screenWidth * 0.7,
                       child: orderDeliveryChart(context)),
-                  const SizedBox(height: 70),
+                  const SizedBox(height: 10),
                 ],
               ),
             )
@@ -208,7 +209,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             ),
     );
   }
-
   Widget collectionChart(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
@@ -228,6 +228,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // --- Header ---
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -260,8 +261,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               ],
             ),
             nkSmallSizeBox(),
+            
+            // --- Content ---
             if (subscriptionController.collectionGraph.value != 'true') ...[
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: UpgradePlanButton(),
                 ),
@@ -275,266 +278,145 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                     builder: (context, provider, child) {
                       return FutureBuilder<ResponseModell>(
                         future: provider.futureResponseModel,
-                        builder:
-                            (context, AsyncSnapshot<ResponseModell> snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                        builder: (context, snapshot) {
+                          // 1. Handle Loading
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(
                               child: SpinKitFadingCube(
                                 color: primaryColor,
                                 size: 20.0,
                               ),
                             );
-                          } else if (snapshot.hasError) {
-                            return FutureBuilder(
-                              future:
-                                  Future.delayed(const Duration(seconds: 3)),
-                              builder: (context, delaySnapshot) {
-                                if (delaySnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const SpinKitFadingCube(
-                                    color: primaryColor,
-                                    size: 20.0,
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: NodataWidget(),
-                                  );
-                                }
-                              },
-                            );
-                          } else if (!snapshot.hasData ||
-                              (snapshot.data != null &&
-                                  (snapshot.data!.collection?.payment
-                                          ?.completedOrders?.isEmpty ??
-                                      true) &&
-                                  (snapshot.data!.collection?.order
-                                          ?.pendingAmount?.isEmpty ??
-                                      true) &&
-                                  snapshot.data!.collection?.payment
-                                          ?.completedOrders
-                                          ?.fold(
-                                        0.0,
-                                        (sum, order) =>
-                                            sum + (order.orderTotal ?? 0),
-                                      ) ==
-                                      0)) {
-                            return FutureBuilder(
-                              future:
-                                  Future.delayed(const Duration(seconds: 3)),
-                              builder: (context, delaySnapshot) {
-                                if (delaySnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const SpinKitFadingCube(
-                                    color: primaryColor,
-                                    size: 20.0,
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: NodataWidget(),
-                                  );
-                                }
-                              },
-                            );
-                          } else {
-                            final responseModel = snapshot.data!;
-                            final pendingAmountLabel = responseModel.collection!
-                                    .order!.pendingAmount!.isNotEmpty
-                                ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'
-                                : 'Pending : \$ 0.00';
-                            final dueAmountLabel = responseModel.collection!
-                                    .order!.pendingAmount!.isNotEmpty
-                                ? 'Due : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.dueAmount)}'
-                                : 'Due : \$ 0.00';
+                          }
 
-                            final overdueAmountLabel = responseModel.collection!
-                                    .order!.pendingAmount!.isNotEmpty
-                                ? 'Overdue : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.overDue)}'
-                                : 'Overdue : \$ 0.00';
+                          // 2. Initialize Defaults
+                          double completed = 0.0;
+                          double pending = 0.0;
+                          double due = 0.0;
+                          double overdue = 0.0;
+                          bool hasData = false;
 
-                            final completedOrdersLabel =
-                                'Completed : ${formatAmount(responseModel.collection?.payment?.payedAmount ?? 0.0)}';
+                          var collectionData = snapshot.data?.collection;
 
-                            {
-                              return Column(
-                                children: [
-                                  Expanded(
-                                    child: NestedPieChartj(
-                                      completedOrdersCount:
-                                          // responseModel
-                                          //     .collection!.payment!.completedOrders!
-                                          //     .fold(
-                                          //         0,
-                                          //         (sum, order) =>
-                                          //             sum +
-                                          //             (order.orderTotal?.toInt() ??
-                                          //                 0)),
-                                          responseModel.collection?.payment
-                                                  ?.payedAmount ??
-                                              0.0,
-                                      pendingAmountCount: (responseModel
-                                                      .collection
-                                                      ?.order
-                                                      ?.pendingAmount !=
-                                                  null &&
-                                              responseModel.collection!.order!
-                                                  .pendingAmount!.isNotEmpty)
-                                          ? (responseModel.collection!.order!
-                                                  .pendingAmount!.last.amount
-                                                  ?.toInt() ??
-                                              0)
-                                          : 0,
-                                      dueAmountCount: (responseModel
-                                                  .collection
-                                                  ?.order
-                                                  ?.pendingAmount
-                                                  ?.isNotEmpty ==
-                                              true)
-                                          ? responseModel.collection!.order!
-                                                  .pendingAmount!.last.dueAmount
-                                                  ?.toInt() ??
-                                              0
-                                          : 0,
-                                      overdueAmountCount: (responseModel
-                                                  .collection
-                                                  ?.order
-                                                  ?.pendingAmount
-                                                  ?.isNotEmpty ==
-                                              true)
-                                          ? (responseModel.collection!.order!
-                                                  .pendingAmount!.last.overDue
-                                                  ?.toInt() ??
-                                              0)
-                                          : 0,
-                                      collection: responseModel.collection!,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10.0),
-                                  Wrap(
-                                    alignment: WrapAlignment.center,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 8,
-                                    runSpacing: 4,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          if (completedOrdersLabel ==
-                                              'Completed : ${formatAmount(0)}') {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "No Record Found",
-                                                red,
-                                                Icons.close);
-                                          } else {
-                                            if (responseModel
-                                                    .collection
-                                                    ?.payment
-                                                    ?.completedOrders
-                                                    ?.isNotEmpty ??
-                                                false) {
-                                              showValueCollectionDialog(
-                                                  context,
-                                                  responseModel.collection!,
-                                                  'Recieved Payment');
-                                            }
-                                          }
-                                        },
-                                        child: buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 90, 119, 37),
-                                          completedOrdersLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (pendingAmountLabel ==
-                                              'Pending : ${formatAmount(0)}') {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "No Record Found",
-                                                red,
-                                                Icons.close);
-                                          } else {
-                                            if (responseModel
-                                                    .collection
-                                                    ?.order
-                                                    ?.pendingAmount
-                                                    ?.isNotEmpty ??
-                                                false) {
-                                              pendingPaymentCollectionDialog(
-                                                  context,
-                                                  'Pending Payment',
-                                                  responseModel.collection!);
-                                            }
-                                          }
-                                        },
-                                        child: buildLegendItem(
-                                          const Color(0xffa30c13),
-                                          pendingAmountLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (dueAmountLabel ==
-                                              'Due : ${formatAmount(0)}') {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "No Record Found",
-                                                red,
-                                                Icons.close);
-                                          } else {
-                                            if (responseModel.collection?.due
-                                                    ?.dueAmount?.isNotEmpty ??
-                                                false) {
-                                              pendingPaymentCollectionDialog(
-                                                  context,
-                                                  'Due Payment',
-                                                  responseModel.collection!);
-                                            }
-                                          }
-                                        },
-                                        child: buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 255, 173, 181),
-                                          dueAmountLabel,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (overdueAmountLabel ==
-                                              'Overdue : ${formatAmount(0)}') {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "No Record Found",
-                                                red,
-                                                Icons.close);
-                                          } else {
-                                            if (responseModel
-                                                    .collection
-                                                    ?.overdue
-                                                    ?.overdueAmount
-                                                    ?.isNotEmpty ??
-                                                false) {
-                                              pendingPaymentCollectionDialog(
-                                                  context,
-                                                  'Over Due Payment',
-                                                  responseModel.collection!);
-                                            }
-                                          }
-                                        },
-                                        child: buildLegendItem(
-                                          const Color.fromARGB(
-                                              255, 255, 101, 132),
-                                          overdueAmountLabel,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
+                          // 3. Extract Data Safely
+                          if (snapshot.hasData && collectionData != null) {
+                            completed = collectionData.payment?.payedAmount?.toDouble() ?? 0.0;
+
+                            if (collectionData.order?.pendingAmount?.isNotEmpty == true) {
+                              pending = collectionData.order!.pendingAmount!.last.amount?.toDouble() ?? 0.0;
+                              due = collectionData.order!.pendingAmount!.last.dueAmount?.toDouble() ?? 0.0;
+                              overdue = collectionData.order!.pendingAmount!.last.overDue?.toDouble() ?? 0.0;
+                            }
+
+                            if (completed > 0 || pending > 0 || due > 0 || overdue > 0) {
+                              hasData = true;
                             }
                           }
+
+                          // 4. Render Layout
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Chart or Spacer
+                              if (hasData && collectionData != null)
+                                Expanded(
+                                  child: NestedPieChartj(
+                                    completedOrdersCount: completed,
+                                    pendingAmountCount: pending.toInt(),
+                                    dueAmountCount: due.toInt(),
+                                    overdueAmountCount: overdue.toInt(),
+                                    collection: collectionData,
+                                  ),
+                                )
+                              else
+                                const Spacer(), // Pushes text to bottom if no data
+
+                              const SizedBox(height: 10.0),
+
+                              // Legend / Data Items
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: [
+                                    // Completed
+                                    InkWell(
+                                      onTap: () {
+                                        if (completed == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                        } else {
+                                          if (collectionData?.payment?.completedOrders?.isNotEmpty ?? false) {
+                                            showValueCollectionDialog(context, collectionData!, 'Recieved Payment');
+                                          }
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        const Color.fromARGB(255, 90, 119, 37),
+                                        'Completed : ${formatAmount(completed)}',
+                                      ),
+                                    ),
+                                    
+                                    // Pending
+                                    InkWell(
+                                      onTap: () {
+                                        if (pending == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                        } else {
+                                          if (collectionData?.order?.pendingAmount?.isNotEmpty ?? false) {
+                                            pendingPaymentCollectionDialog(context, 'Pending Payment', collectionData!);
+                                          }
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        const Color(0xffa30c13),
+                                        'Pending : ${formatAmount(pending)}',
+                                      ),
+                                    ),
+                                    
+                                    // Due
+                                    InkWell(
+                                      onTap: () {
+                                        if (due == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                        } else {
+                                          if (collectionData?.due?.dueAmount?.isNotEmpty ?? false) {
+                                            pendingPaymentCollectionDialog(context, 'Due Payment', collectionData!);
+                                          }
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        const Color.fromARGB(255, 255, 173, 181),
+                                        'Due : ${formatAmount(due)}',
+                                      ),
+                                    ),
+                                    
+                                    // Overdue
+                                    InkWell(
+                                      onTap: () {
+                                        if (overdue == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                        } else {
+                                          if (collectionData?.overdue?.overdueAmount?.isNotEmpty ?? false) {
+                                            pendingPaymentCollectionDialog(context, 'Over Due Payment', collectionData!);
+                                          }
+                                        }
+                                      },
+                                      child: buildLegendItem(
+                                        const Color.fromARGB(255, 255, 101, 132),
+                                        'Overdue : ${formatAmount(overdue)}',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Small padding at bottom when no chart exists
+                              if (!hasData) const SizedBox(height: 20),
+                            ],
+                          );
                         },
                       );
                     },
@@ -546,6 +428,344 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       ),
     );
   }
+
+  // Widget collectionChart(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(2.0),
+  //     child: MyCommnonContainer(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+  //           blurRadius: 5,
+  //           offset: const Offset(4, 4),
+  //         ),
+  //       ],
+  //       borderRadius: 25,
+  //       height: 300,
+  //       width: double.infinity,
+  //       isCommonBorder: true,
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               dashboardContainerHeader('Collection'),
+  //               Padding(
+  //                 padding: EdgeInsets.only(
+  //                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+  //                 child: InkWell(
+  //                   onTap: () {
+  //                     showCollectionChartDialog(
+  //                       context,
+  //                       'Collection',
+  //                     );
+  //                   },
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         color: primaryColor.withOpacity(0.3)),
+  //                     child: const Padding(
+  //                       padding: EdgeInsets.all(5.0),
+  //                       child: Icon(
+  //                         Icons.open_in_new,
+  //                         size: 17,
+  //                         color: primaryColor,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           nkSmallSizeBox(),
+  //           if (subscriptionController.collectionGraph.value != 'true') ...[
+  //             Expanded(
+  //               child: Center(
+  //                 child: UpgradePlanButton(),
+  //               ),
+  //             )
+  //           ],
+  //           if (subscriptionController.collectionGraph.value == 'true')
+  //             Expanded(
+  //               child: Padding(
+  //                 padding: const EdgeInsets.all(8.0),
+  //                 child: Consumer<DashboardProvider>(
+  //                   builder: (context, provider, child) {
+  //                     return FutureBuilder<ResponseModell>(
+  //                       future: provider.futureResponseModel,
+  //                       builder:
+  //                           (context, AsyncSnapshot<ResponseModell> snapshot) {
+  //                         if (snapshot.connectionState ==
+  //                             ConnectionState.waiting) {
+  //                           return const Center(
+  //                             child: SpinKitFadingCube(
+  //                               color: primaryColor,
+  //                               size: 20.0,
+  //                             ),
+  //                           );
+  //                         } else if (snapshot.hasError) {
+  //                           return FutureBuilder(
+  //                             future:
+  //                                 Future.delayed(const Duration(seconds: 3)),
+  //                             builder: (context, delaySnapshot) {
+  //                               if (delaySnapshot.connectionState ==
+  //                                   ConnectionState.waiting) {
+  //                                 return const SpinKitFadingCube(
+  //                                   color: primaryColor,
+  //                                   size: 20.0,
+  //                                 );
+  //                               } else {
+  //                                 return const Center(
+  //                                   child: NodataWidget(),
+  //                                 );
+  //                               }
+  //                             },
+  //                           );
+  //                         } else if (!snapshot.hasData ||
+  //                             (snapshot.data != null &&
+  //                                 (snapshot.data!.collection?.payment
+  //                                         ?.completedOrders?.isEmpty ??
+  //                                     true) &&
+  //                                 (snapshot.data!.collection?.order
+  //                                         ?.pendingAmount?.isEmpty ??
+  //                                     true) &&
+  //                                 snapshot.data!.collection?.payment
+  //                                         ?.completedOrders
+  //                                         ?.fold(
+  //                                       0.0,
+  //                                       (sum, order) =>
+  //                                           sum + (order.orderTotal ?? 0),
+  //                                     ) ==
+  //                                     0)) {
+  //                           return FutureBuilder(
+  //                             future:
+  //                                 Future.delayed(const Duration(seconds: 3)),
+  //                             builder: (context, delaySnapshot) {
+  //                               if (delaySnapshot.connectionState ==
+  //                                   ConnectionState.waiting) {
+  //                                 return const SpinKitFadingCube(
+  //                                   color: primaryColor,
+  //                                   size: 20.0,
+  //                                 );
+  //                               } else {
+  //                                 return const Center(
+  //                                   child: NodataWidget(),
+  //                                 );
+  //                               }
+  //                             },
+  //                           );
+  //                         } else {
+  //                           final responseModel = snapshot.data!;
+  //                           final pendingAmountLabel = responseModel.collection!
+  //                                   .order!.pendingAmount!.isNotEmpty
+  //                               ? 'Pending : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.amount)}'
+  //                               : 'Pending : \$ 0.00';
+  //                           final dueAmountLabel = responseModel.collection!
+  //                                   .order!.pendingAmount!.isNotEmpty
+  //                               ? 'Due : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.dueAmount)}'
+  //                               : 'Due : \$ 0.00';
+
+  //                           final overdueAmountLabel = responseModel.collection!
+  //                                   .order!.pendingAmount!.isNotEmpty
+  //                               ? 'Overdue : ${formatAmount(responseModel.collection!.order!.pendingAmount!.last.overDue)}'
+  //                               : 'Overdue : \$ 0.00';
+
+  //                           final completedOrdersLabel =
+  //                               'Completed : ${formatAmount(responseModel.collection?.payment?.payedAmount ?? 0.0)}';
+
+  //                           {
+  //                             return Column(
+  //                               children: [
+  //                                 Expanded(
+  //                                   child: NestedPieChartj(
+  //                                     completedOrdersCount:
+  //                                         // responseModel
+  //                                         //     .collection!.payment!.completedOrders!
+  //                                         //     .fold(
+  //                                         //         0,
+  //                                         //         (sum, order) =>
+  //                                         //             sum +
+  //                                         //             (order.orderTotal?.toInt() ??
+  //                                         //                 0)),
+  //                                         responseModel.collection?.payment
+  //                                                 ?.payedAmount ??
+  //                                             0.0,
+  //                                     pendingAmountCount: (responseModel
+  //                                                     .collection
+  //                                                     ?.order
+  //                                                     ?.pendingAmount !=
+  //                                                 null &&
+  //                                             responseModel.collection!.order!
+  //                                                 .pendingAmount!.isNotEmpty)
+  //                                         ? (responseModel.collection!.order!
+  //                                                 .pendingAmount!.last.amount
+  //                                                 ?.toInt() ??
+  //                                             0)
+  //                                         : 0,
+  //                                     dueAmountCount: (responseModel
+  //                                                 .collection
+  //                                                 ?.order
+  //                                                 ?.pendingAmount
+  //                                                 ?.isNotEmpty ==
+  //                                             true)
+  //                                         ? responseModel.collection!.order!
+  //                                                 .pendingAmount!.last.dueAmount
+  //                                                 ?.toInt() ??
+  //                                             0
+  //                                         : 0,
+  //                                     overdueAmountCount: (responseModel
+  //                                                 .collection
+  //                                                 ?.order
+  //                                                 ?.pendingAmount
+  //                                                 ?.isNotEmpty ==
+  //                                             true)
+  //                                         ? (responseModel.collection!.order!
+  //                                                 .pendingAmount!.last.overDue
+  //                                                 ?.toInt() ??
+  //                                             0)
+  //                                         : 0,
+  //                                     collection: responseModel.collection!,
+  //                                   ),
+  //                                 ),
+  //                                 const SizedBox(height: 10.0),
+  //                                 Wrap(
+  //                                   alignment: WrapAlignment.center,
+  //                                   crossAxisAlignment:
+  //                                       WrapCrossAlignment.center,
+  //                                   spacing: 8,
+  //                                   runSpacing: 4,
+  //                                   children: [
+  //                                     InkWell(
+  //                                       onTap: () {
+  //                                         if (completedOrdersLabel ==
+  //                                             'Completed : ${formatAmount(0)}') {
+  //                                           showCustomToastDisplay(
+  //                                               context,
+  //                                               "No Record Found",
+  //                                               red,
+  //                                               Icons.close);
+  //                                         } else {
+  //                                           if (responseModel
+  //                                                   .collection
+  //                                                   ?.payment
+  //                                                   ?.completedOrders
+  //                                                   ?.isNotEmpty ??
+  //                                               false) {
+  //                                             showValueCollectionDialog(
+  //                                                 context,
+  //                                                 responseModel.collection!,
+  //                                                 'Recieved Payment');
+  //                                           }
+  //                                         }
+  //                                       },
+  //                                       child: buildLegendItem(
+  //                                         const Color.fromARGB(
+  //                                             255, 90, 119, 37),
+  //                                         completedOrdersLabel,
+  //                                       ),
+  //                                     ),
+  //                                     InkWell(
+  //                                       onTap: () {
+  //                                         if (pendingAmountLabel ==
+  //                                             'Pending : ${formatAmount(0)}') {
+  //                                           showCustomToastDisplay(
+  //                                               context,
+  //                                               "No Record Found",
+  //                                               red,
+  //                                               Icons.close);
+  //                                         } else {
+  //                                           if (responseModel
+  //                                                   .collection
+  //                                                   ?.order
+  //                                                   ?.pendingAmount
+  //                                                   ?.isNotEmpty ??
+  //                                               false) {
+  //                                             pendingPaymentCollectionDialog(
+  //                                                 context,
+  //                                                 'Pending Payment',
+  //                                                 responseModel.collection!);
+  //                                           }
+  //                                         }
+  //                                       },
+  //                                       child: buildLegendItem(
+  //                                         const Color(0xffa30c13),
+  //                                         pendingAmountLabel,
+  //                                       ),
+  //                                     ),
+  //                                     InkWell(
+  //                                       onTap: () {
+  //                                         if (dueAmountLabel ==
+  //                                             'Due : ${formatAmount(0)}') {
+  //                                           showCustomToastDisplay(
+  //                                               context,
+  //                                               "No Record Found",
+  //                                               red,
+  //                                               Icons.close);
+  //                                         } else {
+  //                                           if (responseModel.collection?.due
+  //                                                   ?.dueAmount?.isNotEmpty ??
+  //                                               false) {
+  //                                             pendingPaymentCollectionDialog(
+  //                                                 context,
+  //                                                 'Due Payment',
+  //                                                 responseModel.collection!);
+  //                                           }
+  //                                         }
+  //                                       },
+  //                                       child: buildLegendItem(
+  //                                         const Color.fromARGB(
+  //                                             255, 255, 173, 181),
+  //                                         dueAmountLabel,
+  //                                       ),
+  //                                     ),
+  //                                     InkWell(
+  //                                       onTap: () {
+  //                                         if (overdueAmountLabel ==
+  //                                             'Overdue : ${formatAmount(0)}') {
+  //                                           showCustomToastDisplay(
+  //                                               context,
+  //                                               "No Record Found",
+  //                                               red,
+  //                                               Icons.close);
+  //                                         } else {
+  //                                           if (responseModel
+  //                                                   .collection
+  //                                                   ?.overdue
+  //                                                   ?.overdueAmount
+  //                                                   ?.isNotEmpty ??
+  //                                               false) {
+  //                                             pendingPaymentCollectionDialog(
+  //                                                 context,
+  //                                                 'Over Due Payment',
+  //                                                 responseModel.collection!);
+  //                                           }
+  //                                         }
+  //                                       },
+  //                                       child: buildLegendItem(
+  //                                         const Color.fromARGB(
+  //                                             255, 255, 101, 132),
+  //                                         overdueAmountLabel,
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               ],
+  //                             );
+  //                           }
+  //                         }
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget orderDeliveryChart(BuildContext context) {
     return Padding(
@@ -565,6 +785,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --- Header ---
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -574,10 +795,19 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
                   child: InkWell(
                     onTap: () {
-                      showOrderStatusChartDialog(
-                        context,
-                        'Order Status',
-                      );
+                      if (subscriptionController.orderStatusGraph.value ==
+                          'true') {
+                        showOrderStatusChartDialog(
+                          context,
+                          'Order Status',
+                        );
+                      } else {
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (context) =>  UpgradePlanScreen(),
+                        );
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -596,8 +826,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                 ),
               ],
             ),
+            
+            // --- Content ---
             if (subscriptionController.orderStatusGraph.value != 'true') ...[
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: UpgradePlanButton(),
                 ),
@@ -612,155 +844,124 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                       return FutureBuilder<ResponseModell>(
                         future: provider.futureResponseModel,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          // 1. Handle Loading
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(
                               child: SpinKitFadingCube(
                                 color: primaryColor,
                                 size: 20.0,
                               ),
                             );
-                          } else if (snapshot.hasError) {
-                            return FutureBuilder(
-                              future:
-                                  Future.delayed(const Duration(seconds: 3)),
-                              builder: (context, delaySnapshot) {
-                                if (delaySnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const SpinKitFadingCube(
-                                    color: primaryColor,
-                                    size: 20.0,
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: NodataWidget(),
-                                  );
-                                }
-                              },
-                            );
-                          } else if (snapshot.hasData) {
-                            final categoryPerformance = snapshot.data!.delivery;
+                          }
 
-                            if (categoryPerformance == null ||
-                                categoryPerformance
-                                    .order!.totalOrders!.isEmpty) {
-                              return const NodataWidget();
+                          // 2. Initialize Defaults
+                          num processing = 0.0;
+                          num packed = 0.0;
+                          num delivered = 0.0;
+                          bool hasData = false;
+                          
+                          var categoryPerformance = snapshot.data?.delivery;
+
+                          // 3. Extract Data Safely
+                          if (snapshot.hasData && categoryPerformance?.order?.totalOrders?.isNotEmpty == true) {
+                            final lastOrder = categoryPerformance!.order!.totalOrders!.last;
+                            processing = lastOrder.orderProcessing ?? 0.0;
+                            packed = lastOrder.outForDelivery ?? 0.0;
+                            delivered = lastOrder.deliverd ?? 0.0;
+
+                            if (processing > 0 || packed > 0 || delivered > 0) {
+                              hasData = true;
                             }
+                          }
 
-                            return Center(
-                              child: DoughnutDefaultDelivery(
-                                deliveryData: categoryPerformance,
-                                aColor: Colors.blue.shade300,
-                                bColor: const Color(0xffc38a42),
-                                cColor: const Color(0xff33b4a8),
-                                legend2: Wrap(
+                          // 4. Render Layout
+                          return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Chart or Spacer
+                              if (hasData && categoryPerformance != null)
+                                Expanded(
+                                  child: DoughnutDefaultDelivery(
+                                    deliveryData: categoryPerformance,
+                                    aColor: Colors.blue.shade300,
+                                    bColor: const Color(0xffc38a42),
+                                    cColor: const Color(0xff33b4a8),
+                                    legend2: const SizedBox.shrink(), // Hiding internal legend to use custom one below
+                                    legend1: const SizedBox.shrink(),
+                                  ),
+                                )
+                              else
+                                const Spacer(), // Pushes text to bottom if no data
+
+                              const SizedBox(height: 10),
+
+                              // Legend / Data Items
+                              Container(
+                                width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Wrap(
                                   alignment: WrapAlignment.center,
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   spacing: 8,
                                   runSpacing: 4,
                                   children: [
-                                    OrderStatusLegend(
-                                      categoryPerformance: categoryPerformance,
-                                      label:
-                                          "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
-                                      color: Colors.blue.shade300,
+                                    // Processing
+                                    InkWell(
                                       onTap: () {
-                                        if (categoryPerformance
-                                                .order!
-                                                .totalOrders!
-                                                .last
-                                                .orderProcessing !=
-                                            0) {
-                                          showValueOrderDialog(
-                                              context,
-                                              categoryPerformance,
-                                              "Processing Orders",
-                                              5);
+                                        if (processing == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
                                         } else {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
+                                          if (categoryPerformance != null) {
+                                            showValueOrderDialog(context, categoryPerformance, "Processing Orders", 5);
+                                          }
                                         }
                                       },
+                                      child: _buildLegendItem(
+                                        Colors.blue.shade300,
+                                        "Processing : ${formatAmount(processing)}",
+                                      ),
                                     ),
-                                    OrderStatusLegend(
-                                      categoryPerformance: categoryPerformance,
-                                      label: categoryPerformance.order
-                                                  ?.totalOrders?.isNotEmpty ==
-                                              true
-                                          ? "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}"
-                                          : "Packed & Ready for Delivery : 0",
-                                      color: const Color(0xffc38a42),
+                                    
+                                    // Packed
+                                    InkWell(
                                       onTap: () {
-                                        if (categoryPerformance
-                                                .order!
-                                                .totalOrders!
-                                                .last
-                                                .outForDelivery !=
-                                            0) {
-                                          showValueOrderDialog(
-                                              context,
-                                              categoryPerformance,
-                                              "Packed & Ready for Delivery",
-                                              1);
+                                        if (packed == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
                                         } else {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
+                                          if (categoryPerformance != null) {
+                                            showValueOrderDialog(context, categoryPerformance, "Packed & Ready for Delivery", 1);
+                                          }
                                         }
                                       },
+                                      child: _buildLegendItem(
+                                        const Color(0xffc38a42),
+                                        "Packed & Ready for Delivery : ${formatAmount(packed)}",
+                                      ),
                                     ),
-                                    OrderStatusLegend(
-                                      categoryPerformance: categoryPerformance,
-                                      label:
-                                          "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
-                                      color: const Color(0xff33b4a8),
+                                
+                                    // Delivered
+                                    InkWell(
                                       onTap: () {
-                                        if (categoryPerformance.order!
-                                                .totalOrders!.last.deliverd !=
-                                            0) {
-                                          showValueOrderDialog(
-                                              context,
-                                              categoryPerformance,
-                                              "Delivered Orders",
-                                              2);
+                                        if (delivered == 0) {
+                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
                                         } else {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No Record Found",
-                                              red,
-                                              Icons.close);
+                                          if (categoryPerformance != null) {
+                                            showValueOrderDialog(context, categoryPerformance, "Delivered Orders", 2);
+                                          }
                                         }
                                       },
+                                      child: _buildLegendItem(
+                                        const Color(0xff33b4a8),
+                                        "Delivered : ${formatAmount(delivered)}",
+                                      ),
                                     ),
                                   ],
                                 ),
-                                legend1: const SizedBox.shrink(),
                               ),
-                            );
-                          } else {
-                            return FutureBuilder(
-                              future:
-                                  Future.delayed(const Duration(seconds: 3)),
-                              builder: (context, delaySnapshot) {
-                                if (delaySnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const SpinKitFadingCube(
-                                    color: primaryColor,
-                                    size: 20.0,
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: NodataWidget(),
-                                  );
-                                }
-                              },
-                            );
-                          }
+                              // Small padding at bottom when no chart exists
+                              if (!hasData) const SizedBox(height: 20),
+                            ],
+                          );
                         },
                       );
                     },
@@ -772,6 +973,252 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
       ),
     );
   }
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(
+          radius: 6,
+          backgroundColor: color,
+        ),
+        const SizedBox(width: 5),
+        MyRegularText(
+          label: label,
+          fontSize: 11.6,
+          fontWeight: FontWeight.w600,
+          color: secondaryTextColor,
+        ),
+      ],
+    );
+  }
+  
+
+
+  // Widget orderDeliveryChart(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(2.0),
+  //     child: MyCommnonContainer(
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
+  //           blurRadius: 5,
+  //           offset: const Offset(4, 4),
+  //         ),
+  //       ],
+  //       borderRadius: 25,
+  //       height: 300,
+  //       width: double.infinity,
+  //       isCommonBorder: true,
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               dashboardContainerHeader('Order Status'),
+  //               Padding(
+  //                 padding: EdgeInsets.only(
+  //                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+  //                 child: InkWell(
+  //                   onTap: () {
+  //                     showOrderStatusChartDialog(
+  //                       context,
+  //                       'Order Status',
+  //                     );
+  //                   },
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         color: primaryColor.withOpacity(0.3)),
+  //                     child: const Padding(
+  //                       padding: EdgeInsets.all(5.0),
+  //                       child: Icon(
+  //                         Icons.open_in_new,
+  //                         size: 17,
+  //                         color: primaryColor,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           if (subscriptionController.orderStatusGraph.value != 'true') ...[
+  //             Expanded(
+  //               child: Center(
+  //                 child: UpgradePlanButton(),
+  //               ),
+  //             )
+  //           ],
+  //           if (subscriptionController.orderStatusGraph.value == 'true')
+  //             Expanded(
+  //               child: Padding(
+  //                 padding: const EdgeInsets.all(8.0),
+  //                 child: Consumer<DashboardProvider>(
+  //                   builder: (context, provider, child) {
+  //                     return FutureBuilder<ResponseModell>(
+  //                       future: provider.futureResponseModel,
+  //                       builder: (context, snapshot) {
+  //                         if (snapshot.connectionState ==
+  //                             ConnectionState.waiting) {
+  //                           return const Center(
+  //                             child: SpinKitFadingCube(
+  //                               color: primaryColor,
+  //                               size: 20.0,
+  //                             ),
+  //                           );
+  //                         } else if (snapshot.hasError) {
+  //                           return FutureBuilder(
+  //                             future:
+  //                                 Future.delayed(const Duration(seconds: 3)),
+  //                             builder: (context, delaySnapshot) {
+  //                               if (delaySnapshot.connectionState ==
+  //                                   ConnectionState.waiting) {
+  //                                 return const SpinKitFadingCube(
+  //                                   color: primaryColor,
+  //                                   size: 20.0,
+  //                                 );
+  //                               } else {
+  //                                 return const Center(
+  //                                   child: NodataWidget(),
+  //                                 );
+  //                               }
+  //                             },
+  //                           );
+  //                         } else if (snapshot.hasData) {
+  //                           final categoryPerformance = snapshot.data!.delivery;
+
+  //                           if (categoryPerformance == null ||
+  //                               categoryPerformance
+  //                                   .order!.totalOrders!.isEmpty) {
+  //                             return const NodataWidget();
+  //                           }
+
+  //                           return Center(
+  //                             child: DoughnutDefaultDelivery(
+  //                               deliveryData: categoryPerformance,
+  //                               aColor: Colors.blue.shade300,
+  //                               bColor: const Color(0xffc38a42),
+  //                               cColor: const Color(0xff33b4a8),
+  //                               legend2: Wrap(
+  //                                 alignment: WrapAlignment.center,
+  //                                 crossAxisAlignment: WrapCrossAlignment.center,
+  //                                 spacing: 8,
+  //                                 runSpacing: 4,
+  //                                 children: [
+  //                                   OrderStatusLegend(
+  //                                     categoryPerformance: categoryPerformance,
+  //                                     label:
+  //                                         "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+  //                                     color: Colors.blue.shade300,
+  //                                     onTap: () {
+  //                                       if (categoryPerformance
+  //                                               .order!
+  //                                               .totalOrders!
+  //                                               .last
+  //                                               .orderProcessing !=
+  //                                           0) {
+  //                                         showValueOrderDialog(
+  //                                             context,
+  //                                             categoryPerformance,
+  //                                             "Processing Orders",
+  //                                             5);
+  //                                       } else {
+  //                                         showCustomToastDisplay(
+  //                                             context,
+  //                                             "No Record Found",
+  //                                             red,
+  //                                             Icons.close);
+  //                                       }
+  //                                     },
+  //                                   ),
+  //                                   OrderStatusLegend(
+  //                                     categoryPerformance: categoryPerformance,
+  //                                     label: categoryPerformance.order
+  //                                                 ?.totalOrders?.isNotEmpty ==
+  //                                             true
+  //                                         ? "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}"
+  //                                         : "Packed & Ready for Delivery : 0",
+  //                                     color: const Color(0xffc38a42),
+  //                                     onTap: () {
+  //                                       if (categoryPerformance
+  //                                               .order!
+  //                                               .totalOrders!
+  //                                               .last
+  //                                               .outForDelivery !=
+  //                                           0) {
+  //                                         showValueOrderDialog(
+  //                                             context,
+  //                                             categoryPerformance,
+  //                                             "Packed & Ready for Delivery",
+  //                                             1);
+  //                                       } else {
+  //                                         showCustomToastDisplay(
+  //                                             context,
+  //                                             "No Record Found",
+  //                                             red,
+  //                                             Icons.close);
+  //                                       }
+  //                                     },
+  //                                   ),
+  //                                   OrderStatusLegend(
+  //                                     categoryPerformance: categoryPerformance,
+  //                                     label:
+  //                                         "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
+  //                                     color: const Color(0xff33b4a8),
+  //                                     onTap: () {
+  //                                       if (categoryPerformance.order!
+  //                                               .totalOrders!.last.deliverd !=
+  //                                           0) {
+  //                                         showValueOrderDialog(
+  //                                             context,
+  //                                             categoryPerformance,
+  //                                             "Delivered Orders",
+  //                                             2);
+  //                                       } else {
+  //                                         showCustomToastDisplay(
+  //                                             context,
+  //                                             "No Record Found",
+  //                                             red,
+  //                                             Icons.close);
+  //                                       }
+  //                                     },
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                               legend1: const SizedBox.shrink(),
+  //                             ),
+  //                           );
+  //                         } else {
+  //                           return FutureBuilder(
+  //                             future:
+  //                                 Future.delayed(const Duration(seconds: 3)),
+  //                             builder: (context, delaySnapshot) {
+  //                               if (delaySnapshot.connectionState ==
+  //                                   ConnectionState.waiting) {
+  //                                 return const SpinKitFadingCube(
+  //                                   color: primaryColor,
+  //                                   size: 20.0,
+  //                                 );
+  //                               } else {
+  //                                 return const Center(
+  //                                   child: NodataWidget(),
+  //                                 );
+  //                               }
+  //                             },
+  //                           );
+  //                         }
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //             )
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget sendReply(DashboardProvider provider) {
     double iconSize = 20.0;
@@ -817,7 +1264,6 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             //       provider.selectedChat!.salesmanId, message);
             //   communicationController.clear();
             // }
-            // print(message);
           },
           child: Icon(
             Icons.send,
@@ -1100,10 +1546,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
     socket.connect();
     socket.on('connect', (_) {
-      log('Connected to socket server');
     });
     socket.on('disconnect', (_) {
-      log('Disconnected from socket server');
     });
     socket.emit('join_room', salesmanId);
 
@@ -1116,7 +1560,6 @@ class _ChatScreenState extends State<ChatScreen> {
         updatedAt: msg['updated_at'],
         createdAt: msg['created_at'],
       );
-      log('Date Time :${newMessage.updatedAt}');
       Provider.of<DashboardProvider>(context, listen: false)
           .addMessages([newMessage]);
       _scrollToBottom();
@@ -1141,7 +1584,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final fileBytes = _selectedImage!.readAsBytesSync();
     final base64Image = base64Encode(fileBytes);
     if (fileBytes.length > 1 * 1024 * 1024) {
-      debugPrint('Image is too large to send');
       return null;
     }
     return base64Image;
@@ -1160,7 +1602,6 @@ class _ChatScreenState extends State<ChatScreen> {
       String cleanedString = cleanBase64(base64String);
       return base64Decode(cleanedString);
     } catch (e) {
-      debugPrint("Error decoding image: $e");
       return null;
     }
   }
@@ -1255,7 +1696,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           );
         } catch (e) {
-          debugPrint("Error decoding image: $e");
           return const Text(
             'Failed to load image',
             style: TextStyle(color: Colors.red),
@@ -1278,15 +1718,29 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              NKDateUtils.commonFullDateTimeFormat2(
-                NKDateUtils.formatStringUTCDateTime(
-                    message.createdAt.toString()),
-              ),
-              style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.black45,
-                  fontWeight: FontWeight.w500),
-            ),
+  TimeUtils.formatTimeInZone(
+    // 1. Parse the String to a DateTime object
+    DateTime.parse(message.createdAt.toString()),
+    
+    // 2. Define the format pattern (Match this to what commonFullDateTimeFormat2 used)
+    format: 'dd MMM yyyy, hh:mm a', 
+  ),
+  style: const TextStyle(
+    fontSize: 11,
+    color: Colors.black45,
+    fontWeight: FontWeight.w500,
+  ),
+),
+            // Text(
+            //   NKDateUtils.commonFullDateTimeFormat2(
+            //     NKDateUtils.formatStringUTCDateTime(
+            //         message.createdAt.toString()),
+            //   ),
+            //   style: const TextStyle(
+            //       fontSize: 11,
+            //       color: Colors.black45,
+            //       fontWeight: FontWeight.w500),
+            // ),
             if (message.source == 'salesman') ...[
               const SizedBox(width: 4),
               const Icon(Icons.done_all, size: 11, color: Colors.black54),
@@ -1298,7 +1752,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    log('This function hasbeen called');
     String message = _controller.text.trim();
     String? base64Image = _prepareImage();
     if (message.isEmpty && base64Image == null) return;

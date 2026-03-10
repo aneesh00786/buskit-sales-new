@@ -9,10 +9,12 @@ class DialogueHedingWidget extends StatelessWidget {
     required this.height,
     required this.width,
     required this.title,
+    required this.creditWidget,
   });
   final double height;
   final double width;
   final String title;
+  final Widget creditWidget;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -55,19 +57,25 @@ class DialogueHedingWidget extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              icon: const CircleAvatar(
-                radius: 15,
-                child: Icon(
-                  Icons.close_rounded,
-                  color: Colors.black,
-                  size: 14,
+            Row(
+              children: [
+               creditWidget,
+               SizedBox(width: 10,),
+                IconButton(
+                  icon: const CircleAvatar(
+                    radius: 15,
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: Colors.black,
+                      size: 14,
+                    ),
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-              ),
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              ],
             ),
           ],
         ),

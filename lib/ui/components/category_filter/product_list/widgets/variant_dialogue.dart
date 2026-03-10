@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -15,6 +13,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 class ProductVariantDialogue extends StatefulWidget {
@@ -45,6 +44,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late List<int> localCounts;
+
   @override
   void initState() {
     super.initState();
@@ -799,42 +799,49 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          onPressed: () async {
-                            final customerId = customerAndOrderController
-                                    .customerId.value.isNotEmpty
-                                ? customerAndOrderController.customerId.value
-                                : widget
-                                    .productController.selectedCustomerId.value;
+                        onPressed: () async {
 
-                            int totalCount = 0;
+                          double finalCatTax = (widget.product.catTax ?? 0).toDouble();
 
-                            if ((customerAndOrderController
-                                    .customerId.value.isNotEmpty) ||
-                                (widget.productController.selectedCustomerName
-                                    .value.isNotEmpty)) {
-                              log("details copy : ${widget.detailsCopy.map((e) => e.toJson()).toList()}");
-                              for (var i = 0;
-                                  i < widget.detailsCopy.length;
-                                  i++) {
-                                if (localCounts[i] > 0) {
-                                  totalCount += localCounts[i];
-                                } else {}
-                              }
-                              if (totalCount == 0) {
-                                showCustomToastDisplay(
-                                    context,
-                                    "Choose at least one variant to add to cart",
-                                    Colors.orange,
-                                    Icons.warning);
-                                return;
-                              }
-                              for (var i = 0;
-                                  i < widget.detailsCopy.length;
-                                  i++) {
-                                Detail detail = widget.detailsCopy[i];
-                                if (localCounts[i] > 0) {
-                                  final bool isPack = detail.saleBy == 'Pack';
-                                  await CartDatabaseManager().addToCart(
+  // 2. If screen data is missing tax, fetch it from the Hive Cache (Login Data)
+  if (finalCatTax == 0) {
+     finalCatTax = getStoredTaxFromCache(widget.product.productId!);
+  }
+                          print('on pressed tappedttt');
+                          final customerId = customerAndOrderController
+                                  .customerId.value.isNotEmpty
+                              ? customerAndOrderController.customerId.value
+                              : widget
+                                  .productController.selectedCustomerId.value;
+
+                          int totalCount = 0;
+
+                          if ((customerAndOrderController
+                                  .customerId.value.isNotEmpty) ||
+                              (widget.productController.selectedCustomerName
+                                  .value.isNotEmpty)) {
+                            for (var i = 0;
+                                i < widget.detailsCopy.length;
+                                i++) {
+                              if (localCounts[i] > 0) {
+                                totalCount += localCounts[i];
+                              } else {}
+                            }
+                            if (totalCount == 0) {
+                              showCustomToastDisplay(
+                                  context,
+                                  "Choose at least one variant to add to cart",
+                                  Colors.orange,
+                                  Icons.warning);
+                              return;
+                            }
+                            for (var i = 0;
+                                i < widget.detailsCopy.length;
+                                i++) {
+                              Detail detail = widget.detailsCopy[i];
+                              if (localCounts[i] > 0) {
+                                final bool isPack = detail.saleBy == 'Pack';
+                              await CartDatabaseManager().addToCart(
                                     customerId: customerId,
                                     localCount: localCounts[i],
                                     detail: detail,
@@ -844,84 +851,88 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     inclTax: widget.product.inclTax ?? '',
                                     isChcked: true,
                                     catId: widget.product.catId ?? 0,
+                                    // catTax: (widget.product.catTax ?? 0).toDouble(),
+                                    catTax: (widget.productList.first.catTax ?? 0).toDouble(),
+
                                   );
-                                  widget.productController.isCartModified
-                                      .value = true;
-                                  log('Product added to cart or draft with ID: ${detail.variationId} with quantity ${localCounts[i]}');
-                                } else {
-                                  log('Cannot add product with ID: ${detail.variationId} because the count is zero or less.');
-                                }
+                                print('product name :${ widget.product.productName}');
+                                print('cattaxxxxxxx:${widget.productList.first.catTax}');
+                                print('productttt:${widget.product.toJson()}');
+                                widget.productController.isCartModified.value =
+                                    true;
+                              } else {
                               }
-
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final cartProvider =
-                                    Provider.of<CustomersProvider>(context,
-                                        listen: false);
-                                cartProvider.updateCartCount(customerId);
-                                cartProvider.getCartItemCounts(customerId);
-                                widget.onDone();
-
-                                Navigator.pop(context);
-                              });
-                            } else {
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    actions: [
-                                      const SizedBox(height: 20),
-                                      const Center(
-                                          child: Icon(
-                                              Icons.warning_amber_outlined,
-                                              size: 50,
-                                              color: Colors.orange)),
-                                      const SizedBox(height: 20),
-                                      Center(
-                                          child: CustomText(
-                                              content:
-                                                  "Please Select a Customer",
-                                              fontSize: 18)),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: CustomText(
-                                            content: "Ok", color: primaryColor),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
                             }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryButtonColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.04,
-                              vertical: screenHeight * 0.01,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              final cartProvider =
+                                  Provider.of<CustomersProvider>(context,
+                                      listen: false);
+                              cartProvider.updateCartCount(customerId);
+                              cartProvider.getCartItemCounts(customerId);
+                              widget.onDone();
+
+                              Navigator.pop(context);
+                            });
+                          } else {
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  actions: [
+                                    const SizedBox(height: 20),
+                                    const Center(
+                                        child: Icon(
+                                            Icons.warning_amber_outlined,
+                                            size: 50,
+                                            color: Colors.orange)),
+                                    const SizedBox(height: 20),
+                                    Center(
+                                        child: CustomText(
+                                            content: "Please Select a Customer",
+                                            fontSize: 18)),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: CustomText(
+                                          content: "Ok", color: primaryColor),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryButtonColor,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04,
+                            vertical: screenHeight * 0.01,
                           ),
-                          child: Row(
-                            children: [
-                              CustomText(
-                                content: "Add to Cart",
-                                fontSize: screenWidth * 0.02,
-                                color: Colors.white,
-                              ),
-                              SizedBox(
-                                width: screenWidth * 0.02,
-                              ),
-                              Icon(
-                                EneftyIcons.shopping_cart_outline,
-                                size: screenWidth * 0.03,
-                                color: white,
-                              )
-                            ],
-                          )),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CustomText(
+                              content: "Add to Cart",
+                              fontSize: screenWidth * 0.02,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: screenWidth * 0.02,
+                            ),
+                            Icon(
+                              EneftyIcons.shopping_cart_outline,
+                              size: screenWidth * 0.03,
+                              color: white,
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -946,4 +957,52 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
       }
     });
   }
+}
+
+double getStoredTaxFromCache(String targetProductId) {
+  // 1. Search in the SCID Groups Box (Primary Cache)
+  if (Hive.isBoxOpen('scidProductGroups')) {
+    final scidBox = Hive.box<ScidProductGroup>('scidProductGroups');
+    
+    // Iterate through every group (subcategory)
+    for (var group in scidBox.values) {
+      try {
+        // Try to find the product in this group
+        final product = group.products.firstWhere(
+          (p) => p.productId == targetProductId,
+        );
+        
+        // If found and has tax, return it immediately
+        if (product.catTax != null) {
+          print('Found tax in ScidCache: ${product.catTax}');
+          return product.catTax!.toDouble();
+        }
+      } catch (e) {
+        // Product not found in this group, continue to next group
+        continue;
+      }
+    }
+  }
+
+  // 2. Search in the Products Box (Legacy/Fallback Cache)
+  if (Hive.isBoxOpen('products')) {
+    final productBox = Hive.box<ProductModel>('products');
+    
+    // Find product by matching productId directly
+    try {
+      final product = productBox.values.firstWhere(
+        (p) => p.productId == targetProductId,
+      );
+      
+      if (product.catTax != null) {
+        print('Found tax in ProductBox: ${product.catTax}');
+        return product.catTax!.toDouble();
+      }
+    } catch (e) {
+      // Not found in legacy box either
+    }
+  }
+
+  print('Tax not found in any cache. Returning 0.0');
+  return 0.0;
 }

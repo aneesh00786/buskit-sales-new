@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 Future<bool> isFileSizeWithinLimit(File file) async {
@@ -15,6 +14,5 @@ void checkFile(File file) async {
   bool isValid = await isFileSizeWithinLimit(file);
   if (isValid) {
   } else {
-    log('File exceeds 1MB.');
   }
 }

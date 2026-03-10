@@ -1,4 +1,3 @@
-/// Dash Board Screen
 const String dashBoardHeadingName = "Admin";
 const String dashBoard = "Dashboard";
 const String customersAndOrders = "Customers & orders";
@@ -12,14 +11,13 @@ const String todayOrders = "Recent Orders";
 const String performance = "Performance & Targets";
 const String topSellingProduct = "Top Selling Products";
 
-/// Login
 const String email = "Email";
 const String enterEmail = "Enter Email";
 const String password = "Password";
 const String enterPassword = "Enter Password";
 const String singIn = "Sign In";
 const String communications = "Communications";
-/// Dashboard
+
 const String today = "Today";
 const String routesString = "Routes";
 const String orders = "Orders";
@@ -38,7 +36,6 @@ const String go = "Go";
 const String stops = "Stops";
 const String mapStr = "Map";
 
-/// Customers And Orders
 const String categorySales = "Category Sales";
 const String thereAreNoOrdersNow = "There are no orders now";
 const String thereAreNoDraftOrdersNow = "There are no Draft orders now";
@@ -49,7 +46,6 @@ const String quantity = "Quantity";
 const String details = "Details";
 const String submit = "Submit";
 
-/// Products
 const String bulkUpload = "Bulk Upload";
 const String addAndEditCategory = "Add/Edit Category and Products";
 const String editCategory = "Edit Category";
@@ -83,7 +79,6 @@ const String edit = "Edit";
 const String price = "Price";
 const String reason = "Reason";
 
-/// Leads
 const String customer = "Customer";
 const String leads = "Leads";
 const String newStatus = "New";
@@ -103,15 +98,14 @@ const String photo = "Photo";
 const String id = "ID";
 const String takeAPhotoOfIdCard = "Take a photo of Your ID card";
 
-/// Calendar
 const String dayTask = "Day Task";
 const String schedule = "Schedule";
 const String totalVisit = "Total Visits";
 const String event = "Event";
 
-/// COMMON TEXT
 const String setting = "Settings";
 const String logOut = "Logout";
+const String salesReturn = "Sales Return";
 const String search = "Search";
 const String someThingWentWrong = "Oops Something Went Wrong";
 const String retry = "Retry";
@@ -120,7 +114,6 @@ const String dateStr = "Date";
 const String numberStr = "Number";
 const String cancel = "Cancel";
 
-/// ERROR AND SNACK BAR
 const String pleaseEnterCategoryName = 'Please enter category name';
 const String pleaseEnterSubCategoryName = 'Please enter sub category name';
 const String areYouSureToDelete = 'Are you sure to delete?';

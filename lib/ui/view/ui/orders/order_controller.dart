@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
-import 'dart:developer';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -9,7 +8,9 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -38,12 +39,70 @@ class OrderController extends GetxController {
   RxBool isOrderLoading = false.obs;
 
   RxBool hasOfflineOrders = false.obs;
+   RxBool isButtonActionLoading = false.obs;
+
+  final TextEditingController searchTextController = TextEditingController();
+RxString searchQuery = ''.obs;
+RxBool isSearching = false.obs;
+RxList<OrderData> searchResults = <OrderData>[].obs;
+RxBool isSearchLoading = false.obs;
+Future<void> performSearch({
+    required String query,
+    required int status,
+    int page = 1,
+  }) async {
+    if (query.trim().isEmpty) {
+      isSearching.value = false;
+      searchResults.clear();
+      return;
+    }
+
+    try {
+      isSearchLoading.value = true;
+      isSearching.value = true;
+
+      final response = await Dio().post(
+        'https://test.thrivewoo.com/search_orders',
+        data: {
+          "companyId": 1,
+          "status": status,
+          "q": query.trim(),
+          "start_date": "",
+          "end_date": "",
+          "limit": 100,
+          "page": page,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final List<dynamic> rawList = response.data['data'];
+        searchResults.assignAll(
+          rawList.map((json) => OrderData.fromJson(json)).toList(),
+        );
+      } else {
+        searchResults.clear();
+      }
+    } catch (e) {
+      print('Search error: $e');
+      searchResults.clear();
+      Get.snackbar('No Internet', 'No Internet Connection. Please check your netwrok.',colorText: Colors.white,backgroundColor: Colors.red);
+    } finally {
+      isSearchLoading.value = false;
+    }
+  }
+
+void clearSearch() {
+  searchTextController.clear();
+  searchQuery.value = '';
+  isSearching.value = false;
+  searchResults.clear();
+}
 
   Future<void> loadOrderCountData() async {
     isCountLoading(true);
     try {
       var notificationData =
-          await Get.find<NotificationController>().loadNotificationData('', '');
+          await Get.find<NotificationController>().loadNotificationData();
       offlineOrderCount.value = offlineOrders.length;
       if (notificationData.mainNotification != null) {
         var mainNotification = notificationData.mainNotification!;
@@ -56,7 +115,7 @@ class OrderController extends GetxController {
         rejectedCount.value = 0;
       }
     } catch (e) {
-      log("Error loading order count data: $e");
+      //
     } finally {
       isCountLoading(false);
     }
@@ -64,7 +123,6 @@ class OrderController extends GetxController {
 
   Future<List<OrderData>> loadOrderData(
       {required int selectedIndex, bool hasOfflineOrders = false}) async {
-    log("hasOfflineOrders : $hasOfflineOrders");
     orderDataList.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       orderDataList.clear();
@@ -136,7 +194,6 @@ class OrderController extends GetxController {
       );
 
       if (data.data == null || data.data!.isEmpty) {
-        log("Order details not found.");
         orderDataList.clear();
       } else {
         orderDataList.assignAll(data.data!);
@@ -144,12 +201,10 @@ class OrderController extends GetxController {
         if (data.pagination != null && data.pagination!.totalPages != null) {
           totalPages.value = data.pagination!.totalPages!.toInt();
         } else {
-          log("Pagination details are missing.");
           totalPages.value = 1;
         }
       }
     } catch (e) {
-      log("Error loading order data: $e");
       isOrderLoading.value = false;
     } finally {
       isOrderLoading.value = false;
@@ -168,13 +223,12 @@ class OrderController extends GetxController {
     }
     loadOrderData(selectedIndex: selectedTabIndex.value);
     refresh();
-    print('444+${searchData.startDate}');
-    print('444++${searchData.endDate}');
   }
 
   void updateTabIndex(int newIndex, {bool hasOfflineOrders = false}) {
     currentPage.value = 1;
     selectedTabIndex.value = newIndex;
+    clearSearch();
     loadOrderCountData();
     loadOrderData(selectedIndex: newIndex, hasOfflineOrders: hasOfflineOrders);
   }
@@ -199,7 +253,6 @@ class OrderController extends GetxController {
     required int orderStatus,
   }) async {
     isLoading(true);
-    log("Loading Order Process Invoice Data");
 
     var data = await _apiWorker.getOrderProcessInvoiceData(
       orderId: orderId,
@@ -217,7 +270,6 @@ class OrderController extends GetxController {
     required String orderId,
   }) async {
     isLoading(true);
-    log("Loading Specific Order Invoice Data");
 
     var data = await ApiWorker().fetchSpecificOrderInvoice(
       orderId,
@@ -235,7 +287,6 @@ class OrderController extends GetxController {
     required String orderId,
   }) async {
     isLoading(true);
-    log("Loading Waiting for Approval Invoice Data");
 
     var data = await _apiWorker.loadWaitingForApproval(
       orderId: orderId,
@@ -302,4 +353,165 @@ class OrderController extends GetxController {
     await box.delete(orderId);
     await loadOfflineOrders();
   }
+
+  Future<ButtonActionData?> acceptButtonAction({
+    required BuildContext context,
+    required String orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderAccept(
+        orderId: orderId,
+        updatedOrders: updatedOrders,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order Accepted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to accept order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+   Future<void> sendForCustomerApprovalButtonAction({
+    required BuildContext context,
+    required String orderId,
+    List<dynamic>? updatedOrders,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order sent for approval successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to send for approval: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+  Future<ButtonActionData?> rejectButtonAction({
+    required BuildContext context,
+    required String orderId,
+    required String reason,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderReject(
+        orderId: orderId,
+        rejectReason: reason,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order rejected successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to reject order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+    Future<void> addToPackedAndReady({
+    required BuildContext context,
+    required String orderId,
+    required String cartid,
+  }) async {
+    try {
+      await ApiWorker().packedAndReadyAdd(cartId: cartid, orderId: orderId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Added to Packed and Ready successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add to Packed and Ready: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
+
+  Future<ButtonActionData?> deliverButtonAction({
+    required BuildContext context,
+    required String orderId,
+  }) async {
+    try {
+      isButtonActionLoading(true);
+
+      var data = await ApiWorker().orderDeliver(
+        orderId: orderId,
+      );
+
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order delivered successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return data.data!.first;
+    } catch (e) {
+      isButtonActionLoading(false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to deliver order: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return null;
+    }
+  }
+
 }

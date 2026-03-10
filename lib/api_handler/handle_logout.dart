@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
-import 'dart:developer';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
@@ -18,7 +17,6 @@ import 'package:provider/provider.dart';
 Future<void> handleLogout(BuildContext context) async {
   showCustomToastDisplay(
       context, "Clearing Cache", primaryColor, Icons.clear_all);
-  log("Clearing Cache");
   await SessionManager.clearData();
   await SessionHelper().clearSettingsData();
   Provider.of<DashboardProvider>(context, listen: false).resetProvider();
@@ -90,14 +88,12 @@ Future<void> handleLogout(BuildContext context) async {
     try {
       if (Hive.isBoxOpen(boxName)) {
         await Hive.box(boxName).clear();
-        log("$boxName clearing box 1");
       } else {
         final box = await Hive.openBox(boxName);
         await box.clear();
-        log("$boxName clearing box 2");
       }
     } catch (e) {
-      log("Error clearing box $boxName: $e");
+      //
     }
   }
 }

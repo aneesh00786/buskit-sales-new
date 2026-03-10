@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/orders_payments.dart';
 import 'package:flutter/material.dart';
 
 class OrdersPaymentHeading extends StatelessWidget {
@@ -9,7 +10,8 @@ class OrdersPaymentHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Row(
       children: [
-        Expanded(
+        SizedBox(
+        width: colDateWidth,
           child: Center(
             child: Text(
               "Date",
@@ -21,7 +23,8 @@ class OrdersPaymentHeading extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+       width: colInvoiceWidth,
           child: Center(
             child: Text(
               "Invoice",
@@ -33,7 +36,8 @@ class OrdersPaymentHeading extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+         width: colStatusWidth,
           child: Center(
             child: Text(
               "Status",
@@ -45,7 +49,8 @@ class OrdersPaymentHeading extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+         width: colAmountWidth,
           child: Center(
             child: Text(
               "Amount",
@@ -57,7 +62,8 @@ class OrdersPaymentHeading extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+        width: colDueWidth,
           child: Center(
             child: Text(
               "Due By",
@@ -70,7 +76,8 @@ class OrdersPaymentHeading extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
+        SizedBox(
+        width: colSelectWidth,
           child: Center(
             child: Text(
               "Select",

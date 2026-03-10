@@ -1,7 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/customers_and_orders_dialo_table.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
@@ -35,15 +38,46 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   NotificationController notificationController =
       Get.find<NotificationController>();
   final subscriptionController = Get.find<SubscriptionController>();
+  late TextEditingController _searchController;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
+
     widget.orderController.hasOfflineOrders.value = false;
     _selectedTabIndex = widget.passIndex;
     widget.orderController.loadOrderCountData();
     widget.orderController.updateTabIndex(_selectedTabIndex);
     _setHasOfflineOrdersOnInit();
+    _searchController = widget.orderController.searchTextController;
+    _searchController.addListener(() {
+      final query = _searchController.text.trim();
+
+      // Update reactive query
+      widget.orderController.searchQuery.value = query;
+
+  // Trigger search IMMEDIATELY — no delay, no debounce
+  _triggerSearch(); 
+});
+  
+  }
+  void _triggerSearch() {
+    final hasOffline = widget.orderController.hasOfflineOrders.value;
+    final index = _selectedTabIndex;
+
+    // Don't search on Offline Orders tab
+    if (hasOffline && index == 0) return;
+
+    final status = _getStatusForTab(index, hasOfflineOrders: hasOffline);
+    widget.orderController
+        .performSearch(query: _searchController.text, status: status);
+  }
+
+  int _getStatusForTab(int index, {required bool hasOfflineOrders}) {
+    if (hasOfflineOrders) index += 1; // because index 0 is Offline
+    return widget
+        .orderController.selectedStatusCountIndex.value; // or use mapping
   }
 
   void _setHasOfflineOrdersOnInit() async {
@@ -109,8 +143,11 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           return notificationController.recentOrderCountData.mainNotification
                   ?.packedAndReadyForDelivery ??
               0.toInt();
-        case 6:
-          return 0;
+       case 6:
+        return notificationController.recentOrderCountData.mainNotification
+                  ?.delivered ??
+              0.toInt();
+          
         case 7:
           return 0;
         default:
@@ -140,7 +177,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                   ?.packedAndReadyForDelivery ??
               0.toInt();
         case 5:
-          return 0;
+          return notificationController.recentOrderCountData.mainNotification
+                  ?.delivered ??
+              0.toInt();
         case 6:
           return 0;
         default:
@@ -478,25 +517,96 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               ),
             ),
           ),
-          if (!_shouldShowUpgradeButton(_selectedTabIndex)) ...[
-            Expanded(
-              child: Center(
-                child: UpgradePlanButton(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(5, 8, 400, 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                // hintText: "Search in ${tabs[_selectedTabIndex]}...",
+                hintText: 'Search Order Id / Invoice No.',
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+
+                filled: true,
+                fillColor: Colors.grey[100],
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.blue, width: 2),
+                ),
+
+                // Focused state border
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.blue, width: 2.5),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
+              // onChanged: _onSearchChanged,
             ),
-          ],
-          if (_shouldShowUpgradeButton(_selectedTabIndex))
+          ),
+          if (!_shouldShowUpgradeButton(_selectedTabIndex))
+            const Expanded(child: Center(child: UpgradePlanButton()))
+          else
             Expanded(
-              child: widget.orderController.hasOfflineOrders.value &&
-                      _selectedTabIndex == 0
-                  ? OfflineOrderBottomWidget(
-                      orderController: widget.orderController)
-                  : OrderBottomWidget(
-                      orderController: widget.orderController,
-                      selectedTabIndex: _selectedTabIndex,
-                      hasOfflineOrders:
-                          widget.orderController.hasOfflineOrders.value,
-                    ),
+              child: Obx(() {
+                // Offline Orders Tab
+                if (widget.orderController.hasOfflineOrders.value &&
+                    _selectedTabIndex == 0) {
+                  return OfflineOrderBottomWidget(
+                      orderController: widget.orderController);
+                }
+
+                // Search Mode
+                if (widget.orderController.isSearching.value) {
+                  if (widget.orderController.isSearchLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (widget.orderController.searchResults.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off,
+                              size: 64, color: Colors.grey[400]),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No orders found",
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 16),
+                          ),
+                          Text(
+                            "Try searching with Order ID or Invoice No.",
+                            style: TextStyle(
+                                color: Colors.grey[500], fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return OrderBottomWidget(
+                    orderController: widget.orderController,
+                    selectedTabIndex: _selectedTabIndex,
+                    hasOfflineOrders:
+                        widget.orderController.hasOfflineOrders.value,
+                    overrideOrders:
+                        widget.orderController.searchResults, // Key!
+                    isSearchMode: true,
+                  );
+                }
+
+                // Normal Tab Mode
+                return OrderBottomWidget(
+                  orderController: widget.orderController,
+                  selectedTabIndex: _selectedTabIndex,
+                  hasOfflineOrders:
+                      widget.orderController.hasOfflineOrders.value,
+                );
+              }),
             ),
         ],
       );

@@ -850,17 +850,18 @@ Future<void> fetchChartCategoryPerformance(
   bool isOrderSelected(RecentOrder order) {
     return _selectedOrders.contains(order);
   }
-
   Future<void> fetchCustomerData({int page = 1}) async {
     _errorMessage = '';
     NotificationController notificationController =
         Get.find<NotificationController>();
-        final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
+    final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
 
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final customerBox = Hive.box('customerBox');
     final cacheKey = '${companyId}_customer_list_$page';
+    
     bool isOnline = await ConnectivityService().isOnline();
+    
     if (!isOnline) {
       final cachedData = customerBox.get(cacheKey);
       if (cachedData != null) {
@@ -896,96 +897,220 @@ Future<void> fetchChartCategoryPerformance(
         _selectedFilter == FilterDateEnum.thisWeek ||
         _selectedFilter == FilterDateEnum.thisYear ||
         _selectedFilter == FilterDateEnum.range) {
+      try {
+        _isLoading = true;
+        notifyListeners(); // Tell the UI loading has started
 
-          try {
-      _isLoading = true;
-      
-      String apiValueFromDw = "";
-      List<String> apiSelectedRange = [];
-      String apiStartDate = "";
-      String apiEndDate = "";
+        String apiValueFromDw = "";
+        List<String> apiSelectedRange = [];
+        String apiStartDate = "";
+        String apiEndDate = "";
 
-      // Logic to determine payload based on Filter Enum
-      switch (_selectedFilter) {
-        case FilterDateEnum.thisMonth:
-          apiValueFromDw = "Month";
-          // TODO: Replace '_selectedMonthsList' with the variable connected to your MonthDropdown()
-          // Example: apiSelectedRange = ["January", "March"]; 
-          apiSelectedRange = dashboardProvider.selectedFilterMonths; 
-          break;
+        // Logic to determine payload based on Filter Enum
+        switch (_selectedFilter) {
+          case FilterDateEnum.thisMonth:
+            apiValueFromDw = "Month";
+            apiSelectedRange = dashboardProvider.selectedFilterMonths;
+            break;
 
-        case FilterDateEnum.thisWeek:
-          apiValueFromDw = "Week";
-          // TODO: Replace '_selectedWeeksList' with the variable connected to your WeekDropdown()
-          // Example: apiSelectedRange = ["week1", "week2"];
-          apiSelectedRange = dashboardProvider.selectedFilterWeeks; 
-          break;
+          case FilterDateEnum.thisWeek:
+            apiValueFromDw = "Week";
+            apiSelectedRange = dashboardProvider.selectedFilterWeeks;
+            break;
 
-        case FilterDateEnum.thisYear:
-          apiValueFromDw = "Year";
-          // TODO: Replace '_selectedYearsList' with the variable connected to your YearDropdown()
-          // Example: apiSelectedRange = ["2025", "2026"];
-          apiSelectedRange = [dashboardProvider.selectedYear.toString()]; 
-          break;
+          case FilterDateEnum.thisYear:
+            apiValueFromDw = "Year";
+            apiSelectedRange = [dashboardProvider.selectedYear.toString()];
+            break;
 
-        case FilterDateEnum.range:
-          apiValueFromDw = "Range";
-          // For Range, usually we send start/end date, but if backend wants it in selected_range:
-          apiSelectedRange = [_selectedStartDate, _selectedEndDate];
-          // Or if backend still wants specific start/end keys:
-          apiStartDate = _selectedStartDate;
-          apiEndDate = _selectedEndDate;
-          break;
+          case FilterDateEnum.range:
+            apiValueFromDw = "Range";
+            apiSelectedRange = [_selectedStartDate, _selectedEndDate];
+            apiStartDate = _selectedStartDate;
+            apiEndDate = _selectedEndDate;
+            break;
 
-        case FilterDateEnum.today:
-           apiValueFromDw = "Day"; // Or "Today" depending on backend expectation
-           apiSelectedRange = [dashboardProvider.selectedDate]; // Assuming selectedStartDate holds today's date
-           break;
-           
-        default:
-          apiValueFromDw = "All"; // Default fallback
-      }
+          case FilterDateEnum.today:
+            apiValueFromDw = "Day";
+            apiSelectedRange = [dashboardProvider.selectedDate];
+            break;
 
-      _customersFuture = _apiService.fetchCustomer(
-        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-        customerName: _searchCustomerName,
-        limit: 10,
-        page: page,
-        valueFromDw: apiValueFromDw,
-        selectedRange: apiSelectedRange,
-        startDate: apiStartDate,
-        endDate: apiEndDate,
-      );
+          default:
+            apiValueFromDw = "All";
+        }
 
-      _customersFuture!.then((value) {
+        // 1. AWAIT THE API CALL: This pauses the function until data is received
+        _customersFuture = _apiService.fetchCustomer(
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          customerName: _searchCustomerName,
+          limit: 10,
+          page: page,
+          valueFromDw: apiValueFromDw,
+          selectedRange: apiSelectedRange,
+          startDate: apiStartDate,
+          endDate: apiEndDate,
+        );
+
+        final value = await _customersFuture!;
+
+        // 2. ONLY RUNS AFTER DATA IS RECEIVED
         setCustomers(value.data, value.pagination.totalPages);
         setOrderTotal(value.orderTotal);
         setYearList(value.yearsListOfAll);
-        
-        // If the API returns the arrays for dropdowns (as seen in your json), 
-        // you might want to update your dropdown lists here:
-        // setMonthArray(value.monthArray); // if you add this to model
-        
+
         notificationController.loadNotificationData();
         _isLoading = false;
         notifyListeners();
-      }).catchError((error) {
-        _isLoading = false;
-        _errorMessage = 'Failed to fetch customer data: $error';
-        notifyListeners();
-      });
 
-    }
-   
-       catch (e, stackTrace) {
+      } catch (e, stackTrace) {
         _isLoading = false;
+        _errorMessage = 'Failed to fetch customer data: $e';
+        notifyListeners();
         _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
-        rethrow;
+        
+        // Rethrow the error so your UI "Go" button catches it and closes the dialog!
+        rethrow; 
       }
     } else {
       await fetchCustomerData();
     }
   }
+
+  // Future<void> fetchCustomerData({int page = 1}) async {
+  //   _errorMessage = '';
+  //   NotificationController notificationController =
+  //       Get.find<NotificationController>();
+  //       final dashboardProvider = Provider.of<DashboardProvider>(Get.context!, listen: false);
+
+  //   final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+  //   final customerBox = Hive.box('customerBox');
+  //   final cacheKey = '${companyId}_customer_list_$page';
+  //   bool isOnline = await ConnectivityService().isOnline();
+  //   if (!isOnline) {
+  //     final cachedData = customerBox.get(cacheKey);
+  //     if (cachedData != null) {
+  //       try {
+  //         // Ensure all keys are strings before passing to fromJson
+  //         final safeMap = ensureStringKeyedMap(cachedData);
+
+  //         final response = CustomerResponseModelxx.fromJson(safeMap);
+  //         setCustomers(response.data, response.pagination.totalPages);
+  //         setOrderTotal(response.orderTotal);
+  //         setYearList(response.yearsListOfAll);
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       } catch (e) {
+  //         _filteredCustomers = [];
+  //         _errorMessage = 'Corrupted offline data for this page.';
+  //         _isLoading = false;
+  //         notifyListeners();
+  //         return;
+  //       }
+  //     } else {
+  //       _filteredCustomers = [];
+  //       _errorMessage = 'No offline data for this page.';
+  //       _isLoading = false;
+  //       notifyListeners();
+  //       return;
+  //     }
+  //   }
+
+  //   if (_selectedFilter == FilterDateEnum.thisMonth ||
+  //       _selectedFilter == FilterDateEnum.today ||
+  //       _selectedFilter == FilterDateEnum.thisWeek ||
+  //       _selectedFilter == FilterDateEnum.thisYear ||
+  //       _selectedFilter == FilterDateEnum.range) {
+
+  //         try {
+  //     _isLoading = true;
+      
+  //     String apiValueFromDw = "";
+  //     List<String> apiSelectedRange = [];
+  //     String apiStartDate = "";
+  //     String apiEndDate = "";
+
+  //     // Logic to determine payload based on Filter Enum
+  //     switch (_selectedFilter) {
+  //       case FilterDateEnum.thisMonth:
+  //         apiValueFromDw = "Month";
+  //         // TODO: Replace '_selectedMonthsList' with the variable connected to your MonthDropdown()
+  //         // Example: apiSelectedRange = ["January", "March"]; 
+  //         apiSelectedRange = dashboardProvider.selectedFilterMonths; 
+  //         break;
+
+  //       case FilterDateEnum.thisWeek:
+  //         apiValueFromDw = "Week";
+  //         // TODO: Replace '_selectedWeeksList' with the variable connected to your WeekDropdown()
+  //         // Example: apiSelectedRange = ["week1", "week2"];
+  //         apiSelectedRange = dashboardProvider.selectedFilterWeeks; 
+  //         break;
+
+  //       case FilterDateEnum.thisYear:
+  //         apiValueFromDw = "Year";
+  //         // TODO: Replace '_selectedYearsList' with the variable connected to your YearDropdown()
+  //         // Example: apiSelectedRange = ["2025", "2026"];
+  //         apiSelectedRange = [dashboardProvider.selectedYear.toString()]; 
+  //         break;
+
+  //       case FilterDateEnum.range:
+  //         apiValueFromDw = "Range";
+  //         // For Range, usually we send start/end date, but if backend wants it in selected_range:
+  //         apiSelectedRange = [_selectedStartDate, _selectedEndDate];
+  //         // Or if backend still wants specific start/end keys:
+  //         apiStartDate = _selectedStartDate;
+  //         apiEndDate = _selectedEndDate;
+  //         break;
+
+  //       case FilterDateEnum.today:
+  //          apiValueFromDw = "Day"; // Or "Today" depending on backend expectation
+  //          apiSelectedRange = [dashboardProvider.selectedDate]; // Assuming selectedStartDate holds today's date
+  //          break;
+           
+  //       default:
+  //         apiValueFromDw = "All"; // Default fallback
+  //     }
+
+  //     _customersFuture = _apiService.fetchCustomer(
+  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //       customerName: _searchCustomerName,
+  //       limit: 10,
+  //       page: page,
+  //       valueFromDw: apiValueFromDw,
+  //       selectedRange: apiSelectedRange,
+  //       startDate: apiStartDate,
+  //       endDate: apiEndDate,
+  //     );
+
+  //     _customersFuture!.then((value) {
+  //       setCustomers(value.data, value.pagination.totalPages);
+  //       setOrderTotal(value.orderTotal);
+  //       setYearList(value.yearsListOfAll);
+        
+  //       // If the API returns the arrays for dropdowns (as seen in your json), 
+  //       // you might want to update your dropdown lists here:
+  //       // setMonthArray(value.monthArray); // if you add this to model
+        
+  //       notificationController.loadNotificationData();
+  //       _isLoading = false;
+  //       notifyListeners();
+  //     }).catchError((error) {
+  //       _isLoading = false;
+  //       _errorMessage = 'Failed to fetch customer data: $error';
+  //       notifyListeners();
+  //     });
+
+  //   }
+   
+  //      catch (e, stackTrace) {
+  //       _isLoading = false;
+  //       _logger.e('Error fetching customers', error: e, stackTrace: stackTrace);
+  //       rethrow;
+  //     }
+  //   } else {
+  //     await fetchCustomerData();
+  //   }
+  // }
 
   Future<void> selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? pickedDate = await showDatePicker(

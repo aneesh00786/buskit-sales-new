@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
+import 'package:busskit_salesexecutive/ui/components/custom_tooltip.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -3715,30 +3716,36 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   ),
                                                    DataCell(
                                                     SizedBox(
-                                                      // width:1,
-                                                      // width: flexWidth * 1.1,
+                                                      width: flexWidth * 1.1,
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .center, 
+                                                                .spaceBetween, 
                                                         children: [
-                                                          Text(
-                                                            formatAmount(order
-                                                                .orderTotal),
-                                                            maxLines: 1,
-                                                            style: TextStyle(
-                                                              fontSize:
-                                                                  fontSize,
+                                                          Expanded(
+                                                            child: CustomTooltip(
+                                                              message:
+                                                                  '${formatAmount(order.orderTotal)} / '
+                                                                  '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
+                                                                  '${formatAmount(order.receivedAmount)}',
+                                                              child: Text(
+                                                                '${formatAmount(order.orderTotal)} / '
+                                                                '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
+                                                                '${formatAmount(order.receivedAmount)}',
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow
+                                                                    .ellipsis,
+                                                                style: TextStyle(
+                                                                  fontSize:
+                                                                      fontSize,
+                                                                ),
+                                                              ),
                                                             ),
                                                           ),
                                                          
-                                                          if (order
-                                                                  .paymentStatus !=
-                                                              0) ...[
-                                                              
+                                                          if (order.paymentStatus != 0) ...[
                                                             PaymentHistoryButton(
-                                                                orderId: order
-                                                                    .orderId)
+                                                                orderId: order.orderId)
                                                           ],
                                                         ],
                                                       ),
@@ -4316,17 +4323,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1.5),
                                               ),
                                               DataCell(
+                                                SizedBox(width: flexWidth * 0.9),
+                                              ),
+                                              DataCell(
                                                 SizedBox(
-                                                    width: flexWidth * 0.9),
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 1),
+                                                SizedBox(
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 1),
-                                              ),
-                                              DataCell(
-                                                SizedBox(width: flexWidth * 1),
+                                                SizedBox(
+                                                    width: flexWidth * 1),
                                               ),
                                               DataCell(
                                                 SizedBox(

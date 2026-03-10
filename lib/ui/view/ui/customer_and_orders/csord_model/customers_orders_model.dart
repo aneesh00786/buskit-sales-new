@@ -482,6 +482,7 @@ class Order {
   final DateTime orderCreatAt;
   final num orderTotal;
   final int receivedAmount;
+  final int? receivableAmount;
   final DateTime? receivedAmountDate;
   final DateTime? checkDueDate;
   final DateTime? deliveryDate;
@@ -508,6 +509,7 @@ class Order {
     required this.orderCreatAt,
     required this.orderTotal,
     required this.receivedAmount,
+    this.receivableAmount,
     this.receivedAmountDate,
     this.checkDueDate,
     this.deliveryDate,
@@ -520,7 +522,6 @@ class Order {
     this.mobileNo,
     this.imageUrl,
     this.invoiceId,
-
   });
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -537,6 +538,7 @@ class Order {
             json['order_creat_at'] ?? DateTime.now().toIso8601String()),
         orderTotal: json['order_total'] ?? 0,
         receivedAmount: json['received_amount'] ?? 0,
+        receivableAmount: json['receivable_amount'],
         receivedAmountDate: json['received_amount_date'] != null
             ? DateTime.parse(json['received_amount_date'])
             : null,
@@ -572,6 +574,7 @@ class Order {
         'order_creat_at': orderCreatAt.toIso8601String(),
         'order_total': orderTotal,
         'received_amount': receivedAmount,
+        'receivable_amount': receivableAmount,
         'received_amount_date': receivedAmountDate?.toIso8601String(),
         'check_due_date': checkDueDate?.toIso8601String(),
         'delivery_datetime': deliveryDate?.toIso8601String(),
@@ -584,7 +587,6 @@ class Order {
         'email': email,
         'image_url': imageUrl,
         'mobileno': mobileNo,
-
       };
 }
 

@@ -9,10 +9,12 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 10),
+              connectTimeout: const Duration(seconds: 20),
               receiveTimeout: const Duration(seconds: 30),
+              sendTimeout: const Duration(seconds: 20),
               responseType: ResponseType.json),
         )..interceptors.addAll([
+            GlobalApiInterceptor(),
             AuthorizationInterceptor(),
             LoggerInterceptor(),
           ]);
@@ -242,36 +244,26 @@ void handleHttpResponseError({
   }
 }
 
+/// Legacy function for backward compatibility
+/// This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
 void handleExceptionMessage({
   Response<dynamic>? response,
   String? apiName,
   DioException? error,
 }) {
-  String message = "";
-  final errorData = response?.data;
-  if (errorData is Map<String, dynamic> && errorData.containsKey('message')) {
-    message = errorData['message'].toString();
-  }
-  int statusCode = response?.statusCode ?? 0;
-  if (message.isNotEmpty) {
-    NkCommonFunction.showErrorSnakBar("$message. $apiName");
-  } else if (error?.type == DioExceptionType.connectionTimeout ||
-      error?.type == DioExceptionType.receiveTimeout) {
-    NkCommonFunction.showErrorSnakBar(
-      "Request timed out. Please check your internet connection and try again. $apiName",
-    );
-  } else {
-    handleHttpResponseError(
-      statusCode: statusCode,
-      showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-      message: apiName,
-    );
-  }
+  // This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+  // The global interceptor will handle all errors automatically
+  // This function is kept for backward compatibility but does nothing
 }
 
-errorSnackbar(String message) {
-  NkCommonFunction.showErrorSnakBar(message);
+/// Legacy function for backward compatibility
+/// This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+void errorSnackbar(String message) {
+  // This function is now deprecated as errors are handled automatically by GlobalApiInterceptor
+  // The global interceptor will handle all errors automatically
+  // This function is kept for backward compatibility but does nothing
 }
+
 
 class AuthorizationInterceptor extends Interceptor {
   @override
@@ -308,5 +300,52 @@ class LoggerInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     return;
+  }
+}
+
+/// Global API Interceptor that handles all API errors automatically
+/// This eliminates the need to call handleExceptionMessage() in every API call
+class GlobalApiInterceptor extends Interceptor {
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    String message = "";
+
+    /// API response error message
+    final responseData = err.response?.data;
+
+    if (responseData is Map<String, dynamic> &&
+        responseData['message'] != null) {
+      message = responseData['message'].toString();
+    }
+
+    /// Timeout handling
+    if (err.type == DioExceptionType.connectionTimeout) {
+      NkCommonFunction.showErrorSnakBar(
+          "Unable to connect to server. Please check your internet.");
+    } else if (err.type == DioExceptionType.receiveTimeout) {
+      NkCommonFunction.showErrorSnakBar(
+          "Server is taking too long to respond.");
+    } else if (err.type == DioExceptionType.sendTimeout) {
+      NkCommonFunction.showErrorSnakBar("Request timeout. Please try again.");
+    } else if (err.type == DioExceptionType.connectionError) {
+      NkCommonFunction.showErrorSnakBar("No internet connection.");
+    }
+
+    /// API returned error
+    else if (message.isNotEmpty) {
+      NkCommonFunction.showErrorSnakBar(message);
+    }
+
+    /// HTTP status errors
+    else {
+      int statusCode = err.response?.statusCode ?? 0;
+      handleHttpResponseError(
+        statusCode: statusCode,
+        showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+        message: "",
+      );
+    }
+
+    super.onError(err, handler);
   }
 }

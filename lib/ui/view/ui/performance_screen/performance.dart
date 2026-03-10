@@ -306,23 +306,81 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             "No internet connection . please check your network");
                       }
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: isSelected
-                            ? Border.all(color: Colors.grey.shade300)
-                            : null,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15)),
-                      ),
-                      child: CustomText(
-                        content: monthName,
-                        color: isSelected ? Colors.blue : Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Stack(
+                      children: [
+                        // Main card container
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            color: isSelected 
+                                ? Colors.white
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                      spreadRadius: 0,
+                                    ),
+                                  ]
+                                : [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                            border: Border.all(
+                              color: isSelected 
+                                  ? primaryColor.withOpacity(0.3)
+                                  : Colors.transparent,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isSelected ? Icons.calendar_month : Icons.calendar_today,
+                                size: 18,
+                                color: isSelected ? primaryColor : Colors.grey[600],
+                              ),
+                              const SizedBox(width: 10),
+                              CustomText(
+                                content: monthName,
+                                color: isSelected ? Colors.black87 : Colors.grey[700],
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Bottom indicator for selected tab
+                        if (isSelected)
+                          Positioned(
+                            bottom: -2,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 3,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    primaryColor,
+                                    primaryColor.withOpacity(0.5),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 }),

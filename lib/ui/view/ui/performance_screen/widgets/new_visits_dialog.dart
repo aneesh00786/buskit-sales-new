@@ -479,7 +479,8 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                                         finalImageUrl = rawImgUrl;
                                       } else {
                                         finalImageUrl =
-                                            'https://test.thrivewoo.com/uploads/$rawImgUrl';
+                                        '${ApiConstants.imageBaseUrl}$rawImgUrl';
+                                            // 'https://test.thrivewoo.com/uploads/$rawImgUrl';
                                       }
                                     }
 

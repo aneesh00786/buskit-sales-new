@@ -5,11 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5660bd51-f1b0-4dde-9ee0-3a91c66f24cb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/api_handler/api_worker.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api_handler/api_worker.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/pending_payment_collection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/pending_payment_collection.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/pending_payments/widget/pending_payment_collection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/pending_payments/widget/pending_payment_collection.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/location_services/location_services.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/location_services/location_services.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/controller/customer_credit_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/orders/order_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/orders/order_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/customer_dialogue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/customer_dialogue.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/performance_screen/widgets/new_visits_dialog.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,22 +56,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;location__services&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/abhiram/buskitSales/buskit-sales-new&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "location__services",
+    "last_opened_file_path": "/Users/abhiram/buskitSales/buskit-sales-new",
+    "settings.editor.selected.configurable": "preferences.editor",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5660bd51-f1b0-4dde-9ee0-3a91c66f24cb" name="Changes" comment="" />

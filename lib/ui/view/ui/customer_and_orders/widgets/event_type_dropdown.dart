@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison, library_private_types_in_public_api, deprecated_member_use
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -215,7 +216,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                                   try {
                                                     Dio dio = Dio();
                                                     final response = await dio.post(
-                                                      'https://test.thrivewoo.com/delete_future_events',
+                                                       '${ApiConstants.baseUrl1}/delete_future_events',
+                                                      // 'https://test.thrivewoo.com/delete_future_events',
                                                       data: {
                                                         "customer_id":
                                                             widget.customerId

@@ -1,4 +1,5 @@
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,8 @@ class _PaymentHistoryContent extends StatelessWidget {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'https://test.thrivewoo.com/get_previous_partial_payment',
+         '${ApiConstants.baseUrl1}/get_previous_partial_payment',
+        // 'https://test.thrivewoo.com/get_previous_partial_payment',
         data: {"order_id": orderId, "companyId": 1},
       );
       

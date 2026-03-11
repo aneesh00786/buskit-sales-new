@@ -3607,7 +3607,8 @@ log('response of alll products get :${response.data}');
       if (!isOnline) {
         final box = await Hive.openBox('offlineRequests');
         await box.add({
-          "url": 'https://test.thrivewoo.com/create-checkout-session-product',
+          "url": '${ApiConstants.baseUrl1}/create-checkout-session-product',
+          // "url": 'https://test.thrivewoo.com/create-checkout-session-product',
           "method": "POST",
           "payload": requestPayload,
           "timestamp": DateTime.now().toIso8601String(),
@@ -3617,7 +3618,8 @@ log('response of alll products get :${response.data}');
       }
 
       final response = await dio1.post(
-        'https://test.thrivewoo.com/create-checkout-session-product',
+        '${ApiConstants.baseUrl1}/create-checkout-session-product',
+        // 'https://test.thrivewoo.com/create-checkout-session-product',
         data: requestPayload,
       );
 
@@ -3648,7 +3650,8 @@ log('response of alll products get :${response.data}');
       print("🌐 [API] company_id: $companyId");
 
       final response = await dio1.get(
-        'https://test.thrivewoo.com/verify-checkout-session',
+        '${ApiConstants.baseUrl1}/verify-checkout-session',
+        // 'https://test.thrivewoo.com/verify-checkout-session',
         queryParameters: {
           'session_id': sessionId,
           'company_id': companyId,

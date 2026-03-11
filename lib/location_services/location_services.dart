@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert'; // For jsonEncode
 import 'dart:ui';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
@@ -129,8 +130,9 @@ Future<void> _updateServer(Position position) async {
     // Optional: Set default timeouts (in milliseconds)
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
+      final url = '${ApiConstants.baseUrl1}/update-salesman-location';
 
-    final url = 'https://test.thrivewoo.com/update-salesman-location';
+    // final url = 'https://test.thrivewoo.com/update-salesman-location';
     
 
     String? loginJsonString = await SessionManager.getStringValue(SpString.spLogin);

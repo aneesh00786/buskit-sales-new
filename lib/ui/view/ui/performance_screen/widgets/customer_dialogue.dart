@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
@@ -45,8 +46,9 @@ Widget buildCustomersDialogContent(
                             height: 35,
                             width: 35,
                             child: Image.network(
+                              '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}',
                               // 👇 Removed condition, now safely accessing invoiceData
-                              'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
+                              // 'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
 
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {

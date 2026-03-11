@@ -2730,6 +2730,14 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                   ? e.pieces.toString() 
                   : e.count.toString();
               print('bundle promo msg: ${item.promoMsg}');
+              final double combinedDiscount =
+                  (item.totalDiscountAmount ?? 0).toDouble() +
+                  (item.flatDiscount ?? 0).toDouble() +
+                  (item.bogoDiscount ?? 0).toDouble();
+                  
+              final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
+                  (item.flatDiscount ?? 0) +
+                  (item.bogoDiscount ?? 0);
               // 1. Check if it is a Promo Item
               if (item.isPromo == true) {
                 bool isBundle = item.promoMsg != null &&
@@ -2743,10 +2751,10 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     pack: packValue,
                     price: e.sellPrice.toString(),
                     packType: displayPackType,
-                    discount: e.discount ?? 0,
+                    discount: combinedDiscount,
                     quantity: e.count.toInt(),
                     variantName: e.variationName ?? '',
-
+                    maxDiscount: e.maxDiscount?.toInt(),
                     // Specific Bundle Flags
                     isPromo: true,
                     isBundle: true,
@@ -2755,7 +2763,7 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     bundleDetails: "Bundle: ${e.variationName}",
 
                     customerDiscount: item.CustomerDiscount,
-                    promoDiscount: item.tieredDiscount,
+                    promoDiscount: combinedPromoDiscount,
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
                   );
@@ -2767,9 +2775,10 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     pack: packValue,
                     price: e.sellPrice.toString(),
                     packType: displayPackType,
-                    discount: e.discount ?? 0,
+                    discount: combinedDiscount,
                     quantity: e.count.toInt(),
                     variantName: e.variationName ?? '',
+                    maxDiscount: e.maxDiscount?.toInt(),
 
                     // Standard Promo Flags
                     isPromo: true,
@@ -2778,7 +2787,7 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     promoMsg: item.promoMsg ?? '',
 
                     customerDiscount: item.CustomerDiscount,
-                    promoDiscount: item.tieredDiscount,
+                    promoDiscount: combinedPromoDiscount,
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
                   );
@@ -2836,7 +2845,7 @@ return SendCartData(
   pack: packValue,
   price: finalPrice, 
   packType: isBulkItem ? 'Bulk' : displayPackType,
-  discount: e.discount ?? 0,
+  discount: combinedDiscount,
   quantity: e.count.toInt(),
   variantName: e.variationName ?? '',
   
@@ -2847,110 +2856,11 @@ return SendCartData(
   bulkId: idToSendToBackend, 
 
   customerDiscount: item.CustomerDiscount,
-  promoDiscount: item.tieredDiscount,
+  promoDiscount: combinedPromoDiscount,
   unitPrice: e.sellPrice.toString(),
 );
 
 
-//                 bool isBulkItem = false;
-// String? currentBulkId;
-
-// // 1. Extract the Bulk ID using regex from the variation name
-// if (e.variationName?.contains('[BULK_ID:') == true) {
-//   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-//   final match = regex.firstMatch(e.variationName!);
-//   if (match != null) {
-//     currentBulkId = match.group(1);
-//   }
-// }
-
-// // 2. Set up default values before checking the list
-// String? idToSendToBackend = currentBulkId;
-// String finalPrice = e.sellPrice.toString();
-
-// // 3. Apply the exact same bulkDataList matching logic
-// if (currentBulkId != null && currentBulkId.isNotEmpty) {
-//   isBulkItem = true;
-  
-//   if (bulkDataList != null) {
-//     try {
-//       final matchingBulk = bulkDataList!.firstWhere(
-//         (element) => element.bulkId == currentBulkId,
-//       );
-      
-//       // Update the ID to send to backend
-//       idToSendToBackend = matchingBulk.id?.toString() ?? currentBulkId;
-      
-//       // Update the price if a volume price exists
-//       if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
-//         finalPrice = matchingBulk.volumePrice!;
-//       }
-//     } catch (err) {
-//       print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
-//     }
-//   }
-// }
-
-// return SendCartData(
-//   productId: e.productId ?? '',
-//   variantId: e.variationId ?? '',
-//   pack: packValue,
-  
-//   // Use the updated finalPrice here
-//   price: finalPrice, 
-  
-//   packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-//   discount: e.discount ?? 0,
-//   quantity: e.count.toInt(),
-//   variantName: e.variationName ?? '',
-
-//   // Normal/Bulk Flags
-//   isPromo: false,
-//   isBundle: false,
-//   isBulk: isBulkItem,
-  
-//   // Use the updated backend ID here
-//   bulkId: idToSendToBackend, 
-
-//   customerDiscount: item.CustomerDiscount,
-//   promoDiscount: item.tieredDiscount,
-//   unitPrice: e.sellPrice.toString(),
-// );
-                // bool isBulkItem = false;
-                // String? bulkId;
-
-                // if (e.variationName?.contains('[BULK_ID:') == true) {
-                //   isBulkItem = true;
-                //   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-                //   final match = regex.firstMatch(e.variationName!);
-                //   if (match != null) {
-                //     bulkId = match.group(1);
-                //   }
-                // }
-
-                // return SendCartData(
-                //   productId: e.productId ?? '',
-                //   variantId: e.variationId ?? '',
-                //   pack: packValue,
-                //   price: e.sellPrice.toString(),
-                //   packType: isBulkItem
-                //       ? 'Bulk'
-                //       : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-                //   // packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                //   discount: e.discount ?? 0,
-                //   quantity: e.count.toInt(),
-                //   variantName: e.variationName ?? '',
-
-                //   // Normal/Bulk Flags
-                //   isPromo: false,
-                //   isBundle: false,
-                //   isBulk: isBulkItem,
-                //   bulkId: bulkId,
-
-                //   customerDiscount: item.CustomerDiscount,
-                //   promoDiscount: item.tieredDiscount,
-                //   unitPrice: e.sellPrice.toString(),
-                // );
               }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),

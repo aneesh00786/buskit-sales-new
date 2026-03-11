@@ -115,6 +115,7 @@ List<BulkData> storedBulkList = [];
     isReached.value = reached;
     return isReached.value;
   }
+
   Future<void> handleBackNavigation({
   required BuildContext context,
   required bool isDirectDialogue,
@@ -124,6 +125,8 @@ List<BulkData> storedBulkList = [];
   required HomeController homeController,
 }) async {
   final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
+
+  print('toDash: $toDash, isDirectDialogue: $isDirectDialogue, isFromOrder: $isFromOrder, isFromCalender: $isFromCalender');
 
   if ((CartDatabaseManager().cartItems.isNotEmpty ||
           CartDatabaseManager().draftBox.isNotEmpty) &&
@@ -151,38 +154,30 @@ List<BulkData> storedBulkList = [];
       bulkDataList: storedBulkList,
     );
 
-    // ✅ ALWAYS close loading dialog first before doing anything else
+    print('wasSuccessful: $wasSuccessful'); // <-- ADD THIS to debug
+
+    // ✅ ALWAYS close loading dialog first
     if (Get.isDialogOpen ?? false) {
       Get.back();
     }
 
-    // Small delay to let the dialog fully close before opening another
     await Future.delayed(const Duration(milliseconds: 200));
 
-    if (toDash) {
-      if (wasSuccessful) {
-        // ✅ Only show success when API actually returned 200
-        showSuccessFullDialog(
-          context: context,
-          imagePath: 'assets/images/Animation - 1726906882515.json',
-          message: 'Your order has been successfully saved as Draft',
-        );
-        await Future.delayed(const Duration(milliseconds: 1500));
-      }
-      if (toDash) {
-  Navigator.pop(context);
-} else {
-  if (!wasSuccessful) {
-    // only show offline dialog if it failed and not already shown inside processCart
-  }
-  Navigator.pop(context);
-}
-      // If !wasSuccessful: either offline (already handled inside process fn)
-      // or cart was empty — just navigate back silently
-      // Navigator.pop(context);
-    } else {
-      Navigator.pop(context);
+    // ✅ Show success OUTSIDE toDash check — always show if API returned 200
+    if (wasSuccessful) {
+      showSuccessFullDialog(
+        context: context,
+        imagePath: 'assets/images/Animation - 1726906882515.json',
+        message: 'Your order has been successfully saved as Draft',
+      );
+      await Future.delayed(const Duration(milliseconds: 1500));
+    } else if (!wasSuccessful && toDash) {
+      // offline case only when going to dash
+      offlineDialog(context);
     }
+
+    Navigator.pop(context);
+
   } else if (toDash) {
     CartDatabaseManager().cartItems.clear();
     CartDatabaseManager().clearCart(customerId: customerId);
@@ -197,6 +192,88 @@ List<BulkData> storedBulkList = [];
   CartDatabaseManager().getDraftItems();
   isCartModified.value = false;
 }
+//   Future<void> handleBackNavigation({
+//   required BuildContext context,
+//   required bool isDirectDialogue,
+//   required bool isFromOrder,
+//   required bool isFromCalender,
+//   required String customerId,
+//   required HomeController homeController,
+// }) async {
+//   final toDash = isDirectDialogue && (!isFromOrder || !isFromCalender);
+
+//   if ((CartDatabaseManager().cartItems.isNotEmpty ||
+//           CartDatabaseManager().draftBox.isNotEmpty) &&
+//       customerId.isNotEmpty &&
+//       isCartModified.value) {
+
+//     Get.dialog(
+//       const PopScope(
+//         canPop: false,
+//         child: Center(child: CircularProgressIndicator()),
+//       ),
+//       barrierDismissible: false,
+//     );
+
+//     if (storedBulkList.isEmpty) {
+//       print('handleBackNavigation: Bulk list is empty. Fetching API now...');
+//       await fetchBulkData();
+//     }
+
+//     print('Processing navigation with ${storedBulkList.length} bulk items.');
+
+//     final wasSuccessful = await processCartBeforeNavigation(
+//       context: context,
+//       customerId: customerId,
+//       bulkDataList: storedBulkList,
+//     );
+
+//     // ✅ ALWAYS close loading dialog first before doing anything else
+//     if (Get.isDialogOpen ?? false) {
+//       Get.back();
+//     }
+
+//     // Small delay to let the dialog fully close before opening another
+//     await Future.delayed(const Duration(milliseconds: 200));
+
+//     if (toDash) {
+//       if (wasSuccessful) {
+//         // ✅ Only show success when API actually returned 200
+//         showSuccessFullDialog(
+//           context: context,
+//           imagePath: 'assets/images/Animation - 1726906882515.json',
+//           message: 'Your order has been successfully saved as Draft',
+//         );
+//         await Future.delayed(const Duration(milliseconds: 1500));
+//       }
+//       if (toDash) {
+//   Navigator.pop(context);
+// } else {
+//   if (!wasSuccessful) {
+//     // only show offline dialog if it failed and not already shown inside processCart
+//   }
+//   Navigator.pop(context);
+// }
+//       // If !wasSuccessful: either offline (already handled inside process fn)
+//       // or cart was empty — just navigate back silently
+//       // Navigator.pop(context);
+//     } else {
+//       Navigator.pop(context);
+//     }
+//   } else if (toDash) {
+//     CartDatabaseManager().cartItems.clear();
+//     CartDatabaseManager().clearCart(customerId: customerId);
+//     Navigator.pop(context);
+//   } else {
+//     CartDatabaseManager().cartItems.clear();
+//     Navigator.pop(context);
+//   }
+
+//   await Provider.of<CustomersProvider>(context, listen: false)
+//       .fetchOrdersForCustomDash(OrderStatus.draft, customerId);
+//   CartDatabaseManager().getDraftItems();
+//   isCartModified.value = false;
+// }
   // Future<void> handleBackNavigation({
   //   required BuildContext context,
   //   required bool isDirectDialogue,

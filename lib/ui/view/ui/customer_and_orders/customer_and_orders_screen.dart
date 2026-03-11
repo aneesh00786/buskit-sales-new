@@ -4041,6 +4041,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   ),
                                                 ),
                                               )),
+                                              
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
@@ -4049,14 +4050,37 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     formatAmount(filteredOrders
                                                         .fold<double>(
                                                       0.0,
-                                                      (sum, order) =>
-                                                          sum +
-                                                          (order.orderTotal),
+                                                      (sum, order) {
+                                                        // Update starts here
+                                                        if (orderType == 'Payment') {
+                                                          return sum + (order.receivedAmount ?? 0.0);
+                                                        } else {
+                                                          return sum + (order.orderTotal);
+                                                        }
+                                                        // Update ends here
+                                                      },
                                                     )),
                                                     maxLines: 2,
                                                   ),
                                                 ),
                                               )),
+
+                                              // DataColumn(
+                                              //     label: SizedBox(
+                                              //   width: flexWidth * 1,
+                                              //   child: Center(
+                                              //     child: Text(
+                                              //       formatAmount(filteredOrders
+                                              //           .fold<double>(
+                                              //         0.0,
+                                              //         (sum, order) =>
+                                              //             sum +
+                                              //             (order.orderTotal),
+                                              //       )),
+                                              //       maxLines: 2,
+                                              //     ),
+                                              //   ),
+                                              // )),
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 0.9,

@@ -2719,8 +2719,16 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
               final e = item.detail;
 
               // Calculate Pack Value
-              String packValue =
-                  e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+              // String packValue =
+              //     e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
+              String displayPackType = (e.packtype == 'Pack' || item.isPack == true)
+                  ? (e.packtype ?? 'Bulk')
+                  : (e.packtype == null ? 'Bulk' : 'Pcs');
+
+              // Calculate Pack Value consistently with UI
+              String packValue = (e.packtype == 'Pack' || item.isPack == true) 
+                  ? e.pieces.toString() 
+                  : e.count.toString();
               print('bundle promo msg: ${item.promoMsg}');
               // 1. Check if it is a Promo Item
               if (item.isPromo == true) {
@@ -2734,7 +2742,7 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     variantId: e.variationId ?? '',
                     pack: packValue,
                     price: e.sellPrice.toString(),
-                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                    packType: displayPackType,
                     discount: e.discount ?? 0,
                     quantity: e.count.toInt(),
                     variantName: e.variationName ?? '',
@@ -2758,7 +2766,7 @@ print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.
                     variantId: e.variationId ?? '',
                     pack: packValue,
                     price: e.sellPrice.toString(),
-                    packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                    packType: displayPackType,
                     discount: e.discount ?? 0,
                     quantity: e.count.toInt(),
                     variantName: e.variationName ?? '',
@@ -2827,7 +2835,7 @@ return SendCartData(
   variantId: e.variationId ?? '',
   pack: packValue,
   price: finalPrice, 
-  packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+  packType: isBulkItem ? 'Bulk' : displayPackType,
   discount: e.discount ?? 0,
   quantity: e.count.toInt(),
   variantName: e.variationName ?? '',

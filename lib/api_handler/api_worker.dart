@@ -3901,6 +3901,7 @@ Future<Bulk> getBulkVolumes() async {
           ApiConstants.getVolumes,
           data: {"company_id": companyId},
         );
+        log('reposne of bulk item:${response.data}');
 
         if (response.statusCode == 200) {
           try {

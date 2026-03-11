@@ -78,7 +78,7 @@ class CartDatabaseManager {
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             // await draftBox.clear();
-            log('response from fetch all orders:$orders');
+            // log('response from fetch all orders:$orders');
             await draftBox.clear();
             // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {

@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/dialog/dialogs.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/calculate_discount.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
@@ -2340,6 +2341,11 @@ Obx(() {
                             // Call processSaveAndSend with:
                             // - ORIGINAL total (before credit)
                             // - useCreditConfirmed from popup
+                            if (widget.productsController.storedBulkList.isEmpty) {
+  print('SaveAndSend: Bulk list is empty. Fetching API now...');
+  await widget.productsController.fetchBulkData();
+}
+print('bulk list before saveAndSend: ${widget.productsController.storedBulkList.map((e) => 'ID: ${e.id}, BulkID: ${e.bulkId}, Price: ${e.volumePrice}').toList()}');
                             await processSaveAndSend(
                               context: context,
                               finalAmount:
@@ -2349,6 +2355,7 @@ Obx(() {
                               paymentType: paymentType,
                               cartId: cartIdPrefs,
                               draftId: draftIdPrefs,
+                              bulkDataList: widget.productsController.storedBulkList,
                             );
 
                             cartProvider.getCartItemCounts(customerId);
@@ -2624,6 +2631,7 @@ Obx(() {
     int? paymentType,
     required String cartId,
     required String draftId,
+    List<BulkData>? bulkDataList,
   }) async {
     List<CartItem> itemList;
     String customerId = (widget.customerId != null && widget.customerId != '')
@@ -2740,7 +2748,8 @@ Obx(() {
 
                     customerDiscount: item.CustomerDiscount,
                     promoDiscount: item.tieredDiscount,
-                    unitPrice: e.price.toString(),
+                    unitPrice: e.sellPrice.toString(),
+                    isBulk: false,
                   );
                 } else {
                   // --- Standard Promo Logic ---
@@ -2762,46 +2771,178 @@ Obx(() {
 
                     customerDiscount: item.CustomerDiscount,
                     promoDiscount: item.tieredDiscount,
-                    unitPrice: e.price.toString(),
+                    unitPrice: e.sellPrice.toString(),
+                    isBulk: false,
                   );
                 }
               } else {
                 // 2. Normal Item Logic (Check for Bulk)
-                bool isBulkItem = false;
-                String? bulkId;
 
-                if (e.variationName?.contains('[BULK_ID:') == true) {
-                  isBulkItem = true;
-                  final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-                  final match = regex.firstMatch(e.variationName!);
-                  if (match != null) {
-                    bulkId = match.group(1);
-                  }
-                }
+// 2. Normal Item Logic (Check for Bulk)
+bool isBulkItem = false;
 
-                return SendCartData(
-                  productId: e.productId ?? '',
-                  variantId: e.variationId ?? '',
-                  pack: packValue,
-                  price: e.sellPrice.toString(),
-                  packType: isBulkItem
-                      ? 'Bulk'
-                      : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-                  // packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                  discount: e.discount ?? 0,
-                  quantity: e.count.toInt(),
-                  variantName: e.variationName ?? '',
+// 1. Try to get it from the direct property first (Just like your other function)
+String? currentBulkId = e.bulkId;
 
-                  // Normal/Bulk Flags
-                  isPromo: false,
-                  isBundle: false,
-                  isBulk: isBulkItem,
-                  bulkId: bulkId,
+// 2. Fallback: If bulkId is null, try to extract it from the variation name using Regex
+if ((currentBulkId == null || currentBulkId.isEmpty) && 
+    e.variationName?.contains('[BULK_ID:') == true) {
+  final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+  final match = regex.firstMatch(e.variationName!);
+  if (match != null) {
+    // Add "BULK_" prefix so it matches your storedBulkList format ("BULK_5")
+    currentBulkId = 'BULK_${match.group(1)}'; 
+  }
+}
 
-                  customerDiscount: item.CustomerDiscount,
-                  promoDiscount: item.tieredDiscount,
-                  unitPrice: e.price.toString(),
-                );
+// 3. Set up default values before checking the list
+String? idToSendToBackend = currentBulkId;
+String finalPrice = e.sellPrice.toString();
+
+// 4. Apply the exact same bulkDataList matching logic
+if (currentBulkId != null && currentBulkId.isNotEmpty) {
+  isBulkItem = true;
+  
+  if (bulkDataList != null) {
+    try {
+      final matchingBulk = bulkDataList.firstWhere(
+        (element) => element.bulkId == currentBulkId,
+      );
+      
+      // Update the ID to send to backend
+      idToSendToBackend = matchingBulk.id?.toString() ?? currentBulkId;
+      
+      // Update the price if a volume price exists
+      if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
+        finalPrice = matchingBulk.volumePrice!;
+      }
+    } catch (err) {
+      print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
+    }
+  }
+}
+
+return SendCartData(
+  productId: e.productId ?? '',
+  variantId: e.variationId ?? '',
+  pack: packValue,
+  price: finalPrice, 
+  packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+  discount: e.discount ?? 0,
+  quantity: e.count.toInt(),
+  variantName: e.variationName ?? '',
+  
+  // Normal/Bulk Flags
+  isPromo: false,
+  isBundle: false,
+  isBulk: isBulkItem,
+  bulkId: idToSendToBackend, 
+
+  customerDiscount: item.CustomerDiscount,
+  promoDiscount: item.tieredDiscount,
+  unitPrice: e.sellPrice.toString(),
+);
+
+
+//                 bool isBulkItem = false;
+// String? currentBulkId;
+
+// // 1. Extract the Bulk ID using regex from the variation name
+// if (e.variationName?.contains('[BULK_ID:') == true) {
+//   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+//   final match = regex.firstMatch(e.variationName!);
+//   if (match != null) {
+//     currentBulkId = match.group(1);
+//   }
+// }
+
+// // 2. Set up default values before checking the list
+// String? idToSendToBackend = currentBulkId;
+// String finalPrice = e.sellPrice.toString();
+
+// // 3. Apply the exact same bulkDataList matching logic
+// if (currentBulkId != null && currentBulkId.isNotEmpty) {
+//   isBulkItem = true;
+  
+//   if (bulkDataList != null) {
+//     try {
+//       final matchingBulk = bulkDataList!.firstWhere(
+//         (element) => element.bulkId == currentBulkId,
+//       );
+      
+//       // Update the ID to send to backend
+//       idToSendToBackend = matchingBulk.id?.toString() ?? currentBulkId;
+      
+//       // Update the price if a volume price exists
+//       if (matchingBulk.volumePrice != null && matchingBulk.volumePrice!.isNotEmpty) {
+//         finalPrice = matchingBulk.volumePrice!;
+//       }
+//     } catch (err) {
+//       print('Bulk ID $currentBulkId found but not matched in BulkData list: $err');
+//     }
+//   }
+// }
+
+// return SendCartData(
+//   productId: e.productId ?? '',
+//   variantId: e.variationId ?? '',
+//   pack: packValue,
+  
+//   // Use the updated finalPrice here
+//   price: finalPrice, 
+  
+//   packType: isBulkItem ? 'Bulk' : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+//   discount: e.discount ?? 0,
+//   quantity: e.count.toInt(),
+//   variantName: e.variationName ?? '',
+
+//   // Normal/Bulk Flags
+//   isPromo: false,
+//   isBundle: false,
+//   isBulk: isBulkItem,
+  
+//   // Use the updated backend ID here
+//   bulkId: idToSendToBackend, 
+
+//   customerDiscount: item.CustomerDiscount,
+//   promoDiscount: item.tieredDiscount,
+//   unitPrice: e.sellPrice.toString(),
+// );
+                // bool isBulkItem = false;
+                // String? bulkId;
+
+                // if (e.variationName?.contains('[BULK_ID:') == true) {
+                //   isBulkItem = true;
+                //   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
+                //   final match = regex.firstMatch(e.variationName!);
+                //   if (match != null) {
+                //     bulkId = match.group(1);
+                //   }
+                // }
+
+                // return SendCartData(
+                //   productId: e.productId ?? '',
+                //   variantId: e.variationId ?? '',
+                //   pack: packValue,
+                //   price: e.sellPrice.toString(),
+                //   packType: isBulkItem
+                //       ? 'Bulk'
+                //       : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
+                //   // packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+                //   discount: e.discount ?? 0,
+                //   quantity: e.count.toInt(),
+                //   variantName: e.variationName ?? '',
+
+                //   // Normal/Bulk Flags
+                //   isPromo: false,
+                //   isBundle: false,
+                //   isBulk: isBulkItem,
+                //   bulkId: bulkId,
+
+                //   customerDiscount: item.CustomerDiscount,
+                //   promoDiscount: item.tieredDiscount,
+                //   unitPrice: e.sellPrice.toString(),
+                // );
               }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),
@@ -3902,32 +4043,66 @@ Obx(() {
       },
     );
   }
-
   void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
-    final String customerId = widget.customerId ?? '';
-    setState(() {
-      variantToDelete.detail.count = 0;
-      CartDatabaseManager().updateCart(variantToDelete);
-      widget.productsController.cartItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
-      CartDatabaseManager().deleteCartItem(variantToDelete);
-      List<CartItem> orderItems = widget.productsController.cartItems
-          .where((item) => (item.detail.stock ?? 0) > 0)
-          .toList();
-      List<CartItem> preorderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock == 0)
-          .toList();
-      orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTax = Utils().calculateTotalTax(orderItems);
-      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-      preorderTax = Utils().calculateTotalTax(preorderItems);
-      provider.updateCartCount(customerId);
-    });
+  final String customerId = widget.customerId ?? '';
+  setState(() {
+    // 1. Remove from local controller lists FIRST
+    widget.productsController.cartItems.removeWhere((item) =>
+        item.productName == variantToDelete.productName &&
+        item.detail.variationName == variantToDelete.detail.variationName);
+        
+    // 2. Actually delete from the database (Do NOT update it to count = 0 first)
+    CartDatabaseManager().deleteCartItem(variantToDelete);
 
-    // If no remaining items carry a flat discount promo, clear it
-    _maybeClearFlatDiscountForCustomer(customerId);
-  }
+    // 3. Rebuild order and preorder lists
+    List<CartItem> orderItems = widget.productsController.cartItems
+        .where((item) => (item.detail.stock ?? 0) > 0)
+        .toList();
+    List<CartItem> preorderItems = widget.productsController.cartItems
+        .where((item) => item.detail.stock == 0)
+        .toList();
+
+    // 4. Update Controller State
+    widget.productsController.orderItems = orderItems;
+    widget.productsController.preorderItems = preorderItems;
+
+    // 5. Recalculate Totals
+    orderSubtotal = Utils().calculateSubtotal(orderItems);
+    orderTaxe = Utils().calculateTotalTax(orderItems); // Note: Make sure you use orderTaxe consistently
+    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+    preorderTax = Utils().calculateTotalTax(preorderItems);
+    
+    provider.updateCartCount(customerId);
+  });
+
+  _maybeClearFlatDiscountForCustomer(customerId);
+}
+
+  // void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
+  //   final String customerId = widget.customerId ?? '';
+  //   setState(() {
+  //     variantToDelete.detail.count = 0;
+  //     CartDatabaseManager().updateCart(variantToDelete);
+  //     widget.productsController.cartItems.removeWhere((item) =>
+  //         item.productName == variantToDelete.productName &&
+  //         item.detail.variationName == variantToDelete.detail.variationName);
+  //     CartDatabaseManager().deleteCartItem(variantToDelete);
+  //     List<CartItem> orderItems = widget.productsController.cartItems
+  //         .where((item) => (item.detail.stock ?? 0) > 0)
+  //         .toList();
+  //     List<CartItem> preorderItems = widget.productsController.cartItems
+  //         .where((item) => item.detail.stock == 0)
+  //         .toList();
+  //     orderSubtotal = Utils().calculateSubtotal(orderItems);
+  //     orderTax = Utils().calculateTotalTax(orderItems);
+  //     preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+  //     preorderTax = Utils().calculateTotalTax(preorderItems);
+  //     provider.updateCartCount(customerId);
+  //   });
+
+  //   // If no remaining items carry a flat discount promo, clear it
+  //   _maybeClearFlatDiscountForCustomer(customerId);
+  // }
 
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
@@ -4182,43 +4357,86 @@ Obx(() {
     final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
     cartProvider.getCartItemCounts(customerId);
   }
-   void _deleteProduct(String productName, {bool isPreorder = false}) {
-    setState(() {
-      final variantsToDelete =
-          widget.productsController.cartItems.where((item) {
-        final isMatchingProduct = item.productName == productName;
-        final isPreorderItem = item.detail.stock == 0;
-        final isOrderItem = (item.detail.stock ?? 0) > 0;
-        return isMatchingProduct &&
-            ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
-      }).toList();
+  void _deleteProduct(String productName, {bool isPreorder = false}) {
+  setState(() {
+    final variantsToDelete = widget.productsController.cartItems.where((item) {
+      final isMatchingProduct = item.productName == productName;
+      final isPreorderItem = item.detail.stock == 0;
+      final isOrderItem = (item.detail.stock ?? 0) > 0;
+      return isMatchingProduct &&
+          ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
+    }).toList();
 
-      if (variantsToDelete.isEmpty) {
-        return;
-      }
+    if (variantsToDelete.isEmpty) {
+      return;
+    }
 
-      for (var variant in variantsToDelete) {
-        variant.detail.count = 0;
-        CartDatabaseManager().deleteCartItem(variant);
-        CartDatabaseManager().updateCart(variant);
-      }
-      widget.productsController.cartItems.removeWhere((item) =>
-          item.productName == productName &&
-          ((isPreorder && item.detail.stock == 0) ||
-              (!isPreorder && (item.detail.stock ?? 0) > 0)));
-      final orderItems = widget.productsController.cartItems
-          .where((item) => (item.detail.stock ?? 0) > 0)
-          .toList();
-      final preorderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock == 0)
-          .toList();
+    // 1. Delete all matching variants from DB
+    for (var variant in variantsToDelete) {
+      CartDatabaseManager().deleteCartItem(variant);
+    }
 
-      orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTaxe = Utils().calculateTotalTax(orderItems);
-      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-      preorderTax = Utils().calculateTotalTax(preorderItems);
-    });
-  }
+    // 2. Remove from controller list
+    widget.productsController.cartItems.removeWhere((item) =>
+        item.productName == productName &&
+        ((isPreorder && item.detail.stock == 0) ||
+            (!isPreorder && (item.detail.stock ?? 0) > 0)));
+
+    // 3. Rebuild Lists
+    final orderItems = widget.productsController.cartItems
+        .where((item) => (item.detail.stock ?? 0) > 0)
+        .toList();
+    final preorderItems = widget.productsController.cartItems
+        .where((item) => item.detail.stock == 0)
+        .toList();
+
+    widget.productsController.orderItems = orderItems;
+    widget.productsController.preorderItems = preorderItems;
+
+    // 4. Recalculate
+    orderSubtotal = Utils().calculateSubtotal(orderItems);
+    orderTaxe = Utils().calculateTotalTax(orderItems);
+    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+    preorderTax = Utils().calculateTotalTax(preorderItems);
+  });
+}
+  //  void _deleteProduct(String productName, {bool isPreorder = false}) {
+  //   setState(() {
+  //     final variantsToDelete =
+  //         widget.productsController.cartItems.where((item) {
+  //       final isMatchingProduct = item.productName == productName;
+  //       final isPreorderItem = item.detail.stock == 0;
+  //       final isOrderItem = (item.detail.stock ?? 0) > 0;
+  //       return isMatchingProduct &&
+  //           ((isPreorder && isPreorderItem) || (!isPreorder && isOrderItem));
+  //     }).toList();
+
+  //     if (variantsToDelete.isEmpty) {
+  //       return;
+  //     }
+
+  //     for (var variant in variantsToDelete) {
+  //       variant.detail.count = 0;
+  //       CartDatabaseManager().deleteCartItem(variant);
+  //       CartDatabaseManager().updateCart(variant);
+  //     }
+  //     widget.productsController.cartItems.removeWhere((item) =>
+  //         item.productName == productName &&
+  //         ((isPreorder && item.detail.stock == 0) ||
+  //             (!isPreorder && (item.detail.stock ?? 0) > 0)));
+  //     final orderItems = widget.productsController.cartItems
+  //         .where((item) => (item.detail.stock ?? 0) > 0)
+  //         .toList();
+  //     final preorderItems = widget.productsController.cartItems
+  //         .where((item) => item.detail.stock == 0)
+  //         .toList();
+
+  //     orderSubtotal = Utils().calculateSubtotal(orderItems);
+  //     orderTaxe = Utils().calculateTotalTax(orderItems);
+  //     preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+  //     preorderTax = Utils().calculateTotalTax(preorderItems);
+  //   });
+  // }
 
   // void _deleteProduct(String productName, {bool isPreorder = false}) {
   //   setState(() {

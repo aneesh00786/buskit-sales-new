@@ -2740,6 +2740,7 @@ Obx(() {
 
                     customerDiscount: item.CustomerDiscount,
                     promoDiscount: item.tieredDiscount,
+                    unitPrice: e.price.toString(),
                   );
                 } else {
                   // --- Standard Promo Logic ---
@@ -2761,6 +2762,7 @@ Obx(() {
 
                     customerDiscount: item.CustomerDiscount,
                     promoDiscount: item.tieredDiscount,
+                    unitPrice: e.price.toString(),
                   );
                 }
               } else {
@@ -2798,51 +2800,13 @@ Obx(() {
 
                   customerDiscount: item.CustomerDiscount,
                   promoDiscount: item.tieredDiscount,
+                  unitPrice: e.price.toString(),
                 );
               }
             }).toList()),
             total: finalAmount.toStringAsFixed(0),
           );
-          //         final productBYData = AddToCartModel(
-          //           customerId: customerId,
-          //           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          //           cartId: '',
-          //           cartList: await Future.wait(itemList.map((item) async {
-          //             final e = item.detail;
-          //             String packValue =
-          //                 e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
-          //                 bool isBulkItem = false;
-          // String? bulkId;
-          // if (e.variationName?.contains('[BULK_ID:') == true) {
-          //   isBulkItem = true;
-          //   final regex = RegExp(r'\[BULK_ID:(\d+)\]');
-          //   final match = regex.firstMatch(e.variationName!);
-          //   if (match != null) {
-          //     bulkId = match.group(1);
-          //   }
-          // }
-
-          //             return SendCartData(
-          //               productId: e.productId ?? '',
-          //               variantId: e.variationId ?? '',
-          //               pack: packValue,
-          //               price: e.sellPrice.toString(),
-          //               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-          //               discount: e.discount ?? 0,
-          //               quantity: e.count.toInt(),
-          //               variantName: e.variationName ?? '',
-          //               isPromo: true,
-          //               promoCode: item.promoCode ?? '',
-          //               promoMsg: item.promoMsg ?? '',
-          //               customerDiscount: item.CustomerDiscount,
-          //               promoDiscount: item.tieredDiscount,
-          //               isBulk: isBulkItem,
-          //               bulkId: bulkId,
-          //               isBundle: true,
-          //             );
-          //           }).toList()),
-          //           total: finalAmount.toStringAsFixed(0),
-          //         );
+      
 
           List<String> varientIdsPass = [];
           for (var item in detail) {

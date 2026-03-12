@@ -35,14 +35,14 @@ class GroupedItemDataRows {
         productsController.flatDiscountByCustomer[cid] ?? 0.0;
 
     return groupedItems.map((groupedItem) {
-      final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
-          ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
-              ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
-                  groupedItem.detail.count.toDouble()
-              : groupedItem.detail.count.toDouble()) *
-          ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
-                  0.0) /
-              100));
+      // final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
+      //     ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+      //         ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+      //             groupedItem.detail.count.toDouble()
+      //         : groupedItem.detail.count.toDouble()) *
+      //     ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
+      //             0.0) /
+      //         100));
 
       final double sellingPrice =
           double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
@@ -75,25 +75,39 @@ class GroupedItemDataRows {
               groupedItem.tieredDiscount! > 0)
           ? groupedItem.tieredDiscount!
           : 0;
+        
+      num? bulkDiscount = groupedItem.detail.bulkDiscount != null && groupedItem.detail.bulkDiscount! > 0
+          ? groupedItem.detail.bulkDiscount
+          : 0;
+      print('bulk discount:$bulkDiscount');
        
       num flatDiscount = (groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
+          num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
+              groupedItem.detail.bulkDiscountAmount! > 0)? groupedItem.detail.bulkDiscountAmount! : 0;
           num bogoDiscount = (groupedItem.bogoDiscount != null &&
               groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
-         print('bogo discount:$bogoDiscount');
-      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount;
+        //  print('bogo discount:$bogoDiscount');
+      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+      print('total discount percentage:$totalDiscountPercent');
+      print('backend discount amount:${groupedItem.totalDiscountAmount}');
       double percentageDiscountAmount =
           (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-    groupedItem.totalDiscountAmount = percentageDiscountAmount;
-      double totalDiscountAmount = percentageDiscountAmount + flatDiscount ;
-      
+    groupedItem.totalDiscountAmount = percentageDiscountAmount ;
+    
+      double totalDiscountAmount = percentageDiscountAmount + flatDiscount  + bulkDiscountAmount   ;
+      print('total discount amount$totalDiscountAmount');
   
       // groupedItem.totalDiscountAmount = totalDiscountAmount;
-
-      double taxPercentage = (groupedItem.catTax ?? 0).toDouble();
-      print('tax perecntage in the row content :$taxPercentage');
+double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
+print('bulktax percentage from detail: $bulkTaxPercentage');
+     double taxPercentage = bulkTaxPercentage > 0 
+          ? bulkTaxPercentage 
+          : (groupedItem.catTax ?? 0).toDouble();
+          print('final tax percentage used: $taxPercentage');
+      // print('tax perecntage in the row content :$taxPercentage');
       double priceAfterDiscount =
           (baseSellAmount * productQuantity) - totalDiscountAmount;
 
@@ -109,14 +123,34 @@ class GroupedItemDataRows {
       print('inclusive tax:${groupedItem.detail.inclTax}');
 
       double finalPrice;
-      if (groupedItem.detail.inclTax == "incl_tax") {
-        print('its inclusive tax');
-        finalPrice = priceAfterDiscount;
+
+      // 1. Check if finalPrice is already calculated/assigned
+      if (groupedItem.finalPrice != null && groupedItem.finalPrice! > 0) {
+        print('Using existing final price: ${groupedItem.finalPrice}');
+        finalPrice = groupedItem.finalPrice!;
       } else {
-        print('its not inclusive tax');
-        finalPrice = priceAfterDiscount + tax;
+        // 2. If no finalPrice exists, run your current calculation condition
+        if (groupedItem.detail.inclTax == "incl_tax") {
+          print('its inclusive tax');
+          finalPrice = priceAfterDiscount;
+        } else {
+          print('its not inclusive tax');
+          finalPrice = priceAfterDiscount + tax;
+        }
+        
+        // 3. Assign the newly calculated price back to groupedItem
+        groupedItem.finalPrice = finalPrice;
       }
-      groupedItem.finalPrice = finalPrice;
+
+      // double finalPrice;
+      // if (groupedItem.detail.inclTax == "incl_tax") {
+      //   print('its inclusive tax');
+      //   finalPrice = priceAfterDiscount;
+      // } else {
+      //   print('its not inclusive tax');
+      //   finalPrice = priceAfterDiscount + tax;
+      // }
+      // groupedItem.finalPrice = finalPrice;
 
       return DataRow(
         cells: [

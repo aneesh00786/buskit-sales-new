@@ -348,6 +348,17 @@ class Detail {
   @HiveField(38)
   String? bulkId;
 
+  @HiveField(39)
+  num? bulkDiscount; 
+
+  @HiveField(40)
+  num? bulkTax;
+
+  @HiveField(41)
+  num? bulkDiscountAmount;
+
+
+
   Detail({
     this.id,
     this.companyId,
@@ -386,6 +397,9 @@ class Detail {
     this.customerDiscount,
     this.initialCount,
     this.bulkId,
+    this.bulkDiscount,
+    this.bulkTax,
+    this.bulkDiscountAmount,
   });
   Detail copyWith({
     int? id,
@@ -422,6 +436,9 @@ class Detail {
     num? maxDiscount,
     String? productName,
     String? bulkId,
+    num? bulkDiscount,
+    num? bulkTax,
+    num? bulkDiscountAmount,
   }) {
     return Detail(
       id: id ?? this.id,
@@ -458,6 +475,9 @@ class Detail {
       productName: productName ?? this.productName,
       maxDiscount: maxDiscount ?? this.maxDiscount,
       bulkId: bulkId ?? this.bulkId,
+      bulkDiscount: bulkDiscount ?? this.bulkDiscount,
+      bulkTax: bulkTax ?? this.bulkTax,
+      bulkDiscountAmount: bulkDiscountAmount ?? this.bulkDiscountAmount,
     );
   }
 
@@ -497,7 +517,10 @@ class Detail {
         maxDiscount = json['max_discount'],
         promoDiscount = json['promo_discount'],
         initialCount = json['initialCount'] ?? json['count'] ?? 0.0,
-        bulkId = json['bulk_id'];
+        bulkId = json['bulk_id'],
+        bulkDiscount = json['bulk_discount'],
+        bulkTax = json['bulk_tax'],
+        bulkDiscountAmount = json['bulk_discount_amount'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -537,6 +560,9 @@ class Detail {
     data['promo_discount'] = promoDiscount;
     data['initialCount'] = initialCount;
     data['bulk_id'] = bulkId;
+    data['bulk_discount'] = bulkDiscount;
+    data['bulk_tax'] = bulkTax;
+    data['bulk_discount_amount'] = bulkDiscountAmount;
     return data;
   }
 }

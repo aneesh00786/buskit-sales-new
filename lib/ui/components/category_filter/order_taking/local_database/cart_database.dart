@@ -78,7 +78,7 @@ class CartDatabaseManager {
           if (responseData['status'] == true) {
             final List<dynamic> orders = responseData['data'] ?? [];
             // await draftBox.clear();
-            // log('response from fetch all orders:$orders');
+            log('response from fetch all orders:$orders');
             await draftBox.clear();
             // final currentSalesmanId = SessionHelper.loginSavedData?.salesmanId;
             for (var order in orders) {
@@ -127,6 +127,7 @@ final String promoType = cart['promo_type'] as String? ?? '';
                   productName: cart['product_name'] as String? ?? '',
                   initialCount:
                       num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
+                  // bulkDiscountAmount:   num.tryParse(cart['discount_amount'].toString()) ?? 0,
 
                   // promoDiscount: 10
                 );

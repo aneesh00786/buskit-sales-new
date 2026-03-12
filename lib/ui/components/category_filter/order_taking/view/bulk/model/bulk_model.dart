@@ -49,6 +49,7 @@ class BulkData {
   String? bulkId;
   String? variationName;
   String? inclTax;
+  double? bulkTax;
 
   BulkData({
     this.id,
@@ -70,6 +71,7 @@ class BulkData {
     this.bulkId,
     this.variationName,
     this.inclTax,
+    this.bulkTax,
   });
 
   factory BulkData.fromJson(Map<String, dynamic> json) => BulkData(
@@ -92,6 +94,7 @@ class BulkData {
         bulkId: json["bulk_id"]?.toString(),
         variationName: json["variation_name"] as String?,
         inclTax: json["incl_tax"],
+        bulkTax: _parseDouble(json["cat_tax"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -114,6 +117,7 @@ class BulkData {
         "bulk_id": bulkId,
         "variation_name":variationName,
         "incl_tax":inclTax,
+        "cat_tax": bulkTax,
       };
 }
 

@@ -577,6 +577,7 @@ List<BulkData> storedBulkList = [];
       cartId: existingCartId,
       cartList: await Future.wait(allItems.map((item) async {
         final e = item.detail;
+        print('bulk discount amount in the controller:${e.bulkDiscountAmount}');
         print('full detailssssss:${e.toJson()}');
 
         String packValue;
@@ -590,7 +591,8 @@ List<BulkData> storedBulkList = [];
         final double combinedDiscount =
             (item.totalDiscountAmount ?? 0).toDouble() +
                 (item.flatDiscount ?? 0).toDouble() +
-                (item.bogoDiscount ?? 0).toDouble();
+                (item.bogoDiscount ?? 0).toDouble() +
+                (item.detail.bulkDiscountAmount ?? 0).toDouble();
         final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
             (item.flatDiscount ?? 0) +
             (item.bogoDiscount ?? 0);
@@ -690,6 +692,7 @@ List<BulkData> storedBulkList = [];
             taxAmount: item.taxAmount,
             itemNumbers: isBulkItem ? e.pieces?.toInt() : null,
             unitPrice: e.sellPrice.toString(),
+            bulkDiscountAmount: e.bulkDiscountAmount,
           );
         }
       }).toList()),

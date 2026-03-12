@@ -307,8 +307,12 @@ void didChangeDependencies() {
         num bogoDiscount = (item.bogoDiscount != null && item.bogoDiscount! > 0)
             ? item.bogoDiscount!
             : 0;
+        num? bulkDiscount = (item.detail.bulkDiscount != null && item.detail.bulkDiscount! > 0)
+            ? item.detail.bulkDiscount
+            : 0;
+        print('bulk discount in load cart items:${item.detail.bulkDiscount}');
 
-        double totalDiscountPercent = customerDiscount + tieredDiscount + bogoDiscount;
+        double totalDiscountPercent = customerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
        
 
         // 4. Calculate Total Discount Amount
@@ -321,7 +325,11 @@ void didChangeDependencies() {
         double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
       print('price after discount in the load cart items:$priceAfterDiscount');
         // 6. Calculate Tax
-        double taxPercentage = (item.catTax ?? 0).toDouble();
+        double bulkTaxPercentage = (item.detail.bulkTax ?? 0).toDouble();
+        print('bulk tax perecnatge in the load cart items:$bulkTaxPercentage');
+        double taxPercentage = bulkTaxPercentage > 0 
+          ? bulkTaxPercentage 
+          : (item.catTax ?? 0).toDouble();
         print('tax perrecntage in the load cart items:$taxPercentage');
         double calculatedTax = 0.0;
 
@@ -343,12 +351,19 @@ void didChangeDependencies() {
           calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
           print('calculated tax in the else case in the load cart items:$calculatedTax');
         }
+        if (bulkTaxPercentage <= 0) {
+          item.taxAmount = calculatedTax;
+        } else {
+          print('Skipped assigning item.taxAmount because bulk tax is active');
+          // item.taxAmount will remain null or 0, forcing the UI to calculate it dynamically
+        }
         
-        item.taxAmount = calculatedTax;
+        // item.taxAmount = calculatedTax;
 
         // 7. Final Price Logic (Inclusive vs Exclusive)
         if (item.detail.inclTax == "incl_tax") {
           item.finalPrice = priceAfterDiscount;
+          print('final price in load cart items:${ item.finalPrice}');
           // For consistency with other parts of the app that rely on totalPrice
           item.totalPrice = (baseSellAmount * productQuantity); 
         } else {

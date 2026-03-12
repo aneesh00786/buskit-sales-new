@@ -413,15 +413,23 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                       productId: data.productId,
                       variationId: data.productVariantId,
                       variationName: "${data.variationName ?? ''} ",
-                      sellPrice: calculatedSellPrice.toString(),
+                      sellPrice: data.unitPrice ?? '0',
                       pieces: data.itemNumbers,
                       saleBy: 'Pack',
                       unitType: "",
                       // Pass quantity as stock/count for cart logic
                       stock: _currentQuantity, 
-                      bulkId: data.bulkId
+                      bulkId: data.bulkId,
+                      bulkDiscount:  data.discountPercentage ?? 0,
+                      bulkTax: data.bulkTax ?? 0,
+                      discount: num.tryParse(data.discountAmount),
+                      // discount: num.tryParse(data.discountAmount?.toString() ?? '0') ?? 0,
+                      // discpountPercentage: data.discountPercentage ?? 0,
                   ),
                 );
+                // print('detail discount: ${data.discountPercentage}');
+                print('detail tax: ${data.bulkTax}');
+                print('bulk discount in add to bulk screen:${data.discountPercentage}');
 
                 // 5. Update the UI state
                 productController.isCartModified.value = true;

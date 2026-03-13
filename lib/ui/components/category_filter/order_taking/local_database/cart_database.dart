@@ -104,7 +104,11 @@ final String promoType = cart['promo_type'] as String? ?? '';
                   packtype: cart['packtype'] as String? ?? '',
                   pieces: num.tryParse(cart['pieces']?.toString() ?? '0') ?? 0,
                   count: num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
-                  sellPrice: cart['sell_price']?.toString() ?? '0',
+                  // If it's a Bulk item, use unit_price. Otherwise, fall back to sell_price.
+sellPrice: (cart['packtype'] == 'Bulk') 
+    ? cart['unit_price']?.toString() ?? '0' 
+    : cart['sell_price']?.toString() ?? '0',
+                  // sellPrice: cart['sell_price']?.toString() ?? '0',
                   inclTax: cart['incl_tax'] as String? ?? '',
                   inNo: cart['in_no'] as String? ?? '',
                   barcode: cart['barcode'] as String? ?? '',
@@ -158,7 +162,9 @@ final String promoType = cart['promo_type'] as String? ?? '';
                   customerId: order['customer_id'] as String? ?? '',
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
-                  isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                  // Treat both 'Pack' and 'Bulk' as packed items
+isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as String? ?? '') == "Bulk",
+                  // isPack: (cart['packtype'] as String? ?? '') == "Pack",
                   catId: cart['catId'] as int? ?? 0,
                   salesmanId: order['salesman_id'] as String? ?? '',
                   isPromo: cart['is_promo'] == 1,

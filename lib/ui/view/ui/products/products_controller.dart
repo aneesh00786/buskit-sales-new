@@ -623,6 +623,7 @@ List<BulkData> storedBulkList = [];
               initialCount: e.initialCount,
               taxAmount: item.taxAmount,
               unitPrice: e.sellPrice.toString(),
+              isBulk: false,
             );
           } else {
             return SendCartData(
@@ -643,6 +644,7 @@ List<BulkData> storedBulkList = [];
               initialCount: e.initialCount,
               taxAmount: item.taxAmount,
               unitPrice: e.sellPrice.toString(),
+              isBulk: false,
             );
           }
         } else {

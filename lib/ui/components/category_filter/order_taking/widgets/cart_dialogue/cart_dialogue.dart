@@ -317,12 +317,27 @@ void didChangeDependencies() {
 
         // 4. Calculate Total Discount Amount
         // Logic: (Base Price * Quantity) * Percentage
+        // 4. Calculate Total Discount Amount
+        // Logic: (Base Price * Quantity) * Percentage
         double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
         
-        item.totalDiscountAmount = totalDiscountAmount;
+        // 👇 ADD THESE LINES TO INCLUDE FIXED DISCOUNTS 👇
+        // double flatDiscount = (item.flatDiscount ?? 0).toDouble();
+        double bulkDiscountAmt = (item.detail.bulkDiscountAmount ?? 0).toDouble();
+        
+        // Add them to the total discount amount
+        totalDiscountAmount +=   bulkDiscountAmt;
+        
+        item.totalDiscountAmount = totalDiscountAmount ;
 
         // 5. Calculate Price After Discount
         double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
+        // double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+        
+        // item.totalDiscountAmount = totalDiscountAmount;
+
+        // // 5. Calculate Price After Discount
+        // double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
       print('price after discount in the load cart items:$priceAfterDiscount');
         // 6. Calculate Tax
         double bulkTaxPercentage = (item.detail.bulkTax ?? 0).toDouble();
@@ -461,6 +476,10 @@ void didChangeDependencies() {
         // );
         totalDiscountPreorder = Utils()
             .calculateTotalDiscount(widget.productsController.preorderItems);
+            totalDiscount = widget.productsController.orderItems.fold(0.0, (sum, item) {
+          if (item.isChecked != true) return sum;
+          return sum + (item.totalDiscountAmount ?? 0.0);
+        });
 
         _isLoading = false;
       });
@@ -1272,23 +1291,8 @@ bool _needsRefresh = true;
   final double flatDisc =
       widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
 
-  // 2. Calculate the sum of item-level discounts
-  double itemLevelDiscount = widget.productsController.orderItems.fold(
-    0.0,
-    (sum, item) {
-      // Skip unchecked items to match your subtotal logic
-      if (item.isChecked != true) return sum;
-      
-      // Add the item's total discount amount (handling nulls)
-      return sum + (item.totalDiscountAmount ?? 0.0);
-    },
-  );
-
-  // 3. Combine them for the total discount to display
-  final double totalDiscount = flatDisc + itemLevelDiscount;
-
-  // Optional: If you want to hide the widget when there is no discount
-  // if (totalDiscount <= 0) return const SizedBox.shrink();
+  // 2. Combine flat discount with the locally calculated item-level discount state
+  final double finalTotalDiscount = flatDisc + totalDiscount;
 
   return Container(
     height: 40,
@@ -1307,9 +1311,9 @@ bool _needsRefresh = true;
           ),
           CustomText(
             // Display the calculated total discount
-            content: formatAmount(totalDiscount),
+            content: formatAmount(finalTotalDiscount),
             fontSize: 16,
-            color: Colors.black, // You might want Colors.red or green for discount
+            color: Colors.black, 
             fontWeight: FontWeight.w600,
           ),
         ],
@@ -1317,6 +1321,57 @@ bool _needsRefresh = true;
     ),
   );
 }),
+//                     Obx(() {
+//   // 1. Get the flat discount (if you still want to include it)
+//   final String cid = widget.productsController.selectedCustomerId.value;
+//   final double flatDisc =
+//       widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+
+//   // 2. Calculate the sum of item-level discounts
+//   double itemLevelDiscount = widget.productsController.orderItems.fold(
+//     0.0,
+//     (sum, item) {
+//       // Skip unchecked items to match your subtotal logic
+//       if (item.isChecked != true) return sum;
+      
+//       // Add the item's total discount amount (handling nulls)
+//       return sum + (item.totalDiscountAmount ?? 0.0);
+//     },
+//   );
+
+//   // 3. Combine them for the total discount to display
+//   final double totalDiscount = flatDisc + itemLevelDiscount;
+
+//   // Optional: If you want to hide the widget when there is no discount
+//   // if (totalDiscount <= 0) return const SizedBox.shrink();
+
+//   return Container(
+//     height: 40,
+//     width: double.infinity,
+//     padding: const EdgeInsets.all(10),
+//     child: Padding(
+//       padding: const EdgeInsets.only(right: 10, left: 10),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           CustomText(
+//             content: 'Discount',
+//             fontSize: 16,
+//             color: Colors.black,
+//             fontWeight: FontWeight.w600,
+//           ),
+//           CustomText(
+//             // Display the calculated total discount
+//             content: formatAmount(totalDiscount),
+//             fontSize: 16,
+//             color: Colors.black, // You might want Colors.red or green for discount
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }),
 
 Obx(() {
                         
@@ -1415,18 +1470,31 @@ Obx(() {
                           0.0;
                       print('flat discount:$flatDisc');
                       // final double baseAmount = orderSubtotal - flatDisc;
-                      double baseAmount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (!item.isChecked!) return sum;
-                          return sum + (item.finalPrice ?? item.totalPrice);
-                        },
-                      );
+                      double baseAmount = widget.productsController.orderItems.fold(
+    0.0,
+    (sum, item) {
+      if (!item.isChecked!) return sum;
+      return sum + (item.finalPrice ?? item.totalPrice);
+    },
+  );
 
-                      print('base amount:$baseAmount');
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
+  // 👇 SUBTRACT THE CART-LEVEL FLAT DISCOUNT HERE 👇
+  baseAmount = baseAmount - flatDisc;
+
+  print('base amount:$baseAmount');
+  final double finalBeforeCredit = baseAmount.clamp(0.0, double.infinity);
+                      // double baseAmount =
+                      //     widget.productsController.orderItems.fold(
+                      //   0.0,
+                      //   (sum, item) {
+                      //     if (!item.isChecked!) return sum;
+                      //     return sum + (item.finalPrice ?? item.totalPrice);
+                      //   },
+                      // );
+
+                      // print('base amount:$baseAmount');
+                      // final double finalBeforeCredit =
+                      //     baseAmount.clamp(0.0, double.infinity);
 
                       print('final before credit:$finalBeforeCredit');
                       final double payableAmount = useCredit.value
@@ -4257,8 +4325,12 @@ return SendCartData(
             Utils().calculateSubtotal(widget.productsController.orderItems);
         // orderTax =
         //     Utils().calculateTotalTax(widget.productsController.orderItems);
-        totalDiscount = Utils()
-            .calculateTotalDiscount(widget.productsController.orderItems);
+        totalDiscount = widget.productsController.orderItems.fold(0.0, (sum, item) {
+          if (item.isChecked != true) return sum;
+          return sum + (item.totalDiscountAmount ?? 0.0);
+        });
+        // totalDiscount = Utils()
+        //     .calculateTotalDiscount(widget.productsController.orderItems);
       } else {
         preorderSubtotal =
             Utils().calculateSubtotal(widget.productsController.preorderItems);

@@ -129,7 +129,15 @@ final String promoType = cart['promo_type'] as String? ?? '';
                       num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
                   // bulkDiscountAmount:   num.tryParse(cart['discount_amount'].toString()) ?? 0,
 
-                  // promoDiscount: 10
+                 bulkDiscountAmount: (cart['packtype'] == 'Bulk') 
+      ? (num.tryParse(cart['discount_amount']?.toString() ?? '0') ?? 0) 
+      : 0,
+  bulkDiscount: (cart['packtype'] == 'Bulk') 
+      ? (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0) 
+      : 0,
+  bulkTax: (cart['packtype'] == 'Bulk') 
+      ? (num.tryParse(cart['tax']?.toString() ?? '0') ?? 0) 
+      : 0,
                 );
                 final cartItem = CartItem(
                   detail: detail,

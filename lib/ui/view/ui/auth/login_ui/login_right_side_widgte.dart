@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/widgets/forgot_password_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_dialog.dart';
@@ -10,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.d
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginRightSideWidget extends StatefulWidget {
   final LoginController loginController;
@@ -183,9 +185,34 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
       isRoundedCorner: true,
       buttonText: "Register",
       onPressed: () async {
-        registerDialog(context, widget.loginController);
+        final String fullUrlString = '${ApiConstants.baseUrl1}/register_admin';
+        final Uri url = Uri.parse(fullUrlString);
+
+        if (!await launchUrl(
+          url,
+          mode: LaunchMode.inAppWebView,
+        )) {
+          debugPrint('Could not launch $url');
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Could not open the registration page.')),
+            );
+          }
+        }
       },
       btnController: widget.loginController.registerButtonController,
     );
   }
+  // Widget _buildRegisterButton(BuildContext context) {
+  //   return NkLoadingButton(
+  //     isRoundedCorner: true,
+  //     buttonText: "Register",
+  //     onPressed: () async {
+  //       registerDialog(context, widget.loginController);
+  //     },
+  //     btnController: widget.loginController.registerButtonController,
+  //   );
+  // }
 }

@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/registration_webview.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_ui/widgets/forgot_password_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/register/view/register_dialog.dart';
 import 'package:flutter/material.dart';
@@ -179,32 +180,52 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
       btnController: widget.loginController.loginButtonController,
     );
   }
+// Ensure you import the new screen
+// import 'registration_webview.dart'; 
 
-  Widget _buildRegisterButton(BuildContext context) {
-    return NkLoadingButton(
-      isRoundedCorner: true,
-      buttonText: "Register",
-      onPressed: () async {
-        final String fullUrlString = '${ApiConstants.baseUrl1}/register_admin';
-        final Uri url = Uri.parse(fullUrlString);
+Widget _buildRegisterButton(BuildContext context) {
+  return NkLoadingButton(
+    isRoundedCorner: true,
+    buttonText: "Register",
+    onPressed: () async {
+      // 1. Define the URL
+      final String fullUrlString = '${ApiConstants.baseUrl1}/register_admin';
 
-        if (!await launchUrl(
-          url,
-          mode: LaunchMode.inAppWebView,
-        )) {
-          debugPrint('Could not launch $url');
+      // 2. Navigate to the WebView screen
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => RegistrationWebView(url: fullUrlString),
+        ),
+      );
+    },
+    btnController: widget.loginController.registerButtonController,
+  );
+}
+  // Widget _buildRegisterButton(BuildContext context) {
+  //   return NkLoadingButton(
+  //     isRoundedCorner: true,
+  //     buttonText: "Register",
+  //     onPressed: () async {
+  //       final String fullUrlString = '${ApiConstants.baseUrl1}/register_admin';
+  //       final Uri url = Uri.parse(fullUrlString);
 
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Could not open the registration page.')),
-            );
-          }
-        }
-      },
-      btnController: widget.loginController.registerButtonController,
-    );
-  }
+  //       if (!await launchUrl(
+  //         url,
+  //         mode: LaunchMode.inAppWebView,
+  //       )) {
+  //         debugPrint('Could not launch $url');
+
+  //         if (context.mounted) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(
+  //                 content: Text('Could not open the registration page.')),
+  //           );
+  //         }
+  //       }
+  //     },
+  //     btnController: widget.loginController.registerButtonController,
+  //   );
+  // }
   // Widget _buildRegisterButton(BuildContext context) {
   //   return NkLoadingButton(
   //     isRoundedCorner: true,

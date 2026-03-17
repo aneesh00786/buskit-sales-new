@@ -405,6 +405,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
     
    
     if (state == AppLifecycleState.resumed && !_hasShownPopupInThisSession) {
+      if (CheckInService.isReturningFromSettings) return;
        _checkAttendanceRequirement();
     }
   }

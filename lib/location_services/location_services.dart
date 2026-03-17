@@ -98,7 +98,7 @@ void onStart(ServiceInstance service) async {
       print("Time-based background update: ${DateTime.now()}");
       
       // Call your existing server update function
-      await _updateServer(position);
+      await updateServer(position);
 
       // Optional: Update the notification to show "Last synced: 10:30 AM"
       if (service is AndroidServiceInstance) {
@@ -120,7 +120,7 @@ void onStart(ServiceInstance service) async {
     await fetchAndSendLocation();
   });
 }
-Future<void> _updateServer(Position position) async {
+Future<void> updateServer(Position position) async {
   try {
     // print('starting update to server');
 

@@ -57,8 +57,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   bool _isLoading = true;
   bool _hasAlwaysPermission = false;
   bool _pendingSettingsReturn = false;
-  bool _waitingForPermissionPopup = false; // NEW: Track if we're waiting for iOS popup
-  Position? _pendingPosition; // Store position for later use
   StaffController staffController = Get.put(StaffController());
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
@@ -76,6 +74,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   TabController? _tabController;
   TabController? get tabController => _tabController;
   final int currentYear = DateTime.now().year;
+  Worker? _checkingInWorker;
   @override
   void initState() {
     super.initState();
@@ -84,6 +83,18 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     
     // Initialize permission status service and set up listener
     _initializePermissionStatus();
+    
+    _checkingInWorker = ever(CheckInService.isCheckingIn, (bool isChecking) {
+      if (!isChecking) {
+        ApiWorker().loadSwitchState().then((value) {
+          if (mounted) {
+            setState(() {
+              _onSwitchSelected = value;
+            });
+          }
+        });
+      }
+    });
     
     ApiWorker().loadSwitchState().then((value) {
       if (mounted) {
@@ -129,6 +140,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
 
   @override
   void dispose() {
+    _checkingInWorker?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -139,198 +151,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     if (state == AppLifecycleState.resumed) {
       if (_pendingSettingsReturn) {
         _pendingSettingsReturn = false;
-        _checkPermissionAndContinue();
-      } else if (_waitingForPermissionPopup) {
-        // User returned from iOS permission popup - check permission status
-        _waitingForPermissionPopup = false;
-        _handleIOSPermissionResponse();
       }
     }
-  }
-
-  // Poll for permission changes (for iOS upgrade scenario)
-  void _startPollingPermission(Position position, BuildContext context) {
-    // Show snackbar while waiting
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please respond to the permission popup...'),
-          duration: Duration(seconds: 15),
-        ),
-      );
-    }
-    
-    // Poll for permission status - with longer timeout
-    int pollCount = 0;
-    Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
-      pollCount++;
-      var alwaysStatus = await Permission.locationAlways.status;
-      print("📍 Polling #$pollCount - permission status: $alwaysStatus (isGranted=${alwaysStatus.isGranted})");
-      
-      // Check if permission was granted
-      if (alwaysStatus.isGranted) {
-        timer.cancel();
-        _waitingForPermissionPopup = false;
-        
-        // Permission granted!
-        await initializeService();
-        final service = FlutterBackgroundService();
-        if (!await service.isRunning()) service.startService();
-        print("✅ Background Service Started after polling");
-        
-        // Update UI
-        setState(() {
-          _hasAlwaysPermission = true;
-        });
-        
-        // Send API
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: "in",
-          lat: position.latitude.toString(),
-          long: position.longitude.toString(),
-        );
-        
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(true);
-          setState(() {
-            _onSwitchSelected = true;
-          });
-        }
-        
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      }
-      // Stop polling after 20 seconds and use foreground
-      else if (pollCount >= 20 || alwaysStatus.isPermanentlyDenied) {
-        timer.cancel();
-        _waitingForPermissionPopup = false;
-        print("⚠️ Permission timeout/denied, using foreground tracking");
-        _startForegroundTracking();
-        
-        // Complete the check-in anyway
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: "in",
-          lat: position.latitude.toString(),
-          long: position.longitude.toString(),
-        );
-        
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(true);
-          setState(() {
-            _onSwitchSelected = true;
-          });
-        }
-        
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      }
-    });
-  }
-
-  // Handle permission response after iOS popup is dismissed
-  void _handleIOSPermissionResponse() async {
-    if (!mounted) return;
-    
-    // Add a small delay to ensure iOS has fully updated the permission
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    var alwaysStatus = await Permission.locationAlways.status;
-    print("📍 Permission status after iOS popup: $alwaysStatus");
-    
-    // Check if permission was granted
-    if (alwaysStatus.isGranted) {
-      // Permission granted! Start background service and complete check-in
-      await initializeService();
-      final service = FlutterBackgroundService();
-      if (!await service.isRunning()) service.startService();
-      print("✅ Background Service Started after iOS popup");
-      
-      // Update UI
-      setState(() {
-        _hasAlwaysPermission = true;
-      });
-      
-      // Send API if we have position
-      if (_pendingPosition != null) {
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: "in",
-          lat: _pendingPosition!.latitude.toString(),
-          long: _pendingPosition!.longitude.toString(),
-        );
-        
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(true);
-          setState(() {
-            _onSwitchSelected = true;
-          });
-        }
-        _pendingPosition = null;
-      }
-    } else {
-      // Permission was denied - start foreground tracking as fallback
-      print("⚠️ Permission denied, using foreground tracking");
-      _startForegroundTracking();
-    }
-    
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  // Separate method to check permission after returning from settings
-  Future<void> _checkPermissionAndContinue() async {
-    if (!mounted) return;
-    
-    var alwaysStatus = await Permission.locationAlways.status;
-    
-    setState(() {
-      _hasAlwaysPermission = alwaysStatus.isGranted;
-      _isLoading = true;
-    });
-
-    if (alwaysStatus.isGranted) {
-      // Permission granted, start background service
-      await initializeService();
-      final service = FlutterBackgroundService();
-      if (!await service.isRunning()) service.startService();
-      print("✅ Background Service Started after returning from settings");
-      
-      // Send API with stored position
-      if (_pendingPosition != null) {
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: "in",
-          lat: _pendingPosition!.latitude.toString(),
-          long: _pendingPosition!.longitude.toString(),
-        );
-        
-        if (response.statusCode == 200) {
-          await ApiWorker().saveSwitchState(true);
-          setState(() {
-            _onSwitchSelected = true;
-          });
-        }
-      }
-      
-      _pendingPosition = null;
-    }
-    
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -557,93 +379,96 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
                       ),
                       SizedBox(
                         height: 35,
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: white)
-                            : GestureDetector(
-                                onTap: () => _handleSwitchToggle(context),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  width: 100,
-                                  height: 40,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 5),
-                                  decoration: BoxDecoration(
-                                    color: _onSwitchSelected
-                                        ? const Color.fromARGB(
-                                            255, 100, 224, 164)
-                                        : const Color.fromARGB(
-                                            255, 244, 152, 152),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 15),
-                                          child: Text(
-                                            'Out',
-                                            style: TextStyle(
-                                              color: _onSwitchSelected
-                                                  ? Colors.transparent
-                                                  : Colors.white,
-                                              fontWeight: FontWeight.bold,
+                        child: Obx(() {
+                          bool isLoading = _isLoading || CheckInService.isCheckingIn.value;
+                          return isLoading
+                              ? const CircularProgressIndicator(color: white)
+                              : GestureDetector(
+                                  onTap: () => _handleSwitchToggle(context),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    width: 100,
+                                    height: 40,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 5),
+                                    decoration: BoxDecoration(
+                                      color: _onSwitchSelected
+                                          ? const Color.fromARGB(
+                                              255, 100, 224, 164)
+                                          : const Color.fromARGB(
+                                              255, 244, 152, 152),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              'Out',
+                                              style: TextStyle(
+                                                color: _onSwitchSelected
+                                                    ? Colors.transparent
+                                                    : Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 15),
-                                          child: Text(
-                                            'In',
-                                            style: TextStyle(
-                                              color: !_onSwitchSelected
-                                                  ? Colors.transparent
-                                                  : Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 15),
+                                            child: Text(
+                                              'In',
+                                              style: TextStyle(
+                                                color: !_onSwitchSelected
+                                                    ? Colors.transparent
+                                                    : Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      AnimatedAlign(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        alignment: _onSwitchSelected
-                                            ? Alignment.centerRight
-                                            : Alignment.centerLeft,
-                                        child: CircleAvatar(
-                                          radius: 16,
-                                          backgroundColor: Colors.white,
-                                          child: _isLoading
-                                              ? const SizedBox(
-                                                  width: 14,
-                                                  height: 14,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                          strokeWidth: 2),
-                                                )
-                                              : Icon(
-                                                  _onSwitchSelected
-                                                      ? Icons.check
-                                                      : Icons.close,
-                                                  size: 20,
-                                                  color: _onSwitchSelected
-                                                      ? const Color.fromARGB(
-                                                          255, 100, 224, 164)
-                                                      : const Color.fromARGB(
-                                                          255, 244, 152, 152),
-                                                ),
+                                        AnimatedAlign(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          alignment: _onSwitchSelected
+                                              ? Alignment.centerRight
+                                              : Alignment.centerLeft,
+                                          child: CircleAvatar(
+                                            radius: 16,
+                                            backgroundColor: Colors.white,
+                                            child: isLoading
+                                                ? const SizedBox(
+                                                    width: 14,
+                                                    height: 14,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2),
+                                                  )
+                                                : Icon(
+                                                    _onSwitchSelected
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    size: 20,
+                                                    color: _onSwitchSelected
+                                                        ? const Color.fromARGB(
+                                                            255, 100, 224, 164)
+                                                        : const Color.fromARGB(
+                                                            255, 244, 152, 152),
+                                                  ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                        }),
                       ),
                     ],
                   ),
@@ -809,10 +634,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
         });
         
         // === CHECK OUT LOGIC ===
-        final service = FlutterBackgroundService();
-        if (await service.isRunning()) service.invoke('stopService');
-        _stopForegroundTracking();
-        
+        CheckInService().stopTracking();
+
         // Send API for check-out
         final response = await ApiWorker().updateAdminCheckInOut(
           date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
@@ -906,46 +729,6 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   // }
 }
 
-Timer? _foregroundTimer;
-void _startForegroundTracking() {
-    print("Starting foreground tracking (Timer Mode: Every 10s)...");
-
-    // 1. Run immediately so user doesn't wait 10s for the first hit
-    _performForegroundUpdate();
-
-    // 2. Start the 10-second periodic timer
-    _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      _performForegroundUpdate();
-    });
-  }
-
-  void _stopForegroundTracking() {
-    if (_foregroundTimer != null) {
-      _foregroundTimer!.cancel();
-      _foregroundTimer = null;
-      print("Stopped foreground tracking.");
-    }
-  }
-
-  Future<void> _performForegroundUpdate() async {
-    try {
-      // 1. Get current position
-      // We use getCurrentPosition because we just want the 'current' spot right now
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      // 2. Call your existing server function
-      // This replaces the "ApiWorker()..." line you asked about
-     initializeService();
-    
-
-      print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
-
-    } catch (e) {
-      print("Error in foreground update: $e");
-    }
-  }
 Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
   return await showDialog(
     context: context,

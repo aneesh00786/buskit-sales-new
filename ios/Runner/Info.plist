@@ -61,13 +61,6 @@
 	<string>This app requires camera access to take photos or scan QR codes.</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This app requires access to your media library to play music or audio content.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>This app requires local network access to discover devices.</string>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_http._tcp</string>
-		<string>_https._tcp</string>
-	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

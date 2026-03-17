@@ -18,10 +18,14 @@ class CheckInService {
   factory CheckInService() => _instance;
   CheckInService._internal();
 
+  Timer? _foregroundTimer;
+
   // ✅ Add this flag
   static bool isReturningFromSettings = false;
+  static RxBool isCheckingIn = false.obs;
 
   Future<void> performCheckIn(BuildContext context) async {
+    isCheckingIn.value = true;
     try {
       if (!await _handleLocationPermission()) return;
 
@@ -32,35 +36,35 @@ class CheckInService {
       var alwaysStatus = await Permission.locationAlways.status;
 
       if (!alwaysStatus.isGranted) {
-        bool proceed = await _showAlwaysPermissionDialog(context);
+        bool proceed = await _showAlwaysPermissionDialog(context, alwaysStatus.isPermanentlyDenied);
 
         if (!proceed) {
           _startForegroundTracking();
         } else {
-          await Permission.locationAlways.request();
-          await Future.delayed(const Duration(milliseconds: 1500));
+          var requestStatus = await Permission.locationAlways.request();
 
-          var newStatus = await Permission.locationAlways.status;
-
-          if (newStatus.isGranted) {
+          if (requestStatus.isGranted) {
             await _startBackgroundService();
           } else {
-            // ✅ Set flag BEFORE opening settings
-            isReturningFromSettings = true;
+            // If the popup didn't come (or was permanently denied), redirect to settings
+            if (requestStatus.isPermanentlyDenied) {
+              isReturningFromSettings = true;
+              await openAppSettings();
+              await _waitForAppResume();
+              isReturningFromSettings = false;
+            }
+            
+            // Verify final permission statuses after potential settings change
+            var finalAlwaysStatus = await Permission.locationAlways.status;
+            var finalWhenInUseStatus = await Permission.locationWhenInUse.status;
 
-            await openAppSettings();
-
-            // ✅ Wait for user to return from settings
-            await _waitForAppResume();
-
-            // ✅ Clear flag after resume
-            isReturningFromSettings = false;
-
-            var statusAfterSettings = await Permission.locationAlways.status;
-            if (statusAfterSettings.isGranted) {
+            if (finalAlwaysStatus.isGranted) {
               await _startBackgroundService();
-            } else {
+            } else if (finalWhenInUseStatus.isGranted) {
               _startForegroundTracking();
+            } else {
+              NkCommonFunction.showErrorSnakBar('Location permission is required to check in.');
+              return; // Abort check-in entirely if they denied everything
             }
           }
         }
@@ -75,6 +79,8 @@ class CheckInService {
       if (context.mounted) {
         NkCommonFunction.showErrorSnakBar("Error: $e");
       }
+    } finally {
+      isCheckingIn.value = false;
     }
   }
 
@@ -117,9 +123,6 @@ class CheckInService {
     final permissionService = PermissionStatusService();
     await permissionService.updatePermissionStatus();
   }
-
-  
-}
 // class CheckInService {
 //   static final CheckInService _instance = CheckInService._internal();
 
@@ -230,7 +233,7 @@ class CheckInService {
 //     }
 //   }
 
-  Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
+  Future<bool> _showAlwaysPermissionDialog(BuildContext context, bool isPermanentlyDenied) async {
     final globalContext = Get.key.currentContext;
 
     if (globalContext == null || !globalContext.mounted) {
@@ -242,24 +245,76 @@ class CheckInService {
       barrierDismissible: false,
       builder: (builderContext) {
         return AlertDialog(
-          title: const Text('Enable Background Tracking'),
-          content: const Text('To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'),
+          titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          title: Row(
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 25.0,
+                color: primaryColor,
+              ),
+              const SizedBox(width: 8.0),
+              const Expanded(
+                child: Text(
+                  'Background Tracking',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.',
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
           actions: [
-            TextButton(
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+              ),
               onPressed: () => Navigator.pop(builderContext, false),
-              child: const Text('Only while using the app'),
+              child: Text(
+                'Only while using',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(builderContext, true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Replace with your primaryColor
+                backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+              ),
+              child: Text(
+                isPermanentlyDenied ? 'Open Settings' : 'Request Always',
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Request Always'),
             ),
           ],
         );
@@ -276,14 +331,127 @@ class CheckInService {
         return false;
       }
     } else if (status.isPermanentlyDenied) {
+      bool? openSettings = await _showSettingsDialog();
+      if (openSettings != true) return false;
+
+      isReturningFromSettings = true;
       await openAppSettings();
-      return false;
+      await _waitForAppResume();
+      isReturningFromSettings = false;
+      
+      status = await Permission.locationWhenInUse.status;
+      if (!status.isGranted) {
+        NkCommonFunction.showErrorSnakBar('Location permission denied');
+        return false;
+      }
     }
     return true;
   }
 
+  Future<bool?> _showSettingsDialog() async {
+    final globalContext = Get.key.currentContext;
+    if (globalContext == null || !globalContext.mounted) return false;
+
+    return await showDialog<bool>(
+      context: globalContext,
+      builder: (context) => AlertDialog(
+        titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+        actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        title: Row(
+          children: [
+            Icon(
+              Icons.location_off,
+              size: 25.0,
+              color: primaryColor,
+            ),
+            const SizedBox(width: 8.0),
+            const Expanded(
+              child: Text(
+                'Permission Required',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Location permission is permanently denied. Please open settings to enable it to check in.',
+          style: TextStyle(
+            fontSize: 19.0,
+            color: Colors.black87,
+          ),
+        ),
+        actions: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              side: BorderSide(color: primaryColor, width: 2.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              backgroundColor: Colors.white,
+              elevation: 3,
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              elevation: 4,
+              shadowColor: primaryColor.withOpacity(0.4),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Open Settings',
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void stopTracking() {
+    final service = FlutterBackgroundService();
+    service.invoke('stopService');
+    _stopForegroundTracking();
+  }
+
   void _startForegroundTracking() {
+    print("Starting foreground tracking (Timer Mode)...");
+    _stopForegroundTracking(); // Ensure no multiple timers
     _performForegroundUpdate();
+    _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _performForegroundUpdate();
+    });
+  }
+
+  void _stopForegroundTracking() {
+    if (_foregroundTimer != null) {
+      _foregroundTimer!.cancel();
+      _foregroundTimer = null;
+      print("Stopped foreground tracking.");
+    }
   }
 
   Future<void> _performForegroundUpdate() async {
@@ -291,191 +459,10 @@ class CheckInService {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      // Ensure initializeService is called if needed here, otherwise remove
+      await updateServer(position);
       print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
     } catch (e) {
       print("Error in foreground update: $e");
     }
   }
-// }
-
-// class CheckInService {
-//   static final CheckInService _instance = CheckInService._internal();
-
-//   factory CheckInService() => _instance;
-
-//   CheckInService._internal();
-
-//   // Shared check-in function that can be called from anywhere
-//   Future<void> performCheckIn(BuildContext context) async {
-//     bool newState = true; // Always check-in from popup
-
-//     // Skip confirmation dialog - proceed directly to check-in
-
-//     try {
-//       // Basic Check
-//       if (!await _handleLocationPermission()) {
-//         return;
-//       }
-
-//       // Get Position for API
-//       Position position = await Geolocator.getCurrentPosition(
-//         desiredAccuracy: LocationAccuracy.high,
-//       );
-
-//       // Check current permission status
-//       var alwaysStatus = await Permission.locationAlways.status;
-
-//       // If NOT granted, show explanation dialog FIRST, then request
-//       if (!alwaysStatus.isGranted) {
-        
-//         // Use root navigator context to show dialog
-//         bool proceed = await _showAlwaysPermissionDialog(context);
-        
-//         if (!proceed) {
-//           // User chose "Use Foreground Only" - proceed with fallback
-//           _startForegroundTracking();
-//         } else {
-//           // User clicked "Request Always" - Try popup first
-//           await Permission.locationAlways.request();
-          
-//           // Wait a moment for iOS to update the permission status
-//           await Future.delayed(const Duration(milliseconds: 1500));
-          
-//           // Check if permission was granted
-//           var newStatus = await Permission.locationAlways.status;
-          
-//           if (newStatus.isGranted) {
-//             // Permission granted! Complete check-in
-//             await initializeService();
-//             final service = FlutterBackgroundService();
-//             if (!await service.isRunning()) service.startService();
-            
-//             // Update permission status service
-//             final permissionService = PermissionStatusService();
-//             await permissionService.updatePermissionStatus();
-//           } else {
-//             // Popup didn't grant Always - Open Settings instead
-//             // Show message
-//             if (context.mounted) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(
-//                   content: Text('Please enable "Always" in Settings to enable background tracking'),
-//                   duration: Duration(seconds: 4),
-//                 ),
-//               );
-//             }
-            
-//             // Open settings
-//             await openAppSettings();
-//             return;
-//           }
-//         }
-//       } else {
-//         // Already has Always permission - start background service
-//         await initializeService();
-//         final service = FlutterBackgroundService();
-//         if (!await service.isRunning()) service.startService();
-        
-//         // Update permission status service
-//         final permissionService = PermissionStatusService();
-//         await permissionService.updatePermissionStatus();
-//       }
-
-//       // Send API
-//       final response = await ApiWorker().updateAdminCheckInOut(
-//         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-//         time: DateFormat('HH:mm').format(DateTime.now()),
-//         direction: "in",
-//         lat: position.latitude.toString(),
-//         long: position.longitude.toString(),
-//       );
-
-//       if (response.statusCode == 200) {
-//         await ApiWorker().saveSwitchState(true);
-//       }
-
-//       // Update permission status service to notify listeners
-//       final permissionService = PermissionStatusService();
-//       await permissionService.updatePermissionStatus();
-//     } catch (e) {
-//       if (context.mounted) {
-//         NkCommonFunction.showErrorSnakBar("Error: $e");
-//       }
-//     }
-//   }
-
-// Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
-  
-//   // Get the context from Get.key
-//   final globalContext = Get.key.currentContext;
-
-//   if (globalContext == null || !globalContext.mounted) {
-//     return false;
-//   }
-
-  
-//   return await showDialog<bool>(
-//     context: globalContext,
-//     barrierDismissible: false,
-//     builder: (builderContext) {
-//       return AlertDialog(
-//         title: CustomText(content: 'Enable Background Tracking'),
-//         content: CustomText(content: 'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.pop(builderContext, false),
-//             child: CustomText(content: 'Only while using the app'),
-//           ),
-//           ElevatedButton(
-//             onPressed: () => Navigator.pop(builderContext, true),
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: primaryColor,
-//               foregroundColor: Colors.white,
-//               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(50),
-//               ),
-//             ),
-//             child: CustomText(
-//               content: 'Request Always',
-//               color: white,
-//             ),
-//           ),
-//         ],
-//       );
-//     },
-//   ) ?? false;
-// }
-
-//   Future<bool> _handleLocationPermission() async {
-//     PermissionStatus status = await Permission.locationWhenInUse.status;
-//     if (status.isDenied) {
-//       status = await Permission.locationWhenInUse.request();
-//       if (!status.isGranted) {
-//          NkCommonFunction.showErrorSnakBar('Location permission denied');
-//         return false;
-//       }
-//     } else if (status.isPermanentlyDenied) {
-//       await openAppSettings();
-//       return false;
-//     }
-//     return true;
-//   }
-
-//   void _startForegroundTracking() {
-//     _performForegroundUpdate();
-//   }
-
-//   Future<void> _performForegroundUpdate() async {
-//     try {
-//       Position position = await Geolocator.getCurrentPosition(
-//         desiredAccuracy: LocationAccuracy.high,
-//       );
-//       initializeService();
-//       print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
-//     } catch (e) {
-//       print("Error in foreground update: $e");
-//     }
-//   }
-// }
+}

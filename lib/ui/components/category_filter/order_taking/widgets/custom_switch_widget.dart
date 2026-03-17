@@ -98,16 +98,74 @@ class _CustomSwitchState extends State<CustomSwitch> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(content),
+          titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          title: Row(
+            children: [
+              Icon(
+                Icons.access_time_filled,
+                size: 25.0,
+                color: primaryColor,
+              ),
+              const SizedBox(width: 8.0),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            content,
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+              ),
               onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             ElevatedButton(
-              child: const Text('Confirm'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+              ),
               onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'Confirm',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         );
@@ -129,23 +187,74 @@ class _CustomSwitchState extends State<CustomSwitch> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Row(
+              titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+              contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+              actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+              title: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                  SizedBox(width: 8),
-                  Text('Attendance Required'),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 25.0,
+                    color: primaryColor,
+                  ),
+                  const SizedBox(width: 8.0),
+                  const Text(
+                    'Attendance',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ],
               ),
               content: const Text(
-                  'You haven\'t checked in for your daily attendance yet. Would you like to perform your daily check-in and customer check-in now?'),
+                'You haven’t checked in for your daily attendance yet. Would you like to complete your daily check-in and customer check-in now ?.',
+                style: TextStyle(
+                  fontSize: 19.0,
+                  color: Colors.black87,
+                ),
+              ),
               actions: [
-                TextButton(
-                  child: const Text('Cancel'),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    side: BorderSide(color: primaryColor, width: 2.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    backgroundColor: Colors.white,
+                    elevation: 3,
+                  ),
                   onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
-                  child: const Text('Check-In'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 4,
+                    shadowColor: primaryColor.withOpacity(0.4),
+                  ),
                   onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'Check-In',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -283,30 +392,55 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
+                        titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+                        contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+                        actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                        title: Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              size: 25.0,
+                              color: primaryColor,
+                            ),
+                            const SizedBox(width: 8.0),
+                            const Text(
+                              'No Customer Selected',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        content: const Text(
+                          'Please select a customer to check-in.',
+                          style: TextStyle(
+                            fontSize: 19.0,
+                            color: Colors.black87,
+                          ),
+                        ),
                         actions: [
-                          const SizedBox(height: 20),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.orange,
-                                size: 50,
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              elevation: 4,
+                              shadowColor: primaryColor.withOpacity(0.4),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text(
+                              'OK',
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
-                          Center(
-                            child: CustomText(
-                              content: 'Please select a customer to check-in',
-                              fontSize: 17,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Ok'),
-                          )
                         ],
                       );
                     },

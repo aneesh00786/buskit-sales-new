@@ -45,7 +45,7 @@ Widget topSellingProductWidget(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                dashboardContainerHeader("Frequently Bought Products"),
+                dashboardContainerHeader("Frequently Ordered Products"),
                 Padding(
                   padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),

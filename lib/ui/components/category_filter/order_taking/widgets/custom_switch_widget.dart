@@ -252,7 +252,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
           }
 
           if (response.statusCode == 200) {
-            await ApiWorker().saveSwitchState(newState);
+            // await ApiWorker().saveSwitchState(newState);
 
             if (mounted) {
               _toggleSwitch();

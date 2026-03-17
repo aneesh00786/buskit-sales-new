@@ -118,8 +118,7 @@ class CheckInService {
     await permissionService.updatePermissionStatus();
   }
 
-  // ... your existing _showAlwaysPermissionDialog, _handleLocationPermission,
-  // _startForegroundTracking, _performForegroundUpdate unchanged
+  
 }
 // class CheckInService {
 //   static final CheckInService _instance = CheckInService._internal();

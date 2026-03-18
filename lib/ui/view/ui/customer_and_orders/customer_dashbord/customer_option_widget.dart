@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -212,7 +213,6 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           color: const Color.fromARGB(255, 55, 74, 134),
           onTap: () async {
-           
             if (orderCountList.totalOrder.toString() == "0") {
               showCustomToastDisplay(
                   context, "No Record Found", red, Icons.close);
@@ -906,9 +906,28 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           MainAxisAlignment
                                                                               .center,
                                                                       children: [
+                                                                        // Text(
+                                                                        //   order.orderCreatedAt != null
+                                                                        //       ? getFormattedOrderCreatAt(order.orderCreatedAt.toString())
+                                                                        //       : 'N/A',
+                                                                        //   style:
+                                                                        //       TextStyle(
+                                                                        //     fontSize:
+                                                                        //         fontSize,
+                                                                        //   ),
+                                                                        //   maxLines:
+                                                                        //       1,
+                                                                        //   overflow:
+                                                                        //       TextOverflow.ellipsis,
+                                                                        // ),
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? getFormattedOrderCreatAt(order.orderCreatedAt.toString())
+                                                                          order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                  // Note: If this string is saved as DD-MM-YYYY in your database,
+                                                                                  // remember to use DateFormat('dd-MM-yyyy').parse() instead of DateTime.parse()
+                                                                                  DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                  format: 'dd-MM-yyyy', // Enforces the date-only format
+                                                                                )
                                                                               : 'N/A',
                                                                           style:
                                                                               TextStyle(
@@ -921,8 +940,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               TextOverflow.ellipsis,
                                                                         ),
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt)
+                                                                          order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                  DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                  format: 'hh:mm a', // Enforces the time-only format
+                                                                                )
                                                                               : 'N/A',
                                                                           style:
                                                                               TextStyle(
@@ -934,6 +956,20 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           overflow:
                                                                               TextOverflow.ellipsis,
                                                                         ),
+                                                                        // Text(
+                                                                        //   order.orderCreatedAt != null
+                                                                        //       ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt)
+                                                                        //       : 'N/A',
+                                                                        //   style:
+                                                                        //       TextStyle(
+                                                                        //     fontSize:
+                                                                        //         fontSize,
+                                                                        //   ),
+                                                                        //   maxLines:
+                                                                        //       1,
+                                                                        //   overflow:
+                                                                        //       TextOverflow.ellipsis,
+                                                                        // ),
                                                                       ],
                                                                     ),
                                                                   ),
@@ -1533,7 +1569,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-      //
+          //
         }
 
         if (mounted) {
@@ -1820,7 +1856,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               width: flexWidth * 1,
                                                                               child: Center(
                                                                                 child: Text(
-                                                                                  order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                                  order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                                      ? TimeUtils.formatTimeInZone(
+                                                                                          DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                          format: 'dd-MM-yyyy', // Enforces the date-only format
+                                                                                        )
+                                                                                      : 'N/A',
                                                                                   style: TextStyle(fontSize: fontSize),
                                                                                   maxLines: 1,
                                                                                   overflow: TextOverflow.ellipsis,
@@ -1828,6 +1869,19 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               ),
                                                                             ),
                                                                           ),
+                                                                          // DataCell(
+                                                                          //   SizedBox(
+                                                                          //     width: flexWidth * 1,
+                                                                          //     child: Center(
+                                                                          //       child: Text(
+                                                                          //         order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                          //         style: TextStyle(fontSize: fontSize),
+                                                                          //         maxLines: 1,
+                                                                          //         overflow: TextOverflow.ellipsis,
+                                                                          //       ),
+                                                                          //     ),
+                                                                          //   ),
+                                                                          // ),
                                                                           DataCell(
                                                                             SizedBox(
                                                                               width: flexWidth * 1,

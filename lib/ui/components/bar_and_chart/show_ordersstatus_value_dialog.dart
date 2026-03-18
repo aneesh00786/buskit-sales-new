@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
@@ -170,9 +171,15 @@ void showValueOrderDialog(
                                         Expanded(
                                           child: Center(
                                             child: Text(
-                                              getFormattedOrderCreatAt(
-                                                  orderDetails.orderCreatAt ??
-                                                      ''),
+                                              
+                                              orderDetails.orderCreatAt != null
+                                                  ? TimeUtils.formatTimeInZone(
+                                                      orderDetails
+                                                          .orderCreatAt!,
+                                                     
+                                                      format: 'dd-MM-yyyy',
+                                                    )
+                                                  : 'N/A',
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 color: secondaryTextColor,
@@ -180,6 +187,19 @@ void showValueOrderDialog(
                                             ),
                                           ),
                                         ),
+                                        // Expanded(
+                                        //   child: Center(
+                                        //     child: Text(
+                                        //       getFormattedOrderCreatAt(
+                                        //           orderDetails.orderCreatAt ??
+                                        //               ''),
+                                        //       style: const TextStyle(
+                                        //         fontSize: 13,
+                                        //         color: secondaryTextColor,
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         Expanded(
                                           child: Center(
                                             child: InkWell(

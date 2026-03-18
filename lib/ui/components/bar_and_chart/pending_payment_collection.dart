@@ -732,23 +732,42 @@ void pendingPaymentCollectionDialog(
                         style: const TextStyle(
                             fontWeight: FontWeight.w600, color: primaryColor),
                       )))),
-              DataCell(
-                Center(
-                  child: Text(
-                    payment.dueDate != null && payment.dueDate!.isNotEmpty
-                        ? payment.dueDate!.first.toString().replaceAll('/', '-')
-                        : 'N/A',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: payment.dueDate != null &&
-                              payment.dueDate!.isNotEmpty
-                          ? getDueDateColor(payment.dueDate!.first)
-                          : Colors
-                              .grey, // Set color to grey for null or empty dueDate
-                    ),
-                  ),
-                ),
-              ),
+                   DataCell(
+  Center(
+    child: Text(
+      payment.dueDate != null && payment.dueDate!.isNotEmpty
+          ? TimeUtils.formatTimeInZone(
+              // THIS IS THE FIX: Tell Dart exactly what format the string is in before parsing
+              DateFormat('dd-MM-yyyy').parse(payment.dueDate!.first.toString().replaceAll('/', '-')),
+              format: 'dd-MM-yyyy',
+            )
+          : 'N/A',
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        color: payment.dueDate != null && payment.dueDate!.isNotEmpty
+            ? getDueDateColor(payment.dueDate!.first)
+            : Colors.grey, 
+      ),
+    ),
+  ),
+),
+              // DataCell(
+              //   Center(
+              //     child: Text(
+              //       payment.dueDate != null && payment.dueDate!.isNotEmpty
+              //           ? payment.dueDate!.first.toString().replaceAll('/', '-')
+              //           : 'N/A',
+              //       style: TextStyle(
+              //         fontWeight: FontWeight.w600,
+              //         color: payment.dueDate != null &&
+              //                 payment.dueDate!.isNotEmpty
+              //             ? getDueDateColor(payment.dueDate!.first)
+              //             : Colors
+              //                 .grey, // Set color to grey for null or empty dueDate
+              //       ),
+              //     ),
+              //   ),
+              // ),
               DataCell(
                 Center(
                   child: isOfflinePending

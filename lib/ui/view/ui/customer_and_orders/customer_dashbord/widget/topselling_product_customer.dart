@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -185,17 +186,34 @@ Widget topSellingProductsCustomer(
                               ),
                               const SizedBox(width: 5),
                               SizedBox(
-                                width: colWidth2,
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: DateFormat('dd-MM-yyyy')
-                                        .format(product.createdAt.toLocal()),
-                                    color: secondaryTextColor,
-                                    fontSize: fontSize,
-                                    maxlines: 1,
-                                  ),
-                                ),
-                              ),
+  width: colWidth2,
+  child: Center(
+    child: MyRegularText(
+      // Added a safe null check just in case createdAt is ever missing
+      label: product.createdAt != null
+          ? TimeUtils.formatTimeInZone(
+              product.createdAt, // Passed directly as a DateTime object!
+              format: 'dd-MM-yyyy', // Enforces the date-only format
+            )
+          : 'N/A',
+      color: secondaryTextColor,
+      fontSize: fontSize,
+      maxlines: 1,
+    ),
+  ),
+),
+                              // SizedBox(
+                              //   width: colWidth2,
+                              //   child: Center(
+                              //     child: MyRegularText(
+                              //       label: DateFormat('dd-MM-yyyy')
+                              //           .format(product.createdAt.toLocal()),
+                              //       color: secondaryTextColor,
+                              //       fontSize: fontSize,
+                              //       maxlines: 1,
+                              //     ),
+                              //   ),
+                              // ),
                               const SizedBox(width: 5),
                               SizedBox(
                                 width: colWidth3,

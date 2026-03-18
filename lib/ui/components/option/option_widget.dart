@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
@@ -605,8 +606,6 @@ class _OptionWidgetState extends State<OptionWidget> {
     }
   }
 
-
-
   void _showDraftDialog(
       BuildContext context,
       DashboardProvider provider,
@@ -618,8 +617,8 @@ class _OptionWidgetState extends State<OptionWidget> {
       HomeController? homeController,
       {List<dynamic>? offlineDraftDetails,
       bool filterNeeded = false}) {
-        final TextEditingController _searchCtrl = TextEditingController();
-  String _search = '';
+    final TextEditingController _searchCtrl = TextEditingController();
+    String _search = '';
     final HomeController homeController2 = Get.put(HomeController());
 
     VoidCallback? onDraftUpdated;
@@ -679,49 +678,50 @@ class _OptionWidgetState extends State<OptionWidget> {
                               return const SizedBox.shrink();
                             } else {
                               final orders = snapshot.data?.data ?? [];
-                                 final filteredOrdersOg = orders.where((order) {
-                              if (_search.isEmpty) return true;
+                              final filteredOrdersOg = orders.where((order) {
+                                if (_search.isEmpty) return true;
 
-                              final lower = _search.toLowerCase();
+                                final lower = _search.toLowerCase();
 
-                              // 1. Search by Order ID
-                              final matchesOrderId =
-                                  order.orderId.toLowerCase().contains(lower);
+                                // 1. Search by Order ID
+                                final matchesOrderId =
+                                    order.orderId.toLowerCase().contains(lower);
 
-                              // 2. Search by Invoice ID (if any invoice exists)
-                              // final matchesInvoiceId = order.invoice.isNotEmpty
-                              //     ? order.invoice[0].invoiceId
-                              //         .toLowerCase()
-                              //         .contains(lower)
-                              //     : false;
+                                // 2. Search by Invoice ID (if any invoice exists)
+                                // final matchesInvoiceId = order.invoice.isNotEmpty
+                                //     ? order.invoice[0].invoiceId
+                                //         .toLowerCase()
+                                //         .contains(lower)
+                                //     : false;
 
-                              return matchesOrderId;
-                            }).toList();
-                      
+                                return matchesOrderId;
+                              }).toList();
+
                               // final filteredOrdersOg = orders.where((order) {
                               //   return order.orderStatus ==
                               //       selectedOrderStatus.type;
                               // }).toList();
-                      
+
                               final filteredOrders = filterNeeded
                                   ? _applyDateFiltering(
                                       filteredOrdersOg, provider)
                                   : filteredOrdersOg;
-                      
+
                               // Handle offline and online order duplication
                               // If online order for a customer exists and same customer has an offline draft,
                               // don't display the offline draft, but add its total to the online order total
                               Map<String, double> customerOfflineTotals = {};
                               List<dynamic> filteredOfflineDrafts = [];
-                      
+
                               if (offlineDraftDetails != null &&
                                   offlineDraftDetails.isNotEmpty) {
                                 for (var draft in offlineDraftDetails) {
                                   final customerId =
                                       draft['displayData']['customerId'];
-                                  final displayTotal =
-                                      draft['displayData']['displayTotal'] ?? 0.0;
-                      
+                                  final displayTotal = draft['displayData']
+                                          ['displayTotal'] ??
+                                      0.0;
+
                                   // Check if this customer has an online draft
                                   bool hasOnlineDraft =
                                       filteredOrders.any((order) {
@@ -730,7 +730,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                         : null;
                                     return customer?.customerId == customerId;
                                   });
-                      
+
                                   if (hasOnlineDraft) {
                                     // Add offline total to customer's offline totals map
                                     customerOfflineTotals[customerId] =
@@ -743,7 +743,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                   }
                                 }
                               }
-                      
+
                               return LayoutBuilder(
                                 builder: (BuildContext context,
                                     BoxConstraints constraints) {
@@ -756,290 +756,305 @@ class _OptionWidgetState extends State<OptionWidget> {
                                   double flexWidth = isPhonePortrait(context)
                                       ? availableWidth / 3.5
                                       : availableWidth / 9;
-                      
+
                                   return Stack(
                                     children: [
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                           Padding(
-                                          padding: EdgeInsets.only(
-                                              right: 40,
-                                              top: 10,
-                                              bottom: 10,
-                                              left: 20),
-                                          child: Row(
-                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    right:
-                                                        200), // Space between label and TextField
-                                                child: CustomText(
-                                                  content: 'Drafts',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 22,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: TextField(
-                                                  controller: _searchCtrl,
-                                                  onChanged: (val) {
-                                                    setState(
-                                                        () => _search = val);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText:
-                                                        'Search Drafts No.',
-                                                    prefixIcon: const Icon(
-                                                        Icons.search,
-                                                        color: Colors.blue),
-
-                                                    // Blue border (normal & focused)
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.blue,
-                                                              width: 1.5),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.blue,
-                                                              width: 2.0),
-                                                    ),
-
-                                                    filled: true,
-                                                    fillColor: Colors.grey[50],
-
-                                                    // Proper padding so text isn't stuck to edges
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 14,
-                                                            vertical: 12),
-
-                                                    // Clear button (suffix icon)
-                                                    suffixIcon: _search
-                                                            .isNotEmpty
-                                                        ? IconButton(
-                                                            icon: const Icon(
-                                                                Icons.clear,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {
-                                                              _searchCtrl
-                                                                  .clear();
-                                                              setState(() =>
-                                                                  _search = '');
-                                                            },
-                                                          )
-                                                        : null,
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 40,
+                                                top: 10,
+                                                bottom: 10,
+                                                left: 20),
+                                            child: Row(
+                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      right:
+                                                          200), // Space between label and TextField
+                                                  child: CustomText(
+                                                    content: 'Drafts',
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 22,
                                                   ),
-                                                  style: TextStyle(
-                                                      fontSize: fontSize),
                                                 ),
-                                              ),
-                                            ],
+                                                Expanded(
+                                                  child: TextField(
+                                                    controller: _searchCtrl,
+                                                    onChanged: (val) {
+                                                      setState(
+                                                          () => _search = val);
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      hintText:
+                                                          'Search Drafts No.',
+                                                      prefixIcon: const Icon(
+                                                          Icons.search,
+                                                          color: Colors.blue),
+
+                                                      // Blue border (normal & focused)
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color:
+                                                                    Colors.blue,
+                                                                width: 1.5),
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color:
+                                                                    Colors.blue,
+                                                                width: 2.0),
+                                                      ),
+
+                                                      filled: true,
+                                                      fillColor:
+                                                          Colors.grey[50],
+
+                                                      // Proper padding so text isn't stuck to edges
+                                                      contentPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 14,
+                                                              vertical: 12),
+
+                                                      // Clear button (suffix icon)
+                                                      suffixIcon: _search
+                                                              .isNotEmpty
+                                                          ? IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.clear,
+                                                                  color: Colors
+                                                                      .blue),
+                                                              onPressed: () {
+                                                                _searchCtrl
+                                                                    .clear();
+                                                                setState(() =>
+                                                                    _search =
+                                                                        '');
+                                                              },
+                                                            )
+                                                          : null,
+                                                    ),
+                                                    style: TextStyle(
+                                                        fontSize: fontSize),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
                                           SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        controller: _scrollController8,
-                                        child: SizedBox(
-                                          width: isPhonePortrait(context)
-                                              ? fullScreenWidth(context) * 2.3
-                                              : fullScreenWidth(context),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: DataTable(
-                                                    dataRowHeight: 0,
-                                                    headingRowHeight:
-                                                        isPhonePortrait(context)
-                                                            ? 75
-                                                            : 45,
-                                                    headingRowColor:
-                                                        const WidgetStatePropertyAll(
-                                                            primaryColor),
-                                                    columnSpacing: 10,
-                                                    headingTextStyle: TextStyle(
-                                                        fontSize: fontSize + 1,
-                                                        color: white,
-                                                        fontWeight:
-                                                            FontWeight.w700),
-                                                    columns: [
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                            scrollDirection: Axis.horizontal,
+                                            controller: _scrollController8,
+                                            child: SizedBox(
+                                              width: isPhonePortrait(context)
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
+                                                  : fullScreenWidth(context),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: DataTable(
+                                                        dataRowHeight: 0,
+                                                        headingRowHeight:
+                                                            isPhonePortrait(
+                                                                    context)
+                                                                ? 75
+                                                                : 45,
+                                                        headingRowColor:
+                                                            const WidgetStatePropertyAll(
+                                                                primaryColor),
+                                                        columnSpacing: 10,
+                                                        headingTextStyle:
+                                                            TextStyle(
+                                                                fontSize:
+                                                                    fontSize +
+                                                                        1,
+                                                                color: white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700),
+                                                        columns: [
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Customer List',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Customer List',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '$orderType No.',
-                                                              maxLines: 2,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '$orderType No.',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Created',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Created',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Created By',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Created By',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '$orderType Amount',
-                                                              maxLines: 2,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '$orderType Amount',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Status',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Status',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: SizedBox(
-                                                            width:
-                                                                flexWidth * 0.5),
-                                                      )),
-                                                    ],
-                                                    rows: [
-                                                      DataRow(
-                                                        cells: [
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1.5),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    0.9),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1.1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    0.5),
-                                                          ),
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: SizedBox(
+                                                                width:
+                                                                    flexWidth *
+                                                                        0.5),
+                                                          )),
                                                         ],
-                                                      )
-                                                    ]),
+                                                        rows: [
+                                                          DataRow(
+                                                            cells: [
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1.5),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            0.9),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1.1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            0.5),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ]),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                           SingleChildScrollView(
                                             scrollDirection: Axis.horizontal,
                                             controller: _scrollController7,
                                             child: SizedBox(
                                               width: isPhonePortrait(context)
-                                                  ? fullScreenWidth(context) * 2.3
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
                                                   : fullScreenWidth(context),
                                               height: filteredOrders.length < 11
                                                   ? null
@@ -1063,7 +1078,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                         Expanded(
                                                           child: DataTable(
                                                               dataRowHeight:
-                                                                  fontSize * 5.5,
+                                                                  fontSize *
+                                                                      5.5,
                                                               // horizontalMargin: 5,
                                                               headingRowHeight:
                                                                   isPhonePortrait(
@@ -1071,16 +1087,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 8
                                                                       : 8,
                                                               columnSpacing: 10,
-                                                              headingTextStyle:
-                                                                  TextStyle(
-                                                                      fontSize:
-                                                                          fontSize +
-                                                                              1,
-                                                                      color:
-                                                                          white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700),
+                                                              headingTextStyle: TextStyle(
+                                                                  fontSize:
+                                                                      fontSize +
+                                                                          1,
+                                                                  color: white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700),
                                                               columns: [
                                                                 const DataColumn(
                                                                     label:
@@ -1088,7 +1102,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       'Customer List',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1098,7 +1113,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       '$orderType No.',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1108,7 +1124,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       'Created',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1118,7 +1135,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       'Created By',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1128,7 +1146,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       '$orderType Amount',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1138,7 +1157,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   child: Center(
                                                                     child: Text(
                                                                       'Status',
-                                                                      maxLines: 2,
+                                                                      maxLines:
+                                                                          2,
                                                                     ),
                                                                   ),
                                                                 )),
@@ -1152,7 +1172,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   ),
                                                                 )),
                                                               ],
-                                                              
                                                               rows: [
                                                                 ...(filteredOrders
                                                                             .isEmpty &&
@@ -1172,19 +1191,16 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ]
                                                                     : [
                                                                         ...filteredOrders
-                                                                            .map(
-                                                                                (order) {
+                                                                            .map((order) {
                                                                           final customer = order.customer.isNotEmpty
                                                                               ? order.customer[0]
                                                                               : null;
-                      
+
                                                                           // Get offline total for this customer if exists
-                                                                          final offlineTotal = customer?.customerId !=
-                                                                                  null
-                                                                              ? customerOfflineTotals[customer?.customerId] ??
-                                                                                  0.0
+                                                                          final offlineTotal = customer?.customerId != null
+                                                                              ? customerOfflineTotals[customer?.customerId] ?? 0.0
                                                                               : 0.0;
-                      
+
                                                                           return DataRow(
                                                                             cells: [
                                                                               DataCell(
@@ -1273,21 +1289,48 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                       mainAxisAlignment: MainAxisAlignment.center,
                                                                                       children: [
                                                                                         Text(
-                                                                                          order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
+                                                                                          order.orderCreatedAt != null && order.generatedAt != null
+                                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                                  DateTime.parse(order.generatedAt.toString()),
+                                                                                                  // Optional: Add your specific date/time format here if needed
+                                                                                                  format: 'dd-MM-yyyy',
+                                                                                                )
+                                                                                              : 'N/A',
                                                                                           style: TextStyle(
                                                                                             fontSize: fontSize,
                                                                                           ),
                                                                                           maxLines: 1,
                                                                                           overflow: TextOverflow.ellipsis,
                                                                                         ),
+                                                                                        // Text(
+                                                                                        //   order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
+                                                                                        //   style: TextStyle(
+                                                                                        //     fontSize: fontSize,
+                                                                                        //   ),
+                                                                                        //   maxLines: 1,
+                                                                                        //   overflow: TextOverflow.ellipsis,
+                                                                                        // ),
                                                                                         Text(
-                                                                                          order.orderCreatedAt != null ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt) : 'N/A',
+                                                                                          order.orderCreatedAt != null
+                                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                                  DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                                  format: 'hh:mm a', // Keeps it strictly to time-only format
+                                                                                                )
+                                                                                              : 'N/A',
                                                                                           style: TextStyle(
                                                                                             fontSize: fontSize,
                                                                                           ),
                                                                                           maxLines: 1,
                                                                                           overflow: TextOverflow.ellipsis,
                                                                                         ),
+                                                                                        // Text(
+                                                                                        //   order.orderCreatedAt != null ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt) : 'N/A',
+                                                                                        //   style: TextStyle(
+                                                                                        //     fontSize: fontSize,
+                                                                                        //   ),
+                                                                                        //   maxLines: 1,
+                                                                                        //   overflow: TextOverflow.ellipsis,
+                                                                                        // ),
                                                                                       ],
                                                                                     ),
                                                                                   ),
@@ -1449,7 +1492,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                             final orderId = draft['order_id'].toString().startsWith('DRAFT')
                                                                                 ? draft['order_id']
                                                                                 : '';
-                      
+
                                                                             final customerId =
                                                                                 draft['displayData']['customerId'] ?? 'dummy_customerName';
                                                                             final customerName =
@@ -1672,7 +1715,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                             controller: _scrollController9,
                                             child: SizedBox(
                                               width: isPhonePortrait(context)
-                                                  ? fullScreenWidth(context) * 2.3
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
                                                   : fullScreenWidth(context),
                                               child: Row(
                                                 children: [
@@ -1684,11 +1728,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           const WidgetStatePropertyAll(
                                                               primaryColor),
                                                       columnSpacing: 10,
-                                                      headingTextStyle: TextStyle(
-                                                          fontSize: fontSize + 2,
-                                                          color: white,
-                                                          fontWeight:
-                                                              FontWeight.w700),
+                                                      headingTextStyle:
+                                                          TextStyle(
+                                                              fontSize:
+                                                                  fontSize + 2,
+                                                              color: white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700),
                                                       columns: [
                                                         const DataColumn(
                                                             label: Expanded(
@@ -1732,12 +1779,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     final customerId =
                                                                         customer
                                                                             ?.customerId;
-                      
+
                                                                     if (customerId !=
                                                                             null &&
                                                                         customerOfflineTotals
-                                                                            .containsKey(
-                                                                                customerId)) {
+                                                                            .containsKey(customerId)) {
                                                                       // If offline draft exists for this customer, use ONLY offline total
                                                                       final offlineAmount =
                                                                           customerOfflineTotals[
@@ -1761,9 +1807,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                           (sum,
                                                                               draft) {
                                                                     final offlineAmount =
-                                                                        draft['displayData']
-                                                                                [
-                                                                                'displayTotal'] ??
+                                                                        draft['displayData']['displayTotal'] ??
                                                                             0.0;
                                                                     return sum +
                                                                         offlineAmount;
@@ -2130,7 +2174,7 @@ class _OptionWidgetState extends State<OptionWidget> {
     HomeController? homeController,
   ) {
     final TextEditingController _searchCtrl = TextEditingController();
-  String _search = '';
+    String _search = '';
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -2146,7 +2190,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                       color: white,
                     ),
                     child: Material(
-                       color: white,
+                      color: white,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: FutureBuilder<OrderResponse>(
@@ -2161,325 +2205,341 @@ class _OptionWidgetState extends State<OptionWidget> {
                               final orders = snapshot.data?.data ?? [];
 
                               final filteredOrders = orders.where((order) {
-                              if (_search.isEmpty) return true;
+                                if (_search.isEmpty) return true;
 
-                              final lower = _search.toLowerCase();
+                                final lower = _search.toLowerCase();
 
-                              // 1. Search by Order ID
-                              final matchesOrderId =
-                                  order.orderId.toLowerCase().contains(lower);
+                                // 1. Search by Order ID
+                                final matchesOrderId =
+                                    order.orderId.toLowerCase().contains(lower);
 
-                              // 2. Search by Invoice ID (if any invoice exists)
-                              // final matchesInvoiceId = order.invoice.isNotEmpty
-                              //     ? order.invoice[0].invoiceId
-                              //         .toLowerCase()
-                              //         .contains(lower)
-                              //     : false;
+                                // 2. Search by Invoice ID (if any invoice exists)
+                                // final matchesInvoiceId = order.invoice.isNotEmpty
+                                //     ? order.invoice[0].invoiceId
+                                //         .toLowerCase()
+                                //         .contains(lower)
+                                //     : false;
 
-                              return matchesOrderId;
-                            }).toList();
-                      
+                                return matchesOrderId;
+                              }).toList();
+
                               // final filteredOrders = orders.where((order) {
                               //   return order.orderStatus ==
                               //       selectedOrderStatus.type;
                               // }).toList();
-                      
+
                               return LayoutBuilder(
                                 builder: (BuildContext context,
                                     BoxConstraints constraints) {
                                   double availableWidth = constraints.maxWidth;
                                   double fontSize = isPhonePortrait(context)
                                       ? 14
-                                      : (availableWidth * 0.017).clamp(7.0, 15.0);
+                                      : (availableWidth * 0.017)
+                                          .clamp(7.0, 15.0);
                                   double padding = availableWidth / 100;
                                   double fixedIconSize = fontSize;
                                   double flexWidth = isPhonePortrait(context)
                                       ? availableWidth / 3.5
                                       : availableWidth / 9;
-                      
+
                                   return Stack(
                                     children: [
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                           Padding(
-                                          padding: EdgeInsets.only(
-                                              right: 40,
-                                              top: 10,
-                                              bottom: 10,
-                                              left: 20),
-                                          child: Row(
-                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    right:
-                                                        200), // Space between label and TextField
-                                                child: CustomText(
-                                                  content: '${orderType}s',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 22,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: TextField(
-                                                  controller: _searchCtrl,
-                                                  onChanged: (val) {
-                                                    setState(
-                                                        () => _search = val);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText:
-                                                        'Search ${orderType} No.',
-                                                    prefixIcon: const Icon(
-                                                        Icons.search,
-                                                        color: Colors.blue),
-
-                                                    // Blue border (normal & focused)
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.blue,
-                                                              width: 1.5),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.blue,
-                                                              width: 2.0),
-                                                    ),
-
-                                                    filled: true,
-                                                    fillColor: Colors.grey[50],
-
-                                                    // Proper padding so text isn't stuck to edges
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 14,
-                                                            vertical: 12),
-
-                                                    // Clear button (suffix icon)
-                                                    suffixIcon: _search
-                                                            .isNotEmpty
-                                                        ? IconButton(
-                                                            icon: const Icon(
-                                                                Icons.clear,
-                                                                color: Colors
-                                                                    .blue),
-                                                            onPressed: () {
-                                                              _searchCtrl
-                                                                  .clear();
-                                                              setState(() =>
-                                                                  _search = '');
-                                                            },
-                                                          )
-                                                        : null,
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 40,
+                                                top: 10,
+                                                bottom: 10,
+                                                left: 20),
+                                            child: Row(
+                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      right:
+                                                          200), // Space between label and TextField
+                                                  child: CustomText(
+                                                    content: '${orderType}s',
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 22,
                                                   ),
-                                                  style: TextStyle(
-                                                      fontSize: fontSize),
                                                 ),
-                                              ),
-                                            ],
+                                                Expanded(
+                                                  child: TextField(
+                                                    controller: _searchCtrl,
+                                                    onChanged: (val) {
+                                                      setState(
+                                                          () => _search = val);
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      hintText:
+                                                          'Search ${orderType} No.',
+                                                      prefixIcon: const Icon(
+                                                          Icons.search,
+                                                          color: Colors.blue),
+
+                                                      // Blue border (normal & focused)
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color:
+                                                                    Colors.blue,
+                                                                width: 1.5),
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color:
+                                                                    Colors.blue,
+                                                                width: 2.0),
+                                                      ),
+
+                                                      filled: true,
+                                                      fillColor:
+                                                          Colors.grey[50],
+
+                                                      // Proper padding so text isn't stuck to edges
+                                                      contentPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 14,
+                                                              vertical: 12),
+
+                                                      // Clear button (suffix icon)
+                                                      suffixIcon: _search
+                                                              .isNotEmpty
+                                                          ? IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.clear,
+                                                                  color: Colors
+                                                                      .blue),
+                                                              onPressed: () {
+                                                                _searchCtrl
+                                                                    .clear();
+                                                                setState(() =>
+                                                                    _search =
+                                                                        '');
+                                                              },
+                                                            )
+                                                          : null,
+                                                    ),
+                                                    style: TextStyle(
+                                                        fontSize: fontSize),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                         SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        controller: _scrollController5,
-                                        child: SizedBox(
-                                          width: isPhonePortrait(context)
-                                              ? fullScreenWidth(context) * 2.3
-                                              : fullScreenWidth(context),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: DataTable(
-                                                    dataRowHeight: 0,
-                                                    headingRowHeight:
-                                                        isPhonePortrait(context)
-                                                            ? 75
-                                                            : 45,
-                                                    headingRowColor:
-                                                        const WidgetStatePropertyAll(
-                                                            primaryColor),
-                                                    columnSpacing: 10,
-                                                    headingTextStyle: TextStyle(
-                                                        fontSize: fontSize + 1,
-                                                        color: white,
-                                                        fontWeight:
-                                                            FontWeight.w700),
-                                                    columns: [
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                          SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            controller: _scrollController5,
+                                            child: SizedBox(
+                                              width: isPhonePortrait(context)
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
+                                                  : fullScreenWidth(context),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: DataTable(
+                                                        dataRowHeight: 0,
+                                                        headingRowHeight:
+                                                            isPhonePortrait(
+                                                                    context)
+                                                                ? 75
+                                                                : 45,
+                                                        headingRowColor:
+                                                            const WidgetStatePropertyAll(
+                                                                primaryColor),
+                                                        columnSpacing: 10,
+                                                        headingTextStyle:
+                                                            TextStyle(
+                                                                fontSize:
+                                                                    fontSize +
+                                                                        1,
+                                                                color: white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700),
+                                                        columns: [
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Customer List',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Customer List',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '$orderType No.',
-                                                              maxLines: 2,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '$orderType No.',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Created',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Created',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Created By',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Created By',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '$orderType Amount',
-                                                              maxLines: 2,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '$orderType Amount',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top:
-                                                                  isPhonePortrait(
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  top: isPhonePortrait(
                                                                           context)
                                                                       ? 30
                                                                       : 0),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Status',
-                                                              maxLines: 2,
+                                                              child:
+                                                                  const Center(
+                                                                child: Text(
+                                                                  'Status',
+                                                                  maxLines: 2,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      )),
-                                                      DataColumn(
-                                                          label: Expanded(
-                                                        child: SizedBox(
-                                                            width:
-                                                                flexWidth * 0.5),
-                                                      )),
-                                                    ],
-                                                    rows: [
-                                                      DataRow(
-                                                        cells: [
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1.5),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    0.9),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    1.1),
-                                                          ),
-                                                          DataCell(
-                                                            SizedBox(
-                                                                width: flexWidth *
-                                                                    0.5),
-                                                          ),
+                                                          )),
+                                                          DataColumn(
+                                                              label: Expanded(
+                                                            child: SizedBox(
+                                                                width:
+                                                                    flexWidth *
+                                                                        0.5),
+                                                          )),
                                                         ],
-                                                      )
-                                                    ]),
+                                                        rows: [
+                                                          DataRow(
+                                                            cells: [
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1.5),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            0.9),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            1.1),
+                                                              ),
+                                                              DataCell(
+                                                                SizedBox(
+                                                                    width:
+                                                                        flexWidth *
+                                                                            0.5),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ]),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                           SingleChildScrollView(
                                             scrollDirection: Axis.horizontal,
                                             controller: _scrollController4,
                                             child: SizedBox(
                                               width: isPhonePortrait(context)
-                                                  ? fullScreenWidth(context) * 2.3
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
                                                   : fullScreenWidth(context),
                                               height: filteredOrders.length < 11
                                                   ? null
@@ -2516,13 +2576,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                     fontSize:
                                                                         fontSize +
                                                                             1,
-                                                                    color: white,
+                                                                    color:
+                                                                        white,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w700),
                                                             columns: [
                                                               const DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     'Customer List',
@@ -2531,7 +2593,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     '$orderType No.',
@@ -2540,7 +2603,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               const DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     'Created',
@@ -2549,7 +2613,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               const DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     'Created By',
@@ -2558,7 +2623,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     '$orderType Amount',
@@ -2567,7 +2633,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               const DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     'Status',
@@ -2576,7 +2643,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                 ),
                                                               )),
                                                               const DataColumn(
-                                                                  label: Expanded(
+                                                                  label:
+                                                                      Expanded(
                                                                 child: Center(
                                                                   child: Text(
                                                                     '',
@@ -2606,7 +2674,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         ])
                                                                   ]
                                                                 : filteredOrders
-                                                                    .map((order) {
+                                                                    .map(
+                                                                        (order) {
                                                                     final customer = order
                                                                             .customer
                                                                             .isNotEmpty
@@ -2680,8 +2749,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 1,
                                                                             child:
                                                                                 InkWell(
-                                                                              onTap:
-                                                                                  () async {
+                                                                              onTap: () async {
                                                                                 bool isOnline = await ConnectivityService().isOnline();
                                                                                 if (isOnline) {
                                                                                   showDetailedOrderInvoiceDialog(context, order.orderId, false, changedTitle: orderType);
@@ -2689,8 +2757,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                   showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
                                                                                 }
                                                                               },
-                                                                              child:
-                                                                                  Center(
+                                                                              child: Center(
                                                                                 child: Text(
                                                                                   order.orderId,
                                                                                   style: TextStyle(color: primaryColor, fontSize: fontSize, fontWeight: FontWeight.w600),
@@ -2705,26 +2772,53 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 1,
                                                                             child:
                                                                                 Center(
-                                                                              child:
-                                                                                  Column(
+                                                                              child: Column(
                                                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                                                 children: [
                                                                                   Text(
-                                                                                    order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
+                                                                                    order.orderCreatedAt != null && order.generatedAt != null
+                                                                                        ? TimeUtils.formatTimeInZone(
+                                                                                            DateTime.parse(order.generatedAt.toString()),
+                                                                                            // Optional: You can specify a custom format here to match your old UI
+                                                                                            format: 'dd-MM-yyyy',
+                                                                                          )
+                                                                                        : 'N/A',
                                                                                     style: TextStyle(
                                                                                       fontSize: fontSize,
                                                                                     ),
                                                                                     maxLines: 1,
                                                                                     overflow: TextOverflow.ellipsis,
                                                                                   ),
+                                                                                  // Text(
+                                                                                  //   order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.generatedAt.toString()) : 'N/A',
+                                                                                  //   style: TextStyle(
+                                                                                  //     fontSize: fontSize,
+                                                                                  //   ),
+                                                                                  //   maxLines: 1,
+                                                                                  //   overflow: TextOverflow.ellipsis,
+                                                                                  // ),
                                                                                   Text(
-                                                                                    order.orderCreatedAt != null ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt) : 'N/A',
+                                                                                    order.orderCreatedAt != null
+                                                                                        ? TimeUtils.formatTimeInZone(
+                                                                                            DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                            // Optional: Add this if you want to hide seconds (e.g., "04:30 PM")
+                                                                                            format: 'hh:mm a',
+                                                                                          )
+                                                                                        : 'N/A',
                                                                                     style: TextStyle(
                                                                                       fontSize: fontSize,
                                                                                     ),
                                                                                     maxLines: 1,
                                                                                     overflow: TextOverflow.ellipsis,
                                                                                   ),
+                                                                                  // Text(
+                                                                                  //   order.orderCreatedAt != null ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt) : 'N/A',
+                                                                                  //   style: TextStyle(
+                                                                                  //     fontSize: fontSize,
+                                                                                  //   ),
+                                                                                  //   maxLines: 1,
+                                                                                  //   overflow: TextOverflow.ellipsis,
+                                                                                  // ),
                                                                                 ],
                                                                               ),
                                                                             ),
@@ -2736,8 +2830,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 1,
                                                                             child:
                                                                                 Center(
-                                                                              child:
-                                                                                  Text(
+                                                                              child: Text(
                                                                                 '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
                                                                                 style: TextStyle(
                                                                                   fontSize: fontSize,
@@ -2753,8 +2846,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 1,
                                                                             child:
                                                                                 Center(
-                                                                              child:
-                                                                                  Text(
+                                                                              child: Text(
                                                                                 formatAmount(order.orderTotal),
                                                                                 maxLines: 1,
                                                                                 style: TextStyle(
@@ -2770,8 +2862,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                 flexWidth * 1.1,
                                                                             child:
                                                                                 Center(
-                                                                              child:
-                                                                                  Container(
+                                                                              child: Container(
                                                                                 decoration: const BoxDecoration(
                                                                                   color: Color(0xffffdbb8),
                                                                                   borderRadius: BorderRadius.all(Radius.circular(15.0)),
@@ -2823,8 +2914,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         ),
                                                                         DataCell(
                                                                             SizedBox(
-                                                                          width: flexWidth *
-                                                                              0.5,
+                                                                          width:
+                                                                              flexWidth * 0.5,
                                                                           child: IconButton(
                                                                               onPressed: () async {
                                                                                 bool isOnline = await ConnectivityService().isOnline();
@@ -2865,7 +2956,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                             controller: _scrollController6,
                                             child: SizedBox(
                                               width: isPhonePortrait(context)
-                                                  ? fullScreenWidth(context) * 2.3
+                                                  ? fullScreenWidth(context) *
+                                                      2.3
                                                   : fullScreenWidth(context),
                                               child: Row(
                                                 children: [
@@ -2877,11 +2969,14 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                           const WidgetStatePropertyAll(
                                                               primaryColor),
                                                       columnSpacing: 10,
-                                                      headingTextStyle: TextStyle(
-                                                          fontSize: fontSize + 2,
-                                                          color: white,
-                                                          fontWeight:
-                                                              FontWeight.w700),
+                                                      headingTextStyle:
+                                                          TextStyle(
+                                                              fontSize:
+                                                                  fontSize + 2,
+                                                              color: white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700),
                                                       columns: [
                                                         const DataColumn(
                                                             label: Expanded(

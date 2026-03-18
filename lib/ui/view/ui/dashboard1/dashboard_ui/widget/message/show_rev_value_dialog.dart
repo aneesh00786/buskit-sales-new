@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -152,17 +153,23 @@ void showValueDialog(
                                         children: [
                                           Expanded(
                                             child: buildRowData(
-                                              getFormattedOrderCreatAt(
-                                                title == "Order"
-                                                    ? categoryData
-                                                        .orderRevenueData![
-                                                            index]
-                                                        .orderCreatAt
-                                                    : categoryData
-                                                        .bookingRevenueData![
-                                                            index]
-                                                        .orderCreatAt,
-                                              ),
+                                TimeUtils.formatTimeInZone(
+  (title == "Order"
+      ? categoryData.orderRevenueData![index].orderCreatAt
+      : categoryData.bookingRevenueData![index].orderCreatAt) ?? DateTime.now(),
+  format: 'dd/MM/yyyy', 
+)
+                                              // getFormattedOrderCreatAt(
+                                              //   title == "Order"
+                                              //       ? categoryData
+                                              //           .orderRevenueData![
+                                              //               index]
+                                              //           .orderCreatAt
+                                              //       : categoryData
+                                              //           .bookingRevenueData![
+                                              //               index]
+                                              //           .orderCreatAt,
+                                              // ),
                                             ),
                                           ),
                                           Expanded(

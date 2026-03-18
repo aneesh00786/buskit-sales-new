@@ -1589,7 +1589,7 @@ void pendingPaymentCollectionDialog(
                                   context: context,
                                   barrierDismissible: false,
                                   builder: (ctx) => AlertDialog(
-                                    title: const Row(children: [Icon(Icons.wifi_off, color: Colors.orange), SizedBox(width:10), Text("Payment Queued")]),
+                                    title: const Row(children: [Icon(Icons.wifi_off, color: Colors.orange), SizedBox(width:10), Text("Payment Queuedtt")]),
                                     content: const Text("You are offline. The payment has been saved locally and will complete automatically when you go online."),
                                     actions: [
                                       TextButton(

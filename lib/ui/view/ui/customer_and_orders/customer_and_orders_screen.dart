@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -136,7 +137,7 @@ class _TableeeState extends State<Tableee> {
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
         actions: [
-             Expanded(
+          Expanded(
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -152,7 +153,7 @@ class _TableeeState extends State<Tableee> {
                     startDate: provider.selectedStartDate,
                     endDate: provider.selectedEndDate,
                   ),
-                   SizedBox(width: 120, child: profiloe()),
+                  SizedBox(width: 120, child: profiloe()),
                 ],
               ),
             ],
@@ -163,7 +164,6 @@ class _TableeeState extends State<Tableee> {
           // ),
           // SizedBox(width: 5,),
           // Expanded(child: calender()),
-          
         ],
       ),
       body: Stack(
@@ -178,7 +178,6 @@ class _TableeeState extends State<Tableee> {
                 SizedBox(
                   height: 5,
                 ),
-
                 TopTotalWidget(
                     scrollController: _scrollController3, provider: provider),
               ],
@@ -308,8 +307,8 @@ class _TableeeState extends State<Tableee> {
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
-                                                  color: const Color(
-                                                      0xFFE1E5E9),
+                                                  color:
+                                                      const Color(0xFFE1E5E9),
                                                   width: 1),
                                               boxShadow: [
                                                 BoxShadow(
@@ -341,8 +340,8 @@ class _TableeeState extends State<Tableee> {
                                                         ? 'DD-MM-YYYY'
                                                         : DateFormat(
                                                                 'dd-MM-yyyy')
-                                                            .format(DateTime.parse(
-                                                                provider
+                                                            .format(DateTime
+                                                                .parse(provider
                                                                     .selectedStartDate)),
                                                     style: const TextStyle(
                                                       fontSize: 13,
@@ -383,8 +382,8 @@ class _TableeeState extends State<Tableee> {
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
-                                                  color: const Color(
-                                                      0xFFE1E5E9),
+                                                  color:
+                                                      const Color(0xFFE1E5E9),
                                                   width: 1),
                                               boxShadow: [
                                                 BoxShadow(
@@ -416,8 +415,8 @@ class _TableeeState extends State<Tableee> {
                                                         ? 'DD-MM-YYYY'
                                                         : DateFormat(
                                                                 'dd-MM-yyyy')
-                                                            .format(DateTime.parse(
-                                                                provider
+                                                            .format(DateTime
+                                                                .parse(provider
                                                                     .selectedEndDate)),
                                                     style: const TextStyle(
                                                       fontSize: 13,
@@ -453,15 +452,19 @@ class _TableeeState extends State<Tableee> {
                                                       BorderRadius.circular(
                                                           12.0)),
                                               elevation: 8,
-                                              shadowColor: Colors.black.withOpacity(0.2),
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 10),
+                                              shadowColor:
+                                                  Colors.black.withOpacity(0.2),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10),
                                             ),
                                             child: const Text('Go',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14,
-                                                    fontWeight: FontWeight.w600)),
+                                                    fontWeight:
+                                                        FontWeight.w600)),
                                           ),
                                         ),
                                       ),
@@ -500,7 +503,7 @@ class _TableeeState extends State<Tableee> {
                           endDate: provider.selectedEndDate,
                         ),
                         const SizedBox(width: 10),
-                         SizedBox(width: 120, child: profiloe()),
+                        SizedBox(width: 120, child: profiloe()),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -598,18 +601,18 @@ class _TableeeState extends State<Tableee> {
           child: DropdownButton<FilterDateEnum>(
             value: provider.selectedFilter,
             onChanged: (newValue) async {
-            bool isOnline = await ConnectivityService().isOnline();
-             if (!isOnline) {
-                   showCustomToastDisplay(
-                   context, "You are Offline!", red, Icons.close);
-                   return;
-             }
-            if (newValue != null) {
-              // This should ONLY update the variable `selectedFilter` 
-              // and call notifyListeners(). Do not fetch API data here.
-              provider.updateFilterSelection(newValue); 
-            }
-          },
+              bool isOnline = await ConnectivityService().isOnline();
+              if (!isOnline) {
+                showCustomToastDisplay(
+                    context, "You are Offline!", red, Icons.close);
+                return;
+              }
+              if (newValue != null) {
+                // This should ONLY update the variable `selectedFilter`
+                // and call notifyListeners(). Do not fetch API data here.
+                provider.updateFilterSelection(newValue);
+              }
+            },
             // onChanged: (newValue) async {
             //   bool isOnline = await ConnectivityService().isOnline();
             //   if (!isOnline) {
@@ -623,60 +626,72 @@ class _TableeeState extends State<Tableee> {
             // },
             items: const [
               DropdownMenuItem(
-                  value: FilterDateEnum.thisMonth,
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                value: FilterDateEnum.thisMonth,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Month',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
                 ),
+              ),
               DropdownMenuItem(
-                  value: FilterDateEnum.thisWeek,
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                value: FilterDateEnum.thisWeek,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Week',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
                 ),
+              ),
               DropdownMenuItem(
-                  value: FilterDateEnum.today,
-                  child: Row(
-                    children: [
-                      Icon(Icons.today, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                value: FilterDateEnum.today,
+                child: Row(
+                  children: [
+                    Icon(Icons.today, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Day',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
                 ),
+              ),
               DropdownMenuItem(
-                  value: FilterDateEnum.thisYear,
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                value: FilterDateEnum.thisYear,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_view_month,
+                        size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Year',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
                 ),
+              ),
               DropdownMenuItem(
-                  value: FilterDateEnum.range,
-                  child: Row(
-                    children: [
-                      Icon(Icons.date_range, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                value: FilterDateEnum.range,
+                child: Row(
+                  children: [
+                    Icon(Icons.date_range, size: 16, color: primaryColor),
+                    SizedBox(width: 8),
+                    Text('Range',
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                  ],
                 ),
+              ),
             ],
             isExpanded: true,
             borderRadius: BorderRadius.circular(12),
             underline: Container(),
-            icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+            icon: Icon(Icons.keyboard_arrow_down,
+                size: 20, color: Colors.grey[600]),
             dropdownColor: Colors.white,
             elevation: 8,
             style: TextStyle(
@@ -689,6 +704,7 @@ class _TableeeState extends State<Tableee> {
       ),
     );
   }
+
   Widget dateBox(String date) {
     return Container(
       height: 38,
@@ -719,8 +735,6 @@ class _TableeeState extends State<Tableee> {
       ),
     );
   }
-
-
 
   Consumer<CustomersProvider> addCustomer(BuildContext context) {
     ResponsiveInfo.isMobileDimension(context);
@@ -1556,12 +1570,13 @@ class _TableeeState extends State<Tableee> {
         limit: 10,
         page: 1,
         valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-            ? [
-                provider.selectedFilter.name,
-                provider.selectedStartDate,
-                provider.selectedEndDate
-              ]
-            : provider.selectedFilter.name).toString(),
+                ? [
+                    provider.selectedFilter.name,
+                    provider.selectedStartDate,
+                    provider.selectedEndDate
+                  ]
+                : provider.selectedFilter.name)
+            .toString(),
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -1581,13 +1596,14 @@ class _TableeeState extends State<Tableee> {
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw:( provider.selectedFilter == FilterDateEnum.range
-              ? [
-                  provider.selectedFilter.name,
-                  provider.selectedStartDate,
-                  provider.selectedEndDate
-                ]
-              : provider.selectedFilter.name).toString(),
+          valueFromDw: (provider.selectedFilter == FilterDateEnum.range
+                  ? [
+                      provider.selectedFilter.name,
+                      provider.selectedStartDate,
+                      provider.selectedEndDate
+                    ]
+                  : provider.selectedFilter.name)
+              .toString(),
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -1931,7 +1947,6 @@ class BottomTotalWidget extends StatefulWidget {
 
   final ScrollController _scrollController;
   final CustomersProvider provider;
-  
 
   @override
   State<BottomTotalWidget> createState() => _BottomTotalWidgetState();
@@ -1941,7 +1956,6 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
   bool isOnline = false;
 
   bool isOfflineAndSearch = false;
-  
 
   void loadOnineAndSearchState() async {
     isOnline = await ConnectivityService().isOnline();
@@ -2093,12 +2107,14 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 item.replaceAll('...', ''));
                                             return GestureDetector(
                                               onTap: () {
-                                                provider
-                                                    .handlePaginationClick(page);
+                                                provider.handlePaginationClick(
+                                                    page);
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: Colors.transparent,
                                                   borderRadius:
@@ -2120,12 +2136,14 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 item.replaceAll('...', ''));
                                             return GestureDetector(
                                               onTap: () {
-                                                provider
-                                                    .handlePaginationClick(page);
+                                                provider.handlePaginationClick(
+                                                    page);
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: Colors.transparent,
                                                   borderRadius:
@@ -2153,8 +2171,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                               item);
                                                     },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: isCurrent
                                                       ? Colors.white
@@ -2181,13 +2201,13 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                       ),
                                     ),
                                     InkWell(
-                                      onTap:
-                                          provider.currentPage < provider.totalPages
-                                              ? () {
-                                                  provider.handlePaginationClick(
-                                                      provider.currentPage + 1);
-                                                }
-                                              : null,
+                                      onTap: provider.currentPage <
+                                              provider.totalPages
+                                          ? () {
+                                              provider.handlePaginationClick(
+                                                  provider.currentPage + 1);
+                                            }
+                                          : null,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 5),
@@ -2213,7 +2233,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                             children: [
                               Text('Total',
                                   style: TextStyle(
-                                      fontSize: 17, fontWeight: FontWeight.w700)),
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700)),
                             ],
                           ),
                         ),
@@ -2229,7 +2250,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                     controller: widget._scrollController,
                     physics: const ClampingScrollPhysics(),
                     child: Container(
-                      color:Colors.grey[200],
+                      color: Colors.grey[200],
                       child: Column(
                         children: [
                           Row(
@@ -2242,10 +2263,11 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                               0.0,
                                               (sum, item) =>
                                                   sum +
-                                                  num.parse(item.previousYearSales
+                                                  num.parse(item
+                                                      .previousYearSales
                                                       .toString()))
-                                          : provider
-                                              .orderTotalList[7].previousYearSale),
+                                          : provider.orderTotalList[7]
+                                              .previousYearSale),
                                       style: const TextStyle(
                                           fontFamily: "BarlowCondensed",
                                           fontSize: 17,
@@ -2268,8 +2290,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.totalSales.toString()))
+                                                    num.parse(item.totalSales
+                                                        .toString()))
                                             : provider.orderTotalList[0].sales),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
@@ -2290,9 +2312,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.deliveryPrice.toString()))
-                                            : provider.orderTotalList[1].delivery),
+                                                    num.parse(item.deliveryPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[1].delivery),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2312,9 +2335,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.paymentPrice.toString()))
-                                            : provider.orderTotalList[2].payment),
+                                                    num.parse(item.paymentPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[2].payment),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2336,15 +2360,18 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                     sum +
                                                     num.parse(
                                                       item.orderData.preOrder
-                                                          .takeLast(
-                                                              item.preOrder.toInt())
+                                                          .takeLast(item
+                                                              .preOrder
+                                                              .toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>
-                                                                  a + b.orderTotal)
+                                                                  a +
+                                                                  b.orderTotal)
                                                           .toString(),
                                                     ))
-                                            : provider.orderTotalList[4].preOrder),
+                                            : provider
+                                                .orderTotalList[4].preOrder),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2364,9 +2391,11 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.estimatesPrice.toString()))
-                                            : provider.orderTotalList[3].estimate),
+                                                    num.parse(item
+                                                        .estimatesPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[3].estimate),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2388,11 +2417,13 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                     sum +
                                                     num.parse(
                                                       item.orderData.draft
-                                                          .takeLast(item.drafts.toInt())
+                                                          .takeLast(item.drafts
+                                                              .toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>
-                                                                  a + b.orderTotal)
+                                                                  a +
+                                                                  b.orderTotal)
                                                           .toString(),
                                                     ))
                                             : provider.orderTotalList[5].draft),
@@ -2415,13 +2446,18 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(item.orderData.cancel
-                                                        .takeLast(
-                                                            item.cancelled.toInt())
-                                                        .fold(0.0,
-                                                            (a, b) => a + b.orderTotal)
+                                                    num.parse(item
+                                                        .orderData.cancel
+                                                        .takeLast(item.cancelled
+                                                            .toInt())
+                                                        .fold(
+                                                            0.0,
+                                                            (a, b) =>
+                                                                a +
+                                                                b.orderTotal)
                                                         .toString()))
-                                            : provider.orderTotalList[6].cancelled),
+                                            : provider
+                                                .orderTotalList[6].cancelled),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2452,22 +2488,17 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                               // ),
                             ],
                           ),
-                         
                         ],
                       ),
-                      
                     ),
-                    
                   ),
-                  
                 ),
-                
               ],
             ),
             CustomHorizontalScrollbar(
-                          controller:  widget._scrollController,
-                          thumbColor: Colors.blue,
-                         )
+              controller: widget._scrollController,
+              thumbColor: Colors.blue,
+            )
           ],
         );
       },
@@ -2591,8 +2622,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             : (fullScreenHeight(context) - (66 * 3)) / 11.5;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
-     if (provider.isLoading) {
-        return const Center(child: CircularProgressIndicator(color: primaryColor));
+      if (provider.isLoading) {
+        return const Center(
+            child: CircularProgressIndicator(color: primaryColor));
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
@@ -2929,7 +2961,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
-                                               
                                                 if (customer.sales == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -2963,8 +2994,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
-                                                 print('on tappedyy');
-                                                 print('out of delivery : ${customer.orderData.outOfDiviery}');
+                                                print('on tappedyy');
+                                                print(
+                                                    'out of delivery : ${customer.orderData.outOfDiviery}');
                                                 if (customer.delivery == 0) {
                                                   showCustomToastDisplay(
                                                       context,
@@ -3276,7 +3308,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-
             return AlertDialog(
               title: const Text('Customer Check-Out'),
               content: Text(
@@ -3411,8 +3442,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             shouldProceed = true;
                           }
                         }
-                      } catch (e) {
-                      }
+                      } catch (e) {}
 
                       if (context.mounted) Navigator.of(context).pop();
                     },
@@ -3664,10 +3694,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           children: [
                                                             Text(
                                                               order.orderCreatAt !=
-                                                                      null
-                                                                  ? getFormattedOrderCreatAt(order
-                                                                      .orderCreatAt
-                                                                      .toString())
+                                                                          null &&
+                                                                      order
+                                                                          .orderCreatAt
+                                                                          .toString()
+                                                                          .isNotEmpty
+                                                                  ? TimeUtils.formatTimeInZone(
+                                                                      // Reminder: If this date is formatted as DD-MM-YYYY instead of YYYY-MM-DD,
+                                                                      // you will need to swap DateTime.parse for DateFormat('dd-MM-yyyy').parse()
+                                                                      DateTime.parse(order.orderCreatAt.toString()),
+                                                                      format: 'dd-MM-yyyy')
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                 fontSize:
@@ -3678,13 +3714,32 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   TextOverflow
                                                                       .ellipsis,
                                                             ),
+                                                            // Text(
+                                                            //   order.orderCreatAt !=
+                                                            //           null
+                                                            //       ? getFormattedOrderCreatAt(order
+                                                            //           .orderCreatAt
+                                                            //           .toString())
+                                                            //       : 'N/A',
+                                                            //   style: TextStyle(
+                                                            //     fontSize:
+                                                            //         fontSize,
+                                                            //   ),
+                                                            //   maxLines: 1,
+                                                            //   overflow:
+                                                            //       TextOverflow
+                                                            //           .ellipsis,
+                                                            // ),
                                                             Text(
                                                               order.orderCreatAt !=
                                                                       null
-                                                                  ? NKDateUtils
-                                                                      .commonTimeOnlyFormat(order
-                                                                          .orderCreatAt
-                                                                          .toLocal())
+                                                                  ? TimeUtils
+                                                                      .formatTimeInZone(
+                                                                      order
+                                                                          .orderCreatAt!, // We can safely use ! here because of the null check above
+                                                                      format:
+                                                                          'hh:mm a', // Add this to keep the "Time Only" format from NKDateUtils
+                                                                    )
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                 fontSize:
@@ -3695,6 +3750,23 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   TextOverflow
                                                                       .ellipsis,
                                                             ),
+                                                            // Text(
+                                                            //   order.orderCreatAt !=
+                                                            //           null
+                                                            //       ? NKDateUtils
+                                                            //           .commonTimeOnlyFormat(order
+                                                            //               .orderCreatAt
+                                                            //               .toLocal())
+                                                            //       : 'N/A',
+                                                            //   style: TextStyle(
+                                                            //     fontSize:
+                                                            //         fontSize,
+                                                            //   ),
+                                                            //   maxLines: 1,
+                                                            //   overflow:
+                                                            //       TextOverflow
+                                                            //           .ellipsis,
+                                                            // ),
                                                           ],
                                                         ),
                                                       ),
@@ -3714,16 +3786,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       ),
                                                     ),
                                                   ),
-                                                   DataCell(
+                                                  DataCell(
                                                     SizedBox(
                                                       width: flexWidth * 1.1,
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .spaceBetween, 
+                                                                .spaceBetween,
                                                         children: [
                                                           Expanded(
-                                                            child: CustomTooltip(
+                                                            child:
+                                                                CustomTooltip(
                                                               message:
                                                                   '${formatAmount(order.orderTotal)} / '
                                                                   '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
@@ -3733,19 +3806,23 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
                                                                 '${formatAmount(order.receivedAmount)}',
                                                                 maxLines: 1,
-                                                                overflow: TextOverflow
-                                                                    .ellipsis,
-                                                                style: TextStyle(
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style:
+                                                                    TextStyle(
                                                                   fontSize:
                                                                       fontSize,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
-                                                         
-                                                          if (order.paymentStatus != 0) ...[
+                                                          if (order
+                                                                  .paymentStatus !=
+                                                              0) ...[
                                                             PaymentHistoryButton(
-                                                                orderId: order.orderId)
+                                                                orderId: order
+                                                                    .orderId)
                                                           ],
                                                         ],
                                                       ),
@@ -4041,7 +4118,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   ),
                                                 ),
                                               )),
-                                              
+
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
@@ -4052,10 +4129,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       0.0,
                                                       (sum, order) {
                                                         // Update starts here
-                                                        if (orderType == 'Payment') {
-                                                          return sum + (order.receivedAmount ?? 0.0);
+                                                        if (orderType ==
+                                                            'Payment') {
+                                                          return sum +
+                                                              (order.receivedAmount ??
+                                                                  0.0);
                                                         } else {
-                                                          return sum + (order.orderTotal);
+                                                          return sum +
+                                                              (order
+                                                                  .orderTotal);
                                                         }
                                                         // Update ends here
                                                       },
@@ -4211,7 +4293,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             ),
                                           )),
                                           DataColumn(
-                                            //  width: flexWidth * 0.9,
+                                              //  width: flexWidth * 0.9,
                                               label: Expanded(
                                             child: Padding(
                                               padding: EdgeInsets.only(
@@ -4347,19 +4429,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1.5),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 0.9),
+                                                SizedBox(
+                                                    width: flexWidth * 0.9),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
                                                 SizedBox(
@@ -4455,7 +4535,6 @@ Widget _buildDataCell(String count, String amount, Color color, bool isCenter) {
             fontSize: 11,
             color: Colors.white,
             fontWeight: FontWeight.bold,
-          
           ),
         ),
       ),

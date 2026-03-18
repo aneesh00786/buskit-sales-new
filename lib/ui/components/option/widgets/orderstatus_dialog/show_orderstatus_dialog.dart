@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
@@ -57,7 +58,7 @@ void showOrderStatusDialog(
                             );
                           } else {
                             final orders = snapshot.data?.data ?? [];
-                               print('orderss:$orders');
+                            print('orderss:$orders');
                             // final filteredOrders = orders.toList();
                             // <<< NEW: filter by Order ID or Invoice ID >>>
                             final filteredOrders = orders.where((order) {
@@ -419,7 +420,11 @@ void showOrderStatusDialog(
                                                                             MainAxisAlignment.center,
                                                                         children: [
                                                                           Text(
-                                                                            getFormattedOrderCreatAt(order.generatedAt.toString()),
+                                                                            TimeUtils.formatTimeInZone(
+                                                                              order.generatedAt ?? DateTime.now(),
+                                                                              format: 'dd MM yyyy',
+                                                                            ),
+                                                                            // getFormattedOrderCreatAt(order.generatedAt.toString()),
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: fontSize,
@@ -430,7 +435,12 @@ void showOrderStatusDialog(
                                                                                 TextOverflow.ellipsis,
                                                                           ),
                                                                           Text(
-                                                                            NKDateUtils.commonTimeOnlyFormat(order.generatedAt!),
+                                                                            TimeUtils.formatTimeInZone(
+                                                                              order.generatedAt ?? DateTime.now(),
+                                                                              format: 'hh:mm a',
+                                                                            ),
+
+                                                                            // NKDateUtils.commonTimeOnlyFormat(order.generatedAt!),
                                                                             style:
                                                                                 TextStyle(
                                                                               fontSize: fontSize,
@@ -610,7 +620,12 @@ void showOrderStatusDialog(
                                                                                 Padding(
                                                                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                                                                   child: Text(
-                                                                                    NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                    order.deliveryDate != null
+                                                                                        ? TimeUtils.formatTimeInZone(
+                                                                                            order.deliveryDate!, 
+                                                                                            format: 'dd-MM-yyyy hh:mm ',
+                                                                                          )
+                                                                                        : 'N/A',
                                                                                     textAlign: TextAlign.center,
                                                                                     maxLines: 2,
                                                                                     style: TextStyle(
@@ -618,6 +633,15 @@ void showOrderStatusDialog(
                                                                                       fontWeight: FontWeight.w400,
                                                                                     ),
                                                                                   ),
+                                                                                  // Text(
+                                                                                  //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                  //   textAlign: TextAlign.center,
+                                                                                  //   maxLines: 2,
+                                                                                  //   style: TextStyle(
+                                                                                  //     fontSize: fontSize - 2,
+                                                                                  //     fontWeight: FontWeight.w400,
+                                                                                  //   ),
+                                                                                  // ),
                                                                                 ),
                                                                               ],
                                                                               if (order.orderStatus == 14) ...[

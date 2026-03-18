@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -7,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
   return LayoutBuilder(
     builder: (context, constraints) {
@@ -182,14 +184,30 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                 width: colWidth2,
                                 child: Center(
                                   child: MyRegularText(
-                                    label: DateFormat('dd-MM-yyyy')
-                                        .format(product.createdAt!.toLocal()),
+                                    label: product.createdAt != null
+                                        ? TimeUtils.formatTimeInZone(
+                                            product.createdAt!,
+                                            format: 'dd-MM-yyyy',
+                                          )
+                                        : 'N/A',
                                     color: secondaryTextColor,
                                     fontSize: fontSize,
                                     maxlines: 1,
                                   ),
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: colWidth2,
+                              //   child: Center(
+                              //     child: MyRegularText(
+                              //       label: DateFormat('dd-MM-yyyy')
+                              //           .format(product.createdAt!.toLocal()),
+                              //       color: secondaryTextColor,
+                              //       fontSize: fontSize,
+                              //       maxlines: 1,
+                              //     ),
+                              //   ),
+                              // ),
                               const SizedBox(width: 5),
                               SizedBox(
                                 width: colWidth3,
@@ -204,9 +222,8 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                         (data) => formatAmount(data.price),
                                         (data) => formatAmount(data.tax),
                                         (data) => data.quantity.toString(),
-                                        (data) => formatAmount(data
-                                                  .totalAmount
-                                        ),
+                                        (data) =>
+                                            formatAmount(data.totalAmount),
                                         (data) => DateFormat('dd-MM-yyyy')
                                             .format(data.createdAt!),
                                         (data) => data.orderId.toString(),
@@ -239,16 +256,13 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                   child: MyRegularText(
                                     label: formatAmount(
                                       product.inclTax == "incl_tax"
-                                          ? (double.tryParse(product
-                                                  .totalAmount
+                                          ? (double.tryParse(product.totalAmount
                                                   .toString()) ??
                                               0.0)
-                                          : 
-                                          ((double.tryParse(product
-                                                      .totalAmount
-                                                      .toString()) ??
-                                                  0.0)
-                                              ),
+                                          : ((double.tryParse(product
+                                                  .totalAmount
+                                                  .toString()) ??
+                                              0.0)),
                                     ),
                                     color: secondaryTextColor,
                                     fontSize: fontSize,

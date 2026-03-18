@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -346,9 +347,16 @@ Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
 Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
   return Center(
     child: _buildRegularText(
-      NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
-        customerData.orderCreatAt.toString(),
-      )),
+      customerData.orderCreatAt != null &&
+              customerData.orderCreatAt.toString().isNotEmpty
+          ? TimeUtils.formatTimeInZone(
+              DateTime.parse(customerData.orderCreatAt.toString()),
+              format: 'dd-MM-yyyy',
+            )
+          : 'N/A',
+      // NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
+      //   customerData.orderCreatAt.toString(),
+      // )),
       context,
       maxLines: 1,
     ),
@@ -356,24 +364,53 @@ Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
 }
 
 Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
-  int? creditPeriod = customerData.creditPeriod;
-  String? orderCreatAt = customerData.orderCreatAt.toString();
-  String? dueDate;
+  String dueDate = 'N/A';
 
-  DateTime orderDate = DateTime.parse(orderCreatAt);
+  if (customerData.orderCreatAt != null &&
+      customerData.orderCreatAt.toString().isNotEmpty) {
+    try {
+      DateTime orderDate = DateTime.parse(customerData.orderCreatAt.toString());
 
-  DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
+      DateTime dueDateTime =
+          orderDate.add(Duration(days: customerData.creditPeriod ?? 0));
 
-  dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
+      dueDate = TimeUtils.formatTimeInZone(
+        dueDateTime,
+        format: 'dd-MM-yyyy',
+      );
+    } catch (e) {
+      debugPrint('Error parsing order dueDate: $e');
+    }
+  }
 
   return Center(
     child: _buildRegularText(
-      dueDate.toString(),
+      dueDate,
       context,
       maxLines: 1,
     ),
   );
 }
+
+// Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
+//   int? creditPeriod = customerData.creditPeriod;
+//   String? orderCreatAt = customerData.orderCreatAt.toString();
+//   String? dueDate;
+
+//   DateTime orderDate = DateTime.parse(orderCreatAt);
+
+//   DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
+
+//   dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
+
+//   return Center(
+//     child: _buildRegularText(
+//       dueDate.toString(),
+//       context,
+//       maxLines: 1,
+//     ),
+//   );
+// }
 
 Widget _buildOrderDays(CustomerData customerData, BuildContext context) {
   DateTime orderCreatedDate = NKDateUtils.formatStringUTCDateTime(
@@ -439,9 +476,12 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
               if (customerData.orderStatus == 2 &&
                   customerData.deliveryDate != null) ...[
                 Text(
-                  NKDateUtils.commonFullDateTimeFormat(
-                      NKDateUtils.formatStringUTCDateTime(
-                          customerData.deliveryDate!.toIso8601String())),
+                  customerData.deliveryDate != null
+                      ? TimeUtils.formatTimeInZone(
+                          customerData.deliveryDate!,
+                          format: 'dd/MM/yyyy hh:mm a',
+                        )
+                      : 'N/A',
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: const TextStyle(
@@ -449,6 +489,17 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
+                // Text(
+                //   NKDateUtils.commonFullDateTimeFormat(
+                //       NKDateUtils.formatStringUTCDateTime(
+                //           customerData.deliveryDate!.toIso8601String())),
+                //   textAlign: TextAlign.center,
+                //   maxLines: 2,
+                //   style: const TextStyle(
+                //     fontSize: 10.0,
+                //     fontWeight: FontWeight.w400,
+                //   ),
+                // ),
               ]
             ],
           ),
@@ -466,10 +517,8 @@ Widget _buildPaymentCollectionButton(
     child: InkResponse(
       onTap: () {
         if (subscriptionController.appPaymentCollection.value == "true") {
-          
           pendingPaymentCollectionDialog(context, customerData.customerId);
-        }
-         else {
+        } else {
           showUpgradePlanDialog(context);
         }
       },

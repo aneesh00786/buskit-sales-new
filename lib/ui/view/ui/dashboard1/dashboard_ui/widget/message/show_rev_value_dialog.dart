@@ -153,24 +153,31 @@ void showValueDialog(
                                         children: [
                                           Expanded(
                                             child: buildRowData(
-                                TimeUtils.formatTimeInZone(
-  (title == "Order"
-      ? categoryData.orderRevenueData![index].orderCreatAt
-      : categoryData.bookingRevenueData![index].orderCreatAt) ?? DateTime.now(),
-  format: 'dd/MM/yyyy', 
-)
-                                              // getFormattedOrderCreatAt(
-                                              //   title == "Order"
-                                              //       ? categoryData
-                                              //           .orderRevenueData![
-                                              //               index]
-                                              //           .orderCreatAt
-                                              //       : categoryData
-                                              //           .bookingRevenueData![
-                                              //               index]
-                                              //           .orderCreatAt,
-                                              // ),
-                                            ),
+                                                TimeUtils.formatTimeInZone(
+                                              (title == "Order"
+                                                      ? categoryData
+                                                          .orderRevenueData![
+                                                              index]
+                                                          .orderGeneratedDate
+                                                      : categoryData
+                                                          .bookingRevenueData![
+                                                              index]
+                                                          .orderGnerateAt) ??
+                                                  DateTime.now(),
+                                              format: 'dd/MM/yyyy',
+                                            )
+                                                // getFormattedOrderCreatAt(
+                                                //   title == "Order"
+                                                //       ? categoryData
+                                                //           .orderRevenueData![
+                                                //               index]
+                                                //           .orderCreatAt
+                                                //       : categoryData
+                                                //           .bookingRevenueData![
+                                                //               index]
+                                                //           .orderCreatAt,
+                                                // ),
+                                                ),
                                           ),
                                           Expanded(
                                             child: buildRowData(

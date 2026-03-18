@@ -422,7 +422,7 @@ void showOrderStatusDialog(
                                                                           Text(
                                                                             TimeUtils.formatTimeInZone(
                                                                               order.generatedAt ?? DateTime.now(),
-                                                                              format: 'dd MM yyyy',
+                                                                              format: 'dd/MM/yyyy',
                                                                             ),
                                                                             // getFormattedOrderCreatAt(order.generatedAt.toString()),
                                                                             style:

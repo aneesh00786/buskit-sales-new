@@ -267,6 +267,7 @@ class BookingRevenueDatum {
   int? notificationStatus;
   dynamic orderCreatedStored;
   num? totalBookingRevenue;
+  DateTime? orderGnerateAt;
 
   BookingRevenueDatum({
     this.id,
@@ -299,6 +300,7 @@ class BookingRevenueDatum {
     this.notificationStatus,
     this.orderCreatedStored,
     this.totalBookingRevenue,
+    this.orderGnerateAt,
   });
 
   factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) =>
@@ -333,6 +335,7 @@ class BookingRevenueDatum {
         notificationStatus: json["notification_status"],
         orderCreatedStored: json["order_created_stored"],
         totalBookingRevenue: json["total_booking_revenue"],
+        orderGnerateAt: DateTime.parse(json["generated_date"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -366,6 +369,7 @@ class BookingRevenueDatum {
         "notification_status": notificationStatus,
         "order_created_stored": orderCreatedStored,
         "total_booking_revenue": totalBookingRevenue,
+        "generated_date": orderGnerateAt!.toIso8601String(),
       };
 }
 
@@ -375,6 +379,7 @@ class OrderRevenueDatum {
   String? orderId;
   num? orderStatus;
   num? totalOrderRevenue;
+  DateTime? orderGeneratedDate;
 
   OrderRevenueDatum({
     this.orderTotal,
@@ -382,6 +387,7 @@ class OrderRevenueDatum {
     this.orderId,
     this.orderStatus,
     this.totalOrderRevenue,
+    this.orderGeneratedDate,
   });
 
   factory OrderRevenueDatum.fromJson(Map<String, dynamic> json) =>
@@ -391,6 +397,7 @@ class OrderRevenueDatum {
         orderId: json["order_id"],
         orderStatus: json["order_status"],
         totalOrderRevenue: json["total_order_revenue"],
+        orderGeneratedDate:DateTime.parse(json["generated_date"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -399,7 +406,7 @@ class OrderRevenueDatum {
         "order_id": orderId,
         "order_status": orderStatus,
         "total_order_revenue": totalOrderRevenue,
-      };
+        "generated_date":orderGeneratedDate!.toIso8601String(),      };
 }
 
 class ResponseModell {

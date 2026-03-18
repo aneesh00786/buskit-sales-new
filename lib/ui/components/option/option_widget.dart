@@ -1386,7 +1386,12 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                             ),
                                                                                             if (order.orderStatus == 2 && order.deliveryDate != null) ...[
                                                                                               Text(
-                                                                                                NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                                order.deliveryDate != null
+                                                                                                    ? TimeUtils.formatTimeInZone(
+                                                                                                        order.deliveryDate!,
+                                                                                                        format: 'dd-MM-yyyy hh:mm a', 
+                                                                                                      )
+                                                                                                    : 'N/A',
                                                                                                 textAlign: TextAlign.center,
                                                                                                 maxLines: 2,
                                                                                                 style: const TextStyle(
@@ -1394,6 +1399,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                                   fontWeight: FontWeight.w400,
                                                                                                 ),
                                                                                               ),
+                                                                                              // Text(
+                                                                                              //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                              //   textAlign: TextAlign.center,
+                                                                                              //   maxLines: 2,
+                                                                                              //   style: const TextStyle(
+                                                                                              //     fontSize: 10.0,
+                                                                                              //     fontWeight: FontWeight.w400,
+                                                                                              //   ),
+                                                                                              // ),
                                                                                             ],
                                                                                             if (order.orderStatus == 14) ...[
                                                                                               const SizedBox(height: 5),
@@ -2879,7 +2893,12 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                       ),
                                                                                       if (order.orderStatus == 2 && order.deliveryDate != null) ...[
                                                                                         Text(
-                                                                                          NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                          order.deliveryDate != null
+                                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                                  order.deliveryDate!,
+                                                                                                  format: 'dd-MM-yyyy hh:mm a', // Keeps the full date and time format
+                                                                                                )
+                                                                                              : 'N/A',
                                                                                           textAlign: TextAlign.center,
                                                                                           maxLines: 2,
                                                                                           style: const TextStyle(
@@ -2887,6 +2906,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                             fontWeight: FontWeight.w400,
                                                                                           ),
                                                                                         ),
+                                                                                        // Text(
+                                                                                        //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                        //   textAlign: TextAlign.center,
+                                                                                        //   maxLines: 2,
+                                                                                        //   style: const TextStyle(
+                                                                                        //     fontSize: 10.0,
+                                                                                        //     fontWeight: FontWeight.w400,
+                                                                                        //   ),
+                                                                                        // ),
                                                                                       ],
                                                                                       if (order.orderStatus == 14) ...[
                                                                                         const SizedBox(height: 5),

@@ -1150,7 +1150,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               Padding(
                                                                                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                                                                 child: Text(
-                                                                                  NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                  order.deliveryDate != null
+                                                                                      ? TimeUtils.formatTimeInZone(
+                                                                                          order.deliveryDate!,
+                                                                                          format: 'dd-MM-yyyy hh:mm a', // Keeps the full date and time format
+                                                                                        )
+                                                                                      : 'N/A',
                                                                                   textAlign: TextAlign.center,
                                                                                   maxLines: 2,
                                                                                   style: TextStyle(
@@ -1158,6 +1163,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                     fontWeight: FontWeight.w400,
                                                                                   ),
                                                                                 ),
+                                                                                //  Text(
+                                                                                //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                //   textAlign: TextAlign.center,
+                                                                                //   maxLines: 2,
+                                                                                //   style: TextStyle(
+                                                                                //     fontSize: fontSize - 2,
+                                                                                //     fontWeight: FontWeight.w400,
+                                                                                //   ),
+                                                                                // ),
                                                                               ),
                                                                             ],
                                                                             if (order.orderStatus ==
@@ -1929,7 +1943,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                         ),
                                                                                         if (order.orderStatus == 2 && order.deliveryDate != null) ...[
                                                                                           Text(
-                                                                                            NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate?.toIso8601String() ?? '')),
+                                                                                            order.deliveryDate != null
+                                                                                                ? TimeUtils.formatTimeInZone(
+                                                                                                    order.deliveryDate!,
+                                                                                                    format: 'dd-MM-yyyy hh:mm a',
+                                                                                                  )
+                                                                                                : 'N/A',
                                                                                             textAlign: TextAlign.center,
                                                                                             maxLines: 2,
                                                                                             style: const TextStyle(
@@ -1937,6 +1956,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                               fontWeight: FontWeight.w400,
                                                                                             ),
                                                                                           ),
+                                                                                          // Text(
+                                                                                          //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate?.toIso8601String() ?? '')),
+                                                                                          //   textAlign: TextAlign.center,
+                                                                                          //   maxLines: 2,
+                                                                                          //   style: const TextStyle(
+                                                                                          //     fontSize: 10.0,
+                                                                                          //     fontWeight: FontWeight.w400,
+                                                                                          //   ),
+                                                                                          // ),
                                                                                         ]
                                                                                       ],
                                                                                     ),

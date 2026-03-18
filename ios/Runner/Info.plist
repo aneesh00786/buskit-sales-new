@@ -56,11 +56,17 @@
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to your photo library to allow you to upload and manage images.</string>
+	<string>To select existing photos of your products for inventory and sales listings.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app requires camera access to take photos or scan QR codes.</string>
+	<string>This app needs camera access to take pictures of your products for inventory and sales listings.</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This app requires access to your media library to play music or audio content.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app requires local network access for Flutter debugging.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

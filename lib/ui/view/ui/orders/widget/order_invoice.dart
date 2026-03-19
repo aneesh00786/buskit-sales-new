@@ -1413,6 +1413,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
       } catch (_) {}
       return sum + itemTax;
     });
+     final double calculatedOrderTotal = cartList.fold<double>(0, (sum, item) {
+      double itemTotal = 0.0;
+      if (isSpecific) {
+        itemTotal = double.tryParse(item.totalPrice?.toString() ?? '0') ?? 0.0;
+      } else {
+        itemTotal = double.tryParse(item.total?.toString() ?? '0') ?? 0.0;
+      }
+      return sum + itemTotal;
+    });
 
     final List<String> taxBreakdownParts = [];
     if (taxList.isNotEmpty) {
@@ -1845,7 +1854,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
                                 const Spacer(),
-                                Text(formatAmount(orderTotal.toString()),
+                                Text(formatAmount(calculatedOrderTotal.toString()),
                                     style: const TextStyle(
                                         fontSize: 16,
                                         color: red,

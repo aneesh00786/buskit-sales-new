@@ -103,13 +103,17 @@ class OrderData {
     editedLastname = json['edited_lastname'] as String?;
 
     generatedDate = json['generated_date'] as String?;
-     invoice = json['invoice'] != null
-        ? [
-            OrderInvoice.fromJson(
-              ensureStringKeyedMap(json['invoice']),
-            )
-          ]
-        : [];
+
+    invoice = (json['invoice'] as List?)
+    ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
+    .toList() ?? [];
+    //  invoice = json['invoice'] != null
+    //     ? [
+    //         OrderInvoice.fromJson(
+    //           ensureStringKeyedMap(json['invoice']),
+    //         )
+    //       ]
+    //     : [];
     cart = (json['cart'] as List?)
         ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
             setOptionOrderData: OptionOrderData(

@@ -124,165 +124,227 @@ class _SettingsScreenState extends State<SettingsScreen> {
         : _adminData == null
             ? const Center(child: Text('Failed to load data'))
             : Scaffold(
+                backgroundColor: const Color(0xFFF5F7FA),
                 appBar: AppBar(
+                  centerTitle: false,
+                  toolbarHeight: 70,
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  title: const Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
                   actions: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: CustomText(content: 'Settings',fontWeight: FontWeight.bold,),
-                    ),
-                    Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                       child: _buildChangePasswordButton(),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                       child: _buildCancelPlanButton(),
                     ),
                   ],
                 ),
                 body: SingleChildScrollView(
                     physics: NkGeneralSize.commonPysics(),
-                    padding: nkRegularPadding(),
-                    child: Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-                          CustomText(
-                            content: "Settings",
-                          ),
-                          nkMediumSizeBox(),
-                          nkMediumSizeBox(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                    padding: const EdgeInsets.all(24.0),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1000),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              SizedBox(
-                                width: 200,
-                                child: idAndImagePicWidget(
-                                  file: photoId,
-                                  imageUrl:
-                                      '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
-                                  text: 'Profile Image',
+                              // Identity Images Section
+                              Card(
+                                elevation: 0,
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(color: Colors.grey.shade200)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: idAndImagePicWidget(
+                                              file: photoId,
+                                              imageUrl:
+                                                  '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
+                                              text: 'Profile Image',
+                                            ),
+                                          ),
+                                          const SizedBox(width: 24),
+                                          Expanded(
+                                            child: idAndImagePicWidget(
+                                              file: photoId,
+                                              imageUrl:
+                                                  '${ApiConstants.imageBaseUrlss}${_adminData?.idImagePath ?? ''}',
+                                              text: 'ID Card Image',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              nkMediumSizeBox(),
-                              SizedBox(
-                                width: 200,
-                                child: idAndImagePicWidget(
-                                  file: photoId,
-                                  imageUrl:
-                                      '${ApiConstants.imageBaseUrlss}${_adminData?.idImagePath ?? ''}',
-                                  text: 'Image of ID Card',
+                              const SizedBox(height: 24),
+
+                              // Personal Information Section
+                              Card(
+                                elevation: 0,
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(color: Colors.grey.shade200)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionHeader('Personal Information',
+                                          EneftyIcons.profile_circle_outline),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: formFiled(
+                                              label: _adminData?.fullname ?? '',
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              prefixIcon: Icon(EneftyIcons.user_outline,
+                                                  color: Colors.grey.shade600),
+                                              labelText: "First Name",
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: formFiled(
+                                              label: _adminData?.lastname ?? '',
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              prefixIcon: Icon(EneftyIcons.user_outline,
+                                                  color: Colors.grey.shade600),
+                                              labelText: "Last Name",
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: formFiled(
+                                              label: _adminData?.email ?? '',
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              textInputType: TextInputType.emailAddress,
+                                              labelText: "Email Address",
+                                              prefixIcon: Icon(EneftyIcons.sms_outline,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: formFiled(
+                                              label: _adminData?.mobileno ?? '',
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              textInputType: TextInputType.phone,
+                                              labelText: "Mobile No",
+                                              prefixIcon: Icon(EneftyIcons.call_outline,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+                              const SizedBox(height: 24),
+
+                              // Address Details Section
+                              Card(
+                                elevation: 0,
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(color: Colors.grey.shade200)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionHeader('Address Details',
+                                          EneftyIcons.location_outline),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: formFiled(
+                                              label: (_adminData?.zipcode ?? '').toString(),
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              labelText: 'Zip / Postal Code',
+                                              prefixIcon: Icon(EneftyIcons.routing_2_outline,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            flex: 3,
+                                            child: formFiled(
+                                              label: _adminData?.town ?? '',
+                                              labelText: 'City / Suburb',
+                                              isReadOnly: true,
+                                              borderColor: Colors.grey.shade300,
+                                              maxLines: 1,
+                                              prefixIcon: Icon(EneftyIcons.buildings_outline,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            flex: 2,
+                                            child: formFiled(
+                                              label: _adminData?.state ?? '',
+                                              isReadOnly: true,
+                                              labelText: "State",
+                                              borderColor: Colors.grey.shade300,
+                                              prefixIcon: Icon(EneftyIcons.map_outline,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      formFiled(
+                                        label: _adminData?.address ?? '',
+                                        isReadOnly: true,
+                                        borderColor: Colors.grey.shade300,
+                                        labelText: "Full Address",
+                                        prefixIcon: Icon(EneftyIcons.house_2_outline,
+                                            color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 32),
                             ],
                           ),
-                          nkMediumSizeBox(),
-                          nkMediumSizeBox(),
-                          nkMediumSizeBox(),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.fullname ?? '',
-                                  isReadOnly: false,
-                                  borderColor: Colors.grey,
-                                  prefixIcon: Icon(EneftyIcons.user_outline),
-                                  labelText: "First Name",
-                                ),
-                              ),
-                              nkMediumSizeBox(),
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.lastname ?? '',
-                                  isReadOnly: false,
-                                  borderColor: Colors.grey,
-                                  prefixIcon: Icon(EneftyIcons.user_outline),
-                                  labelText: "Last Name",
-                                ),
-                              ),
-                            ],
-                          ),
-                          nkMediumSizeBox(),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.email ?? '',
-                                  isReadOnly: true,
-                                  borderColor: Colors.grey,
-                                  textInputType: TextInputType.emailAddress,
-                                  labelText: "Email",
-                                  prefixIcon:
-                                      filedIcon(Assets.iconsIcAddLeadsEmail),
-                                ),
-                              ),
-                              nkSmallSizeBox(),
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.mobileno ?? '',
-                                  isReadOnly: true,
-                                  borderColor: Colors.grey,
-                                  textInputType: TextInputType.phone,
-                                  labelText: "Mobile No:",
-                                  prefixIcon:
-                                      filedIcon(Assets.iconsIcAddLeadsMobile),
-                                ),
-                              ),
-                            ],
-                          ),
-                          nkMediumSizeBox(),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: formFiled(
-                                  label: (_adminData?.zipcode ?? '').toString(),
-                                  isReadOnly: true,
-                                  borderColor: Colors.grey,
-                                  labelText: 'Zip/Post/Pin Code',
-                                  prefixIcon:
-                                      filedIcon(Assets.iconsIcAddLeadsRemark),
-                                ),
-                              ),
-                              nkSmallSizeBox(),
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.town ?? '',
-                                  labelText: 'City or Suburb',
-                                  isReadOnly: true,
-                                  borderColor: Colors.grey,
-                                  textInputType: TextInputType.visiblePassword,
-                                  maxLines: 1,
-                                  prefixIcon:
-                                      filedIcon(Assets.iconsIcAddLeadsAddress),
-                                ),
-                              ),
-                              nkSmallSizeBox(),
-                              Flexible(
-                                child: formFiled(
-                                  label: _adminData?.state ?? '',
-                                  isReadOnly: true,
-                                  labelText: "State",
-                                  borderColor: Colors.grey,
-                                  textInputType: TextInputType.streetAddress,
-                                  prefixIcon:
-                                      filedIcon(Assets.iconsIcAddLeadsState),
-                                ),
-                              ),
-                            ],
-                          ),
-                          nkMediumSizeBox(),
-                          formFiled(
-                            label: _adminData?.address ?? '',
-                            isReadOnly: true,
-                            borderColor: Colors.grey,
-                            labelText: "Address",
-                            textInputType: TextInputType.streetAddress,
-                            prefixIcon:
-                                filedIcon(Assets.iconsIcAddLeadsAddress),
-                          ),
-                        ],
+                        ),
                       ),
                     )),
               );
@@ -301,6 +363,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return false;
     }
     return true;
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.blue.shade700, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget filedIcon(String svgIconPath) {
@@ -328,40 +417,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
       int? maxLines,
       String? labelText,
       void Function(dynamic)? onChanged}) {
-    return MyFormField(
-      textAlign: textAlign ?? TextAlign.start,
-      labelText: labelText ?? '',
-      initialValue: label,
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      minLines: minLine,
-      maxLines: maxLines,
-      isRequire: isRequired,
-      isShowDefaultValidator: true,
-      obscureText: isVisible,
-      contentPadding: const EdgeInsets.all(16.0),
-      validator: validator,
-      isReadOnly: isReadOnly,
-      onChanged: onChanged,
-      maxLength: maxLength,
-      textInputType: textInputType ?? TextInputType.text,
-      alignLabelWithHint: true,
-      enableColor: borderColor,
-      disabledColor: borderColor,
-      focusedColor: borderColor,
-      borderRadius: BorderRadius.circular(
-          NkGeneralSize.nkCommonBorderRadius(borderRadius: 10)),
-      prefixIconUnderLine: prefixIcon,
-      suffixIcon: suffixIcon,
+    return IgnorePointer(
+      ignoring: isReadOnly,
+      child: MyFormField(
+        textAlign: textAlign ?? TextAlign.start,
+        labelText: labelText ?? '',
+        initialValue: label,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        minLines: minLine,
+        maxLines: maxLines,
+        isRequire: isRequired,
+        isShowDefaultValidator: true,
+        obscureText: isVisible,
+        contentPadding: const EdgeInsets.all(16.0),
+        validator: validator,
+        isReadOnly: isReadOnly,
+        onChanged: onChanged,
+        maxLength: maxLength,
+        textInputType: textInputType ?? TextInputType.text,
+        alignLabelWithHint: true,
+        enableColor: borderColor,
+        disabledColor: borderColor,
+        focusedColor: borderColor,
+        borderRadius: BorderRadius.circular(
+            NkGeneralSize.nkCommonBorderRadius(borderRadius: 10)),
+        prefixIconUnderLine: prefixIcon,
+        suffixIcon: suffixIcon,
+      ),
     );
   }
 
   Widget _buildChangePasswordButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        InkWell(
-          onTap: () {
-            showDialog(
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () {
+          showDialog(
               context: context,
               builder: (context) {
                 final password = SessionHelper.loginSavedData?.password ?? '';
@@ -369,11 +459,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, setState) {
                     return Dialog(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(20),
                       ),
+                      elevation: 10,
+                      backgroundColor: Colors.white,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          double dialogWidth = constraints.maxWidth * 0.9;
+                          double dialogWidth = constraints.maxWidth > 500 ? 500 : constraints.maxWidth * 0.9;
                           double maxDialogHeight = constraints.maxHeight * 0.95;
 
                           return ConstrainedBox(
@@ -382,20 +474,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               maxHeight: maxDialogHeight,
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(10.0),
+                              padding: const EdgeInsets.all(24.0),
                               child: Form(
                                 key: _formKey,
                                 child: SingleChildScrollView(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                        'Change Password',
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold),
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          EneftyIcons.lock_outline,
+                                          color: Colors.blue,
+                                          size: 36,
+                                        ),
                                       ),
                                       const SizedBox(height: 16),
+                                      const Text(
+                                        'Change Password',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Secure your account with a new password.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
                                       PasswordField(
                                         controller: _oldPasswordController,
                                         label: 'Old Password',
@@ -444,43 +559,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           return null;
                                         },
                                       ),
-                                      const SizedBox(height: 24),
-                                      ElevatedButton(
-                                        style: ButtonStyle(
-                                            foregroundColor:
-                                                WidgetStatePropertyAll(white),
-                                            backgroundColor:
-                                                WidgetStatePropertyAll(
-                                                    Colors.blue)),
-                                        onPressed: () async {
-                                          bool isOnline =
-                                              await ConnectivityService()
-                                                  .isOnline();
-                                          if (!isOnline) {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "You are Offline!",
-                                                red,
-                                                Icons.close);
-                                            return;
-                                          }
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            staffController.changePassword(
-                                                currentPassword:
-                                                    _oldPasswordController.text,
-                                                newPassword:
-                                                    _newPasswordController.text,
-                                                confirmPassword:
-                                                    _confirmPasswordController
-                                                        .text);
-                                            _newPasswordController.clear();
-                                            _oldPasswordController.clear();
-                                            _confirmPasswordController.clear();
-                                            Navigator.pop(context);
-                                          }
-                                        },
-                                        child: Text('Submit'),
+                                      const SizedBox(height: 32),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                side: BorderSide(color: Colors.grey.shade300),
+                                              ),
+                                              onPressed: () {
+                                                _newPasswordController.clear();
+                                                _oldPasswordController.clear();
+                                                _confirmPasswordController.clear();
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade800,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.blue,
+                                                foregroundColor: Colors.white,
+                                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                elevation: 0,
+                                              ),
+                                              onPressed: () async {
+                                                bool isOnline =
+                                                    await ConnectivityService()
+                                                        .isOnline();
+                                                if (!isOnline) {
+                                                  showCustomToastDisplay(
+                                                      context,
+                                                      "You are Offline!",
+                                                      red,
+                                                      Icons.close);
+                                                  return;
+                                                }
+                                                if (_formKey.currentState!
+                                                    .validate()) {
+                                                  staffController.changePassword(
+                                                      currentPassword:
+                                                          _oldPasswordController.text,
+                                                      newPassword:
+                                                          _newPasswordController.text,
+                                                      confirmPassword:
+                                                          _confirmPasswordController
+                                                              .text);
+                                                  _newPasswordController.clear();
+                                                  _oldPasswordController.clear();
+                                                  _confirmPasswordController.clear();
+                                                  Navigator.pop(context);
+                                                }
+                                              },
+                                              child: const Text(
+                                                'Submit',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -495,124 +651,188 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  'Change Password',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        },
+        icon: const Icon(EneftyIcons.lock_outline, size: 18),
+        label: const Text(
+          'Change Password',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          width: 10,
-        )
-      ],
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
     );
   }
 
   Widget _buildCancelPlanButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        InkWell(
-          onTap: () {
-            showDialog(
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () {
+          showDialog(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  title: Text('Cancel & Delete Account?'),
-                  content: Text(
-                      'Once deleted, your account and all associated data will be permanently removed.\nDo you wish to proceed ?',
-                      style: TextStyle(fontSize: 14)),
-                  actions: [
-                    TextButton(
-                      child: const Text('Cancel'),
-                      onPressed: () => Navigator.of(context).pop(false),
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 10,
+                  backgroundColor: Colors.white,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              EneftyIcons.trash_outline,
+                              color: Colors.red.shade600,
+                              size: 36,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Delete Account',
+                            style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey.shade600,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    side: BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade800,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red.shade600,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                    showCancelPlanDialog(context);
+                                  },
+                                  child: const Text(
+                                    'Delete',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    ElevatedButton(
-                        child: const Text('Ok'),
-                        onPressed: () {
-                          Navigator.of(context).pop(true);
-                          showCancelPlanDialog(context);
-                        }),
-                  ],
+                  ),
                 );
               },
             );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.red.shade700,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  'Cancel & Delete Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        },
+        icon: const Icon(EneftyIcons.trash_outline, size: 18),
+        label: const Text(
+          'Delete Account',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          width: 10,
-        )
-      ],
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.shade50,
+          foregroundColor: Colors.red.shade700,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
     );
   }
 
   Widget idAndImagePicWidget(
       {String? lable, String? imageUrl, File? file, String? text}) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyCommnonContainer(
-          border: Border.all(color: Colors.grey),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(NkGeneralSize.nkCommonBorderRadius()),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl ?? '',
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                errorWidget: (context, url, error) => const Center(
-                  child: Icon(
-                    EneftyIcons.profile_circle_bold,
-                    color: Colors.grey,
-                    size: 60,
-                  ),
-                ),
+        Text(
+          text ?? '',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 180,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200, width: 2),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: CachedNetworkImage(
+              imageUrl: imageUrl ?? '',
+              fit: BoxFit.cover,
+              placeholder: (context, url) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              errorWidget: (context, url, error) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(EneftyIcons.image_outline, color: Colors.grey.shade400, size: 40),
+                  const SizedBox(height: 8),
+                  Text('No Image Available', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                ],
               ),
             ),
           ),
         ),
-        CustomText(
-          content: text,
-        )
       ],
     );
   }

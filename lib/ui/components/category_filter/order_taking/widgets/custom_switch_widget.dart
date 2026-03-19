@@ -199,7 +199,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   ),
                   const SizedBox(width: 8.0),
                   const Text(
-                    'Attendance',
+                    'Required',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
@@ -209,7 +209,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 ],
               ),
               content: const Text(
-                'You haven’t checked in for your daily attendance yet. Would you like to complete your daily check-in and customer check-in now ?.',
+                'You are required to sign in, to proceed with customer location check-in and order taking',
                 style: TextStyle(
                   fontSize: 19.0,
                   color: Colors.black87,

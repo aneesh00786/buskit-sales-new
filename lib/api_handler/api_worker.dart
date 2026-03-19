@@ -1448,8 +1448,9 @@ log('response of alll products get :${response.data}');
   Future<List<EventData>> getCalendarEvents(
       Map<String, dynamic> sendData) async {
     sendData['companyId'] = SessionHelper.loginSavedData?.company_id;
+    sendData['salesman_id'] = SessionHelper.loginSavedData?.salesmanId ?? '';
     final cacheKey =
-        'calendar_events_${sendData['companyId']}_${sendData['startDate']}_${sendData['endDate']}';
+        'calendar_events_${sendData['companyId']}_${sendData['salesman_id']}_${sendData['startDate']}_${sendData['endDate']}';
 
     final eventsBox = await Hive.openBox('calendarEventsBox');
     List<EventData> allEvents = [];

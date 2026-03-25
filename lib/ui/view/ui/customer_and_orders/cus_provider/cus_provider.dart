@@ -592,26 +592,44 @@ Future<void> fetchChartCategoryPerformance(
       throw Exception('Failed to update admin: $e');
     }
   }
-
-  Future<void> addCustomer({
+    Future<dynamic> addCustomer({
     required Map<String, dynamic> admin,
     required String salsmanId,
   }) async {
     try {
-      await _apiService
+      var response = await _apiService
           .addCustomer(
               model: admin,
-              adminProfilePicture: imageFile!,
-              salesmanId: salsmanId)
-          .then((value) => fetchCustomerData());
+              adminProfilePicture: imageFile,
+              salesmanId: salsmanId);
 
+      await fetchCustomerData();
       notifyListeners();
+      return response;
     } catch (e) {
       throw Exception('Failed to update admin: $e');
-    } finally {
-      _imageFile = null;
     }
   }
+
+  // Future<void> addCustomer({
+  //   required Map<String, dynamic> admin,
+  //   required String salsmanId,
+  // }) async {
+  //   try {
+  //     await _apiService
+  //         .addCustomer(
+  //             model: admin,
+  //             adminProfilePicture: imageFile!,
+  //             salesmanId: salsmanId)
+  //         .then((value) => fetchCustomerData());
+
+  //     notifyListeners();
+  //   } catch (e) {
+  //     throw Exception('Failed to update admin: $e');
+  //   } finally {
+  //     _imageFile = null;
+  //   }
+  // }
 
   Future<void> fetchCustomersDataDash(String customerId) async {
     if (customerId.isEmpty) return;

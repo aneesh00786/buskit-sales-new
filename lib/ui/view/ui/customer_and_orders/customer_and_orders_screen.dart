@@ -765,6 +765,10 @@ class _TableeeState extends State<Tableee> {
           TextEditingController deliveryZipcodeController =
               TextEditingController();
 
+          // NEW: Delivery Contact Number Controller
+          TextEditingController deliveryContactNumController =
+              TextEditingController();
+
           TextEditingController remarkController = TextEditingController();
 
           bool sameAsAbove = false;
@@ -823,7 +827,6 @@ class _TableeeState extends State<Tableee> {
                                       ],
                                     ),
                                   ),
-                                  // const SizedBox(height: 16.0),
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Column(
@@ -936,6 +939,10 @@ class _TableeeState extends State<Tableee> {
                                                               .text =
                                                           addressController
                                                               .text;
+                                                      deliveryContactNumController
+                                                              .text =
+                                                          contactNumController
+                                                              .text; // Updated
                                                       deliveryTownController
                                                               .text =
                                                           townController.text;
@@ -949,6 +956,8 @@ class _TableeeState extends State<Tableee> {
                                                     } else {
                                                       deliveryAddressController
                                                           .clear();
+                                                      deliveryContactNumController
+                                                          .clear(); // Updated
                                                       deliveryTownController
                                                           .clear();
                                                       deliveryStateController
@@ -992,6 +1001,12 @@ class _TableeeState extends State<Tableee> {
                                             ),
                                           ],
                                         ),
+                                        // NEW: Delivery Contact Field Build
+                                        buildInputField(
+                                            deliveryContactNumController,
+                                            'Delivery Contact Number',
+                                            Assets.icPhone,
+                                            length: 10),
                                         const SizedBox(
                                           height: 30,
                                           child: Row(
@@ -1009,15 +1024,14 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: Colors.grey
-                                                      .shade100, // Subtle background color
+                                                  color: Colors.grey.shade100,
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           8.0),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: Colors.grey
-                                                          .shade300, // Light shadow
+                                                      color:
+                                                          Colors.grey.shade300,
                                                       blurRadius: 6.0,
                                                       offset:
                                                           const Offset(0, 2),
@@ -1070,7 +1084,6 @@ class _TableeeState extends State<Tableee> {
                                             // Image Picker
                                             Expanded(
                                               child: GestureDetector(
-                                                // onTap: provider.pickImage,
                                                 onTap: () {
                                                   showDialog(
                                                     barrierDismissible: false,
@@ -1233,7 +1246,7 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                                  // Required fields
+                                                  // Required fields (Remark and Image are removed)
                                                   final fields = {
                                                     'Business Name':
                                                         bsNameController,
@@ -1254,13 +1267,14 @@ class _TableeeState extends State<Tableee> {
                                                         contactNumController,
                                                     'Delivery Address':
                                                         deliveryAddressController,
+                                                    'Delivery Contact Number':
+                                                        deliveryContactNumController,
                                                     'Delivery Town':
                                                         deliveryTownController,
                                                     'Delivery State':
                                                         deliveryStateController,
                                                     'Delivery Zip Code':
                                                         deliveryZipcodeController,
-                                                    'Remark': remarkController,
                                                   };
 
                                                   // 1. Check for missing fields
@@ -1274,11 +1288,10 @@ class _TableeeState extends State<Tableee> {
                                                             false;
                                                       });
                                                       showCustomToastDisplay(
-                                                        context,
-                                                        '${entry.key} is required',
-                                                        Colors.red,
-                                                        Icons.close,
-                                                      );
+                                                          context,
+                                                          '${entry.key} is required',
+                                                          Colors.red,
+                                                          Icons.close);
                                                       return;
                                                     }
                                                   }
@@ -1289,6 +1302,8 @@ class _TableeeState extends State<Tableee> {
                                                         phoneController,
                                                     'Contact Number':
                                                         contactNumController,
+                                                    'Delivery Contact Number':
+                                                        deliveryContactNumController,
                                                   };
 
                                                   for (var entry
@@ -1302,11 +1317,10 @@ class _TableeeState extends State<Tableee> {
                                                             false;
                                                       });
                                                       showCustomToastDisplay(
-                                                        context,
-                                                        '${entry.key} must be 10 digits',
-                                                        Colors.red,
-                                                        Icons.close,
-                                                      );
+                                                          context,
+                                                          '${entry.key} must be 10 digits',
+                                                          Colors.red,
+                                                          Icons.close);
                                                       return;
                                                     }
                                                   }
@@ -1324,28 +1338,14 @@ class _TableeeState extends State<Tableee> {
                                                       isAddingCustomer = false;
                                                     });
                                                     showCustomToastDisplay(
-                                                      context,
-                                                      'Invalid Email format',
-                                                      Colors.red,
-                                                      Icons.close,
-                                                    );
+                                                        context,
+                                                        'Invalid Email format',
+                                                        Colors.red,
+                                                        Icons.close);
                                                     return;
                                                   }
 
-                                                  // 4. Check if image was picked
-                                                  if (provider.imageFile ==
-                                                      null) {
-                                                    setState(() {
-                                                      isAddingCustomer = false;
-                                                    });
-                                                    showCustomToastDisplay(
-                                                      context,
-                                                      'Image is required',
-                                                      Colors.red,
-                                                      Icons.close,
-                                                    );
-                                                    return;
-                                                  }
+                                                  // 4. File Size limit
                                                   if (provider.imageFile !=
                                                       null) {
                                                     bool isValid =
@@ -1417,6 +1417,12 @@ class _TableeeState extends State<Tableee> {
                                                         deliveryAddressController
                                                             .text
                                                             .trim(),
+                                                    "delivery_contact":
+                                                        int.tryParse(
+                                                                deliveryContactNumController
+                                                                    .text
+                                                                    .trim()) ??
+                                                            0,
                                                     "delivery_town":
                                                         deliveryTownController
                                                             .text
@@ -1440,23 +1446,171 @@ class _TableeeState extends State<Tableee> {
                                                             ?.company_id ??
                                                         0,
                                                   };
-
                                                   try {
                                                     await provider.addCustomer(
                                                       admin: data,
                                                       salsmanId: '',
                                                     );
+
+                                                    // If the code reaches this line, the API call was successful!
                                                     provider
                                                         .handlePaginationClick(
                                                             1);
                                                     fetchAllCustomerPages(
                                                         context);
-                                                    Navigator.of(context).pop();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }
                                                   } catch (error) {
+                                                    // If the API throws an error, we catch it and extract the message here
+                                                    if (context.mounted) {
+                                                      String errMsg =
+                                                          error.toString();
+
+                                                      // Try to extract a clean message if the error comes back as a JSON string
+                                                      final regex = RegExp(
+                                                          r'"message"\s*:\s*"([^"]+)"');
+                                                      final match = regex
+                                                          .firstMatch(errMsg);
+                                                      if (match != null &&
+                                                          match.groupCount >=
+                                                              1) {
+                                                        errMsg =
+                                                            match.group(1)!;
+                                                      } else {
+                                                        // Clean up standard exceptions
+                                                        errMsg = errMsg
+                                                            .replaceAll(
+                                                                "Exception: Failed to update admin: ",
+                                                                "")
+                                                            .trim();
+                                                        errMsg = errMsg
+                                                            .replaceAll(
+                                                                "Exception: ",
+                                                                "")
+                                                            .trim();
+                                                      }
+
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          errMsg,
+                                                          Colors.red,
+                                                          Icons.error);
+                                                    }
+                                                  } finally {
+                                                    // Always stop the loading spinner, success or fail
                                                     setState(() {
                                                       isAddingCustomer = false;
                                                     });
                                                   }
+                                                  // try {
+                                                  //   var response = await provider.addCustomer(
+                                                  //     admin: data,
+                                                  //     salsmanId: '',
+                                                  //   );
+
+                                                  //   bool isSuccess = true;
+                                                  //   String errorMsg = "Failed to add customer";
+
+                                                  //   if (response != null) {
+                                                  //     String? serverMessage;
+
+                                                  //     // Extract a message from the response payload
+                                                  //     try { serverMessage ??= response.message?.toString(); } catch (_) {}
+                                                  //     try { serverMessage ??= response['message']?.toString(); } catch (_) {}
+                                                  //     try {
+                                                  //       if (response.data != null) {
+                                                  //         if (response.data is Map) {
+                                                  //           serverMessage ??= response.data['message']?.toString();
+                                                  //         } else {
+                                                  //           serverMessage ??= response.data.message?.toString();
+                                                  //         }
+                                                  //       }
+                                                  //     } catch (_) {}
+
+                                                  //     if (serverMessage != null && serverMessage.trim().isEmpty) {
+                                                  //       serverMessage = null;
+                                                  //     }
+
+                                                  //     // Check status code in Response object
+                                                  //     try {
+                                                  //       if (response.statusCode != null && (response.statusCode < 200 || response.statusCode >= 300)) {
+                                                  //         isSuccess = false;
+                                                  //         errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
+                                                  //         if (serverMessage == null) {
+                                                  //           try {
+                                                  //             if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
+                                                  //               errorMsg = response.statusMessage.toString();
+                                                  //             }
+                                                  //           } catch (_) {}
+                                                  //         }
+                                                  //       }
+                                                  //     } catch (_) {}
+
+                                                  //     // Check status code in Map
+                                                  //     try {
+                                                  //       if (response is Map && response['statusCode'] != null) {
+                                                  //         int code = int.parse(response['statusCode'].toString());
+                                                  //         if (code < 200 || code >= 300) {
+                                                  //           isSuccess = false;
+                                                  //           errorMsg = serverMessage ?? errorMsg;
+                                                  //         }
+                                                  //       }
+                                                  //     } catch (_) {}
+
+                                                  //     // Check false status in object
+                                                  //     try {
+                                                  //       var status = response.status;
+                                                  //       if (status == false || status == 0 || status == 'false') {
+                                                  //         isSuccess = false;
+                                                  //         errorMsg = serverMessage ?? errorMsg;
+                                                  //       }
+                                                  //     } catch (_) {}
+
+                                                  //     // Check false status in Map
+                                                  //     try {
+                                                  //       if (response is Map) {
+                                                  //         var status = response['status'];
+                                                  //         if (status == false || status == 0 || status == 'false') {
+                                                  //           isSuccess = false;
+                                                  //           errorMsg = serverMessage ?? errorMsg;
+                                                  //         }
+                                                  //       }
+                                                  //     } catch (_) {}
+                                                  //   } else {
+                                                  //     isSuccess = false;
+                                                  //   }
+
+                                                  //   if (isSuccess) {
+                                                  //     provider.handlePaginationClick(1);
+                                                  //     fetchAllCustomerPages(context);
+                                                  //     if (context.mounted) {
+                                                  //       Navigator.of(context).pop();
+                                                  //     }
+                                                  //   } else {
+                                                  //     if (context.mounted) {
+                                                  //       showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
+                                                  //     }
+                                                  //   }
+                                                  // } catch (error) {
+                                                  //   if (context.mounted) {
+                                                  //     String errMsg = error.toString();
+                                                  //     final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
+                                                  //     final match = regex.firstMatch(errMsg);
+                                                  //     if (match != null && match.groupCount >= 1) {
+                                                  //       errMsg = match.group(1)!;
+                                                  //     } else {
+                                                  //       errMsg = errMsg.replaceAll("Exception: Failed to update admin: ", "").trim();
+                                                  //       errMsg = errMsg.replaceAll("Exception: ", "").trim();
+                                                  //     }
+                                                  //     showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
+                                                  //   }
+                                                  // } finally {
+                                                  //   setState(() {
+                                                  //     isAddingCustomer = false;
+                                                  //   });
+                                                  // }
                                                 },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: primaryColor,
@@ -1504,6 +1658,775 @@ class _TableeeState extends State<Tableee> {
       );
     });
   }
+
+  // Consumer<CustomersProvider> addCustomer(BuildContext context) {
+  //   ResponsiveInfo.isMobileDimension(context);
+  //   return Consumer<CustomersProvider>(builder: (context, provider, child) {
+  //     return FutureBuilder<CustomerResponse>(
+  //       future: provider.customerResponse,
+  //       builder: (context, snapshot) {
+  //         TextEditingController phoneController = TextEditingController();
+  //         TextEditingController emailController = TextEditingController();
+  //         TextEditingController telephoneController = TextEditingController();
+  //         TextEditingController townController = TextEditingController();
+  //         TextEditingController stateController = TextEditingController();
+  //         TextEditingController zipcodeController = TextEditingController();
+  //         TextEditingController addressController = TextEditingController();
+
+  //         TextEditingController bsNameController = TextEditingController();
+
+  //         TextEditingController contactPersonNameController =
+  //             TextEditingController();
+  //         TextEditingController contactNumController = TextEditingController();
+
+  //         TextEditingController deliveryAddressController =
+  //             TextEditingController();
+  //         TextEditingController deliveryTownController =
+  //             TextEditingController();
+  //         TextEditingController deliveryStateController =
+  //             TextEditingController();
+  //         TextEditingController deliveryZipcodeController =
+  //             TextEditingController();
+
+  //         TextEditingController remarkController = TextEditingController();
+
+  //         bool sameAsAbove = false;
+  //         bool isAddingCustomer = false;
+
+  //         return SizedBox(
+  //           height: 38,
+  //           width: 98,
+  //           child: CustomButton(
+  //             onPressed: () {
+  //               showDialog(
+  //                 barrierDismissible: false,
+  //                 context: context,
+  //                 builder: (BuildContext context) {
+  //                   return StatefulBuilder(
+  //                     builder: (context, setState) {
+  //                       return Padding(
+  //                         padding: const EdgeInsets.all(8.0),
+  //                         child: Dialog(
+  //                           insetPadding: EdgeInsets.zero,
+  //                           backgroundColor: white,
+  //                           shape: const RoundedRectangleBorder(
+  //                             borderRadius:
+  //                                 BorderRadius.all(Radius.circular(10.0)),
+  //                             side: BorderSide.none,
+  //                           ),
+  //                           elevation: 24.0,
+  //                           child: SingleChildScrollView(
+  //                             child: Column(
+  //                               mainAxisSize: MainAxisSize.min,
+  //                               crossAxisAlignment: CrossAxisAlignment.stretch,
+  //                               children: [
+  //                                 Container(
+  //                                   decoration: const BoxDecoration(
+  //                                     borderRadius: BorderRadius.only(
+  //                                       topLeft: Radius.circular(10),
+  //                                       topRight: Radius.circular(10),
+  //                                     ),
+  //                                     color: Color(0xFF7578EA),
+  //                                   ),
+  //                                   padding: const EdgeInsets.symmetric(
+  //                                       horizontal: 16, vertical: 10),
+  //                                   child: Row(
+  //                                     mainAxisAlignment:
+  //                                         MainAxisAlignment.spaceBetween,
+  //                                     children: [
+  //                                       const Text(
+  //                                         'Add Customer',
+  //                                         style: TextStyle(
+  //                                           color: Colors.white,
+  //                                           fontSize: 20,
+  //                                           fontWeight: FontWeight.bold,
+  //                                         ),
+  //                                       ),
+  //                                       dialogCloseButton1(context, red),
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                                 // const SizedBox(height: 16.0),
+  //                                 Padding(
+  //                                   padding: const EdgeInsets.all(16.0),
+  //                                   child: Column(
+  //                                     children: [
+  //                                       buildInputField(bsNameController,
+  //                                           'Business Name', Assets.icBusiness),
+  //                                       buildInputField(addressController,
+  //                                           'Address', Assets.icLocation),
+  //                                       Row(
+  //                                         children: [
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 townController,
+  //                                                 'City or Suburb',
+  //                                                 Assets.icCity),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 stateController,
+  //                                                 'State',
+  //                                                 Assets.icState),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 zipcodeController,
+  //                                                 'Zip/Post/Pin Code',
+  //                                                 Assets.icZipcode),
+  //                                           ),
+  //                                         ],
+  //                                       ),
+  //                                       Row(
+  //                                         crossAxisAlignment:
+  //                                             CrossAxisAlignment.start,
+  //                                         children: [
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                               phoneController,
+  //                                               'Mobile Number',
+  //                                               Assets.icMobile,
+  //                                               length: 10,
+  //                                             ),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 emailController,
+  //                                                 'Email',
+  //                                                 Assets.icEmail),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 telephoneController,
+  //                                                 'Business Reg.No',
+  //                                                 Assets.icBusinessReg),
+  //                                           ),
+  //                                         ],
+  //                                       ),
+  //                                       const Padding(
+  //                                         padding: EdgeInsets.symmetric(
+  //                                             vertical: 6.0),
+  //                                         child: Align(
+  //                                           alignment: Alignment.centerLeft,
+  //                                           child: Text(
+  //                                             'Contact Details',
+  //                                             style: TextStyle(fontSize: 18),
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                       Row(
+  //                                         crossAxisAlignment:
+  //                                             CrossAxisAlignment.start,
+  //                                         children: [
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 contactPersonNameController,
+  //                                                 'Contact Person',
+  //                                                 Assets.icUser),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                               contactNumController,
+  //                                               'Contact Number',
+  //                                               Assets.icPhone,
+  //                                               length: 10,
+  //                                             ),
+  //                                           ),
+  //                                         ],
+  //                                       ),
+  //                                       Padding(
+  //                                         padding: const EdgeInsets.symmetric(
+  //                                             vertical: 6.0),
+  //                                         child: Row(
+  //                                           children: [
+  //                                             const Text(
+  //                                               'Delivery Address    ',
+  //                                               style: TextStyle(fontSize: 18),
+  //                                             ),
+  //                                             Checkbox(
+  //                                               value: sameAsAbove,
+  //                                               onChanged: (bool? value) {
+  //                                                 setState(() {
+  //                                                   sameAsAbove =
+  //                                                       value ?? false;
+  //                                                   if (sameAsAbove) {
+  //                                                     deliveryAddressController
+  //                                                             .text =
+  //                                                         addressController
+  //                                                             .text;
+  //                                                     deliveryTownController
+  //                                                             .text =
+  //                                                         townController.text;
+  //                                                     deliveryStateController
+  //                                                             .text =
+  //                                                         stateController.text;
+  //                                                     deliveryZipcodeController
+  //                                                             .text =
+  //                                                         zipcodeController
+  //                                                             .text;
+  //                                                   } else {
+  //                                                     deliveryAddressController
+  //                                                         .clear();
+  //                                                     deliveryTownController
+  //                                                         .clear();
+  //                                                     deliveryStateController
+  //                                                         .clear();
+  //                                                     deliveryZipcodeController
+  //                                                         .clear();
+  //                                                   }
+  //                                                 });
+  //                                               },
+  //                                             ),
+  //                                             const SizedBox(width: 5),
+  //                                             const Text('Same as Above'),
+  //                                           ],
+  //                                         ),
+  //                                       ),
+  //                                       buildInputField(
+  //                                           deliveryAddressController,
+  //                                           'Address',
+  //                                           Assets.icLocation),
+  //                                       Row(
+  //                                         children: [
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 deliveryTownController,
+  //                                                 'City or Suburb',
+  //                                                 Assets.icCity),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 deliveryStateController,
+  //                                                 'State',
+  //                                                 Assets.icState),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+  //                                           Expanded(
+  //                                             child: buildInputField(
+  //                                                 deliveryZipcodeController,
+  //                                                 'Zip/Post/Pin Code',
+  //                                                 Assets.icZipcode),
+  //                                           ),
+  //                                         ],
+  //                                       ),
+  //                                       const SizedBox(
+  //                                         height: 30,
+  //                                         child: Row(
+  //                                           children: [
+  //                                             Spacer(),
+  //                                             SizedBox(width: 8.0),
+  //                                             Expanded(
+  //                                                 child: Text("Company logo"))
+  //                                           ],
+  //                                         ),
+  //                                       ),
+  //                                       Row(
+  //                                         children: [
+  //                                           // Remark Input Field
+  //                                           Expanded(
+  //                                             child: Container(
+  //                                               decoration: BoxDecoration(
+  //                                                 color: Colors.grey
+  //                                                     .shade100, // Subtle background color
+  //                                                 borderRadius:
+  //                                                     BorderRadius.circular(
+  //                                                         8.0),
+  //                                                 boxShadow: [
+  //                                                   BoxShadow(
+  //                                                     color: Colors.grey
+  //                                                         .shade300, // Light shadow
+  //                                                     blurRadius: 6.0,
+  //                                                     offset:
+  //                                                         const Offset(0, 2),
+  //                                                   ),
+  //                                                 ],
+  //                                               ),
+  //                                               child: TextField(
+  //                                                 controller: remarkController,
+  //                                                 decoration: InputDecoration(
+  //                                                   contentPadding:
+  //                                                       const EdgeInsets
+  //                                                           .symmetric(
+  //                                                           horizontal: 16.0,
+  //                                                           vertical: 18.0),
+  //                                                   labelText: 'Remark',
+  //                                                   labelStyle: TextStyle(
+  //                                                       color: Colors
+  //                                                           .grey.shade600),
+  //                                                   prefixIcon: filledIcon(
+  //                                                       Assets.icRemark),
+  //                                                   focusedBorder:
+  //                                                       OutlineInputBorder(
+  //                                                     borderRadius:
+  //                                                         BorderRadius.circular(
+  //                                                             8.0),
+  //                                                     borderSide:
+  //                                                         const BorderSide(
+  //                                                             color:
+  //                                                                 Colors.blue,
+  //                                                             width: 1.5),
+  //                                                   ),
+  //                                                   enabledBorder:
+  //                                                       OutlineInputBorder(
+  //                                                     borderRadius:
+  //                                                         BorderRadius.circular(
+  //                                                             8.0),
+  //                                                     borderSide: BorderSide(
+  //                                                         color: Colors
+  //                                                             .grey.shade400,
+  //                                                         width: 1.0),
+  //                                                   ),
+  //                                                   filled: true,
+  //                                                   fillColor: Colors.white,
+  //                                                 ),
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //                                           const SizedBox(width: 8.0),
+
+  //                                           // Image Picker
+  //                                           Expanded(
+  //                                             child: GestureDetector(
+  //                                               // onTap: provider.pickImage,
+  //                                               onTap: () {
+  //                                                 showDialog(
+  //                                                   barrierDismissible: false,
+  //                                                   context: context,
+  //                                                   builder:
+  //                                                       (BuildContext context) {
+  //                                                     return AlertDialog(
+  //                                                       title: const Text(
+  //                                                           'Select Method'),
+  //                                                       actions: [
+  //                                                         IconButton(
+  //                                                           onPressed:
+  //                                                               () async {
+  //                                                             await provider
+  //                                                                 .pickImage(
+  //                                                                     ImageSource
+  //                                                                         .camera);
+  //                                                             setState(() {});
+  //                                                             Navigator.of(
+  //                                                                     context)
+  //                                                                 .pop();
+  //                                                           },
+  //                                                           icon: const Icon(
+  //                                                               EneftyIcons
+  //                                                                   .camera_outline),
+  //                                                         ),
+  //                                                         IconButton(
+  //                                                           onPressed:
+  //                                                               () async {
+  //                                                             await provider
+  //                                                                 .pickImage(
+  //                                                                     ImageSource
+  //                                                                         .gallery);
+  //                                                             setState(() {});
+  //                                                             Navigator.of(
+  //                                                                     context)
+  //                                                                 .pop();
+  //                                                           },
+  //                                                           icon: const Icon(
+  //                                                               EneftyIcons
+  //                                                                   .gallery_bold),
+  //                                                         ),
+  //                                                       ],
+  //                                                     );
+  //                                                   },
+  //                                                 );
+  //                                               },
+  //                                               child: Container(
+  //                                                 decoration: BoxDecoration(
+  //                                                   color: Colors.grey.shade100,
+  //                                                   borderRadius:
+  //                                                       BorderRadius.circular(
+  //                                                           8.0),
+  //                                                   boxShadow: [
+  //                                                     BoxShadow(
+  //                                                       color: Colors
+  //                                                           .grey.shade300,
+  //                                                       blurRadius: 6.0,
+  //                                                       offset:
+  //                                                           const Offset(0, 2),
+  //                                                     ),
+  //                                                   ],
+  //                                                 ),
+  //                                                 child: Padding(
+  //                                                   padding: const EdgeInsets
+  //                                                       .symmetric(
+  //                                                     horizontal: 16.0,
+  //                                                     vertical: 18.0,
+  //                                                   ),
+  //                                                   child: Row(
+  //                                                     children: [
+  //                                                       Icon(
+  //                                                         Icons.image,
+  //                                                         color: Colors
+  //                                                             .grey.shade600,
+  //                                                         size: 28.0,
+  //                                                       ),
+  //                                                       const SizedBox(
+  //                                                           width: 12.0),
+  //                                                       Expanded(
+  //                                                         child: Text(
+  //                                                           provider.imageFile ==
+  //                                                                   null
+  //                                                               ? 'Pick an image from gallery'
+  //                                                               : 'Image selected',
+  //                                                           style: TextStyle(
+  //                                                             color: Colors.grey
+  //                                                                 .shade700,
+  //                                                             fontSize: 16.0,
+  //                                                             fontWeight:
+  //                                                                 FontWeight
+  //                                                                     .w500,
+  //                                                           ),
+  //                                                           overflow:
+  //                                                               TextOverflow
+  //                                                                   .ellipsis,
+  //                                                         ),
+  //                                                       ),
+  //                                                       if (provider
+  //                                                               .imageFile !=
+  //                                                           null)
+  //                                                         SizedBox(
+  //                                                           height: 100,
+  //                                                           child: ClipRRect(
+  //                                                             borderRadius:
+  //                                                                 BorderRadius.circular(
+  //                                                                     NkGeneralSize
+  //                                                                         .nkCommonBorderRadius()),
+  //                                                             child: provider
+  //                                                                         .imageFile !=
+  //                                                                     null
+  //                                                                 ? Image.file(
+  //                                                                     provider
+  //                                                                         .imageFile!,
+  //                                                                     height: AppDimensions
+  //                                                                             .instance
+  //                                                                             .height *
+  //                                                                         0.2,
+  //                                                                   )
+  //                                                                 : nkSmallSizeBox(),
+  //                                                           ),
+  //                                                         )
+  //                                                     ],
+  //                                                   ),
+  //                                                 ),
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //                                         ],
+  //                                       )
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                                 Padding(
+  //                                   padding: const EdgeInsets.all(8.0),
+  //                                   child: Row(
+  //                                     mainAxisAlignment:
+  //                                         MainAxisAlignment.center,
+  //                                     children: [
+  //                                       ElevatedButton(
+  //                                         onPressed: isAddingCustomer
+  //                                             ? null
+  //                                             : () async {
+  //                                                 setState(() {
+  //                                                   isAddingCustomer = true;
+  //                                                 });
+
+  //                                                 bool isOnline =
+  //                                                     await ConnectivityService()
+  //                                                         .isOnline();
+  //                                                 if (!isOnline) {
+  //                                                   setState(() {
+  //                                                     isAddingCustomer = false;
+  //                                                   });
+  //                                                   showCustomToastDisplay(
+  //                                                       context,
+  //                                                       "You are Offline!",
+  //                                                       red,
+  //                                                       Icons.close);
+  //                                                   return;
+  //                                                 }
+
+  //                                                 // Required fields
+  //                                                 final fields = {
+  //                                                   'Business Name':
+  //                                                       bsNameController,
+  //                                                   'Address':
+  //                                                       addressController,
+  //                                                   'Town': townController,
+  //                                                   'State': stateController,
+  //                                                   'Zip Code':
+  //                                                       zipcodeController,
+  //                                                   'Mobile Number':
+  //                                                       phoneController,
+  //                                                   'Email': emailController,
+  //                                                   'Telephone':
+  //                                                       telephoneController,
+  //                                                   'Contact Person':
+  //                                                       contactPersonNameController,
+  //                                                   'Contact Number':
+  //                                                       contactNumController,
+  //                                                   'Delivery Address':
+  //                                                       deliveryAddressController,
+  //                                                   'Delivery Town':
+  //                                                       deliveryTownController,
+  //                                                   'Delivery State':
+  //                                                       deliveryStateController,
+  //                                                   'Delivery Zip Code':
+  //                                                       deliveryZipcodeController,
+  //                                                   'Remark': remarkController,
+  //                                                 };
+
+  //                                                 // 1. Check for missing fields
+  //                                                 for (var entry
+  //                                                     in fields.entries) {
+  //                                                   if (entry.value.text
+  //                                                       .trim()
+  //                                                       .isEmpty) {
+  //                                                     setState(() {
+  //                                                       isAddingCustomer =
+  //                                                           false;
+  //                                                     });
+  //                                                     showCustomToastDisplay(
+  //                                                       context,
+  //                                                       '${entry.key} is required',
+  //                                                       Colors.red,
+  //                                                       Icons.close,
+  //                                                     );
+  //                                                     return;
+  //                                                   }
+  //                                                 }
+
+  //                                                 // 2. Validate phone numbers
+  //                                                 final phoneFields = {
+  //                                                   'Mobile Number':
+  //                                                       phoneController,
+  //                                                   'Contact Number':
+  //                                                       contactNumController,
+  //                                                 };
+
+  //                                                 for (var entry
+  //                                                     in phoneFields.entries) {
+  //                                                   final phone =
+  //                                                       entry.value.text.trim();
+  //                                                   if (!RegExp(r'^\d{10}$')
+  //                                                       .hasMatch(phone)) {
+  //                                                     setState(() {
+  //                                                       isAddingCustomer =
+  //                                                           false;
+  //                                                     });
+  //                                                     showCustomToastDisplay(
+  //                                                       context,
+  //                                                       '${entry.key} must be 10 digits',
+  //                                                       Colors.red,
+  //                                                       Icons.close,
+  //                                                     );
+  //                                                     return;
+  //                                                   }
+  //                                                 }
+
+  //                                                 // 3. Validate email
+  //                                                 final email = emailController
+  //                                                     .text
+  //                                                     .trim();
+  //                                                 final emailRegex = RegExp(
+  //                                                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+  //                                                 if (!emailRegex
+  //                                                     .hasMatch(email)) {
+  //                                                   setState(() {
+  //                                                     isAddingCustomer = false;
+  //                                                   });
+  //                                                   showCustomToastDisplay(
+  //                                                     context,
+  //                                                     'Invalid Email format',
+  //                                                     Colors.red,
+  //                                                     Icons.close,
+  //                                                   );
+  //                                                   return;
+  //                                                 }
+
+  //                                                 // 4. Check if image was picked
+  //                                                 if (provider.imageFile ==
+  //                                                     null) {
+  //                                                   setState(() {
+  //                                                     isAddingCustomer = false;
+  //                                                   });
+  //                                                   showCustomToastDisplay(
+  //                                                     context,
+  //                                                     'Image is required',
+  //                                                     Colors.red,
+  //                                                     Icons.close,
+  //                                                   );
+  //                                                   return;
+  //                                                 }
+  //                                                 if (provider.imageFile !=
+  //                                                     null) {
+  //                                                   bool isValid =
+  //                                                       await isFileSizeWithinLimit(
+  //                                                           provider
+  //                                                               .imageFile!);
+  //                                                   if (!isValid) {
+  //                                                     setState(() {
+  //                                                       isAddingCustomer =
+  //                                                           false;
+  //                                                     });
+  //                                                     showCustomToastDisplay(
+  //                                                         context,
+  //                                                         'File exceeds 1MB.',
+  //                                                         red,
+  //                                                         Icons.close);
+  //                                                     return;
+  //                                                   }
+  //                                                 }
+
+  //                                                 Map<String, dynamic> data = {
+  //                                                   "userid": "ADMIN",
+  //                                                   "salesman_id": SessionHelper
+  //                                                           .loginSavedData
+  //                                                           ?.salesmanId ??
+  //                                                       '',
+  //                                                   "businessname":
+  //                                                       bsNameController.text
+  //                                                           .trim(),
+  //                                                   "address": addressController
+  //                                                       .text
+  //                                                       .trim(),
+  //                                                   "town": townController.text
+  //                                                       .trim(),
+  //                                                   "state": stateController
+  //                                                       .text
+  //                                                       .trim(),
+  //                                                   "zipcode": int.tryParse(
+  //                                                           zipcodeController
+  //                                                               .text
+  //                                                               .trim()) ??
+  //                                                       0,
+  //                                                   "mobileno": int.tryParse(
+  //                                                           phoneController.text
+  //                                                               .trim()) ??
+  //                                                       0,
+  //                                                   "email": emailController
+  //                                                           .text
+  //                                                           .trim()
+  //                                                           .isNotEmpty
+  //                                                       ? emailController.text
+  //                                                           .trim()
+  //                                                       : "N/A",
+  //                                                   "tfn": int.tryParse(
+  //                                                           telephoneController
+  //                                                               .text
+  //                                                               .trim()) ??
+  //                                                       0,
+  //                                                   "fullname":
+  //                                                       contactPersonNameController
+  //                                                           .text
+  //                                                           .trim(),
+  //                                                   "businesscontact": int.tryParse(
+  //                                                           contactNumController
+  //                                                               .text
+  //                                                               .trim()) ??
+  //                                                       0,
+  //                                                   "delivery_address":
+  //                                                       deliveryAddressController
+  //                                                           .text
+  //                                                           .trim(),
+  //                                                   "delivery_town":
+  //                                                       deliveryTownController
+  //                                                           .text
+  //                                                           .trim(),
+  //                                                   "delivery_state":
+  //                                                       deliveryStateController
+  //                                                           .text
+  //                                                           .trim(),
+  //                                                   "delivery_zipcode":
+  //                                                       int.tryParse(
+  //                                                               deliveryZipcodeController
+  //                                                                   .text
+  //                                                                   .trim()) ??
+  //                                                           0,
+  //                                                   "remark": remarkController
+  //                                                       .text
+  //                                                       .trim(),
+  //                                                   "status_type": 3,
+  //                                                   "company_id": SessionHelper
+  //                                                           .loginSavedData
+  //                                                           ?.company_id ??
+  //                                                       0,
+  //                                                 };
+
+  //                                                 try {
+  //                                                   await provider.addCustomer(
+  //                                                     admin: data,
+  //                                                     salsmanId: '',
+  //                                                   );
+  //                                                   provider
+  //                                                       .handlePaginationClick(
+  //                                                           1);
+  //                                                   fetchAllCustomerPages(
+  //                                                       context);
+  //                                                   Navigator.of(context).pop();
+  //                                                 } catch (error) {
+  //                                                   setState(() {
+  //                                                     isAddingCustomer = false;
+  //                                                   });
+  //                                                 }
+  //                                               },
+  //                                         style: ElevatedButton.styleFrom(
+  //                                           backgroundColor: primaryColor,
+  //                                           shape: RoundedRectangleBorder(
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(4.0),
+  //                                           ),
+  //                                         ),
+  //                                         child: isAddingCustomer
+  //                                             ? const SizedBox(
+  //                                                 width: 20,
+  //                                                 height: 20,
+  //                                                 child:
+  //                                                     CircularProgressIndicator(
+  //                                                   strokeWidth: 2,
+  //                                                   valueColor:
+  //                                                       AlwaysStoppedAnimation<
+  //                                                               Color>(
+  //                                                           Colors.white),
+  //                                                 ),
+  //                                               )
+  //                                             : const Text(
+  //                                                 'Add Customer',
+  //                                                 style: TextStyle(
+  //                                                     color: Colors.white),
+  //                                               ),
+  //                                       )
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       );
+  //                     },
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //             text: 'Customer',
+  //           ),
+  //         );
+  //       },
+  //     );
+  //   });
+  // }
 
   Widget buildInputField(
       TextEditingController controller, String labelText, String icon,
@@ -4004,7 +4927,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                           ? TimeUtils
                                                                               .formatTimeInZone(
                                                                               order.deliveryDate!,
-                                                                              format: 'dd-MM-yyyy hh:mm a', 
+                                                                              format: 'dd-MM-yyyy hh:mm a',
                                                                             )
                                                                           : 'N/A',
                                                                       textAlign:

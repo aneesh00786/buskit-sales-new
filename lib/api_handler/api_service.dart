@@ -2314,16 +2314,24 @@ log('response of the fetchCustomer API :${response.data}');
       throw Exception('Failed to update admin details: $e');
     }
   }
-
-  Future<void> addCustomer(
+  Future<dynamic> addCustomer(
       {required Map<String, dynamic> model,
-      required File adminProfilePicture,
+      File? adminProfilePicture,
       required String salesmanId}) async {
-    ApiWorker().addCustomer2(
+    return await ApiWorker().addCustomer2(
         model: model,
         adminProfilePicture: adminProfilePicture,
         salesmanId: salesmanId);
   }
+  // Future<void> addCustomer(
+  //     {required Map<String, dynamic> model,
+  //     required File adminProfilePicture,
+  //     required String salesmanId}) async {
+  //   ApiWorker().addCustomer2(
+  //       model: model,
+  //       adminProfilePicture: adminProfilePicture,
+  //       salesmanId: salesmanId);
+  // }
 
   Future<void> addLead({
     required CustomerDashMo model,

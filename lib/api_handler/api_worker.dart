@@ -2953,15 +2953,17 @@ log('response of alll products get :${response.data}');
 
   Future<Response> addCustomer2({
     required Map<String, dynamic> model,
-    required File adminProfilePicture,
+    File? adminProfilePicture,
     required String salesmanId,
   }) async {
     try {
-      final customerPicture = await MultipartFile.fromFile(
-        adminProfilePicture.path,
-        filename: adminProfilePicture.path.split('/').last,
-      );
-      model['cutomerpicture'] = customerPicture;
+      if (adminProfilePicture != null) {
+        final customerPicture = await MultipartFile.fromFile(
+          adminProfilePicture.path,
+          filename: adminProfilePicture.path.split('/').last,
+        );
+        model['cutomerpicture'] = customerPicture;
+      }
 
       final formData = FormData.fromMap(model);
 
@@ -2982,6 +2984,37 @@ log('response of alll products get :${response.data}');
       return Future.error(error);
     }
   }
+  // Future<Response> addCustomer2({
+  //   required Map<String, dynamic> model,
+  //   required File adminProfilePicture,
+  //   required String salesmanId,
+  // }) async {
+  //   try {
+  //     final customerPicture = await MultipartFile.fromFile(
+  //       adminProfilePicture.path,
+  //       filename: adminProfilePicture.path.split('/').last,
+  //     );
+  //     model['cutomerpicture'] = customerPicture;
+
+  //     final formData = FormData.fromMap(model);
+
+  //     final response = await dio.postbycustom(
+  //       ApiConstants.addCustomer,
+  //       data: formData,
+  //     );
+
+  //     return response;
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //       apiName: 'Add Customer',
+  //       response: error.response,
+  //     );
+
+  //     throw DioExceptionHandler.fromDioError(error);
+  //   } catch (error) {
+  //     return Future.error(error);
+  //   }
+  // }
 
   Future<LeadsForUpdatingData> fetchLeadsForUpdate(
     String? customerId,

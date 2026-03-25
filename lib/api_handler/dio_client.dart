@@ -179,8 +179,18 @@ class DioExceptionHandler implements Exception {
         break;
 
       case DioExceptionType.badResponse:
-        errorMessage = dioError.response?.data['message'] ??
-            'Received invalid status code: ${dioError.response?.statusCode}.';
+        // errorMessage = dioError.response?.data['message'] ??
+            // 'Received invalid status code: ${dioError.response?.statusCode}.';
+            final responseData = dioError.response?.data;
+        if (responseData is Map) {
+          errorMessage = responseData['message']?.toString() ??
+              responseData['error']?.toString() ??
+              dioError.message ?? '';
+        } else if (responseData is String) {
+          errorMessage = responseData;
+        } else {
+          errorMessage = dioError.message ?? '';
+        }
         break;
 
       case DioExceptionType.connectionError:

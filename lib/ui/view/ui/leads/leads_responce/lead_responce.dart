@@ -232,6 +232,7 @@ class LeadsForUpdatingData {
   dynamic eventDays;
   int? creditPeriod;
   int? companyId;
+  dynamic deliveryContact;
 
   LeadsForUpdatingData({
     required this.id,
@@ -266,6 +267,7 @@ class LeadsForUpdatingData {
     required this.eventDays,
     required this.creditPeriod,
     required this.companyId,
+    this.deliveryContact,
   });
 
   factory LeadsForUpdatingData.fromJson(Map<String, dynamic> json) =>
@@ -304,6 +306,7 @@ class LeadsForUpdatingData {
         eventDays: json["event_days"],
         creditPeriod: json["credit_period"] ?? 0,
         companyId: json["company_id"] ?? 0,
+        deliveryContact: json["delivery_contact"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -339,5 +342,6 @@ class LeadsForUpdatingData {
         "event_days": eventDays,
         "credit_period": creditPeriod,
         "company_id": companyId,
+        "delivery_contact": deliveryContact,
       };
 }

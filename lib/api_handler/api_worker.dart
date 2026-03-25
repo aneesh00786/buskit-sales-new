@@ -3022,16 +3022,21 @@ log('response of alll products get :${response.data}');
     try {
       final response = await dio.postbycustom(
         ApiConstants.getLeadForUpdating,
-        data: {
+        data: FormData.fromMap({
           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-          "customer_id": customerId
-        },
+          "customer_id": customerId ?? ""
+        }),
       );
 
       final parsedJson =
           response.data is String ? jsonDecode(response.data) : response.data;
 
-      return LeadsForUpdating.fromJson(parsedJson).data.first;
+      final leadsList = LeadsForUpdating.fromJson(parsedJson).data;
+      try {
+        return leadsList.firstWhere((lead) => lead.customerId == customerId);
+      } catch (_) {
+        return leadsList.first;
+      }
     } on DioException catch (error) {
       handleExceptionMessage(
         apiName: 'Get Leads for Update',
@@ -3043,6 +3048,33 @@ log('response of alll products get :${response.data}');
       return Future.error(error);
     }
   }
+  // Future<LeadsForUpdatingData> fetchLeadsForUpdate(
+  //   String? customerId,
+  // ) async {
+  //   try {
+  //     final response = await dio.postbycustom(
+  //       ApiConstants.getLeadForUpdating,
+  //       data: {
+  //         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //         "customer_id": customerId
+  //       },
+  //     );
+
+  //     final parsedJson =
+  //         response.data is String ? jsonDecode(response.data) : response.data;
+
+  //     return LeadsForUpdating.fromJson(parsedJson).data.first;
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //       apiName: 'Get Leads for Update',
+  //       response: error.response,
+  //     );
+
+  //     throw DioExceptionHandler.fromDioError(error);
+  //   } catch (error) {
+  //     return Future.error(error);
+  //   }
+  // }
   Future<void> customerPayment({
     BuildContext? context,
     required String detail,

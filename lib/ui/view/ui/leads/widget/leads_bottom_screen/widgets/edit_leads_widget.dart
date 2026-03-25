@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -52,6 +53,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
   late TextEditingController fullnameController;
   late TextEditingController businesscontactController;
   late TextEditingController remarkController;
+   late TextEditingController deliveryContactNumController;
   late String imageFile;
   File? leadsImage;
 
@@ -91,6 +93,11 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
         text: widget.leadsController.leadForUpdateData.businessNo);
     remarkController = TextEditingController(
         text: widget.leadsController.leadForUpdateData.remark);
+    deliveryContactNumController = TextEditingController(
+        text: widget.leadsController.leadForUpdateData.deliveryContact != null &&
+                widget.leadsController.leadForUpdateData.deliveryContact.toString() != '0'
+            ? widget.leadsController.leadForUpdateData.deliveryContact.toString()
+            : '');
     imageFile = widget.leadsController.leadForUpdateData.imageUrl ?? '';
   }
 
@@ -112,6 +119,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
     fullnameController.clear();
     businesscontactController.clear();
     remarkController.clear();
+    deliveryContactNumController.clear();
   }
 
   @override
@@ -438,11 +446,14 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       stateController.text;
                                   deliveryZipcodeController.text =
                                       zipcodeController.text;
+                                  deliveryContactNumController.text =
+                                      businesscontactController.text;
                                 } else {
                                   deliveryAddressController.clear();
                                   deliveryTownController.clear();
                                   deliveryStateController.clear();
                                   deliveryZipcodeController.clear();
+                                  deliveryContactNumController.clear();
                                 }
                               });
                             },
@@ -547,6 +558,29 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                         ),
                       ],
+                    ),
+                     Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: TextField(
+                          controller: deliveryContactNumController,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 16.0,
+                            ),
+                            labelText: 'Delivery Contact Number',
+                            prefixIcon: filledIcon(Assets.icPhone),
+                            border: InputBorder.none,
+                            counterText: "",
+                          ),
+                        ),
+                      ),
                     ),
                     Row(
                       children: [
@@ -714,8 +748,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                           emailController.text.isEmpty ||
                                           fullnameController.text.isEmpty ||
                                           businesscontactController
-                                              .text.isEmpty ||
-                                          remarkController.text.isEmpty) {
+                                              .text.isEmpty 
+                                          ) {
                                         setState(() {
                                           isUpdatingLeads = false;
                                         });
@@ -742,6 +776,18 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                             Icons.close);
                                         return;
                                       }
+                                      final email = emailController.text.trim();
+                              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                              if (!emailRegex.hasMatch(email)) {
+                                showCustomToastDisplay(
+                                  context,
+                                  'Invalid Email format',
+                                  red,
+                                  Icons.close,
+                                );
+                                return;
+                              }
 
                                       if (leadsImage != null) {
                                         bool isValid =
@@ -786,6 +832,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         "delivery_zipcode": int.tryParse(
                                             deliveryZipcodeController.text),
                                         "remark": remarkController.text,
+                                        "delivery_contact": int.tryParse(
+                                        deliveryContactNumController.text.trim()) ?? 0,
                                         "customer_id": widget.customerId,
                                         "oldimage_url": widget.leadsController
                                             .leadForUpdateData.imageUrl,
@@ -793,16 +841,82 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                                 .loginSavedData?.company_id ??
                                             0,
                                       };
+                                      setState(() {
+                                isUpdatingLeads = true;
+                              });
 
-                                      try {
-                                        await widget.leadsController
-                                            .updateLeads(sendData, leadsImage);
-                                      } catch (error) {
-                                        setState(() {
-                                          isUpdatingLeads = false;
-                                        });
-                                        // Error handling is done in the controller
+                                       try {
+                                var response = await ApiWorker().updateCustomer(sendData, leadsImage);
+
+                                bool isSuccess = true;
+                                String errorMsg = "Failed to update lead";
+
+                                if (response != null) {
+                                  String? serverMessage;
+                                  try {
+                                    if (response.data is Map) {
+                                      serverMessage ??= response.data['message']?.toString();
+                                    }
+                                  } catch (_) {}
+
+                                  if (serverMessage != null && serverMessage.trim().isEmpty) {
+                                    serverMessage = null;
+                                  }
+
+                                  try {
+                                    if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
+                                      isSuccess = false;
+                                      errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
+                                      if (serverMessage == null) {
+                                        try {
+                                          if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
+                                            errorMsg = response.statusMessage.toString();
+                                          }
+                                        } catch (_) {}
                                       }
+                                    }
+                                  } catch (_) {}
+
+                                  try {
+                                    if (response.data is Map) {
+                                      var status = response.data['status'];
+                                      if (status == false || status == 0 || status == 'false') {
+                                        isSuccess = false;
+                                        errorMsg = serverMessage ?? errorMsg;
+                                      }
+                                    }
+                                  } catch (_) {}
+                                } else {
+                                  isSuccess = false;
+                                }
+
+                                if (isSuccess) {
+                                  widget.leadsController.loadLeadsCustomerData;
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                } else {
+                                  if (context.mounted) {
+                                    showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
+                                  }
+                                }
+                              } catch (error) {
+                                if (context.mounted) {
+                                  String errMsg = error.toString();
+                                  final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
+                                  final match = regex.firstMatch(errMsg);
+                                  if (match != null && match.groupCount >= 1) {
+                                    errMsg = match.group(1)!;
+                                  } else {
+                                    errMsg = errMsg.replaceAll("Exception: ", "").trim();
+                                  }
+                                  showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
+                                }
+                              } finally {
+                                setState(() {
+                                  isUpdatingLeads = false;
+                                });
+                              }
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColor,

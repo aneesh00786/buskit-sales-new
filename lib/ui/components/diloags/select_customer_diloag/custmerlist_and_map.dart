@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/main.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -777,56 +778,227 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                   style: TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold)),
-                              onPressed: () {
-                                final nextCustomer =
-                                    _getNextUnvisitedCustomer();
-                                if (nextCustomer != null) {
-                                  if (subscriptionController
-                                          .visitNavigation.value ==
-                                      "true") {
-                                    selectedResult = nextCustomer;
-                                    navigatedToMap = true;
-                                    final currentLatitude = _mapController
-                                            .currentLatLng.value?.latitude ??
-                                        0.0;
-                                    final currentLongitude = _mapController
-                                            .currentLatLng.value?.longitude ??
-                                        0.0;
+                                          onPressed: () async {
+                              final nextCustomer = _getNextUnvisitedCustomer();
 
-                                    // Close drawer and start nav
-                                    setState(() => _isDrawerOpen = false);
+                              if (nextCustomer != null) {
+                                if (subscriptionController
+                                        .visitNavigation.value ==
+                                    "true") {
+                                  // --- 1. CHECK ATTENDANCE STATUS ---
+                                  bool isAttendanceCheckedIn =
+                                      await ApiWorker().loadSwitchState();
 
-                                    navigateToo(
-                                      currentLatitude,
-                                      currentLongitude,
-                                      double.parse(nextCustomer.latitude!),
-                                      double.parse(nextCustomer.longitude!),
-                                    );
-                                  } else {
-                                    showDialog(
-                                      barrierDismissible: false,
+                                  if (!isAttendanceCheckedIn) {
+                                    // Show the required check-in dialog
+                                    bool? confirmCheckIn =
+                                        await showDialog<bool>(
                                       context: context,
-                                      builder: (context) =>
-                                          const UpgradePlanScreen(),
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          titlePadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  16.0, 16.0, 16.0, 0),
+                                          contentPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  16.0, 8.0, 16.0, 12.0),
+                                          actionsPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  16.0, 0, 16.0, 16.0),
+                                          title: const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.warning_amber_rounded,
+                                                size: 25.0,
+                                                color:
+                                                    primaryColor, // Assuming primaryColor is globally defined in your file
+                                              ),
+                                              SizedBox(width: 8.0),
+                                              Text(
+                                                'Required',
+                                                style: TextStyle(
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          content: const Text(
+                                            'You are required to sign in to proceed with navigation.',
+                                            style: TextStyle(
+                                              fontSize: 19.0,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          actions: [
+                                            OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16.0,
+                                                        vertical: 10.0),
+                                                side: const BorderSide(
+                                                    color: primaryColor,
+                                                    width: 2.0),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
+                                                backgroundColor: Colors.white,
+                                                elevation: 3,
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: const Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: primaryColor,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: primaryColor,
+                                                foregroundColor: Colors.white,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16.0,
+                                                        vertical: 10.0),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
+                                                elevation: 4,
+                                                shadowColor: primaryColor
+                                                    .withOpacity(0.4),
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: const Text(
+                                                'Check-In',
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
+
+                                    if (confirmCheckIn == true) {
+                                  
+                                      await CheckInService()
+                                          .performCheckIn(context);
+
+                                    
+                                      bool verifyAttendance =
+                                          await ApiWorker().loadSwitchState();
+                                      if (!verifyAttendance) {
+                                      
+                                        return;
+                                      }
+                                    } else {
+                                     
+                                      return;
+                                    }
                                   }
-                                } else {
-                                  Get.snackbar(
-                                    "Success",
-                                    "You have already completed all your visits.",
-                                    backgroundColor: Colors.green,
-                                    colorText: Colors.white,
-                                    snackPosition: SnackPosition.TOP,
-                                    margin: const EdgeInsets.all(10),
+                                 
+
+                                 
+                                  selectedResult = nextCustomer;
+                                  navigatedToMap = true;
+                                  final currentLatitude = _mapController
+                                          .currentLatLng.value?.latitude ??
+                                      0.0;
+                                  final currentLongitude = _mapController
+                                          .currentLatLng.value?.longitude ??
+                                      0.0;
+
+                                  // Close drawer and start nav
+                                  setState(() => _isDrawerOpen = false);
+
+                                  navigateToo(
+                                    currentLatitude,
+                                    currentLongitude,
+                                    double.parse(nextCustomer.latitude!),
+                                    double.parse(nextCustomer.longitude!),
                                   );
-                                  // ScaffoldMessenger.of(context)
-                                  //     .showSnackBar(const SnackBar(
-                                  //   content: Text(
-                                  //       "Route completed! All customers visited."),
-                                  //   backgroundColor: Colors.green,
-                                  // ));
+                                } else {
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (context) =>
+                                        const UpgradePlanScreen(),
+                                  );
                                 }
-                              },
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text(
+                                      "Route completed! All customers visited."),
+                                  backgroundColor: Colors.green,
+                                ));
+                              }
+                            },
+                              // onPressed: () {
+                              //   final nextCustomer =
+                              //       _getNextUnvisitedCustomer();
+                              //   if (nextCustomer != null) {
+                              //     if (subscriptionController
+                              //             .visitNavigation.value ==
+                              //         "true") {
+                              //       selectedResult = nextCustomer;
+                              //       navigatedToMap = true;
+                              //       final currentLatitude = _mapController
+                              //               .currentLatLng.value?.latitude ??
+                              //           0.0;
+                              //       final currentLongitude = _mapController
+                              //               .currentLatLng.value?.longitude ??
+                              //           0.0;
+
+                              //       // Close drawer and start nav
+                              //       setState(() => _isDrawerOpen = false);
+
+                              //       navigateToo(
+                              //         currentLatitude,
+                              //         currentLongitude,
+                              //         double.parse(nextCustomer.latitude!),
+                              //         double.parse(nextCustomer.longitude!),
+                              //       );
+                              //     } else {
+                              //       showDialog(
+                              //         barrierDismissible: false,
+                              //         context: context,
+                              //         builder: (context) =>
+                              //             const UpgradePlanScreen(),
+                              //       );
+                              //     }
+                              //   } else {
+                              //     Get.snackbar(
+                              //       "Success",
+                              //       "You have already completed all your visits.",
+                              //       backgroundColor: Colors.green,
+                              //       colorText: Colors.white,
+                              //       snackPosition: SnackPosition.TOP,
+                              //       margin: const EdgeInsets.all(10),
+                              //     );
+                              //     // ScaffoldMessenger.of(context)
+                              //     //     .showSnackBar(const SnackBar(
+                              //     //   content: Text(
+                              //     //       "Route completed! All customers visited."),
+                              //     //   backgroundColor: Colors.green,
+                              //     // ));
+                              //   }
+                              // },
                             ),
                           ],
                         ),
@@ -1027,56 +1199,293 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                         CircularProgressIndicator(
                                                             strokeWidth: 2));
                                               }
-                                              return InkWell(
-                                                onTap: () {
-                                                  if (subscriptionController
-                                                          .visitNavigation
-                                                          .value ==
-                                                      "true") {
-                                                    selectedResult = result;
-                                                    navigatedToMap = true;
-                                                    final currentLatitude =
-                                                        _mapController
-                                                                .currentLatLng
-                                                                .value
-                                                                ?.latitude ??
-                                                            0.0;
-                                                    final currentLongitude =
-                                                        _mapController
-                                                                .currentLatLng
-                                                                .value
-                                                                ?.longitude ??
-                                                            0.0;
+                                              return 
+                                               InkWell(
+                                              onTap: () async {
+                                                if (subscriptionController
+                                                        .visitNavigation
+                                                        .value ==
+                                                    "true") {
+                                                  // --- 1. CHECK ATTENDANCE STATUS ---
+                                                  bool isAttendanceCheckedIn =
+                                                      await ApiWorker()
+                                                          .loadSwitchState();
 
-                                                    // Close drawer
-                                                    setState(() =>
-                                                        _isDrawerOpen = false);
-
-                                                    navigateToo(
-                                                      currentLatitude,
-                                                      currentLongitude,
-                                                      double.parse(
-                                                          result.latitude!),
-                                                      double.parse(
-                                                          result.longitude!),
-                                                    );
-                                                  } else {
-                                                    showDialog(
-                                                      barrierDismissible: false,
+                                                  if (!isAttendanceCheckedIn) {
+                                                    // Show the required check-in dialog
+                                                    bool? confirmCheckIn =
+                                                        await showDialog<bool>(
                                                       context: context,
-                                                      builder: (context) =>
-                                                          const UpgradePlanScreen(),
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          titlePadding:
+                                                              const EdgeInsets
+                                                                  .fromLTRB(
+                                                                  16.0,
+                                                                  16.0,
+                                                                  16.0,
+                                                                  0),
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .fromLTRB(
+                                                                  16.0,
+                                                                  8.0,
+                                                                  16.0,
+                                                                  12.0),
+                                                          actionsPadding:
+                                                              const EdgeInsets
+                                                                  .fromLTRB(
+                                                                  16.0,
+                                                                  0,
+                                                                  16.0,
+                                                                  16.0),
+                                                          title: const Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .warning_amber_rounded,
+                                                                size: 25.0,
+                                                                color:
+                                                                    primaryColor, 
+                                                              ),
+                                                              SizedBox(
+                                                                  width: 8.0),
+                                                              Text(
+                                                                'Required',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      20.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black87,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          content: const Text(
+                                                            'You are required to sign in to proceed with navigation.',
+                                                            style: TextStyle(
+                                                              fontSize: 19.0,
+                                                              color: Colors
+                                                                  .black87,
+                                                            ),
+                                                          ),
+                                                          actions: [
+                                                            OutlinedButton(
+                                                              style:
+                                                                  OutlinedButton
+                                                                      .styleFrom(
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        16.0,
+                                                                    vertical:
+                                                                        10.0),
+                                                                side: const BorderSide(
+                                                                    color:
+                                                                        primaryColor,
+                                                                    width: 2.0),
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                elevation: 3,
+                                                              ),
+                                                              onPressed: () =>
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(
+                                                                          false),
+                                                              child: const Text(
+                                                                'Cancel',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color:
+                                                                      primaryColor,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            ElevatedButton(
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                backgroundColor:
+                                                                    primaryColor,
+                                                                foregroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        16.0,
+                                                                    vertical:
+                                                                        10.0),
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                elevation: 4,
+                                                                shadowColor:
+                                                                    primaryColor
+                                                                        .withOpacity(
+                                                                            0.4),
+                                                              ),
+                                                              onPressed: () =>
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(
+                                                                          true),
+                                                              child: const Text(
+                                                                'Check-In',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
                                                     );
+
+                                                    if (confirmCheckIn ==
+                                                        true) {
+                                               
+                                                      await CheckInService()
+                                                          .performCheckIn(
+                                                              context);
+
+                                                      
+                                                      bool verifyAttendance =
+                                                          await ApiWorker()
+                                                              .loadSwitchState();
+                                                      if (!verifyAttendance) {
+                                                 
+                                                        return;
+                                                      }
+                                                    } else {
+                                                    
+                                                      return;
+                                                    }
                                                   }
-                                                },
-                                                child: const Padding(
-                                                  padding: EdgeInsets.all(4.0),
-                                                  child: Icon(
-                                                      Icons.near_me_outlined,
-                                                      size: 18,
-                                                      color: Colors.blue),
-                                                ),
-                                              );
+                                                  
+                                                  selectedResult =
+                                                      result; 
+                                                  navigatedToMap = true;
+                                                  final currentLatitude =
+                                                      _mapController
+                                                              .currentLatLng
+                                                              .value
+                                                              ?.latitude ??
+                                                          0.0;
+                                                  final currentLongitude =
+                                                      _mapController
+                                                              .currentLatLng
+                                                              .value
+                                                              ?.longitude ??
+                                                          0.0;
+
+                                                  
+                                                  setState(() =>
+                                                      _isDrawerOpen = false);
+
+                                                  navigateToo(
+                                                    currentLatitude,
+                                                    currentLongitude,
+                                                    double.parse(
+                                                        result.latitude!),
+                                                    double.parse(
+                                                        result.longitude!),
+                                                  );
+                                                } else {
+                                                  showDialog(
+                                                    barrierDismissible: false,
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        const UpgradePlanScreen(),
+                                                  );
+                                                }
+                                              },
+                                              child: const Padding(
+                                                padding: EdgeInsets.all(4.0),
+                                                child: Icon(
+                                                    Icons.near_me_outlined,
+                                                    size: 18,
+                                                    color: Colors.blue),
+                                              ),
+                                            );
+                                              // InkWell(
+                                              //   onTap: () {
+                                              //     if (subscriptionController
+                                              //             .visitNavigation
+                                              //             .value ==
+                                              //         "true") {
+                                              //       selectedResult = result;
+                                              //       navigatedToMap = true;
+                                              //       final currentLatitude =
+                                              //           _mapController
+                                              //                   .currentLatLng
+                                              //                   .value
+                                              //                   ?.latitude ??
+                                              //               0.0;
+                                              //       final currentLongitude =
+                                              //           _mapController
+                                              //                   .currentLatLng
+                                              //                   .value
+                                              //                   ?.longitude ??
+                                              //               0.0;
+
+                                              //       // Close drawer
+                                              //       setState(() =>
+                                              //           _isDrawerOpen = false);
+
+                                              //       navigateToo(
+                                              //         currentLatitude,
+                                              //         currentLongitude,
+                                              //         double.parse(
+                                              //             result.latitude!),
+                                              //         double.parse(
+                                              //             result.longitude!),
+                                              //       );
+                                              //     } else {
+                                              //       showDialog(
+                                              //         barrierDismissible: false,
+                                              //         context: context,
+                                              //         builder: (context) =>
+                                              //             const UpgradePlanScreen(),
+                                              //       );
+                                              //     }
+                                              //   },
+                                              //   child: const Padding(
+                                              //     padding: EdgeInsets.all(4.0),
+                                              //     child: Icon(
+                                              //         Icons.near_me_outlined,
+                                              //         size: 18,
+                                              //         color: Colors.blue),
+                                              //   ),
+                                              // );
                                             })
                                           ],
                                         )

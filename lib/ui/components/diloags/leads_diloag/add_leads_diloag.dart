@@ -1,4 +1,3 @@
-
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'dart:io';
@@ -258,8 +257,10 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                         .zipcodeController.text;
                                                 deliveryContactNumController
                                                         .text =
-                                                    widget.leadsController
-                                                        .businessContactController.text;
+                                                    widget
+                                                        .leadsController
+                                                        .businessContactController
+                                                        .text;
                                               } else {
                                                 widget.leadsController
                                                     .deliveryAddressController
@@ -273,7 +274,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                 widget.leadsController
                                                     .deliveryZipcodeController
                                                     .clear();
-                                                deliveryContactNumController.clear();
+                                                deliveryContactNumController
+                                                    .clear();
                                               }
                                             });
                                           },
@@ -316,10 +318,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       ),
                                     ],
                                   ),
-                                  buildInputField(
-                                      deliveryContactNumController,
-                                      'Delivery Contact Number',
-                                      Assets.icPhone,
+                                  buildInputField(deliveryContactNumController,
+                                      'Delivery Contact Number', Assets.icPhone,
                                       length: 10),
                                   const SizedBox(
                                     height: 30,
@@ -517,6 +517,17 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                     isAddingLeads = true;
                                                   });
 
+                                              
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1), () {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        isAddingLeads = false;
+                                                      });
+                                                    }
+                                                  });
+
                                                   bool isOnline =
                                                       await ConnectivityService()
                                                           .isOnline();
@@ -579,7 +590,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                         deliveryContactNumController,
                                                   };
 
-                                                  // Check for missing field
+                                          
                                                   for (var entry
                                                       in fields.entries) {
                                                     if (entry.value.text
@@ -598,7 +609,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                     }
                                                   }
 
-                                                  // Validate phone numbers
+                                                  
                                                   final phoneFields = {
                                                     'Mobile Number': widget
                                                         .leadsController
@@ -629,7 +640,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                     }
                                                   }
 
-                                                  // Validate email
+                                                
                                                   final email = widget
                                                       .leadsController
                                                       .emailController
@@ -668,112 +679,247 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                       return;
                                                     }
                                                   }
-                                                   Map<String, dynamic> data = {
-                                              "userid": "ADMIN",
-                                              "salesman_id": "",
-                                              "businessname": widget.leadsController.businessNameController.text.trim(),
-                                              "address": widget.leadsController.addressController.text.trim(),
-                                              "town": widget.leadsController.townController.text.trim(),
-                                              "state": widget.leadsController.stateController.text.trim(),
-                                              "zipcode": int.tryParse(widget.leadsController.zipcodeController.text.trim()) ?? 0,
-                                              "mobileno": int.tryParse(widget.leadsController.mobileNoController.text.trim()) ?? 0,
-                                              "email": widget.leadsController.emailController.text.trim().isNotEmpty
-                                                  ? widget.leadsController.emailController.text.trim()
-                                                  : "N/A",
-                                              "tfn": int.tryParse(widget.leadsController.telephoneController.text.trim()) ?? 0,
-                                              "fullname": widget.leadsController.fullnameController.text.trim(),
-                                              "businesscontact": int.tryParse(widget.leadsController.businessContactController.text.trim()) ?? 0,
-                                              "delivery_address": widget.leadsController.deliveryAddressController.text.trim(),
-                                              "delivery_town": widget.leadsController.deliveryTownController.text.trim(),
-                                              "delivery_state": widget.leadsController.deliveryStateController.text.trim(),
-                                              "delivery_zipcode": int.tryParse(widget.leadsController.deliveryZipcodeController.text.trim()) ?? 0,
-                                              "delivery_contact": int.tryParse(deliveryContactNumController.text.trim()) ?? 0,
-                                              "remark": widget.leadsController.remarkController.text.trim(),
-                                              "status_type": 3,
-                                              "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
-                                            };
-                                              setState(() {
-                                              isAddingLeads = true;
-                                            });
 
-                                                    try {
-                                              var response = await ApiWorker().addCustomer2(
-                                                model: data,
-                                                adminProfilePicture: leadsImage,
-                                                salesmanId: '',
-                                              );
+                                                  Map<String, dynamic> data = {
+                                                    "userid": "ADMIN",
+                                                    "salesman_id": "",
+                                                    "businessname": widget
+                                                        .leadsController
+                                                        .businessNameController
+                                                        .text
+                                                        .trim(),
+                                                    "address": widget
+                                                        .leadsController
+                                                        .addressController
+                                                        .text
+                                                        .trim(),
+                                                    "town": widget
+                                                        .leadsController
+                                                        .townController
+                                                        .text
+                                                        .trim(),
+                                                    "state": widget
+                                                        .leadsController
+                                                        .stateController
+                                                        .text
+                                                        .trim(),
+                                                    "zipcode": int.tryParse(widget
+                                                            .leadsController
+                                                            .zipcodeController
+                                                            .text
+                                                            .trim()) ??
+                                                        0,
+                                                    "mobileno": int.tryParse(widget
+                                                            .leadsController
+                                                            .mobileNoController
+                                                            .text
+                                                            .trim()) ??
+                                                        0,
+                                                    "email": widget
+                                                            .leadsController
+                                                            .emailController
+                                                            .text
+                                                            .trim()
+                                                            .isNotEmpty
+                                                        ? widget
+                                                            .leadsController
+                                                            .emailController
+                                                            .text
+                                                            .trim()
+                                                        : "N/A",
+                                                    "tfn": int.tryParse(widget
+                                                            .leadsController
+                                                            .telephoneController
+                                                            .text
+                                                            .trim()) ??
+                                                        0,
+                                                    "fullname": widget
+                                                        .leadsController
+                                                        .fullnameController
+                                                        .text
+                                                        .trim(),
+                                                    "businesscontact":
+                                                        int.tryParse(widget
+                                                                .leadsController
+                                                                .businessContactController
+                                                                .text
+                                                                .trim()) ??
+                                                            0,
+                                                    "delivery_address": widget
+                                                        .leadsController
+                                                        .deliveryAddressController
+                                                        .text
+                                                        .trim(),
+                                                    "delivery_town": widget
+                                                        .leadsController
+                                                        .deliveryTownController
+                                                        .text
+                                                        .trim(),
+                                                    "delivery_state": widget
+                                                        .leadsController
+                                                        .deliveryStateController
+                                                        .text
+                                                        .trim(),
+                                                    "delivery_zipcode":
+                                                        int.tryParse(widget
+                                                                .leadsController
+                                                                .deliveryZipcodeController
+                                                                .text
+                                                                .trim()) ??
+                                                            0,
+                                                    "delivery_contact":
+                                                        int.tryParse(
+                                                                deliveryContactNumController
+                                                                    .text
+                                                                    .trim()) ??
+                                                            0,
+                                                    "remark": widget
+                                                        .leadsController
+                                                        .remarkController
+                                                        .text
+                                                        .trim(),
+                                                    "status_type": 3,
+                                                    "company_id": SessionHelper
+                                                            .loginSavedData
+                                                            ?.company_id ??
+                                                        0,
+                                                  };
 
-                                              bool isSuccess = true;
-                                              String errorMsg = "Failed to add lead";
+                                               
 
-                                              if (response != null) {
-                                                String? serverMessage;
+                                                  try {
+                                                    var response =
+                                                        await ApiWorker()
+                                                            .addCustomer2(
+                                                      model: data,
+                                                      adminProfilePicture:
+                                                          leadsImage,
+                                                      salesmanId: '',
+                                                    );
 
-                                                try {
-                                                  if (response.data is Map) {
-                                                    serverMessage ??= response.data['message']?.toString();
-                                                  }
-                                                } catch (_) {}
+                                                    bool isSuccess = true;
+                                                    String errorMsg =
+                                                        "Failed to add lead";
 
-                                                if (serverMessage != null && serverMessage.trim().isEmpty) {
-                                                  serverMessage = null;
-                                                }
+                                                    if (response != null) {
+                                                      String? serverMessage;
 
-                                                try {
-                                                  if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
-                                                    isSuccess = false;
-                                                    errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
-                                                    if (serverMessage == null) {
                                                       try {
-                                                        if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
-                                                          errorMsg = response.statusMessage.toString();
+                                                        if (response.data
+                                                            is Map) {
+                                                          serverMessage ??=
+                                                              response.data[
+                                                                      'message']
+                                                                  ?.toString();
                                                         }
                                                       } catch (_) {}
-                                                    }
-                                                  }
-                                                } catch (_) {}
 
-                                                try {
-                                                  if (response.data is Map) {
-                                                    var status = response.data['status'];
-                                                    if (status == false || status == 0 || status == 'false') {
+                                                      if (serverMessage !=
+                                                              null &&
+                                                          serverMessage
+                                                              .trim()
+                                                              .isEmpty) {
+                                                        serverMessage = null;
+                                                      }
+
+                                                      try {
+                                                        if (response.statusCode !=
+                                                                null &&
+                                                            (response.statusCode! <
+                                                                    200 ||
+                                                                response.statusCode! >=
+                                                                    300)) {
+                                                          isSuccess = false;
+                                                          errorMsg =
+                                                              serverMessage ??
+                                                                  "API Error: ${response.statusCode}";
+                                                          if (serverMessage ==
+                                                              null) {
+                                                            try {
+                                                              if (response.statusMessage !=
+                                                                      null &&
+                                                                  response
+                                                                      .statusMessage
+                                                                      .toString()
+                                                                      .isNotEmpty) {
+                                                                errorMsg = response
+                                                                    .statusMessage
+                                                                    .toString();
+                                                              }
+                                                            } catch (_) {}
+                                                          }
+                                                        }
+                                                      } catch (_) {}
+
+                                                      try {
+                                                        if (response.data
+                                                            is Map) {
+                                                          var status = response
+                                                              .data['status'];
+                                                          if (status == false ||
+                                                              status == 0 ||
+                                                              status ==
+                                                                  'false') {
+                                                            isSuccess = false;
+                                                            errorMsg =
+                                                                serverMessage ??
+                                                                    errorMsg;
+                                                          }
+                                                        }
+                                                      } catch (_) {}
+                                                    } else {
                                                       isSuccess = false;
-                                                      errorMsg = serverMessage ?? errorMsg;
                                                     }
-                                                  }
-                                                } catch (_) {}
-                                              } else {
-                                                isSuccess = false;
-                                              }
 
-                                              if (isSuccess) {
-                                                widget.leadsController.clearAllFileds;
-                                                widget.leadsController.loadLeadsCustomerData;
-                                                if (context.mounted) {
-                                                  Navigator.of(context).pop();
-                                                }
-                                              } else {
-                                                if (context.mounted) {
-                                                  showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
-                                                }
-                                              }
-                                            } catch (error) {
-                                              if (context.mounted) {
-                                                String errMsg = error.toString();
-                                                final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
-                                                final match = regex.firstMatch(errMsg);
-                                                if (match != null && match.groupCount >= 1) {
-                                                  errMsg = match.group(1)!;
-                                                } else {
-                                                  errMsg = errMsg.replaceAll("Exception: ", "").trim();
-                                                }
-                                                showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
-                                              }
-                                            } finally {
-                                              setState(() {
-                                                isAddingLeads = false;
-                                              });
-                                            }
+                                                    if (isSuccess) {
+                                                      widget.leadsController
+                                                          .clearAllFileds;
+                                                      widget.leadsController
+                                                          .loadLeadsCustomerData;
+                                                      if (context.mounted) {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      }
+                                                    } else {
+                                                      if (context.mounted) {
+                                                        showCustomToastDisplay(
+                                                            context,
+                                                            errorMsg,
+                                                            Colors.red,
+                                                            Icons.close);
+                                                      }
+                                                    }
+                                                  } catch (error) {
+                                                    if (context.mounted) {
+                                                      String errMsg =
+                                                          error.toString();
+                                                      final regex = RegExp(
+                                                          r'"message"\s*:\s*"([^"]+)"');
+                                                      final match = regex
+                                                          .firstMatch(errMsg);
+                                                      if (match != null &&
+                                                          match.groupCount >=
+                                                              1) {
+                                                        errMsg =
+                                                            match.group(1)!;
+                                                      } else {
+                                                        errMsg = errMsg
+                                                            .replaceAll(
+                                                                "Exception: ",
+                                                                "")
+                                                            .trim();
+                                                      }
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          errMsg,
+                                                          Colors.red,
+                                                          Icons.error);
+                                                    }
+                                                  } finally {
+                                                    setState(() {
+                                                      isAddingLeads = false;
+                                                    });
+                                                  }
                                                 },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: primaryColor,
@@ -798,6 +944,295 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                         ),
+                                        // ElevatedButton(
+                                        //   onPressed: isAddingLeads
+                                        //       ? null
+                                        //       : () async {
+                                        //           setState(() {
+                                        //             isAddingLeads = true;
+                                        //           });
+
+                                        //           bool isOnline =
+                                        //               await ConnectivityService()
+                                        //                   .isOnline();
+                                        //           if (!isOnline) {
+                                        //             setState(() {
+                                        //               isAddingLeads = false;
+                                        //             });
+                                        //             showCustomToastDisplay(
+                                        //                 context,
+                                        //                 "You are Offline!",
+                                        //                 red,
+                                        //                 Icons.close);
+                                        //             return;
+                                        //           }
+
+                                        //           final fields = {
+                                        //             'Business Name': widget
+                                        //                 .leadsController
+                                        //                 .businessNameController,
+                                        //             'Address': widget
+                                        //                 .leadsController
+                                        //                 .addressController,
+                                        //             'Town': widget
+                                        //                 .leadsController
+                                        //                 .townController,
+                                        //             'State': widget
+                                        //                 .leadsController
+                                        //                 .stateController,
+                                        //             'Zip Code': widget
+                                        //                 .leadsController
+                                        //                 .zipcodeController,
+                                        //             'Mobile Number': widget
+                                        //                 .leadsController
+                                        //                 .mobileNoController,
+                                        //             'Email': widget
+                                        //                 .leadsController
+                                        //                 .emailController,
+                                        //             'Business Reg.No': widget
+                                        //                 .leadsController
+                                        //                 .telephoneController,
+                                        //             'Contact Person': widget
+                                        //                 .leadsController
+                                        //                 .fullnameController,
+                                        //             'Contact Number': widget
+                                        //                 .leadsController
+                                        //                 .businessContactController,
+                                        //             'Delivery Address': widget
+                                        //                 .leadsController
+                                        //                 .deliveryAddressController,
+                                        //             'Delivery Town': widget
+                                        //                 .leadsController
+                                        //                 .deliveryTownController,
+                                        //             'Delivery State': widget
+                                        //                 .leadsController
+                                        //                 .deliveryStateController,
+                                        //             'Delivery Zip Code': widget
+                                        //                 .leadsController
+                                        //                 .deliveryZipcodeController,
+                                        //             'Delivery Contact Number':
+                                        //                 deliveryContactNumController,
+                                        //           };
+
+                                        //           // Check for missing field
+                                        //           for (var entry
+                                        //               in fields.entries) {
+                                        //             if (entry.value.text
+                                        //                 .trim()
+                                        //                 .isEmpty) {
+                                        //               setState(() {
+                                        //                 isAddingLeads = false;
+                                        //               });
+                                        //               showCustomToastDisplay(
+                                        //                 context,
+                                        //                 '${entry.key} is required',
+                                        //                 red,
+                                        //                 Icons.close,
+                                        //               );
+                                        //               return;
+                                        //             }
+                                        //           }
+
+                                        //           // Validate phone numbers
+                                        //           final phoneFields = {
+                                        //             'Mobile Number': widget
+                                        //                 .leadsController
+                                        //                 .mobileNoController,
+                                        //             'Contact Number': widget
+                                        //                 .leadsController
+                                        //                 .businessContactController,
+                                        //             'Delivery Contact Number':
+                                        //                 deliveryContactNumController,
+                                        //           };
+
+                                        //           for (var entry
+                                        //               in phoneFields.entries) {
+                                        //             final phone =
+                                        //                 entry.value.text.trim();
+                                        //             if (!RegExp(r'^\d{10}$')
+                                        //                 .hasMatch(phone)) {
+                                        //               setState(() {
+                                        //                 isAddingLeads = false;
+                                        //               });
+                                        //               showCustomToastDisplay(
+                                        //                 context,
+                                        //                 '${entry.key} must be 10 digits',
+                                        //                 red,
+                                        //                 Icons.close,
+                                        //               );
+                                        //               return;
+                                        //             }
+                                        //           }
+
+                                        //           // Validate email
+                                        //           final email = widget
+                                        //               .leadsController
+                                        //               .emailController
+                                        //               .text
+                                        //               .trim();
+                                        //           final emailRegex = RegExp(
+                                        //               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                        //           if (!emailRegex
+                                        //               .hasMatch(email)) {
+                                        //             setState(() {
+                                        //               isAddingLeads = false;
+                                        //             });
+                                        //             showCustomToastDisplay(
+                                        //               context,
+                                        //               'Invalid Email format',
+                                        //               red,
+                                        //               Icons.close,
+                                        //             );
+                                        //             return;
+                                        //           }
+
+                                        //           if (leadsImage != null) {
+                                        //             bool isValid =
+                                        //                 await isFileSizeWithinLimit(
+                                        //                     leadsImage!);
+                                        //             if (!isValid) {
+                                        //               setState(() {
+                                        //                 isAddingLeads = false;
+                                        //               });
+                                        //               showCustomToastDisplay(
+                                        //                   context,
+                                        //                   'File exceeds 1MB.',
+                                        //                   red,
+                                        //                   Icons.close);
+                                        //               return;
+                                        //             }
+                                        //           }
+                                        //            Map<String, dynamic> data = {
+                                        //       "userid": "ADMIN",
+                                        //       "salesman_id": "",
+                                        //       "businessname": widget.leadsController.businessNameController.text.trim(),
+                                        //       "address": widget.leadsController.addressController.text.trim(),
+                                        //       "town": widget.leadsController.townController.text.trim(),
+                                        //       "state": widget.leadsController.stateController.text.trim(),
+                                        //       "zipcode": int.tryParse(widget.leadsController.zipcodeController.text.trim()) ?? 0,
+                                        //       "mobileno": int.tryParse(widget.leadsController.mobileNoController.text.trim()) ?? 0,
+                                        //       "email": widget.leadsController.emailController.text.trim().isNotEmpty
+                                        //           ? widget.leadsController.emailController.text.trim()
+                                        //           : "N/A",
+                                        //       "tfn": int.tryParse(widget.leadsController.telephoneController.text.trim()) ?? 0,
+                                        //       "fullname": widget.leadsController.fullnameController.text.trim(),
+                                        //       "businesscontact": int.tryParse(widget.leadsController.businessContactController.text.trim()) ?? 0,
+                                        //       "delivery_address": widget.leadsController.deliveryAddressController.text.trim(),
+                                        //       "delivery_town": widget.leadsController.deliveryTownController.text.trim(),
+                                        //       "delivery_state": widget.leadsController.deliveryStateController.text.trim(),
+                                        //       "delivery_zipcode": int.tryParse(widget.leadsController.deliveryZipcodeController.text.trim()) ?? 0,
+                                        //       "delivery_contact": int.tryParse(deliveryContactNumController.text.trim()) ?? 0,
+                                        //       "remark": widget.leadsController.remarkController.text.trim(),
+                                        //       "status_type": 3,
+                                        //       "company_id": SessionHelper.loginSavedData?.company_id ?? 0,
+                                        //     };
+                                        //       setState(() {
+                                        //       isAddingLeads = true;
+                                        //     });
+
+                                        //             try {
+                                        //       var response = await ApiWorker().addCustomer2(
+                                        //         model: data,
+                                        //         adminProfilePicture: leadsImage,
+                                        //         salesmanId: '',
+                                        //       );
+
+                                        //       bool isSuccess = true;
+                                        //       String errorMsg = "Failed to add lead";
+
+                                        //       if (response != null) {
+                                        //         String? serverMessage;
+
+                                        //         try {
+                                        //           if (response.data is Map) {
+                                        //             serverMessage ??= response.data['message']?.toString();
+                                        //           }
+                                        //         } catch (_) {}
+
+                                        //         if (serverMessage != null && serverMessage.trim().isEmpty) {
+                                        //           serverMessage = null;
+                                        //         }
+
+                                        //         try {
+                                        //           if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
+                                        //             isSuccess = false;
+                                        //             errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
+                                        //             if (serverMessage == null) {
+                                        //               try {
+                                        //                 if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
+                                        //                   errorMsg = response.statusMessage.toString();
+                                        //                 }
+                                        //               } catch (_) {}
+                                        //             }
+                                        //           }
+                                        //         } catch (_) {}
+
+                                        //         try {
+                                        //           if (response.data is Map) {
+                                        //             var status = response.data['status'];
+                                        //             if (status == false || status == 0 || status == 'false') {
+                                        //               isSuccess = false;
+                                        //               errorMsg = serverMessage ?? errorMsg;
+                                        //             }
+                                        //           }
+                                        //         } catch (_) {}
+                                        //       } else {
+                                        //         isSuccess = false;
+                                        //       }
+
+                                        //       if (isSuccess) {
+                                        //         widget.leadsController.clearAllFileds;
+                                        //         widget.leadsController.loadLeadsCustomerData;
+                                        //         if (context.mounted) {
+                                        //           Navigator.of(context).pop();
+                                        //         }
+                                        //       } else {
+                                        //         if (context.mounted) {
+                                        //           showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
+                                        //         }
+                                        //       }
+                                        //     } catch (error) {
+                                        //       if (context.mounted) {
+                                        //         String errMsg = error.toString();
+                                        //         final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
+                                        //         final match = regex.firstMatch(errMsg);
+                                        //         if (match != null && match.groupCount >= 1) {
+                                        //           errMsg = match.group(1)!;
+                                        //         } else {
+                                        //           errMsg = errMsg.replaceAll("Exception: ", "").trim();
+                                        //         }
+                                        //         showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
+                                        //       }
+                                        //     } finally {
+                                        //       setState(() {
+                                        //         isAddingLeads = false;
+                                        //       });
+                                        //     }
+                                        //         },
+                                        //   style: ElevatedButton.styleFrom(
+                                        //     backgroundColor: primaryColor,
+                                        //     shape: RoundedRectangleBorder(
+                                        //         borderRadius:
+                                        //             BorderRadius.circular(4.0)),
+                                        //   ),
+                                        //   child: isAddingLeads
+                                        //       ? const SizedBox(
+                                        //           width: 20,
+                                        //           height: 20,
+                                        //           child:
+                                        //               CircularProgressIndicator(
+                                        //             strokeWidth: 2,
+                                        //             valueColor:
+                                        //                 AlwaysStoppedAnimation<
+                                        //                         Color>(
+                                        //                     Colors.white),
+                                        //           ),
+                                        //         )
+                                        //       : const Text('Add Leads',
+                                        //           style: TextStyle(
+                                        //               color: Colors.white)),
+                                        // ),
                                       ],
                                     ),
                                   ),
@@ -913,8 +1348,6 @@ class CustomButtonLeads extends StatelessWidget {
     );
   }
 }
-
-
 
 // // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 

@@ -53,7 +53,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
   late TextEditingController fullnameController;
   late TextEditingController businesscontactController;
   late TextEditingController remarkController;
-   late TextEditingController deliveryContactNumController;
+  late TextEditingController deliveryContactNumController;
   late String imageFile;
   File? leadsImage;
 
@@ -94,10 +94,14 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
     remarkController = TextEditingController(
         text: widget.leadsController.leadForUpdateData.remark);
     deliveryContactNumController = TextEditingController(
-        text: widget.leadsController.leadForUpdateData.deliveryContact != null &&
-                widget.leadsController.leadForUpdateData.deliveryContact.toString() != '0'
-            ? widget.leadsController.leadForUpdateData.deliveryContact.toString()
-            : '');
+        text:
+            widget.leadsController.leadForUpdateData.deliveryContact != null &&
+                    widget.leadsController.leadForUpdateData.deliveryContact
+                            .toString() !=
+                        '0'
+                ? widget.leadsController.leadForUpdateData.deliveryContact
+                    .toString()
+                : '');
     imageFile = widget.leadsController.leadForUpdateData.imageUrl ?? '';
   }
 
@@ -559,7 +563,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                         ),
                       ],
                     ),
-                     Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         decoration: BoxDecoration(
@@ -739,6 +743,15 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         isUpdatingLeads = true;
                                       });
 
+                                      Future.delayed(const Duration(seconds: 1),
+                                          () {
+                                        if (mounted) {
+                                          setState(() {
+                                            isUpdatingLeads = false;
+                                          });
+                                        }
+                                      });
+
                                       if (businessNameController.text.isEmpty ||
                                           addressController.text.isEmpty ||
                                           townController.text.isEmpty ||
@@ -748,8 +761,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                           emailController.text.isEmpty ||
                                           fullnameController.text.isEmpty ||
                                           businesscontactController
-                                              .text.isEmpty 
-                                          ) {
+                                              .text.isEmpty) {
                                         setState(() {
                                           isUpdatingLeads = false;
                                         });
@@ -776,18 +788,23 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                             Icons.close);
                                         return;
                                       }
-                                      final email = emailController.text.trim();
-                              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
-                              if (!emailRegex.hasMatch(email)) {
-                                showCustomToastDisplay(
-                                  context,
-                                  'Invalid Email format',
-                                  red,
-                                  Icons.close,
-                                );
-                                return;
-                              }
+                                      final email = emailController.text.trim();
+                                      final emailRegex = RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                      if (!emailRegex.hasMatch(email)) {
+                                        setState(() {
+                                          isUpdatingLeads = false;
+                                        });
+                                        showCustomToastDisplay(
+                                          context,
+                                          'Invalid Email format',
+                                          red,
+                                          Icons.close,
+                                        );
+                                        return;
+                                      }
 
                                       if (leadsImage != null) {
                                         bool isValid =
@@ -833,7 +850,10 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                             deliveryZipcodeController.text),
                                         "remark": remarkController.text,
                                         "delivery_contact": int.tryParse(
-                                        deliveryContactNumController.text.trim()) ?? 0,
+                                                deliveryContactNumController
+                                                    .text
+                                                    .trim()) ??
+                                            0,
                                         "customer_id": widget.customerId,
                                         "oldimage_url": widget.leadsController
                                             .leadForUpdateData.imageUrl,
@@ -841,82 +861,110 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                                 .loginSavedData?.company_id ??
                                             0,
                                       };
-                                      setState(() {
-                                isUpdatingLeads = true;
-                              });
 
-                                       try {
-                                var response = await ApiWorker().updateCustomer(sendData, leadsImage);
+                                      try {
+                                        var response = await ApiWorker()
+                                            .updateCustomer(
+                                                sendData, leadsImage);
 
-                                bool isSuccess = true;
-                                String errorMsg = "Failed to update lead";
+                                        bool isSuccess = true;
+                                        String errorMsg =
+                                            "Failed to update lead";
 
-                                if (response != null) {
-                                  String? serverMessage;
-                                  try {
-                                    if (response.data is Map) {
-                                      serverMessage ??= response.data['message']?.toString();
-                                    }
-                                  } catch (_) {}
+                                        if (response != null) {
+                                          String? serverMessage;
+                                          try {
+                                            if (response.data is Map) {
+                                              serverMessage ??= response
+                                                  .data['message']
+                                                  ?.toString();
+                                            }
+                                          } catch (_) {}
 
-                                  if (serverMessage != null && serverMessage.trim().isEmpty) {
-                                    serverMessage = null;
-                                  }
-
-                                  try {
-                                    if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
-                                      isSuccess = false;
-                                      errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
-                                      if (serverMessage == null) {
-                                        try {
-                                          if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
-                                            errorMsg = response.statusMessage.toString();
+                                          if (serverMessage != null &&
+                                              serverMessage.trim().isEmpty) {
+                                            serverMessage = null;
                                           }
-                                        } catch (_) {}
-                                      }
-                                    }
-                                  } catch (_) {}
 
-                                  try {
-                                    if (response.data is Map) {
-                                      var status = response.data['status'];
-                                      if (status == false || status == 0 || status == 'false') {
-                                        isSuccess = false;
-                                        errorMsg = serverMessage ?? errorMsg;
-                                      }
-                                    }
-                                  } catch (_) {}
-                                } else {
-                                  isSuccess = false;
-                                }
+                                          try {
+                                            if (response.statusCode != null &&
+                                                (response.statusCode! < 200 ||
+                                                    response.statusCode! >=
+                                                        300)) {
+                                              isSuccess = false;
+                                              errorMsg = serverMessage ??
+                                                  "API Error: ${response.statusCode}";
+                                              if (serverMessage == null) {
+                                                try {
+                                                  if (response.statusMessage !=
+                                                          null &&
+                                                      response.statusMessage
+                                                          .toString()
+                                                          .isNotEmpty) {
+                                                    errorMsg = response
+                                                        .statusMessage
+                                                        .toString();
+                                                  }
+                                                } catch (_) {}
+                                              }
+                                            }
+                                          } catch (_) {}
 
-                                if (isSuccess) {
-                                  widget.leadsController.loadLeadsCustomerData;
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-                                } else {
-                                  if (context.mounted) {
-                                    showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
-                                  }
-                                }
-                              } catch (error) {
-                                if (context.mounted) {
-                                  String errMsg = error.toString();
-                                  final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
-                                  final match = regex.firstMatch(errMsg);
-                                  if (match != null && match.groupCount >= 1) {
-                                    errMsg = match.group(1)!;
-                                  } else {
-                                    errMsg = errMsg.replaceAll("Exception: ", "").trim();
-                                  }
-                                  showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
-                                }
-                              } finally {
-                                setState(() {
-                                  isUpdatingLeads = false;
-                                });
-                              }
+                                          try {
+                                            if (response.data is Map) {
+                                              var status =
+                                                  response.data['status'];
+                                              if (status == false ||
+                                                  status == 0 ||
+                                                  status == 'false') {
+                                                isSuccess = false;
+                                                errorMsg =
+                                                    serverMessage ?? errorMsg;
+                                              }
+                                            }
+                                          } catch (_) {}
+                                        } else {
+                                          isSuccess = false;
+                                        }
+
+                                        if (isSuccess) {
+                                          widget.leadsController
+                                              .loadLeadsCustomerData;
+                                          if (context.mounted) {
+                                            Navigator.of(context).pop();
+                                          }
+                                        } else {
+                                          if (context.mounted) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                errorMsg,
+                                                Colors.red,
+                                                Icons.close);
+                                          }
+                                        }
+                                      } catch (error) {
+                                        if (context.mounted) {
+                                          String errMsg = error.toString();
+                                          final regex = RegExp(
+                                              r'"message"\s*:\s*"([^"]+)"');
+                                          final match =
+                                              regex.firstMatch(errMsg);
+                                          if (match != null &&
+                                              match.groupCount >= 1) {
+                                            errMsg = match.group(1)!;
+                                          } else {
+                                            errMsg = errMsg
+                                                .replaceAll("Exception: ", "")
+                                                .trim();
+                                          }
+                                          showCustomToastDisplay(context,
+                                              errMsg, Colors.red, Icons.error);
+                                        }
+                                      } finally {
+                                        setState(() {
+                                          isUpdatingLeads = false;
+                                        });
+                                      }
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColor,
@@ -940,6 +988,215 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       style: TextStyle(color: white),
                                     ),
                             ),
+                          // ElevatedButton(
+                          //   onPressed: isUpdatingLeads
+                          //       ? null
+                          //       : () async {
+                          //           setState(() {
+                          //             isUpdatingLeads = true;
+                          //           });
+
+                          //           if (businessNameController.text.isEmpty ||
+                          //               addressController.text.isEmpty ||
+                          //               townController.text.isEmpty ||
+                          //               stateController.text.isEmpty ||
+                          //               zipcodeController.text.isEmpty ||
+                          //               mobilenoController.text.isEmpty ||
+                          //               emailController.text.isEmpty ||
+                          //               fullnameController.text.isEmpty ||
+                          //               businesscontactController
+                          //                   .text.isEmpty
+                          //               ) {
+                          //             setState(() {
+                          //               isUpdatingLeads = false;
+                          //             });
+                          //             showCustomToastDisplay(
+                          //                 context,
+                          //                 'All fields must be filled.',
+                          //                 red,
+                          //                 Icons.close);
+                          //             return;
+                          //           }
+
+                          //           if (mobilenoController.text.length !=
+                          //                   10 ||
+                          //               businesscontactController
+                          //                       .text.length !=
+                          //                   10) {
+                          //             setState(() {
+                          //               isUpdatingLeads = false;
+                          //             });
+                          //             showCustomToastDisplay(
+                          //                 context,
+                          //                 'Phone numbers must be exactly 10 digits.',
+                          //                 red,
+                          //                 Icons.close);
+                          //             return;
+                          //           }
+                          //           final email = emailController.text.trim();
+                          //   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                          //   if (!emailRegex.hasMatch(email)) {
+                          //     showCustomToastDisplay(
+                          //       context,
+                          //       'Invalid Email format',
+                          //       red,
+                          //       Icons.close,
+                          //     );
+                          //     return;
+                          //   }
+
+                          //           if (leadsImage != null) {
+                          //             bool isValid =
+                          //                 await isFileSizeWithinLimit(
+                          //                     leadsImage!);
+                          //             if (!isValid) {
+                          //               setState(() {
+                          //                 isUpdatingLeads = false;
+                          //               });
+                          //               showCustomToastDisplay(
+                          //                   context,
+                          //                   'File exceeds 1MB.',
+                          //                   red,
+                          //                   Icons.close);
+                          //               return;
+                          //             }
+                          //           }
+
+                          //           final sendData = {
+                          //             "businessname":
+                          //                 businessNameController.text,
+                          //             "address": addressController.text,
+                          //             "town": townController.text,
+                          //             "state": stateController.text,
+                          //             "zipcode": int.tryParse(
+                          //                 zipcodeController.text),
+                          //             "mobileno": int.tryParse(
+                          //                 mobilenoController.text),
+                          //             "email": emailController.text,
+                          //             "tfn": businessRegNoController.text,
+                          //             "fullname": fullnameController.text,
+                          //             "businesscontact": int.tryParse(
+                          //                 businesscontactController.text),
+                          //             "addressCheckbox":
+                          //                 sameAsAbove ? "ON" : "OFF",
+                          //             "delivery_address":
+                          //                 deliveryAddressController.text,
+                          //             "delivery_town":
+                          //                 deliveryTownController.text,
+                          //             "delivery_state":
+                          //                 deliveryStateController.text,
+                          //             "delivery_zipcode": int.tryParse(
+                          //                 deliveryZipcodeController.text),
+                          //             "remark": remarkController.text,
+                          //             "delivery_contact": int.tryParse(
+                          //             deliveryContactNumController.text.trim()) ?? 0,
+                          //             "customer_id": widget.customerId,
+                          //             "oldimage_url": widget.leadsController
+                          //                 .leadForUpdateData.imageUrl,
+                          //             "companyId": SessionHelper
+                          //                     .loginSavedData?.company_id ??
+                          //                 0,
+                          //           };
+                          //           setState(() {
+                          //     isUpdatingLeads = true;
+                          //   });
+
+                          //            try {
+                          //     var response = await ApiWorker().updateCustomer(sendData, leadsImage);
+
+                          //     bool isSuccess = true;
+                          //     String errorMsg = "Failed to update lead";
+
+                          //     if (response != null) {
+                          //       String? serverMessage;
+                          //       try {
+                          //         if (response.data is Map) {
+                          //           serverMessage ??= response.data['message']?.toString();
+                          //         }
+                          //       } catch (_) {}
+
+                          //       if (serverMessage != null && serverMessage.trim().isEmpty) {
+                          //         serverMessage = null;
+                          //       }
+
+                          //       try {
+                          //         if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
+                          //           isSuccess = false;
+                          //           errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
+                          //           if (serverMessage == null) {
+                          //             try {
+                          //               if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
+                          //                 errorMsg = response.statusMessage.toString();
+                          //               }
+                          //             } catch (_) {}
+                          //           }
+                          //         }
+                          //       } catch (_) {}
+
+                          //       try {
+                          //         if (response.data is Map) {
+                          //           var status = response.data['status'];
+                          //           if (status == false || status == 0 || status == 'false') {
+                          //             isSuccess = false;
+                          //             errorMsg = serverMessage ?? errorMsg;
+                          //           }
+                          //         }
+                          //       } catch (_) {}
+                          //     } else {
+                          //       isSuccess = false;
+                          //     }
+
+                          //     if (isSuccess) {
+                          //       widget.leadsController.loadLeadsCustomerData;
+                          //       if (context.mounted) {
+                          //         Navigator.of(context).pop();
+                          //       }
+                          //     } else {
+                          //       if (context.mounted) {
+                          //         showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
+                          //       }
+                          //     }
+                          //   } catch (error) {
+                          //     if (context.mounted) {
+                          //       String errMsg = error.toString();
+                          //       final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
+                          //       final match = regex.firstMatch(errMsg);
+                          //       if (match != null && match.groupCount >= 1) {
+                          //         errMsg = match.group(1)!;
+                          //       } else {
+                          //         errMsg = errMsg.replaceAll("Exception: ", "").trim();
+                          //       }
+                          //       showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
+                          //     }
+                          //   } finally {
+                          //     setState(() {
+                          //       isUpdatingLeads = false;
+                          //     });
+                          //   }
+                          //         },
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: primaryColor,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(4.0),
+                          //     ),
+                          //   ),
+                          //   child: isUpdatingLeads
+                          //       ? const SizedBox(
+                          //           width: 20,
+                          //           height: 20,
+                          //           child: CircularProgressIndicator(
+                          //             strokeWidth: 2,
+                          //             valueColor:
+                          //                 AlwaysStoppedAnimation<Color>(
+                          //                     Colors.white),
+                          //           ),
+                          //         )
+                          //       : const Text(
+                          //           'Update',
+                          //           style: TextStyle(color: white),
+                          //         ),
+                          // ),
                           if (widget.leadsController.isUpdating.value)
                             CircularProgressIndicator(),
                         ],

@@ -1231,6 +1231,18 @@ class _TableeeState extends State<Tableee> {
                                                     isAddingCustomer = true;
                                                   });
 
+                                                  
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1), () {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        isAddingCustomer =
+                                                            false;
+                                                      });
+                                                    }
+                                                  });
+
                                                   bool isOnline =
                                                       await ConnectivityService()
                                                           .isOnline();
@@ -1246,7 +1258,7 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                                  // Required fields (Remark and Image are removed)
+                                                 
                                                   final fields = {
                                                     'Business Name':
                                                         bsNameController,
@@ -1296,7 +1308,7 @@ class _TableeeState extends State<Tableee> {
                                                     }
                                                   }
 
-                                                  // 2. Validate phone numbers
+                                                 
                                                   final phoneFields = {
                                                     'Mobile Number':
                                                         phoneController,
@@ -1325,7 +1337,7 @@ class _TableeeState extends State<Tableee> {
                                                     }
                                                   }
 
-                                                  // 3. Validate email
+                                               
                                                   final email = emailController
                                                       .text
                                                       .trim();
@@ -1345,7 +1357,7 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                                  // 4. File Size limit
+                                               
                                                   if (provider.imageFile !=
                                                       null) {
                                                     bool isValid =
@@ -1446,13 +1458,13 @@ class _TableeeState extends State<Tableee> {
                                                             ?.company_id ??
                                                         0,
                                                   };
+
                                                   try {
                                                     await provider.addCustomer(
                                                       admin: data,
                                                       salsmanId: '',
                                                     );
 
-                                                    // If the code reaches this line, the API call was successful!
                                                     provider
                                                         .handlePaginationClick(
                                                             1);
@@ -1463,12 +1475,10 @@ class _TableeeState extends State<Tableee> {
                                                           .pop();
                                                     }
                                                   } catch (error) {
-                                                    // If the API throws an error, we catch it and extract the message here
                                                     if (context.mounted) {
                                                       String errMsg =
                                                           error.toString();
 
-                                                      // Try to extract a clean message if the error comes back as a JSON string
                                                       final regex = RegExp(
                                                           r'"message"\s*:\s*"([^"]+)"');
                                                       final match = regex
@@ -1479,7 +1489,6 @@ class _TableeeState extends State<Tableee> {
                                                         errMsg =
                                                             match.group(1)!;
                                                       } else {
-                                                        // Clean up standard exceptions
                                                         errMsg = errMsg
                                                             .replaceAll(
                                                                 "Exception: Failed to update admin: ",
@@ -1499,119 +1508,293 @@ class _TableeeState extends State<Tableee> {
                                                           Icons.error);
                                                     }
                                                   } finally {
-                                                    // Always stop the loading spinner, success or fail
                                                     setState(() {
                                                       isAddingCustomer = false;
                                                     });
                                                   }
-                                                  // try {
-                                                  //   var response = await provider.addCustomer(
-                                                  //     admin: data,
-                                                  //     salsmanId: '',
-                                                  //   );
-
-                                                  //   bool isSuccess = true;
-                                                  //   String errorMsg = "Failed to add customer";
-
-                                                  //   if (response != null) {
-                                                  //     String? serverMessage;
-
-                                                  //     // Extract a message from the response payload
-                                                  //     try { serverMessage ??= response.message?.toString(); } catch (_) {}
-                                                  //     try { serverMessage ??= response['message']?.toString(); } catch (_) {}
-                                                  //     try {
-                                                  //       if (response.data != null) {
-                                                  //         if (response.data is Map) {
-                                                  //           serverMessage ??= response.data['message']?.toString();
-                                                  //         } else {
-                                                  //           serverMessage ??= response.data.message?.toString();
-                                                  //         }
-                                                  //       }
-                                                  //     } catch (_) {}
-
-                                                  //     if (serverMessage != null && serverMessage.trim().isEmpty) {
-                                                  //       serverMessage = null;
-                                                  //     }
-
-                                                  //     // Check status code in Response object
-                                                  //     try {
-                                                  //       if (response.statusCode != null && (response.statusCode < 200 || response.statusCode >= 300)) {
-                                                  //         isSuccess = false;
-                                                  //         errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
-                                                  //         if (serverMessage == null) {
-                                                  //           try {
-                                                  //             if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
-                                                  //               errorMsg = response.statusMessage.toString();
-                                                  //             }
-                                                  //           } catch (_) {}
-                                                  //         }
-                                                  //       }
-                                                  //     } catch (_) {}
-
-                                                  //     // Check status code in Map
-                                                  //     try {
-                                                  //       if (response is Map && response['statusCode'] != null) {
-                                                  //         int code = int.parse(response['statusCode'].toString());
-                                                  //         if (code < 200 || code >= 300) {
-                                                  //           isSuccess = false;
-                                                  //           errorMsg = serverMessage ?? errorMsg;
-                                                  //         }
-                                                  //       }
-                                                  //     } catch (_) {}
-
-                                                  //     // Check false status in object
-                                                  //     try {
-                                                  //       var status = response.status;
-                                                  //       if (status == false || status == 0 || status == 'false') {
-                                                  //         isSuccess = false;
-                                                  //         errorMsg = serverMessage ?? errorMsg;
-                                                  //       }
-                                                  //     } catch (_) {}
-
-                                                  //     // Check false status in Map
-                                                  //     try {
-                                                  //       if (response is Map) {
-                                                  //         var status = response['status'];
-                                                  //         if (status == false || status == 0 || status == 'false') {
-                                                  //           isSuccess = false;
-                                                  //           errorMsg = serverMessage ?? errorMsg;
-                                                  //         }
-                                                  //       }
-                                                  //     } catch (_) {}
-                                                  //   } else {
-                                                  //     isSuccess = false;
-                                                  //   }
-
-                                                  //   if (isSuccess) {
-                                                  //     provider.handlePaginationClick(1);
-                                                  //     fetchAllCustomerPages(context);
-                                                  //     if (context.mounted) {
-                                                  //       Navigator.of(context).pop();
-                                                  //     }
-                                                  //   } else {
-                                                  //     if (context.mounted) {
-                                                  //       showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
-                                                  //     }
-                                                  //   }
-                                                  // } catch (error) {
-                                                  //   if (context.mounted) {
-                                                  //     String errMsg = error.toString();
-                                                  //     final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
-                                                  //     final match = regex.firstMatch(errMsg);
-                                                  //     if (match != null && match.groupCount >= 1) {
-                                                  //       errMsg = match.group(1)!;
-                                                  //     } else {
-                                                  //       errMsg = errMsg.replaceAll("Exception: Failed to update admin: ", "").trim();
-                                                  //       errMsg = errMsg.replaceAll("Exception: ", "").trim();
-                                                  //     }
-                                                  //     showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
-                                                  //   }
-                                                  // } finally {
-                                                  //   setState(() {
-                                                  //     isAddingCustomer = false;
-                                                  //   });
-                                                  // }
                                                 },
+                                          // onPressed: isAddingCustomer
+                                          //     ? null
+                                          //     : () async {
+                                          //         setState(() {
+                                          //           isAddingCustomer = true;
+                                          //         });
+
+                                          //         bool isOnline =
+                                          //             await ConnectivityService()
+                                          //                 .isOnline();
+                                          //         if (!isOnline) {
+                                          //           setState(() {
+                                          //             isAddingCustomer = false;
+                                          //           });
+                                          //           showCustomToastDisplay(
+                                          //               context,
+                                          //               "You are Offline!",
+                                          //               red,
+                                          //               Icons.close);
+                                          //           return;
+                                          //         }
+
+                                          //         // Required fields (Remark and Image are removed)
+                                          //         final fields = {
+                                          //           'Business Name':
+                                          //               bsNameController,
+                                          //           'Address':
+                                          //               addressController,
+                                          //           'Town': townController,
+                                          //           'State': stateController,
+                                          //           'Zip Code':
+                                          //               zipcodeController,
+                                          //           'Mobile Number':
+                                          //               phoneController,
+                                          //           'Email': emailController,
+                                          //           'Telephone':
+                                          //               telephoneController,
+                                          //           'Contact Person':
+                                          //               contactPersonNameController,
+                                          //           'Contact Number':
+                                          //               contactNumController,
+                                          //           'Delivery Address':
+                                          //               deliveryAddressController,
+                                          //           'Delivery Contact Number':
+                                          //               deliveryContactNumController,
+                                          //           'Delivery Town':
+                                          //               deliveryTownController,
+                                          //           'Delivery State':
+                                          //               deliveryStateController,
+                                          //           'Delivery Zip Code':
+                                          //               deliveryZipcodeController,
+                                          //         };
+
+                                          //         // 1. Check for missing fields
+                                          //         for (var entry
+                                          //             in fields.entries) {
+                                          //           if (entry.value.text
+                                          //               .trim()
+                                          //               .isEmpty) {
+                                          //             setState(() {
+                                          //               isAddingCustomer =
+                                          //                   false;
+                                          //             });
+                                          //             showCustomToastDisplay(
+                                          //                 context,
+                                          //                 '${entry.key} is required',
+                                          //                 Colors.red,
+                                          //                 Icons.close);
+                                          //             return;
+                                          //           }
+                                          //         }
+
+                                          //         // 2. Validate phone numbers
+                                          //         final phoneFields = {
+                                          //           'Mobile Number':
+                                          //               phoneController,
+                                          //           'Contact Number':
+                                          //               contactNumController,
+                                          //           'Delivery Contact Number':
+                                          //               deliveryContactNumController,
+                                          //         };
+
+                                          //         for (var entry
+                                          //             in phoneFields.entries) {
+                                          //           final phone =
+                                          //               entry.value.text.trim();
+                                          //           if (!RegExp(r'^\d{10}$')
+                                          //               .hasMatch(phone)) {
+                                          //             setState(() {
+                                          //               isAddingCustomer =
+                                          //                   false;
+                                          //             });
+                                          //             showCustomToastDisplay(
+                                          //                 context,
+                                          //                 '${entry.key} must be 10 digits',
+                                          //                 Colors.red,
+                                          //                 Icons.close);
+                                          //             return;
+                                          //           }
+                                          //         }
+
+                                          //         // 3. Validate email
+                                          //         final email = emailController
+                                          //             .text
+                                          //             .trim();
+                                          //         final emailRegex = RegExp(
+                                          //             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                          //         if (!emailRegex
+                                          //             .hasMatch(email)) {
+                                          //           setState(() {
+                                          //             isAddingCustomer = false;
+                                          //           });
+                                          //           showCustomToastDisplay(
+                                          //               context,
+                                          //               'Invalid Email format',
+                                          //               Colors.red,
+                                          //               Icons.close);
+                                          //           return;
+                                          //         }
+
+                                          //         // 4. File Size limit
+                                          //         if (provider.imageFile !=
+                                          //             null) {
+                                          //           bool isValid =
+                                          //               await isFileSizeWithinLimit(
+                                          //                   provider
+                                          //                       .imageFile!);
+                                          //           if (!isValid) {
+                                          //             setState(() {
+                                          //               isAddingCustomer =
+                                          //                   false;
+                                          //             });
+                                          //             showCustomToastDisplay(
+                                          //                 context,
+                                          //                 'File exceeds 1MB.',
+                                          //                 red,
+                                          //                 Icons.close);
+                                          //             return;
+                                          //           }
+                                          //         }
+
+                                          //         Map<String, dynamic> data = {
+                                          //           "userid": "ADMIN",
+                                          //           "salesman_id": SessionHelper
+                                          //                   .loginSavedData
+                                          //                   ?.salesmanId ??
+                                          //               '',
+                                          //           "businessname":
+                                          //               bsNameController.text
+                                          //                   .trim(),
+                                          //           "address": addressController
+                                          //               .text
+                                          //               .trim(),
+                                          //           "town": townController.text
+                                          //               .trim(),
+                                          //           "state": stateController
+                                          //               .text
+                                          //               .trim(),
+                                          //           "zipcode": int.tryParse(
+                                          //                   zipcodeController
+                                          //                       .text
+                                          //                       .trim()) ??
+                                          //               0,
+                                          //           "mobileno": int.tryParse(
+                                          //                   phoneController.text
+                                          //                       .trim()) ??
+                                          //               0,
+                                          //           "email": emailController
+                                          //                   .text
+                                          //                   .trim()
+                                          //                   .isNotEmpty
+                                          //               ? emailController.text
+                                          //                   .trim()
+                                          //               : "N/A",
+                                          //           "tfn": int.tryParse(
+                                          //                   telephoneController
+                                          //                       .text
+                                          //                       .trim()) ??
+                                          //               0,
+                                          //           "fullname":
+                                          //               contactPersonNameController
+                                          //                   .text
+                                          //                   .trim(),
+                                          //           "businesscontact": int.tryParse(
+                                          //                   contactNumController
+                                          //                       .text
+                                          //                       .trim()) ??
+                                          //               0,
+                                          //           "delivery_address":
+                                          //               deliveryAddressController
+                                          //                   .text
+                                          //                   .trim(),
+                                          //           "delivery_contact":
+                                          //               int.tryParse(
+                                          //                       deliveryContactNumController
+                                          //                           .text
+                                          //                           .trim()) ??
+                                          //                   0,
+                                          //           "delivery_town":
+                                          //               deliveryTownController
+                                          //                   .text
+                                          //                   .trim(),
+                                          //           "delivery_state":
+                                          //               deliveryStateController
+                                          //                   .text
+                                          //                   .trim(),
+                                          //           "delivery_zipcode":
+                                          //               int.tryParse(
+                                          //                       deliveryZipcodeController
+                                          //                           .text
+                                          //                           .trim()) ??
+                                          //                   0,
+                                          //           "remark": remarkController
+                                          //               .text
+                                          //               .trim(),
+                                          //           "status_type": 3,
+                                          //           "company_id": SessionHelper
+                                          //                   .loginSavedData
+                                          //                   ?.company_id ??
+                                          //               0,
+                                          //         };
+                                          //         try {
+                                          //           await provider.addCustomer(
+                                          //             admin: data,
+                                          //             salsmanId: '',
+                                          //           );
+
+                                          //           // If the code reaches this line, the API call was successful!
+                                          //           provider
+                                          //               .handlePaginationClick(
+                                          //                   1);
+                                          //           fetchAllCustomerPages(
+                                          //               context);
+                                          //           if (context.mounted) {
+                                          //             Navigator.of(context)
+                                          //                 .pop();
+                                          //           }
+                                          //         } catch (error) {
+                                          //           // If the API throws an error, we catch it and extract the message here
+                                          //           if (context.mounted) {
+                                          //             String errMsg =
+                                          //                 error.toString();
+
+                                          //             // Try to extract a clean message if the error comes back as a JSON string
+                                          //             final regex = RegExp(
+                                          //                 r'"message"\s*:\s*"([^"]+)"');
+                                          //             final match = regex
+                                          //                 .firstMatch(errMsg);
+                                          //             if (match != null &&
+                                          //                 match.groupCount >=
+                                          //                     1) {
+                                          //               errMsg =
+                                          //                   match.group(1)!;
+                                          //             } else {
+                                          //               // Clean up standard exceptions
+                                          //               errMsg = errMsg
+                                          //                   .replaceAll(
+                                          //                       "Exception: Failed to update admin: ",
+                                          //                       "")
+                                          //                   .trim();
+                                          //               errMsg = errMsg
+                                          //                   .replaceAll(
+                                          //                       "Exception: ",
+                                          //                       "")
+                                          //                   .trim();
+                                          //             }
+
+                                          //             showCustomToastDisplay(
+                                          //                 context,
+                                          //                 errMsg,
+                                          //                 Colors.red,
+                                          //                 Icons.error);
+                                          //           }
+                                          //         } finally {
+                                          //           // Always stop the loading spinner, success or fail
+                                          //           setState(() {
+                                          //             isAddingCustomer = false;
+                                          //           });
+                                          //         }
+
+                                          //       },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: primaryColor,
                                             shape: RoundedRectangleBorder(

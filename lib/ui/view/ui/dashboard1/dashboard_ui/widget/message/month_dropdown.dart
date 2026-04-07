@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 
@@ -23,11 +24,24 @@ class _MonthDropdownState extends State<MonthDropdown> {
   bool isInitOnline = false;
 
   final GlobalKey _dropdownKey = GlobalKey(); 
-
-  final List<String> months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+List<String> get months => [
+  "January".tr, 
+  "February".tr, 
+  "March".tr, 
+  "April".tr, 
+  "May".tr, 
+  "June".tr,
+  "July".tr, 
+  "August".tr, 
+  "September".tr, 
+  "October".tr, 
+  "November".tr, 
+  "December".tr
+];
+  // final List<String> months = [
+  //   "January", "February", "March", "April", "May", "June",
+  //   "July", "August", "September", "October", "November", "December"
+  // ];
 
   final Map<String, StateSetter> _monthStateSetters = {};
   StateSetter? _selectAllStateSetter;
@@ -267,7 +281,7 @@ class _MonthDropdownState extends State<MonthDropdown> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Go'),
+              child:  Text('Go'.tr),
             ),
           ),
           // --- UPDATED BUTTON LOGIC ENDS HERE ---

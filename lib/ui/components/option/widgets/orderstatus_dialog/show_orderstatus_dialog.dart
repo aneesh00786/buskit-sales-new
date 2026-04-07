@@ -18,6 +18,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showOrderStatusDialog(
     BuildContext context,
@@ -112,7 +113,7 @@ void showOrderStatusDialog(
                                                     right:
                                                         200), // Space between label and TextField
                                                 child: CustomText(
-                                                  content: 'Orders',
+                                                  content: 'Orders'.tr,
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 22,
                                                 ),
@@ -126,7 +127,7 @@ void showOrderStatusDialog(
                                                   },
                                                   decoration: InputDecoration(
                                                     hintText:
-                                                        'Search Order ID or Invoice ID',
+                                                        'Search Order ID or Invoice ID'.tr,
                                                     prefixIcon: const Icon(
                                                         Icons.search,
                                                         color: Colors.blue),
@@ -266,10 +267,10 @@ void showOrderStatusDialog(
                                                     ],
                                                     rows: filteredOrders.isEmpty
                                                         ? [
-                                                            const DataRow(
+                                                             DataRow(
                                                                 cells: [
                                                                   DataCell(Text(
-                                                                      'Record Not Found')),
+                                                                      'Record Not Found'.tr)),
                                                                   DataCell(
                                                                       Text('')),
                                                                   DataCell(
@@ -387,7 +388,7 @@ void showOrderStatusDialog(
                                                                         } else {
                                                                           showCustomToastDisplay(
                                                                               context,
-                                                                              "You are Offline!",
+                                                                              "You are Offline!".tr,
                                                                               red,
                                                                               Icons.warning);
                                                                         }
@@ -524,7 +525,7 @@ void showOrderStatusDialog(
                                                                           } else {
                                                                             showCustomToastDisplay(
                                                                                 context,
-                                                                                "You are Offline!",
+                                                                                "You are Offline!".tr,
                                                                                 red,
                                                                                 Icons.warning);
                                                                           }

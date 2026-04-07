@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showValueOrderDialog(
     BuildContext context, Delivery deliveryData, String title, int status) {
@@ -83,35 +84,35 @@ void showValueOrderDialog(
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
-                      child: const Row(
+                      child:  Row(
                         children: [
                           Expanded(
                             child: DialogTableHeaderText(
-                              text: 'Customer',
+                              text: 'Customer'.tr,
                               fontSize: 13,
                             ),
                           ),
                           Expanded(
                             child: DialogTableHeaderText(
-                              text: 'Date',
+                              text: 'Date'.tr,
                               fontSize: 13,
                             ),
                           ),
                           Expanded(
                             child: DialogTableHeaderText(
-                              text: 'Invoice',
+                              text: 'Invoice'.tr,
                               fontSize: 13,
                             ),
                           ),
                           Expanded(
                             child: DialogTableHeaderText(
-                              text: 'Status',
+                              text: 'Status'.tr,
                               fontSize: 13,
                             ),
                           ),
                           Expanded(
                             child: DialogTableHeaderText(
-                              text: 'Amount',
+                              text: 'Amount'.tr,
                               fontSize: 13,
                             ),
                           ),
@@ -270,8 +271,8 @@ void showValueOrderDialog(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const DialogTableHeaderText(
-                              text: 'Total',
+                             DialogTableHeaderText(
+                              text: 'Total'.tr,
                               fontSize: 12,
                               align: TextAlign.left,
                             ),

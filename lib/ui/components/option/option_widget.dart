@@ -237,7 +237,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           DashboardProvider provider, OrderCountListt? orderCountList) =>
       [
         OptionData(
-          title: 'Orders',
+          title: 'Orders'.tr,
           count: widget.orderCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -246,7 +246,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           onTap: () {
             if (orderCountList?.totalOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               provider.fetchOrdersData(OrderStatus.delivered);
               showOrderStatusDialog(
@@ -261,7 +261,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Estimates',
+          title: 'Estimates'.tr,
           unfilteredCount: widget.eastimatesCount.toString(),
           count: widget.eastimatesFilterCount.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -270,14 +270,14 @@ class _OptionWidgetState extends State<OptionWidget> {
           onTap: () {
             if (orderCountList?.estimateFilterOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               provider.fetchOrdersData(OrderStatus.estimates, checkDate: true);
               _showOrderTypeDialog(
                 context,
                 provider,
                 OrderStatus.estimates,
-                'Estimate',
+                'Estimate'.tr,
                 false,
                 productsController,
                 customerOrderController,
@@ -288,7 +288,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           onUnFilterTap: () {
             if (orderCountList?.estimateOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               provider.fetchOrdersData(OrderStatus.estimates, checkDate: false);
               _showOrderTypeDialog(
@@ -305,7 +305,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Bookings',
+          title: 'Bookings'.tr,
           unfilteredCount: widget.preOrderCount.toString(),
           count: widget.preOrderFilterCount.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -315,7 +315,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             if (subscriptionController.bookingView.value == 'true') {
               if (orderCountList?.preorderFilterOrder.toString() == "0") {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 provider.fetchOrdersData(OrderStatus.preOrder, checkDate: true);
                 _showOrderTypeDialog(
@@ -358,7 +358,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Drafts',
+          title: 'Drafts'.tr,
           // unfilteredCount: 0.toString(),
           unfilteredCount: widget.draftCount.toString(),
           // count: widget.draftCount.toString(),
@@ -425,7 +425,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Cancelled',
+          title: 'Cancelled'.tr,
           unfilteredCount: 0.toString(),
           count: widget.cancelledCount.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -776,7 +776,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       right:
                                                           200), // Space between label and TextField
                                                   child: CustomText(
-                                                    content: 'Drafts',
+                                                    content: 'Drafts'.tr,
                                                     fontWeight: FontWeight.w600,
                                                     fontSize: 22,
                                                   ),
@@ -790,7 +790,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     },
                                                     decoration: InputDecoration(
                                                       hintText:
-                                                          'Search Drafts No.',
+                                                          'Search Drafts No.'.tr,
                                                       prefixIcon: const Icon(
                                                           Icons.search,
                                                           color: Colors.blue),
@@ -896,9 +896,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Customer List',
+                                                                  'Customer List'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -914,7 +914,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType No.',
+                                                                      '${orderType.tr} ${'No.'.tr}',
+                                                                  // '$orderType No.',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -929,9 +930,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Created',
+                                                                  'Created'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -946,9 +947,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Created By',
+                                                                  'Created By'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -964,7 +965,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount',
+                                                                  '$orderType Amount'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -979,9 +980,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Status',
+                                                                  'Status'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1096,12 +1097,12 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       FontWeight
                                                                           .w700),
                                                               columns: [
-                                                                const DataColumn(
+                                                                 DataColumn(
                                                                     label:
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      'Customer List',
+                                                                      'Customer List'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
@@ -1112,29 +1113,30 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      '$orderType No.',
+                                                                          '${orderType.tr} ${'No.'.tr}',
+                                                                      // '$orderType No.',
                                                                       maxLines:
                                                                           2,
                                                                     ),
                                                                   ),
                                                                 )),
-                                                                const DataColumn(
+                                                                 DataColumn(
                                                                     label:
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      'Created',
+                                                                      'Created'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
                                                                   ),
                                                                 )),
-                                                                const DataColumn(
+                                                                 DataColumn(
                                                                     label:
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      'Created By',
+                                                                      'Created By'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
@@ -1145,18 +1147,18 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      '$orderType Amount',
+                                                                      '$orderType Amount'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
                                                                   ),
                                                                 )),
-                                                                const DataColumn(
+                                                                 DataColumn(
                                                                     label:
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      'Status',
+                                                                      'Status'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
@@ -1178,9 +1180,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         filteredOfflineDrafts
                                                                             .isEmpty)
                                                                     ? [
-                                                                        const DataRow(
+                                                                         DataRow(
                                                                             cells: [
-                                                                              DataCell(Text('Record Not Found')),
+                                                                              DataCell(Text('Record Not Found'.tr)),
                                                                               DataCell(Text('')),
                                                                               DataCell(Text('')),
                                                                               DataCell(Text('')),
@@ -2289,7 +2291,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     },
                                                     decoration: InputDecoration(
                                                       hintText:
-                                                          'Search ${orderType} No.',
+                                                          'Search ${orderType} No.'.tr,
                                                       prefixIcon: const Icon(
                                                           Icons.search,
                                                           color: Colors.blue),
@@ -2395,9 +2397,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Customer List',
+                                                                  'Customer List'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2413,7 +2415,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType No.',
+                                                                   '${orderType.tr} ${'No.'.tr}',
+                                                                  // '$orderType No.',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2428,9 +2431,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Created',
+                                                                  'Created'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2445,9 +2448,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Created By',
+                                                                  'Created By'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2463,7 +2466,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount',
+                                                                  '$orderType Amount'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2478,9 +2481,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       ? 30
                                                                       : 0),
                                                               child:
-                                                                  const Center(
+                                                                   Center(
                                                                 child: Text(
-                                                                  'Status',
+                                                                  'Status'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),

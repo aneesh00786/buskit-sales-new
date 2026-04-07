@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class ProductListDialog<T> extends StatefulWidget {
@@ -121,7 +122,7 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                               child: Center(
                                 child: _customHeaderPadding(
                                   DialogTableHeaderTextWhite(
-                                    text: "Sl.No.",
+                                    text: "Sl.No.".tr,
                                     fontSize: 13,
                                     align: TextAlign.center,
                                   ),
@@ -131,9 +132,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth1,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "Product",
+                                    text: "Product".tr,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -142,9 +143,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth2_2,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "I/N",
+                                    text: "I/N".tr,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -153,9 +154,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth2,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "Last Purchase",
+                                    text: "Last Purchase".tr,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -164,9 +165,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth3,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "Times",
+                                    text: "Times".tr,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -175,9 +176,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth4,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "Amount",
+                                    text: "Amount".tr,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -186,9 +187,9 @@ class _ProductListDialogState<T> extends State<ProductListDialog<T>> {
                             SizedBox(
                               width: colWidth5,
                               child: _customHeaderPadding(
-                                const Center(
+                                 Center(
                                   child: DialogTableHeaderTextWhite(
-                                    text: "Qty",
+                                    text: "Qty".tr,
                                     fontSize: 13,
                                   ),
                                 ),

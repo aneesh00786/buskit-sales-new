@@ -107,7 +107,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Dashboard',
+            Text('Dashboard'.tr,
                 style: TextStyle(
                     fontSize: NkFontSize.largeFont(largeFont: 20),
                     fontWeight: FontWeight.bold)),
@@ -202,7 +202,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
               bool isOnline = await ConnectivityService().isOnline();
               if (!isOnline) {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
                 return;
               }
 
@@ -210,14 +210,14 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                 provider.onFilterChanged(newValue);
               }
             },
-            items: const [
+            items:  [
               DropdownMenuItem(
                 value: FilterDateEnum.thisMonth,
                 child: Row(
                   children: [
                     Icon(Icons.calendar_month, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Month'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -227,7 +227,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Week'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -237,7 +237,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Day'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -247,7 +247,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Year'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -257,7 +257,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   children: [
                     Icon(Icons.date_range, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('Range'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),

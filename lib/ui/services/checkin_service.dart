@@ -256,9 +256,9 @@ class CheckInService {
                 color: primaryColor,
               ),
               const SizedBox(width: 8.0),
-              const Expanded(
+               Expanded(
                 child: Text(
-                  'Background Tracking',
+                  'Background Tracking'.tr,
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
@@ -268,8 +268,8 @@ class CheckInService {
               ),
             ],
           ),
-          content: const Text(
-            'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.',
+          content:  Text(
+            'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'.tr,
             style: TextStyle(
               fontSize: 19.0,
               color: Colors.black87,
@@ -288,7 +288,7 @@ class CheckInService {
               ),
               onPressed: () => Navigator.pop(builderContext, false),
               child: Text(
-                'Only while using',
+                'Only while using'.tr,
                 style: TextStyle(
                   fontSize: 14.0,
                   color: primaryColor,
@@ -309,7 +309,7 @@ class CheckInService {
                 shadowColor: primaryColor.withOpacity(0.4),
               ),
               child: Text(
-                isPermanentlyDenied ? 'Open Settings' : 'Request Always',
+                isPermanentlyDenied ? 'Open Settings'.tr : 'Request Always'.tr,
                 style: const TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w700,

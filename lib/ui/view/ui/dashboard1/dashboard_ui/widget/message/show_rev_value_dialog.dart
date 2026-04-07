@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showValueDialog(
     BuildContext context, Revenuee categoryData, String title) {
@@ -77,11 +78,11 @@ void showValueDialog(
                       Container(
                         color: const Color.fromARGB(255, 247, 247, 247),
                         height: headerHeight,
-                        child: const Row(
+                        child:  Row(
                           children: [
                             Expanded(
                               child: Text(
-                                'Date',
+                                'Date'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -89,7 +90,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Invoice',
+                                'Invoice'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -97,7 +98,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Status',
+                                'Status'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -105,7 +106,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Amount',
+                                'Amount'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -367,26 +368,26 @@ void showValueDialogCusDash(
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
-                      child: const Row(
+                      child:  Row(
                         children: [
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Date',
+                            text: 'Date'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Invoice',
+                            text: 'Invoice'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Status',
+                            text: 'Status'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Amount',
+                            text: 'Amount'.tr,
                             fontSize: 13,
                           )),
                         ],
@@ -464,8 +465,8 @@ void showValueDialogCusDash(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          const DialogTableHeaderText(
-                            text: 'Total',
+                           DialogTableHeaderText(
+                            text: 'Total'.tr,
                             fontSize: 13,
                           ),
                           const Expanded(child: SizedBox.shrink()),

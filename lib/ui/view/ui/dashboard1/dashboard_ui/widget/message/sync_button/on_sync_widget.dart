@@ -54,7 +54,7 @@ class SyncButtonWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Sync',
+                            'Sync'.tr,
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: "Poppins_Regular",

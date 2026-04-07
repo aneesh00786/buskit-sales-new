@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/revenue_pie_c
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class NestedPieChartj extends StatelessWidget {
@@ -49,7 +50,7 @@ class NestedPieChartj extends StatelessWidget {
               onPointTap: (ChartPointDetails details) {
                 if (details.pointIndex == 0) {
                   showValueCollectionDialog(
-                      context, collection, 'Recieved Payment');
+                      context, collection, 'Recieved Payment'.tr);
                 } else if (details.pointIndex == 1) {
                   pendingPaymentCollectionDialog(
                       context, 'Pending Payment', collection);
@@ -75,7 +76,7 @@ class NestedPieChartj extends StatelessWidget {
                       context, 'Due Payment', collection);
                 } else if (details.pointIndex == 1) {
                   pendingPaymentCollectionDialog(
-                      context, 'Over Due Payment', collection);
+                      context, 'Over Due Payment'.tr, collection);
                 }
               },
             ),

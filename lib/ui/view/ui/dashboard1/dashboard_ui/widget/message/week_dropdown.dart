@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 
@@ -264,7 +265,7 @@ class _WeekDropdownState extends State<WeekDropdown> {
               onPressed: () async {
                 if (!isOnline) {
                   showCustomToastDisplay(
-                      context, "You are Offline!", red, Icons.close);
+                      context, "You are Offline!".tr, red, Icons.close);
                   return;
                 }
 

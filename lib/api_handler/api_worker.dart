@@ -4448,4 +4448,38 @@ Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
       return null;
     }
   }
+  Future<String> getCompanyActiveLanguage() async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final requestUrl = '${ApiConstants.baseUrl1}/Companydetails_GET?company_id=$companyId';
+    final isConnected = await ConnectivityService().isOnline();
+
+    // 1. If offline, return the last saved language from SharedPreferences
+    if (!isConnected) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('selected_language') ?? 'en'; 
+    }
+
+    // 2. If online, fetch from API
+    try {
+      final response = await dio.getbycustom(requestUrl); // Use your existing Dio setup
+      
+      if (response.data == null) {
+        throw Exception("API returned empty data");
+      }
+
+      // Check if data exists and safely extract just the active_language
+      if (response.data['status'] == true && response.data['data'] != null) {
+        String activeLanguage = response.data['data']['active_language'] ?? 'en';
+        return activeLanguage;
+      }
+      
+      return 'en'; // Default fallback
+
+    } catch (e) {
+      print("Error fetching active language: $e");
+      // Fallback to local storage on error
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('selected_language') ?? 'en';
+    }
+  }
 }

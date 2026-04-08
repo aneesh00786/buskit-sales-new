@@ -401,7 +401,24 @@
      "Disc" : "Disc",
      "Search Order ID or Invoice ID": "Search Order ID or Invoice ID",
      "'Search Drafts No.'":"'Search Drafts No.'",
-     "Recieved Payment":"Recieved Payment"
+     "Recieved Payment":"Recieved Payment",
+     "Customer Check-Out":"Customer Check-Out",
+     "Payment history": "Payment history",
+     "Mode":"Mode",
+      "Select Event Days": "Select Event Days",
+       "Select Week": "Select Week",
+       "Are you sure you want to add this visit to the calendar?.":"Are you sure you want to add this visit to the calendar?.",
+       "tuesday":"tuesday",
+       "monday":"monday",
+       "wednesday":"wednesday",
+       "thursday":"thursday",
+       "friday":"friday",
+       "saturday":"saturday",
+       "Add to Calendar":"Add to Calendar",
+        "Cancel Visit": "Cancel Visit"
+
+
+
      
 
 

@@ -141,7 +141,7 @@ class _TableeeState extends State<Tableee> {
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Customers & Orders',
+              Text('Customers & Orders'.tr,
                   style: TextStyle(
                       fontSize: NkFontSize.largeFont(largeFont: 20),
                       fontWeight: FontWeight.bold)),
@@ -459,7 +459,7 @@ class _TableeeState extends State<Tableee> {
                                                       horizontal: 16,
                                                       vertical: 10),
                                             ),
-                                            child: const Text('Go',
+                                            child:  Text('Go'.tr,
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14,
@@ -544,7 +544,7 @@ class _TableeeState extends State<Tableee> {
                                           borderRadius:
                                               BorderRadius.circular(4)),
                                     ),
-                                    child: const Text('Go',
+                                    child:  Text('Go'.tr,
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 12)),
                                   ),
@@ -604,7 +604,7 @@ class _TableeeState extends State<Tableee> {
               bool isOnline = await ConnectivityService().isOnline();
               if (!isOnline) {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
                 return;
               }
               if (newValue != null) {
@@ -624,14 +624,14 @@ class _TableeeState extends State<Tableee> {
             //     provider.onFilterChanged(newValue);
             //   }
             // },
-            items: const [
+            items:  [
               DropdownMenuItem(
                 value: FilterDateEnum.thisMonth,
                 child: Row(
                   children: [
                     Icon(Icons.calendar_month, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Month',
+                    Text('Month'.tr,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
@@ -643,7 +643,7 @@ class _TableeeState extends State<Tableee> {
                   children: [
                     Icon(Icons.calendar_today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Week',
+                    Text('Week'.tr,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
@@ -655,7 +655,7 @@ class _TableeeState extends State<Tableee> {
                   children: [
                     Icon(Icons.today, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Day',
+                    Text('Day'.tr,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
@@ -668,7 +668,7 @@ class _TableeeState extends State<Tableee> {
                     Icon(Icons.calendar_view_month,
                         size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Year',
+                    Text('Year'.tr,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
@@ -680,7 +680,7 @@ class _TableeeState extends State<Tableee> {
                   children: [
                     Icon(Icons.date_range, size: 16, color: primaryColor),
                     SizedBox(width: 8),
-                    Text('Range',
+                    Text('Range'.tr,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
@@ -815,8 +815,8 @@ class _TableeeState extends State<Tableee> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
-                                          'Add Customer',
+                                         Text(
+                                          'Add Customer'.tr,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -832,29 +832,29 @@ class _TableeeState extends State<Tableee> {
                                     child: Column(
                                       children: [
                                         buildInputField(bsNameController,
-                                            'Business Name', Assets.icBusiness),
+                                            'Business Name'.tr, Assets.icBusiness),
                                         buildInputField(addressController,
-                                            'Address', Assets.icLocation),
+                                            'Address'.tr, Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
                                                   townController,
-                                                  'City or Suburb',
+                                                  'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   stateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   zipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
                                             ),
                                           ],
@@ -866,7 +866,7 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                 phoneController,
-                                                'Mobile Number',
+                                                'Mobile Number'.tr,
                                                 Assets.icMobile,
                                                 length: 10,
                                               ),
@@ -875,25 +875,25 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   emailController,
-                                                  'Email',
+                                                  'Email'.tr,
                                                   Assets.icEmail),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   telephoneController,
-                                                  'Business Reg.No',
+                                                  'Business Reg.No'.tr,
                                                   Assets.icBusinessReg),
                                             ),
                                           ],
                                         ),
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 6.0),
                                           child: Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              'Contact Details',
+                                              'Contact Details'.tr,
                                               style: TextStyle(fontSize: 18),
                                             ),
                                           ),
@@ -905,14 +905,14 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   contactPersonNameController,
-                                                  'Contact Person',
+                                                  'Contact Person'.tr,
                                                   Assets.icUser),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                 contactNumController,
-                                                'Contact Number',
+                                                'Contact Number'.tr,
                                                 Assets.icPhone,
                                                 length: 10,
                                               ),
@@ -924,8 +924,8 @@ class _TableeeState extends State<Tableee> {
                                               vertical: 6.0),
                                           child: Row(
                                             children: [
-                                              const Text(
-                                                'Delivery Address    ',
+                                               Text(
+                                                'Delivery Address    '.tr,
                                                 style: TextStyle(fontSize: 18),
                                               ),
                                               Checkbox(
@@ -969,34 +969,34 @@ class _TableeeState extends State<Tableee> {
                                                 },
                                               ),
                                               const SizedBox(width: 5),
-                                              const Text('Same as Above'),
+                                               Text('Same as Above'.tr),
                                             ],
                                           ),
                                         ),
                                         buildInputField(
                                             deliveryAddressController,
-                                            'Address',
+                                            'Address'.tr,
                                             Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryTownController,
-                                                  'City or Suburb',
+                                                  'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryStateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryZipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
                                             ),
                                           ],
@@ -1004,17 +1004,17 @@ class _TableeeState extends State<Tableee> {
                                         // NEW: Delivery Contact Field Build
                                         buildInputField(
                                             deliveryContactNumController,
-                                            'Delivery Contact Number',
+                                            'Delivery Contact Number'.tr,
                                             Assets.icPhone,
                                             length: 10),
-                                        const SizedBox(
+                                         SizedBox(
                                           height: 30,
                                           child: Row(
                                             children: [
                                               Spacer(),
                                               SizedBox(width: 8.0),
                                               Expanded(
-                                                  child: Text("Company logo"))
+                                                  child: Text("Company logo".tr))
                                             ],
                                           ),
                                         ),
@@ -1167,8 +1167,8 @@ class _TableeeState extends State<Tableee> {
                                                           child: Text(
                                                             provider.imageFile ==
                                                                     null
-                                                                ? 'Pick an image from gallery'
-                                                                : 'Image selected',
+                                                                ? 'Pick an image from gallery'.tr
+                                                                : 'Image selected'.tr,
                                                             style: TextStyle(
                                                               color: Colors.grey
                                                                   .shade700,
@@ -1815,8 +1815,8 @@ class _TableeeState extends State<Tableee> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              : const Text(
-                                                  'Add Customer',
+                                              :  Text(
+                                                  'Add Customer'.tr,
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
@@ -2907,8 +2907,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Sales',
+                       Text(
+                        'Sales'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2921,8 +2921,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Deliveries',
+                       Text(
+                        'Deliveries'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2935,8 +2935,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Payments',
+                       Text(
+                        'Payments'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2949,8 +2949,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Bookings',
+                       Text(
+                        'Bookings'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2963,8 +2963,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Estimates',
+                       Text(
+                        'Estimates'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2977,8 +2977,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Drafts',
+                       Text(
+                        'Drafts'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2991,8 +2991,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Cancelled',
+                       Text(
+                        'Cancelled'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -3005,8 +3005,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Visit',
+                       Text(
+                        'Visit'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -3334,10 +3334,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                         const SizedBox(width: 10),
                         Container(
                           color: Colors.grey[200],
-                          child: const Column(
+                          child:  Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Total',
+                              Text('Total'.tr,
                                   style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700)),
@@ -4415,7 +4415,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Customer Check-Out'),
+              title:  Text('Customer Check-Out'.tr),
               content: Text(
                   '$customerName is already checked In. Do you want to Check-out?'),
               actions: [
@@ -5240,9 +5240,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
-                                                child: const Center(
+                                                child:  Center(
                                                   child: Text(
-                                                    'Total',
+                                                    'Total'.tr,
                                                     maxLines: 2,
                                                   ),
                                                 ),
@@ -5413,9 +5413,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Customer List',
+                                                  'Customer List'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5431,9 +5431,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Order No.',
+                                                  'Order No.'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5448,9 +5448,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Created',
+                                                  'Created'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5465,9 +5465,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Created By',
+                                                  'Created By'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5482,9 +5482,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Amount',
+                                                  'Amount'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5499,9 +5499,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Invoice',
+                                                  'Invoice'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5516,9 +5516,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Payment Status',
+                                                  'Payment Status'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5533,9 +5533,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Status',
+                                                  'Status'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),

@@ -287,16 +287,16 @@ class _CustomSwitchState extends State<CustomSwitch> {
         // Already checked in for attendance, standard confirmation
         proceedWithCustomerCheckIn = await _showConfirmDialog(
           context, 
-          'Confirm Check-In', 
-          'Are you sure you want to check in to this customer?'
+          'Confirm Check-In'.tr, 
+          'Are you sure you want to check in to this customer?'.tr
         );
       }
     } else {
       // Checking OUT of customer, standard confirmation
       proceedWithCustomerCheckIn = await _showConfirmDialog(
         context, 
-        'Confirm Check-Out', 
-        'Are you sure you want to check out?'
+        'Confirm Check-Out'.tr, 
+        'Are you sure you want to check out?'.tr
       );
     }
 

@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
 Future<dynamic> showSuccessFullDialog(
@@ -50,7 +51,7 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
           ),
         ),
         content: CustomText(
-          content: 'Your order has been successfully saved as Draft',
+          content: 'Your order has been successfully saved as Draft'.tr,
           fontSize: 18,
         ),
         actions: [

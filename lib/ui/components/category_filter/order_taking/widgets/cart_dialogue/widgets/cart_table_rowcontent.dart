@@ -780,13 +780,13 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18)),
                           elevation: 12,
-                          title: const Row(
+                          title:  Row(
                             children: [
                               Icon(Icons.discount_outlined,
                                   color: Colors.deepPurple, size: 28),
                               SizedBox(width: 12),
                               Text(
-                                "Discount Details",
+                                "Discount Details".tr,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
@@ -842,7 +842,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 if (CustomerDiscount > 0) ...[
                                   _buildDiscountRow(
                                     icon: Icons.card_giftcard_rounded,
-                                    label: "Customer Discount",
+                                    label: "Customer Discount".tr,
                                     percent: CustomerDiscount,
                                     amount: CustomerDiscount * quantity,
                                     color: Colors.orange.shade700,
@@ -854,7 +854,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 if (tieredDiscount > 0) ...[
                                   _buildDiscountRow(
                                     icon: Icons.local_offer_outlined,
-                                    label: "Promo Offer",
+                                    label: "Promo Offer".tr,
                                     percent: tieredDiscount,
                                     amount:
                                         promoDiscountAmountPerUnit * quantity,
@@ -865,10 +865,10 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
 
                                 if (CustomerDiscount == 0 &&
                                     tieredDiscount == 0)
-                                  const Padding(
+                                   Padding(
                                     padding: EdgeInsets.all(20),
                                     child: Text(
-                                      "No discount applied",
+                                      "No discount applied".tr,
                                       style: TextStyle(
                                           color: Colors.grey,
                                           fontStyle: FontStyle.italic,
@@ -889,8 +889,8 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        "You Saved",
+                                       Text(
+                                        "You Saved".tr,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 19,
@@ -927,7 +927,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                               child: ElevatedButton.icon(
                                 onPressed: () => Navigator.pop(context),
                                 icon: const Icon(Icons.check, size: 20),
-                                label: const Text("Got it",
+                                label:  Text("Got it".tr,
                                     style: TextStyle(fontSize: 16)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.deepPurple.shade600,

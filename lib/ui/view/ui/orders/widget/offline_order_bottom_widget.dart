@@ -689,17 +689,17 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Delete Order'),
-              content: const Text(
-                  'Are you sure you want to delete this offline order?'),
+              title:  Text('Delete Order'.tr),
+              content:  Text(
+                  'Are you sure you want to delete this offline order?'.tr),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child:  Text('Cancel'.tr),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Delete'),
+                  child:  Text('Delete'.tr),
                 ),
               ],
             ),

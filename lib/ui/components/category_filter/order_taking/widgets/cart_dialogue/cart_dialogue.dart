@@ -839,14 +839,14 @@ bool _needsRefresh = true;
                       return DialogueHedingWidget(
                         height: height,
                         width: width,
-                        title: 'My Cart',
+                        title: 'My Cart'.tr,
                         creditWidget: Obx(() {
                           final latestCredit =
                               customerCreditController.customerCredit.value;
 
                           return isLoading
-                              ? const Text(
-                                  'Credit: Loading...',
+                              ?  Text(
+                                  'Credit: Loading...'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w600),
@@ -859,8 +859,8 @@ bool _needsRefresh = true;
                                       fontWeight: FontWeight.w600,
                                     ),
                                     children: [
-                                      const TextSpan(
-                                        text: 'Credit: ',
+                                       TextSpan(
+                                        text: 'Credit: '.tr,
                                         style: TextStyle(color: Colors.black),
                                       ),
                                       TextSpan(
@@ -915,7 +915,7 @@ bool _needsRefresh = true;
                                         },
                                         child: Center(
                                           child: CustomText(
-                                            content: 'ORDERS',
+                                            content: 'ORDERS'.tr,
                                             fontWeight: FontWeight.w700,
                                             color:
                                                 isOrder ? white : primaryColor,
@@ -1274,7 +1274,7 @@ bool _needsRefresh = true;
                       // print('payble amount:$payableAmount');
                       //thi is the portion of orders//
                       return CartTotalWidget(
-                        title: 'Subtotal',
+                        title: 'Subtotal'.tr,
                         //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         content: payableAmount,
                         fontSize: 22,
@@ -1409,7 +1409,7 @@ Obx(() {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 CustomText(
-                                  content: 'Tax',
+                                  content: 'Tax'.tr,
                                   fontSize: 16,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
@@ -1504,7 +1504,7 @@ Obx(() {
                       print('payble amount:$payableAmount');
                       //thi is the portion of orders//
                       return CartTotalWidget(
-                        title: 'Final Amount',
+                        title: 'Final Amount'.tr,
                         //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         content: payableAmount,
                         fontSize: 22,
@@ -1744,7 +1744,7 @@ Obx(() {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomText(
-                              content: 'Subtotal',
+                              content: 'Subtotal'.tr,
                               fontSize: 16,
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
@@ -1829,7 +1829,7 @@ Obx(() {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomText(
-                              content: 'Tax',
+                              content: 'Tax'.tr,
                               fontSize: 16,
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
@@ -1876,7 +1876,7 @@ Obx(() {
                           : finalBeforeCredit;
                       print('payble amount:$payableAmount');
                       return CartTotalWidget(
-                        title: 'Final Amount',
+                        title: 'Final Amount'.tr,
 
                         //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         // this is the portion of preorder//
@@ -2293,7 +2293,7 @@ Obx(() {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CustomCartButton(
-                          text: 'Continue Shopping',
+                          text: 'Continue Shopping'.tr,
                           size: width > 1200 ? 14 : 10,
                           color: primaryColor,
                           onTap: () {
@@ -2309,7 +2309,7 @@ Obx(() {
                         ),
                         const SizedBox(width: 30),
                         CustomCartButton(
-                          text: 'Save & Send',
+                          text: 'Save & Send'.tr,
                           size: width > 1200 ? 14 : 10,
                           color: const Color(0xff5bc0de),
 
@@ -3946,7 +3946,7 @@ return SendCartData(
             Align(
                 alignment: Alignment.centerLeft,
                 child: CustomText(
-                  content: 'Are you sure you want to delete..?',
+                  content: 'Are you sure you want to delete..?'.tr,
                   fontSize: 17,
                 )),
             Row(
@@ -3956,7 +3956,7 @@ return SendCartData(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('No')),
+                    child:  Text('No'.tr)),
                 TextButton(
                     onPressed: () {
                       final provider = Provider.of<CustomersProvider>(context,
@@ -3966,7 +3966,7 @@ return SendCartData(
                       widget.productsController.isCartModified.value = true;
                       Navigator.pop(context);
                     },
-                    child: const Text('Yes'))
+                    child:  Text('Yes'.tr))
               ],
             )
           ],
@@ -4000,7 +4000,7 @@ return SendCartData(
             ],
           ),
           content: CustomText(
-            content: 'Are you sure you want to delete this item?',
+            content: 'Are you sure you want to delete this item?'.tr,
             fontSize: 15,
           ),
           actionsPadding:

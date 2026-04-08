@@ -448,7 +448,21 @@
    "Visit Date":"Visit Date",
    "Customer/s":"Customer/s",
     "Customer ID": "Customer ID",
-    "Business NO":"Business NO"
+    "Business NO":"Business NO",
+    "Delete Account":"Delete Account",
+    "Profile Image":"Profile Image",
+    "ID Card Image":"ID Card Image",
+    "Personal Information":"Personal Information",
+    "Email Address":"Email Address",
+    "Address Details":"Address Details",
+    "Zip / Postal Code":"Zip / Postal Code",
+    "City / Suburb":"City / Suburb",
+    "Full Address":"Full Address",
+    "Secure your account with a new password.":"Secure your account with a new password.",
+    "Old Password":"Old Password",
+    "New Password":"New Password",
+    "Confirm Password":"Confirm Password",
+    "Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?":"Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?"
 
 
 

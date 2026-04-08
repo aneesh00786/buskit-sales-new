@@ -161,7 +161,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
               const Divider(),
               const SizedBox(height: 8),
               CustomText(
-                content: 'Reached Customer?',
+                content: 'Reached Customer?'.tr,
                 fontSize: 17,
               ),
             ],
@@ -316,8 +316,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
           child: Column(
             children: [
               isToday
-                  ? DiloagAppBar(title: "Customer Visit For Today")
-                  : DiloagAppBar(title: "Customer Visit For $formattedDate"),
+                  ? DiloagAppBar(title: "Customer Visit For Today".tr)
+                  : DiloagAppBar(title: 'Customer Visit For'.tr + ' $formattedDate'),
               const SizedBox(height: 40),
               const Center(
                 child: Text(
@@ -351,8 +351,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
           child: Column(
             children: [
               isToday
-                  ? DiloagAppBar(title: "Customer Visit For Today")
-                  : DiloagAppBar(title: "Customer Visit For $formattedDate"),
+                  ? DiloagAppBar(title: "Customer Visit For Today".tr)
+                  : DiloagAppBar(title: 'Customer Visit For'.tr + ' $formattedDate'),
               if (widget.calenderMapController.isOnlyCustomerLoading.value ==
                   true) ...[
                 const SizedBox(
@@ -371,7 +371,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                       Expanded(
                         child: Center(
                           child: CustomText(
-                            content: "Customers",
+                            content: "Customers".tr,
                             fontWeight: FontWeight.w700,
                             fontSize: 14,
                           ),
@@ -1264,8 +1264,8 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                         child: ElevatedButton.icon(
                           label: CustomText(
                             content: selectedEventTimes.isNotEmpty
-                                ? 'Save'
-                                : 'Show Route',
+                                ? 'Save'.tr
+                                : 'Show Route'.tr,
                             color: white,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1317,7 +1317,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 if (widgetDate.isAfter(currentDate)) {
                                   showCustomToastDisplay(
                                       context,
-                                      "Only current and working day's route can be generated",
+                                      "Only current and working day's route can be generated".tr,
                                       // 'This route can be accessed from $formattedDate',
                                       Colors.orange,
                                       Icons.warning);
@@ -1326,7 +1326,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                                 if (widgetDate.isBefore(currentDate)) {
                                   showCustomToastDisplay(
                                       context,
-                                      "Only current and working day's route can be generated",
+                                      "Only current and working day's route can be generated".tr,
                                       // 'This route can be accessed from $formattedDate',
                                       Colors.orange,
                                       Icons.warning);

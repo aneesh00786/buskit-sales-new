@@ -44,7 +44,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: CustomText(content: 'Calender',fontWeight: FontWeight.bold,),
+                child: CustomText(content: 'Calender'.tr,fontWeight: FontWeight.bold,),
               ),
               Spacer(),
               const NotificationWidget(

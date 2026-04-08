@@ -16,10 +16,12 @@ class SalesReturnMonthDropdown extends StatefulWidget {
 class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
   final SalesReturnController controller = Get.find<SalesReturnController>();
   final GlobalKey _dropdownKey = GlobalKey();
-  final List<String> months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+   List<String> get months => ["January".tr, "February".tr, "March".tr, "April".tr, "May".tr, "June".tr, "July".tr, "August".tr, "September".tr, "October".tr, "November".tr, "December".tr];
+ 
+  // final List<String> months = [
+  //   "January", "February", "March", "April", "May", "June",
+  //   "July", "August", "September", "October", "November", "December"
+  // ];
   final Map<String, StateSetter> _monthStateSetters = {};
   StateSetter? _selectAllStateSetter;
 

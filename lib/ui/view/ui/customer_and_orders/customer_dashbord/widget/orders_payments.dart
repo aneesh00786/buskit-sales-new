@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_collection_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 const double colDateWidth = 70;
@@ -67,8 +68,8 @@ MyCommnonContainer OrdersPayments(
                   // padding: const EdgeInsets.only(
                   //     right: 20, left: 20, top: 5, bottom: 5),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: const Text(
-                    'Orders & Payment/s',
+                  child:  Text(
+                    'Orders & Payment/s'.tr,
                     style: cardHeadingTextStyle,
                     maxLines: 1,
                     softWrap: false,

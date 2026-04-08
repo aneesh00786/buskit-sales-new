@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
@@ -58,9 +59,9 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Expanded(
+                           Expanded(
                             child: Text(
-                              "Order & Payments",
+                              "Order & Payments".tr,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -90,7 +91,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                 } else {
                                   showCustomToastDisplay(
                                       context,
-                                      'Please select an order to change payment details',
+                                      'Please select an order to change payment details'.tr,
                                       red,
                                       Icons.close);
                                 }
@@ -101,8 +102,8 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                   borderRadius: BorderRadius.circular(4.0),
                                 ),
                               ),
-                              child: const Text(
-                                'Collection',
+                              child:  Text(
+                                'Collection'.tr,
                                 style: TextStyle(
                                   color: Colors.white,
                                 ),

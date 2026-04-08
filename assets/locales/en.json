@@ -462,7 +462,12 @@
     "Old Password":"Old Password",
     "New Password":"New Password",
     "Confirm Password":"Confirm Password",
-    "Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?":"Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?"
+    "Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?":"Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?",
+    "Customer dashboard":"Customer dashboard",
+    "lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart":"lib/ui/view/ui/customer_and_orders/customer_dashbord/customer_dashbord_screen.dart",
+    "Customer Offer":"Customer Offer"
+
+    
 
 
 

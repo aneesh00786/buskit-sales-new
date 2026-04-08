@@ -792,7 +792,7 @@ InkWell(
                 width: 10,
               ),
               Text(
-                "Customer dashboard",
+                "Customer dashboard".tr,
                 style: TextStyle(
                     fontSize: NkFontSize.largeFont(largeFont: 20),
                     fontWeight: FontWeight.bold),
@@ -823,7 +823,7 @@ InkWell(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Credit:'),
+                      Text('Credit:'.tr),
                       SizedBox(width: 7,),
                       Icon(
                         Icons.account_balance_wallet_outlined,
@@ -1044,7 +1044,7 @@ InkWell(
         if (context.mounted) {
           showCustomToastDisplay(
             context,
-            'No internet connection. Please connect to the internet to filter data.',
+            'No internet connection. Please connect to the internet to filter data.'.tr,
             Colors.orange,
             Icons.wifi_off,
           );
@@ -1270,7 +1270,7 @@ InkWell(
               children: [
                 Row(
                   children: [
-                    dashboardContainerHeader('Category Sales'),
+                    dashboardContainerHeader('Category Sales'.tr),
                 
                     const Spacer(),
                     Padding(
@@ -1281,7 +1281,7 @@ InkWell(
                         onTap: () {
                           showCustomerCategoryChartDialog(
                             context,
-                            "Category Sales",
+                            "Category Sales".tr,
                             widget.cusId,
                             selectedYear,
                           );
@@ -1424,7 +1424,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Revenue',
+                                          'Revenue'.tr,
                                           style: _tabIndex == 0
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1456,7 +1456,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Customer Offer',
+                                          'Customer Offer'.tr,
                                           style: _tabIndex == 1
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1521,7 +1521,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Revenue',
+                                          'Revenue'.tr,
                                           style: _tabIndex == 0
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1553,7 +1553,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Customer Offer',
+                                          'Customer Offer'.tr,
                                           style: _tabIndex == 1
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,

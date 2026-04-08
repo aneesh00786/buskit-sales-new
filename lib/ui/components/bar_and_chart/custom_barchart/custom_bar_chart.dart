@@ -1049,28 +1049,28 @@ class _CustomBarChartCustomerDashState
                                     headingRowColor: WidgetStatePropertyAll(
                                         Colors.grey.shade300),
                                     border: TableBorder.all(color: Colors.grey),
-                                    columns: const [
+                                    columns:  [
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Product',
+                                          text: 'Product'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Invoice',
+                                          text: 'Invoice'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Quantity',
+                                          text: 'Quantity'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Price',
+                                          text: 'Price'.tr,
                                           fontSize: 13,
                                         ),
                                       ),

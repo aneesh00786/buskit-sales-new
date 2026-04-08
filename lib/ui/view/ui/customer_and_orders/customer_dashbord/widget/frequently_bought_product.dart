@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists,SubscriptionController subscriptionController) {
@@ -37,7 +38,7 @@ Widget Frequently(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              dashboardContainerHeader("Frequently Ordered Products"),
+              dashboardContainerHeader("Frequently Ordered Products".tr),
               Padding(
                 padding: EdgeInsets.only(
                     right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),

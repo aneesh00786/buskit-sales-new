@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrderTopWidget extends StatelessWidget {
   final OrderController orderController;
@@ -25,7 +26,7 @@ class OrderTopWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 20),
-          child: CustomText(content: 'Recent Orders',fontWeight: FontWeight.bold,),
+          child: CustomText(content: 'Recent Orders'.tr,fontWeight: FontWeight.bold,),
         ),
         const Spacer(),
         profiloe(),

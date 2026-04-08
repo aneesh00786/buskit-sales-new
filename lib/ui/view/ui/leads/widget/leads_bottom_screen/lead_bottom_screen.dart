@@ -74,7 +74,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Sl.No.",
+                        content: "Sl.No.".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12.5,
                         color: Colors.white,
@@ -86,7 +86,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Leads",
+                        content: "Leads".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12.5,
                         color: Colors.white,

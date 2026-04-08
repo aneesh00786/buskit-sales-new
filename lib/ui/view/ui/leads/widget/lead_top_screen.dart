@@ -28,7 +28,7 @@ class LeadTopScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomText(content: 'Leads',fontWeight: FontWeight.bold,),
+            CustomText(content: 'Leads'.tr,fontWeight: FontWeight.bold,),
             SizedBox(width: 10,),
          
             const Spacer(),

@@ -429,7 +429,12 @@
   "Payment Successful!": "Payment Successful!",
   "Scan QR to Pay":"Scan QR to Pay",
   "Scan with Phone Camera\nGoogle Pay • Apple Pay • Card":"Scan with Phone Camera\nGoogle Pay • Apple Pay • Card",
-  "Invalid amount or no items selected":"Invalid amount or no items selected"
+  "Invalid amount or no items selected":"Invalid amount or no items selected",
+  "All fields must be filled.":"All fields must be filled.",
+  "Phone numbers must be exactly 10 digits.":"Phone numbers must be exactly 10 digits.",
+  "Invalid Email format":"Invalid Email format",
+  "Move to Leads":"Move to Leads",
+  "Add New":"Add New"
 
 
 

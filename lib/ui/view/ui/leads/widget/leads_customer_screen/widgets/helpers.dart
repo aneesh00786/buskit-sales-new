@@ -2,6 +2,7 @@
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget buildTableHeader1(Widget child, double width) {
     return Container(
@@ -20,14 +21,14 @@ Widget buildTableHeader1(Widget child, double width) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: buildHeaderText('Address', 13)),
-          Expanded(child: buildHeaderText('Town', 13)),
-          Expanded(child: buildHeaderText('State', 13)),
-          Expanded(child: buildHeaderText('Zip Code', 13)),
-          Expanded(child: buildHeaderText('Mobile No.', 13)),
-          Expanded(child: buildHeaderText('Email', 13)),
-          Expanded(child: buildHeaderText('Contact Person', 13)),
-          Expanded(child: buildHeaderText('Contact Number', 13)),
+          Expanded(child: buildHeaderText('Address'.tr, 13)),
+          Expanded(child: buildHeaderText('Town'.tr, 13)),
+          Expanded(child: buildHeaderText('State'.tr, 13)),
+          Expanded(child: buildHeaderText('Zip Code'.tr, 13)),
+          Expanded(child: buildHeaderText('Mobile No.'.tr, 13)),
+          Expanded(child: buildHeaderText('Email'.tr, 13)),
+          Expanded(child: buildHeaderText('Contact Person'.tr, 13)),
+          Expanded(child: buildHeaderText('Contact Number'.tr, 13)),
           const SizedBox(width: 10),
         ],
       ),

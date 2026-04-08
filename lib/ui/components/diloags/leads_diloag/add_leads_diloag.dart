@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddLeadsScreen extends StatefulWidget {
@@ -96,8 +97,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Add Leads',
+                                   Text(
+                                    'Add Leads'.tr,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -116,11 +117,11 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                   buildInputField(
                                       widget.leadsController
                                           .businessNameController,
-                                      'Business Name',
+                                      'Business Name'.tr,
                                       Assets.icBusiness),
                                   buildInputField(
                                       widget.leadsController.addressController,
-                                      'Address',
+                                      'Address'.tr,
                                       Assets.icLocation),
 
                                   // Town, State, Zipcode Row
@@ -130,7 +131,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget
                                                 .leadsController.townController,
-                                            'City or Suburb',
+                                            'City or Suburb'.tr,
                                             Assets.icCity),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -138,7 +139,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .stateController,
-                                            'State',
+                                            'State'.tr,
                                             Assets.icState),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -146,7 +147,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .zipcodeController,
-                                            'Zip/Post/Pin Code',
+                                            'Zip/Post/Pin Code'.tr,
                                             Assets.icZipcode),
                                       ),
                                     ],
@@ -159,7 +160,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                           widget.leadsController
                                               .mobileNoController,
-                                          'Mobile Number',
+                                          'Mobile Number'.tr,
                                           Assets.icMobile,
                                           length: 10,
                                         ),
@@ -169,7 +170,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .emailController,
-                                            'Email',
+                                            'Email'.tr,
                                             Assets.icEmail),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -177,19 +178,19 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .telephoneController,
-                                            'Business Reg.No',
+                                            'Business Reg.No'.tr,
                                             Assets.icBusinessReg),
                                       ),
                                     ],
                                   ),
 
                                   // Contact Details Section
-                                  const Padding(
+                                   Padding(
                                     padding:
                                         EdgeInsets.symmetric(vertical: 6.0),
                                     child: Align(
                                       alignment: Alignment.centerLeft,
-                                      child: Text('Contact Details',
+                                      child: Text('Contact Details'.tr,
                                           style: TextStyle(fontSize: 18)),
                                     ),
                                   ),
@@ -201,7 +202,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .fullnameController,
-                                            'Contact Person',
+                                            'Contact Person'.tr,
                                             Assets.icUser),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -209,7 +210,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                           widget.leadsController
                                               .businessContactController,
-                                          'Contact Number',
+                                          'Contact Number'.tr,
                                           Assets.icPhone,
                                           length: 10,
                                         ),
@@ -223,7 +224,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         vertical: 6.0),
                                     child: Row(
                                       children: [
-                                        const Text('Delivery Address    ',
+                                         Text('Delivery Address    '.tr,
                                             style: TextStyle(fontSize: 18)),
                                         Checkbox(
                                           value: sameAsAbove,
@@ -281,7 +282,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           },
                                         ),
                                         const SizedBox(width: 5),
-                                        const Text('Same as Above'),
+                                         Text('Same as Above'.tr),
                                       ],
                                     ),
                                   ),
@@ -289,7 +290,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                   buildInputField(
                                       widget.leadsController
                                           .deliveryAddressController,
-                                      'Address',
+                                      'Address'.tr,
                                       Assets.icLocation),
                                   Row(
                                     children: [
@@ -297,7 +298,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .deliveryTownController,
-                                            'City or Suburb',
+                                            'City or Suburb'.tr,
                                             Assets.icCity),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -305,7 +306,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .deliveryStateController,
-                                            'State',
+                                            'State'.tr,
                                             Assets.icState),
                                       ),
                                       const SizedBox(width: 8.0),
@@ -313,21 +314,21 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                         child: buildInputField(
                                             widget.leadsController
                                                 .deliveryZipcodeController,
-                                            'Zip/Post/Pin Code',
+                                            'Zip/Post/Pin Code'.tr,
                                             Assets.icZipcode),
                                       ),
                                     ],
                                   ),
                                   buildInputField(deliveryContactNumController,
-                                      'Delivery Contact Number', Assets.icPhone,
+                                      'Delivery Contact Number'.tr, Assets.icPhone,
                                       length: 10),
-                                  const SizedBox(
+                                   SizedBox(
                                     height: 30,
                                     child: Row(
                                       children: [
                                         Spacer(),
                                         SizedBox(width: 16.0),
-                                        Expanded(child: Text("Company logo"))
+                                        Expanded(child: Text("Company logo".tr))
                                       ],
                                     ),
                                   ),
@@ -357,7 +358,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 16.0,
                                                       vertical: 18.0),
-                                              labelText: 'Remark',
+                                              labelText: 'Remark'.tr,
                                               labelStyle: TextStyle(
                                                   color: Colors.grey.shade600),
                                               prefixIcon:
@@ -459,8 +460,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                     Expanded(
                                                       child: Text(
                                                         leadsImage == null
-                                                            ? 'Pick an image from gallery'
-                                                            : 'Image selected',
+                                                            ? 'Pick an image from gallery'.tr
+                                                            : 'Image selected'.tr,
                                                         style: TextStyle(
                                                           color: Colors
                                                               .grey.shade700,
@@ -632,7 +633,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                       });
                                                       showCustomToastDisplay(
                                                         context,
-                                                        '${entry.key} must be 10 digits',
+                                                        '${entry.key} must be 10 digits'.tr,
                                                         red,
                                                         Icons.close,
                                                       );
@@ -940,7 +941,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              : const Text('Add Leads',
+                                              :  Text('Add Leads'.tr,
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                         ),
@@ -1249,7 +1250,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
             },
           );
         },
-        text: 'Add New',
+        text: 'Add New'.tr,
       ),
     );
   }

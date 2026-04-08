@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_customer_sc
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_rejected_screen/lead_rejected_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_bottom_screen/lead_bottom_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LeadsTabBar extends StatefulWidget {
   final LeadsController leadController;
@@ -23,7 +24,7 @@ class LeadsTabBar extends StatefulWidget {
 
 class _LeadsTabBarState extends State<LeadsTabBar> {
   int _selectedTabIndex = 0;
-  final List<String> _tabs = ['Leads', 'Customers', 'Rejected Leads'];
+  final List<String> _tabs = ['Leads'.tr, 'Customers'.tr, 'Rejected Leads'.tr];
   Widget _getTabContent() {
     switch (_selectedTabIndex) {
       case 0:

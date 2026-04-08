@@ -77,35 +77,35 @@ Widget buildHeader(
                                 Expanded(
                                     flex: 3,
                                     child: _buildHeaderText(
-                                        "Order No.", fontSize)),
+                                        "Order No.".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child: _buildHeaderText("Date", fontSize)),
+                                    child: _buildHeaderText("Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
                                     child:
-                                        _buildHeaderText("Due Date", fontSize)),
+                                        _buildHeaderText("Due Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 2,
-                                    child: _buildHeaderText("Days", fontSize)),
+                                    child: _buildHeaderText("Days".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
                                     child:
-                                        _buildHeaderText("Amount", fontSize)),
+                                        _buildHeaderText("Amount".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
                                     child:
-                                        _buildHeaderText("Invoice", fontSize)),
+                                        _buildHeaderText("Invoice".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 4,
                                     child:
-                                        _buildHeaderText("Status", fontSize)),
+                                        _buildHeaderText("Status".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
@@ -529,9 +529,9 @@ Widget _buildPaymentCollectionButton(
             color: const Color(0xff5bc0de),
             borderRadius: BorderRadius.circular(5),
           ),
-          child: const Center(
+          child:  Center(
             child: Text(
-              'Collect Payment',
+              'Collect Payment'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 10,

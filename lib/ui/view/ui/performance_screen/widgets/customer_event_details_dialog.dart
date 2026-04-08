@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_event_details_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
@@ -151,12 +152,12 @@ Future<void> _loadTimeZone() async {
                           TableRow(
                             decoration:
                                 BoxDecoration(color: Colors.grey.shade100),
-                            children: const [
-                              _HeaderCell('Client Name'),
-                              _HeaderCell('Visit Date'),
-                              _HeaderCell('Check-In'),
-                              _HeaderCell('Check-Out'),
-                              _HeaderCell('Status'), // New Column
+                            children:  [
+                              _HeaderCell('Client Name'.tr),
+                              _HeaderCell('Visit Date'.tr),
+                              _HeaderCell('Check-In'.tr),
+                              _HeaderCell('Check-Out'.tr),
+                              _HeaderCell('Status'.tr), // New Column
                             ],
                           ),
                           // --- Data Rows ---

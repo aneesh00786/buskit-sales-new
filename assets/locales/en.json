@@ -440,7 +440,15 @@
   "Check-out and leave":"Check-out and leave",
   "You are offline. Your check-out will sync when online.":"You are offline. Your check-out will sync when online.",
   "Would you like to continue navigation to this customer?":"Would you like to continue navigation to this customer?",
-  "Search Order Id / Invoice No.":"Search Order Id / Invoice No."
+  "Search Order Id / Invoice No.":"Search Order Id / Invoice No.",
+   "Performance & Target": "Performance & Target",
+   "Timesheet":"Timesheet",
+   "Hrs":"Hrs",
+   "Client Name":"Client Name",
+   "Visit Date":"Visit Date",
+   "Customer/s":"Customer/s",
+    "Customer ID": "Customer ID",
+    "Business NO":"Business NO"
 
 
 

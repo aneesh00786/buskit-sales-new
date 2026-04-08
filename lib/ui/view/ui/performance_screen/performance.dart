@@ -147,7 +147,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
         title: Row(
           children: [
             CustomText(
-              content: "Performance & Target", // Change to whatever you want
+              content: "Performance & Target".tr, // Change to whatever you want
               fontWeight: FontWeight.bold,
             ),
             SizedBox(
@@ -404,7 +404,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             return OptionsWidget(
               options: [
                 OptionData(
-                    title: 'Timesheet',
+                    title: 'Timesheet'.tr,
                     month: _selectedMonthName,
                     unfilteredCount: "0",
                     count: targetContent?.timesheet?.toString() ?? '0',
@@ -412,7 +412,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     svgBgColor: const Color.fromARGB(255, 206, 252, 224),
                     onTap: targetContent?.timesheet?.toString() == '0'
                         ? () => showCustomToastDisplay(
-                            context, 'Record Not Found', red, Icons.close)
+                            context, 'Record Not Found'.tr, red, Icons.close)
                         : () {
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
@@ -432,7 +432,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 //           context, _selectedMonthName ?? '', 2, true),
                 // ),
                 OptionData(
-                    title: 'Visits',
+                    title: 'Visits'.tr,
                     width: 165.0,
                     month: _selectedMonthName,
                     unfilteredCount: "0",
@@ -441,7 +441,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     svgBgColor: const Color.fromARGB(255, 249, 219, 193),
                     onTap: targetContent?.visit?.toString() == '0'
                         ? () => showCustomToastDisplay(
-                            context, 'Record Not Found', red, Icons.close)
+                            context, 'Record Not Found'.tr, red, Icons.close)
                         : () {
                           int selectedYearInt = int.tryParse(selectedValue) ?? currentYear;
             int selectedMonthInt = staffController.tabController.index + 1;
@@ -454,7 +454,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             );
                           }),
                             OptionData(
-                  title: ' Visit Report',
+                  title: ' Visit Report'.tr,
                   month: _selectedMonthName,
                   unfilteredCount: "0",
                  count: targetContent?.visitReport?.toString() ?? '0',
@@ -466,7 +466,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   },
                 ),
                 OptionData(
-                  title: 'Customers',
+                  title: 'Customers'.tr,
                   unfilteredCount: "0",
                   count: targetContent?.customer?.toString() ?? '0',
                   svg: "assets/icons/customer.png",

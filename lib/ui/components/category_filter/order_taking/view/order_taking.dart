@@ -487,7 +487,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10),
                                       child: Text(
-                                        "Products",
+                                        "Products".tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -526,7 +526,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10),
                                       child: Text(
-                                        "Promotions",
+                                        "Promotions".tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -562,7 +562,7 @@ class _OrderTakingState extends State<OrderTaking>
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10),
                                 child: Text(
-                                  "Bulk",
+                                  "Bulk".tr,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -625,7 +625,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Products",
+                                    "Products".tr,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -663,7 +663,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Promotions",
+                                    "Promotions".tr,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -700,7 +700,7 @@ class _OrderTakingState extends State<OrderTaking>
                             padding:
                                 const EdgeInsets.symmetric(vertical: 10),
                             child: Text(
-                              "Bulk",
+                              "Bulk".tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -854,7 +854,7 @@ class _OrderTakingState extends State<OrderTaking>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomSearchBar(
-                          text: "Search customer...",
+                          text: "Search customer...".tr,
                           controller: customerSearchController,
                           onChange: (value) {
                             filterCustomers(value);

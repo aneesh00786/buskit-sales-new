@@ -71,9 +71,9 @@ class PromotionList extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          const Center(
+           Center(
             child: Text(
-              "Active Promotions",
+              "Active Promotions".tr,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

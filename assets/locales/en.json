@@ -415,7 +415,15 @@
        "friday":"friday",
        "saturday":"saturday",
        "Add to Calendar":"Add to Calendar",
-        "Cancel Visit": "Cancel Visit"
+        "Cancel Visit": "Cancel Visit",
+        "No Customer Selected":"No Customer Selected",
+        "Please select a customer to check-in.":"Please select a customer to check-in.",
+        "This item is out of stock.":"This item is out of stock.",
+        "'Do you want to add this as a booking?":"'Do you want to add this as a booking?",
+        "Select a promotion to see details":"Select a promotion to see details",
+         "Please Select a Customer": "Please Select a Customer",
+         "Bulk Price":"Bulk Price",
+         "You Save":"You Save"
 
 
 

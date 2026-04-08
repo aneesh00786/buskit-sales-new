@@ -56,8 +56,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         final promo = widget.controller.selectedPromotion.value;
 
         if (promo == null) {
-          return const Center(
-            child: Text("Select a promotion to see details"),
+          return  Center(
+            child: Text("Select a promotion to see details".tr),
           );
         }
 
@@ -640,13 +640,13 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             Center(
                                                 child: CustomText(
                                                     content:
-                                                        "Please Select a Customer",
+                                                        "Please Select a Customer".tr,
                                                     fontSize: 18)),
                                             TextButton(
                                               onPressed: () =>
                                                   Navigator.pop(context),
                                               child: CustomText(
-                                                  content: "Ok",
+                                                  content: "Ok".tr,
                                                   color: primaryColor),
                                             ),
                                           ],
@@ -661,9 +661,9 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                     borderRadius: BorderRadius.circular(10),
                                     color: primaryColor,
                                   ),
-                                  child: const Center(
+                                  child:  Center(
                                     child: Text(
-                                      "Select Products & Quantities",
+                                      "Select Products & Quantities".tr,
                                       style: TextStyle(
                                         color: white,
                                         fontSize: 20,
@@ -2148,14 +2148,14 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                               Center(
                                                   child: CustomText(
                                                       content:
-                                                          "Please Select a Customer",
+                                                          "Please Select a Customer".tr,
                                                       fontSize: 18)),
                                               TextButton(
                                                 onPressed: () {
                                                   Navigator.pop(context);
                                                 },
                                                 child: CustomText(
-                                                    content: "Ok",
+                                                    content: "Ok".tr,
                                                     color: primaryColor),
                                               ),
                                             ],
@@ -2170,9 +2170,9 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       borderRadius: BorderRadius.circular(10),
                                       color: primaryColor,
                                     ),
-                                    child: const Center(
+                                    child:  Center(
                                       child: Text(
-                                        "Add to Cart",
+                                        "Add to Cart".tr,
                                         style: TextStyle(
                                           color: white,
                                           fontSize: 20,
@@ -2281,14 +2281,14 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         Center(
                                             child: CustomText(
                                                 content:
-                                                    "Please Select a Customer",
+                                                    "Please Select a Customer".tr,
                                                 fontSize: 18)),
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
                                           child: CustomText(
-                                              content: "Ok",
+                                              content: "Ok".tr,
                                               color: primaryColor),
                                         ),
                                       ],
@@ -2303,9 +2303,9 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 borderRadius: BorderRadius.circular(10),
                                 color: primaryColor,
                               ),
-                              child: const Center(
+                              child:  Center(
                                 child: Text(
-                                  "Select Productsee",
+                                  "Select Products".tr,
                                   style: TextStyle(
                                     color: white,
                                     fontSize: 20,
@@ -2374,8 +2374,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Select Products & Quantities",
+                                 Text(
+                                  "Select Products & Quantities".tr,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -2387,7 +2387,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 ),
                                 if (promo.minOrderValue != null) ...[
                                   Text(
-                                    "MIN ORDER : ${formatAmount(promo.minOrderValue)}",
+                                    'MIN ORDER'.tr + ' : ${formatAmount(promo.minOrderValue)}',
                                     style: const TextStyle(
                                       color: Colors.yellow,
                                       fontSize: 12,
@@ -2703,7 +2703,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Total Items: ${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
+                                  'Total Items'.tr + ': ${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -2717,7 +2717,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Total Amount: ${formatAmount(_computeTotalAmount(selectedItems))}',
+                                  'Total Amount'.tr + ': ${formatAmount(_computeTotalAmount(selectedItems))}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -3109,8 +3109,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            child: const Text(
-                              "Add to Cart",
+                            child:  Text(
+                              "Add to Cart".tr,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -3379,8 +3379,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Select Products",
+                                   Text(
+                                    "Select Products".tr,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -3393,7 +3393,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                   if (minOrderAmount != null &&
                                       minOrderAmount != "") ...[
                                     Text(
-                                      "MIN ORDER : $minOrderAmount",
+                                      'MIN ORDER'.tr + ' : $minOrderAmount',
                                       style: const TextStyle(
                                         color: Colors.yellow,
                                         fontSize: 12,
@@ -3643,8 +3643,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Select Products",
+                                   Text(
+                                    "Select Products".tr,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -3657,7 +3657,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                   if (minOrderAmount != null &&
                                       minOrderAmount != "") ...[
                                     Text(
-                                      "MIN ORDER : $minOrderAmount",
+                                      'MIN ORDER'.tr + ' : $minOrderAmount',
                                       style: const TextStyle(
                                         color: Colors.yellow,
                                         fontSize: 12,
@@ -4346,13 +4346,13 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                         topRight: Radius.circular(10),
                       ),
                     ),
-                    child: const Row(
+                    child:  Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            "Select Products",
+                            "Select Products".tr,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -4697,7 +4697,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                               child: Row(
                                 children: [
                                   CustomText(
-                                    content: "Add to Cart",
+                                    content: "Add to Cart".tr,
                                     fontSize: fullScreenWidth(context) * 0.02,
                                     color: Colors.white,
                                   ),

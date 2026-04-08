@@ -118,7 +118,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
               ],
             ),
             const SizedBox(height: 12),
-            Text("Category: ${data.categoryName ?? 'N/A'}",
+            Text('Category'.tr + ': ${data.categoryName ?? 'N/A'}',
                 style: const TextStyle(
                     color: Colors.black, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
@@ -135,7 +135,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                   Row(
                     children: [
                       CustomText(
-                        content: "Product",
+                        content: "Product".tr,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
@@ -163,11 +163,11 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildPriceInfo("Quantity", "$qty"),
+                      _buildPriceInfo("Quantity".tr, "$qty"),
                       _buildPriceInfo(
-                          "Unit Price", "${formatAmount(unitPrice)}"),
+                          "Unit Price".tr, "${formatAmount(unitPrice)}"),
                       _buildPriceInfo(
-                          "Bulk Price", "${formatAmount(bulkPrice)}"),
+                          "Bulk Price".tr, "${formatAmount(bulkPrice)}"),
                     ],
                   )
                 ],
@@ -186,7 +186,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
               child: Center(
                 child: CustomText(
                   content:
-                      "You Save: ${formatAmount(savings.toStringAsFixed(2))} ($discountText)",
+                      'You Save'.tr + ': ${formatAmount(savings.toStringAsFixed(2))} ($discountText)',
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -324,7 +324,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Total:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+             Text("Total:".tr, style: TextStyle(color: Colors.grey, fontSize: 12)),
             Text(
               formatAmount(totalAmount.toStringAsFixed(2)),
               style: const TextStyle(
@@ -463,7 +463,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
              
               // minimumSize: const Size(double.infinity, 45), 
             ),
-            child: const Text("Add",
+            child:  Text("Add".tr,
                 style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
